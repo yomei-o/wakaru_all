@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不確定性 ── ℏ が張る最小の面積 ── わかる量子 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf6f4; --paper-edge:#ecd9d2;   /* 第5回：不確定性＝赤の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a4b2f;
+    --calc:#8a2f1c; --calc-bg:#f6e6e1;
+    --rule:#e2cbc3; --hair:#d3afa4;
+    --acc:#a83a22;    /* アクセント＝不確定性の赤 */
+    --grid:#efd9d1;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2c9bd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd3cc;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefaf8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6e6e1;color:#8a2f1c;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8ece7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7a2517;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefaf8,#f3e2db);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6e6e1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7a2517;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b5f5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる量子</span><span class="ep">第 5 回 ／ 不確定性 ── ℏ が張る最小の面積</span></div>
+  <p class="eyebrow">位置と運動量は同時に決まらない ── 測定の下手さではなく、波であることの宿命（フーリエの表・裏）</p>
+  <h1>不確定性 ── ℏ が張る最小の面積
+    <span class="sub">位置と運動量は、同時にはきっちり決まらない：Δx·Δp ≥ ℏ/2。測定を邪魔したからではない。<br>波は「狭い場所に集まる」ことと「決まった波長を持つ」ことを両立できない ── 短い音の音程が曖昧なのと同じ。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回 p=ℏk、第4回の波、フーリエ（狭い↔広い）</span>
+    <span>この回：Δx·Δp ≥ ℏ/2</span>
+  </div>
+
+  <p class="lead">前回の最後に予告した、連続と離散を結ぶ「フーリエの表・裏」── その核心が、この回の<strong>不確定性原理</strong> \(\Delta x\cdot\Delta p\ge\hbar/2\) です。位置 \(x\) と運動量 \(p\) は、同時にはきっちり決められない。よくある誤解は「観測すると乱れるから」。それも一部ありますが、本質はもっと深い ── <em>波である以上、避けられない</em>。狭い場所に集まった波（位置がはっきり）は、たくさんの波長を混ぜないと作れない（運動量がぼやける）。逆に、たった一つの波長の澄んだ波（運動量がはっきり）は、空間じゅうに広がってしまう（位置がぼやける）。短くはじいた音は音程が曖昧で、長く澄んだ音は「いつ鳴ったか」が曖昧 ── あれと同じことが、\(x\) と \(p\) の間で起きる。そして両者のぼやけの積の下限を握るのが、\(\hbar\)。位置と運動量の空間に、\(\hbar\) という<strong>最小の面積の粒</strong>があるのです。</p>
+
+  <h2><span class="n">01</span>位置と運動量、両方は決まらない ── でも測定のせいではない</h2>
+
+  <p>「電子の位置と速度を同時に正確に測れない」── これを「測るときに光をぶつけて乱すから」と説明するのを聞いたことがあるかもしれません。それは<em>ハイゼンベルクの顕微鏡</em>という別の（測定擾乱の）話で、不確定性の<strong>本体ではない</strong>。本体は、測る前から ── <em>そもそも、位置も運動量も両方きっちり定まった状態が、存在しない</em>。理由は、粒子が波（第2回の \(\psi\)）だからです。</p>
+
+  <h2><span class="n">02</span>波の宿命 ── 狭い波は、多くの波長でできている</h2>
+
+  <p>波には、動かしがたい性質があります。<strong>一箇所に集まった（狭い）波を作るには、いろんな波長の波をたくさん重ねないといけない</strong>。逆に、たった一つの波長の純粋な波は、空間じゅうに一様に広がる。これはフーリエが見抜いた、波の一般法則 ── 量子に限らず、音でも光でも成り立ちます。</p>
+
+  <div class="aside">
+    <span class="tag">音で聴く不確定性 ── 短い音 vs 長い音</span>
+    ピアノの鍵を<em>一瞬</em>だけ叩いた「ポッ」という短い音は、いつ鳴ったか（時刻＝位置）ははっきりだが、音程（振動数＝運動量にあたる）が曖昧でにごる。逆に、フルートの<em>長く伸ばした</em>澄んだ音は、音程はぴたりと決まるが「いつ鳴ったか」の一点は曖昧（ずっと鳴っている）。時間とその波（振動数）の間の、\(\Delta t\cdot\Delta\omega\ge1/2\)。これは楽器でも録音でも成り立つ、純粋に波の話。位置 \(x\) と波数 \(k\) の間の \(\Delta x\cdot\Delta k\ge1/2\) も、まったく同じ。</p>
+  </div>
+
+  <h2><span class="n">03</span>ℏ が、最小面積を張る</h2>
+
+  <p>波数と運動量は、第1回で \(p=\hbar k\) と結ばれていました。だから、純粋に波の事実 \(\Delta x\cdot\Delta k\ge1/2\) に \(\hbar\) を掛けるだけで、不確定性原理が出ます。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">不確定性原理 ── 位置と運動量のぼやけの積</div>
+    $$\Delta x\cdot\Delta p\ge\frac{\hbar}{2}$$
+    <p style="margin:8px 0 0;">波の事実 \(\Delta x\cdot\Delta k\ge1/2\) に、粒と波の両替レート \(p=\hbar k\)（第1回）を掛けたもの。位置を鋭く（\(\Delta x\) 小）すれば運動量がぼやけ（\(\Delta p\) 大）、その逆も。両者の積は、<strong>\(\hbar/2\) より小さくできない</strong>。位置と運動量の平面（位相空間）で、一つの量子状態は<em>面積 \(\sim\hbar\) より小さな点にはなれない</em>── \(\hbar\) が張る最小の面積の粒です。</p>
+  </div>
+
+  <p>この「位相空間の最小面積 \(\hbar\)」は、第1回の \(S/\hbar\) と地続きです。作用 \(S\) は位相空間の面積の次元をもち、\(S/\hbar\) は「状態がいくつ入るか（\(\hbar\) の粒が何個ぶんか）」を数えている。\(S\gg\hbar\)（古典）なら粒は無数にあってなめらか、\(S\sim\hbar\) なら粒がむき出し ── 第1回の物差しと、同じ \(\hbar\) の顔です。</p>
+
+  <h2><span class="n">04</span>動かしてみる ── 波束：位置を狭めると運動量が広がる</h2>
+
+  <p>下の図。左が<strong>位置での波束</strong>（どこにいそうか \(|\psi(x)|^2\)）、右が<strong>運動量での波束</strong>（どんな運動量を持ちそうか \(|\psi(p)|^2\)）。この二つは、同じ状態のフーリエの表・裏です。スライダーで位置のぼやけ \(\Delta x\) を変えてみてください。</p>
+
+  <p>\(\Delta x\) を狭める（位置をはっきりさせる）と、右の運動量の山が<em>広がる</em>（運動量がぼやける）。逆に \(\Delta x\) を広げると運動量が鋭くなる。二つのぼやけの積 \(\Delta x\cdot\Delta p\) は、どう動かしても <strong>\(\hbar/2\) を下回れない</strong>（この最小をぴったり実現するのがガウス型の波束）。位置と運動量は、片方を締めれば片方が緩む、\(\hbar\) でつながれた<em>シーソー</em>なのです。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝位置の波束 |ψ(x)|²、右＝運動量の波束 |ψ(p)|²（同じ状態のフーリエ表裏）。Δx を狭めると Δp が広がる。積 Δx·Δp は ℏ/2 を下回れない（ガウス波束で最小）</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>位置のぼやけ Δx <span class="val" id="vx">1.00</span>
+        <input type="range" id="sx" min="0.35" max="3" step="0.01" value="1">
+      </label>
+      <button id="bx">位置を鋭く</button>
+      <button id="bp">運動量を鋭く</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>位置 |ψ(x)|²</span>
+      <span><i class="swatch" style="background:#2f6d8c;"></i>運動量 |ψ(p)|²</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>帰結 ── 原子がつぶれない理由</h2>
+
+  <p>不確定性は、抽象論ではありません。<strong>世界の安定を支えています</strong>。古典では、原子の中の電子は、エネルギーを光として放ちながららせんを描いて原子核へ落ち込むはず（\(10^{-11}\) 秒で!）。ところが、電子を原子核の一点（\(\Delta x\to0\)）に閉じ込めようとすると、不確定性で運動量のぼやけ \(\Delta p\sim\hbar/\Delta x\) が跳ね上がり、運動エネルギー \(\sim\Delta p^2/2m\) が<em>爆発的に増える</em>。落ち込むほど損 ── だから電子は、ある大きさ（原子の半径）で"落ちきれずに"止まる。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 原子の大きさは、不確定性の釣り合い</span>
+    <p style="margin:2px 0 0;">閉じ込め \(\Delta x\sim r\) で運動エネルギー \(\sim\hbar^2/(2mr^2)\)（増える）と、電気の位置エネルギー \(\sim-e^2/(4\pi\varepsilon_0 r)\)（下がる）の綱引き。合計が最小になる \(r\) が ── ちょうど<strong>ボーア半径 \(\approx0.5\times10^{-10}\) m</strong>。</p>
+    <p style="margin-bottom:14px;">原子の大きさは、\(\hbar\) が張る不確定性と電気力の釣り合いで決まっている。<em>私たちの体に大きさがあるのは、\(\hbar\) のおかげ</em>。もし \(\hbar\to0\)（古典）なら、電子は核へ落ち、原子は ── 物質は ── 存在できない。</p>
+  </div>
+
+  <p>同じ理由で、量子は<strong>完全には静止できない</strong>（ゼロ点エネルギー）。\(\Delta x=0\) かつ \(\Delta p=0\) は不確定性が禁じるので、最低エネルギーの状態でも、わずかに"ふるえて"いる。絶対零度でもヘリウムが固まらないのも、これ。そして時間とエネルギーにも同じ関係 \(\Delta t\cdot\Delta E\ge\hbar/2\) があり ── 短い時間なら、エネルギーを"借りられる"。これが「わかる場」第3回で、力の射程 \(\lambda=\hbar/mc\) を出した、あの借金の正体です。\(\hbar\) の張る最小面積が、原子の大きさから力の射程まで、世界の寸法を決めている。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 不確定性の"何が"本質か</span>
+    <p style="margin-top:0;">\(\Delta x\cdot\Delta p\ge\hbar/2\)（ケナードの不等式）、これが波のフーリエ双対性（\(\Delta x\cdot\Delta k\ge1/2\)）＋\(p=\hbar k\) から出ること、ガウス波束が下限を飽和すること、位相空間の状態が面積 \(\sim h\) を占めること、時間・エネルギーの関係 \(\Delta t\cdot\Delta E\ge\hbar/2\)、原子の安定・大きさ（ボーア半径）・ゼロ点エネルギーが不確定性の帰結であることは、いずれも確立した物理です。</p>
+    <p style="margin-bottom:0;">用語の注意。 ① 本質は「測ると乱れる」ではなく、<strong>状態そのものが両方を鋭く持てない</strong>こと（フーリエ）。ただし測定に伴う擾乱（ハイゼンベルクの顕微鏡）や、測ることで状態が変わる話は<em>別の定理</em>で、近年は測定擾乱の関係式（小澤の不等式など）として区別されます。本稿の \(\hbar/2\) は状態の内在的なばらつき（標準偏差）の下限。 ② 位置と運動量のように積が \(\hbar/2\) で縛られるのは<strong>共役なペア</strong>だけ。\(x\) と \(y\) のように無関係な量は同時に決められます。 ③ 時間・エネルギー関係の \(\Delta t\) は、位置のような演算子でなく「変化にかかる時間」で、意味づけに注意が要ります。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の式だけで解けます）</div>
+    <ol>
+      <li>位置のぼやけ Δx を半分にすると、運動量のぼやけ Δp の下限はどうなるか（Δx·Δp≥ℏ/2）。
+        <details><summary>答えを見る</summary><div class="ans">下限が2倍になる（Δp≥ℏ/(2Δx)）。位置を鋭くするほど運動量がぼやける。積は ℏ/2 のまま下回れない。</div></details>
+      </li>
+      <li>不確定性は「観測が乱すから」ではない、というのはどういう意味か。
+        <details><summary>答えを見る</summary><div class="ans">測る前から、位置も運動量も両方きっちり定まった状態が存在しない（波なので、狭い位置と単一波長を両立できない＝フーリエ）。測定擾乱は別の定理で、不確定性の本体ではない。</div></details>
+      </li>
+      <li>なぜ原子はつぶれないのか。不確定性で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">電子を核の一点(Δx→0)に閉じ込めると Δp∼ℏ/Δx が急増し、運動エネルギー∼Δp²/2m が爆発。落ち込むほど損なので、電気力との釣り合いの半径（ボーア半径）で止まる。ℏ が原子の大きさを決める。</div></details>
+      </li>
+      <li>時間・エネルギーの不確定性 Δt·ΔE≥ℏ/2 は、「わかる場」の何とつながるか。
+        <details><summary>答えを見る</summary><div class="ans">短い時間 Δt なら ΔE∼ℏ/Δt のエネルギーを"借りられる"。これが「わかる場」第3回で力の射程 λ=ℏ/mc を出した借金の正体（担い手を借りて放り投げられる時間）。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第5回まとめ</span>Δx·Δp≥ℏ/2 ── 波の宿命、ℏ の最小面積</h2>
+    <p>不確定性原理 \(\Delta x\cdot\Delta p\ge\hbar/2\) は、測定擾乱ではなく<strong>波であることの宿命</strong>。狭い場所に集まった波は多くの波長の重ね合わせ（運動量がぼやける）、単一波長の澄んだ波は空間に広がる（位置がぼやける）── フーリエの表・裏（短い音は音程が曖昧、長い音は時刻が曖昧、と同じ）。波の事実 \(\Delta x\Delta k\ge1/2\) に \(p=\hbar k\) を掛けたもので、位相空間で一つの状態は<strong>面積 \(\sim\hbar\)</strong> より小さくなれない ── 第1回の \(S/\hbar\)（作用＝位相空間の面積）と同じ \(\hbar\) の顔。</p>
+    <p>これは世界の寸法を決めます。電子を核へ閉じ込めると \(\Delta p\) が跳ね上がり運動エネルギーが爆発するので、原子は<strong>ボーア半径でつぶれずに止まる</strong>── 物質に大きさがあるのは \(\hbar\) のおかげ。完全静止も禁じられ（ゼロ点エネルギー）、時間・エネルギーの \(\Delta t\Delta E\ge\hbar/2\) は「わかる場」の力の射程の借金そのもの。<em>連続な波（レコード）と、その波長成分（CD）は同じ状態の表裏で、その両立の限界を \(\hbar\) が張る</em> ── あなたの直感した二記述の核心です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第6回（最終回）</span>
+    「重ね合わせと測定 ── なぜ日常は古典か」。量子は複数の可能性を<em>重ね持つ</em>（生きた猫と死んだ猫を同時に）。でも、私たちが見るのはいつも片方だけ。なぜ? 測ると波が"選ばれる"（波束の収縮）とは何なのか。鍵は、量子が<strong>環境と絡み合う</strong>と、位相の足し算（干渉）がバラバラになって消える ── デコヒーレンス。巨視的な物は環境と激しく絡むので、\(S/\hbar\) が巨大なことと相まって、瞬時に古典に見える。\(\hbar\) の物語の締めくくり、そして「なぜ日常は古典か」の最終回答へ。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる量子」シリーズ第5回、物理好きの高校生・大学生向け読み物です。ケナードの不確定性関係 \(\Delta x\,\Delta p\ge\hbar/2\)、その起源がフーリエ双対性（\(\Delta x\,\Delta k\ge1/2\)）と \(p=\hbar k\) であること、ガウス波束による下限の飽和、位相空間セル面積 \(\sim h\)、時間・エネルギー関係 \(\Delta t\,\Delta E\ge\hbar/2\)、原子の安定性・ボーア半径・ゼロ点エネルギーが不確定性から従うことは、いずれも標準物理です。不確定性の本質は測定擾乱ではなく状態の内在的分散であること（測定擾乱は別の関係式、例：小澤の不等式で定式化）、束縛されるのは共役対だけで非共役な量は同時確定できること、時間・エネルギー関係の \(\Delta t\) は演算子でなく特徴的時間で解釈に注意を要することは本文「正直な線」に明記しました。図は最小不確定（ガウス）波束の位置表示と運動量表示（フーリエ変換対）の模式で、ℏ=1 の規格化で積 \(\Delta x\,\Delta p=1/2\) を保つよう描いています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ryoushi-04-schrodinger.html">第4回 シュレディンガーと量子化</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ba/wakaru-ba-03-shatei.html">わかる場 第3回（射程）</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では Δx を狭めると運動量 Δp が広がり、積は ℏ/2 を保ちます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sx=document.getElementById('sx'), vx=document.getElementById('vx'),
+      rd=document.getElementById('rd'), bxb=document.getElementById('bx'), bpb=document.getElementById('bp');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function gauss(ctx,x0,x1,yB,yT,center,sigma,color,fill){
+    ctx.strokeStyle=color; ctx.lineWidth=2.4; ctx.beginPath();
+    var span=x1-x0;
+    for(var px=x0;px<=x1;px+=2){
+      var u=((px-x0)/span-0.5)* (8);   // 表示域 ±4
+      var g=Math.exp(-0.5*Math.pow((u-center)/sigma,2));
+      var y=yB-(yB-yT)*g;
+      if(px===x0)ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+    if(fill){ ctx.lineTo(x1,yB); ctx.lineTo(x0,yB); ctx.closePath();
+      ctx.fillStyle=fill; ctx.fill(); }
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var dx=parseFloat(sx.value); vx.textContent=dx.toFixed(2);
+    var dp=0.5/dx;   // ℏ=1、最小不確定：Δp=ℏ/(2Δx)
+    ctx.clearRect(0,0,w,h);
+
+    var gap=24, pw=(w-gap-24-24)/2;
+    var L1=24, R1=L1+pw, L2=R1+gap, R2=L2+pw;
+    var yB=h-46, yT=30;
+
+    // 枠・軸
+    [[L1,R1,'位置 x','|ψ(x)|²','#a83a22'],[L2,R2,'運動量 p','|ψ(p)|²','#2f6d8c']].forEach(function(P){
+      ctx.strokeStyle='#e2cbc3'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(P[0],yB); ctx.lineTo(P[1],yB); ctx.stroke();
+      ctx.fillStyle='#6b5f5a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(P[2]+' →',(P[0]+P[1])/2,yB+18);
+      ctx.fillStyle=P[4]; ctx.font='bold 12px sans-serif'; ctx.fillText(P[3],(P[0]+P[1])/2,yT-10);
+    });
+
+    // ガウス：位置は幅 dx、運動量は幅 dp。表示スケール：σ を px 幅に対応
+    // 位置：σ_disp = dx（表示単位）。8単位表示なので sigma= dx / (8/1) ... gauss() は u単位で σ を受ける
+    gauss(ctx,L1,R1,yB,yT,0,dx,'#a83a22','rgba(168,58,34,0.14)');
+    gauss(ctx,L2,R2,yB,yT,0,dp,'#2f6d8c','rgba(47,109,140,0.14)');
+
+    // 幅の目盛り（±σ）
+    function widthbar(x0,x1,sigma,color){
+      var cx=(x0+x1)/2, span=x1-x0, half=sigma/8*span;
+      ctx.strokeStyle=color; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(cx-half,yB+6); ctx.lineTo(cx+half,yB+6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-half,yB+2);ctx.lineTo(cx-half,yB+10);
+      ctx.moveTo(cx+half,yB+2);ctx.lineTo(cx+half,yB+10); ctx.stroke();
+    }
+    widthbar(L1,R1,dx,'#a83a22'); widthbar(L2,R2,dp,'#2f6d8c');
+
+    var msg = dx<0.5 ? '位置を鋭く → 運動量が大きく広がる。' : dx>2.2 ? '位置を広げた → 運動量が鋭くなる。' : '';
+    rd.textContent='Δx = '+dx.toFixed(2)+' ／ Δp = ℏ/(2Δx) = '+dp.toFixed(2)
+      +' → 積 Δx·Δp = '+(dx*dp).toFixed(2)+' = ℏ/2（最小・ガウス波束）。 '+msg
+      +' 片方を締めれば片方が緩む ── ℏ でつながれたシーソー。';
+  }
+
+  sx.addEventListener('input', draw);
+  bxb.addEventListener('click', function(){ sx.value=0.4; draw(); });
+  bpb.addEventListener('click', function(){ sx.value=2.6; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
