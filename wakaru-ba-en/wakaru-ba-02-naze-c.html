@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why c ── speed is the square root of stiffness ÷ mass ── Fields That Click, Episode 2</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7f3; --paper-edge:#e7ddd0;   /* Episode 2: speed/bounce = warm paper */
+    --side:#4f6a3a; --side-bg:#eef3ea;
+    --warn:#7a3b2a;
+    --calc:#8a4a12; --calc-bg:#f6ece0;   /* calc color = old gold / orange */
+    --rule:#ddd2c2; --hair:#cabca6;
+    --acc:#b0561e;    /* accent = speed orange */
+    --grid:#ecdfce;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f1d3ac 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#28331f;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e6d6bf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 18px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6ece0;color:#7a4a12;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faf1e7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5a3512;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfbf8,#f3e9dc);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6ece0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5a3512;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b5f4f;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Fields That Click</span><span class="ep">Episode 2 / Why c ── speed is the square root of stiffness ÷ mass</span></div>
+  <p class="eyebrow">In Episode 1 we said news "walks." So then ── what decides that walking speed?</p>
+  <h1>Why c ── speed is the square root of stiffness ÷ mass
+    <span class="sub">A plucked string's sound, the ripples on water, light ── the speed of transmission is set by one and the same skeleton.<br><em>The square root of the ratio of stiffness to mass.</em> And when a field's "mass" pins to zero, the ratio hits the ceiling c.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you need: division and square roots, plus Episode 1's "only talks to its neighbors"</span>
+    <span>This episode's ratio: v/c = √(stiffness/mass) = √(k/m)</span>
+  </div>
+
+  <p class="lead">In Episode 1 we said that force travels through a field, and since a field <em>only talks to its neighbors</em>, news "walks" at the speed of light \(c\). So a naive question ── <strong>what decides that walking speed</strong>? Why 300,000 km per second, no faster and no slower? This episode's answer is disappointingly universal. The sound of a string, the waves of an earthquake, light ── the speed of transmission can all be written with <strong>the same single formula</strong> ── \(v=\sqrt{\text{stiffness}/\text{mass}}\). The stiffer, the faster; the heavier, the slower. That's all. And when you build this "stiffness" and "mass" for the electromagnetic field, \(c=1/\sqrt{\varepsilon_0\mu_0}\) just falls out. The <em>why</em> of "for some reason it travels at the speed of light" turns, this episode, into <em>inevitability</em>.</p>
+
+  <h2><span class="n">01</span>The speed of the telephone game ── how hard it pulls, and how hard it is to move</h2>
+
+  <p>Pluck the left end of a taut string. A dip runs to the right. Let's break down this "speed at which the dip runs" as a game of telephone. When one point dips, it <em>tries to pull its neighbor up</em>. This restoring strength is the <strong>stiffness \(k\)</strong> (for a string, the tension). But the neighbor has an <em>unwillingness to move</em>. This is the <strong>mass \(m\)</strong> (for a string, its density). Stiffness urges "pass it to the neighbor fast," and mass hits the brakes with "don't rush." The result of this tug-of-war is the speed of transmission ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The wave speed ── the skeleton common to all waves</div>
+    $$v=\sqrt{\dfrac{\text{stiffness}}{\text{mass}}}=\sqrt{\dfrac{k}{m}}$$
+    <p style="margin:8px 0 0;">Stiffness \(k\) is the <strong>numerator</strong> (bigger = faster), mass \(m\) is the <strong>denominator</strong> (bigger = slower). And both sit inside a <em>square root</em> ── quadruple the stiffness and the speed only doubles.</p>
+  </div>
+
+  <p>Why a square root, in one line. Stiffness \(k\) sets the "restoring force," mass \(m\) sets "how hard it is to accelerate." The speed of vibration (angular frequency) is \(\omega=\sqrt{k/m}\) ── the familiar spring pendulum. The wave speed is the speed at which that vibration transfers to the neighbor, so it wears the same \(\sqrt{k/m}\) face. <em>The \(\sqrt{k/m}\) of a spring pendulum and the \(\sqrt{k/m}\) of a wave speed are the same thing.</em></p>
+
+  <h2><span class="n">02</span>Stiffer is faster, heavier is slower ── check it around you</h2>
+
+  <p>With this one formula, you can read every "difference in speed" around you.</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── the same formula appears again and again with different faces</span>
+    <p class="lbl">A wave traveling on a string (tension T, linear density μ)</p>
+    $$v=\sqrt{\dfrac{T}{\mu}}\quad(\text{stiffness}=T,\ \text{mass}=\mu)$$
+    <p class="lbl">Sound traveling through air or a solid (bulk modulus K, density ρ)</p>
+    $$v=\sqrt{\dfrac{K}{\rho}}\quad(\text{stiffness}=K,\ \text{mass}=\rho)$$
+    <p style="margin-bottom:14px;">Tightening a guitar string (\(T\uparrow\)) raises the pitch because \(v\uparrow\). A thick string (\(\mu\uparrow\)) sounds low because \(v\downarrow\). Sound runs through iron about 15 times faster than through air because iron is "stiff (large \(K\)) and, in the ratio, light." <strong>The names differ, but the skeleton is always \(v=\sqrt{\text{stiffness}/\text{mass}}\).</strong></p>
+  </div>
+
+  <p>So far, waves in visible matter. Now at last ── to the speed of light, running through a vacuum that should hold nothing.</p>
+
+  <h2><span class="n">03</span>The speed of light too has the same skeleton ── c = 1/√(ε₀μ₀)</h2>
+
+  <p>The electromagnetic field also has "stiffness" and "mass." The electric field has a <em>reluctance to store up</em> charge, and this is the electrical <strong>stiffness</strong> (the reciprocal of the vacuum permittivity \(\varepsilon_0\), i.e. \(1/\varepsilon_0\)). The magnetic field has a <em>stickiness</em> = inertia resisting changes in current, and this is the magnetic <strong>mass</strong> (the vacuum permeability \(\mu_0\)). Put into the same skeleton ──</p>
+
+  <div class="keybox">
+    <div class="lbl">The speed of the electromagnetic wave (light)</div>
+    $$c=\sqrt{\dfrac{\text{electric stiffness}}{\text{magnetic mass}}}=\sqrt{\dfrac{1/\varepsilon_0}{\mu_0}}=\dfrac{1}{\sqrt{\varepsilon_0\mu_0}}$$
+    <p style="margin:8px 0 0;">Stiffness \(=1/\varepsilon_0\), mass \(=\mu_0\). Even letter for letter, it is the same as the string's \(\sqrt{T/\mu}\).</p>
+  </div>
+
+  <p>Let's plug in numbers. Two constants measurable on a lab bench, with no connection to light ── \(\varepsilon_0=8.85\times10^{-12}\), \(\mu_0=1.26\times10^{-6}\) ──</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── the speed of light comes out of the electric and magnetic constants alone</span>
+    $$c=\dfrac{1}{\sqrt{(8.85\times10^{-12})(1.26\times10^{-6})}}\approx 3.0\times10^{8}\ \text{m/s}$$
+    <p style="margin-bottom:14px;">Using no light at all, the speed computed from an electricity experiment and a magnetism experiment alone was <strong>the speed of light itself</strong>, which had been measured beforehand. This is Maxwell's trembling line of 1862 ── "This speed agrees exactly with the speed of light. We can hardly avoid the conclusion that <em>light is an electromagnetic wave</em>." The true identity of light was the electromagnetic field's game of telephone.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Correspondence table ── "stiffness/mass" survives even when you switch fields</span>
+    String: stiffness \(T\), mass \(\mu\). Sound: stiffness \(K\), mass \(\rho\). Electromagnetic field: stiffness \(1/\varepsilon_0\), mass \(\mu_0\). ── The field changes, but the <strong>form of the ratio</strong> \(v=\sqrt{\text{stiffness}/\text{mass}}\) alone stays invariant. The constants with units (\(T,\mu,\varepsilon_0,\mu_0\)) are stage sets; what decides the physics is the <em>ratio</em>. Episode 1's "quantities with units are stage sets" is at work here too.
+  </div>
+
+  <h2><span class="n">04</span>Let's play with it ── stiffness and mass change the speed</h2>
+
+  <p>The figure below is a race. The <strong>top lane</strong> is a "spring chain" whose stiffness \(k\) and mass \(m\) you can freely change. The <strong>bottom lane</strong> is the reference: <strong>light</strong> traveling through a vacuum (speed \(c\), unchangeable). They start at the same time ── which reaches the finish line first?</p>
+
+  <p>Raise the stiffness \(k\) with the slider and the spring chain's pulse gets <em>faster</em>. Raise the mass \(m\) and it gets <em>slower</em>. The displayed speed ratio is exactly \(v/c=\sqrt{k/m}\). When \(k=m\) (the default), the ratio is 1 ── it runs neck and neck with light. When stiffness and mass balance, that field's wave has the same speed as light. "Why c" is: "c is that field's own \(\sqrt{k/m}\), set by the electromagnetic field's stiffness and mass."</p>
+
+  <div class="fig">
+    <div class="cap">Figure: a race between the spring chain's wave (top, adjustable stiffness k / mass m) and light traveling through a vacuum (bottom, reference c). The speed ratio is v/c = √(k/m). Raise k for faster, m for slower. Whoever reaches the finish line first is "faster"</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>stiffness k <span class="val" id="vk">1.00</span>
+        <input type="range" id="sk" min="0.2" max="5" step="0.05" value="1">
+      </label>
+      <label>mass m <span class="val" id="vm">1.00</span>
+        <input type="range" id="sm" min="0.2" max="5" step="0.05" value="1">
+      </label>
+      <button id="play">⏸ Pause</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0561e;"></i>spring chain's wave (v = c·√(k/m))</span>
+      <span><i class="swatch" style="background:#2f6d8c;"></i>light (vacuum) = reference c</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>Why a "ceiling" ── reading c dimensionlessly</h2>
+
+  <p>Speed itself (m/s) has units. Strip the units and turn it into a <em>ratio</em>, and this episode's star appears ── compared to light, how much slower is that wave?</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The slowness ratio ── refractive index n (unitless)</div>
+    $$n=\dfrac{c}{v}\;(\geq 1)$$
+    <p style="margin:8px 0 0;">In a vacuum (the electromagnetic field with nothing added), \(n=1\) ── this is the <strong>ceiling</strong>. In glass or water, the electrons are shaken by the field and <em>move along with it</em>, adding extra "mass" so that \(v<c\), that is \(n>1\). Light bends (refracts) in glass because this \(n\) is greater than 1.</p>
+  </div>
+
+  <p>Here is the heart of "the ceiling." A medium can only <em>add</em> extra mass (the inertia of the moving charges). Add mass and \(v\) drops, \(n\) rises ── so <strong>in a vacuum, i.e. when the extra mass is zero, the speed pins to its maximum \(c\)</strong>. When nothing is added, it is fastest. Episode 6's Higgs field and next episode's mass are, in fact, both stories of "adding mass to a field" ── a field given mass becomes slower than \(c\), and even its reach shrinks. Conversely, <strong>a massless field (the photon) hits the ceiling of the ratio, runs at exactly \(c\), and reaches the infinite beyond</strong>. The <em>why</em> of "for some reason light-speed" was the <em>inevitability</em> that "the field's mass is zero, so \(\sqrt{k/m}\) hits the ceiling."</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── where it's rigorous, and where it becomes a "metaphor"</span>
+    <p style="margin-top:0;">\(v=\sqrt{\text{stiffness}/\text{mass}}\) is a <strong>rigorous skeleton genuinely common to all waves</strong> ── strings, sound, electromagnetic waves, water waves (it comes from the wave equation). \(c=1/\sqrt{\varepsilon_0\mu_0}\), the refractive index \(n=c/v\geq1\), that a medium lowers \(v\), that the photon is massless and gives \(c\) ── all established physics.</p>
+    <p style="margin-bottom:0;">Two points, honestly, though. ① The electromagnetic field is not <em>a substance called the ether quivering</em>. The 19th century imagined it so, but experiment (Michelson–Morley) denied it. \(\varepsilon_0,\mu_0\) are <strong>properties of the vacuum = the field itself</strong>, and "stiffness/mass" is a rigorous <em>metaphor</em> for the field (mathematically isomorphic to an electric circuit's \(v=1/\sqrt{LC}\)) ── take it that way. ② This episode explained "<em>why that wave gives \(c\)</em>," but "<em>why \(c\) is this universe's absolute speed limit</em> (no information can exceed \(c\))" is a deeper matter of relativity = the structure of spacetime, for another time. Here, get a firm grip on "a massless field has its \(\sqrt{k/m}\) reach the maximum."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with only this episode's formulas)</div>
+    <ol>
+      <li>A string's tension \(T\) was quadrupled. By what factor does the wave speed \(v=\sqrt{T/\mu}\) change?
+        <details><summary>See the answer</summary><div class="ans">\(\sqrt{4}=2\) times. Since it's inside a square root, quadruple stiffness only doubles the speed. Read the other way: to merely double the speed, the tension need only be \(\sqrt2\) times.</div></details>
+      </li>
+      <li>In the spring chain, stiffness \(k\) was doubled and mass \(m\) was multiplied by 8. By what factor does the speed ratio \(v/c=\sqrt{k/m}\) change from the original?
+        <details><summary>See the answer</summary><div class="ans">\(\sqrt{(2)/(8)}=\sqrt{1/4}=1/2\). Half the original speed. Even making it stiffer (faster), if you make it heavier (slower) by more, the net is slower ── what matters is only the <strong>ratio</strong> of \(k\) to \(m\).</div></details>
+      </li>
+      <li>A certain glass has refractive index \(n=1.5\). By what factor is the speed of light \(v\) in the glass, relative to vacuum? Why does it become less than 1?
+        <details><summary>See the answer</summary><div class="ans">\(v=c/n=c/1.5\approx0.67\,c\). About 2/3 of vacuum. In glass, electrons shaken by the field move along with it, adding extra "mass (inertia)," so \(v<c\), \(n>1\). A concrete case of "add mass, get slower."</div></details>
+      </li>
+      <li>"Only in a vacuum is \(n=1\), and that is the maximum speed." Explain this fact in one line in the language of \(v=\sqrt{\text{stiffness}/\text{mass}}\).
+        <details><summary>See the answer</summary><div class="ans">A medium can only add "extra mass" to the field, and adding mass lowers \(v\). So in a vacuum, which adds nothing (extra mass zero), \(v\) is maximal = \(c\), \(n=1\). "The ceiling" means "the state of zero mass."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 2 summary</span>Speed is √(stiffness/mass) ── c is the ratio pinned at its ceiling</h2>
+    <p>What decides the speed of the news that "walked" in Episode 1? The answer is universal: <strong>the speed of any wave \(=\sqrt{\text{stiffness}/\text{mass}}=\sqrt{k/m}\)</strong>. Stiffness in the numerator (faster), mass in the denominator (slower), both inside a square root. String \(\sqrt{T/\mu}\), sound \(\sqrt{K/\rho}\), electromagnetic field \(\sqrt{(1/\varepsilon_0)/\mu_0}=1/\sqrt{\varepsilon_0\mu_0}=c\) ── the names differ but the skeleton is one. Maxwell got \(c\) from the electric and magnetic constants alone and saw that light is an electromagnetic wave.</p>
+    <p>Strip the units into a ratio and you get the refractive index \(n=c/v\geq1\). A medium can only <em>add extra mass</em> to the field, so \(v\) drops and \(n>1\). Hence <strong>in a massless vacuum the speed pins to its maximum \(c\)</strong>. The <em>why</em> of "for some reason it travels at the speed of light" was the <em>inevitability</em> that "the carrier (photon) has zero mass, so \(\sqrt{k/m}\) hits the ceiling." <em>The unit-bearing \(T,\varepsilon_0,\mu_0\) are stage sets; what decides the physics is the ratios \(\sqrt{k/m}\) and \(n\)</em> ── the second step in reading a field through ratios.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 3</span>
+    "Mass is the field's brake ── range is ℏ/mc." This time we said a massless field reaches infinity at \(c\). So what happens when the carrier is <em>heavy</em>? A heavy field, while running, <strong>runs out of breath</strong> and decays, and its reach shrinks (Yukawa). That reach = range is a length set by the mass \(m\): \(\lambda=\hbar/mc\). Why electromagnetism reaches the edge of the universe while the weak force works only within a range smaller than an atomic nucleus ── that difference too can be read with just one brake called mass and the ratio of range to distance. On to the story of "a field given mass."
+  </div>
+
+  <div class="foot">
+    This document is Episode 2 of the "Fields That Click" series, a reading piece for high-schoolers and undergrads who love physics. That the phase speed of a wave derived from the wave equation takes the form \(v=\sqrt{\text{restoring coefficient}/\text{inertia}}\) (string \(v=\sqrt{T/\mu}\), sound \(v=\sqrt{K/\rho}\), electromagnetic wave \(c=1/\sqrt{\varepsilon_0\mu_0}\)), that Maxwell derived the speed of light from the electromagnetic constants and established the electromagnetic theory of light, that the refractive index \(n=c/v\geq1\) and the phase speed drops in a medium, and that the photon has zero rest mass and propagates at \(c\) in a vacuum, are all established standard physics. The picture treating the electromagnetic field as a mechanical medium called the "ether" has been denied since the Michelson–Morley experiment, and \(\varepsilon_0,\mu_0\) are properties of the vacuum (the field) itself. The "stiffness/mass" correspondence is a metaphor based on the mathematical isomorphism with a transmission line's \(v=1/\sqrt{LC}\) (\(1/\varepsilon_0\!\leftrightarrow\!1/C\), \(\mu_0\!\leftrightarrow\!L\)); that \(c\) is itself the absolute limit of information transfer originates from special relativity (the structure of spacetime) and is beyond the reach of this episode's mechanical explanation. The figure is a schematic of the pulse propagation speed ratio \(v/c=\sqrt{k/m}\), not a numerical solution of the lattice's rigorous equations of motion. ── To print, use your browser's "Print" → "Save as PDF" (in the print version the sliders and answers are frozen or hidden). Adjacent episodes: <a href="wakaru-ba-01-okure.html">Episode 1 Delay</a> / <a href="index.html">Contents</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make PDF: ⌘+P (Ctrl+P on Windows). On screen, the stiffness k and mass m sliders change the speed of the spring chain's wave (= the speed ratio to light √(k/m)). "See the answer" opens the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), sm=document.getElementById('sm'),
+      vk=document.getElementById('vk'), vm=document.getElementById('vm'), rd=document.getElementById('rd'),
+      play=document.getElementById('play');
+  var running=true, t=0, lastReal=null;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function bump(x, center, sig){ var u=(x-center)/sig; return Math.exp(-0.5*u*u); }
+
+  function lane(ctx, w, x0, x1, baseY, center, amp, color, chain){
+    var sig=w*0.032;
+    // rest line + (if spring chain) beads
+    ctx.strokeStyle='#e7dccb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x0,baseY); ctx.lineTo(x1,baseY); ctx.stroke();
+    // pulse curve
+    ctx.strokeStyle=color; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var px=x0; px<=x1; px+=2){
+      var y=baseY - amp*bump(px, center, sig);
+      if(px===x0) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+    if(chain){
+      ctx.fillStyle=color;
+      for(var i=0;i<=22;i++){
+        var bx=x0+(x1-x0)*i/22;
+        var by=baseY - amp*bump(bx, center, sig);
+        ctx.beginPath(); ctx.arc(bx,by,2.6,0,7); ctx.fill();
+      }
+    }
+    // leading marker
+    ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc(center, baseY - amp, 4.5, 0, 7); ctx.fill();
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var k=parseFloat(sk.value), m=parseFloat(sm.value);
+    vk.textContent=k.toFixed(2); vm.textContent=m.toFixed(2);
+    var ratio=Math.sqrt(k/m);              // v/c
+    var x0=w*0.09, x1=w*0.90;
+    var Ltrav=x1-x0;
+    var Tbase=3.2;                          // seconds for light to run end to end
+    var cpx=Ltrav/Tbase;                    // speed of light (px/s)
+    var vA=cpx*ratio;                       // spring chain speed (px/s)
+    var vmax=Math.max(vA,cpx);
+    var tEnd=Ltrav/vmax;                    // time when the faster one reaches the finish line
+    if(t>tEnd) t=0;                          // reset
+    var posA=x0+vA*t, posB=x0+cpx*t;
+    posA=Math.min(posA,x1+1); posB=Math.min(posB,x1+1);
+
+    var yA=h*0.34, yB=h*0.70, amp=h*0.15;
+    // finish line
+    ctx.strokeStyle='#cabca6'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(x1,20); ctx.lineTo(x1,h-24); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#8a7a5a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('finish line', x1, 14); ctx.textAlign='left';
+
+    lane(ctx,w,x0,x1,yA,posA,amp,'#b0561e',true);
+    lane(ctx,w,x0,x1,yB,posB,amp,'#2f6d8c',false);
+
+    ctx.fillStyle='#7a4a12'; ctx.font='12px sans-serif';
+    ctx.fillText('spring chain wave (stiffness k, mass m)', x0, yA+34);
+    ctx.fillStyle='#1f5a6a';
+    ctx.fillText('light (vacuum) = reference c', x0, yB+34);
+
+    var n=1/ratio;
+    var verdict = Math.abs(ratio-1)<0.03 ? 'ratio = 1 ── running with light. A field where stiffness and mass balance moves at the same speed as light.'
+                : ratio>1 ? 'the spring chain is faster (k exceeds m). *This is a mechanical model so it can exceed c, but nature’s massless field reaches exactly c.'
+                : 'the spring chain is slower (m exceeds k). Add mass and it slows ── the world of refractive index n>1.';
+    rd.textContent='stiffness k = '+k.toFixed(2)+' / mass m = '+m.toFixed(2)
+      +' → speed ratio v/c = √(k/m) = '+ratio.toFixed(2)
+      +' / slowness ratio n = c/v = '+n.toFixed(2)+'. '+verdict;
+  }
+
+  function frame(real){
+    if(lastReal==null) lastReal=real;
+    var dt=(real-lastReal)/1000; lastReal=real;
+    if(dt>0.05) dt=0.05;
+    if(running) t+=dt;
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  play.addEventListener('click', function(){
+    running=!running;
+    play.textContent = running ? '⏸ Pause' : '▶ Play';
+  });
+  sk.addEventListener('input', draw);
+  sm.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

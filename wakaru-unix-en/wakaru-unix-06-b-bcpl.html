@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B and BCPL — the Escape Route of Intermediate Code | A History of UNIX That Clicks, Episode 6</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf6fb; --paper-edge:#e8dcec;   /* Episode 6: violet paper */
+    --side:#1f7a6e; --side-bg:#e7f2ef;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#e0cfe6; --hair:#cdb6d6;
+    --acc:#7d3b8f;    /* Episode 6 accent = violet */
+    --grid:#e6d5ec;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecd3f0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f0e8f2;border:1px solid #e8dcec;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#173e37;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#ece1ef;color:#5c3568;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f1e7f4;color:#5c2e6a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f6f0f8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfbff,#ece2f0);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f1e7f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5c2e6a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 6 / The Escape Route of Intermediate Code</span></div>
+  <p class="eyebrow">B, the foundation that grew C. Where did that B come from?</p>
+  <h1>B and BCPL — the Escape Route of Intermediate Code
+    <span class="sub">C's parent, B, was a child of Martin Richards's <strong>BCPL</strong>. And BCPL had an invention that anticipated Episode 4's EM by years — an intermediate code called <strong>O-code</strong>. "When the machine changes, you don't have to rebuild all the way to the middle." <em>An old, strong escape route that underpinned porting and bootstrapping.</em></span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 4 (EM), Episode 5 (B→C)</span>
+    <span>The reveal: place a "machine-independent island" in the middle</span>
+  </div>
+
+  <p class="lead">In Episode 5 we saw C grow out of B, and ended by leaving open the question "so what did B come from?" The answer is <strong>BCPL</strong>, a language Martin Richards created in 1967. In fact, Ken Thompson at first tried to write a Fortran compiler for the PDP-7, couldn't fit it in memory, and pared BCPL right down into <em>typeless (a single word)</em> B. And BCPL had this episode's star — an <em>intermediate code</em> called <strong>O-code</strong>. It's a much older ancestor of the "wedge something into the middle" idea we saw with EM in Episode 4. This escape route was the "porting magic" that appears again and again on our journey back up the chicken and egg.</p>
+
+  <h2><span class="n">01</span>The family tree continues — CPL → BCPL → B → C</h2>
+
+  <p>Let's go back one more step in Episode 5's family tree. C's ancestry is a single road.</p>
+
+  <div class="term">
+<span class="c">/* language family tree (continued) */</span>
+CPL   ──▶  <span class="o">BCPL</span>   <span class="c">// Martin Richards, 1967, Cambridge. Designed for portability</span>
+BCPL  ──▶  B      <span class="c">// Thompson, 1969. Simplified from BCPL, typeless (one word), PDP-7</span>
+   B  ──▶  C      <span class="c">// Ritchie (Episode 5). Added types to reach C</span>
+  </div>
+
+  <p>B was a language that "narrowed BCPL's semantics and packed them into a different notation." The earliest PDP-7 version was compiled to threaded code, and later Ritchie used a tool called <em>TMG</em> (a compiler for building compilers) to write a B compiler that emitted machine code. — Tools, too, have their own tools. The ring really does continue endlessly.</p>
+
+  <h2><span class="n">02</span>BCPL's invention — an intermediate code called O-code</h2>
+
+  <p>The reason BCPL is remembered in the history of compilers lies not in the language itself but in <strong>how the compiler was built</strong>. Richards clearly split the BCPL compiler into <em>two parts (actually three stages)</em> — the first half reads the source and emits <strong>O-code (a machine-independent intermediate code)</strong>, and the second half translates that O-code into <em>machine code for that particular machine</em>. It is exactly the same skeleton as ACK/EM in Episode 4.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The O-code pipeline. The front end (BCPL→O-code) is machine-independent and shared. Change the machine, and all you swap is the back end (O-code→machine code) — about 1/5 of the compiler.</div>
+    <canvas id="cvPipe" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-m="0">For PDP-11</button>
+      <button class="btnmini seg" data-m="1">For VAX</button>
+      <button class="btnmini seg" data-m="2">For System/360</button>
+      <button class="btnmini seg" data-m="3">For a new machine</button>
+    </div>
+    <div class="readout" id="rdPipe"></div>
+  </div>
+
+  <div class="calc">
+    <span class="tag">The concrete numbers O-code gave us</span>
+    <p style="margin-top:8px;">When moving BCPL to a new machine, what you rewrite is <strong>about 1/5 of the compiler (just the back end)</strong>. By the estimates of the day, that was <em>2–5 person-months</em>. The remaining 4/5 (the front end) knows nothing about the machine, so it can be reused as is.</p>
+    <p style="margin:8px 0 14px;">As a result, the BCPL compiler was <strong>itself written in BCPL and easy to port</strong>. That's why it became, at the time, "<em>the go-to language for bootstrapping a new system</em>." In 2003 Richards was honored for this achievement ("pioneering the portability of system software via BCPL"). This is the very theme of our series.</p>
+  </div>
+
+  <h2><span class="n">03</span>The reveal — the escape route is really a "machine-independent island"</h2>
+
+  <p>The true nature of intermediate code is to <strong>place one "island that knows nothing of the machine" between the source language and machine code</strong>. The front end only has to carry things to the island; it needn't know about the machine. Knowledge of the machine is <em>quarantined</em> in the back end. So when the machine changes, you only re-bridge from the island onward (the back end).</p>
+
+  <div class="keybox">
+    <div class="lbl">This episode's crux — line up the names of the family</div>
+    <p style="margin:6px 0 0;">This "machine-independent island" appears again and again under different names — <strong>O-code</strong> (BCPL, 1967) → Pascal's <strong>P-code</strong> → Episode 4's <strong>EM</strong> (ACK) → <strong>JVM bytecode</strong> → <strong>LLVM IR</strong> (<code>clang</code>) → <strong>WebAssembly</strong>. It's one and the same invention, running through half a century. In the bootstrapping context its effect is especially vivid — <em>build up to the island, and on a new machine you only bridge the last short span (a small back end / interpreter)</em>.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>Crossing from machine to machine via the escape route</h2>
+
+  <p>Where O-code truly shows its power is <strong>in carrying the compiler itself to a new machine</strong>. Because O-code is machine-independent, if you keep the compiler in O-code form, you can <em>carry it</em> straight to a new machine. All that's left is to prepare, on the new machine, a small receiver (the second half that runs O-code). In the figure below, follow how the crossing works, step by step.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: From machine to machine via O-code. Turn the BCPL compiler into O-code, carry it to the new machine, write one small receiver, and the compiler starts running there — the principle-level version of Episode 8's "carry it on paper tape."</div>
+    <canvas id="cvPort" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Advance the porting step<span class="val" id="vPort">① A BCPL compiler running on existing machine A</span>
+        <input type="range" id="port" min="0" max="4" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdPort"></div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Bridging voice — this is the "principle" of Episode 8</span>
+    "Put it into a machine-independent form, carry it to another machine, and receive it on the other side" — this storyline is just like <strong>how the first Unix was made</strong>, which we'll see in Episode 8. There, the result assembled on a different machine was physically carried to a PDP-7, punched as holes in <em>paper tape</em>. The only difference is whether what's carried is O-code or paper tape; the skeleton — <strong>"make it elsewhere and hand it over" = the cross approach</strong> — is the same. Intermediate code was a trick to make that handoff lighter (we dig deeper in the bonus episode "Cross-compilation").
+  </div>
+
+  <h2><span class="n">05</span>And yet, below the escape route lies the machine</h2>
+
+  <p>O-code makes porting lighter, but it does not make the chicken and egg vanish (the same caveat as Episode 4). <strong>On a new machine, you ultimately have to prepare "the first receiver that runs O-code," in machine code.</strong> And who builds that receiver? — From here on, the magic of intermediate code stops working. B, BCPL — at the very bottom they run on <strong>assembly language</strong>, and then on the first Unix itself. From next time, we finally descend <em>below the language, just above the machine</em>.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line — carefully</span>
+    <p style="margin-top:0;">(1) "About 1/5" and "2–5 person-months" are representative estimates of the day, and vary by machine and era. The skeleton (the front end is shared, only the back end is swapped) is the substance. (2) We said the BCPL compiler "splits into two," but it was actually a <em>three-stage</em> structure, and O-code is the name of the middle stage. A simpler intermediate form (an interpreter-based approach) was also provided to make porting much lighter. Here we prioritize the skeleton.</p>
+    <p style="margin-bottom:0;">(3) It's true that B is "a simplification of BCPL," but Thompson's own tastes and the influence of an earlier language (bon) are also mixed in. The family tree is not a single thin thread but a bundle. (4) Intermediate code only makes porting easier; <strong>the first receiver (machine code) and the first machine still have to be prepared separately</strong> — the chicken and egg is merely passed down a stage, the same point as Episodes 3 and 4.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>List C's family tree from CPL to C.
+        <details><summary>Show the answer</summary><div class="ans">CPL → BCPL (Richards, 1967) → B (Thompson, 1969, typeless) → C (Ritchie).</div></details>
+      </li>
+      <li>Wedge in O-code, and what do you rewrite when porting to a new machine? Roughly how much?
+        <details><summary>Show the answer</summary><div class="ans">Just the back end (O-code→machine code). About 1/5 of the compiler. The front end (about 4/5) is machine-independent, so it's reusable.</div></details>
+      </li>
+      <li>Place a "machine-independent island," and where does knowledge of the machine collect?
+        <details><summary>Show the answer</summary><div class="ans">It's quarantined in the back end (island→machine code). The front end gets by without knowing the machine, handling everything up to the island (the intermediate code).</div></details>
+      </li>
+      <li>Does O-code solve the "chicken and egg"? How does it connect to Episode 8?
+        <details><summary>Show the answer</summary><div class="ans">It doesn't. A new machine still needs a first receiver (machine code) separately. The skeleton of "make it elsewhere and carry it" is the same as the cross approach in Episode 8, carrying paper tape from another machine to the PDP-7.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Place an island in the middle, and when the machine changes you only re-bridge</h2>
+    <p>The B that grew C was a child of Martin Richards's <strong>BCPL</strong> (1967). B was what came from Thompson failing at a Fortran compiler on the PDP-7 and simplifying BCPL into a typeless language (CPL→BCPL→B→C). BCPL's true worth lay in how its compiler was built: the first half emits <strong>O-code (a machine-independent intermediate code)</strong>, and the second half translates it into machine code. For a new machine you only rewrite the back end (about 1/5, 2–5 person-months), which is why BCPL became <em>the go-to language for bootstrapping</em>.</p>
+    <p>The true nature of intermediate code is to place a "machine-independent island" in the middle and quarantine knowledge of the machine in the back end. From O-code → P-code → EM → JVM → LLVM IR → WASM, it's the same invention running through half a century. What's more, O-code becomes an escape route for <em>carrying the compiler to another machine</em> — the principle-level version of Episode 8's first Unix, "carried on paper tape." But below the escape route, a new machine still needs <strong>a first receiver (machine code)</strong> prepared separately, and the chicken and egg is passed down a stage. — Next time, at last, below the language: <strong>the first Unix, written in assembly</strong>.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 7</span>
+    "The First Unix — an OS Written in Assembly." In 1969, when neither C nor B existed, Ken Thompson wrote the first Unix in the <strong>assembly language</strong> of the PDP-7. Kernel, shell, and editor — all in the words just above machine code. We'll see the bare starting point, with every rung of the language ladder removed. The bottom is close now.
+  </div>
+
+  <div class="foot">
+    This document is Episode 6 of the series "A History of UNIX That Clicks." Historical notes: BCPL was a language first implemented by Martin Richards at the University of Cambridge in 1967, derived from CPL. The BCPL compiler was structured (actually in three stages) so that the front end generates a machine-independent intermediate code, O-code (OCODE), and the back end converts it into the machine code of the target machine; the rewrite needed to support a new machine was about 1/5 of the compiler, estimated at the time as 2–5 person-months. Because the BCPL compiler was itself written in BCPL and easy to port, it was widely used for bootstrapping systems. Richards received the IEEE Computer Society's Computer Pioneer Award in 2003 for "pioneering the portability of system software via BCPL." B was a direct descendant of BCPL created by Ken Thompson at Bell Labs in 1969; an initial attempt at a Fortran compiler for the PDP-7 wouldn't fit in memory, and it became a typeless language (its only data type the computer word) that simplified BCPL. The earliest PDP-7 implementation was compiled to threaded code, and Ritchie wrote a B compiler generating machine code using TMG. The design of passing through an intermediate code connects to P-code, EM, JVM bytecode, LLVM IR, and WebAssembly. There is a range of accounts and estimates on the numbers, the number of stages, and the details of the family tree. — To print, use your browser's "Print" and "Save as PDF" (in the printed version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use Figure 1's buttons to change the target machine (only the back end is swapped), and Figure 2's slider to trace porting between machines via O-code. "Show the answer" reveals each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: O-code pipeline ============ */
+  (function(){
+    var cv=document.getElementById('cvPipe'), rd=document.getElementById('rdPipe');
+    if(!cv) return;
+    var MACH=[{l:'PDP-11',col:'#2166a0'},{l:'VAX',col:'#1f7a6e'},{l:'System/360',col:'#a85f18'},{l:'New machine',col:'#a83a22'}];
+    var sel=0;
+    function box(ctx,x,y,w,h,fill,stroke,lw){ ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=lw||1.8; rr(ctx,x,y,w,h,8); ctx.fill(); ctx.stroke(); }
+    function arrow(ctx,x0,x1,y,col){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1-2,y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1-9,y-5); ctx.lineTo(x1-9,y+5); ctx.closePath(); ctx.fill(); }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var m=MACH[sel], cy=h*0.42, bh=58;
+      var xs=[w*0.03, w*0.235, w*0.475, w*0.66, w*0.865];
+      var bw=w*0.175;
+      // shared-part label band
+      ctx.fillStyle='#f2e9f5'; rr(ctx, xs[0]-4, cy-bh/2-24, (xs[2]+bw)-(xs[0])+8, bh+40, 8); ctx.fill();
+      ctx.fillStyle='#7d3b8f'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Machine-independent (shared, reusable ≈ 4/5)', xs[0]+2, cy-bh/2-10);
+      // machine-dependent band
+      ctx.fillStyle='#fbeee6'; rr(ctx, xs[3]-4, cy-bh/2-24, (xs[4]+bw)-(xs[3])+8, bh+40, 8); ctx.fill();
+      ctx.fillStyle=m.col; ctx.fillText('Machine-dependent (swapped for '+m.l+' ≈ 1/5)', xs[3]+2, cy-bh/2-10);
+      // boxes
+      box(ctx, xs[0], cy-bh/2, bw, bh, '#fff', '#b6a2c0');
+      ctx.fillStyle='#5c3568'; ctx.textAlign='center'; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('BCPL', xs[0]+bw/2, cy-2); ctx.fillText('source', xs[0]+bw/2, cy+15);
+      box(ctx, xs[1], cy-bh/2, bw, bh, '#efe4f2', '#7d3b8f');
+      ctx.fillStyle='#7d3b8f'; ctx.fillText('front end', xs[1]+bw/2, cy-2);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('BCPL→O-code', xs[1]+bw/2, cy+14);
+      // O-code hub (island)
+      box(ctx, xs[2], cy-bh/2, bw, bh, '#7d3b8f', '#5c2e6a');
+      ctx.fillStyle='#fff'; ctx.font='bold 14px "SFMono-Regular",Consolas,monospace'; ctx.fillText('O-code', xs[2]+bw/2, cy-2);
+      ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('machine-independent island', xs[2]+bw/2, cy+15);
+      // backend (machine dependent)
+      box(ctx, xs[3], cy-bh/2, bw, bh, '#fbeee6', m.col, 2.4);
+      ctx.fillStyle=m.col; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('back end', xs[3]+bw/2, cy-2);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('O-code→machine code', xs[3]+bw/2, cy+14);
+      // output
+      box(ctx, xs[4], cy-bh/2, bw, bh, '#fff', m.col, 2.4);
+      ctx.fillStyle=m.col; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText(m.l, xs[4]+bw/2, cy-2);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('machine code', xs[4]+bw/2, cy+14);
+      // arrows
+      arrow(ctx, xs[0]+bw, xs[1], cy, '#b6a2c0');
+      arrow(ctx, xs[1]+bw, xs[2], cy, '#9a6fae');
+      arrow(ctx, xs[2]+bw, xs[3], cy, m.col);
+      arrow(ctx, xs[3]+bw, xs[4], cy, m.col);
+      // gauge 1/5
+      var gx=xs[0], gy=h-26, gw=w-xs[0]*2-4, gh=12;
+      ctx.fillStyle='#efe4f2'; rr(ctx,gx,gy,gw,gh,6); ctx.fill();
+      ctx.fillStyle=m.col; rr(ctx,gx+gw*0.8,gy,gw*0.2,gh,6); ctx.fill();
+      ctx.fillStyle='#5c3568'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('You rewrite only this 1/5 (the back end) →', gx, gy-4);
+      ctx.textAlign='left';
+    }
+    function setReadout(){ var m=MACH[sel];
+      rd.innerHTML='Target machine = <strong>'+m.l+'</strong>. Everything up to BCPL source→front end→<strong>O-code (shared)</strong> is the same for all machines. What changed is <strong>only the back end and the output</strong> (≈1/5).'; }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-m]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      sel=parseInt(b.getAttribute('data-m'),10);
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: from machine to machine via O-code ============ */
+  (function(){
+    var cv=document.getElementById('cvPort'), sl=document.getElementById('port'),
+        vPort=document.getElementById('vPort'), rd=document.getElementById('rdPort');
+    if(!cv) return;
+    var STEPS=[
+      {h:'① A BCPL compiler running on existing machine A', note:'The BCPL compiler is itself written in BCPL, self-hosting on machine A.'},
+      {h:'② Turn itself into O-code',            note:'Compile the compiler source into machine-independent O-code (a distribution form).'},
+      {h:'③ Carry the O-code to new machine B',        note:'Because O-code is machine-independent, you can carry it straight to the new machine (paper tape / network). The principle of Episode 8.'},
+      {h:'④ Prepare a small receiver on new machine B',   note:'Write just one small back end (or interpreter) that turns O-code into machine code. About 1/5 of the whole.'},
+      {h:'⑤ The compiler stands on its own on new machine B',      note:'The compiler runs on the receiver and recompiles natively. Porting complete = self-hosting revived.'}
+    ];
+    function machine(ctx,x,y,w,h,label,col,active){
+      ctx.fillStyle= active?'#fff':'#f4f4f6'; ctx.strokeStyle= active?col:'#c4c4cc'; ctx.lineWidth= active?2.2:1.6;
+      rr(ctx,x,y,w,h,10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle= active?col:'#9a9aa2'; ctx.textAlign='center'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText(label, x+w/2, y+20);
+    }
+    function ocodeChip(ctx,x,y){
+      ctx.fillStyle='#7d3b8f'; ctx.strokeStyle='#5c2e6a'; ctx.lineWidth=1.5;
+      rr(ctx,x-30,y-14,60,28,5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 11px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      ctx.fillText('O-code', x, y+4);
+    }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var st=parseInt(sl.value,10);
+      var ax=w*0.06, bx=w*0.62, my=h*0.34, mw=w*0.30, mh=h*0.42;
+      machine(ctx, ax, my, mw, mh, 'Machine A (existing)', '#2166a0', true);
+      var bActive = st>=4;
+      machine(ctx, bx, my, mw, mh, 'Machine B (new)', '#a83a22', bActive);
+      // compiler in A
+      ctx.fillStyle='#efe4f2'; ctx.strokeStyle='#7d3b8f'; ctx.lineWidth=1.8;
+      rr(ctx, ax+18, my+mh-46, mw-36, 32, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#7d3b8f'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('BCPL compiler', ax+mw/2, my+mh-25);
+      // receiver in B (step>=3)
+      if(st>=3){
+        ctx.fillStyle= bActive?'#fbeee6':'#f0e6e2'; ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.6;
+        rr(ctx, bx+18, my+mh-46, mw-36, 32, 6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#a83a22'; ctx.font='10.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText(bActive?'compiler running':'O-code receiver (1/5)', bx+mw/2, my+mh-25);
+      }
+      // O-code chip position by step
+      var chipY=my-2;
+      if(st===1){ ocodeChip(ctx, ax+mw/2, chipY); }
+      else if(st===2){ ocodeChip(ctx, (ax+mw+bx)/2, chipY);
+        ctx.strokeStyle='#9a6fae'; ctx.setLineDash([5,4]); ctx.lineWidth=1.8;
+        ctx.beginPath(); ctx.moveTo(ax+mw, chipY); ctx.lineTo(bx, chipY); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#7d3b8f'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('carry →', (ax+mw+bx)/2, chipY-18); }
+      else if(st>=3){ ocodeChip(ctx, bx+mw/2, chipY); }
+      // self loop when done
+      if(st>=4){
+        var lx=bx+mw/2, ly=my+8, R=18;
+        ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(lx,ly,R, Math.PI*0.2, Math.PI*1.8); ctx.stroke();
+        var ea=Math.PI*1.8; ctx.fillStyle='#a83a22';
+        ctx.beginPath(); ctx.moveTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea)-7,ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)+7); ctx.closePath(); ctx.fill();
+      }
+      ctx.textAlign='left';
+    }
+    function update(){ var st=parseInt(sl.value,10), s=STEPS[st];
+      vPort.textContent=s.h; rd.innerHTML='<strong>'+s.h+'</strong>: '+s.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

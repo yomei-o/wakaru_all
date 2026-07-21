@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why GNU? — A Free Toolchain ｜ A History of UNIX That Clicks, Bonus 5</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5faf6; --paper-edge:#d9e8dd;
+    --side:#6a4a9c; --side-bg:#efe9f5;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#c8ddce; --hair:#aecdb8;
+    --acc:#2f7d55;
+    --grid:#d6e8dd;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe6d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#e7f2ec;border:1px solid #d9e8dd;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2a52;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#dcece2;color:#2a5d43;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#e3f1ea;color:#1c5a3c;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfffc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef7f1;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfffc,#e5f1e9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f1ea;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c5a3c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks ／ Bonus 5</span><span class="ep">If the tools aren't free, you can't sow the seed</span></div>
+  <p class="eyebrow">Episode 2's question — why did a gcc and bash that Linux could use already exist?</p>
+  <h1>Why GNU? — A Free Toolchain
+    <span class="sub">In Episode 2, the first Linux was brought up with GNU's <code>gcc</code> and <code>bash</code>. So why were those free tools <em>already</em> on Torvalds's desk? Because Stallman had spent the whole of the 1980s building a <strong>free toolchain</strong>. If the tools aren't free — you can't sow the seed yourself.</span>
+  </h1>
+  <div class="byline">
+    <span>Prerequisites: Episode 2 (Linux's first cry) &amp; Episode 3 (gcc)</span>
+    <span>The reveal: the very tools that turn the loop must themselves be free</span>
+  </div>
+
+  <p class="lead">In Episode 2 we saw that Linux was born from <code>gcc</code> on MINIX and united with GNU's tools (<code>gcc</code>, <code>bash</code>) to become a single OS. Here a natural question arises — <em>why, at the point of 1991, were a freely usable C compiler and shell all set and ready?</em> It was no accident. <strong>Since 1983, Richard Stallman had been quietly piling up a free toolchain in the "GNU Project," rebuilding Unix from a blank sheet.</strong> This time, we read that motivation — why it had to be <em>free</em> — together with the main series' chicken-and-egg.</p>
+
+  <h2><span class="n">01</span>The 1983 declaration — GNU's Not Unix</h2>
+
+  <p>On September 27, 1983, Stallman declared that he would "make a Unix-compatible, but <strong>completely free</strong>, OS." The name was <strong>GNU</strong> — a <em>recursive acronym</em> for "GNU's Not Unix!" The design would follow Unix, but the code from a blank sheet (Episode 1's <strong>reimplementation tree</strong> itself). In the 1985 <em>GNU Manifesto</em>, he raised its philosophy — that software should have the <strong>freedom to use, study, modify, and redistribute</strong> it.</p>
+
+  <div class="term">
+<span class="c">// 1983-09-27, Stallman's first announcement (gist)</span>
+   <span class="o">"Free Unix!"</span>
+   I am going to write a complete Unix-compatible software system
+   called <span class="o">GNU</span> (for Gnu's Not Unix), and give it away free ...
+   <span class="q">"free" here means freedom, not zero cost</span>
+  </div>
+
+  <h2><span class="n">02</span>Why build the "tools" first?</h2>
+
+  <p>If you're making an OS from a blank sheet, what do you need first? — <strong>the tools (the toolchain)</strong>. Without a compiler, you can't write anything. So GNU started with the editor <strong>Emacs</strong> (around 1984), then <strong>GCC</strong> (1987, Episode 3), and went on to make Unix utilities like <code>bash</code>, <code>ls</code>, <code>grep</code>, <code>make</code>, and <code>ld</code>, one after another, as free software. By around 1987, an assembler, a nearly-finished GCC, Emacs, and various utilities were all in place.</p>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time — if the tools aren't free, you can't sow the seed yourself</div>
+    <p style="margin:6px 0 0;">The main series' watchword: "the first egg was carved by hand." But <em>who</em> gets to carve it? What if the tool that turns Episode 0's loop (<code>gcc</code>) or the freedom to prepare Episode 9's seed were <strong>held by one particular company</strong>? The origin of your software would then depend on someone else's permission and fees. What GNU did was — <strong>to make the chicken-and-egg chain something anyone can turn freely</strong>. It freed the very tools that turn the loop. That's why, in 1991, a single student could bring up his own OS with <code>gcc</code>, without anyone's permission.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The last missing piece — the kernel</h2>
+
+  <p>By around 1992, GNU had nearly all the parts of an OS freely in place. Editor, compiler, shell, utilities — but <strong>one piece was missing</strong>. The <em>kernel</em> at the heart of it. GNU's own kernel, <strong>GNU Hurd</strong> (from 1990, on the Mach microkernel), was slow to reach completion. The GNU system stayed in a state of not being finished — <em>one piece short</em>. In the figure below, watch GNU's parts fill in, and the kernel's hole remain at the end.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The GNU system jigsaw. Free parts fill in — Emacs → GCC → bash… — but the last "kernel" piece stays empty. Into it fits a young leaf from another tree, Linux.</div>
+    <canvas id="cvJig" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Advance the year<span class="val" id="vJig">1984 — Emacs</span>
+        <input type="range" id="jig" min="0" max="5" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdJig"></div>
+  </div>
+
+  <h2><span class="n">04</span>Linux filled that hole — GNU/Linux</h2>
+
+  <p>In 1991, Torvalds's kernel (Episode 2) appeared, and in 1992's <code>v0.12</code> it became <strong>GPLv2</strong>. Linux is not part of the GNU Project. But it was made with GNU's tools such as <code>gcc</code>, and released under the same GPL — so with <strong>GNU's userland plus Linux's kernel</strong>, a <em>completely free OS</em> ran for the first time. This is why it's called "<strong>GNU/Linux</strong>." The largest real example of Episode 1's "the two trees exchange leaves at their crowns."</p>
+
+  <div class="calc">
+    <span class="tag">The young leaves of two trees come together (Episode 1, redeemed)</span>
+    <p style="margin-top:8px;">GNU (the reimplementation tree) had a <em>userland</em> and lacked a kernel. Linux (another young leaf of the same reimplementation tree) had only a <em>kernel</em>. The two came together under the GPL and became one complete, free OS. <strong>Neither inherited AT&amp;T's code; they shared only the philosophy (freedom and Unix compatibility)</strong> — which is why they meshed without friction.</p>
+  </div>
+
+  <h2><span class="n">05</span>The reveal — freedom guarantees the "anyone" of chicken-and-egg</h2>
+
+  <p>The main series was the story of "the chicken-and-egg chain starting to turn from a seed." What GNU added was to write <strong>"anyone"</strong> into that chain. In the figure below, see how whether the tool that turns the loop is proprietary or free changes <em>who</em> can bring up software.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The right to turn the loop. If the toolchain is proprietary, turning the loop (making software) needs the gatekeeper's permission. If it's free, anyone can turn it — which is why one student could birth Linux.</div>
+    <canvas id="cvGate" width="680" height="280"></canvas>
+    <div class="controls">
+      <button class="btnmini seg" data-m="prop">Proprietary compiler</button>
+      <button class="btnmini seg on" data-m="free">Free gcc</button>
+    </div>
+    <div class="readout" id="rdGate"></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — names and motives, carefully</span>
+    <p style="margin-top:0;">(1) "<strong>GNU/Linux or Linux</strong>" is a long-running naming dispute. Stallman and others ask for "GNU/Linux" to reflect GNU's contribution, while common usage simply says "Linux." The technical fact is "the Linux kernel + (in many cases) the GNU userland," and this piece takes neither side. (2) GNU's "free" is <strong>freedom</strong>, not zero cost (gratis). It means "you can freely use, study, modify, and redistribute."</p>
+    <p style="margin-bottom:0;">(3) GNU Hurd isn't a "failure"; it's a project still under development. "The kernel was unfinished" is a statement about the situation at the time. (4) GNU isn't the only free Unix-like system — the BSDs also offered freedom (under a different license) (Bonus 4). (5) Torvalds himself valued practicality over the philosophy of freedom in some respects, and his adoption of the GPL (Episode 2) included pragmatic judgment. "The ideal of freedom" and "practicality" are intertwined throughout history.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this bonus alone)</div>
+    <ol>
+      <li>Why did a free gcc and bash that Linux could use already exist in 1991?
+        <details><summary>See the answer</summary><div class="ans">Because since 1983 Stallman had been piling up a free toolchain (gcc, bash, various utilities) in the GNU Project. Torvalds could bring things up using it.</div></details>
+      </li>
+      <li>Why did GNU build "the tools first"?
+        <details><summary>See the answer</summary><div class="ans">Because making an OS from a blank sheet requires tools like a compiler (the toolchain) first. Without tools, you can't write anything.</div></details>
+      </li>
+      <li>What one piece was GNU missing around 1992? What filled it?
+        <details><summary>See the answer</summary><div class="ans">The kernel (GNU Hurd was unfinished). The Linux kernel filled it, and GNU userland + Linux = GNU/Linux ran as a completely free OS.</div></details>
+      </li>
+      <li>What does "the tools being free" add to the main series' chicken-and-egg?
+        <details><summary>See the answer</summary><div class="ans">It adds "anyone can turn it" to the chain. If the tool that turns the loop is proprietary, the origin depends on someone else's permission, but if it's free, anyone can bring up software. GNU guaranteed that.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Because there was someone who freed the tools</h2>
+    <p>It was no accident that in Episode 2 Linux could be brought up with <code>gcc</code> and <code>bash</code>. It's because <strong>since 1983 Stallman had been piling up a free toolchain in the GNU Project</strong> ("GNU's Not Unix," Unix-compatible but from a blank sheet and completely free). First Emacs, then <strong>GCC</strong> (1987), and then <code>bash</code>, coreutils, <code>make</code>, <code>ld</code>… To make an OS you first need tools — and GNU prepared those tools <em>freely</em>.</p>
+    <p>By around 1992 GNU had nearly all the parts assembled, but <strong>only the kernel was missing</strong> (GNU Hurd was unfinished). Into it fit Linux (another young leaf of the same reimplementation tree), and under the GPL <strong>GNU/Linux</strong> = a completely free OS came into being (the largest real example of Episode 1's "exchanging leaves at the crown"). What GNU added to the main series' chicken-and-egg was <strong>"anyone"</strong> — because it freed the very tools that turn the loop, a single student could birth an OS without anyone's permission. <em>The seed can be carved by hand. As long as the tool you carve with is free.</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Bonus 6 (the last)</span>
+    "Multics → Unix — What Was It a Reaction Against?" To the very headwaters of the lineage. Why did Thompson and Ritchie, having climbed down from the huge, ambitious Multics, make the small, spare Unix? An objection to "bigger is better" — we touch the wellspring of Unix's design philosophy and close the series.</p>
+  </div>
+
+  <div class="foot">
+    This document is Bonus 5 of the series "A History of UNIX That Clicks." Historical facts: the GNU Project is the plan Richard Stallman announced on September 27, 1983, to make a Unix-compatible, completely free operating system. GNU is a recursive acronym for "GNU's Not Unix." The GNU Manifesto came in 1985. From around 1984, GNU Emacs; in 1987, GCC (Episode 3); and thereafter bash, coreutils, make, binutils (ld), and the like were developed as free software. From 1990, GNU Hurd was developed on the Mach microkernel, but the kernel long remained unfinished. Linus Torvalds's Linux kernel (1991, GPLv2 with v0.12 in 1992) was developed with GNU tools such as GCC, and combined with GNU's userland, a completely free OS (called GNU/Linux) came into being. Linux itself is not part of the GNU Project. "free" means freedom, not gratis. There are differing positions and views on the "GNU/Linux" vs. "Linux" naming, the assessment of Hurd, and free Unix-like systems other than GNU (such as BSD). — To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and the answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, Figure 1's slider shows GNU's parts falling into place and Linux fitting into the kernel hole at the end, and Figure 2's buttons show how "proprietary/free" changes who can turn the loop. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: the GNU system jigsaw ============ */
+  (function(){
+    var cv=document.getElementById('cvJig'), sl=document.getElementById('jig'),
+        vJig=document.getElementById('vJig'), rd=document.getElementById('rdJig');
+    if(!cv) return;
+    // tiles: 8 pieces; last is the kernel
+    var TILES=['Emacs','GCC','bash','coreutils','make','ld / binutils','grep / awk','kernel'];
+    // arrival step for each tile (kernel special)
+    var arrive=[0,1,2,2,2,2,2,99]; // kernel arrives at step 4(Linux)/5
+    var STEPS=[
+      {y:'1984', l:'Emacs', note:'GNU\'s first major part. An editor (with Lisp extensibility).'},
+      {y:'1987', l:'GCC', note:'A free C compiler (Episode 3). The keystone of the tools for making an OS.'},
+      {y:'c. 1988', l:'The userland nearly in place', note:'bash, coreutils, make, ld, grep… the free utilities are all lined up. What remains is the kernel.'},
+      {y:'1990', l:'GNU Hurd started (unfinished)', note:'A go at GNU\'s own kernel on Mach, but it\'s slow to complete — the kernel hole stays empty.'},
+      {y:'1991', l:'The Linux kernel appears', note:'A young leaf from another tree, Linux (Episode 2), appears. Just the right shape to fit GNU\'s empty hole.'},
+      {y:'1992', l:'United under GPLv2 = GNU/Linux', note:'Linux goes GPLv2. GNU userland + Linux completes a completely free OS.'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var step=parseInt(sl.value,10);
+      var cols=4, rows=2, padL=24, padT=30, gapx=12, gapy=12;
+      var tw=(w-padL*2-gapx*(cols-1))/cols, th=(h-padT-70-gapy*(rows-1))/rows;
+      for(var i=0;i<TILES.length;i++){
+        var r0=Math.floor(i/cols), c0=i%cols;
+        var x=padL+c0*(tw+gapx), y=padT+r0*(th+gapy);
+        var isKernel=(i===TILES.length-1);
+        var filled, col;
+        if(isKernel){
+          if(step>=5){ filled=true; col='#2f7d55'; } // completed
+          else if(step>=4){ filled=true; col='#2166a0'; } // Linux fills (blue = other tree)
+          else { filled=false; col='#a83a22'; } // empty hole
+        } else {
+          filled = step>=arrive[i]; col='#2f7d55';
+        }
+        if(filled){
+          ctx.fillStyle= col==='#2166a0'? '#e7eef6' : '#e7f2ec'; ctx.strokeStyle=col; ctx.lineWidth=2;
+          rr(ctx,x,y,tw,th,7); ctx.fill(); ctx.stroke();
+          ctx.fillStyle=col; ctx.textAlign='center'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+          ctx.fillText(isKernel? (step>=5?'kernel':'Linux'):TILES[i], x+tw/2, y+th/2+4);
+          if(isKernel && step===4){ ctx.fillStyle='#2166a0'; ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('(a young leaf from another tree)', x+tw/2, y+th/2+18); }
+        } else if(isKernel){
+          ctx.strokeStyle='#a83a22'; ctx.setLineDash([5,4]); ctx.lineWidth=2; rr(ctx,x,y,tw,th,7); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle='#a83a22'; ctx.textAlign='center'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+          ctx.fillText('kernel', x+tw/2, y+th/2); ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif';
+          ctx.fillText('(missing)', x+tw/2, y+th/2+16);
+        } else {
+          ctx.strokeStyle='#cbd9d0'; ctx.setLineDash([4,4]); ctx.lineWidth=1.2; rr(ctx,x,y,tw,th,7); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle='#b7c9bf'; ctx.textAlign='center'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif';
+          ctx.fillText(TILES[i], x+tw/2, y+th/2+4);
+        }
+      }
+      // banner
+      ctx.textAlign='center';
+      if(step>=5){ ctx.fillStyle='#2f7d55'; ctx.font='bold 14px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('A completely free OS is complete — GNU/Linux', w/2, h-16); }
+      else if(step===4){ ctx.fillStyle='#2166a0'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('Linux fits into GNU\'s empty hole', w/2, h-16); }
+      else { ctx.fillStyle='#9aab9f'; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('The free parts fall into place (but the kernel stays empty)', w/2, h-16); }
+      ctx.textAlign='left';
+    }
+    function update(){ var step=parseInt(sl.value,10), s=STEPS[step]; vJig.textContent=s.y+' — '+s.l;
+      rd.innerHTML='<strong>'+s.y+'　'+s.l+'</strong>: '+s.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: the right to turn the loop (proprietary vs. free) ============ */
+  (function(){
+    var cv=document.getElementById('cvGate'), rd=document.getElementById('rdGate');
+    if(!cv) return;
+    var mode='free', phase=0, raf=null, last=0;
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var free=(mode==='free');
+      var cx=w*0.42, cy=h*0.5, R=Math.min(w,h)*0.26;
+      // the loop ring
+      ctx.strokeStyle= free? '#2f7d55':'#9aa5b3'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(cx,cy,R, 0, 2*Math.PI); ctx.stroke();
+      // pulse
+      var pa=phase*2*Math.PI, px=cx+R*Math.cos(pa), py=cy+R*Math.sin(pa);
+      ctx.fillStyle= free? '#2f7d55':'#b7c0c9'; ctx.beginPath(); ctx.arc(px,py,6,0,2*Math.PI); ctx.fill();
+      // center
+      ctx.fillStyle= free?'#2f7d55':'#8794a5'; ctx.textAlign='center'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('the self-hosting', cx, cy-4); ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('loop (gcc)', cx, cy+13);
+      // compiler tool label on ring
+      ctx.fillStyle= free? '#1c5a3c':'#6b7683'; ctx.font='11px "SFMono-Regular",Consolas,monospace';
+      ctx.fillText(free?'free gcc':'proprietary compiler', cx, cy-R-10);
+      // gate (proprietary) or open door (free)
+      var gx=cx+R+30, gy=cy;
+      if(!free){
+        // lock/gate blocking people
+        ctx.fillStyle='#9a4230'; rr(ctx,gx-14,gy-24,28,48,5); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='16px sans-serif'; ctx.textAlign='center'; ctx.fillText('🔒', gx, gy+6);
+        ctx.fillStyle='#9a4230'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('gatekeeper', gx, gy+34);
+      } else {
+        ctx.strokeStyle='#2f7d55'; ctx.setLineDash([4,4]); ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(gx-14,gy-24); ctx.lineTo(gx-14,gy+24); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#2f7d55'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center'; ctx.fillText('no gate', gx, gy+34);
+      }
+      // people
+      var people=['👤','👤','👤'];
+      for(var i=0;i<people.length;i++){
+        var pxp=w-70, pyp=cy-40+i*40;
+        ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.fillText('👤', pxp, pyp+6);
+        // arrow from person toward loop
+        ctx.strokeStyle= free? '#2f7d55':'#c9b6ac'; ctx.lineWidth=1.8; ctx.setLineDash(free?[]:[4,3]);
+        ctx.beginPath(); ctx.moveTo(pxp-16, pyp); ctx.lineTo(gx+18, gy-20+i*20); ctx.stroke(); ctx.setLineDash([]);
+        if(!free && i===1){ ctx.fillStyle='#9a4230'; ctx.font='16px sans-serif'; ctx.fillText('✕', (pxp-16+gx+18)/2, pyp); }
+      }
+      ctx.textAlign='left';
+      ctx.fillStyle= free? '#1c5a3c':'#7a2513'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText(free? 'Anyone can turn the loop → Linux was born' : 'Permission and fees required → the origin is held by someone else', w*0.5, h-12);
+      ctx.textAlign='left';
+    }
+    function tick(t){ if(!last)last=t; var dt=(t-last)/1000; last=t;
+      if(mode==='free'){ phase+=dt*0.25; if(phase>1)phase-=1; }
+      draw(); raf=requestAnimationFrame(tick); }
+    function setReadout(){
+      if(mode==='free') rd.innerHTML='<strong>Free gcc</strong>: because the tool that turns the loop is free, <strong>anyone can bring up software without permission</strong>. That\'s why a single student (Torvalds) could birth Linux. The "anyone" GNU provided.';
+      else rd.innerHTML='<strong>Proprietary compiler</strong>: when a company holds the only tool, turning the loop (making software) requires permission and fees, and you can\'t inspect the insides either (the trust problem of Bonus 1). The origin of software depends on someone else.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-m]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      mode=b.getAttribute('data-m'); btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); }); });
+    setReadout(); last=0; raf=requestAnimationFrame(tick);
+    window.addEventListener('resize',draw);
+    setTimeout(draw,60);
+  })();
+})();
+</script>
+</body>
+</html>

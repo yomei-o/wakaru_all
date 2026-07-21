@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross-Compiling — Making an Egg with No Chicken ｜ A History of UNIX That Clicks, Bonus 3</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7f0; --paper-edge:#e8dcc6;
+    --side:#6a4a9c; --side-bg:#efe9f5;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#e0d4bc; --hair:#cfbf9c;
+    --acc:#a8681a;
+    --grid:#e6dcc6;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0dfba 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f1ebdd;border:1px solid #e8dcc6;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2a52;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf5;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#eee2c8;color:#7a5312;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f4ead4;color:#734810;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf7;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f1e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf7,#f0e6d0);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4ead4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#734810;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks ／ Bonus 3</span><span class="ep">Build it elsewhere and carry it over — the modern edition</span></div>
+  <p class="eyebrow">The present-day face of Episode 8's "carry it over on paper tape" — making an egg with no chicken</p>
+  <h1>Cross-Compiling — Making an Egg with No Chicken
+    <span class="sub">A brand-new CPU, nothing running on it yet. It has no OS and no compiler (there's no chicken). So how do you prepare the first program? — <em>Bake an egg for that CPU on another machine that already runs.</em> The same skeleton as Episode 8's GE-635 → PDP-7, in a modern edition.</span>
+  </h1>
+  <div class="byline">
+    <span>Prerequisites: Episode 8 (cross-assembly) &amp; Episode 3 (ignition)</span>
+    <span>The reveal: shift build / host / target apart</span>
+  </div>
+
+  <p class="lead">In Episode 8 we saw that the unborn PDP-7 couldn't make programs by itself, so they were made on the GE-635 and carried over on paper tape. <em>"Build it elsewhere and carry it over"</em> — this technique is not merely still in use; it's the foundation for bringing up every new model. New CPUs, smartphones, embedded microcontrollers — each starts from a state with "no chicken" and is brought up by <strong>baking an egg for that model on another machine you have on hand (a PC)</strong>. This is <strong>cross-compiling</strong>. It solves chicken-and-egg by <em>shifting</em> which machine does what.</p>
+
+  <h2><span class="n">01</span>Three machines — build / host / target</h2>
+
+  <p>To speak precisely about cross-compiling, we separate three roles (GNU's terminology).</p>
+
+  <div class="calc">
+    <span class="tag">The three roles</span>
+    <p style="margin-top:8px;"><strong>build</strong>: the machine that <em>builds</em> the compiler itself.</p>
+    <p style="margin:6px 0;"><strong>host</strong>: the machine on which that compiler <em>runs</em>.</p>
+    <p style="margin:6px 0 14px;"><strong>target</strong>: the machine on which <em>the code that compiler emits runs</em> (this only matters when you're making a cross-compiler).</p>
+  </div>
+
+  <p>How these three match or differ changes the name. Switch between them in the figure below.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: build / host / target. Same machine, same color. native = all three the same. cross = only target differs. Canadian Cross = all three differ.</div>
+    <canvas id="cvTriple" width="680" height="290"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-m="native">native (self-hosted)</button>
+      <button class="btnmini seg" data-m="cross">cross</button>
+      <button class="btnmini seg" data-m="canadian">Canadian Cross</button>
+    </div>
+    <div class="readout" id="rdTriple"></div>
+  </div>
+
+  <h2><span class="n">02</span>Why cross — the target has no chicken</h2>
+
+  <p>When you've just built a new CPU, nothing is running on that <strong>target</strong> yet. No OS, no compiler, no assembler. The same as the unborn PDP-7 of Episode 8 — <em>native (building for the target on the target) is impossible to begin with</em>. So you <strong>bake the target's compiler and OS on a build machine that already runs (the PC on your hand)</strong>. Building for ARM or RISC-V on an x86 PC, or for an embedded microcontroller that can't even run an OS — all of it uses this method.</p>
+
+  <div class="term">
+<span class="c"># On an x86 PC (build=host) on your desk, cross-compile for ARM (target)</span>
+<span class="p">$</span> arm-linux-gnueabihf-gcc -o hello hello.c
+<span class="p">$</span> file hello
+   hello: <span class="o">ELF 32-bit ... ARM</span>   <span class="c"># won't run on x86. Carry it over to an ARM machine to run it</span>
+  </div>
+
+  <h2><span class="n">03</span>Canadian Cross — all three differ</h2>
+
+  <p>Twist it one more turn, and <strong>build, host, and target can all three be different</strong>. This is called a <em>Canadian Cross</em>. For example — you make a compiler that <strong>is built on a fast Linux machine (build), runs on Windows (host), and emits code for ARM (target)</strong>. The user runs it on Windows, and the product runs on ARM.</p>
+
+  <div class="aside">
+    <span class="tag">Connecting voice — why "Canadian"?</span>
+    It's a strange name, but the origin is a political joke. At the time this scheme was being sorted out, <strong>Canada had three national political parties</strong>, and the name plays on that "three of a kind = Canadian (Cross)." One of those developer in-jokes that occasionally sneak into technical vocabulary. It's enough to think of it as taking Episode 8's paper tape, which involved "two machines (the GE-635 and PDP-7)," and bumping it up to <em>three</em>.
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time — solving chicken-and-egg by "shifting"</div>
+    <p style="margin:6px 0 0;">The essence of cross-compiling is exactly the same as Episode 8 — <strong>"you don't have to make the target on the target. Just borrow a build machine that already runs."</strong> Even a new model with no chicken can get an egg from <em>someone else's chicken</em>. This is one and the same skeleton as Episode 3's "borrow an existing <code>cc</code> to ignite," Episode 6's "carry O-code over," and Episode 8's "carry it over on paper tape." By <em>shifting</em> the roles (build/host/target), you take a chicken-and-egg that can't be solved inside this machine and <strong>move it to another (already-running) machine</strong> to solve it.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>Eventual independence — the target becomes native</h2>
+
+  <p>Cross-compiling is a means of bringing things up, not the goal. Once you can load the toolchain and OS baked on the build machine onto the target and boot it, <em>eventually the target itself can build for the target</em> — <strong>native self-hosting</strong>. This is exactly the same plot as Episode 2's Linux <code>v0.11</code> (leaving the delivery room, MINIX, to stand on its own) and Episode 8's PDP-7 (graduating from GECOS). In the figure below, follow the flow of a new architecture being brought up from "no chicken" to "independence."</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: bringing up a new architecture. The target has nothing at first (no chicken). Cross-compile the toolchain and OS on the build machine and load them, boot, and eventually the target self-hosts natively.</div>
+    <canvas id="cvBringup" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Advance the bring-up step<span class="val" id="vBu">① New CPU (target) — no chicken</span>
+        <input type="range" id="bu" min="0" max="4" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdBu"></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — cross-compiling isn't magic</span>
+    <p style="margin-top:0;">(1) Cross-compiling doesn't <em>solve</em> chicken-and-egg. As in Episode 8, it merely stops solving it inside this machine and <strong>moves it to another (already-running) machine</strong>. The chain is finite, and traced back it bottoms out at the first machine (Episodes 9 &amp; 10). (2) Cross-compiling in practice is quietly hard — assembling the target's headers and libraries (the sysroot), figuring out how to provide libc, testing on an emulator like QEMU when you don't have the real hardware, and so on.</p>
+    <p style="margin-bottom:0;">(3) build/host/target is GNU's terminology; other contexts (Rust, for instance) may name or divide things a little differently. (4) The origin of "Canadian Cross" is a widely-told anecdote, and the details have several versions. The point is the structure that "all three machines can be different."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this bonus alone)</div>
+    <ol>
+      <li>Define build, host, and target in one phrase each.
+        <details><summary>See the answer</summary><div class="ans">build = the machine that builds the compiler; host = the machine on which that compiler runs; target = the machine on which the code that compiler emits runs.</div></details>
+      </li>
+      <li>Explain the difference between native, cross, and Canadian Cross in terms of how the triple matches.
+        <details><summary>See the answer</summary><div class="ans">native = build=host=target (all the same). cross = build=host, with only target different. Canadian Cross = build, host, and target all three different.</div></details>
+      </li>
+      <li>Why can't native be used when bringing up a new CPU? What in Episode 8 is this the same as?
+        <details><summary>See the answer</summary><div class="ans">Because the target has no compiler and no OS yet (no chicken), so you can't build for the target on the target. It's the same situation as the unborn PDP-7 (Episode 8), and you have no choice but to borrow an existing build machine.</div></details>
+      </li>
+      <li>What eventually happens to a target brought up by cross-compiling? Which episode of the main series is this the same plot as?
+        <details><summary>See the answer</summary><div class="ans">Eventually the target itself reaches native self-hosting, able to build for the target. The same as Episode 2's Linux v0.11 (leaving the delivery room to stand on its own) and Episode 8's PDP-7 (graduating from GECOS).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Shift the roles, and you can bake an egg even with no chicken</h2>
+    <p>Cross-compiling is the modern edition of Episode 8's "build it elsewhere and carry it over." The three roles — <strong>build</strong> (the machine that builds), <strong>host</strong> (the machine the compiler runs on), <strong>target</strong> (the machine the emitted code runs on) — and how they match or differ determine native (all the same), cross (only target differs), and <strong>Canadian Cross</strong> (all three differ). A new CPU has nothing on the target at first (no chicken), so native is impossible. So you bake for the target on a build machine that already runs.</p>
+    <p>The crux is identical to Episode 8 — <strong>"you don't have to make the target on the target; just borrow a running build machine."</strong> One skeleton with Episode 3 (an existing cc), Episode 6 (carrying O-code), and Episode 8 (paper tape), it solves chicken-and-egg by <em>shifting the roles and moving the problem to another machine</em>. And the target you brought up eventually reaches native self-hosting — the same plot as Episode 2's Linux <code>v0.11</code> and Episode 8's PDP-7 graduating from GECOS. Cross-compiling doesn't make chicken-and-egg vanish, but with a finite chain, it was always the technique of birthing a new model from an "already-running machine."</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Bonus 4</span>
+    "The Two Trees, Continued — the BSD Lawsuit, System V, POSIX." A deeper dig into the "lineage tree (inheritance of code)" we split off in Episode 1, all the way to the courtroom. USL v. BSDi, in which AT&T sued BSD; the commercial line of System V; and POSIX, which pinned down "Unix-ness" as a specification — a story of ownership and compatibility over the lineage of code.</p>
+  </div>
+
+  <div class="foot">
+    This document is Bonus 3 of the series "A History of UNIX That Clicks." Technology: in GNU's terminology, build is the machine that runs the compilation work, host is the machine on which the produced binary (the compiler) runs, and target is the machine on which the code that compiler produces runs, when making a cross-compiler. build=host=target is called native; build=host with a different target is called cross; and build, host, and target all being different (including build≠host) is called Canadian Cross. The name Canadian Cross is said to come from Canada having three national political parties at the time this was being sorted out (an anecdote). When bringing up a new architecture, because the target has no operating environment, you cross-compile the target's toolchain, kernel, and userland on an existing build machine, and after booting on the target, eventually transition to native self-hosting. Cross-compiling doesn't solve chicken-and-egg but moves it to another already-running machine; the chain is finite and bottoms out at the first machine (Episodes 9 & 10). There are practical challenges such as the sysroot, libc, and verification with an emulator (QEMU and the like). The naming and divisions differ by context. — To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and the answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, Figure 1's buttons switch between native / cross / Canadian Cross, and Figure 2's slider follows the bring-up of a new architecture. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: build/host/target ============ */
+  (function(){
+    var cv=document.getElementById('cvTriple'), rd=document.getElementById('rdTriple');
+    if(!cv) return;
+    var mode='native';
+    var COL=['#a8681a','#2166a0','#2f7d63']; // machine A,B,C
+    // machine index per role for each mode: [build,host,target]
+    var MAP={ native:[0,0,0], cross:[0,0,1], canadian:[0,1,2] };
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var m=MAP[mode], roles=['build','host','target'], desc=['machine that builds','machine the compiler runs on','machine the code runs on'];
+      var n=3, pad=24, gap=(w-2*pad)/n, bw=gap*0.74, bh=70, cy=h*0.42;
+      var cxs=[];
+      for(var i=0;i<n;i++){
+        var cx=pad+gap*i+gap/2; cxs.push(cx);
+        var col=COL[m[i]];
+        ctx.fillStyle='#fff'; ctx.strokeStyle=col; ctx.lineWidth=2.2;
+        rr(ctx,cx-bw/2,cy-bh/2,bw,bh,9); ctx.fill(); ctx.stroke();
+        // colored header band = machine identity
+        ctx.fillStyle=col; rr(ctx,cx-bw/2,cy-bh/2,bw,18,9); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText(roles[i], cx, cy-bh/2+13);
+        ctx.fillStyle=col; ctx.font='bold 14px "SFMono-Regular",Consolas,monospace';
+        ctx.fillText('Machine '+String.fromCharCode(65+m[i]), cx, cy+2);
+        ctx.fillStyle='#7a6a52'; ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(desc[i], cx, cy+18);
+      }
+      // compiler chip sits on host
+      var hostCx=cxs[1];
+      ctx.fillStyle='#3a4a5a'; rr(ctx,hostCx-38,cy+bh/2+10,76,22,5); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 11px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      ctx.fillText('compiler', hostCx, cy+bh/2+25);
+      // arrow build -> compiler (built on build, runs on host)
+      ctx.strokeStyle='#9aa5ad'; ctx.fillStyle='#9aa5ad'; ctx.lineWidth=1.8;
+      ctx.beginPath(); ctx.moveTo(cxs[0], cy+bh/2+2); ctx.lineTo(hostCx-40, cy+bh/2+21); ctx.stroke();
+      ctx.fillStyle='#8a7a5a'; ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('made on build', (cxs[0]+hostCx)/2-20, cy+bh/2+40);
+      // arrow compiler -> target (emits code for target)
+      ctx.strokeStyle='#9aa5ad'; ctx.lineWidth=1.8;
+      ctx.beginPath(); ctx.moveTo(hostCx+40, cy+bh/2+21); ctx.lineTo(cxs[2], cy+bh/2+2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cxs[2], cy+bh/2+2); ctx.lineTo(cxs[2]-6,cy+bh/2+10); ctx.lineTo(cxs[2]+4,cy+bh/2+9); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#8a7a5a'; ctx.fillText('emits for target', (hostCx+cxs[2])/2+18, cy+bh/2+40);
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      if(mode==='native') rd.innerHTML='<strong>native</strong>: build=host=target (all the same machine A). The ordinary "build for your own machine on your own machine."';
+      else if(mode==='cross') rd.innerHTML='<strong>cross</strong>: a compiler running on build=host (machine A) emits for a different target (machine B). The basics of bringing up a new CPU.';
+      else rd.innerHTML='<strong>Canadian Cross</strong>: build (A), host (B), and target (C) all three differ. A compiler made on A, running on B, emitting for C.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-m]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      mode=b.getAttribute('data-m'); btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: bringing up a new architecture ============ */
+  (function(){
+    var cv=document.getElementById('cvBringup'), sl=document.getElementById('bu'),
+        vBu=document.getElementById('vBu'), rd=document.getElementById('rdBu');
+    if(!cv) return;
+    var ST=[
+      {h:'① New CPU (target) — no chicken', note:'The target has no OS and no compiler. It can make nothing itself (the same as the unborn PDP-7 of Episode 8).'},
+      {h:'② Cross the toolchain on the build machine', note:'On a build machine (PC) that already runs, prepare a cross-compiler for the target.'},
+      {h:'③ Cross-compile the OS and userland', note:'On the build machine, bake the target\'s kernel and userland. You haven\'t run them on the target yet.'},
+      {h:'④ Load onto the target and boot', note:'Load what you baked onto the target and boot for the first time. Software ran on the new CPU.'},
+      {h:'⑤ Native self-hosting achieved', note:'The target itself can now build for the target. Graduating from the build machine = independence (the same as Episode 2\'s v0.11 and Episode 8\'s graduating from GECOS).'}
+    ];
+    function machine(ctx,x,y,w,h,label,sub,col,active){
+      ctx.fillStyle= active?'#fff':'#f3f1ea'; ctx.strokeStyle=col; ctx.lineWidth= active?2.4:1.6;
+      rr(ctx,x,y,w,h,10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle= active?'#1b2330':'#c4c0b4'; rr(ctx,x+10,y+10,w-20,h*0.36,4); ctx.fill();
+      ctx.fillStyle=col; ctx.textAlign='center'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText(label,x+w/2,y+h-22); ctx.fillStyle='#8a8175'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText(sub,x+w/2,y+h-6);
+    }
+    function chip(ctx,x,y,label,col){
+      ctx.fillStyle=col; ctx.strokeStyle='rgba(0,0,0,.15)'; ctx.lineWidth=1; rr(ctx,x-40,y-13,80,26,5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 10.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center'; ctx.fillText(label,x,y+4);
+    }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var st=parseInt(sl.value,10);
+      var bx=w*0.05, tx=w*0.62, my=h*0.30, mw=w*0.30, mh=h*0.42;
+      machine(ctx,bx,my,mw,mh,'build machine (existing)','x86 PC etc.','#2166a0',true);
+      machine(ctx,tx,my,mw,mh,'target (new CPU)', st>=4?'native, independent':(st>=3?'booted!':'no chicken'),'#a8681a', st>=3);
+      // chips crossing
+      var midY=my-2;
+      if(st===1){ chip(ctx,bx+mw/2,midY,'toolchain','#3a4a5a'); }
+      else if(st===2){ chip(ctx,bx+mw/2,midY,'OS+userland','#2f7d63'); }
+      else if(st===3){
+        chip(ctx,(bx+mw+tx)/2,midY,'load & boot','#a8681a');
+        ctx.strokeStyle='#c1a969'; ctx.setLineDash([5,4]); ctx.lineWidth=1.8;
+        ctx.beginPath(); ctx.moveTo(bx+mw,midY); ctx.lineTo(tx,midY); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#8a5e10'; ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center'; ctx.fillText('carry over →', (bx+mw+tx)/2, midY-16);
+      } else if(st>=4){
+        // native self-loop on target
+        var lx=tx+mw/2, ly=my+8, R=17;
+        ctx.strokeStyle='#a8681a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(lx,ly,R,0.2*Math.PI,1.8*Math.PI); ctx.stroke();
+        var ea=1.8*Math.PI; ctx.fillStyle='#a8681a';
+        ctx.beginPath(); ctx.moveTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea)-6,ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)+6); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#734810'; ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center'; ctx.fillText('native self-hosting', lx, ly-R-5);
+      }
+      // arrow between (dim baseline)
+      ctx.strokeStyle='#e0d4bc'; ctx.setLineDash([4,4]); ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(bx+mw,my+mh*0.5); ctx.lineTo(tx,my+mh*0.5); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='left';
+    }
+    function update(){ var st=parseInt(sl.value,10), s=ST[st]; vBu.textContent=s.h; rd.innerHTML='<strong>'+s.h+'</strong>: '+s.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

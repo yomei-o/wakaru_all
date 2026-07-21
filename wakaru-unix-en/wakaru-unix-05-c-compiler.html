@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Birth of the C Compiler — Bootstrapping Itself | A History of UNIX That Clicks, Episode 5</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f6fb; --paper-edge:#e2dbee;   /* Episode 5: violet paper */
+    --side:#2f6f55; --side-bg:#eaf2ee;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#d5cce6; --hair:#c2b5da;
+    --acc:#6d4aa7;    /* Episode 5 accent = violet */
+    --grid:#ded5ee;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ddd0f0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#efeaf6;border:1px solid #e2dbee;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#20342b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfaff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;} .btnmini:disabled{opacity:.45;cursor:default;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#efe9f7;color:#492e78;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfcff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f0fa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfcff,#e7e0f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe9f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#492e78;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 5 / The Origin of Self-Hosting</span></div>
+  <p class="eyebrow">The ancestor of the cc that ignited gcc — how did the first C compiler build itself?</p>
+  <h1>The Birth of the C Compiler — Bootstrapping Itself
+    <span class="sub">A C compiler written in C can't be built without a C compiler. This is the deepest point of Episode 3's ring. <em>In a world where C did not yet exist, what built the first C compiler?</em> The answer: it was "<strong>grown</strong> gradually out of B."</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 3 (gcc's 3-stage bootstrap)</span>
+    <span>The reveal: extend the language, then recompile</span>
+  </div>
+
+  <p class="lead">In Episode 3 we said "the first <code>gcc</code> was ignited by the machine's existing <code>cc</code>," and promised to descend toward that <code>cc</code>'s ancestor. That ancestor is the <strong>first C compiler</strong>, written in the early 1970s by Dennis Ritchie. But here the ring reaches its very deepest point — <em>the C compiler is written in C, yet there is not a single C anywhere in the world yet.</em> Even an "existing C compiler" to borrow doesn't exist. So how? The answer is that he didn't write C outright — he <strong>grew C little by little out of a language called B, which already existed</strong>.</p>
+
+  <h2><span class="n">01</span>C wasn't designed — it "grew" out of B</h2>
+
+  <p>C is not a language designed from a blank page. Its family tree is like this — <strong>BCPL → (Ken Thompson made) B → (Dennis Ritchie made) C</strong>. When the PDP-11 arrived in 1970, B's nature — "typeless, word-oriented" — didn't fit the <em>byte-oriented</em> PDP-11. So Ritchie began adding <strong>types (<code>char</code>, <code>int</code>, etc.)</strong> to B. This transitional language was called <em>NB (New B)</em>, but it was so short-lived that no proper specification of it survives. As B sprouted types and was reworked to emit machine code, it had become C.</p>
+
+  <div class="term">
+<span class="c">/* language family tree (roughly) */</span>
+BCPL  ──▶  B      <span class="c">// Thompson, typeless / word-oriented (PDP-7)</span>
+   B  ──▶  NB     <span class="c">// Ritchie, adds types (to fit the PDP-11's bytes)</span>
+  NB  ──▶  <span class="o">C</span>      <span class="c">// to machine-code output. 1973, the Unix kernel rewritten in C</span>
+  </div>
+
+  <h2><span class="n">02</span>The chicken and egg of self-hosting — the deepest point</h2>
+
+  <p>Episode 3's <code>gcc</code> got by with "lend me one existing <code>cc</code>." There was someone to borrow from. But <strong>the first C compiler had no one to borrow from</strong> — because C did not yet exist. This is the very bottom of the chicken-and-egg of self-hosting.</p>
+
+  <div class="keybox">
+    <div class="lbl">This episode's crux — don't try to build "all of C" from "nothing"</div>
+    <p style="margin:6px 0 0;">It looks unsolvable because you imagine "building a <em>complete C compiler</em>, all at once, from <em>nothing</em>." In reality that's not how it goes. <strong>Start from a small language that already works (B), add one feature to the compiler and recompile, and widen the language it can handle little by little.</strong> Each stage can be built with <em>just the compiler from the previous stage</em>. You don't make C from nothing — you <strong>continuously deform</strong> B into C.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The reveal — extend the language, then recompile</h2>
+
+  <p>Let's see this "way of growing" as a staircase. Advance the slider in the figure below. At each step, <strong>the language the compiler is written in</strong> and <strong>the language the compiler can compile</strong> climb upward, chasing each other. The moment the two meet at C is the moment self-hosting is achieved.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The staircase of language extension. Add types, machine-code output, structs… to the B compiler and recompile, widening the language it handles up to C. The seed at the base (B / assembly) exits last.</div>
+    <canvas id="cvLadder" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Advance the growing step<span class="val" id="vLad">① Seed: B compiler</span>
+        <input type="range" id="lad" min="0" max="4" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdLad"></div>
+  </div>
+
+  <div class="calc">
+    <span class="tag">The self-growing loop (each time you add one feature)</span>
+    <p style="margin-top:8px;">① <strong>Add</strong> a new feature (types, structs…) to the compiler. ② <strong>Recompile</strong> with the current compiler. ③ Now the new feature <em>can also be used in the compiler's own source code</em>. ④ Go back to ①.</p>
+    <p style="margin:8px 0 14px;">Each turn of this small ring makes both the language and the compiler one step richer. <strong>"Rewrite yourself using the feature you just built"</strong> — the snowballing growth unique to self-hosting.</p>
+  </div>
+
+  <h2><span class="n">04</span>The seed exits — the C↔C ring starts to run on its own</h2>
+
+  <p>Eventually, the C compiler reaches the point where it is <strong>written in C and can compile C (its own source)</strong>. Once that happens, the <strong>B seed used for ignition is no longer needed</strong>. Same as discarding stage1 in Episode 3 — you remove the scaffold once it's done its job. In 1973, Ritchie and Thompson used this C to <strong>rewrite the Unix kernel itself</strong>. In the figure below, cut the seed and watch the moment the C↔C ring begins to run on its own.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The seed exits. At first B (the seed) ignites the C compiler. Once self-hosting is reached, you can cut ties with B and the C↔C ring keeps turning entirely on its own.</div>
+    <canvas id="cvSeed" width="680" height="270"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="seedBtn">Reach self-hosting → cut the seed (B)</button>
+      <button class="btnmini" id="seedReset" style="background:#9a86bd;">Reset</button>
+    </div>
+    <div class="readout" id="rdSeed">Right now B (the seed) is igniting the C compiler. It still depends on B.</div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">This episode's place — Episode 0's ring was born here</div>
+    <p style="margin:6px 0 0;">The self-hosting ring we saw in Episode 0: "<code>gcc</code> ← <code>gcc</code> ← <code>gcc</code> …" — its <strong>very first turn</strong> was this C compiler of Ritchie's. The <code>gcc</code> ring, and the ring of the compiler you use today, are all, traced back, a continuation of <em>the same ring ignited here</em>. The moment C became a language that "can compile itself" was the starting point of everything that followed.</p>
+  </div>
+
+  <h2><span class="n">05</span>And yet the ring continues further down</h2>
+
+  <p>"Grown out of B" solved C's chicken and egg. But of course the next question waits — <strong>then what built that B?</strong> B, too, did not simply spring into existence. B came from <em>BCPL</em>, and ran on top of the PDP-7's <strong>assembly</strong>. The hand outside the ring is still further down. Next time: B and BCPL, and "intermediate code (O-code)."</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line — untangling "written in B" from "written in assembly"</span>
+    <p style="margin-top:0;">(1) The first C compiler is sometimes introduced as "written in assembly," but more precisely — <strong>the C compiler evolved continuously from the B compiler</strong>, becoming C as Ritchie added types to the B compiler and reworked it toward machine-code output. That foundation (the B implementation) is supported by PDP-11 assembly and threaded code. "Grown out of B" and "assembly underneath" are both true at once.</p>
+    <p style="margin-bottom:0;">(2) The self-growing loop of "add a feature and recompile" is a real technique, but the actual work of 1971–73 was far more involved; here we idealize the skeleton. (3) Even under self-hosting, <em>assembly remains</em> in things like the runtime library and startup. It does not mean "everything is completed in C alone." (4) NB was short-lived and poorly documented, and there are various accounts of the details of B→C.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>Arrange C's family tree (three languages) from oldest to newest.
+        <details><summary>Show the answer</summary><div class="ans">BCPL → B → C. B is Thompson's, C is Ritchie's. The language midway through adding types to B was NB (New B).</div></details>
+      </li>
+      <li>Why can't you "build the first C compiler with an existing C compiler"?
+        <details><summary>Show the answer</summary><div class="ans">Because not a single C existed anywhere in the world yet, so there was no existing C compiler to borrow. Episode 3's gcc could borrow an existing cc, but at the origin there is none.</div></details>
+      </li>
+      <li>So how was the first C compiler actually built? In one sentence.
+        <details><summary>Show the answer</summary><div class="ans">By adding features (types, machine-code output, etc.) little by little to the already-existing B compiler and recompiling, continuously widening the language it handled up to C. Not made from nothing — B was deformed into C.</div></details>
+      </li>
+      <li>After self-hosting is reached, what happens to the B seed used for ignition?
+        <details><summary>Show the answer</summary><div class="ans">It becomes unnecessary and exits (same as discarding stage1 in Episode 3). From then on the C compiler is written in C and can reproduce itself = the C↔C ring runs on its own.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Not made from nothing — B was continuously deformed into C</h2>
+    <p>The ancestor of the <code>cc</code> that ignited gcc is Ritchie's first C compiler. Here the chicken-and-egg of self-hosting reaches its deepest point — the C compiler is written in C, yet there is no C compiler anywhere in the world to borrow. It was solved by <strong>giving up</strong> on "making complete C from nothing." Following the family tree <strong>BCPL→B→C</strong>, he added <em>types, machine-code output, and structs</em> to the already-working B compiler, recompiled each time, and <strong>continuously deformed</strong> the language up to C.</p>
+    <p>Turning the self-growing loop of "rewrite yourself with the feature you just built," the C compiler reached the point of being written in C and compiling C, and the <strong>B seed for ignition exited</strong> (same as discarding stage1). In 1973, the Unix kernel was rewritten in this C. The self-hosting ring we saw in Episode 0 was <em>ignited here</em>. — But the ring still continues down. What built that B? Next time: B and BCPL, and the intermediate code O-code.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 6</span>
+    "B and BCPL — the Escape Route of Intermediate Code." The B that grew C was a child of Martin Richards's <strong>BCPL</strong>. And BCPL had an invention that anticipated Episode 4's EM — an intermediate code called <strong>O-code</strong>. "When the machine changes, you don't have to rebuild all the way to the middle." We'll touch the wellspring of an old, strong idea that underpinned porting and bootstrapping.
+  </div>
+
+  <div class="foot">
+    This document is Episode 5 of the series "A History of UNIX That Clicks." Historical notes: C developed as BCPL → B (Ken Thompson) → C (Dennis Ritchie). The PDP-11 was introduced in 1970; threaded code was used in porting B, and B was bootstrapped with the assembler, dc, and B itself written in B. Around 1971 Ritchie began changing the compiler toward machine-code generation while introducing data types on variables (this transitional language being New B, NB), which developed continuously into C. NB was short-lived and no complete description survives. The skeleton of modern C came together in early 1973, and the PDP-11 Unix kernel was rewritten in C that summer. Self-hosting (the state in which a compiler written in one's own language can compile itself) is a standard technique: prepare an initial seed compiler in another language (assembly or an existing language), then extend the language and recompile to reach it; once reached, the seed can be retired. There is also the summary "the first C compiler was made in assembly," but the reality is a continuous evolution from the B compiler, with PDP-11 assembly at its foundation. Even after self-hosting, assembly remains in things like runtime processing. — To print, use your browser's "Print" and "Save as PDF" (in the printed version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use Figure 1's slider for the staircase of language extension, and Figure 2's button to try the seed (B) exiting and the C↔C loop running on its own. "Show the answer" reveals each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: staircase of language extension ============ */
+  (function(){
+    var cv=document.getElementById('cvLadder'), sl=document.getElementById('lad'),
+        vLad=document.getElementById('vLad'), rd=document.getElementById('rdLad');
+    if(!cv) return;
+    var RUNGS=[
+      {w:'B',    c:'B',        seed:true,  h:'① Seed: B compiler',        note:'Written in B, compiles B. The base is PDP-11 assembly / threaded code. This is the ignition device.'},
+      {w:'B',    c:'B + types', seed:true,  h:'② Add types (NB)',           note:'Add types like <code>char</code> and <code>int</code> to the compiler, fitting the byte-oriented PDP-11. The language becomes NB.'},
+      {w:'NB→C', c:'C (early)', seed:true,  h:'③ Rework to machine-code output',          note:'Rework the compiler toward machine-code generation. The language it handles gets much closer to C. The compiler source is gradually turning into C too.'},
+      {w:'C',    c:'C (nearly modern)', seed:true, h:'④ Add structs, etc.',        note:'Nearly reaching modern C. Rewriting the compiler source in C. Still faintly supported by the seed.'},
+      {w:'C',    c:'C',        seed:false, h:'⑤ Self-hosting achieved',      note:'The C compiler is written in C and compiles C (its own source). The seed (B) exits. In 1973, Unix rewritten in C.'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10), n=RUNGS.length;
+      var padL=54, padR=20, padB=54, padT=20;
+      var uW=w-padL-padR, uH=h-padB-padT;
+      var sw=uW/n, sh=uH/n;
+      // dashed climb guide
+      ctx.strokeStyle='#d9cfe9'; ctx.setLineDash([4,4]); ctx.lineWidth=1.4; ctx.beginPath();
+      for(var i=0;i<n;i++){ var cxp=padL+sw*i+sw/2, cyp=(h-padB)-sh*i-sh/2; if(i===0)ctx.moveTo(cxp,cyp); else ctx.lineTo(cxp,cyp); }
+      ctx.stroke(); ctx.setLineDash([]);
+      // rung platforms
+      for(i=0;i<n;i++){
+        var x=padL+sw*i, y=(h-padB)-sh*i, tw=sw*0.9, th=12;
+        var passed=i<=cur, isc=i===cur;
+        ctx.fillStyle= isc? '#6d4aa7' : (passed? '#d8cced' : '#ede8f4');
+        ctx.strokeStyle= isc? '#513a7d' : '#c2b5da'; ctx.lineWidth=1.4;
+        rr(ctx,x,y-th,tw,th,3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= isc? '#513a7d' : '#9a8bbd'; ctx.font='10px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+        ctx.fillText((i+1)+'', x+tw/2, y-th-4);
+      }
+      // current compiler box on current rung
+      var cr=RUNGS[cur], bx=padL+sw*cur+sw*0.45, by=(h-padB)-sh*cur-12-58;
+      var bw=Math.max(sw*1.15,148);
+      if(bx+bw/2>w-6) bx=w-6-bw/2; if(bx-bw/2<padL) bx=padL+bw/2;
+      ctx.fillStyle='#fff'; ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2.2;
+      rr(ctx,bx-bw/2,by,bw,50,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#6d4aa7'; ctx.textAlign='center'; ctx.font='bold 12.5px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('C compiler', bx, by+17);
+      ctx.font='11px "SFMono-Regular",Consolas,monospace'; ctx.fillStyle='#4a3670';
+      ctx.fillText('written='+cr.w+'  /  compiles='+cr.c, bx, by+36);
+      // seed box (bottom-left)
+      var seedActive=cr.seed;
+      ctx.save(); ctx.globalAlpha= seedActive?1:0.35;
+      ctx.fillStyle= seedActive? '#efe3d3':'#eeeeee'; ctx.strokeStyle= seedActive? '#a85f18':'#b0b0b0'; ctx.lineWidth=1.6;
+      rr(ctx,padL-40,h-padB+16,150,30,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle= seedActive? '#7a4a10':'#8a8a8a'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Seed: B + assembly'+(seedActive?'':' (exited)'), padL-40+75, h-padB+35);
+      ctx.restore();
+      // link seed -> current box
+      ctx.strokeStyle= seedActive? '#c3a06a' : '#cbcbcb'; ctx.lineWidth=1.6; ctx.setLineDash(seedActive?[]:[3,4]);
+      ctx.beginPath(); ctx.moveTo(padL-40+75, h-padB+16); ctx.lineTo(bx, by+50); ctx.stroke(); ctx.setLineDash([]);
+      if(!seedActive){
+        // cut mark
+        ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4;
+        var mx=(padL-40+75+bx)/2, my=(h-padB+16+by+50)/2;
+        ctx.beginPath(); ctx.moveTo(mx-8,my-8); ctx.lineTo(mx+8,my+8); ctx.moveTo(mx+8,my-8); ctx.lineTo(mx-8,my+8); ctx.stroke();
+      }
+      // top label
+      ctx.fillStyle='#9a8bbd'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Language level ↑', 6, padT); ctx.textAlign='left';
+      ctx.textAlign='left';
+    }
+    function update(){ var cur=parseInt(sl.value,10), cr=RUNGS[cur];
+      vLad.textContent=cr.h; rd.innerHTML='<strong>'+cr.h.replace(/^..\s?/,'')+'</strong>: '+cr.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: the seed exits and C↔C runs on its own ============ */
+  (function(){
+    var cv=document.getElementById('cvSeed'), btn=document.getElementById('seedBtn'), reset=document.getElementById('seedReset'),
+        rd=document.getElementById('rdSeed');
+    if(!cv) return;
+    var selfhost=false, phase=0, raf=null, last=0;
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var bx=w*0.24, cy=h*0.5, cxC=w*0.62;
+      // B seed box
+      ctx.save(); ctx.globalAlpha= selfhost?0.32:1;
+      ctx.fillStyle= selfhost? '#eeeeee':'#efe3d3'; ctx.strokeStyle= selfhost?'#b0b0b0':'#a85f18'; ctx.lineWidth=1.8;
+      rr(ctx,bx-70,cy-26,140,52,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle= selfhost?'#8a8a8a':'#7a4a10'; ctx.textAlign='center';
+      ctx.font='bold 14px "SFMono-Regular",Consolas,monospace'; ctx.fillText('B (seed)', bx, cy-2);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText(selfhost?'exited':'ignition device', bx, cy+16);
+      ctx.restore();
+      // link B -> C
+      ctx.strokeStyle= selfhost? '#cbcbcb':'#c3a06a'; ctx.setLineDash(selfhost?[3,4]:[]); ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(bx+70, cy); ctx.lineTo(cxC-64, cy); ctx.stroke();
+      if(!selfhost){ ctx.fillStyle='#c3a06a'; ctx.beginPath(); ctx.moveTo(cxC-64,cy); ctx.lineTo(cxC-74,cy-5); ctx.lineTo(cxC-74,cy+5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#7a4a10'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center'; ctx.fillText('ignite with B', (bx+cxC)/2, cy-10); }
+      ctx.setLineDash([]);
+      if(selfhost){ // cut mark
+        ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; var mx=(bx+70+cxC-64)/2;
+        ctx.beginPath(); ctx.moveTo(mx-8,cy-8); ctx.lineTo(mx+8,cy+8); ctx.moveTo(mx+8,cy-8); ctx.lineTo(mx-8,cy+8); ctx.stroke(); }
+      // C compiler box
+      ctx.fillStyle='#efe9f7'; ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2.6;
+      rr(ctx,cxC-64,cy-30,128,60,10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#6d4aa7'; ctx.textAlign='center';
+      ctx.font='bold 15px "SFMono-Regular",Consolas,monospace'; ctx.fillText('C compiler', cxC, cy-4);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('written in C, compiles C', cxC, cy+15);
+      // self loop (spins when selfhost)
+      if(selfhost){
+        var lx=cxC, ly=cy-30-4, R=30;
+        ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2.4;
+        ctx.beginPath(); ctx.arc(lx,ly,R, Math.PI*0.2, Math.PI*1.8); ctx.stroke();
+        var ea=Math.PI*1.8, ex=lx+R*Math.cos(ea), ey=ly+R*Math.sin(ea);
+        ctx.fillStyle='#6d4aa7'; ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-8,ey-1); ctx.lineTo(ex-2,ey+8); ctx.closePath(); ctx.fill();
+        // running pulse
+        var pa=Math.PI*0.2 + (phase*(Math.PI*1.6));
+        var px=lx+R*Math.cos(pa), py=ly+R*Math.sin(pa);
+        ctx.fillStyle='#2f8d5a'; ctx.beginPath(); ctx.arc(px,py,4,0,2*Math.PI); ctx.fill();
+        ctx.fillStyle='#492e78'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('the self-hosting ring (self-running)', lx, ly-R-8);
+      }
+      ctx.textAlign='left';
+    }
+    function tick(t){ if(!last)last=t; var dt=(t-last)/1000; last=t; phase+=dt*0.5; if(phase>1)phase-=1; draw(); if(selfhost) raf=requestAnimationFrame(tick); }
+    btn.addEventListener('click', function(){
+      if(selfhost) return;
+      selfhost=true; last=0; rd.innerHTML='The C compiler is written in C and can compile its own source. So <strong>even if you cut B (the seed), the C↔C ring keeps running on its own</strong>. The ring of Episode 0 was born here.';
+      raf=requestAnimationFrame(tick);
+    });
+    reset.addEventListener('click', function(){ if(raf)cancelAnimationFrame(raf); selfhost=false; phase=0;
+      rd.innerHTML='Right now B (the seed) is igniting the C compiler. It still depends on B.'; draw(); });
+    window.addEventListener('resize',draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+})();
+</script>
+</body>
+</html>

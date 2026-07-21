@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bootstrappable Builds ── Shrinking the Seed | A History of UNIX That Clicks, Bonus 2</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4faf7; --paper-edge:#d6e8df;   /* Bonus 2: teal-green paper */
+    --side:#6a4a9c; --side-bg:#efe9f5;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#c6ddd0; --hair:#aecfc0;
+    --acc:#2f7d63;    /* Bonus 2 accent = teal green (hope) */
+    --grid:#d3e7dd;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c6e6d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#e7f2ec;border:1px solid #d6e8df;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2a52;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#f8fdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#dcece5;color:#2a5d4a;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#e3f2ea;color:#1c5a44;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef7f2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfffe,#e5f1eb);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f2ea;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c5a44;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks / Bonus 2</span><span class="ep">Bootstrapping Trust 2</span></div>
+  <p class="eyebrow">The modern answer to the threat of Bonus 1 ── shrink the seed, and check it with diversity</p>
+  <h1>Bootstrappable Builds ── Shrinking the Seed
+    <span class="sub">Trusting Trust (Bonus 1) said ── "you have no choice but to trust a binary you didn't make yourself." The modern answer is twofold ── <em>shrink the seed you trust down to a size a human can actually read by hand (357 bytes); and double-check it with a compiler of a different lineage.</em></span>
+  </h1>
+  <div class="byline">
+    <span>Prerequisites: Bonus 1 (Trusting Trust), Episode 9 (the seed)</span>
+    <span>The hope: trust small, and confirm with diversity</span>
+  </div>
+
+  <p class="lead">In Bonus 1 we saw Thompson's dark twin ── even if a compiler's source is clean, as long as you build with a descendant of a poisoned binary the Trojan survives, and trust hits bottom at "something you didn't make yourself." So are we helpless? No. Just as the <em>hope</em> of the main series (the self-hosting loop, the hand-carved seed) had a modern answer, this <em>threat</em>, too, has two powerful countermeasures ── <strong>1. shrink the seed down to a human-readable size (Bootstrappable / Full-Source Bootstrap)</strong>, and <strong>2. double-compile with a compiler of a different lineage to cross-check (DDC)</strong>. The grand finale of the chicken-and-egg "hope."</p>
+
+  <h2><span class="n">01</span>Strategy 1 ── make the seed you trust small enough to read by hand</h2>
+
+  <p>The heart of the problem in Bonus 1 was that "the <em>first binary you have no choice but to trust</em> is too big to inspect." Then ── <strong>just make that seed as small as you possibly can.</strong> The Bootstrappable Builds project minimizes the <em>number and size</em> of binaries that must be trusted. And its achievement is remarkable ── from a seed of just <strong>357 bytes, called <code>hex0</code></strong>, it builds up the entire GNU system <em>from source alone</em> (Full-Source Bootstrap).</p>
+
+  <div class="term">
+<span class="c">// hex0 ── a 357-byte seed. It just reads space-separated hex and emits bytes</span>
+<span class="p">$</span> cat hello.hex0
+   <span class="o">7C 00 00 00</span>   <span class="c"># This is just a sequence of hex. A human can follow it by eye</span>
+<span class="p">$</span> ./hex0 hello.hex0 > hello   <span class="c"># hex → bytes (a minimal assembler)</span>
+   <span class="q">You only have to trust these 357 bytes. Everything else builds up from source</span>
+  </div>
+
+  <p>On top of these 357 bytes, slightly larger tools build up, one by one, <em>from source</em>. In the figure below, climb from the seed to <code>gcc</code>, and on to the GNU system. It's a straight descendant of Episode 4's "everything from a small core" and Episode 9's "the bootstrap staircase."</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: Full-Source Bootstrap. From the 357-byte hex0 seed, each stage ── hex → M2 → Mes → TinyCC → gcc ── builds the next, larger tool from source, climbing all the way to the entire GNU system</div>
+    <canvas id="cvBoot" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Build up from the seed<span class="val" id="vBoot">1. The hex0 seed (357 bytes)</span>
+        <input type="range" id="boot" min="0" max="6" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdBoot"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">Crux 1 this time ── "the hand-carved seed" is reborn in the modern age</div>
+    <p style="margin:6px 0 0;">In Episode 9 we saw that the first bytes were <strong>carved by human hands</strong>. Full-Source Bootstrap brings that back into the modern age ── <em>if you shrink the seed you must trust down to 357 bytes, a human can actually read all of it by eye</em>. The "binary you have no choice but to trust, and can't inspect" of Bonus 1 becomes a size that <strong>can be audited</strong>. The motto "the first egg was carved by hand" comes back to life as a practical matter of security.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>Strategy 2 ── double-check with a compiler of a different lineage (DDC)</h2>
+
+  <p>The other answer goes in a different direction from shrinking the seed ── it's a method to <strong>verify a suspect compiler you already have, as-is</strong>. David A. Wheeler's <strong>Diverse Double-Compiling (DDC)</strong>. The idea goes like this ── <em>prepare a trusted compiler A of a <strong>different lineage</strong> from the suspect compiler X, compile the same source twice through it, and compare the result bit-for-bit with X's binary.</em></p>
+
+  <p>Here's the brilliance. Thompson's poison is <strong>in neither the source nor the different-lineage A</strong> (the poison lurks only in the lineage of X's binary). So the binary rebuilt via A is clean, and ── if X is poisoned, <strong>the rebuilt result and X disagree, and the poison is exposed</strong>. In the figure below, toggle X between "honest" and "poisoned," and watch the comparison fail only when it's poisoned.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Diverse Double-Compiling. Compile the same source (twice) with the suspect X and with a trusted compiler A of a different lineage, and compare the result bit-for-bit with X's binary. They disagree only when X is poisoned</div>
+    <canvas id="cvDDC" width="680" height="320"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-x="honest">X is honest</button>
+      <button class="btnmini seg" data-x="trojan">X is poisoned (Thompson's poison)</button>
+    </div>
+    <div class="readout" id="rdDDC"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">Crux 2 this time ── bit-for-bit identity as the verdict (Episode 3 returns)</div>
+    <p style="margin:6px 0 0;">For DDC to hold, <strong>the same source must yield the same binary</strong> ── <em>reproducible builds</em>. This is exactly the same idea as Episode 3's "verify by the bit-for-bit match of <code>stage2 == stage3</code>." Back then we said "a correct compiler produces the same output no matter what it's built with." DDC combines that with <em>diversity</em>, making it the verdict that <strong>"if it matches when rebuilt through a different lineage, the binary is faithful to the source."</strong></p>
+  </div>
+
+  <h2><span class="n">03</span>The reveal ── this is how you overcome "you can't make all of it"</h2>
+
+  <p>The lesson of Bonus 1 was "you can't trust code you didn't completely create yourself." In reality, no one can make all of it. But the two strategies overcome that in practice ── <strong>shrink the scope of what you trust down to 357 bytes that a human can read through, and further cross-check with a <em>diverse</em> second compiler.</strong> Instead of "make all of it," it's "trust small, and independently confirm each other." The poison Thompson showed to be "undetectable in principle" became, <strong>now, detectable in principle</strong>.</p>
+
+  <div class="aside">
+    <span class="tag">CONNECTING VOICE ── a triple handshake with the main series</span>
+    This bonus shakes hands with the main series in three ways. <strong>Episode 3</strong> (the bit-for-bit match of stage2==stage3 = the ancestor of reproducible builds), <strong>Episode 4</strong> (everything from a small core = shrinking the seed), <strong>Episode 9</strong> (the hand-carved seed = the 357-byte auditable seed). The toolkit we picked up as we traced the chicken and egg all the way down becomes, as-is, the answer to security ── deeply understanding the structure of bootstrapping was directly connected to <em>protecting</em> it.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── not a cure-all, but a sure step forward</span>
+    <p style="margin-top:0;">(1) Even with the 357-byte seed, you're still trusting <em>the kernel and CPU that run</em> that <code>hex0</code> (the hardware/microcode of Episode 10). Full-Source Bootstrap minimizes the <strong>software seed</strong>, but hardware trust remains a separate problem. (2) DDC assumes that "the different-lineage A is not independently poisoned (does not collude with X)." How to secure a fully independent A is a practical crux.</p>
+    <p style="margin-bottom:0;">(3) Reproducible Builds is a large, ongoing effort, and not all software has reached it yet. (4) Guix's Full-Source Bootstrap, GNU Mes, stage0, and live-bootstrap are developing projects, and their composition and numbers change with the version (357 bytes is a representative example of a hex0-seed). The point is the <strong>direction</strong>: "<em>make the seed you trust small and verifiable, and confirm it with diversity.</em>"</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this installment)</div>
+    <ol>
+      <li>Which problem from Bonus 1 does Full-Source Bootstrap ease, and how?
+        <details><summary>See the answer</summary><div class="ans">It eases the problem that "the first binary you have no choice but to trust is too big to inspect," by shrinking the seed to 357 bytes so a human can read all of it = making it auditable.</div></details>
+      </li>
+      <li>Why can DDC see through Thompson's poison?
+        <details><summary>See the answer</summary><div class="ans">The poison is in neither the source nor the trusted, different-lineage compiler A; it lurks only in the lineage of the suspect X's binary. So the result of re-double-compiling via A is clean, disagrees bit-for-bit with the poisoned X, and is exposed.</div></details>
+      </li>
+      <li>What property, the same as in Episode 3, does DDC assume?
+        <details><summary>See the answer</summary><div class="ans">Reproducible builds (that the same source yields a bit-for-bit identical binary). The same idea as Episode 3's stage2==stage3 bit-for-bit match verification.</div></details>
+      </li>
+      <li>Sum up the two strategies in one phrase each. What's the shared idea?
+        <details><summary>See the answer</summary><div class="ans">1. Shrink the seed to human-readable size (make it auditable). 2. Double-compile through a different lineage and compare (DDC). What they share: instead of "make all of it yourself," "trust small, and independently confirm each other."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Trust small, confirm with diversity</h2>
+    <p>To the threat of Bonus 1 (even from clean source, if it's a descendant of a poisoned binary, the poison remains / trust hits bottom at something you didn't make), the modern age responds in two ways. <strong>1. Bootstrappable / Full-Source Bootstrap</strong>: shrink the seed you trust down to <code>hex0</code>'s <strong>357 bytes</strong>, and build up hex → M2 → Mes → TinyCC → gcc → the GNU system <em>from source alone</em>. If the seed is human-readable, the "binary you couldn't inspect" of Bonus 1 <strong>can be audited</strong>. <strong>2. Diverse Double-Compiling (DDC, Wheeler)</strong>: double-compile with a trusted compiler of a different lineage, and compare the result bit-for-bit with the suspect binary. Since the poison is in neither the source nor the other lineage, only the contamination disagrees and is exposed.</p>
+    <p>DDC's foundation is <strong>reproducible builds</strong> = a descendant of Episode 3's "bit-for-bit match of stage2==stage3." This bonus shakes hands with the main series in three ways ── Episode 3 (bit-for-bit match), Episode 4 (everything from a small core), Episode 9 (the hand-carved seed). Deeply knowing the structure of bootstrapping became, as-is, the power to <em>protect</em> it. The poison Thompson showed to be "undetectable in principle" became detectable, by <strong>trusting small and confirming with diversity</strong>. ── The chicken-and-egg hope withstands the threat too.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Bonus 3</span>
+    "Cross-compilation ── making an egg with no chicken." The modern version of Episode 8's "build it on another machine and carry it over." Bake an egg for a brand-new CPU, on which nothing runs yet, on the PC in front of you. From embedded devices and bringing up new architectures, all the way to the <em>Canadian Cross</em> in which host, target, and build are all different. We'll see the trick of solving the chicken and egg by "offsetting" them.
+  </div>
+
+  <div class="foot">
+    This document is Bonus 2 of "A History of UNIX That Clicks." Historical facts and technology: The Bootstrappable Builds project aims to minimize the number and size of binaries (seeds) that must be trusted. In GNU Guix's Full-Source Bootstrap (2023), from an approximately 357-byte hex0-seed binary, stage0-posix builds hex0 → hex1 → catm → hex2 → M0 → cc_x86 → M1 → M2 → get_machine (mescc-tools) → M2-Planet, then proceeds via GNU Mes (a Scheme interpreter plus the C compiler MesCC), then a self-hosting TinyCC with minor patches, and on up to a conventional C-based bootstrap (gcc and so on). hex0 is a minimal assembler that reads space-separated hex and outputs bytes. Diverse Double-Compiling (DDC) is a technique by David A. Wheeler: compile a compiler's source twice with a trusted compiler of a different lineage, and compare the result bit-for-bit with the binary under examination; if they match, this shows (under certain assumptions) that the binary corresponds to the source. 2005 ACSAC paper (informal), 2009 PhD dissertation (formal proof). As a premise for DDC, reproducible builds (a bit-for-bit identical binary from the same source) are important. The numbers and composition can change with the version of the project. Trust in the hardware/microcode (Episode 10), securing an independent second compiler, and so on remain separate challenges. This article is an explanation for defensive and educational purposes. ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and answers are static/hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / Save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use the slider in Figure 1 for the build-up from the 357-byte seed to the GNU system, and the buttons in Figure 2 to try DDC (the comparison fails only when X is poisoned). Click "See the answer" to open each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: the Full-Source Bootstrap staircase ============ */
+  (function(){
+    var cv=document.getElementById('cvBoot'), sl=document.getElementById('boot'),
+        vBoot=document.getElementById('vBoot'), rd=document.getElementById('rdBoot');
+    if(!cv) return;
+    var ST=[
+      {l:'The hex0 seed', s:'357 bytes, human-readable hex', size:0.12, col:'#2f7d63', seed:true},
+      {l:'hex0 / hex1 / hex2', s:'hex → bytes (minimal assembler)', size:0.24, col:'#2f7d63'},
+      {l:'M0 / M1 / M2', s:'macro assemblers', size:0.38, col:'#1f7a6e'},
+      {l:'M2-Planet', s:'a C-subset compiler', size:0.54, col:'#2166a0'},
+      {l:'GNU Mes / MesCC', s:'Scheme + C compiler', size:0.70, col:'#6d4aa7'},
+      {l:'TinyCC', s:'self-hosting C', size:0.85, col:'#b0651e'},
+      {l:'gcc → the GNU system', s:'on to the conventional C bootstrap', size:1.0, col:'#9a4230'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10), n=ST.length;
+      var padT=22, padB=40, baseY=h-padB, uH=h-padT-padB;
+      var bh=Math.min(uH/(n+0.4), 40), gap=5;
+      var cx=w*0.5, maxBW=w*0.78;
+      for(var i=0;i<n;i++){
+        var y=baseY-(i+1)*bh-i*gap;
+        var on=i<=cur;
+        var bw=maxBW*(0.22+0.78*ST[i].size);
+        // arrow from prev
+        if(i>0 && on){
+          ctx.strokeStyle=ST[i].col; ctx.fillStyle=ST[i].col; ctx.lineWidth=1.8;
+          ctx.beginPath(); ctx.moveTo(cx, y+bh+gap); ctx.lineTo(cx, y+bh+1); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx,y+bh); ctx.lineTo(cx-4,y+bh+7); ctx.lineTo(cx+4,y+bh+7); ctx.closePath(); ctx.fill();
+        }
+        ctx.save(); ctx.globalAlpha= on?1:0.24;
+        ctx.fillStyle= i===cur? ST[i].col : (on? '#eef7f2':'#f0f3f1');
+        ctx.strokeStyle=ST[i].col; ctx.lineWidth= i===cur?2.6:1.5;
+        rr(ctx,cx-bw/2,y,bw,bh,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= i===cur? '#fff':ST[i].col; ctx.textAlign='center'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(ST[i].l, cx, y+bh*0.45+1);
+        ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.globalAlpha= on?0.92:0.24;
+        ctx.fillText(ST[i].s, cx, y+bh*0.82);
+        ctx.restore();
+        if(ST[i].seed){ ctx.fillStyle='#2f7d63'; ctx.font='16px sans-serif'; ctx.textAlign='right'; ctx.fillText('🌱', cx-bw/2-6, y+bh*0.7); }
+      }
+      // seed annotation
+      ctx.fillStyle='#1c5a44'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('The seed you trust = just these 357 bytes (a human can read all of it)', cx, baseY+16);
+      ctx.fillStyle='#8aa79b'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('big (gcc, GNU system)', 8, padT); ctx.textAlign='right'; ctx.fillText('small (the seed)', w-8, baseY+16); ctx.textAlign='left';
+    }
+    function update(){ var cur=parseInt(sl.value,10), st=ST[cur];
+      vBoot.textContent=(cur+1)+' ── '+st.l+(st.seed?' (357 bytes)':'');
+      rd.innerHTML='<strong>'+st.l+'</strong>: '+st.s+(cur===0?'　── this is all you have to trust.' : '　── the stage one below built this <strong>from source</strong>.')+(cur===ST.length-1?' With this, the entire GNU system has been built up, trusting only the 357-byte seed.':''); draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: Diverse Double-Compiling ============ */
+  (function(){
+    var cv=document.getElementById('cvDDC'), rd=document.getElementById('rdDDC');
+    if(!cv) return;
+    var mode='honest';
+    function box(ctx,x,y,w,h,fill,stroke,lines,lw){
+      ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=lw||1.8; rr(ctx,x,y,w,h,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=stroke; ctx.textAlign='center';
+      for(var i=0;i<lines.length;i++){ ctx.font=(i===0?'bold 12px':'10px')+' "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(lines[i], x+w/2, y+(lines.length===1?h/2+4:19+i*15)); }
+    }
+    function arrow(ctx,x0,y0,x1,y1,col){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+      var a=Math.atan2(y1-y0,x1-x0);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1-9*Math.cos(a-0.4),y1-9*Math.sin(a-0.4)); ctx.lineTo(x1-9*Math.cos(a+0.4),y1-9*Math.sin(a+0.4)); ctx.closePath(); ctx.fill(); }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var trojan = mode==='trojan';
+      // source box (center-left)
+      var sx=20, sy=h*0.42, sw=110, sh=44;
+      box(ctx,sx,sy,sw,sh,'#e7f2ec','#2f8d5a',['Compiler','source (clean)']);
+      // X (untrusted) top path, A (diverse trusted) bottom path
+      var midx=w*0.42, topy=h*0.18, boty=h*0.72, bw=120, bh=40;
+      box(ctx,midx,topy-bh/2,bw,bh, trojan?'#f3e1dc':'#eef7f2', trojan?'#9a4230':'#2f7d63',
+        [ trojan?'X: poisoned compiler':'X: the compiler', trojan?'(poisoned)':'(under examination)']);
+      box(ctx,midx,boty-bh/2,bw,bh,'#eef7f2','#2f7d63',['A: trusted compiler of','a different lineage']);
+      arrow(ctx,sx+sw,sy+4,midx,topy,'#9aa5ad');
+      arrow(ctx,sx+sw,sy+sh-4,midx,boty,'#9aa5ad');
+      // results
+      var rx=w*0.72, rbw=118;
+      // X binary (its own output / the executable under test)
+      box(ctx,rx,topy-bh/2,rbw,bh, trojan?'#f3e1dc':'#eef7f2', trojan?'#9a4230':'#2f7d63',
+        [ 'X’s binary', trojan?'☠ poisoned':'clean']);
+      arrow(ctx,midx+bw,topy,rx,topy,'#9aa5ad');
+      // A -> cA -> recompile source -> R (clean)
+      box(ctx,rx,boty-bh/2,rbw,bh,'#eef7f2','#2f7d63',['DDC result R', 'clean']);
+      arrow(ctx,midx+bw,boty,rx,boty,'#9aa5ad');
+      ctx.fillStyle='#6b7683'; ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('double-compile with A', (midx+bw+rx)/2, boty-bh/2-6);
+      // compare
+      var cmx=rx+rbw/2, cy=(topy+boty)/2;
+      ctx.strokeStyle='#3a4a5a'; ctx.setLineDash([4,3]); ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(cmx, topy+bh/2); ctx.lineTo(cmx, boty-bh/2); ctx.stroke(); ctx.setLineDash([]);
+      var ok=!trojan;
+      ctx.fillStyle= ok? '#2f8d5a':'#a83a22'; ctx.font='bold 22px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText(ok?'=':'≠', cmx+2, cy+8);
+      // verdict banner
+      ctx.fillStyle= ok? '#2f8d5a':'#a83a22'; rr(ctx, w*0.28, h-34, w*0.44, 24, 6); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText(ok? 'bit-for-bit match → binary faithful to source ✓' : 'bit mismatch → poison detected! ✗', w*0.5, h-18);
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      if(mode==='honest') rd.innerHTML='<strong>X is honest</strong>: X’s binary and the result R double-compiled with A were both made from the same clean source, so they match bit-for-bit. <strong>We confirmed the binary is faithful to the source</strong>.';
+      else rd.innerHTML='<strong>X is poisoned</strong>: the poison is in neither the source nor the different-lineage A; it lurks only in X’s binary. So R via A is clean and <strong>mismatches</strong> X bit-for-bit ── the poison is exposed. Thompson’s "undetectable" poison was detected.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-x]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      mode=b.getAttribute('data-x'); btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+})();
+</script>
+</body>
+</html>

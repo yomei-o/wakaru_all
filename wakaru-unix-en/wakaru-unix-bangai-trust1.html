@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trusting Trust ── Can You Trust the Seed? | A History of UNIX That Clicks, Bonus 1</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f6fb; --paper-edge:#e4dbee;   /* Bonus 1: purple paper */
+    --side:#9a4230; --side-bg:#f5e6e1;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#ddd0e8; --hair:#c9b8db;
+    --acc:#6a4a9c;    /* Bonus 1 accent = purple */
+    --grid:#e2d5ee;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e0d3f2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#efe9f5;border:1px solid #e4dbee;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#4a241a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfaff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#e6ddf0;color:#4c3570;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#eee6f5;color:#4c2e78;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfcff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eff9;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfcff,#e7ddf2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eee6f5;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4c2e78;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks / Bonus 1</span><span class="ep">Bootstrapping Trust 1</span></div>
+  <p class="eyebrow">The dark twin of the "loop" and "seed" we celebrated in the main series ── can you trust the seed?</p>
+  <h1>Trusting Trust ── Can You Trust the Seed?
+    <span class="sub">The uncanny fact that Ken Thompson, who wrote the first Unix, presented in his 1984 Turing Award lecture ── <em>no matter how clean a compiler's source is, if a Trojan lurks in the binary, it rides the self-hosting loop and multiplies forever, without ever appearing in the source at all.</em></span>
+  </h1>
+  <div class="byline">
+    <span>Prerequisites: Episode 5 (self-hosting), Episode 9 (the seed)</span>
+    <span>The lesson: you can't trust code you didn't completely create yourself</span>
+  </div>
+
+  <p class="lead">In the main series, we spoke of the self-hosting loop (Episode 5) and the hand-carved seed (Episode 9) as, in effect, <em>hope</em>. Software makes software, and humans lift it up only that one first time ── a beautiful story. But the same structure has a chilling flip side. <strong>What if the seed were poisoned?</strong> This is exactly what Ken Thompson, the very person who wrote the first Unix, showed in his 1984 Turing Award lecture "<em>Reflections on Trusting Trust</em>" ── <strong>the contamination survives forever, hidden in the loop. And no matter how much you read the source, you'll never find it.</strong></p>
+
+  <h2><span class="n">01</span>The question ── how far can you trust?</h2>
+
+  <p>Thompson's lecture begins with a single question ── "<strong>How far can you trust a claim that a program contains no Trojan horse (malicious mechanism)?</strong>" Ordinarily we think, "read all the source, and if there's no malice, you can trust it." He brilliantly demolished that common sense.</p>
+
+  <h2><span class="n">02</span>The three-stage trick</h2>
+
+  <p>Thompson's construction is in three stages. We'll look at them in order.</p>
+
+  <div class="calc">
+    <span class="tag">Thompson's three-stage setup</span>
+    <p class="lbl">1. Self-reproduction (a program that outputs its own source)</p>
+    <p style="margin:4px 0;">First, show that it's possible to write "a program that outputs its own source code" (a quine). Groundwork for the idea that <em>a program can "know" itself and reproduce itself</em>.</p>
+    <p class="lbl">2. Plant a backdoor in login</p>
+    <p style="margin:4px 0;">Modify the C compiler so that when it notices it is compiling <code>login</code>, it quietly adds <em>a back door that lets a magic password through</em>. ── But this leaves evidence in the compiler's source.</p>
+    <p class="lbl">3. Make the compiler "recognize" itself too, and erase the evidence</p>
+    <p style="margin:4px 0 14px;">Modify it further so that <em>when the compiler notices it is "compiling itself (the C compiler)," it quietly reinjects both the backdoor code from step 2 and this recognition code from step 3</em>. Then <strong>erase all the malice from the compiler's source</strong>. Compile once with the poisoned version ── and from then on, even though the source is completely clean, the binary keeps carrying the Trojan.</p>
+  </div>
+
+  <p>Here's the crux. The source is clean. Whoever reads it, they find no malice. But <strong>as long as you build that clean source with a compiler that is a descendant of the poisoned binary, the binary that emerges is poisoned</strong>. And the new binary inherits the ability to "reinject when it compiles itself." In the figure below, advance the generations and watch how <em>the source audit passes every time, yet the poison never disappears</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: Generational propagation of the Trojan. When the poisoned binary builds the "clean source," the new binary is likewise poisoned. The source audit "passes" every generation, yet the login backdoor lives on</div>
+    <canvas id="cvProp" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Advance the build generation<span class="val" id="vGen">Generation 0 (Thompson's poisoned version)</span>
+        <input type="range" id="gen" min="0" max="5" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdProp"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── the dark twin of the main series' "loop"</div>
+    <p style="margin:6px 0 0;">The <strong>self-hosting loop</strong> we celebrated in Episode 5, and the <strong>seed</strong> we carved in Episode 9. That <em>very same structure</em> is what makes this attack possible. If the loop turns by using "the previous self" as its foothold, then <strong>the poison planted in the previous self is inherited too, unchanged</strong>. The source stays clean across generations, while only the poison survives, passed down the binary's lineage. Hope (self-reproduction) and threat (self-reproducing poison) were two sides of the same coin.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>So how far down must you go before you can trust?</h2>
+
+  <p>If "read the source and you're safe" has collapsed, then what? The thing that compiles the source is the compiler (a binary). The thing that made that binary was another compiler. The thing that made that was… and so <strong>trust, too, recedes just like the chain of compilation</strong>. And as we saw in the main series, that chain eventually reaches <em>something you didn't make yourself</em> ── someone's binary, a tool, and the hardware of Episode 10. In the figure below, descend that "recession of trust."</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The recession of trust. Even if you can read your own source, as you descend to the compiler that translates it, then to its parent… you're left with no choice but to trust "things you didn't make yourself." Trust always hits bottom somewhere</div>
+    <canvas id="cvTrust" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>Trace trust backward<span class="val" id="vTr">1. Your own source</span>
+        <input type="range" id="tr" min="0" max="4" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdTr"></div>
+  </div>
+
+  <div class="term">
+<span class="c">// Thompson's conclusion (summary)</span>
+<span class="q">"You can't trust code that you did not totally create yourself."</span>
+   ── You can't trust code you didn't completely create yourself.
+<span class="c">// But in reality, no one creates "all of it."</span>
+  </div>
+
+  <h2><span class="n">04</span>Not despair ── there is a way to check the seed</h2>
+
+  <p>This lecture is often received pessimistically as "so nothing can be trusted." But this series takes a slightly more forward-looking stance. Just as the <em>hope</em> side of the chicken and egg (the main series) had a modern answer, this <em>threat</em> side, too, has modern technology to counter it ── <strong>shrink the "seed" you must trust to the absolute minimum, and make it verifiable</strong>. In the next installment, Bonus 2, "Bootstrappable Builds," we'll see the specifics. Even Thompson's poison was later shown to be, in principle, detectable (by diverse double-compiling).</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── in an educational / defensive context</span>
+    <p style="margin-top:0;">(1) This is <strong>a classic for understanding supply-chain trust</strong>, not a how-to for attacks. The point is a <em>defender's lesson</em>: "a source audit alone doesn't reach the bottom of trust." (2) Thompson later admitted he actually built a working version of this mechanism, but it was not widely distributed. The lecture is a "real threat model" that sits between a thought experiment and an implementation.</p>
+    <p style="margin-bottom:0;">(3) Modern compilers are huge, and the simple attack exactly as in the lecture won't go through as-is. But the principle is alive, and appears in altered form as real supply-chain attacks. (4) The countermeasures (Diverse Double-Compiling and reproducible builds, in Bonus 2) are powerful but not a cure-all; trust in the very bottom layer (hardware/microcode ── below Episode 10) remains a separate problem.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this installment)</div>
+    <ol>
+      <li>Why can a Trojan get into the product even if the compiler's source is completely clean?
+        <details><summary>See the answer</summary><div class="ans">Because if the compiler (binary) that builds the source is poisoned, a poisoned binary can be produced even from clean source. The poison lurks not in the source but in the binary's lineage.</div></details>
+      </li>
+      <li>Why doesn't the poison disappear across generations? Which concept from the main series has the same structure?
+        <details><summary>See the answer</summary><div class="ans">Because the poisoned binary "reinjects the poison when it compiles itself." Same structure as the self-hosting loop (Episode 5) / the seed (Episode 9): a loop that uses the previous self as its foothold inherits the poison too.</div></details>
+      </li>
+      <li>The "recession of trust" mirrors which recession from the main series? Where does it hit bottom?
+        <details><summary>See the answer</summary><div class="ans">It mirrors the recession of "what compiled what" (the main series). Trust, too, descends from your own source → the compiler → its parent… and finally hits bottom at a binary/tool/hardware you didn't make yourself (Episode 10).</div></details>
+      </li>
+      <li>State Thompson's lesson in one sentence. Does it mean despair?
+        <details><summary>See the answer</summary><div class="ans">"You can't trust code you didn't completely create yourself." But it isn't despair: there are modern countermeasures (Bonus 2) that make the "seed" you trust small and verifiable.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Hope and threat are two sides of the same coin</h2>
+    <p>Ken Thompson, who wrote the first Unix, asked in his 1984 Turing Award lecture ── "How far can you trust that a program contains no Trojan?" His three-stage trick (1. self-reproduction; 2. a backdoor in <code>login</code>; 3. recognizing the compiler itself and reinjecting the backdoor and the recognition code, while erasing the evidence from the source) showed that <strong>even from clean source, a Trojan survives as long as you build with a descendant of a poisoned binary</strong>. The source audit passes every generation, yet the poison never disappears.</p>
+    <p>This is the dark twin of the <strong>self-hosting loop and the seed</strong> we celebrated in the main series ── a loop that uses the previous self as its foothold inherits the previous self's poison too. Trust also recedes just like the chain of compilation, and finally hits bottom at "something you didn't make yourself" (a binary, a tool, the hardware of Episode 10). The lesson is "<em>you can't trust code you didn't completely create yourself</em>." But it isn't despair ── there is a path to minimize and verify the seed you trust. Next time, on to that modern answer.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Bonus 2</span>
+    "Bootstrappable Builds ── shrinking the seed." The modern response to Trusting Trust. An attempt to shrink the "first seed" you must trust down to a <strong>human-readable binary</strong> of a few hundred bytes, and rebuild the whole toolchain from there (GNU Mes / stage0 / live-bootstrap). And <strong>Diverse Double-Compiling (DDC)</strong>, which sees through even Thompson's poison. The grand finale of the chicken-and-egg "hope."
+  </div>
+
+  <div class="foot">
+    This document is Bonus 1 of "A History of UNIX That Clicks." Historical facts: In his 1984 ACM Turing Award lecture "Reflections on Trusting Trust" (Communications of the ACM, Vol. 27, No. 8, August 1984, pp. 761–763), Ken Thompson presented a construction for planting a self-propagating Trojan horse in a compiler. The procedure, in outline, is: (1) a self-replicating program (a quine); (2) the C compiler recognizes login and inserts a backdoor; (3) the compiler recognizes the compilation of itself and reinjects the backdoor-insertion code and the recognition code, erasing all traces from the compiler's source. As a result, even if the source is clean, the Trojan persists as long as the build is done in the lineage of the poisoned binary. The conclusion is "you can't trust code you didn't completely create yourself." Thompson later stated that he built a working version of this. As countermeasures, there are David A. Wheeler's Diverse Double-Compiling and reproducible builds / Bootstrappable Builds, which are covered in Bonus 2. This article is an explanation for defensive and educational purposes and is not intended to provide attack techniques. The figures are schematic conceptualizations. ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and answers are static/hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / Save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use the slider in Figure 1 for the Trojan's generational propagation (the source audit passes every time, the poison stays), and Figure 2 to follow the recession of trust. Click "See the answer" to open each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: generational propagation of the Trojan ============ */
+  (function(){
+    var cv=document.getElementById('cvProp'), sl=document.getElementById('gen'),
+        vGen=document.getElementById('vGen'), rd=document.getElementById('rdProp');
+    if(!cv) return;
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var gen=parseInt(sl.value,10), n=gen+1;
+      var padL=16, padR=16, uW=w-padL-padR;
+      var cyBin=h*0.34, bw=Math.min(uW/n*0.72, 96), bh=48;
+      // clean source strip (top)
+      ctx.fillStyle='#e7f2ec'; ctx.strokeStyle='#2f8d5a'; ctx.lineWidth=1.6;
+      rr(ctx,padL, h*0.06, uW, 30, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#1f6b45'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Compiler source (audit: clean ✓ no malice) ── used in every generation', w/2, h*0.06+20);
+      // binaries chain
+      for(var i=0;i<n;i++){
+        var cx = n===1? w/2 : padL + uW*i/(n-1);
+        if(n>1){ cx = padL + bw/2 + (uW-bw)*i/(n-1); }
+        // arrow from prev
+        if(i>0){
+          var pcx = padL + bw/2 + (uW-bw)*(i-1)/(n-1);
+          ctx.strokeStyle='#9a4230'; ctx.fillStyle='#9a4230'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.moveTo(pcx+bw/2, cyBin); ctx.lineTo(cx-bw/2-2, cyBin); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx-bw/2, cyBin); ctx.lineTo(cx-bw/2-9,cyBin-5); ctx.lineTo(cx-bw/2-9,cyBin+5); ctx.closePath(); ctx.fill();
+        }
+        // downlink from source
+        ctx.strokeStyle='#c7d8cd'; ctx.setLineDash([3,4]); ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.moveTo(cx, h*0.06+30); ctx.lineTo(cx, cyBin-bh/2); ctx.stroke(); ctx.setLineDash([]);
+        // binary box (poisoned)
+        ctx.fillStyle='#f3e1dc'; ctx.strokeStyle='#9a4230'; ctx.lineWidth=2;
+        rr(ctx,cx-bw/2,cyBin-bh/2,bw,bh,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#7a2513'; ctx.textAlign='center'; ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(i===0?'Gen 0':('Gen '+i), cx, cyBin-4);
+        ctx.font='10px "SFMono-Regular",Consolas,monospace'; ctx.fillText('cc binary', cx, cyBin+10);
+        // poison mark
+        ctx.fillStyle='#a83a22'; ctx.font='13px sans-serif'; ctx.fillText('☠ poison', cx, cyBin-bh/2-6);
+      }
+      // login box under current gen
+      var lcx = padL + bw/2 + (uW-bw)*(n-1)/(n>1?(n-1):1); if(n===1) lcx=padL+bw/2;
+      var ly=h*0.72;
+      ctx.strokeStyle='#9a4230'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(lcx, cyBin+bh/2); ctx.lineTo(lcx, ly-16); ctx.stroke();
+      ctx.fillStyle='#a83a22'; ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('built by this generation', lcx, cyBin+bh/2+14);
+      ctx.fillStyle='#fff'; ctx.strokeStyle='#9a4230'; ctx.lineWidth=1.8;
+      rr(ctx,lcx-70,ly-14,140,40,7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#7a2513'; ctx.font='bold 12px "SFMono-Regular",Consolas,monospace';
+      ctx.fillText('login', lcx, ly+4); ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('🔓 the backdoor is alive', lcx, ly+20);
+      ctx.textAlign='left';
+    }
+    function update(){ var gen=parseInt(sl.value,10);
+      vGen.textContent= gen===0? 'Generation 0 (Thompson’s poisoned version)' : ('Generation '+gen+' (built from clean source)');
+      rd.innerHTML= gen===0
+        ? '<strong>Generation 0</strong>: the poisoned binary Thompson planted. It all starts here.'
+        : '<strong>Generation '+gen+'</strong>: the source is completely clean and passes the audit. Yet, because it was built with a poisoned binary, it is <strong>poisoned all the same</strong>. The login backdoor is intact too. ── The poison travels not through the source but through the <strong>binary’s lineage</strong>.';
+      draw();
+    }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: the recession of trust ============ */
+  (function(){
+    var cv=document.getElementById('cvTrust'), sl=document.getElementById('tr'),
+        vTr=document.getElementById('vTr'), rd=document.getElementById('rdTr');
+    if(!cv) return;
+    var L=[
+      {t:'Your own source', q:'readable, written by you', ok:true,  note:'Here you can grasp everything yourself. You can be sure there is no malice.'},
+      {t:'The compiler (binary) that translates it', q:'Did you make it? → No', ok:false, note:'This binary is what builds the source. You haven’t verified its contents yourself ── you have no choice but to trust it.'},
+      {t:'The compiler that made that compiler', q:'Did you make it? → No', ok:false, note:'Its parent, further up. If this is poisoned, everything below can be poisoned (Figure 1).'},
+      {t:'…still earlier compilers / tools', q:'Did you make it? → No', ok:false, note:'The chain continues, just like the recession of compilation (the main series). How far do you verify?'},
+      {t:'The first binary / hardware (the seed)', q:'Did you make it? → No', ok:false, note:'The seed of Episodes 9 and 10. You didn’t make this yourself. Trust always hits bottom here, at "something you didn’t make."'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10), n=L.length;
+      var padT=20, padB=16, uH=h-padT-padB, rowH=uH/n;
+      for(var i=0;i<n;i++){
+        var y=padT+rowH*i, x=30+i*22; // indent to feel like descending
+        var bw=w-60-i*22, bh=rowH-10;
+        var active=(i===cur), passed=(i<=cur);
+        ctx.save(); ctx.globalAlpha= passed?1:0.32;
+        ctx.fillStyle= active? (L[i].ok? '#e7f2ec':'#f3e1dc') : '#f2eef8';
+        ctx.strokeStyle= L[i].ok? '#2f8d5a' : '#9a4230'; ctx.lineWidth= active?2.4:1.4;
+        rr(ctx,x,y,bw,bh,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= L[i].ok? '#1f6b45':'#7a2513'; ctx.textAlign='left'; ctx.font='bold 12.5px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(L[i].t, x+12, y+bh*0.42);
+        ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle= L[i].ok? '#2f8d5a':'#a83a22';
+        ctx.fillText(L[i].q, x+12, y+bh*0.80);
+        ctx.restore();
+      }
+      // bottom note
+      if(cur===n-1){
+        ctx.fillStyle='#6a4a9c'; ctx.font='bold 11.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('Trust always hits bottom at "something you didn’t make yourself"', w/2, h-4);
+      }
+      ctx.textAlign='left';
+    }
+    function update(){ var cur=parseInt(sl.value,10), l=L[cur];
+      vTr.textContent=(cur+1)+' ── '+l.t;
+      rd.innerHTML='<strong>'+l.t+'</strong> ('+l.q+'): '+l.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

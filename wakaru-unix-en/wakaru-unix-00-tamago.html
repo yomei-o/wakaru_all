@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chicken and Egg ── What Compiled Linux? | A History of UNIX That Clicks, Episode 0</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f7f9; --paper-edge:#dde2e8;   /* Episode 0: indigo-iron paper */
+    --side:#2f6f55; --side-bg:#eaf2ee;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#ccd4de; --hair:#b7c1cd;
+    --acc:#2f4a6a;    /* Episode 0 accent = indigo-iron */
+    --grid:#d5dce4;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5;
+    --c1:#2f6f55; --c2:#b0651e; --c3:#2166a0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe0d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#eef1f5;border:1px solid #e0e5ec;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#20342b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);}
+  .term .q{color:#e88;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 16px;}
+  .btnmini:hover{opacity:.9;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f7fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e9eef5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#22354a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 0 / Prologue ── Chicken and Egg</span></div>
+  <p class="eyebrow">The computing counterpart to the physics series ── this time we descend, one step at a time, into "the origin of software"</p>
+  <h1>Chicken and Egg ── What Compiled Linux?
+    <span class="sub">The Linux kernel is compiled by <code>gcc</code> (or <code>clang</code>) running on Linux. So what about that <code>gcc</code>? ── <em>The previous <code>gcc</code> compiled it.</em> And the one before that? Where, exactly, did this "endlessly spinning loop" begin?</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: just curiosity (you don't have to read code)</span>
+    <span>Watchword: the first egg was carved by hand</span>
+  </div>
+
+  <p class="lead">When you build the Linux kernel, you use a C compiler called <code>gcc</code>. Since <code>gcc</code> itself is also a program written in C, to run it you need <em>a <code>gcc</code> that someone has compiled</em>. So what compiled that <code>gcc</code>? ── Again, <code>gcc</code>. Then what made the <strong>very first</strong> <code>gcc</code>, in a world where not a single compiler yet existed? This is the chicken-and-egg problem. This series traces that loop backwards through time, descending into the birth of the C language, the first UNIX, and finally the "first byte."</p>
+
+  <h2><span class="n">00</span>First, let's see the loop with our own eyes</h2>
+
+  <p>"Compiling a compiler" makes your head spin when you write it out like this.</p>
+
+  <div class="term">
+<span class="p">$</span> gcc -o vmlinux linux.c        <span class="c"># gcc builds Linux</span>
+<span class="p">$</span> gcc -o gcc gcc.c               <span class="c"># and that gcc? → the previous gcc built it</span>
+<span class="p">$</span> gcc -o gcc gcc.c               <span class="c"># and the gcc before that? → an even earlier gcc…</span>
+   <span class="q">…on and on, back to earlier versions of itself (self-hosting)</span>
+  </div>
+
+  <p>An active compiler is usually <strong>written in its own language</strong> and <strong>built by its own past self</strong>. This is called <em>self-hosting</em>. A new <code>gcc</code> is made by an old <code>gcc</code>, which was made by an even older <code>gcc</code>, and so on… the loop keeps spinning round and round. Try spinning that loop in the figure below.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The self-hosting loop. Each generation of compiler was built by the one before it. The loop keeps spinning ── but the very first one cannot be made from within the loop.</div>
+    <canvas id="cvLoop" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="loopBtn">▶ Spin the loop</button>
+      <label style="min-width:200px;">Spin speed<span class="val" id="vSpd">normal</span>
+        <input type="range" id="spd" min="0.3" max="2.2" step="0.1" value="1">
+      </label>
+    </div>
+    <div class="readout" id="rdLoop">Each compiler was built by "the previous version of itself." So what about the very first one?</div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── the loop was lifted once, from the outside</div>
+    <p style="margin:6px 0 0;">The self-hosting loop <strong>cannot start itself</strong>. It needs "the previous version of itself," yet at the very beginning there is no "previous version." So the loop must always be ignited once by <em>something outside the loop</em>. The word <strong>bootstrap</strong> originally comes from the <em>physically impossible tall tale</em> of "pulling yourself up by your own bootstraps." In the world of software, too, only the very first time is an "outside hand" needed to lift it.</p>
+  </div>
+
+  <h2><span class="n">01</span>Since when had the loop been spinning? ── the first Linux (1991)</h2>
+
+  <p>Let's rewind time. Today's Linux can be built on Linux, but <strong>the first Linux of 1991 couldn't be built on Linux</strong>, because Linux didn't exist yet. So where, then? ── The answer is on top of another Unix-like OS called <strong>MINIX</strong>. Linus Torvalds, then a student in Finland, developed on a 386 PC running MINIX. He ported GNU's <code>gcc</code> and <code>bash</code> to MINIX and compiled Linux with that <code>gcc</code>.</p>
+
+  <div class="calc">
+    <span class="tag">The "delivery room" of the first Linux</span>
+    <p class="lbl">v0.01 (September 1991)</p>
+    <p style="margin:4px 0;">It couldn't even boot on its own, and <strong>without MINIX it could neither be compiled nor tested</strong>. The loop wasn't spinning yet ── it was <em>piggybacking</em> on another OS, MINIX.</p>
+    <p class="lbl">v0.11 (December 1991)</p>
+    <p style="margin:4px 0 14px;">Here, for the first time, <strong>Linux could compile Linux itself</strong> (self-hosting achieved). The moment the loop began to spin. For the roughly thirty-plus years since, that loop has kept turning.</p>
+  </div>
+
+  <p>So the "ignition" of the Linux loop was <strong><code>gcc</code> on top of MINIX</strong>. The next question, then, is obvious ── <em>what made that <code>gcc</code>? What made MINIX?</em> Even once you step outside the loop, another "what made this?" is waiting. Repeating that question is the backbone of this series.</p>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── isn't it clang?</span>
+    Today's Linux can also be built with <code>clang</code> (LLVM), but that <strong>only became mainstream in the late 2010s, a latecomer</strong>; almost the entire history is the story of <code>gcc</code>. And <code>clang</code> itself is a program written in C++, so it too lives inside <em>a self-hosting loop built by another compiler</em>. Whether the tool is <code>gcc</code> or <code>clang</code> changes nothing about the chicken-and-egg structure.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>The big picture of the staircase we're about to descend</h2>
+
+  <p>Repeat "what made this?" and you keep walking down a staircase, step by step. This staircase is exactly the table of contents of this series. Move the slider in the figure below to <strong>go back in time</strong>, and at each step check "what made what." At the very bottom lies the answer to the chicken-and-egg riddle.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The staircase of tracing back. The further right you move the slider, the further into the past you descend. Each step is "what made the software of that era." At the bottom (Episode 10) is the "outside hand" that ignited the loop.</div>
+    <canvas id="cvStair" width="680" height="380"></canvas>
+    <div class="controls">
+      <label>How far back do we go?<span class="val" id="vStep">now (the self-hosting loop)</span>
+        <input type="range" id="stair" min="0" max="9" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdStair"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">How to descend the staircase (this series' itinerary)</div>
+    <p style="margin:6px 0 0;">Today's loop (gcc/clang) → the first Linux (1991) was <strong>gcc on MINIX</strong> → gcc was ignited by <strong>an existing cc</strong> → MINIX was <strong>ACK</strong> → the first C compiler was <strong>grown from B</strong> until it self-hosted → B is a child of <strong>BCPL</strong> → the first Unix (1969) was <strong>PDP-7 assembly</strong> → that assembler was <strong>a cross-assembler on another machine + paper tape</strong> → the very first was <strong>a human entering it by hand with switches</strong> → the bottom is <strong>wired-up hardware</strong>.</p>
+  </div>
+
+  <h2><span class="n">03</span>Don't mix up the two kinds of "tracing back"</h2>
+
+  <p>Let me get ahead of things and stamp out one trap that beginners always fall into. The <em>lineage (bloodline)</em> story ── "Linux came from MINIX, MINIX came from BSD…" ── and the <em>what compiled what</em> story we've been looking at are <strong>two different things</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">Two orthogonal questions</span>
+    <p style="margin-top:8px;"><strong>① Code lineage</strong>: did it inherit the actual source code? A family tree in which <em>genes (code)</em> flow, like Unix → BSD → NetBSD/FreeBSD…</p>
+    <p style="margin:8px 0 14px;"><strong>② Toolchain bootstrap</strong>: what compiled what. The chicken-and-egg loop this series follows. <strong>Neither Linux nor MINIX is actually a child that inherited someone's blood; each is a clean-slate reimplementation that "behaves like Unix"</strong> (so neither appears on ①'s lineage). We'll dissect this in Episode 1.</p>
+  </div>
+
+  <p>Mix these two up and you get misunderstandings like "Linux is MINIX's child." Correctly: <strong>Linux merely borrowed MINIX as a delivery room (development environment) to grow up in; there is no blood tie</strong>. We'll do that satisfying reveal at the very start of the next episode.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── "carved by hand" is halfway between metaphor and fact</span>
+    <p style="margin-top:0;">The series' watchword, "the first egg was carved by hand," sounds like a poetic metaphor, but <strong>on the bottom step it is very nearly literal fact</strong> (Episode 9). On early computers, humans read the instruction table, worked out the machine-code numbers by hand, and entered them into memory one word at a time with toggle switches. On the other hand, claims at each step like "the first Linux was compiled by gcc on top of MINIX" are <em>historical facts sourceable down to the dates and the people</em>. We carefully separate these two kinds ── verifiable history and turns of phrase for understanding ── in each episode's footnotes.</p>
+    <p style="margin-bottom:0;">Likewise, points that get prickly if spoken carelessly ── such as where to draw the line between v0.01 and v0.11 (from where do we call it "self-hosting"), or "gcc vs clang" ── are distinguished with care each time.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>What is "self-hosting"? In one sentence.
+        <details><summary>Show answer</summary><div class="ans">The state in which a compiler (or other tool) is written in its own language and built by its own past self. Each new version is made by the old version.</div></details>
+      </li>
+      <li>Why can't the self-hosting loop "start itself"?
+        <details><summary>Show answer</summary><div class="ans">Because running it requires "the previous version of itself," yet at the very beginning "the previous version" does not exist. So something outside the loop (another compiler / another OS / in the end, a human hand) must ignite it once.</div></details>
+      </li>
+      <li>The first Linux (v0.01) was compiled on top of what, using what?
+        <details><summary>Show answer</summary><div class="ans">A gcc ported onto MINIX, a Unix-like OS. Linux only became able to build Linux itself (self-hosting) from v0.11 onward.</div></details>
+      </li>
+      <li>What is inaccurate about the phrasing "Linux is MINIX's child"?
+        <details><summary>Show answer</summary><div class="ans">It confuses code lineage (genes) with the development environment (the delivery room). Linux was developed on MINIX and was influenced by it, but it did not inherit MINIX's source code. Both are "clean-slate reimplementations of Unix-ness."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>The loop keeps spinning, and only the very first time was it ignited from outside</h2>
+    <p>The <code>gcc</code> that compiles Linux was made by a previous <code>gcc</code> ── a compiler lives inside the <strong>self-hosting loop</strong>, written in its own language and built by its own past self. But the loop can't start on its own, because at the beginning there is no "previous self." The Linux loop was ignited in 1991 by <strong><code>gcc</code> on top of MINIX</strong> (v0.01), and it stood on its own at v0.11.</p>
+    <p>Repeat "what made this?" and you <strong>walk down the staircase</strong>: gcc → existing cc → C → B → BCPL → assembly → cross-assembler → hand entry → hardware. At the bottom lie <strong>a human hand and a wired-up machine</strong> that lifted the loop just once from outside. That is the shape of this series' answer ── <em>the first egg was carved by hand.</em> Note that "what compiled it (the bootstrap)" and "whose genes it carries (the lineage)" are separate questions, and must not be mixed. Next time, we begin with exactly that dissection.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Episode 1</span>
+    "Don't Confuse the Two Trees." Is Linux a child of MINIX? Where did NetBSD come from? ── We draw apart two trees, <strong>code lineage (genes)</strong> and <strong>reimplementation of ideas</strong>, and untangle the lineage confusion beginners always fall into. Even that famous Tanenbaum–Torvalds debate suddenly comes into focus when you read it through these two trees.
+  </div>
+
+  <div class="foot">
+    This document is Episode 0 (the Prologue) of "A History of UNIX That Clicks." Historical facts: Linux was begun in 1991 by the Finnish student Linus Torvalds; the early version (v0.01) could only be compiled and tested on MINIX, and Torvalds ported gcc (1.40) and bash (1.08). Linux is said to have become able to compile itself (self-hosting) at v0.11 (December 1991). Building the Linux kernel with clang/LLVM is a later option that became mainstream in the late 2010s; the historical standard compiler is gcc. "Self-hosting" and "bootstrap" (bootstrap = the connotation of lifting oneself by one's own bootstraps) are standard terms in computer science. Code lineage (the inheritance of real code, as in the BSD family) and clean-slate Unix-like reimplementation (MINIX, Linux, GNU) are separate lineages, detailed in Episode 1 of this series. Expressions like "carved by hand" are turns of phrase for understanding, but bootstrapping by hand on early computers (hand assembly, switch entry) is fact-based (Episode 9). ── To print, use your browser's "Print" and "Save as PDF" (in the print version, sliders, animations, and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Printing / making a PDF: ⌘+P (on Windows, Ctrl+P). On screen, use "▶ Spin the loop" in Figure 1 to turn the self-hosting loop, and the slider in Figure 2 to trace back through time. "Show answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  /* ============ Figure 1: the self-hosting loop ============ */
+  (function(){
+    var cv=document.getElementById('cvLoop'), btn=document.getElementById('loopBtn'),
+        spd=document.getElementById('spd'), vSpd=document.getElementById('vSpd'), rd=document.getElementById('rdLoop');
+    if(!cv) return;
+    var N=5, phase=0, running=false, raf=null, last=0;
+    var labels=['Gen. N','Gen. N+1','Gen. N+2','Gen. N+3','Gen. N+4'];
+    function speedText(v){ return v<0.7?'slow':(v>1.6?'fast':'normal'); }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cx=w/2, cy=h/2+6, R=Math.min(w,h)*0.34;
+      // center text
+      ctx.textAlign='center'; ctx.fillStyle='#2f4a6a';
+      ctx.font='bold 15px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('self-hosting', cx, cy-6);
+      ctx.fillStyle='#8794a5'; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('a loop that keeps spinning', cx, cy+14);
+      // arc arrows (clockwise)
+      var i;
+      // node positions
+      var pos=[];
+      for(i=0;i<N;i++){ var a=-Math.PI/2 + i*2*Math.PI/N; pos.push({x:cx+R*Math.cos(a), y:cy+R*Math.sin(a), a:a}); }
+      // connecting arcs + arrows
+      ctx.strokeStyle='#c3cdd9'; ctx.lineWidth=2;
+      for(i=0;i<N;i++){
+        var a0=pos[i].a+0.34, a1=pos[(i+1)%N].a-0.34;
+        ctx.beginPath(); ctx.arc(cx,cy,R,a0,a1); ctx.stroke();
+        // arrowhead (end of arc)
+        var ae=a1, ax=cx+R*Math.cos(ae), ay=cy+R*Math.sin(ae);
+        var tx=-Math.sin(ae), ty=Math.cos(ae); // tangent (clockwise direction)
+        ctx.fillStyle='#c3cdd9';
+        ctx.beginPath(); ctx.moveTo(ax,ay);
+        ctx.lineTo(ax-7*tx+4*Math.cos(ae), ay-7*ty+4*Math.sin(ae));
+        ctx.lineTo(ax-7*tx-4*Math.cos(ae), ay-7*ty-4*Math.sin(ae));
+        ctx.closePath(); ctx.fill();
+      }
+      // running pulse
+      var pa=-Math.PI/2 + phase*2*Math.PI;
+      var px=cx+R*Math.cos(pa), py=cy+R*Math.sin(pa);
+      ctx.fillStyle='#2f6f55'; ctx.beginPath(); ctx.arc(px,py,6,0,2*Math.PI); ctx.fill();
+      ctx.globalAlpha=0.25; ctx.beginPath(); ctx.arc(px,py,12,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+      // nodes (compiler boxes)
+      for(i=0;i<N;i++){
+        var p=pos[i];
+        ctx.fillStyle='#fff'; ctx.strokeStyle='#2f4a6a'; ctx.lineWidth=1.6;
+        var bw=76, bh=34;
+        ctx.beginPath(); ctx.rect(p.x-bw/2,p.y-bh/2,bw,bh); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#2f4a6a'; ctx.font='bold 13px "SFMono-Regular",Consolas,monospace';
+        ctx.textAlign='center'; ctx.fillText('gcc', p.x, p.y-1);
+        ctx.fillStyle='#8794a5'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(labels[i], p.x, p.y+13);
+      }
+      ctx.textAlign='left';
+    }
+    function tick(t){
+      if(!last) last=t; var dt=(t-last)/1000; last=t;
+      phase += dt*0.18*parseFloat(spd.value); if(phase>1) phase-=1;
+      draw();
+      if(running) raf=requestAnimationFrame(tick);
+    }
+    btn.addEventListener('click', function(){
+      running=!running;
+      if(running){ btn.textContent='⏸ Pause'; rd.innerHTML='The loop is spinning. The Nth gcc was built by the (N−1)th gcc, and… <strong>this loop can’t start itself</strong> (at the start there is no "previous self").'; last=0; raf=requestAnimationFrame(tick); }
+      else { btn.textContent='▶ Spin the loop'; if(raf)cancelAnimationFrame(raf); }
+    });
+    spd.addEventListener('input', function(){ vSpd.textContent=speedText(parseFloat(spd.value)); });
+    window.addEventListener('resize', draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: the staircase of tracing back ============ */
+  (function(){
+    var cv=document.getElementById('cvStair'), sl=document.getElementById('stair'),
+        vStep=document.getElementById('vStep'), rd=document.getElementById('rdStair');
+    if(!cv) return;
+    // [step heading, year, that software, what made it, matching episode]
+    var STEPS=[
+      ['Now',      'present',  'the Linux kernel',   'gcc / clang (= its own past self). The self-hosting loop', 'Prologue'],
+      ['Step 1',  '1991',  'the first Linux',      'gcc ported onto MINIX (self-standing at v0.11)',              'Episode 2'],
+      ['Step 2',  '—',     'GCC (written in C)',    'ignited once by the machine’s existing cc → 3-stage bootstrap','Episode 3'],
+      ['Step 3',  '1987',  'MINIX',            'ACK (Tanenbaum’s, EM intermediate code)',                   'Episode 4'],
+      ['Step 4',  '1972',  'the first C compiler', 'grown bit by bit from B, until C compiled C itself',        'Episode 5'],
+      ['Step 5',  '1969',  'the B language',           'a child of BCPL (O-code intermediate code)',                      'Episode 6'],
+      ['Step 6',  '1969',  'the first Unix',        'handwritten in PDP-7 assembly language',                     'Episode 7'],
+      ['Step 7',  '—',     'that assembler',    'a cross-assembler on another machine (GE-635/GECOS) + paper tape', 'Episode 8'],
+      ['Step 8',  '—',     'the first byte',     'human hand assembly + toggle-switch entry',         'Episode 9'],
+      ['Bottom',      '—',     'hardware',      'humans who wired the instruction decoder out of logic gates',             'Episode 10']
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10);
+      var n=STEPS.length, padL=18, padR=18, padT=16, padB=16;
+      var usableW=w-padL-padR, usableH=h-padT-padB;
+      var stepW=usableW/n, stepH=usableH/n;
+      // vertical axis labels
+      ctx.fillStyle='#8794a5'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('now', padL, padT-2);
+      ctx.textAlign='right'; ctx.fillText('past (toward the bottom)', w-padR, h-4); ctx.textAlign='left';
+      // each step (descending from top-left to bottom-right)
+      for(var i=0;i<n;i++){
+        var x=padL+i*stepW, y=padT+i*stepH;
+        var isCur=(i===cur), passed=(i<=cur);
+        // tread
+        ctx.fillStyle = isCur ? '#2f4a6a' : (passed ? '#dbe4ee' : '#eef1f5');
+        ctx.strokeStyle = isCur ? '#22384f' : '#c3cdd9'; ctx.lineWidth=isCur?2:1;
+        ctx.beginPath(); ctx.rect(x, y, stepW+1, stepH+1); ctx.fill(); ctx.stroke();
+        // riser (line descending to the next step)
+        // short label inside the step
+        ctx.fillStyle = isCur ? '#fff' : '#5a6472';
+        ctx.font = (isCur?'bold ':'')+'11px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.textAlign='left';
+        var short = STEPS[i][2];
+        if(short.length>16) short = short.slice(0,16)+'…';
+        ctx.fillText(short, x+7, y+stepH*0.45);
+        ctx.fillStyle = isCur ? '#cdd8e6' : '#9aa5b3'; ctx.font='9.5px "SFMono-Regular",Consolas,monospace';
+        ctx.fillText(STEPS[i][1], x+7, y+stepH*0.82);
+      }
+      // marker for the current step (the person descending)
+      var mx=padL+cur*stepW+stepW+1, my=padT+cur*stepH;
+      ctx.fillStyle='#b0651e'; ctx.beginPath(); ctx.arc(mx-6, my-6, 5, 0, 2*Math.PI); ctx.fill();
+    }
+    function update(){
+      var cur=parseInt(sl.value,10), s=STEPS[cur];
+      vStep.textContent = s[0]+': '+s[2]+(s[1]!=='—'&&s[1]!=='present'?' ('+s[1]+')':'');
+      rd.innerHTML = '<strong>'+s[2]+'</strong>'+(s[1]!=='—'&&s[1]!=='present'?' ('+s[1]+')':'')+' was made by → <strong>'+s[3]+'</strong>&nbsp;<span style="color:#8794a5;">['+s[4]+']</span>'+(cur===STEPS.length-1?'&nbsp;── this is the bottom. The "hand" and the "physics" that ignited the loop from outside.':'');
+      draw();
+    }
+    sl.addEventListener('input', update);
+    window.addEventListener('resize', draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Physics Cube — Capstone of the Wakaru Collection</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f7fb; --paper-edge:#d9dcec;   /* the cube: indigo paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#2f3866; --calc-bg:#e7e9f4;
+    --rule:#cfd4e6; --hair:#b6bcd6;
+    --acc:#3d4a7a;    /* accent = the indigo of the cube */
+    --grid:#dee1ef;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c3c9ea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d2d6ea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:#e7e9f4;color:#2f3866;border:1.5px solid #b6bcd6;border-radius:5px;padding:10px 16px;white-space:nowrap;}
+  .controls button.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+  .controls button:active{transform:translateY(1px);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:11px 14px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7e9f4;color:#2f3866;}
+  .readout a{color:#a83a22;text-decoration:none;font-weight:700;} .readout a:hover{text-decoration:underline;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+  table.corners{width:100%;border-collapse:collapse;margin:18px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.corners th,table.corners td{border:1px solid var(--rule);padding:8px 10px;text-align:left;}
+  table.corners th{background:#e7e9f4;color:#2f3866;font-weight:700;}
+  table.corners a{color:#a83a22;text-decoration:none;} table.corners a:hover{text-decoration:underline;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfcfe,#e6e9f4);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .aside,.caveat,.calc,.keybox,.record,.fig,table.corners{break-inside:avoid;}
+    .controls{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f647a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Wakaru Collection</span><span class="ep">Capstone / The Physics Cube</span></div>
+  <p class="eyebrow">Relativity, quantum theory, fields, and gravity are not rival, separate theories — they are separate corners of a single cube</p>
+  <h1>The Physics Cube
+    <span class="sub">There are just 3 fundamental constants — c (relativity), ℏ (quantum), G (gravity). Read each as a switch you can turn on or off, and<br>the major theories of physics line up neatly at the 8 corners of a single <em>cube</em>. The Wakaru series is a map of those corners.</span>
+  </h1>
+  <div class="byline">
+    <span>A layout of the whole series (Bronstein's cube)</span>
+    <span>Axes: 1/c · ℏ · G</span>
+  </div>
+
+  <p class="lead">By the time you have read the "Wakaru" collection this far, relativity, quantum theory, fields, gravity, and cosmology should feel not like separate hard problems but as <em>one continuous landscape</em>. What draws that landscape on a single sheet is this <strong>Physics Cube</strong> (Bronstein's cube). Physics has 3 fundamental constants that set how strongly the world "acts" — <strong>c</strong> (the speed of light, relativity), <strong>ℏ</strong> (the grain of action, quantum), and <strong>G</strong> (gravity). Treat each of these as a switch that is either "off (ignore it)" or "on (let it act)." Then the combinations of the three switches — 2×2×2 = <strong>8 possibilities</strong> — become the 8 corners of the cube, and each corner holds one of humanity's major theories exactly. The origin is Newton; each time you flip a switch a new theory appears; and only the final corner, with all three switched on, is — unfinished. Let's walk through which part of this cube each Wakaru series has been drawing.</p>
+
+  <h2><span class="n">01</span>Three constants, three switches</h2>
+
+  <p>What each switch means is exactly the subject of each series so far.</p>
+
+  <div class="keybox">
+    <div class="lbl">The three switches</div>
+    <p style="margin:2px 0 0;">• <strong>c (relativity)</strong>: let the finiteness of the speed of light act. Off (\(c\to\infty\)) and time is absolute; on and space and time become one (Relativity That Clicks).<br>
+    • <strong>ℏ (quantum)</strong>: let the grain of action \(\hbar\) act. Off (\(\hbar\to0\)) and the world is classical; on and you get superposition and uncertainty (Quantum That Clicks).<br>
+    • <strong>G (gravity)</strong>: let gravity act. Off and there is no gravity; on and masses attract / spacetime curves.</p>
+  </div>
+
+  <p>The refrain the "Wakaru" series has returned to again and again — "Newton is <em>a limit of some ratio</em>," relativity's \(\beta\to0\), the quantum's \(S/\hbar\to\infty\) — is precisely <strong>the act of switching a switch off</strong>. The origin of the cube (everything off) is Newton's world.</p>
+
+  <h2><span class="n">02</span>The eight corners of the cube</h2>
+
+  <table class="corners">
+    <tr><th>c</th><th>ℏ</th><th>G</th><th>Theory</th><th>Wakaru series</th></tr>
+    <tr><td>—</td><td>—</td><td>—</td><td>Newtonian mechanics</td><td>(the classical starting point)</td></tr>
+    <tr><td>c</td><td>—</td><td>—</td><td>Special relativity</td><td><a href="wakaru-soutai-en/index.html">Relativity That Clicks 1–5</a></td></tr>
+    <tr><td>—</td><td>ℏ</td><td>—</td><td>Quantum mechanics</td><td><a href="wakaru-ryoushi-en/index.html">Quantum That Clicks</a></td></tr>
+    <tr><td>—</td><td>—</td><td>G</td><td>Newtonian gravity</td><td><a href="wakaru-chikara-en/index.html">Force That Clicks (gravity)</a></td></tr>
+    <tr><td>c</td><td>ℏ</td><td>—</td><td>Quantum field theory (relativistic quantum theory)</td><td><a href="wakaru-ba-en/index.html">Fields That Click</a></td></tr>
+    <tr><td>c</td><td>—</td><td>G</td><td>General relativity (gravity = curvature)</td><td><a href="wakaru-soutai-en/index.html">Relativity That Clicks 6–7</a></td></tr>
+    <tr><td>—</td><td>ℏ</td><td>G</td><td>Non-relativistic quantum gravity (limited)</td><td>(partial)</td></tr>
+    <tr><td>c</td><td>ℏ</td><td>G</td><td><strong>Quantum gravity / theory of everything</strong></td><td><strong>Unfinished</strong></td></tr>
+  </table>
+
+  <p>When people say relativity and the quantum "conflict," they are only talking about the <em>very last corner</em> of this table — quantum gravity, with \(c,\hbar,G\) all switched on. Special relativity and the quantum, far from conflicting, merge happily into <strong>quantum field theory</strong> (Fields That Click), the most precisely tested theory humanity has. The conflict is not "everywhere" — it is localized at "the last corner."</p>
+
+  <h2><span class="n">03</span>Try it out — walking the cube</h2>
+
+  <p>The figure below is the cube spanned by the three axes \(c\), \(\hbar\), and \(G\). Flip each switch on or off with the buttons below, and the <strong>corner</strong> you're currently at lights up, showing the name of that corner's theory and the matching "Wakaru" series. Starting from the origin (all off), cross one edge at a time and visit each theory. Only the far corner, with all three switched on, is red — the quantum gravity no human has yet reached.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the c·ℏ·G cube. Flipping the switches on and off changes which corner (theory) you're at. Origin = Newton; cross an edge and a new theory appears; the corner with all three on = the unfinished quantum gravity (red)</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <button id="bc">c: relativity OFF</button>
+      <button id="bh">ℏ: quantum OFF</button>
+      <button id="bg">G: gravity OFF</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#3d4a7a;"></i>current corner (established theory)</span>
+      <span><i class="dot" style="background:#a83a22;"></i>unfinished corner (quantum gravity)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>Each Wakaru series is somewhere on the cube</h2>
+
+  <p>Seen this way, a map of the whole "Wakaru" collection emerges. <strong>Relativity That Clicks</strong> is the c axis (special relativity) and the c–G edge (general relativity); <strong>Quantum That Clicks</strong> is the ℏ axis; <strong>Fields That Click</strong> is the c–ℏ face (quantum field theory) — and its heart, the gauge principle, is exactly the language of that corner. <strong>Force That Clicks</strong> is a journey peeling force away from the classical all the way to fields (c–ℏ), crossing the cube. And <strong>Cosmology That Clicks</strong> looks toward the region of the early universe where c, ℏ, and G all act at once — it was an attempt to reach toward the deepest corner of the cube (the quantum gravity corner). The series that seemed scattered were all lighting up different faces and corners of one and the same cube.</p>
+
+  <div class="aside">
+    <span class="tag">Cosmology That Clicks's c·t = constant, and the philosophy of ratios</span>
+    The axes of the cube are the <em>dimensionful constants</em> \(c,\hbar,G\), but what actually decides which corner you're at is, as always, a <strong>dimensionless ratio</strong> — for speed \(\beta=v/c\), for quantumness \(S/\hbar\), for gravity \(\Phi/c^2\). If the ratio is \(0\) the switch is off (you fall to that corner); if the ratio is of order \(1\) it is on. The backbone of "Cosmology That Clicks," \(c\cdot t=\)constant, and the finale of Relativity's "variable c ≡ curvature," are the same philosophy: <em>the value of a dimensionful constant depends on the choice of coordinates and description; what is invariant is only the dimensionless ratio</em>. The cube is drawn with constants, but your address is set by ratios.</p>
+  </div>
+
+  <h2><span class="n">05</span>The one remaining corner — and the universe seen through ratios</h2>
+
+  <p>Seven of the cube's corners already belong to humanity. Special relativity, quantum mechanics, Newtonian gravity, quantum field theory, general relativity — every one is precisely tested and has become technology. Only the one remaining corner, <strong>quantum gravity</strong> with \(c\), \(\hbar\), and \(G\) acting <strong>simultaneously</strong>, has been unfinished for 100 years. The center of a black hole, the beginning of the universe (the Big Bang), a world where spacetime itself undergoes quantum fluctuations — only there do all three axes of the cube apply. String theory and loop quantum gravity are aiming at this last corner.</p>
+
+  <p>But what has come into view across this whole collection is a quieter single attitude — <strong>dimensionful quantities (meters, seconds, newtons, and the values of c, ℏ, G) are stage machinery. What decides the shape of the world is only the dimensionless ratios</strong>. The lag number \(\varepsilon\), the speed \(\beta\), the action's \(S/\hbar\), the coupling \(\alpha\), the dimension \(d\), the Yukawa coupling \(y\) — in every series, thinking in terms of ratios kept things from getting complicated. What was hard was never the physics; it was the way of seeing that starts from units. Perhaps the cube's last corner, too, will suddenly become simple the day someone finds the right <em>ratio</em>.</p>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Collection capstone · summary</span>The tetralogy was one cube all along</h2>
+    <p>The major theories of physics line up at the 8 corners of a cube whose axes are the fundamental constants <strong>c, ℏ, G</strong>. The origin is Newton; turn on \(c\) for special relativity (Relativity That Clicks), \(\hbar\) for quantum mechanics (Quantum That Clicks), \(c+\hbar\) for quantum field theory (Fields That Click), \(c+G\) for general relativity (the second half of Relativity That Clicks). The "conflict" between relativity and the quantum is only about the <strong>last corner = quantum gravity</strong> (unfinished), with \(c,\hbar,G\) all on; special relativity and the quantum instead merge happily as quantum field theory.</p>
+    <p>Each "Wakaru" series was a map lighting up different faces and corners of this cube. And what sets your address is not the axis constants themselves but the <strong>dimensionless ratios</strong> \(\beta,\ S/\hbar,\ \Phi/c^2,\ \alpha\dots\) — the thread running through the whole collection: "units are stage machinery; what acts are the ratios." The one remaining corner, quantum gravity, too, will someday fit onto a single sheet once the right ratio is found. <em>Think from there, and it doesn't get complicated.</em></p>
+  </div>
+
+  <div class="foot">
+    This document is the capstone (layout map) of the "Wakaru" collection, a reading for physics-loving high-schoolers and undergraduates. The "Physics Cube (Bronstein / Gamow–Ivanenko–Landau cube, the cGh cube)," with axes given by the fundamental constants \(c,\hbar,G\), is a standard schematic for surveying the framework of theoretical physics. The correspondence of the corners (origin = Newtonian mechanics, \(c\) = special relativity, \(\hbar\) = quantum mechanics, \(G\) = Newtonian gravity, \(c\hbar\) = relativistic quantum field theory, \(cG\) = general relativity, \(c\hbar G\) = quantum gravity) is a widely used organization, and the \(\hbar G\) (non-relativistic quantum gravity) corner is limited and somewhat conventional. It is established understanding that special relativity and quantum mechanics are consistently unified and precisely tested as quantum field theory, while the unification of general relativity and quantum mechanics (quantum gravity) is unfinished, with string theory, loop quantum gravity, and others under research. The view that a dimensionless ratio (\(\beta,S/\hbar,\Phi/c^2\), etc.) decides which corner you're at is this collection's perspective, and it is consistent with standard physics. The figure is a schematic isometric projection of the cℏG cube. — To print, use your browser's "Print" and "Save as PDF." Each series: <a href="wakaru-soutai-en/index.html">Relativity That Clicks</a> / <a href="wakaru-ryoushi-en/index.html">Quantum That Clicks</a> / <a href="wakaru-ba-en/index.html">Fields That Click</a> / <a href="wakaru-uchuron-en/index.html">Cosmology That Clicks</a> / <a href="wakaru-chikara-en/index.html">Force That Clicks</a> / <a href="index.html">Collection home</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, the c·ℏ·G buttons switch between the cube's corners (theories).</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      bc=document.getElementById('bc'), bh=document.getElementById('bh'), bg=document.getElementById('bg');
+  var C=0,H=0,G=0;   // each switch 0/1
+
+  // theory and series at corner (a=c,b=h,g=G)
+  var THEORY={};
+  THEORY['000']={n:'Newtonian mechanics',s:'the classical starting point (all switches off)',link:''};
+  THEORY['100']={n:'Special relativity',s:'Relativity That Clicks, Episodes 1–5',link:'wakaru-soutai-en/index.html'};
+  THEORY['010']={n:'Quantum mechanics',s:'Quantum That Clicks',link:'wakaru-ryoushi-en/index.html'};
+  THEORY['001']={n:'Newtonian gravity',s:'Force That Clicks (gravity)',link:'wakaru-chikara-en/index.html'};
+  THEORY['110']={n:'Quantum field theory (relativistic quantum theory)',s:'Fields That Click',link:'wakaru-ba-en/index.html'};
+  THEORY['101']={n:'General relativity (gravity = curvature)',s:'Relativity That Clicks, Episodes 6–7',link:'wakaru-soutai-en/index.html'};
+  THEORY['011']={n:'Non-relativistic quantum gravity (limited)',s:'(a partial corner)',link:''};
+  THEORY['111']={n:'Quantum gravity / theory of everything',s:'unfinished — the one corner no human has reached',link:''};
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var ox=w*0.30, oy=h*0.74;                      // origin
+    var ec=[w*0.32, h*0.10];    // c axis (right, slightly down)
+    var eh=[w*0.19, -h*0.145];  // ℏ axis (back, upper right)
+    var eg=[0, -h*0.42];        // G axis (up)
+    function V(a,b,g){ return [ox+a*ec[0]+b*eh[0]+g*eg[0], oy+a*ec[1]+b*eh[1]+g*eg[1]]; }
+    function key(a,b,g){ return ''+a+b+g; }
+
+    // all vertices
+    var verts={};
+    for(var a=0;a<2;a++)for(var b=0;b<2;b++)for(var g=0;g<2;g++) verts[key(a,b,g)]=V(a,b,g);
+
+    // edges (differ by one bit)
+    var vs=Object.keys(verts);
+    ctx.strokeStyle='#b6bcd6'; ctx.lineWidth=1.6;
+    for(var i=0;i<vs.length;i++)for(var j=i+1;j<vs.length;j++){
+      var diff=0; for(var t=0;t<3;t++) if(vs[i][t]!==vs[j][t]) diff++;
+      if(diff===1){ var p=verts[vs[i]], q=verts[vs[j]];
+        ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); }
+    }
+
+    // axis labels (from the origin)
+    ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#26619c'; var pc=V(1,0,0); ctx.fillText('c (relativity) →', (ox+pc[0])/2, (oy+pc[1])/2+20);
+    ctx.fillStyle='#4a3b9c'; var ph=V(0,1,0); ctx.fillText('ℏ (quantum)', (ox+ph[0])/2+30, (oy+ph[1])/2-2);
+    ctx.fillStyle='#2f7d55'; var pg=V(0,0,1); ctx.fillText('G (gravity) ↑', ox-4, (oy+pg[1])/2);
+
+    // vertices
+    var curKey=key(C,H,G);
+    for(var vk in verts){
+      var pos=verts[vk], isCur=(vk===curKey), isTOE=(vk==='111');
+      var col = isTOE ? '#a83a22' : '#3d4a7a';
+      ctx.beginPath(); ctx.arc(pos[0],pos[1], isCur?9:5, 0,7);
+      ctx.fillStyle = isCur ? col : (isTOE?'#e0b3aa':'#c3c9e0'); ctx.fill();
+      if(isCur){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.stroke(); }
+      // short label
+      var th=THEORY[vk];
+      ctx.fillStyle = isCur? col : '#8a90aa'; ctx.font=(isCur?'bold ':'')+'11px sans-serif';
+      var lx=pos[0], ly=pos[1];
+      var dy = (vk[2]==='1')? -12 : 16;   // G on: label goes up
+      var dx = (vk[0]==='1')? 8 : -8;
+      ctx.textAlign = (vk[0]==='1')?'left':'right';
+      ctx.fillText(th.n, lx+dx, ly+dy);
+    }
+
+    // readout
+    var th=THEORY[curKey];
+    var sw='c='+(C?'on':'off')+' / ℏ='+(H?'on':'off')+' / G='+(G?'on':'off');
+    var linkHtml = th.link ? ('　→ <a href="'+th.link+'">'+th.s+'</a>') : ('　('+th.s+')');
+    rd.innerHTML='<strong>'+sw+'</strong> → current corner: <strong style="color:'+(curKey==='111'?'#a83a22':'#2f3866')+'">'+th.n+'</strong>'+linkHtml
+      + (curKey==='111' ? '　— the corner where c, ℏ, and G all come together, untouched by humanity.' : (curKey==='000' ? '　— all off = the classical starting point.' : ''));
+
+    bc.className=C?'on':''; bh.className=H?'on':''; bg.className=G?'on':'';
+    bc.textContent='c: relativity '+(C?'ON':'OFF');
+    bh.textContent='ℏ: quantum '+(H?'ON':'OFF');
+    bg.textContent='G: gravity '+(G?'ON':'OFF');
+  }
+
+  bc.addEventListener('click',function(){C=1-C;draw();});
+  bh.addEventListener('click',function(){H=1-H;draw();});
+  bg.addEventListener('click',function(){G=1-G;draw();});
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

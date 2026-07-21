@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINIX and ACK — The Invention of Intermediate Code | A History of UNIX That Clicks, Episode 4</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4faf8; --paper-edge:#d6e7e2;   /* Episode 4: teal paper */
+    --side:#a85f18; --side-bg:#f6efe3;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#c6ddd6; --hair:#aecfc6;
+    --acc:#1f7a6e;    /* Episode 4 accent = teal */
+    --grid:#d3e7e1;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe3db 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#e7f2ef;border:1px solid #d6e7e2;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2a16;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#f8fdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;} .btnmini:disabled{opacity:.45;cursor:default;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#e3f1ee;color:#155249;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef7f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfffe,#e5f1ee);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f1ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#155249;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 4 / The Invention of Intermediate Code</span></div>
+  <p class="eyebrow">MINIX, the birthing room of Linux. But what compiled MINIX itself?</p>
+  <h1>MINIX and ACK — The Invention of Intermediate Code
+    <span class="sub">In Episode 2, MINIX was the birthing room of Linux. What built MINIX was a compiler from Tanenbaum called <strong>ACK</strong>. Its philosophy differs from <code>gcc</code> — <em>it wedges an intermediate code called EM right in the middle</em>. That single move transformed porting and bootstrapping.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1 (the reimplementation tree), Episode 3 (gcc)</span>
+    <span>The reveal: wedge something into the middle, and M×N becomes M+N</span>
+  </div>
+
+  <p class="lead">In Episode 2 we saw that Linux was born in the birthing room called MINIX. So then — what compiled MINIX itself? The answer is <strong>ACK (the Amsterdam Compiler Kit)</strong>, a compiler built by Tanenbaum and colleagues that belongs to a different lineage from <code>gcc</code>. This time we'll pause our journey back in time a little and savor the great invention that ACK embodies: <strong>"wedging an intermediate code into the middle."</strong> It made porting dramatically easier, and it runs like a spine through the history of compilers — through <em>BCPL's O-code</em> in Episode 6, and on to modern LLVM IR and WebAssembly.</p>
+
+  <h2><span class="n">01</span>MINIX — a Unix born as a textbook appendix</h2>
+
+  <p>MINIX is an educational Unix-like OS that Tanenbaum built in 1987 as an <em>appendix</em> to his textbook <cite>Operating Systems: Design and Implementation</cite>. Kernel, memory management, and file system came to <strong>about 12,000 lines</strong>. It was kept small enough for a student to read in full, and its design was a <em>microkernel</em> (the star of the debate in Episode 1). In the language of Episode 1, it was <strong>a leaf on the reimplementation tree</strong> — not a single line of AT&amp;T code, just the feel of Unix written from a blank page.</p>
+
+  <h2><span class="n">02</span>What built MINIX was ACK</h2>
+
+  <p>What actually compiled MINIX was <strong>ACK</strong>. Built by Tanenbaum and Ceriel Jacobs, it was, for the early 1980s, an advanced set of <em>retargetable (the target machine can be swapped out)</em> compilers. A hallmark of ACK is that it handled more than one language — it had front ends for <strong>C, Pascal, Modula-2, Occam, and BASIC</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">Inside ACK (a three-stage structure)</span>
+    <p style="margin-top:8px;"><strong>Front end</strong> (per language) → <strong>EM</strong> (intermediate bytecode) → general optimizer → <strong>back end</strong> (per machine) → machine code.</p>
+    <p style="margin:8px 0 14px;">The heart of it is the <code>EM</code> in the middle. Every language's front end first lowers to <strong>EM, a common intermediate code</strong>. From there, a per-machine back end translates it into machine code. This resembles <code>gcc</code>'s internal intermediate representation, but EM has its own character: it was designed as <em>the language of a real abstract machine that could even be implemented in hardware</em>.</p>
+  </div>
+
+  <h2><span class="n">03</span>Why wedge something into the middle — the M×N problem</h2>
+
+  <p>The value of intermediate code becomes clear all at once when you count. Suppose you want to run <strong>M languages</strong> on <strong>N kinds of machines</strong>. Done naively, you need a compiler for <em>every combination</em> of language and machine — <strong>M×N of them</strong>. But if you place a common intermediate code in the middle, all you need is <strong>M front ends + N back ends = M+N of them</strong>. In the figure below, raise M and N and see how much the number of lines differs.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The M×N problem. Top = naive (M×N compilers, one per language×machine). Bottom = wedging in an intermediate code (only M+N needed). The larger M and N grow, the wider the gap.</div>
+    <canvas id="cvMN" width="680" height="380"></canvas>
+    <div class="controls">
+      <label>Number of languages M<span class="val" id="vM">4</span>
+        <input type="range" id="mM" min="2" max="6" step="1" value="4">
+      </label>
+      <label>Number of machines N<span class="val" id="vN">4</span>
+        <input type="range" id="mN" min="2" max="6" step="1" value="4">
+      </label>
+    </div>
+    <div class="readout" id="rdMN"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">This episode's crux — "translate once, then reuse"</div>
+    <p style="margin:6px 0 0;">Intermediate code is the language-world version of Episode 0's "ignite only once." Knowledge of a language goes into <em>the front end just once</em>; knowledge of a machine goes into <em>the back end just once</em>. The two converse only through EM, so neither needs to know the other. By <strong>separating concerns in the middle</strong>, effort that used to multiply becomes effort that merely adds.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>The reveal — intermediate code is the escape route for porting and bootstrapping</h2>
+
+  <p>The benefit of M+N is maximized <strong>when you move to a new machine</strong>. Without intermediate code, you rewrite all M compilers for the new machine. With it — <strong>you write just one back end (or a small core that runs EM)</strong>, and every <em>existing language</em> starts running on that machine. In the figure below, try adding a single new machine.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Porting to a new machine. Prepare just one EM core (a back end / interpreter), and the whole asset base of every existing front end suddenly becomes usable on that machine.</div>
+    <canvas id="cvPort" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="portBtn">＋ Port the EM core to the new machine</button>
+      <button class="btnmini" id="portReset" style="background:#8aa5a0;">Reset</button>
+    </div>
+    <div class="readout" id="rdPort">Nothing runs yet on the new machine (gray). Port a single "EM core" and C, Pascal, Modula-2… all start running at once.</div>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Why it works for bootstrapping</span>
+    <p style="margin-top:8px;">When you bring up a brand-new machine (the homework from Episode 3), the naive approach gets stuck on "how do we get a compiler onto it?" With intermediate code, <strong>port a single small core that runs EM</strong>, and the whole compiler asset base distributed in EM runs. <em>A tall tower supported by one small foundation.</em> It's a trick that makes Episode 0's "lift the ring once, from outside" a great deal lighter to lift.</p>
+  </div>
+
+  <h2><span class="n">05</span>A family of intermediate codes — from O-code to WASM</h2>
+
+  <p>The idea of "placing a common intermediate code in the middle" is not ACK's alone. It is, rather, <strong>a great river that runs through the history of compilers</strong>. <strong>BCPL's O-code</strong> (Episode 6), which we'll trace in future episodes, is a <em>much older ancestor</em> of this idea. And modern <strong>LLVM IR</strong> (<code>clang</code>'s intermediate representation), <strong>JVM bytecode</strong>, and <strong>WebAssembly</strong> are all descendants that carry the same blood. ACK's EM was a beautiful, easy-to-grasp milestone somewhere along that great river.</p>
+
+  <div class="aside">
+    <span class="tag">Bridging voice — swapping leaves up in the canopy (continued from Episode 1)</span>
+    ACK was long the native compiler of MINIX, but in later years <strong>MINIX 3</strong> took in its userland from <strong>NetBSD</strong> on the <em>lineage tree</em> side, and switched its system compiler to <code>clang</code>. This is a real example of what Episode 1 foreshadowed: "the reimplementation tree borrowing leaves from the lineage tree, up in the canopy." ACK itself was open-sourced under a BSD license in 2003, and remains a classic you can still read today.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — intermediate code "makes it easier," it doesn't "make it vanish"</span>
+    <p style="margin-top:0;">(1) ACK is itself a program, and running it requires a compiler — <strong>intermediate code does not eliminate the chicken and egg</strong>. It only makes porting and reuse dramatically easier; the "first seed" still has to be brought in from somewhere (the homework from Episode 3 remains alive). (2) "M+N" is a conceptual way of counting; in practice there are also other parts, such as the general optimizer and runtime libraries. The number of lines is an idealized rule of thumb.</p>
+    <p style="margin-bottom:0;">(3) The relationship between MINIX and ACK also differs in detail by version and distribution (early on a limited C compiler; in later years other compilers could be ported and used too). Here we tell the skeleton: "the native core toolchain was ACK." (4) "EM can be implemented in hardware" is a claim about design philosophy, not a statement that it was in fact widely implemented.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>If you naively build every compiler for 5 languages and 4 machines, how many do you need? And how many if you wedge in an intermediate code?
+        <details><summary>Show the answer</summary><div class="ans">Naive: 5×4 = 20. With intermediate code: 5 + 4 = 9 (5 front ends + 4 back ends).</div></details>
+      </li>
+      <li>With the intermediate-code approach, when you add one new machine, what extra thing do you build?
+        <details><summary>Show the answer</summary><div class="ans">Just one back end for that machine (a core that runs EM). Every existing front end — every language — then supports the new machine with only that.</div></details>
+      </li>
+      <li>Does intermediate code solve the "chicken and egg"?
+        <details><summary>Show the answer</summary><div class="ans">No. It only makes porting and reuse much easier; you still have to bring in a first compiler (a seed) from somewhere. The ignition problem of Episode 3 doesn't vanish.</div></details>
+      </li>
+      <li>Name one "descendant" that is related by blood to ACK's EM.
+        <details><summary>Show the answer</summary><div class="ans">Examples: BCPL's O-code (an ancestor), LLVM IR, JVM bytecode, WebAssembly. All share the same idea of "placing a common intermediate code in the middle."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Wedge in the middle, and multiplication becomes addition</h2>
+    <p>What compiled MINIX — Linux's birthing room (1987, Tanenbaum, ~12,000 lines, microkernel, a leaf on the reimplementation tree) — was <strong>ACK</strong>. A retargetable compiler handling C, Pascal, Modula-2… its heart was the intermediate code <strong>EM</strong> in the middle. By splitting into three stages — front end (per language) → EM → back end (per machine) — the <strong>M×N</strong> compilers a naive approach would need shrink to just <strong>M+N</strong>.</p>
+    <p>Its true worth shows in porting. Add just <strong>one EM core</strong> for a new machine and every language runs — a lightening of bootstrapping, a tall tower supported by a small foundation. Yet intermediate code <em>only makes the chicken and egg easier; it does not make it vanish</em> (the seed still has to be brought in). This idea of "placing an intermediate code in the middle" was a great river, running from its ancestor <strong>O-code</strong> in Episode 6 all the way to LLVM IR and WebAssembly. — And that's the end of our detour. Next time, at last, we descend to the birth of the <strong>first C compiler</strong>, the ancestor of the ignition device <code>cc</code>.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 5</span>
+    "The Birth of the C Compiler — Bootstrapping Itself." In Episode 3 we said "gcc was ignited by an existing cc," and promised to descend toward that cc's ancestor. Now we reach the heart of it. Dennis Ritchie <strong>grew C little by little out of a language called B</strong>, and finally carried it to the point where <em>a C compiler written in C could compile itself</em>. We'll see the true, genuine origin of self-hosting.
+  </div>
+
+  <div class="foot">
+    This document is Episode 4 of the series "A History of UNIX That Clicks." Historical notes: MINIX was an educational Unix-like OS created by Andrew S. Tanenbaum (with the cooperation of Albert S. Woodhull) for the textbook <cite>Operating Systems: Design and Implementation</cite> (Prentice Hall, 1987); its roughly 12,000 lines of condensed C source for the kernel, memory management, and file system were included in the book. It was a microkernel design and an independent implementation that inherited no AT&amp;T UNIX code. ACK (the Amsterdam Compiler Kit) was a set of retargetable compilers by Andrew Tanenbaum and Ceriel Jacobs, with front ends for C, Pascal, Modula-2, Occam, and BASIC, separating front and back ends via an intermediate bytecode called EM. It is known as an early portable compilation system, from the early 1980s, aimed at multiple languages and multiple machines. In MINIX 3 (3.2.0) the userland was replaced with one derived from NetBSD, and the system compiler became Clang. ACK was open-sourced under a BSD license in 2003. The design of passing through an intermediate code also connects to BCPL's O-code (Episode 6), LLVM IR, JVM bytecode, WebAssembly, and more. The "M+N" way of counting is an idealized, conceptual one; in practice there are additional elements such as the optimizer and runtime components. — To print, use your browser's "Print" and "Save as PDF" (in the printed version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use Figure 1's sliders to explore the gap between M×N and M+N, and Figure 2's button to try porting to a new machine. "Show the answer" reveals each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function dot(ctx,x,y,r,fill,stroke){ ctx.fillStyle=fill; ctx.strokeStyle=stroke||'rgba(0,0,0,.2)'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.arc(x,y,r,0,2*Math.PI); ctx.fill(); ctx.stroke(); }
+
+  /* ============ Figure 1: M×N vs M+N ============ */
+  (function(){
+    var cv=document.getElementById('cvMN'), mM=document.getElementById('mM'), mN=document.getElementById('mN'),
+        vM=document.getElementById('vM'), vN=document.getElementById('vN'), rd=document.getElementById('rdMN');
+    if(!cv) return;
+    var LANG='#1f7a6e', MACH='#a85f18', EM='#274a70';
+    function spread(cnt, y0, y1){ var a=[]; for(var i=0;i<cnt;i++){ a.push(cnt===1?(y0+y1)/2 : y0+(y1-y0)*i/(cnt-1)); } return a; }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var M=parseInt(mM.value,10), N=parseInt(mN.value,10);
+      var xL=w*0.16, xR=w*0.84, xMid=w*0.5, rr0=7;
+      // ---- top: naive M×N ----
+      var top0=34, top1=h*0.44;
+      ctx.fillStyle='#6b7683'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Naive: one compiler per language×machine', xL-30, 20);
+      var lyT=spread(M, top0+16, top1-6), myT=spread(N, top0+16, top1-6);
+      ctx.strokeStyle='rgba(160,110,40,.35)'; ctx.lineWidth=1;
+      for(var i=0;i<M;i++) for(var j=0;j<N;j++){ ctx.beginPath(); ctx.moveTo(xL,lyT[i]); ctx.lineTo(xR,myT[j]); ctx.stroke(); }
+      for(i=0;i<M;i++){ dot(ctx,xL,lyT[i],rr0,LANG); }
+      for(j=0;j<N;j++){ dot(ctx,xR,myT[j],rr0,MACH); }
+      ctx.fillStyle=EM; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText((M*N) +' compilers', xMid, (top0+top1)/2+4);
+      // ---- bottom: intermediate code M+N ----
+      var bot0=h*0.52, bot1=h-24;
+      ctx.fillStyle='#6b7683'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Wedge in intermediate code (EM): M+N', xL-30, bot0-6);
+      var lyB=spread(M, bot0+10, bot1), myB=spread(N, bot0+10, bot1), cy=(bot0+bot1)/2;
+      ctx.strokeStyle='rgba(31,122,110,.5)'; ctx.lineWidth=1.3;
+      for(i=0;i<M;i++){ ctx.beginPath(); ctx.moveTo(xL,lyB[i]); ctx.lineTo(xMid,cy); ctx.stroke(); }
+      ctx.strokeStyle='rgba(160,110,40,.55)';
+      for(j=0;j<N;j++){ ctx.beginPath(); ctx.moveTo(xMid,cy); ctx.lineTo(xR,myB[j]); ctx.stroke(); }
+      for(i=0;i<M;i++){ dot(ctx,xL,lyB[i],rr0,LANG); }
+      for(j=0;j<N;j++){ dot(ctx,xR,myB[j],rr0,MACH); }
+      // EM hub
+      ctx.fillStyle=EM; rr(ctx,xMid-26,cy-16,52,32,7); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 13px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      ctx.fillText('EM', xMid, cy+5);
+      // labels
+      ctx.fillStyle=LANG; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Languages '+M, xL, h-6);
+      ctx.fillStyle=MACH; ctx.fillText('Machines '+N, xR, h-6);
+      ctx.textAlign='left';
+    }
+    function update(){
+      var M=parseInt(mM.value,10), N=parseInt(mN.value,10);
+      vM.textContent=M; vN.textContent=N;
+      rd.innerHTML=M+' languages × '+N+' machines: naively, <strong>'+(M*N)+' compilers</strong>. Wedge in an intermediate code and it's <strong>'+(M+N)+'</strong> ('+M+' front ends + '+N+' back ends). Difference: '+(M*N-(M+N))+'.';
+      draw();
+    }
+    mM.addEventListener('input',update); mN.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: porting to a new machine ============ */
+  (function(){
+    var cv=document.getElementById('cvPort'), btn=document.getElementById('portBtn'), reset=document.getElementById('portReset'),
+        rd=document.getElementById('rdPort');
+    if(!cv) return;
+    var LANGS=['C','Pascal','Modula-2','BASIC'];
+    var MACHS=[{l:'PDP-11',on:true},{l:'VAX',on:true},{l:'8086',on:true},{l:'New machine',on:false}];
+    var pulse=0, raf=null, animating=false, tp=0;
+    var LANG='#1f7a6e', MACH='#a85f18', EM='#274a70';
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var xL=w*0.15, xR=w*0.85, xMid=w*0.5, cy=h*0.5, rr0=7;
+      function spread(cnt,y0,y1){ var a=[]; for(var i=0;i<cnt;i++){a.push(y0+(y1-y0)*i/(cnt-1));} return a; }
+      var ly=spread(LANGS.length, 40, h-40), my=spread(MACHS.length, 40, h-40);
+      // lang -> EM
+      ctx.strokeStyle='rgba(31,122,110,.5)'; ctx.lineWidth=1.3;
+      for(var i=0;i<LANGS.length;i++){ ctx.beginPath(); ctx.moveTo(xL,ly[i]); ctx.lineTo(xMid,cy); ctx.stroke(); }
+      // EM -> machines
+      for(var j=0;j<MACHS.length;j++){
+        ctx.strokeStyle= MACHS[j].on ? 'rgba(160,110,40,.6)' : 'rgba(150,150,150,.3)';
+        ctx.setLineDash(MACHS[j].on?[]:[4,4]); ctx.lineWidth=1.3;
+        ctx.beginPath(); ctx.moveTo(xMid,cy); ctx.lineTo(xR,my[j]); ctx.stroke(); ctx.setLineDash([]);
+      }
+      // pulses (fan-out to newest machine) while animating
+      if(animating){
+        var target=my[MACHS.length-1];
+        for(i=0;i<LANGS.length;i++){
+          // lang -> EM -> new machine, two legs; use pulse in [0,1] over whole path
+          var p=pulse;
+          var mx,myy;
+          if(p<0.5){ var t=p/0.5; mx=xL+(xMid-xL)*t; myy=ly[i]+(cy-ly[i])*t; }
+          else { var t2=(p-0.5)/0.5; mx=xMid+(xR-xMid)*t2; myy=cy+(target-cy)*t2; }
+          dot(ctx,mx,myy,3.4,'#2f8d5a','rgba(0,0,0,0)');
+        }
+      }
+      // nodes: languages
+      for(i=0;i<LANGS.length;i++){ dot(ctx,xL,ly[i],rr0,LANG);
+        ctx.fillStyle='#155249'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='right';
+        ctx.fillText(LANGS[i], xL-12, ly[i]+4); }
+      // EM hub
+      ctx.fillStyle=EM; rr(ctx,xMid-28,cy-17,56,34,8); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 14px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      ctx.fillText('EM', xMid, cy+5);
+      // machines
+      for(j=0;j<MACHS.length;j++){
+        var on=MACHS[j].on, last=(j===MACHS.length-1);
+        dot(ctx,xR,my[j],rr0, on? MACH : '#cfcfcf', on?'rgba(0,0,0,.2)':'#b0b0b0');
+        ctx.fillStyle= on? '#7a4a10' : '#9a9a9a'; ctx.font=(last?'bold ':'')+'11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+        ctx.fillText(MACHS[j].l + (last&&!on?' (no core)':''), xR+12, my[j]+4);
+      }
+      ctx.textAlign='left';
+    }
+    function loop(t){ if(!tp)tp=t; pulse=((t-tp)/1100)%1; draw();
+      if(animating){ if((t-tp)>2400){ animating=false; MACHS[MACHS.length-1].on=true; draw();
+          rd.innerHTML='Porting just one EM core made <strong>C, Pascal, Modula-2, and BASIC all start running on the new machine at once</strong>. Where the naive approach would rewrite one per language (4 of them), just one did it.'; return; }
+        raf=requestAnimationFrame(loop); } }
+    btn.addEventListener('click', function(){
+      if(MACHS[MACHS.length-1].on || animating) return;
+      animating=true; tp=0; rd.innerHTML='Porting: prepare one "core" that runs EM on the new machine → the EM of every front end flows into it…';
+      raf=requestAnimationFrame(loop);
+    });
+    reset.addEventListener('click', function(){
+      if(raf)cancelAnimationFrame(raf); animating=false; MACHS[MACHS.length-1].on=false;
+      rd.innerHTML='Nothing runs yet on the new machine (gray). Port a single "EM core" and C, Pascal, Modula-2… all start running at once.'; draw();
+    });
+    window.addEventListener('resize',draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+})();
+</script>
+</body>
+</html>

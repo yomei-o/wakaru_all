@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The First Unix — an OS Written in Assembly | A History of UNIX That Clicks, Episode 7</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf6f4; --paper-edge:#e9d9d3;   /* Episode 7: rust-red paper */
+    --side:#1f7a6e; --side-bg:#e7f2ef;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#e3cec6; --hair:#d3b3a8;
+    --acc:#9a4230;    /* Episode 7 accent = rust-red */
+    --grid:#e8d6cf;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0d5cb 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f2e7e3;border:1px solid #e9d9d3;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#173e37;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf9;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;} .btnmini.alt{background:#b58a7e;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f4e4df;color:#6f2d1e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9efec;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfc,#f0e0da);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4e4df;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6f2d1e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 7 / Remove Every Rung of the Ladder</span></div>
+  <p class="eyebrow">1969, when neither C nor B existed — Unix was written in the words just above machine code</p>
+  <h1>The First Unix — an OS Written in Assembly
+    <span class="sub">The C, B, BCPL, and intermediate code we've descended through were all <em>ladders</em> for getting by without touching the machine directly. In 1969, not one rung of that ladder yet existed. Ken Thompson wrote the first Unix in the <strong>assembly language of the PDP-7</strong> — in the thinnest words there are, just above machine code.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episodes 5 and 6 (the language ladder)</span>
+    <span>The reveal: assembly is a thin skin over machine code</span>
+  </div>
+
+  <p class="lead">At the end of Episode 6 we said "below the escape route (intermediate code), there is ultimately assembly and the machine." Now we descend there. The stage is Bell Labs in 1969. It's an era when neither C nor B (Episodes 5 and 6) yet exist in sufficient form. Ken Thompson found a small, idle computer — a <strong>PDP-7</strong> — and, in its <strong>assembly language</strong> alone, wrote the kernel, the shell, and the editor. Without using a single rung of the high-level-language ladder — this is Unix's bare starting point.</p>
+
+  <h2><span class="n">01</span>Why 1969, and why the PDP-7?</h2>
+
+  <p>The immediate trigger was a great failure. Bell Labs had teamed with MIT and GE to build the ambitious OS <strong>Multics</strong>, but progress was slow, and in the late 1960s they <strong>withdrew</strong> (this Multics itself is covered in a bonus episode, at the very top of the lineage). With time on his hands, Thompson tried to port the space-travel game <em>Space Travel</em>, which he'd built on Multics, to the idle PDP-7 — and along the way he made a file system, made processes, and before he knew it, it had <strong>become an OS</strong>. At first it had no official budget from Bell Labs either.</p>
+
+  <div class="aside">
+    <span class="tag">Bridging voice — the name means "castrated Multics"</span>
+    In 1970, a colleague, <strong>Brian Kernighan</strong>, gave this little OS the name <strong>UNICS</strong>. A pun on the giant Multics (Multiplexed…), it was Uniplexed…, pronounced "you-niks" (eunuchs). <em>A small, terse dig at the large, ambitious Multics.</em> The Unix design philosophy that "small is right" was there from the very name. Later the spelling became UNIX.
+  </div>
+
+  <h2><span class="n">02</span>Everything was assembly</h2>
+
+  <p>On the PDP-7, Thompson (and later Ritchie too) wrote one thing after another in assembly language — the <strong>kernel, the command interpreter (shell), the editor, the assembler itself, and a set of small utilities</strong>. Here were born the concepts that are still the spine of Unix/Linux today: the <em>hierarchical file system</em>, <em>processes</em>, and <em>device files</em>. All of it in the words just above machine code.</p>
+
+  <h2><span class="n">03</span>What is assembly? A thin skin over machine code</h2>
+
+  <p>Let's make clear what "written in assembly" means. What the machine actually executes is <strong>machine code</strong> — just a sequence of numbers (opcodes and addresses), which humans can barely read. <strong>Assembly language</strong> is simply that, with <em>human-readable names</em> attached to the numbers. Instructions get <strong>mnemonics</strong> like <code>lac</code> (load) and <code>add</code> (add); addresses get <strong>labels</strong> like <code>start:</code> and <code>n:</code>. The two correspond almost one-to-one.</p>
+
+  <p>And the program that mechanically replaces those names with numbers is the <strong>assembler</strong>. In the figure below, watch line by line as assembly is translated into machine code. Look only at the numbers afterward, and the meaning becomes utterly unreadable — that is "the world the machine sees."</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: Assembly. The assembler takes human-readable assembly (left) and, replacing mnemonic→opcode and label→address, turns it into machine code (right, octal). Look only at the right and the meaning is no longer readable.</div>
+    <canvas id="cvAsm" width="680" height="360"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="asmBtn">▶ Assemble</button>
+      <button class="btnmini alt" id="asmReset">Back to start</button>
+    </div>
+    <div class="readout" id="rdAsm">The assembly on the left is human-readable. With "▶ Assemble," it's translated line by line into machine code (right).</div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">This episode's crux — the ladder nearly runs out here</div>
+    <p style="margin:6px 0 0;">C, B, BCPL, and intermediate code were all ladders for "<em>writing in an easier language and having it translated</em>." Assembly is the <strong>bottom rung</strong> of that ladder. It just sticks names on the machine's very instructions; there's almost no more room to escape to "some easier language." Below here is the <strong>bare machine</strong> — machine code as numbers, and the physics that runs it.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>Here too, a chicken and egg — what built the assembler?</h2>
+
+  <p>The ladder may run out, but the chicken and egg doesn't vanish. <strong>To turn assembly into machine code, you need an assembler. So what assembled that first assembler?</strong> Moreover, PDP-7 Unix <em>included</em> the assembler itself, written in assembly. Eventually Unix could reassemble itself with its own assembler (self-supporting) — the smallest self-hosting, at the assembly layer. But "the very first one" can't be made inside that ring (Episode 0). In the figure below, see that ring, and the question that remains outside it.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The lowest layer of PDP-7 Unix. The assembler (as) assembles the kernel, the shell, and itself (self-hosting at the assembly layer). But "what assembled the first as" lies outside this ring — on to Episode 8.</div>
+    <canvas id="cvUnix" width="680" height="320"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="unixBtn">▶ as assembles everything</button>
+      <button class="btnmini alt" id="unixReset">Reset</button>
+    </div>
+    <div class="readout" id="rdUnix">PDP-7 Unix is written entirely in assembly. The central as (assembler) assembles the other parts and itself into machine code.</div>
+  </div>
+
+  <h2><span class="n">05</span>What lies ahead — the PDP-11, then C (closing one loop)</h2>
+
+  <p>PDP-7 Unix eventually moved to the <strong>PDP-11</strong> in 1970 (again in assembly), and, as we saw in Episode 5, was <strong>rewritten in C</strong> in 1972–73. Here one loop of the series closes — Episode 5's "C grew out of B" and this Episode 7's "the first Unix was assembly" tie together at the same knot, the <em>1973 move to C</em>. We are now heading <strong>even further below</strong> that knot, toward the origin of the very first assembler.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line — the instructions in the figure are a "plausible" made-up example</span>
+    <p style="margin-top:0;">(1) The instructions and octal codes in Figure 1 are a <em>simplified example</em> to convey the <strong>feel of the correspondence</strong> between assembly and machine code; they are not a strict reproduction of the actual PDP-7 instruction table (the PDP-7 was a small 18-bit-word machine, and mnemonics like <code>lac</code>/<code>dac</code>/<code>tad</code>/<code>jmp</code> are real). (2) "Assembly→machine code is almost one-to-one" is basically correct, but there are exceptions such as pseudo-instructions, macros, and multi-word instructions.</p>
+    <p style="margin-bottom:0;">(3) The story of Unix's birth (Multics withdrawal → Space Travel → file system → OS) is a famous, oft-retold arc, but the details differ by source. (4) "The ladder runs out here" is a figure of speech; in reality there are layers even below assembly, inside the machine, such as microcode (covered in Episode 10). (5) Early on, the assembly itself was done on a different machine — that story is exactly Episode 8.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>The first Unix (1969) was written on which machine, in what language?
+        <details><summary>Show the answer</summary><div class="ans">The (PDP-7's) assembly language, on the PDP-7. Neither C nor B was yet sufficiently available, so it was written in the words just above machine code.</div></details>
+      </li>
+      <li>State the difference between assembly language and an assembler in one sentence.
+        <details><summary>Show the answer</summary><div class="ans">Assembly language is a notation that attaches human-readable names (mnemonics and labels) to machine code (numbers); an assembler is a program that mechanically replaces those names with numbers to produce machine code.</div></details>
+      </li>
+      <li>What is the decisive difference between assembly and C/B/BCPL/intermediate code?
+        <details><summary>Show the answer</summary><div class="ans">The latter are "ladders for writing in an easier language and having it translated." Assembly just sticks names on the machine's very instructions, with almost no room to escape to an easier language = the bottom rung of the ladder.</div></details>
+      </li>
+      <li>What new "chicken and egg" remains from this episode?
+        <details><summary>Show the answer</summary><div class="ans">You need an assembler to turn assembly into machine code, but what assembled that first assembler? The question of the origin of the very first one, lying outside the self-hosting ring (Episode 8).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Remove every rung, and a thin skin over machine code remains</h2>
+    <p>In 1969, at a Bell Labs that had withdrawn from Multics, Thompson, while porting Space Travel to an idle <strong>PDP-7</strong>, made a file system along the way, and it became the first <strong>Unix</strong> (named UNICS by Kernighan). Neither C nor B yet existed, and the kernel, shell, editor, assembler, and utilities were all written in the <strong>assembly language of the PDP-7</strong>. Here the spine of Unix — the hierarchical file system, processes — was born.</p>
+    <p>Assembly is the thinnest skin, just <em>human-readable names</em> (mnemonics and labels) stuck onto machine code (numbers unreadable to humans). What replaces them with numbers is the assembler. The "easy-mode ladders" of C, B, BCPL, and intermediate code have here <strong>descended all the way to the bottom rung</strong>. But the chicken and egg remains — <strong>what assembled the first assembler?</strong> PDP-7 Unix includes the assembler itself and self-hosts at the assembly layer, but the very first one lies outside the ring. Next time, the answer — the cross approach that <em>assembled on a different machine and carried it on paper tape</em>.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 8</span>
+    "What Built the Assembler? — Cross-assembly and Paper Tape." The first PDP-7 Unix, in fact, could not be built by the PDP-7 <em>alone</em>. It was assembled on a different large machine (GE-635/GECOS), and the result was <strong>punched as holes in paper tape and physically carried to the PDP-7</strong>. We'll see the muddiest, most physical real-world instance of the "make it elsewhere and carry it" cross approach, the same as Episode 6's O-code.
+  </div>
+
+  <div class="foot">
+    This document is Episode 7 of the series "A History of UNIX That Clicks." Historical notes: In the late 1960s, Bell Labs withdrew from Multics development with MIT and GE. Ken Thompson moved the game Space Travel, which he had made on Multics, to the PDP-7 via GECOS (GE-635), and in the process implemented a file system and more, which became the first Unix. The first Unix was written in the assembly language of the PDP-7 (kernel, shell, editor, assembler, various utilities), and concepts such as the hierarchical file system, processes, device files, and the command interpreter were born. The name UNICS was coined in 1970 by Brian Kernighan as a pun on Multics (Uniplexed…, later UNIX). Unix was rewritten to the PDP-11 in 1970 and to C in 1972–73 (Episode 5). The instruction sequence and octal codes in Figure 1 are a simplified example to explain the correspondence between assembly and machine code, not a strict reproduction of the PDP-7 instruction table (mnemonics like lac/dac/tad/jmp are real). The correspondence between assembly and machine code is roughly one-to-one, but there are exceptions such as pseudo-instructions and macros. The PDP-7 is a small 18-bit-word machine. — To print, use your browser's "Print" and "Save as PDF" (in the printed version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use "▶ Assemble" in Figure 1 to trace the assembly→machine code translation, and Figure 2 to follow the self-hosting of PDP-7 Unix's lowest layer. "Show the answer" reveals each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: assembly ============ */
+  (function(){
+    var cv=document.getElementById('cvAsm'), btn=document.getElementById('asmBtn'), reset=document.getElementById('asmReset'),
+        rd=document.getElementById('rdAsm');
+    if(!cv) return;
+    // [label, mnem, operand, comment, addr(oct), word(oct)]
+    var L=[
+      ['start:','lac','n',   'A ← n (read variable n)', '100','200110'],
+      ['',      'tad','one', 'A ← A + 1 (add 1)',  '101','340111'],
+      ['',      'dac','n',   'n ← A (write back)',     '102','040110'],
+      ['',      'jmp','start','repeat',             '103','600103'],
+      ['n:',    '0','',      'variable n (initial value 0)',      '110','000000'],
+      ['one:',  '1','',      'constant 1',                '111','000001']
+    ];
+    var SYM=[['start','100'],['n','110'],['one','111']];
+    var reveal=0, playing=false, raf=null, t0=0;
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var lx=18, rx=w*0.53, topY=40, rowH=30;
+      // headers
+      ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle='#9a4230'; ctx.fillText('Assembly (human-readable)', lx, 22);
+      ctx.fillStyle='#274a70'; ctx.fillText('Machine code (octal, machine-readable)', rx, 22);
+      // divider
+      ctx.strokeStyle='#e3cec6'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(rx-14,30); ctx.lineTo(rx-14,topY+rowH*L.length+6); ctx.stroke();
+      for(var i=0;i<L.length;i++){
+        var y=topY+rowH*i+16;
+        // left: assembly
+        ctx.font='13px "SFMono-Regular",Consolas,monospace';
+        ctx.fillStyle='#9a4230'; ctx.fillText(L[i][0], lx, y);
+        ctx.fillStyle='#1a1c22';
+        var op = L[i][1]==='0'||L[i][1]==='1' ? L[i][1] : (L[i][1]+'  '+L[i][2]);
+        ctx.fillText(op, lx+52, y);
+        ctx.fillStyle='#a08a82'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('; '+L[i][3], lx+150, y);
+        // right: machine code
+        if(i<reveal){
+          ctx.font='13px "SFMono-Regular",Consolas,monospace'; ctx.fillStyle='#274a70';
+          ctx.fillText(L[i][4]+':', rx, y);
+          ctx.fillStyle='#1a1c22'; ctx.fillText(L[i][5], rx+46, y);
+        } else {
+          ctx.font='13px "SFMono-Regular",Consolas,monospace'; ctx.fillStyle='#c9c0bb';
+          ctx.fillText('· · · · · ·', rx+46, y);
+        }
+        // highlight the line being converted
+        if(i===reveal-1){
+          ctx.strokeStyle='#9a4230'; ctx.lineWidth=1.4;
+          rr(ctx, rx-6, y-16, w-rx-8, 22, 4); ctx.stroke();
+        }
+      }
+      // symbol table
+      var syY=topY+rowH*L.length+18;
+      ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#6f2d1e'; ctx.textAlign='left';
+      ctx.fillText('Symbol table (label→address):', lx, syY);
+      ctx.font='12px "SFMono-Regular",Consolas,monospace';
+      var shown = SYM.filter(function(s){ // reveal symbol once its defining line passed
+        return true; });
+      var xx=lx+150;
+      for(var k=0;k<SYM.length;k++){
+        var defLine = SYM[k][0]==='start'?0:(SYM[k][0]==='n'?4:5);
+        var vis = reveal>defLine;
+        ctx.fillStyle = vis? '#274a70' : '#c9c0bb';
+        ctx.fillText(SYM[k][0]+'='+(vis?SYM[k][1]:'?'), xx, syY);
+        xx += 92;
+      }
+      ctx.textAlign='left';
+    }
+    function loop(t){ if(!t0)t0=t; var idx=Math.floor((t-t0)/650); reveal=Math.min(idx, L.length);
+      draw();
+      if(playing){ if(reveal>=L.length){ playing=false; btn.textContent='▶ Assemble';
+        rd.innerHTML='Translation complete. Look only at the machine code on the right and it is <strong>just a sequence of octal numbers</strong>, its meaning unreadable — this is "the world the machine sees." Humans write assembly (left), and the assembler converts it to the right.'; return; }
+        raf=requestAnimationFrame(loop); } }
+    btn.addEventListener('click', function(){
+      if(playing) return;
+      if(reveal>=L.length){ reveal=0; }
+      playing=true; t0=0; btn.textContent='… Converting'; rd.innerHTML='The assembler is replacing, line by line, mnemonic→opcode and label→address…';
+      raf=requestAnimationFrame(loop);
+    });
+    reset.addEventListener('click', function(){ if(raf)cancelAnimationFrame(raf); playing=false; reveal=0; btn.textContent='▶ Assemble';
+      rd.innerHTML='The assembly on the left is human-readable. With "▶ Assemble," it is translated line by line into machine code (right).'; draw(); });
+    window.addEventListener('resize',draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: the lowest layer of PDP-7 Unix ============ */
+  (function(){
+    var cv=document.getElementById('cvUnix'), btn=document.getElementById('unixBtn'), reset=document.getElementById('unixReset'),
+        rd=document.getElementById('rdUnix');
+    if(!cv) return;
+    var parts=[{l:'kernel'},{l:'shell'},{l:'editor ed'},{l:'utilities'}];
+    var built=[false,false,false,false], selfBuilt=false, revealQ=false;
+    var playing=false, raf=null, t0=0, stepDur=520;
+    function draw(t){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cx=w*0.40, cy=h*0.52;
+      // container (PDP-7 Unix)
+      ctx.strokeStyle='#d3b3a8'; ctx.setLineDash([6,4]); ctx.lineWidth=1.6;
+      rr(ctx, 14, 30, w*0.70, h-56, 12); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#a08a82'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('PDP-7 Unix (written entirely in assembly)', 22, 46);
+      // part positions around as
+      var pos=[{x:cx-118,y:cy-70},{x:cx+92,y:cy-70},{x:cx-118,y:cy+64},{x:cx+92,y:cy+64}];
+      // arrows as->part
+      for(var i=0;i<parts.length;i++){
+        var p=pos[i];
+        ctx.strokeStyle= built[i]? '#9a4230':'#d8c4bd'; ctx.lineWidth=1.8; ctx.setLineDash(built[i]?[]:[4,4]);
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p.x+30,p.y+14); ctx.stroke(); ctx.setLineDash([]);
+        // part box
+        ctx.fillStyle= built[i]? '#f4e4df':'#f6f0ee'; ctx.strokeStyle= built[i]? '#9a4230':'#cbb8b1'; ctx.lineWidth=1.6;
+        rr(ctx,p.x,p.y,86,28,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= built[i]? '#6f2d1e':'#9a8a84'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText(parts[i].l, p.x+43, p.y+18);
+      }
+      // as (center)
+      ctx.fillStyle='#9a4230'; ctx.strokeStyle='#6f2d1e'; ctx.lineWidth=2.4;
+      rr(ctx,cx-42,cy-20,84,40,9); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.font='bold 15px "SFMono-Regular",Consolas,monospace';
+      ctx.fillText('as', cx, cy-1); ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('assembler', cx, cy+13);
+      // self loop
+      if(selfBuilt){
+        var R=22, lx=cx, ly=cy-20-4;
+        ctx.strokeStyle='#9a4230'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(lx,ly,R, Math.PI*0.2, Math.PI*1.8); ctx.stroke();
+        var ea=Math.PI*1.8; ctx.fillStyle='#9a4230';
+        ctx.beginPath(); ctx.moveTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea)-7,ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)+7); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#6f2d1e'; ctx.font='9.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('assembles itself too', lx, ly-R-4);
+      }
+      // dangling question (outside)
+      var qx=w*0.90, qy=cy;
+      ctx.fillStyle= revealQ? '#efe9f0':'#f2efec'; ctx.strokeStyle= revealQ? '#7d3b8f':'#d8c4bd'; ctx.lineWidth=1.8; ctx.setLineDash(revealQ?[]:[4,4]);
+      rr(ctx,qx-40,qy-24,74,48,8); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle= revealQ? '#7d3b8f':'#b0a09a'; ctx.font='bold 20px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      ctx.fillText('?', qx-3, qy+2);
+      // arrow from ? into as
+      ctx.strokeStyle= revealQ? '#7d3b8f':'#d8c4bd'; ctx.lineWidth=1.8; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(qx-40,qy); ctx.lineTo(cx+42+4,cy); ctx.stroke(); ctx.setLineDash([]);
+      if(revealQ){
+        ctx.fillStyle='#7d3b8f'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('what assembled', qx-3, qy-32); ctx.fillText('the first as?', qx-3, qy+40);
+        ctx.fillText('→ Episode 8', qx-3, qy+54);
+      }
+      ctx.textAlign='left';
+    }
+    function loop(t){ if(!t0)t0=t; var e=t-t0; var k=Math.floor(e/stepDur);
+      for(var i=0;i<parts.length;i++){ built[i] = k>i; }
+      selfBuilt = k>=parts.length;
+      draw(t);
+      if(playing){ if(k>=parts.length+1){ playing=false; revealQ=true; draw(t);
+        rd.innerHTML='as assembles the other parts, and <strong>itself too</strong> = self-hosting at the assembly layer. But <strong>"the first as" alone cannot be made inside this ring</strong> (Episode 0). The origin of that one is Episode 8.'; return; }
+        raf=requestAnimationFrame(loop); } }
+    btn.addEventListener('click', function(){ if(playing) return;
+      built=[false,false,false,false]; selfBuilt=false; revealQ=false; playing=true; t0=0;
+      rd.innerHTML='as assembles the kernel → shell → editor → utilities, and itself, into machine code…';
+      raf=requestAnimationFrame(loop); });
+    reset.addEventListener('click', function(){ if(raf)cancelAnimationFrame(raf); playing=false;
+      built=[false,false,false,false]; selfBuilt=false; revealQ=false;
+      rd.innerHTML='PDP-7 Unix is written entirely in assembly. The central as (assembler) assembles the other parts and itself into machine code.'; draw(0); });
+    window.addEventListener('resize',function(){ draw(0); });
+    setTimeout(function(){draw(0);},60); window.addEventListener('load',function(){draw(0);});
+  })();
+})();
+</script>
+</body>
+</html>

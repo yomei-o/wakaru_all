@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Built the Assembler? | A History of UNIX That Clicks, Episode 8</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7ef; --paper-edge:#e7dcc2;   /* Episode 8: old-gold paper */
+    --side:#1f7a6e; --side-bg:#e7f2ef;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#e0d4b8; --hair:#cfc09a;
+    --acc:#8a5e10;    /* Episode 8 accent = old gold */
+    --grid:#e6dcc4;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #efe0b8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f2ecdd;border:1px solid #e7dcc2;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#173e37;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;} .btnmini.alt{background:#c1a969;}
+  .seg{background:#eee2c8;color:#6a4a08;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f4ead2;color:#6a4a08;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f1e2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf6,#f0e6cf);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4ead2;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4a08;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 8 / Make It Elsewhere and Carry It</span></div>
+  <p class="eyebrow">Episode 7's homework — what assembled the first assembler?</p>
+  <h1>What Built the Assembler?
+    <span class="sub">The first PDP-7 Unix, in fact, could not be built by the PDP-7 <em>alone</em>. It was assembled on a different large machine (GE-635/GECOS), and the result was <strong>punched as holes in paper tape and physically carried to the PDP-7</strong>. The same "make it elsewhere and carry it" as Episode 6's O-code — its muddiest real-world instance.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 6 (carrying), Episode 7 (the assembler)</span>
+    <span>The reveal: a new machine is brought up from an already-existing machine</span>
+  </div>
+
+  <p class="lead">In Episode 7 we saw that "the first Unix was written in PDP-7 assembly," and left homework — <strong>you need an assembler to turn assembly into machine code, but what assembled that first assembler?</strong> The PDP-7 didn't even have an assembler at first. There was no chicken. The answer was surprisingly physical. Thompson used <em>a different machine</em>. On the large machine GE-635 (running the OS GECOS), which was already up and running splendidly, he made machine code for the PDP-7, punched it onto <strong>paper tape</strong>, and carried it over to the PDP-7. This way of "borrowing someone else's machine" is called <strong>cross-assembly</strong>.</p>
+
+  <h2><span class="n">01</span>The PDP-7 alone couldn't get started</h2>
+
+  <p>Episode 7's self-hosting ring — the assembler assembling itself — is strong <em>once it starts turning</em>. But before it turns, the PDP-7 has not a single assembler. "You need an assembler to turn assembly into machine code, but there's no assembler to turn that assembler into machine code." This is Episode 0's chicken and egg, exactly. Thompson's solution was to <strong>not try to solve it inside this machine</strong>.</p>
+
+  <h2><span class="n">02</span>Cross-assembly — host and target can differ</h2>
+
+  <p>Usually "assemble with an assembler" means, on the <em>same machine</em>, making machine code for that machine (native). But the machine that <strong>runs the assembler (the host)</strong> and the machine the machine code is <strong>aimed at (the target)</strong> can be <em>different</em>. An assembler running on the GE-635 (macros in GEMAP) emits machine code aimed at the PDP-7 — this is cross. In the figure below, switch between native and cross, and see why at first there was only cross.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: Native vs cross. In native, host = target (the same machine). But the not-yet-born PDP-7 has no assembler, so it can't get started. In cross, host ≠ target — borrow the already-running GE-635 to make code for the PDP-7.</div>
+    <canvas id="cvCross" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini seg" data-k="native">Native (same machine)</button>
+      <button class="btnmini seg on" data-k="cross">Cross (borrow another machine)</button>
+    </div>
+    <div class="readout" id="rdCross"></div>
+  </div>
+
+  <h2><span class="n">03</span>Carry it on paper tape — "transport" was on foot</h2>
+
+  <p>The PDP-7-bound machine code produced by cross lives inside the GE-635. It has to be moved to the PDP-7. This is an era with no such thing as a network. What did they do? — <strong>They punched it out onto paper tape, carried the tape by hand, on foot, to the PDP-7, and fed it through the reader.</strong> The true nature of the "carry" from Episode 6's "carry the O-code to the new machine" is this <em>foot-transport of punched tape</em>. In the figure below, try running the whole sequence.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Cross-assemble → paper tape → PDP-7. On the GE-635, make PDP-7-bound machine code, punch it as holes into paper tape, carry it physically, and the PDP-7 reads and runs it. Eventually the PDP-7 gets its own assembler and graduates from GECOS.</div>
+    <canvas id="cvTape" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="tapeBtn">▶ Make it, carry it, run it</button>
+      <button class="btnmini alt" id="tapeReset">Reset</button>
+    </div>
+    <div class="readout" id="rdTape">On the GE-635 (GECOS), prepare PDP-7-bound machine code. With "▶," replay punching it onto paper tape, carrying it, and running it on the PDP-7.</div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">This episode's crux — a new machine is brought up from an already-existing machine</div>
+    <p style="margin:6px 0 0;">The idea of cross is this — <strong>"you don't have to build the target on the target; just borrow one running host."</strong> Even on a new machine with no chicken, you can get an egg from <em>someone else's chicken</em>. This is exactly the same skeleton as Episode 3's "borrow an existing <code>cc</code> to ignite gcc," Episode 6's "carry the O-code," and modern <strong>cross-compilation</strong> (making code for a new CPU or embedded device on the PC in front of you). For half a century, it's been "the way a new machine gives its first cry."</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>And then, independence — graduating from GECOS</h2>
+
+  <p>Once cross loads a minimal set of tools onto the PDP-7 — kernel, editor, shell, and the <strong>assembler</strong> — Unix can write and test programs <em>on itself</em> (self-supporting). As a finishing touch, Thompson wrote a <strong>PDP-7-native assembler</strong> and stopped using the GE-635 entirely. The answer to the "what assembled the first <code>as</code>?" that flickered in Episode 7's figure is filled in here — <em>the first <code>as</code> was assembled by the GE-635's cross-assembler</em>. The ring was ignited from someone else's machine.</p>
+
+  <div class="calc">
+    <span class="tag">The question shifted by one (but it doesn't go on forever)</span>
+    <p style="margin-top:8px;">So "what built that GE-635 toolchain?" — again it looks like passing the problem down a stage. But this time it's a little different. The GE-635 was itself <em>once new</em>, and was brought up from still older machines, or from more primitive means. <strong>Every "already-existing machine" was once a new machine.</strong> Cross is a chain of borrowing "the machine brought up just before," and this is <em>finite</em>. Trace it back and eventually you arrive at — <strong>the very first machine, with not a single host to borrow</strong>. There, the magic of cross does not work.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Bridging voice — the many things that get "carried"</span>
+    Episode 6 carried O-code; this time we carried PDP-7-bound machine code on paper tape. What gets carried can be "intermediate code" or "machine code," and the medium can be paper tape or a network. What's common is a single skeleton — <strong>"make it on a running host, and hand it over to the target."</strong> In the bonus episode "Cross-compilation," we dig deeper into the modern version of this (bringing up a new CPU, the Canadian Cross, and so on).
+  </div>
+
+  <h2><span class="n">05</span>The bottom is already in sight</h2>
+
+  <p>Trace the chain of cross back, and you always arrive at <strong>"the first machine, with no one to borrow from."</strong> The world's very first such computer has no other machine to assemble for it, and no finished paper tape to feed in. So how was the <em>very first instruction</em> put into that machine? — Next time, at last, the bottom. The answer is <strong>human hands</strong>.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line — cross only "moves" the chicken and egg</span>
+    <p style="margin-top:0;">(1) Cross-assembly does not <em>solve</em> the chicken and egg. It just gives up on "solving it inside this machine" and <strong>moves the problem to a different (already-running) machine</strong>. But that chain is finite, and traced back it bottoms out at the first machine (Episode 9). It is not an infinite regress.</p>
+    <p style="margin-bottom:0;">(2) Details such as GE-635/GECOS/GEMAP, paper-tape transport, and the timing of the move to self-supporting vary in wording by source (the skeleton — "cross-assembler on GECOS → paper tape → PDP-7 → eventual independence with its own assembler" — agrees with Ritchie's own recollections). (3) The figures schematize the workflow and are not strict reproductions of the real machines' appearance or operation.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>What is cross-assembly? In one sentence, using the words host and target.
+        <details><summary>Show the answer</summary><div class="ans">Assembly in which the machine that runs the assembler (host) and the machine the machine code is aimed at (target) are different. Example: on the GE-635 (host), making machine code aimed at the PDP-7 (target).</div></details>
+      </li>
+      <li>In the first PDP-7 Unix, how was the machine code made on the GE-635 moved to the PDP-7?
+        <details><summary>Show the answer</summary><div class="ans">It was punched out as holes onto paper tape, physically carried to the PDP-7, and fed through the reader.</div></details>
+      </li>
+      <li>What is the answer to "what assembled the first as" (Episode 7's homework)?
+        <details><summary>Show the answer</summary><div class="ans">The cross-assembler on the GE-635 (GECOS). With it the PDP-7 got its tools, and eventually Thompson wrote a PDP-7-native assembler and graduated from GECOS.</div></details>
+      </li>
+      <li>Does cross solve the chicken and egg? Why is it not an infinite regress?
+        <details><summary>Show the answer</summary><div class="ans">It doesn't solve it; it only moves the problem to "a different, already-running machine." But what you borrow is "the machine brought up just before," so the chain is finite. Traced back, it bottoms out at the first machine with no one to borrow from (Episode 9).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Made on someone else's machine, and carried on paper tape</h2>
+    <p>The answer to Episode 7's homework, "what assembled the first assembler," was <strong>a different machine</strong>. The not-yet-born PDP-7 had no assembler and couldn't start within itself. So Thompson ran an assembler (macros in GEMAP) on the already-running large machine <strong>GE-635 (GECOS)</strong>, and made <em>machine code aimed at the PDP-7</em> — <strong>cross-assembly</strong>, host ≠ target. The resulting machine code was <strong>punched as holes into paper tape, carried by hand</strong>, and read into the PDP-7. It is the muddy, real-world instance of Episode 6's "carry the O-code."</p>
+    <p>Eventually the PDP-7 gathered a kernel, editor, shell, and assembler, Unix became able to develop on itself (self-supporting), and Thompson wrote a <strong>PDP-7-native assembler</strong> and graduated from GECOS. The crux of cross is "<em>you don't have to build the target on the target; just borrow a running host</em>" — the same skeleton as Episode 3's existing cc and modern cross-compilation. But this only <strong>moves the chicken and egg to a different (already-existing) machine</strong>. The chain is finite, and traced back you arrive at <strong>the first machine with no one to borrow from</strong>. — Next time, at last, the bottom. The first byte was put in by human hands.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 9</span>
+    "The First Byte — Entered by Hand." The world's first machine, with not even anyone to borrow from via cross. There is no assembler and no paper tape. A human reads the instruction table, makes the machine-code numbers <strong>by hand (hand-assembly)</strong>, and enters them into memory one word at a time with <strong>toggle switches</strong>. This is the episode where the watchword "the first egg was carved by hand" becomes almost literally a fact.
+  </div>
+
+  <div class="foot">
+    This document is Episode 8 of the series "A History of UNIX That Clicks." Historical notes: Ken Thompson at first wrote PDP-7 code not on the PDP-7 but as macros for the GEMAP assembler on the GE-635; a cross-assembler running under GECOS generated paper tape, which was carried to the PDP-7 and executed. Eventually Unix became able to develop on itself (self-supporting), and Thompson wrote a PDP-7-native assembler so as to avoid using the GE-635 entirely (based on recollections such as Dennis Ritchie's "The Evolution of the Unix Time-sharing System"). Cross-assembly / cross-compilation is a method in which the machine that runs the assembler or compiler (host) differs from the target machine of the generated code, and it is widely used in bringing up (bootstrapping) a new machine. Cross does not solve the chicken and egg but moves it to a different, already-running machine; the chain is finite and bottoms out at the first machine. Details such as GE-635/GECOS/GEMAP, transport, and the timing of independence vary in wording by source. The figures schematize the workflow and are not strict reproductions of the real machines. — To print, use your browser's "Print" and "Save as PDF" (in the printed version, the figure controls, animation, and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, use Figure 1's buttons to switch between native and cross, and Figure 2's "▶" to replay the paper-tape transport workflow. "Show the answer" reveals each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function machineBox(ctx,x,y,w,h,name,sub,col,active){
+    ctx.fillStyle= active?'#fff':'#f4f2ec'; ctx.strokeStyle=col; ctx.lineWidth= active?2.4:1.6;
+    rr(ctx,x,y,w,h,10); ctx.fill(); ctx.stroke();
+    // screen
+    ctx.fillStyle= active? '#1b2330':'#c8c4ba'; rr(ctx,x+10,y+10,w-20,h*0.42,4); ctx.fill();
+    ctx.fillStyle=col; ctx.textAlign='center'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+    ctx.fillText(name, x+w/2, y+h-20);
+    ctx.fillStyle='#8a8175'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif';
+    ctx.fillText(sub, x+w/2, y+h-6);
+  }
+
+  /* ============ Figure 1: native vs cross ============ */
+  (function(){
+    var cv=document.getElementById('cvCross'), rd=document.getElementById('rdCross');
+    if(!cv) return;
+    var kind='cross';
+    function chip(ctx,x,y,label,ok){
+      ctx.fillStyle= ok? '#efe0b8':'#f0e6e2'; ctx.strokeStyle= ok? '#8a5e10':'#b06a45'; ctx.lineWidth=1.8; ctx.setLineDash(ok?[]:[4,3]);
+      rr(ctx,x-46,y-16,92,32,6); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle= ok? '#6a4a08':'#9a6a55'; ctx.textAlign='center'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText(label, x, y+4);
+    }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cross = kind==='cross';
+      var hx=w*0.06, tx=w*0.62, my=h*0.30, mw=w*0.30, mh=h*0.44;
+      if(cross){
+        machineBox(ctx,hx,my,mw,mh,'GE-635','GECOS (already running)','#2166a0',true);
+        machineBox(ctx,tx,my,mw,mh,'PDP-7','the target, not yet running','#9a4230',false);
+        chip(ctx, hx+mw/2, my+mh+22, 'assembler (running)', true);
+        // arrow host->target
+        ctx.strokeStyle='#8a5e10'; ctx.fillStyle='#8a5e10'; ctx.lineWidth=2.4;
+        var ax0=hx+mw, ax1=tx; var ay=my+mh*0.32;
+        ctx.beginPath(); ctx.moveTo(ax0,ay); ctx.lineTo(ax1-2,ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ax1,ay); ctx.lineTo(ax1-10,ay-5); ctx.lineTo(ax1-10,ay+5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#6a4a08'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('emits PDP-7-bound machine code', (ax0+ax1)/2, ay-10);
+        ctx.fillStyle='#1f7a6e'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('host ≠ target → it works ✓', w/2, h-12);
+      } else {
+        machineBox(ctx,hx,my,mw,mh,'PDP-7','host','#9a4230',false);
+        machineBox(ctx,tx,my,mw,mh,'PDP-7','target (same machine)','#9a4230',false);
+        chip(ctx, hx+mw/2, my+mh+22, 'assembler? (none yet)', false);
+        ctx.strokeStyle='#c9b6ac'; ctx.setLineDash([5,4]); ctx.lineWidth=2;
+        var ax0=hx+mw, ax1=tx, ay=my+mh*0.32;
+        ctx.beginPath(); ctx.moveTo(ax0,ay); ctx.lineTo(ax1,ay); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#a83a22'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('the PDP-7 has no assembler → cannot get started ✕', w/2, h-12);
+      }
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      if(kind==='cross') rd.style.background='#e7f2ef',rd.style.color='#155249',
+        rd.innerHTML='<strong>Cross</strong>: host = GE-635 (already running), target = PDP-7. The assembler on the GE-635 emits PDP-7-bound machine code. Because host ≠ target, even the not-yet-born PDP-7 can be brought up.';
+      else rd.style.background='#f4e4df',rd.style.color='#6f2d1e',
+        rd.innerHTML='<strong>Native</strong>: host = target = PDP-7. But at first the PDP-7 has not a single assembler — this way you cannot get started (the chicken and egg of Episode 0).';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-k]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      kind=b.getAttribute('data-k'); btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: paper-tape transport ============ */
+  (function(){
+    var cv=document.getElementById('cvTape'), btn=document.getElementById('tapeBtn'), reset=document.getElementById('tapeReset'),
+        rd=document.getElementById('rdTape');
+    if(!cv) return;
+    var playing=false, raf=null, t0=0;
+    // phases: 0 assemble/punch, 1 carry, 2 read, 3 run+self
+    var PHASE=[1400,1800,1300,1200];
+    function tape(ctx,x,y,len,progress){
+      // paper tape strip with sprocket + data holes, drawn from x to x+len
+      ctx.fillStyle='#e8d9b0'; ctx.strokeStyle='#c9b57e'; ctx.lineWidth=1;
+      rr(ctx,x,y,len,26,2); ctx.fill(); ctx.stroke();
+      var cols=Math.floor(len/12);
+      for(var i=0;i<cols;i++){
+        var cxp=x+8+i*12;
+        // sprocket hole (small, center)
+        ctx.fillStyle='#8a7a4a'; ctx.beginPath(); ctx.arc(cxp,y+13,1.6,0,2*Math.PI); ctx.fill();
+        // data holes appear per progress
+        if(i/cols <= progress){
+          for(var r0=0;r0<3;r0++){
+            if((i*7+r0)%2===0){ ctx.fillStyle='#1b2330'; ctx.beginPath(); ctx.arc(cxp,y+5+r0*8,2.1,0,2*Math.PI); ctx.fill(); }
+          }
+        }
+      }
+    }
+    function draw(t){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var e = t0? (t-t0):0;
+      var phase=0, acc=0; while(phase<PHASE.length && e>acc+PHASE[phase]){ acc+=PHASE[phase]; phase++; }
+      var localT = playing? Math.min((e-acc)/PHASE[Math.min(phase,PHASE.length-1)],1) : (t0? 1:0);
+      if(!playing && !t0){ phase=0; localT=0; }
+      if(!playing && t0){ phase=PHASE.length-1; localT=1; } // finished
+      var gx=w*0.05, gy=h*0.30, gw=w*0.28, gh=h*0.40, px=w*0.67, py=gy, pw=w*0.28, ph=gh;
+      var geActive = true, pdpActive = (phase>=3);
+      machineBox(ctx,gx,gy,gw,gh,'GE-635','GECOS (cross-assemble)','#2166a0',geActive);
+      machineBox(ctx,px,py,pw,ph,'PDP-7', pdpActive?'toward independence':'standby','#9a4230',pdpActive);
+      // tape logic
+      var tapeY=h*0.80, tapeLen=w*0.22;
+      if(phase===0){ // punching at GE
+        tape(ctx, gx+gw*0.2, tapeY, tapeLen, localT);
+        ctx.fillStyle='#2166a0'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('① Assemble & punch holes into paper tape', w/2, tapeY-14);
+      } else if(phase===1){ // carry
+        var x0=gx+gw*0.2, x1=px+pw*0.2, xx=x0+(x1-x0)*localT;
+        tape(ctx, xx, tapeY, tapeLen, 1);
+        ctx.fillStyle='#8a5e10'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('② Carry the paper tape by hand (on foot) →', w/2, tapeY-14);
+        // little walking dots
+        ctx.fillStyle='#c1a969'; ctx.beginPath(); ctx.arc(xx+tapeLen+12, tapeY+13, 4,0,2*Math.PI); ctx.fill();
+      } else if(phase===2){ // read into PDP-7
+        var x1=px+pw*0.2; tape(ctx, x1 - tapeLen*localT*0.4, tapeY, tapeLen, 1);
+        ctx.fillStyle='#9a4230'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('③ Feed it through the PDP-7 reader', w/2, tapeY-14);
+      } else { // run + self
+        ctx.fillStyle='#1f7a6e'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('④ It runs on the PDP-7 → eventually it gets its own assembler and graduates from GECOS (independence)', w/2, tapeY-2);
+        // self loop on PDP-7
+        var lx=px+pw/2, ly=py-6, R=16;
+        ctx.strokeStyle='#9a4230'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(lx,ly,R,Math.PI*0.2,Math.PI*1.8); ctx.stroke();
+        ctx.fillStyle='#9a4230'; var ea=Math.PI*1.8;
+        ctx.beginPath(); ctx.moveTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea)-6,ly+R*Math.sin(ea)); ctx.lineTo(lx+R*Math.cos(ea),ly+R*Math.sin(ea)+6); ctx.closePath(); ctx.fill();
+      }
+      // arrow between machines (dim)
+      ctx.strokeStyle='#e0d4b8'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(gx+gw, gy+gh*0.3); ctx.lineTo(px, py+ph*0.3); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='left';
+    }
+    function loop(t){ if(!t0)t0=t; var e=t-t0; var total=PHASE.reduce(function(a,b){return a+b;},0);
+      draw(t);
+      if(playing){ if(e>=total){ playing=false; btn.textContent='▶ Make it, carry it, run it';
+        rd.innerHTML='The PDP-7 ran on the machine code from the paper tape. From then on, it wrote its own assembler and <strong>graduated from GECOS = independence</strong>. The "first as" of Episode 7 was assembled by this GE-635 cross-assembler.'; return; }
+        raf=requestAnimationFrame(loop); } }
+    btn.addEventListener('click', function(){ if(playing) return; playing=true; t0=0; btn.textContent='… Playing';
+      rd.innerHTML='Assemble on the GE-635 → punch holes into paper tape → carry it by hand to the PDP-7 → read → run…';
+      raf=requestAnimationFrame(loop); });
+    reset.addEventListener('click', function(){ if(raf)cancelAnimationFrame(raf); playing=false; t0=0; btn.textContent='▶ Make it, carry it, run it';
+      rd.innerHTML='On the GE-635 (GECOS), prepare PDP-7-bound machine code. With "▶," replay punching it onto paper tape, carrying it, and running it on the PDP-7.'; draw(0); });
+    window.addEventListener('resize',function(){ draw(t0?performance.now():0); });
+    setTimeout(function(){draw(0);},60); window.addEventListener('load',function(){draw(0);});
+  })();
+})();
+</script>
+</body>
+</html>

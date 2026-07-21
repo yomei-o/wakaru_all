@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The First Linux ── Born from gcc on MINIX | A History of UNIX That Clicks, Episode 2</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f7f2; --paper-edge:#e7ddca;   /* Episode 2: amber paper */
+    --side:#2f6f55; --side-bg:#eaf2ee;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#ddd2bd; --hair:#cabfa6;
+    --acc:#a85f18;    /* Episode 2 accent = amber */
+    --grid:#e6ddca;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0dcb8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f1ece1;border:1px solid #e6ddca;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#20342b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf6;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 16px;}
+  .btnmini:hover{opacity:.92;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f4ead9;color:#6f420f;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faf4ea;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf8,#f1e7d5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4ead9;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6f420f;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 2 / Igniting the loop</span></div>
+  <p class="eyebrow">How the young leaf of the reimplementation tree, Linux, gave its first cry ── up close in 1991</p>
+  <h1>The First Linux ── Born from gcc on MINIX
+    <span class="sub">In Episode 0 we said "the loop was ignited in 1991 by <code>gcc</code> on top of MINIX." This time we look at that moment at the <em>resolution of version numbers</em>. From the baby <code>v0.01</code>, which couldn't run on its own, to <code>v0.11</code>, where Linux could compile Linux itself ── the four months of <strong>leaving the nest of the delivery room (MINIX)</strong>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 0 (the loop), Episode 1 (the reimplementation tree)</span>
+    <span>The reveal: standing on your own means being able to spin the loop yourself</span>
+  </div>
+
+  <p class="lead">In 1991, the Finnish student Linus Torvalds was using MINIX as his development environment (the <em>delivery room</em> of Episode 1) on a 386 PC he had just bought. GNU's tools ── the C compiler <code>gcc</code> and the shell <code>bash</code> ── had been ported onto it. That <code>gcc</code> is the "parent" that compiled the first Linux. But newborn Linux couldn't yet compile itself. <strong>The loop (Episode 0) was still piggybacking on MINIX.</strong> How does that baby learn to stand on its own two feet? First, from the very first "heartbeat."</p>
+
+  <h2><span class="n">01</span>The spark ── AAAA and BBBB</h2>
+
+  <p>Linux didn't begin from a blueprint saying "let's build an OS." What came first were <strong>two small programs</strong> that tested the 386's features. One relentlessly printed <code>A</code> to the screen, the other relentlessly printed <code>B</code>. When he succeeded in getting the CPU to <em>rapidly switch between them and run them alternately</em> ── that was the first heartbeat of an OS's heart (task switching).</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: Linux's "first heartbeat." The kernel runs two processes, A and B, alternately (task switching). This switching becomes the core of the multitasking OS to come.</div>
+    <canvas id="cvBirth" width="680" height="260"></canvas>
+    <div class="controls">
+      <button class="btnmini" id="birthBtn">▶ Run it</button>
+      <label style="min-width:200px;">Switching speed<span class="val" id="vSw">normal</span>
+        <input type="range" id="sw" min="0.3" max="2.4" step="0.1" value="1">
+      </label>
+    </div>
+    <div class="readout" id="rdBirth">The CPU alternates between process A (AAAA…) and process B (BBBB…). This is the heart of an OS = task switching.</div>
+  </div>
+
+  <p>Add a terminal driver, make it possible to dial up from home to the university's computer, and ── the features grow like a snowball. Not "let's build an OS," but "I was messing around with the 386 and it somehow turned into an OS." And on August 25, 1991, that famous post went out to <code>comp.os.minix</code>.</p>
+
+  <div class="term">
+<span class="c">From: torvalds@klaava.Helsinki.FI  (August 25, 1991, comp.os.minix)</span>
+Hello everybody out there using minix -
+I'm doing a <span class="o">(free) operating system</span>
+  <span class="q">(just a hobby, won't be big and professional like gnu)</span>
+  for 386(486) AT clones ...
+  </div>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── "won't be big like gnu"</span>
+    "It won't be big and impressive like GNU" ── this one line mirrors exactly the positioning of the <strong>reimplementation tree</strong> from Episode 1. What Torvalds is making is the kernel. The userland (<code>gcc</code>, <code>bash</code>) had already been made by GNU. So the first Linux was compiled <em>by GNU's tools</em>, and later <em>combined with GNU's tools</em> to become one OS ("GNU/Linux"). A self-deprecating joke turned out to be an accurate self-introduction of the lineage.
+  </div>
+
+  <h2><span class="n">02</span>v0.01 (September 1991) ── a baby that can't stand on its own</h2>
+
+  <p>The first publicly released <code>v0.01</code> was <strong>about 10,239 lines</strong>. But it was not a finished product that runs when you turn on the power. <em>To compile it, and to set it up, you need MINIX.</em> The loop had not yet ignited; it was completely piggybacking on the delivery room.</p>
+
+  <div class="calc">
+    <span class="tag">What v0.01's "piggybacking" consisted of</span>
+    <p style="margin-top:8px;">• <strong>Compiling</strong>: done by <code>gcc</code> on MINIX (Linux itself doesn't yet carry a compiler).</p>
+    <p style="margin:6px 0;">• <strong>Preparation</strong>: use MINIX's filesystem and tools to prepare the disk.</p>
+    <p style="margin:6px 0 14px;">• In other words, <strong>to get Linux ready, MINIX must be running first</strong>. In Episode 0's words, this is the stage where "something outside the loop (= MINIX + gcc) is still holding it up."</p>
+  </div>
+
+  <h2><span class="n">03</span>Four months to leaving the nest ── v0.01 → v0.11</h2>
+
+  <p>Here is this episode's main act. With the slider below, advance through <code>v0.01 → 0.02 → 0.11 → 0.12</code>. You'll see the <strong>dependence on MINIX shrink, and at one point switch over to self-hosting, where it "can compile itself"</strong>. That moment is leaving the nest of the delivery room.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Leaving the nest of the delivery room. On the left is the development environment (386→MINIX→gcc/bash). As you advance the slider, the arrow that compiles Linux switches from "gcc on MINIX" to "Linux itself (the self-hosting loop)."</div>
+    <canvas id="cvGrow" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Advance the version<span class="val" id="vVer">v0.01 (September 1991)</span>
+        <input type="range" id="ver" min="0" max="3" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdGrow"></div>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Four months to leaving the nest (1991)</span>
+    <p class="lbl">v0.01 (September)</p>
+    <p style="margin:4px 0;">Compiled by gcc on MINIX. Not practical on its own. <em>Piggybacking.</em></p>
+    <p class="lbl">v0.02 (October 5)</p>
+    <p style="margin:4px 0;"><code>bash</code> and <code>gcc</code> start running on Linux. It began to run its own tools on itself.</p>
+    <p class="lbl">v0.11 (December 19) ── leaving the nest</p>
+    <p style="margin:4px 0 14px;"><strong>Self-hosting achieved. Linux could compile Linux on Linux.</strong> The moment the loop began to spin. Its own tools like <code>mkfs</code> and <code>fdisk</code> also came together.</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── "standing on your own" ≠ zero dependencies</div>
+    <p style="margin:6px 0 0;">v0.11's self-hosting does <em>not</em> mean "it no longer relies on anything." Correctly, it means ── <strong>you no longer have to bring out MINIX to build Linux (it can spin the loop by itself)</strong>. The compiler itself is still GNU's <code>gcc</code>. As we saw in Episode 0, self-hosting means "you can remove the external ignition device (MINIX)," not "it stands from nothing, all alone."</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>v0.12 (January 1992) ── the second-stage rocket of licensing</h2>
+
+  <p>The technical leaving-the-nest was v0.11. But what spread Linux to <em>the world</em> was a single move in the next release, <code>v0.12</code> (January 5, 1992, just under about 20,000 lines) ── <strong>changing the license to GPLv2</strong>. Before that it was a restricted license Torvalds had written himself, which forbade commercial redistribution.</p>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── why the GPL worked</span>
+    The GPL is a rule: "anyone may freely use, modify, and redistribute it, provided derivatives preserve the same freedom." This let people all over the world safely make changes and bring improvements together. Torvalds later said that switching to GPLv2 was "<em>the best decision of my life</em>." Episode 1's <strong>GNU idea (free software)</strong> turned Linux from "just one leaf" on the reimplementation tree into a trunk that grows the whole forest. A license can move history as much as code can.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── being careful with the words for "standing on your own"</span>
+    <p style="margin-top:0;">(1) v0.11's "self-hosting" means <strong>the kernel and the build complete on Linux</strong>; the compiler is still GNU's <code>gcc</code> (or <code>clang</code>). The "Linux" we use daily is a collaboration of the Linux kernel + GNU userland ── which is why it's also called "GNU/Linux" (Episode 1, "swapping leaves at the crowns"). It's not complete solo independence.</p>
+    <p style="margin:0;">(2) Saying v0.01 "doesn't run" is an overstatement; more precisely, it means <em>the bare minimum runs, but preparation and modification presuppose MINIX and it isn't practical</em>. (3) Dates vary by source (v0.01 is mid-September 1991; the common account is September 17). (4) The "AAAA/BBBB" anecdote is a famous episode widely told in Torvalds' autobiography <em>Just for Fun</em> and elsewhere; the fine details may be embellished.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>The first Linux (v0.01) was compiled on top of what, using what?
+        <details><summary>Show answer</summary><div class="ans">GNU's gcc ported onto MINIX (the development environment = the delivery room). Linux itself doesn't yet carry a compiler.</div></details>
+      </li>
+      <li>Explain "self-hosting achieved (v0.11)" in the language of Episode 0's "loop."
+        <details><summary>Show answer</summary><div class="ans">The state in which you no longer need the external ignition device (MINIX) to build Linux, and Linux can be compiled by gcc on Linux = it can spin the loop by itself. It does not mean zero dependencies.</div></details>
+      </li>
+      <li>If v0.11 was the "technical leaving of the nest," what did v0.12 leave the nest of?
+        <details><summary>Show answer</summary><div class="ans">The social / adoption leaving of the nest. Adopting GPLv2 let anyone freely use it and bring improvements together, and worldwide collaborative development began.</div></details>
+      </li>
+      <li>How was Torvalds' "won't be big like gnu" correct in terms of lineage?
+        <details><summary>Show answer</summary><div class="ans">What he made was the kernel; the userland had already been made by GNU. The first Linux was compiled by GNU's tools, and later combined with GNU to become one OS (GNU/Linux).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>In four months, the baby began to spin the loop by itself</h2>
+    <p>Linux began not from a blueprint but from the heartbeat of <strong>task switching (AAAA/BBBB)</strong> on the 386. The development environment was MINIX (the delivery room), and GNU's <code>gcc</code> ported onto it compiled the first Linux. <code>v0.01</code> (September 1991, about 10,000 lines) needed MINIX both to compile and to set up ── a "piggybacking" state where the loop was still spun by the outside (MINIX).</p>
+    <p>At <code>v0.02</code> (October), <code>bash</code> and <code>gcc</code> began running on Linux too, and at <code>v0.11</code> (December 19), <strong>self-hosting was achieved</strong> ── Linux compiled Linux, and it left the nest of the delivery room. Standing on its own here doesn't mean "zero dependencies," but "being able to remove the external ignition device (to spin the loop by itself)." The next month's <code>v0.12</code> was the second-stage rocket of <strong>GPLv2</strong>, pushing Linux up into worldwide collaborative development. ── So what, then, compiled that first parent <code>gcc</code>? Down one more step of the staircase.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Episode 3</span>
+    "What Compiled GCC?" The <code>gcc</code> that gave birth to Linux ── that <code>gcc</code> itself is also a program written in C. So, where there's no compiler yet, what made the first <code>gcc</code>? The answer: "lift it once with the machine's existing <code>cc</code>, then it builds itself from there." We look at the <strong>three-stage bootstrap</strong> ── the "right way to spin the loop."
+  </div>
+
+  <div class="foot">
+    This document is Episode 2 of "A History of UNIX That Clicks." Historical facts: In 1991, Linus Torvalds used MINIX on a 386 PC as his development environment and developed Linux using the ported GNU gcc and bash. The August 25, 1991 comp.os.minix post "just a hobby, won't be big and professional like gnu" is famous. v0.01 was released in September 1991 (commonly cited as September 17) at about 10,239 lines and required MINIX to compile and set up. v0.02 was on October 5, 1991, with bash and gcc working. v0.11 was in December 1991 (around the 19th), achieving self-hosting (compilable on Linux) for the first time, and including mkfs, fdisk, and so on. v0.12 was on January 5, 1992, moving from Torvalds' own restrictive license to the GNU GPLv2 (effective February 1, 1992), at under 20,000 lines. "Self-hosting" here means the build completes on Linux; the compiler (gcc) and userland depend on GNU, commonly called GNU/Linux. The AAAA/BBBB task-switching anecdote is widely known from Torvalds' recollections (the autobiography <em>Just for Fun</em> and others). ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the figure controls, animations, and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Printing / making a PDF: ⌘+P (on Windows, Ctrl+P). On screen, use "▶ Run it" in Figure 1 for task switching, and the slider in Figure 2 to follow the leaving-the-nest from v0.01→0.12. "Show answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: AAAA / BBBB task switching ============ */
+  (function(){
+    var cv=document.getElementById('cvBirth'), btn=document.getElementById('birthBtn'),
+        sw=document.getElementById('sw'), vSw=document.getElementById('vSw'), rd=document.getElementById('rdBirth');
+    if(!cv) return;
+    var running=false, raf=null, last=0, acc=0, cur=0 /*0:A,1:B*/, buf='', switches=0, sinceChar=0;
+    function speedText(v){ return v<0.7?'slow':(v>1.7?'fast':'normal'); }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      // two process boxes
+      var boxW=120, boxH=52, ay=40, by=40;
+      var ax=w*0.16, bx=w*0.16+0, cxA=ax, cxB=ax;
+      // left: process A, right: process B
+      var pAx=w*0.13, pBx=w*0.13, topA=34, topB=112;
+      function pbox(x,y,label,letter,active,color){
+        ctx.fillStyle= active? color : '#fff';
+        ctx.strokeStyle=color; ctx.lineWidth= active?2.4:1.6;
+        rr(ctx,x,y,150,52,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= active? '#fff':color; ctx.textAlign='left';
+        ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText(label, x+14, y+22);
+        ctx.font='bold 15px "SFMono-Regular",Consolas,monospace'; ctx.fillText('print "'+letter+'"', x+14, y+42);
+        if(active){ ctx.fillStyle='#fff'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='right';
+          ctx.fillText('◀ CPU running', x+150-12, y+16); ctx.textAlign='left'; }
+      }
+      pbox(pAx, topA, 'Process A', 'A', cur===0, '#a85f18');
+      pbox(pBx, topB, 'Process B', 'B', cur===1, '#2166a0');
+      // CPU switching arrow
+      ctx.fillStyle='#8794a5'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('the kernel', pAx+195, 84); ctx.fillText('alternates', pAx+195, 100);
+      ctx.strokeStyle='#c3ad86'; ctx.lineWidth=1.8; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(pAx+150, topA+26); ctx.quadraticCurveTo(pAx+205, 84, pAx+150, topB+26); ctx.stroke();
+      ctx.setLineDash([]);
+      // terminal (output buffer)
+      var tx=w*0.44, ty=28, tw=w*0.50, th=h-56;
+      ctx.fillStyle='#1b2330'; rr(ctx,tx,ty,tw,th,6); ctx.fill();
+      ctx.fillStyle='#7fd6a0'; ctx.font='11px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='left';
+      ctx.fillText('$ output', tx+14, ty+20);
+      // wrap buffer
+      var s=buf.slice(-300); var perLine=Math.floor((tw-28)/8.4); if(perLine<4)perLine=4;
+      var lines=[]; for(var i=0;i<s.length;i+=perLine) lines.push(s.slice(i,i+perLine));
+      lines=lines.slice(-Math.floor((th-46)/16));
+      ctx.font='13px "SFMono-Regular",Consolas,monospace';
+      lines.forEach(function(ln,idx){
+        for(var j=0;j<ln.length;j++){
+          ctx.fillStyle = ln[j]==='A' ? '#e2b565' : '#8ab6e8';
+          ctx.fillText(ln[j], tx+14+j*8.4, ty+40+idx*16);
+        }
+      });
+      ctx.textAlign='left';
+    }
+    function tick(t){
+      if(!last) last=t; var dt=(t-last)/1000; last=t;
+      var rate=parseFloat(sw.value);
+      acc += dt; sinceChar += dt;
+      // interval between printed characters
+      if(sinceChar > 0.045/rate){ buf += (cur===0?'A':'B'); sinceChar=0; if(buf.length>1200) buf=buf.slice(-600); }
+      // switching interval
+      if(acc > 0.6/rate){ cur=1-cur; switches++; acc=0; }
+      draw();
+      if(running) raf=requestAnimationFrame(tick);
+    }
+    btn.addEventListener('click', function(){
+      running=!running;
+      if(running){ btn.textContent='⏸ Pause'; last=0; rd.innerHTML='The CPU switches between A and B at high speed, so <strong>they appear to run at the same time</strong>. This is the heart of a multitasking OS = task switching. Linux began here.'; raf=requestAnimationFrame(tick); }
+      else { btn.textContent='▶ Run it'; if(raf)cancelAnimationFrame(raf); }
+    });
+    sw.addEventListener('input', function(){ vSw.textContent=speedText(parseFloat(sw.value)); });
+    window.addEventListener('resize', draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: leaving the nest of the delivery room ============ */
+  (function(){
+    var cv=document.getElementById('cvGrow'), sl=document.getElementById('ver'),
+        vVer=document.getElementById('vVer'), rd=document.getElementById('rdGrow');
+    if(!cv) return;
+    var V=[
+      {v:'v0.01', d:'September 1991',  self:false, gpl:false, gauge:0.15,
+       note:'Compiled by gcc on MINIX. Preparation also needs MINIX. Not practical on its own = <strong>piggybacking</strong>. The loop is still spun by the outside (MINIX).'},
+      {v:'v0.02', d:'October 1991', self:false, gpl:false, gauge:0.42,
+       note:'<code>bash</code> and <code>gcc</code> start running on Linux. It began to run its own tools on itself. The main compiling is still on the MINIX side.'},
+      {v:'v0.11', d:'December 1991', self:true,  gpl:false, gauge:0.90,
+       note:'<strong>Self-hosting achieved.</strong> Linux compiles Linux on Linux. It left the nest of the delivery room and began spinning the loop by itself.'},
+      {v:'v0.12', d:'January 1992',  self:true,  gpl:true,  gauge:0.96,
+       note:'<strong>GPLv2 adopted.</strong> Switched from a homemade restrictive license. The whole world can bring improvements together = the adoption leaving-of-the-nest.'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10), st=V[cur];
+      // left: development-environment tower (386→MINIX→gcc/bash)
+      var tx=w*0.06, tw=w*0.30, baseY=h-40, layerH=44;
+      var towerDim = st.self ? 0.4 : 1.0;
+      ctx.save(); ctx.globalAlpha=towerDim;
+      var layers=[['386 hardware','#e6ddca','#8a7a52'],['MINIX (delivery room)','#eae0cd','#7a6a45'],['gcc / bash (GNU tools)','#f4ead9','#a85f18']];
+      layers.forEach(function(L,i){
+        var y=baseY-(i+1)*layerH+6;
+        ctx.fillStyle=L[1]; ctx.strokeStyle=L[2]; ctx.lineWidth=1.6;
+        rr(ctx,tx,y,tw,layerH-6,5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=L[2]; ctx.font='bold 11.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText(L[0], tx+tw/2, y+(layerH-6)/2+4);
+      });
+      ctx.restore();
+      ctx.fillStyle='#9a8a62'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('development environment'+(st.self?' (no longer needed)':' (delivery room)'), tx+tw/2, baseY+16);
+      // right: Linux
+      var lx=w*0.66, lw=w*0.28, lh=layerH*1.6, ly=baseY-lh;
+      var grow = 0.7+0.3*st.gauge;
+      ctx.fillStyle= st.self? '#f4ead9':'#fff'; ctx.strokeStyle='#a85f18'; ctx.lineWidth= st.self?2.6:1.8;
+      rr(ctx, lx+ (lw*(1-grow))/2, ly + lh*(1-grow), lw*grow, lh*grow, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#a85f18'; ctx.font='bold 14px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Linux '+st.v, lx+lw/2, ly+lh*0.5);
+      ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#7a4a10';
+      ctx.fillText(st.self? 'can compile itself':'can’t make itself yet', lx+lw/2, ly+lh*0.5+18);
+      // compile arrow
+      ctx.lineWidth=2.6;
+      if(!st.self){
+        // gcc(MINIX) → Linux
+        ctx.strokeStyle='#8a7a52'; ctx.fillStyle='#8a7a52';
+        var sxp=tx+tw, syp=baseY-2*layerH-6+ (layerH-6)/2, exp=lx+ (lw*(1-grow))/2, eyp=ly+lh*grow*0.5;
+        ctx.beginPath(); ctx.moveTo(sxp, syp); ctx.bezierCurveTo(sxp+70, syp, exp-70, eyp, exp, eyp); ctx.stroke();
+        var ang=Math.atan2(eyp-eyp,exp-(exp-70));
+        ctx.beginPath(); ctx.moveTo(exp,eyp); ctx.lineTo(exp-10,eyp-5); ctx.lineTo(exp-10,eyp+5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#6f5a2c'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('gcc on MINIX', (sxp+exp)/2, syp-18); ctx.fillText('compiles it', (sxp+exp)/2, syp-3);
+      } else {
+        // Linux self-loop
+        ctx.strokeStyle='#2f8d5a'; ctx.fillStyle='#2f8d5a';
+        var ccx=lx+lw/2, ccy=ly-6, R=26;
+        ctx.beginPath(); ctx.arc(ccx,ccy,R, Math.PI*0.15, Math.PI*1.75); ctx.stroke();
+        var ea=Math.PI*1.75, ex=ccx+R*Math.cos(ea), ey=ccy+R*Math.sin(ea);
+        ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-8,ey-2); ctx.lineTo(ex-1,ey+7); ctx.closePath(); ctx.fill();
+        ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('the self-hosting loop', ccx, ccy-R-6);
+      }
+      // independence gauge
+      var gx=tx, gy=24, gw=w-tx*2, gh=12;
+      ctx.fillStyle='#eee6d6'; rr(ctx,gx,gy,gw,gh,6); ctx.fill();
+      ctx.fillStyle='#a85f18'; rr(ctx,gx,gy,gw*st.gauge,gh,6); ctx.fill();
+      ctx.fillStyle='#7a4a10'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('independence (how well it spins the loop by itself)', gx, gy-4);
+      // GPL badge
+      if(st.gpl){
+        ctx.fillStyle='#2f8d5a'; rr(ctx,lx+lw-6,ly-2,54,20,4); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='bold 11px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+        ctx.fillText('GPLv2', lx+lw-6+27, ly+12);
+      }
+      ctx.textAlign='left';
+    }
+    function update(){
+      var cur=parseInt(sl.value,10), st=V[cur];
+      vVer.textContent = st.v+' ('+st.d+')';
+      rd.innerHTML='<strong>'+st.v+'</strong> ('+st.d+'): '+st.note;
+      draw();
+    }
+    sl.addEventListener('input', update);
+    window.addEventListener('resize', draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

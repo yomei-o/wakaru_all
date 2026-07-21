@@ -27,6 +27,24 @@
 
 （フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
+## 🌐 English editions（英語版）
+
+英語版を各シリーズごとに `*-en/` フォルダで公開しています。An English translation of every series is available.
+
+| Series | Read (published site) |
+|---|---|
+| **Cosmology That Clicks**（わかる宇宙論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchuron-en/index.html) |
+| **Relativity That Clicks**（わかる相対論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-soutai-en/index.html) |
+| **Quantum That Clicks**（わかる量子）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi-en/index.html) |
+| **Fields That Click**（わかる場）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ba-en/index.html) |
+| **Force That Clicks**（わかる力）| [open](https://yomei-o.github.io/wakaru_all/wakaru-chikara-en/index.html) |
+| **Mass That Clicks**（わかる質量）| [open](https://yomei-o.github.io/wakaru_all/wakaru-shitsuryo-en/index.html) |
+| **The Universe Is a Computer**（宇宙は計算機）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki-en/uchu-keisanki-index.html) |
+| **Learning That Clicks**（わかる学習論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-gakushuron-en/index.html) |
+| **A History of UNIX That Clicks**（わかるUNIXの歴史）| [open](https://yomei-o.github.io/wakaru_all/wakaru-unix-en/index.html) |
+
+**★ The Physics Cube** (capstone) — [open](https://yomei-o.github.io/wakaru_all/butsuri-rittai-en.html)
+
 ## 読み方
 上の**公開サイト**の目次ページから各話へ。個々の HTML はブラウザで開くだけで動きます（外部依存は MathJax の CDN のみ）。印刷は各ページの「印刷 → PDF に保存」から。
 

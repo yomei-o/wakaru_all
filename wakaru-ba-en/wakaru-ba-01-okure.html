@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Force arrives not "now" but "a moment ago" ── Fields That Click, Episode 1</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f9f9; --paper-edge:#d9e5e4;   /* Episode 1: delay/wave = teal paper */
+    --side:#2f5d62; --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#1f6a7a; --calc-bg:#e4f0f2;   /* calc color = wave teal */
+    --rule:#cdd8d6; --hair:#b6c5c2;
+    --acc:#2f6d8c;    /* accent = delay blue */
+    --grid:#d3e2e0;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dc 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfe0e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 18px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e4f0f2;color:#1f5a6a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff7f7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4a55;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfdfd,#e7f1f0);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e4f0f2;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4a55;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6b68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Fields That Click</span><span class="ep">Episode 1 / Delay ── force arrives not "now" but "a moment ago"</span></div>
+  <p class="eyebrow">The bonus "The Speed of Force" from our sister series "Force That Clicks," now from the "field" side ── and using only unitless numbers (ratios)</p>
+  <h1>Force arrives not "now" but "a moment ago"
+    <span class="sub">The force you feel is not pointing at the other body's "now." It points at its <em>past</em>, offset by<br>exactly the time light took to travel here. The ledger that stores this "delay" at each point ── that is the field.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you need: division, the speed of light c (that it is finite), and that's all</span>
+    <span>This episode's ratio: delay number ε = (r/c) ÷ T</span>
+  </div>
+
+  <p class="lead">First, let's <em>doubt</em> one picture of force you learned in school. "The Sun pulls the Earth" ── don't you assume this arrow points toward the direction the Sun <strong>is now</strong>, as seen from Earth? That's how Newton's gravity is taught. Two bodies separated by a distance \(r\) attract each other <em>at that very instant, leaping across the space between them</em>. This is called action at a distance. What we'll see this episode is that this is an <strong>approximation</strong>. In truth, force does not travel instantly. The speed at which it travels has a ceiling \(c\) (the speed of light), and the force you feel points at the other body's "a moment ago." And when we bundle that "a moment ago" gap into a single <strong>ratio</strong> ── it becomes visible, in one division, when Newton is enough and when he is not.</p>
+
+  <h2><span class="n">01</span>Action at a distance, a pleasant lie</h2>
+
+  <p>Newton's universal gravitation can be written like this.</p>
+
+  <div class="keybox">
+    <div class="lbl">Newton's attraction ── it closes entirely on the "now" of time t</div>
+    $$\vec F(t) = -\,G\frac{m_1 m_2}{r(t)^2}\,\hat r(t)$$
+    <p style="margin:8px 0 0;">Everything on the right side is a quantity at <strong>the same time \(t\)</strong>. The distance, the direction ── all are values "at this very instant." No time delay enters anywhere.</p>
+  </div>
+
+  <p>This equation feels good. Wherever the Sun may be, the Earth <em>instantly</em> knows it and is pulled in the correct direction. For 300 years, this has splendidly predicted the orbits of the planets. That's why it's hard to doubt. But look closely and it's strange. Between the Sun and the Earth lies 150 million km of <strong>empty space with nothing in it</strong>. How does the Sun leap across that space and deliver, in an instant, the message "I'm right here now" to the Earth? Who is carrying that letter?</p>
+
+  <p>Newton himself honestly recorded that this part unsettled him. "That one body may act upon another at a distance through a vacuum, without anything in between ── this seems to me a <em>great absurdity</em>." The equation hits the mark, yet the mechanism is a blank. The invention that filled this blank was the <strong>field</strong>.</p>
+
+  <h2><span class="n">02</span>If the Sun vanished ── the Earth knows nothing for 8 minutes 20 seconds</h2>
+
+  <p>A thought experiment. Suppose that <em>at this very instant</em>, the Sun magically vanished. When does the Earth notice that "the thing pulling me is gone"?</p>
+
+  <p>By Newton's equation, the answer is <strong>instantly</strong>. \(r\to\infty\) is transmitted instantaneously, and the Earth flies straight off at the same instant. But reality differs. The speed at which a change in gravity travels also has a ceiling \(c\), and the time it takes for light (or the news of gravity) to travel from the Sun to the Earth is ──</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── the time for news to arrive</span>
+    <p class="lbl">distance ÷ speed</p>
+    $$t_{\text{news}} = \frac{r}{c} = \frac{1.5\times10^{11}\,\text{m}}{3.0\times10^{8}\,\text{m/s}} \approx 500\,\text{s} \approx 8\text{ min }20\text{ s}$$
+    <p style="margin-bottom:14px;">So even if the Sun vanished, the Earth would keep circling <em>a Sun that no longer exists</em> for the next <strong>8 minutes 20 seconds</strong>, knowing nothing. The sunlight you see now, and the pull you feel now, are all letters from "the Sun of 8 minutes 20 seconds ago." <strong>Force points not at the other body's "now" but at its "a moment ago."</strong></p>
+  </div>
+
+  <p>Here we build the <strong>ratio</strong> that will be the star of this episode. Whether the delay \(t_{\text{news}}=r/c\) "matters" is decided by <em>what you compare it against</em>. The thing to compare it to is the time it takes for the phenomenon to change, \(T\) (for an orbit, the orbital period; for a vibration, the period of oscillation). The two, divided ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">This episode's ratio ── delay number ε</div>
+    $$\varepsilon \;=\; \frac{\text{time for news to arrive}}{\text{time for the phenomenon to change}} \;=\; \frac{r/c}{T}$$
+    <p style="margin:8px 0 0;">If \(\varepsilon \ll 1\), the delay is negligible and <strong>Newton (instantaneous) is fine</strong>. The closer \(\varepsilon\) gets to 1, the more the delay shows its face in the physics. Its units? Seconds ÷ seconds ── <strong>none</strong>. ε is a pure ratio with no units.</p>
+  </div>
+
+  <p>Let's compute for the Earth's orbit. \(r/c\approx500\) s, orbital period \(T\approx3.15\times10^{7}\) s (one year). So ──</p>
+
+  <div class="calc">
+    <span class="tag">ε for the Earth's orbit</span>
+    $$\varepsilon = \frac{500}{3.15\times10^{7}} \approx 1.6\times10^{-5}$$
+    <p style="margin-bottom:14px;">1.6 in a hundred thousand. Very small. <em>That's why Newton hit the mark almost perfectly.</em> The 300-year success was simply because \(\varepsilon\) happened to be dealing with a world where it is minuscule. Newton wasn't wrong ── <strong>within the approximation</strong> \(\varepsilon\to0\), he was right.</p>
+  </div>
+
+  <h2><span class="n">03</span>The invention called the field ── storing the delay "at that place"</h2>
+
+  <p>Who carries the letter? In the 19th century, the answer Faraday and Maxwell gave was the <strong>field</strong>. They <em>flipped</em> the idea like this.</p>
+
+  <p>It's not that "the Sun <strong>directly</strong> pulls the distant Earth." First the Sun distorts <em>the space around itself</em> (creates a field). That distortion travels <strong>to the neighbor, then the next neighbor</strong>. The Earth is not feeling the distant Sun; it is pulled by feeling the distortion of the field <em>right at the very place where it sits</em>. Space is not a blank; everywhere it holds a "value of distortion" ── that is the field.</p>
+
+  <div class="aside">
+    <span class="tag">The heart of the field ── it only talks to its neighbors (locality)</span>
+    This is decisive. A field <em>never deals directly with what is far away</em>. Each point exerts influence only on the points right next to it. So news cannot warp across space; it can only travel <strong>on foot</strong>, from point to neighboring point. Since it walks, it takes time to travel ── a finite speed is born. The answer to "why isn't force instantaneous" is <strong>because the field only talks to its neighbors</strong>. The moment we abandoned action at a distance (warping) and chose contact action (a game of telephone), a ceiling on the speed of transmission was born. What determines the speed of this "neighbor-to-neighbor relay" ── next episode we'll unmask it as √(stiffness/mass).
+  </div>
+
+  <p>The advantage of this rewrite is that it answers "who carries the letter?" What carries it is <strong>the field itself</strong>. When the Sun moves, the change in its distortion spreads through the field at the speed of light, arriving at the Earth's location \(r/c\) seconds later. <strong>A field is the ledger that stores this "delay" at each point in space.</strong> Whereas Newton's equation closed entirely on the "now," in the field picture the value at the place where you are now is made of news that <em>departed from the source in the past</em>.</p>
+
+  <h2><span class="n">04</span>Let's play with it ── force points at the source's "past position"</h2>
+
+  <p>In the figure below, the <strong>source</strong> on the left (blue dot) is swaying up and down. Each time the source moves, a <em>ripple of news</em> spreads out concentrically from that position at a fixed speed \(c\) (like when you drop a stone into water). The ripple now reaching the <strong>observer</strong> on the right (orange) ── it set out from <em>where the source used to be</em>. So the "direction of the source that the observer feels" (the orange arrow) points not at the source's <strong>current position</strong> (the hollow circle) but at its <strong>past position</strong> (the filled blue dot). That gap is the visible form of the delay \(r/c\).</p>
+
+  <p>Try changing the <strong>speed of news \(c\)</strong> with the slider. Make \(c\) smaller and the ripples spread slowly, the delay number \(\varepsilon\) grows, and the current and past positions diverge widely. Make \(c\) larger and the ripples arrive in an instant, \(\varepsilon\to0\) ── the two positions overlap, and <em>we return to Newton's "force that points at the now."</em> Not "why the speed of light," but "because the speed of light is finite, there is a delay" ── you can confirm it with your own hands.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: from the swaying source (blue), news spreads concentrically at speed c. The ripple reaching the observer (right) set out from "the source's past position." The arrow points in the direction of the source the observer feels ── at the past position (blue), not the current position (hollow). The c slider changes the delay number ε</div>
+    <canvas id="cv" width="680" height="320"></canvas>
+    <div class="controls">
+      <label>speed of news c (relative value) <span class="val" id="vc">120</span>
+        <input type="range" id="sc" min="45" max="900" step="5" value="120">
+      </label>
+      <button id="play">⏸ Pause</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#2f6d8c;"></i>source's "past position" (news just arrived now)</span>
+      <span><i class="dot" style="border:2px solid #2f6d8c;background:#fff;"></i>source's "current position"</span>
+      <span><i class="dot" style="background:#c85a1e;"></i>observer</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">What to read from this</span>
+    The <strong>size of the gap</strong> between the current position (hollow) and the past position (blue) is the essence of the delay. As long as \(c\) is finite, the gap never becomes zero ── because however fast, the news comes "on foot." And the smaller \(\varepsilon\) is, the smaller the gap; at \(\varepsilon\to0\) (\(c\to\infty\)) they overlap exactly. <em>Newton's action at a distance was the picture in this figure with \(c\) taken to infinity.</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>Why was Newton enough ── and when he stops being enough</h2>
+
+  <p>Threading everything so far into a single line: force travels through a field, and since a field only talks to its neighbors, news walks at the speed of light \(c\). Whether that delay \(r/c\) matters is decided by the ratio \(\varepsilon=(r/c)/T\). In everyday life and planetary orbits, \(\varepsilon\) is minuscule (\(10^{-5}\) or less), so the delay is invisible and Newton's "instantaneous force pointing at the now" was enough. <strong>Newtonian mechanics was the physics of \(\varepsilon\to0\).</strong></p>
+
+  <p>So when does \(\varepsilon\) approach 1? Look at the formula \(\varepsilon=(r/c)/T\) and it's obvious ── when \(r\) is large (very far) or \(T\) is small (changing very fast). For example:</p>
+
+  <div class="keybox">
+    <div class="lbl">Worlds where the delay shows its face</div>
+    <p style="margin:2px 0 0;">• <strong>High-speed oscillating currents</strong> (antennas, GHz circuits) ── \(T\) is tiny. The delay becomes essential, and the field leaves the source and flies off as <em>radiation</em> (radio waves, light).<br>
+    • <strong>Binary pulsars and black-hole mergers</strong> ── heavy bodies moving strongly and fast. The delay is observed as gravitational waves.<br>
+    • In 2017, <strong>gravitational waves and light arrived at Earth at nearly the same time</strong> from a neutron-star merger (GW170817). The speed of gravity's news matched the speed of light ── to within \(10^{-15}\). Newton's "instantaneous" is completely denied here.</p>
+  </div>
+
+  <p>The same nature is sorted by one ratio, \(\varepsilon\). The falling apple and the planetary orbit (\(\varepsilon\approx0\)), the radio waves flying from an antenna and gravitational waves (\(\varepsilon\sim1\)) ── they are <em>not separate physics</em>. Whether the delay number looks like zero or cannot be ignored ── only that difference. This is the first payoff of "reading the world through fields."</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── how true is "points at the past position"?</span>
+    <p style="margin-top:0;">In the figure and text I stated flatly that "force points at the source's <em>past position</em>." That news (change) arrives delayed at \(c\) is established physics (the Liénard–Wiechert potentials). Strictly, though, there's a subtler point ── when a source moves in <strong>uniform straight-line motion</strong>, its static force actually has a correction that "anticipates the delay" just right, and as a result it points almost at the <em>current (extrapolated) position</em>. In other words, the field of uniform motion is delayed yet carries no news.</p>
+    <p style="margin-bottom:0;">The "past" truly remaining in observation, with news traveling at \(c\), happens only when the source <strong>accelerates</strong>. Acceleration tears the field off the source and sends it flying as radiation (a wave). So more precisely: "<strong>the change in force (news) always arrives delayed at \(c\), and what carries it is acceleration.</strong>" This dissection of "the quiet force and the shaking field (radiation)" is handled head-on in a bonus episode (same landing as the sister series "Force That Clicks" bonus "The Speed of Force ③: A Quiet Force Carries No News"). Take this episode's figure as a <em>schematic</em> for grasping the concept of delay with your body ── the one point that ripples walk at \(c\) is completely accurate.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with only this episode's formulas)</div>
+    <ol>
+      <li>The distance to the Moon is about \(3.8\times10^{8}\) m. How many seconds does it take for news of the Moon's change in position to reach the Earth (\(c=3.0\times10^{8}\) m/s)?
+        <details><summary>See the answer</summary><div class="ans">\(t_{\text{news}}=r/c=3.8\times10^{8}/3.0\times10^{8}\approx1.3\) s. The Moon we see is always the Moon of about 1.3 seconds ago.</div></details>
+      </li>
+      <li>If the speed of light were infinite, \(c\to\infty\), what would the delay number \(\varepsilon=(r/c)/T\) become? What is the physics then called?
+        <details><summary>See the answer</summary><div class="ans">Since \(r/c\to0\), \(\varepsilon\to0\). The delay disappears completely and force travels instantly ── Newton's action at a distance itself. Newtonian mechanics can be rephrased as "the approximation of setting \(c=\infty\)."</div></details>
+      </li>
+      <li>In a certain GHz antenna, the current oscillates with \(T=1\) nanosecond (\(10^{-9}\) s), and the distance of interest is \(r=0.3\) m. Find \(\varepsilon\) and judge whether the delay is negligible.
+        <details><summary>See the answer</summary><div class="ans">\(r/c=0.3/(3.0\times10^{8})=1.0\times10^{-9}\) s. \(\varepsilon=(r/c)/T=10^{-9}/10^{-9}=1\). Since \(\varepsilon\approx1\), the delay is <strong>not at all negligible</strong>. Here the field leaves the source and is radiated as radio waves ── the Newtonian approximation completely breaks down.</div></details>
+      </li>
+      <li>The planetary orbit's \(\varepsilon\approx1.6\times10^{-5}\) is "1.6 in a hundred thousand." State in one line what this smallness means, tying it to Newtonian mechanics' success.
+        <details><summary>See the answer</summary><div class="ans">Because the delay is minuscule relative to the orbit's change, the instantaneous force (Newton) hits the mark with essentially no error. Newton's 300 years of success reflects "seeing only a world where \(\varepsilon\) is minuscule," not a proof that the law is complete.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 1 summary</span>Force points at "a moment ago" ── Newton was the ε→0 approximation</h2>
+    <p>Newton's force closes entirely on the same time "now" and pulls the distant instantly (action at a distance). But what carries force is the <strong>field</strong>, and since a field <em>only talks to its neighbors</em> (locality), news cannot warp across space and walks at the speed of light \(c\). Hence force arrives delayed and points at the other body's "a moment ago." Even if the Sun vanished, the Earth wouldn't notice for 8 minutes 20 seconds ── those 8 minutes 20 seconds are \(r/c\).</p>
+    <p>Whether the delay matters is decided by one unitless ratio, the <strong>delay number \(\varepsilon=(r/c)/T\)</strong>. In planetary orbits \(\varepsilon\approx1.6\times10^{-5}\), minuscule, so Newton hit the mark almost perfectly ── <em>Newtonian mechanics is the physics of \(\varepsilon\to0\) (\(c=\infty\))</em>. Conversely, in worlds where \(\varepsilon\) approaches 1 (high-speed oscillation, gravitational waves), the delay becomes the star and the field leaves the source to become radiation. The same nature is sorted by the ratio \(\varepsilon\). <strong>Quantities with units (\(r\), \(c\), \(T\)) are stage sets; what decides the physics is the dimensionless ratio \(\varepsilon\)</strong> ── this is the first step in "reading a field through ratios."</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 2</span>
+    "Why c ── speed is the square root of stiffness ÷ mass." This time we said news "walks" at the speed of light \(c\). But <em>what decides</em> that walking speed? The answer has exactly the same skeleton as the speed of sound from a plucked string ── \(v=\sqrt{\text{restoring}/\text{inertia}}\), the square root of the ratio of stiffness to mass. Build this ratio for the electromagnetic field and out comes \(c=1/\sqrt{\varepsilon_0\mu_0}\). And when a field's "mass" pins to zero, the ratio hits its ceiling and sticks at \(c\) ── the "why" of "for some reason it travels at the speed of light" turns into "inevitability."
+  </div>
+
+  <div class="foot">
+    This document is Episode 1 of the "Fields That Click" series, a reading piece for high-schoolers and undergrads who love physics. That changes (information) in force and gravity propagate at the finite speed \(c\), that their carrier is the field (contact action), that the delay time is given by \(t_{\text{news}}=r/c\), that Newtonian gravity is recovered in the \(c\to\infty\) limit, and the observational confirmation that the propagation speed of gravity matches the speed of light (GW170817, \(|v_{\text{GW}}-c|/c\lesssim10^{-15}\)) are all established standard physics. The point that the field of a source in uniform straight-line motion effectively points at the current (extrapolated) position and carries no information, while radiation (the propagation of news) arises from the source's acceleration, is stated in the body text's "honest line." The delay number \(\varepsilon=(r/c)/T\) is an introductory dimensionless quantity of this series, a rough gauge for the importance of retardation effects (the rigorous expansion parameter is context-dependent: \(v/c\), \(r/(cT)\), etc.). The figure is a schematic of news propagating at speed \(c\) and of the retarded position, not a rendering of the rigorous electromagnetic field of a point charge (the Liénard–Wiechert field) itself. ── To print, use your browser's "Print" → "Save as PDF" (in the print version the sliders and answers are frozen or hidden). Sister series: <a href="../wakaru-chikara-en/index.html">Force That Clicks</a> / <a href="../wakaru-uchuron-en/index.html">Cosmology That Clicks</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make PDF: ⌘+P (Ctrl+P on Windows). On screen, moving the c slider changes the gap (delay) between the current position and the past position. "See the answer" opens the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sc=document.getElementById('sc'), vc=document.getElementById('vc'),
+      rd=document.getElementById('rd'), play=document.getElementById('play');
+  var running=true, t=0, lastReal=null, lastEmit=0, fronts=[];
+  var srcT=2.6;        // source's oscillation period (s) = the phenomenon's change time T
+  var srcAmp=64;       // source's amplitude (px)
+  var emitInterval=0.10;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function srcY(cy,time){ return cy + srcAmp*Math.sin(2*Math.PI*time/srcT); }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var cx=w*0.24, cy=h*0.5, ox=w*0.84, oy=cy;
+    var cpx=parseFloat(sc.value); vc.textContent=cpx.toFixed(0);
+    ctx.clearRect(0,0,w,h);
+
+    // source's motion guide (vertical line)
+    ctx.strokeStyle='#dbe7e5'; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(cx,cy-srcAmp-14); ctx.lineTo(cx,cy+srcAmp+14); ctx.stroke(); ctx.setLineDash([]);
+
+    // emit news (every fixed amount of sim time)
+    if(running){
+      while(t-lastEmit>=emitInterval){
+        lastEmit+=emitInterval;
+        fronts.push({t0:lastEmit, x:cx, y:srcY(cy,lastEmit)});
+      }
+    }
+
+    // draw ripples + find the ripple reaching the observer
+    var diag=Math.hypot(w,h);
+    for(var i=fronts.length-1;i>=0;i--){
+      var f=fronts[i]; var R=cpx*(t-f.t0);
+      if(R>diag*1.25){ fronts.splice(i,1); continue; }
+      var a=Math.max(0, 0.30-R/(diag*1.5));
+      ctx.beginPath(); ctx.arc(f.x,f.y,R,0,7);
+      ctx.strokeStyle='rgba(47,109,140,'+a.toFixed(3)+')'; ctx.lineWidth=1.2; ctx.stroke();
+    }
+
+    // retarded position: solve c*(t - tret) = |obs - src(tret)| by iteration
+    var tret=t, xr=cx, yr=cy, r=0;
+    for(var k=0;k<8;k++){
+      yr=srcY(cy,tret);
+      r=Math.hypot(ox-cx, oy-yr);
+      tret=t - r/cpx;
+    }
+    yr=srcY(cy,tret); r=Math.hypot(ox-cx, oy-yr);
+
+    // highlight the ripple exactly reaching the observer (if any)
+    var reach=null, reachErr=1e9;
+    for(var j=0;j<fronts.length;j++){
+      var ff=fronts[j]; var RR=cpx*(t-ff.t0);
+      var dd=Math.hypot(ox-ff.x, oy-ff.y);
+      var er=Math.abs(RR-dd);
+      if(er<reachErr){reachErr=er;reach=ff;}
+    }
+    if(reach && reachErr<6){
+      var Rr=cpx*(t-reach.t0);
+      ctx.beginPath(); ctx.arc(reach.x,reach.y,Rr,0,7);
+      ctx.strokeStyle='rgba(200,90,30,.85)'; ctx.lineWidth=2; ctx.stroke();
+    }
+
+    // observer → retarded position arrow (direction felt)
+    ctx.strokeStyle='#c85a1e'; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(xr,yr); ctx.stroke();
+    var ang=Math.atan2(yr-oy, xr-ox);
+    ctx.beginPath();
+    ctx.moveTo(xr,yr);
+    ctx.lineTo(xr-11*Math.cos(ang-0.4), yr-11*Math.sin(ang-0.4));
+    ctx.lineTo(xr-11*Math.cos(ang+0.4), yr-11*Math.sin(ang+0.4));
+    ctx.closePath(); ctx.fillStyle='#c85a1e'; ctx.fill();
+
+    // faint line showing the gap between current and past positions
+    var sy=srcY(cy,t);
+    ctx.strokeStyle='rgba(47,109,140,.35)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(cx,sy); ctx.lineTo(cx,yr); ctx.stroke(); ctx.setLineDash([]);
+
+    // source: current position (hollow)
+    ctx.beginPath(); ctx.arc(cx,sy,8,0,7); ctx.fillStyle='#fff'; ctx.fill();
+    ctx.strokeStyle='#2f6d8c'; ctx.lineWidth=2.4; ctx.stroke();
+    // source: past position (filled)
+    ctx.beginPath(); ctx.arc(cx,yr,7,0,7); ctx.fillStyle='#2f6d8c'; ctx.fill();
+
+    // observer
+    ctx.beginPath(); ctx.arc(ox,oy,8,0,7); ctx.fillStyle='#c85a1e'; ctx.fill();
+
+    // labels
+    ctx.fillStyle='#4a4e5a'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('source (swaying)', cx, cy+srcAmp+30);
+    ctx.fillText('observer', ox, oy+26);
+    ctx.textAlign='left';
+
+    // readout
+    var eps=(r/cpx)/srcT;
+    var gap=Math.abs(sy-yr);
+    var verdict = eps<0.08 ? 'ε ≪ 1 ── looks almost Newtonian (instantaneous). Current and past nearly overlap.'
+                : eps<0.5 ? 'ε is moderate ── the delay starts to show.'
+                : 'ε ~ 1 ── the delay is clear. Force plainly points at the "past position."';
+    rd.textContent='c (relative value) = '+cpx.toFixed(0)+' / delay time r/c ≈ '+(r/cpx).toFixed(2)
+      +' / change time T = '+srcT.toFixed(1)+' → delay number ε = (r/c)/T ≈ '+eps.toFixed(2)
+      +'. Gap between current and past ≈ '+gap.toFixed(0)+' px. '+verdict;
+  }
+
+  function frame(real){
+    if(lastReal==null) lastReal=real;
+    var dt=(real-lastReal)/1000; lastReal=real;
+    if(dt>0.05) dt=0.05;
+    if(running) t+=dt;
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  play.addEventListener('click', function(){
+    running=!running;
+    play.textContent = running ? '⏸ Pause' : '▶ Play';
+  });
+  sc.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

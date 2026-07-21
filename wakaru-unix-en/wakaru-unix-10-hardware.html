@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Floor — Hardware, the True Seed ｜ A History of UNIX That Clicks, Episode 10</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4f6f8; --paper-edge:#d7dee4;   /* Episode 10: iron paper */
+    --side:#9a4230; --side-bg:#f5e6e1;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#cbd4dc; --hair:#b3bfc9;
+    --acc:#3a4a5a;    /* Episode 10 accent = iron */
+    --grid:#d3dbe2;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cdd8e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#e8edf1;border:1px solid #d7dee4;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#4a241a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafcfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 14px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#dde4ea;color:#3a4a5a;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#e7ecf1;color:#2a3844;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef2f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfdfe,#e4eaef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7ecf1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2a3844;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 10 ／ The Floor — What Isn't Software</span></div>
+  <p class="eyebrow">What turns the hand-entered 6032 into "action"?</p>
+  <h1>The Floor — Hardware, the True Seed
+    <span class="sub">In Episode 9, a human entered the number <code>6032</code> into memory by hand. But a number, on its own, makes nothing happen. What turns it into <em>the action "read memory"</em>? It's an <strong>instruction decoder</strong> wired from logic gates. And the person who designed that was, again, a human.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 9 (numbers entered by hand)</span>
+    <span>The reveal: meaning lives in a "wired-up truth table"</span>
+  </div>
+
+  <p class="lead">We've descended a long staircase — Linux by <code>gcc</code>, <code>gcc</code> by an existing <code>cc</code>, C by B, the assembler by cross-compiling, and the first few words by a human hand. In Episode 9 we thought we'd reached "the floor of software." But there's one step left. The hand-entered <code>6032</code> is just a string of bits. Something must exist that turns it into <strong>the real action "read memory."</strong> That something is this episode's star — <strong>hardware</strong>. From here down, it is no longer a program. Just <em>wired-up physics</em>, and the human hand that designed it. This is the very bottom of chicken-and-egg.</p>
+
+  <h2><span class="n">01</span>6032, on its own, means nothing</h2>
+
+  <p>As we saw in Episode 7, machine code is just numbers. The string <code>6032</code> means "read memory" <em>only inside a machine that was built to interpret it that way</em>. Put the same bit string into a machine of a different design and it does something entirely different (or nothing at all). <strong>The number itself has no meaning. The meaning lies on the side of the machine that receives it.</strong></p>
+
+  <h2><span class="n">02</span>What gives it meaning — the instruction decoder</h2>
+
+  <p>Inside the CPU, the part that receives an instruction's number (the opcode) and turns it into <strong>control signals</strong> that say "do this action" is called the <strong>instruction decoder (control unit)</strong>. Depending on the arrangement of the opcode's bits, it determines which line to light up — the line that drives the adder, the line that reads memory, the line that writes to a register, and so on. In the figure below, change the opcode and watch how <em>the line that lights up = the action executed</em> switches over.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The instruction decoder. Pick an opcode (a few bits) and the wired-up circuitry lights up one corresponding control line — this is the "number → action" translation. The meaning lives in this wiring.</div>
+    <canvas id="cvDec" width="680" height="300"></canvas>
+    <div class="controls">
+      <span style="font-size:12.5px;">Choose an opcode:</span>
+      <button class="btnmini seg on" data-op="0">00</button>
+      <button class="btnmini seg" data-op="1">01</button>
+      <button class="btnmini seg" data-op="2">10</button>
+      <button class="btnmini seg" data-op="3">11</button>
+    </div>
+    <div class="readout" id="rdDec"></div>
+  </div>
+
+  <h2><span class="n">03</span>Below that — logic gates and truth tables</h2>
+
+  <p>The insides of the instruction decoder are a collection of <strong>logic gates (AND, OR, NOT)</strong>. Combine AND, OR, and NOT and you can build <em>any truth table (a table that assigns an output to each pattern of inputs)</em>. A decoder is nothing other than <strong>a truth table — "when the opcode is this, light up that control line" — physically realized in gates</strong>. And gates, in turn, are collections of switches called transistors.</p>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time — the meaning of software bottoms out in a "wired-up table"</div>
+    <p style="margin:6px 0 0;">Follow the meaning of a program downward as far as you can, and at the end you arrive at <strong>a table, "opcode → control line," wired up in logic gates</strong>. This is no longer <em>a program</em>. Not rewritable software, but <strong>fixed physics</strong>. Software's chicken-and-egg is caught here by <em>something that isn't software</em>, and stops.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>A detour — sometimes there's a tiny program inside the decoder</h2>
+
+  <p>There is, however, one detour. In some CPUs, the interpretation of instructions is done by <strong>microcode</strong>, <em>a tiny program inside the CPU</em> (proposed by Maurice Wilkes in 1951). In this case, the machine code is first handed to microcode, a "tiny interpreter," which breaks it down into a sequence of finer micro-instructions. — It's like a miniature chicken-and-egg. But rest assured: the foundation that runs that microcode is, in the end, <strong>hardwired logic gates</strong>. In the figure below, switch between the two schemes and confirm that <em>both bottom out in logic gates</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Hardwired vs. microprogrammed. The microcode scheme interposes a "tiny program," but the foundation that runs it is, in the end, hardwired logic gates. From here down, it isn't software.</div>
+    <canvas id="cvHw" width="680" height="300"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-m="hw">Hardwired</button>
+      <button class="btnmini seg" data-m="mc">Microprogrammed</button>
+    </div>
+    <div class="readout" id="rdHw"></div>
+  </div>
+
+  <h2><span class="n">05</span>Who made that wiring — a human</h2>
+
+  <p>So who decided that truth table, reduced it to gates, and burned it into a chip? — <strong>A human.</strong> Someone designed which action each bit string is assigned to (the instruction set), turned it into a logic circuit, and wired it up. Episode 9's "the first few words were carved by hand" and this episode's "the wiring that gives meaning was designed by hand" are <em>the series' two seeds</em>. Both — <strong>not a program, but human plus physics</strong>. The journey back up chicken-and-egg does, properly, <em>bottom out</em> outside of software (in human design and wired-up physics).</p>
+
+  <div class="calc">
+    <span class="tag">Further down isn't a software question</span>
+    <p style="margin-top:8px;">Gates are transistors, transistors are silicon, silicon is electrons obeying the laws of physics — the world keeps going down. But that's a story of <em>physics and manufacturing</em>, not the software chicken-and-egg of "what compiled it." Hardware, of course, has its own bootstrap too (the tools used to design chips are, again, other chips…). But that's a <strong>different chain</strong>. The <em>software chain</em> we've been tracing ended, for certain, right here — at <strong>logic gates that a human designed and wired</strong>.</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — the figures are idealized, the floor is physics</span>
+    <p style="margin-top:0;">(1) Figure 1's "2-bit opcode → 4 actions" is a minimal model for explanation; real instruction sets are far larger and more complex. (2) Modern CPUs are incomparably more intricate — pipelining, speculative execution, micro-operation caches, and so on — and "decoder = a simple truth table" is only a story of the skeleton. (3) Microcode (Wilkes, 1951) is a real technology that interprets machine code with a small program inside the CPU, but its foundation ultimately comes down to hardwired logic.</p>
+    <p style="margin-bottom:0;">(4) The phrasing "meaning lives in the wiring / its designer is a human" is meant to point at <em>the terminus of software's chicken-and-egg</em>. Manufacturing hardware has its own bootstrap (a chain of tools making tools), which is a separate matter beyond this series' scope. As for the lowest-layer "physics" itself, it's more accurate to say a human <strong>designed with and made use of it</strong>, rather than "made" it.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this episode alone)</div>
+    <ol>
+      <li>Where is the "meaning" of the machine code <code>6032</code>?
+        <details><summary>See the answer</summary><div class="ans">Not in the number itself, but on the side of the machine (the instruction decoder) that receives it. The same bit string performs a different action in a machine of a different design. Meaning lives in the wiring.</div></details>
+      </li>
+      <li>Explain the insides of an instruction decoder using the term "truth table."
+        <details><summary>See the answer</summary><div class="ans">A truth table — "when the opcode is this, light up that control line" — physically realized in AND, OR, and NOT logic gates.</div></details>
+      </li>
+      <li>Why doesn't chicken-and-egg "regress infinitely" even in the microcode scheme?
+        <details><summary>See the answer</summary><div class="ans">Microcode is a tiny program, but the foundation that runs it is, in the end, hardwired logic gates, and it bottoms out there.</div></details>
+      </li>
+      <li>What are this series' "two seeds"? What do they have in common?
+        <details><summary>See the answer</summary><div class="ans">① Episode 9: the first few words a human entered by hand. ② Episode 10: the meaning-giving logic gates a human designed and wired. What they share: neither is a program — both are "human plus physics."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>The software chain bottoms out in wired-up physics</h2>
+    <p>The <code>6032</code> entered by hand in Episode 9 is just a bit string. What turns it into the <em>action</em> "read memory" is the <strong>instruction decoder (control unit)</strong>, whose insides are <strong>logic gates (AND, OR, NOT)</strong> — <strong>a truth table, "opcode → control line," wired up physically</strong>. The number has no meaning; the meaning lies on <em>the side of the machine's wiring</em>. However far down you trace the meaning of software, at the end it is caught by this <strong>fixed physics that is not a program</strong>.</p>
+    <p>There are also designs that interpose microcode (Wilkes, 1951), "a tiny program inside the CPU," but its foundation is, in the end, hardwired logic gates. And the one who designed and wired which action each bit string is assigned to (the instruction set) was — <strong>a human</strong>. Episode 9's "the first few words were carved by hand" and this Episode 10's "the meaning-giving wiring was designed by hand" are the series' <strong>two seeds</strong>. Both are not a program, but <em>human plus physics</em>. The journey back up chicken-and-egg has, for certain, bottomed out outside of software. — Next time, the finale. Looking up from the floor we descended to, we'll assemble the whole picture of the answer.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — the finale</span>
+    "The Answer to Chicken-and-Egg — The Seed Was Carved by Hand, and Then the Loop Turns." We look up Episode 0's staircase all at once, from the floor. A human carved the first few words (Episode 9), wired the machine that gives meaning (Episode 10), and on top of it the <strong>loop of software making software</strong> — assembler → C → gcc → Linux — began to turn. <code>bootstrap</code> — the impossibility of pulling yourself up by your own bootstraps — was, just that first time, lifted instead by a human hand. The complete redemption of the watchword.
+  </div>
+
+  <div class="foot">
+    This document is Episode 10 of the series "A History of UNIX That Clicks." History and technology: the CPU's control unit (instruction decoder) decodes an instruction's opcode and generates the control signals that drive the datapath (ALU, registers, memory, and so on). In hardwired control, the control signals are generated by a fixed circuit made of logic gates, flip-flops, and decoders, and each instruction's action is physically built in as wiring. In microprogrammed control, a sequence of control signals (microcode) is placed in a control store and interprets instructions like a small interpreter (proposed by Maurice Wilkes in his 1951 paper "The Best Way to Design an Automatic Calculating Machine"). Either scheme ultimately reduces to hardwired logic gates. Logic gates (AND, OR, NOT; functional completeness) can realize any truth table, and a decoder can be described as the correspondence table "opcode → control line" turned into a circuit. The figures are minimal models for explanation; real instruction sets and modern CPUs (pipelining, micro-operations, and so on) are far more complex. Manufacturing and designing hardware itself also has its own bootstrap (the chain of tools such as EDA), but that is a separate problem from the "software chicken-and-egg" this series traces. — To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and the answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, in Figure 1 the buttons change the opcode and you can see the control line that lights up (= the action) switch over, and in Figure 2 you can confirm that the floor of both control schemes is the same logic gates. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: instruction decoder ============ */
+  (function(){
+    var cv=document.getElementById('cvDec'), rd=document.getElementById('rdDec');
+    if(!cv) return;
+    var op=0;
+    var OUT=[
+      {code:'00', name:'LOAD',  act:'memory → register (read)'},
+      {code:'01', name:'ADD',   act:'add in the ALU'},
+      {code:'10', name:'STORE', act:'register → memory (write)'},
+      {code:'11', name:'JMP',   act:'change the address to execute next'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      // input opcode (2 bits)
+      var ix=30, iy=h*0.5;
+      var b1=(op>>1)&1, b0=op&1;
+      ctx.fillStyle='#3a4a5a'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Opcode', ix, iy-40);
+      function bitbox(x,y,v){ ctx.fillStyle= v?'#3a4a5a':'#fff'; ctx.strokeStyle='#3a4a5a'; ctx.lineWidth=1.8;
+        rr(ctx,x,y,30,30,5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= v?'#fff':'#3a4a5a'; ctx.font='bold 15px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+        ctx.fillText(''+v, x+15, y+21); }
+      bitbox(ix, iy-16, b1); bitbox(ix+36, iy-16, b0);
+      // decoder trapezoid
+      var dx0=w*0.30, dx1=w*0.30+90, dyc=iy, dh=150;
+      ctx.fillStyle='#e7ecf1'; ctx.strokeStyle='#3a4a5a'; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(dx0, dyc-dh/2); ctx.lineTo(dx1, dyc-dh/2+24); ctx.lineTo(dx1, dyc+dh/2-24); ctx.lineTo(dx0, dyc+dh/2); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#3a4a5a'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Instruction', (dx0+dx1)/2, dyc-4); ctx.fillText('decoder', (dx0+dx1)/2, dyc+12);
+      ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#6b7683';
+      ctx.fillText('(logic gates)', (dx0+dx1)/2, dyc+26);
+      // wire from opcode to decoder
+      ctx.strokeStyle='#8794a5'; ctx.lineWidth=1.8;
+      ctx.beginPath(); ctx.moveTo(ix+72, iy-1); ctx.lineTo(dx0, iy-1); ctx.stroke();
+      // outputs (4 control lines)
+      var ox=dx1, oxe=w-150, n=OUT.length;
+      for(var i=0;i<n;i++){
+        var oy=dyc-dh/2+20 + (dh-40)*i/(n-1);
+        var active=(i===op);
+        ctx.strokeStyle= active? '#c0392b':'#c7d0d8'; ctx.lineWidth= active?3:1.6;
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(oxe, oy); ctx.stroke();
+        // bulb
+        ctx.fillStyle= active? '#e74c3c':'#dfe4e8'; ctx.beginPath(); ctx.arc(oxe+10, oy, 6, 0, 2*Math.PI); ctx.fill();
+        ctx.strokeStyle= active? '#c0392b':'#c7d0d8'; ctx.lineWidth=1; ctx.stroke();
+        // label
+        ctx.fillStyle= active? '#c0392b':'#9aa5ad'; ctx.font=(active?'bold ':'')+'12px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='left';
+        ctx.fillText(OUT[i].name+' line', oxe+24, oy+4);
+      }
+      ctx.textAlign='left';
+    }
+    function setReadout(){ var o=OUT[op];
+      rd.innerHTML='Opcode <strong>'+o.code+'</strong> → the decoder lights up only the <strong>'+o.name+' line</strong> → action: <strong>'+o.act+'</strong>. The same wiring translates the arrangement of bits into an action.'; }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-op]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      op=parseInt(b.getAttribute('data-op'),10);
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: hardwired vs. microprogrammed ============ */
+  (function(){
+    var cv=document.getElementById('cvHw'), rd=document.getElementById('rdHw');
+    if(!cv) return;
+    var mode='hw';
+    function box(ctx,x,y,w,h,fill,stroke,lines){
+      ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1.8; rr(ctx,x,y,w,h,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=stroke; ctx.textAlign='center';
+      for(var i=0;i<lines.length;i++){ ctx.font=(i===0?'bold 12px':'10.5px')+' "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText(lines[i], x+w/2, y+ (lines.length===1? h/2+4 : 20+i*15)); }
+    }
+    function arrow(ctx,x0,x1,y,col){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1-2,y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1-9,y-5); ctx.lineTo(x1-9,y+5); ctx.closePath(); ctx.fill(); }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cy=h*0.36, bh=52;
+      if(mode==='hw'){
+        var xs=[w*0.04, w*0.30, w*0.62]; var bw=w*0.22;
+        box(ctx,xs[0],cy-bh/2,bw,bh,'#fff','#3a4a5a',['Machine code','(opcode)']);
+        box(ctx,xs[1],cy-bh/2,bw,bh,'#e7ecf1','#3a4a5a',['Logic-gate circuit','(hardwired)']);
+        box(ctx,xs[2],cy-bh/2,bw,bh,'#fff','#9a4230',['Control lines','→ datapath']);
+        arrow(ctx,xs[0]+bw,xs[1],cy,'#8794a5'); arrow(ctx,xs[1]+bw,xs[2],cy,'#8794a5');
+      } else {
+        var xs=[w*0.02, w*0.235, w*0.47, w*0.71]; var bw=w*0.185;
+        box(ctx,xs[0],cy-bh/2,bw,bh,'#fff','#3a4a5a',['Machine code','(opcode)']);
+        box(ctx,xs[1],cy-bh/2,bw,bh,'#f5e6e1','#9a4230',['Control store','microcode']);
+        box(ctx,xs[2],cy-bh/2,bw,bh,'#e7ecf1','#3a4a5a',['Logic gates','(hardwired)']);
+        box(ctx,xs[3],cy-bh/2,bw,bh,'#fff','#9a4230',['Control lines','→ datapath']);
+        arrow(ctx,xs[0]+bw,xs[1],cy,'#8794a5'); arrow(ctx,xs[1]+bw,xs[2],cy,'#9a4230'); arrow(ctx,xs[2]+bw,xs[3],cy,'#8794a5');
+        ctx.fillStyle='#9a4230'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('A tiny program (a mini chicken-and-egg)', xs[1]+bw/2, cy-bh/2-8);
+      }
+      // bottom bar: not software
+      var by=h-46;
+      ctx.fillStyle='#3a4a5a'; rr(ctx,20,by,w-40,32,6); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('── From here down it isn\'t software: logic gates = transistors = physics + human design ──', w/2, by+20);
+      // link from gate box down to bar
+      ctx.strokeStyle='#b3bfc9'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6;
+      var gateCx = mode==='hw'? w*0.30+w*0.22/2 : w*0.47+w*0.185/2;
+      ctx.beginPath(); ctx.moveTo(gateCx, cy+bh/2); ctx.lineTo(gateCx, by); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      if(mode==='hw') rd.innerHTML='<strong>Hardwired</strong>: hardwired logic gates turn the opcode directly into control lines. Fast. The meaning is completely fixed in the wiring.';
+      else rd.innerHTML='<strong>Microprogrammed</strong>: the machine code is first interpreted by a tiny program called "microcode" (a mini chicken-and-egg). But the foundation that runs it is, in the end, hardwired logic gates — <strong>the floor is the same</strong>.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-m]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      mode=b.getAttribute('data-m');
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize',draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+})();
+</script>
+</body>
+</html>

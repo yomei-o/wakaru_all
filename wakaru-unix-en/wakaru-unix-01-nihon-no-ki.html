@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Don't Confuse the Two Trees | A History of UNIX That Clicks, Episode 1</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f9f6; --paper-edge:#dee6dd;   /* Episode 1: green paper */
+    --side:#a2621c; --side-bg:#f6efe3;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#ccd7cd; --hair:#b7c4b8;
+    --acc:#2f7d55;    /* Episode 1 accent = green */
+    --grid:#d6e0d7;
+    --gene:#2166a0;   /* lineage tree = blue */
+    --reimpl:#2f7d55; /* reimplementation tree = green */
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe6d5 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#eef2ee;border:1px solid #e0e7e0;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2a16;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#e6ede8;color:#3c5347;}
+  .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#eaf3ee;color:#1f5a3c;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .lseg{width:26px;height:0;border-top:2.4px solid var(--gene);display:inline-block;}
+  .lseg.dash{border-top:2.4px dashed var(--reimpl);}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2f8f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfffd,#e8f1ea);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eaf3ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1f4a34;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 1 / Dissecting the lineage</span></div>
+  <p class="eyebrow">Episode 0's homework ── answering "Is Linux MINIX's child?" clearly</p>
+  <h1>Don't Confuse the Two Trees
+    <span class="sub">"Linux came from MINIX, MINIX came from BSD…" ── this phrasing mixes together <em>two entirely different trees</em>. <strong>Code lineage</strong>, and <strong>reimplementation of ideas</strong>. Draw these two apart, and even that famous debate suddenly comes into focus.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 0 (the self-hosting loop)</span>
+    <span>The reveal: genes ≠ ideas</span>
+  </div>
+
+  <p class="lead">In Episode 0, we traced the chicken-and-egg loop backwards through "what compiled what." But the history of UNIX has another, entirely separate family tree ── the lineage of <strong>whose "source code" was inherited</strong>. The misunderstanding beginners always make ── "Linux is MINIX's child," "MINIX is BSD's child" ── arises from mixing this <em>lineage tree</em> and the <em>reimplementation tree, which inherits only ideas</em>, into a single tree. This time we carefully draw apart the two trees, and at the end we read the <strong>Tanenbaum–Torvalds debate</strong> through them.</p>
+
+  <h2><span class="n">01</span>There are two kinds of "inheriting"</h2>
+
+  <p>When software "inherits" something from other software, what it inherits divides broadly into two kinds.</p>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── genes, or ideas?</div>
+    <p style="margin:6px 0 0;">
+    <strong>① Code lineage (genes)</strong>: it inherits <em>the actual lines of source code</em>. It copies the parent's code, modifies it, and grows it. That is why copyright and licensing follow it around.<br>
+    <strong>② Reimplementation of ideas (design/API)</strong>: it takes <em>not a single line</em> of code; it only imitates "how it behaves (system calls, design philosophy)" and rewrites everything from a clean slate. It may be compatible, but the genes are unrelated.</p>
+  </div>
+
+  <p>These two are <strong>orthogonal</strong>. Just because one piece of software "behaves exactly like" another does not mean it inherited any code. Conversely, two things can look different yet have code inherited straight from the parent. In the UNIX family, these two trees intertwine into a forest.</p>
+
+  <h2><span class="n">02</span>Tree one ── the lineage tree (where code flows)</h2>
+
+  <p>First, the main current where <strong>real code flows</strong>. In 1969, Bell Labs' <strong>AT&amp;T UNIX</strong> is the source (Multics, which came before it, was an ideological influence as a "cautionary example"; no code was inherited ── that's for a bonus episode). AT&amp;T UNIX's source code was licensed and passed to various places, modified, and left descendants.</p>
+
+  <div class="calc">
+    <span class="tag">The main current of lineage (inheritance of real code)</span>
+    <p style="margin-top:8px;">AT&amp;T UNIX (1969) → two big branches:</p>
+    <p class="lbl">Branch A: the Berkeley line (BSD)</p>
+    <p style="margin:4px 0;">A university (UC Berkeley's CSRG) obtained AT&amp;T's <em>source license</em> and modified it → BSD (1978–) → 386BSD (1992) → <strong>NetBSD / FreeBSD</strong> (1993), and later OpenBSD.</p>
+    <p class="lbl">Branch B: the AT&amp;T commercial line</p>
+    <p style="margin:4px 0 14px;">System III → <strong>System V</strong> (1983) → various companies' commercial UNIXes (Solaris and others).</p>
+  </div>
+
+  <p>The strongest evidence that this tree "really inherits code" is ── <strong>that it ended up in court</strong>. In 1992, AT&amp;T (USL) sued Berkeley, claiming "BSD contains our UNIX code" (USL v. BSDi). The 1994 settlement revealed that, of BSD's <em>18,000 files, only 3 were removed and 70 modified</em>. Put the other way, this tree carries so much real code that <strong>a court could trace the origin of the code line by line</strong>.</p>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── why NetBSD can't be Linux's parent</span>
+    In Episode 0, we said "NetBSD is later (1993) than Linux (1991), and on a different branch." Seen on the lineage tree, it's obvious at a glance. NetBSD is a <strong>young leaf on the lineage tree (the BSD side)</strong>, and Linux is a <strong>leaf on the reimplementation tree we'll see next</strong>. Not only are they on different trees, but NetBSD came later. Both by timing and by lineage, there is no way they could be parent and child.
+  </div>
+
+  <h2><span class="n">03</span>Tree two ── the reimplementation tree (where only ideas flow)</h2>
+
+  <p>The other tree <strong>inherits not a single line of code</strong>. Things that "behave like UNIX but whose innards were written from a clean slate" ── the family called <em>Unix-like</em>.</p>
+
+  <div class="calc">
+    <span class="tag">The reimplementation tree (inheritance of ideas/API only)</span>
+    <p style="margin-top:8px;"><strong>MINIX</strong> (1987, Tanenbaum): for teaching, an OS written from a clean slate to behave compatibly with UNIX V7. No AT&amp;T code included (so it could be handed out in class).</p>
+    <p style="margin:8px 0;"><strong>GNU</strong> (1983, Stallman): "GNU's Not Unix." Rebuilding UNIX's userland (<code>gcc</code>, <code>bash</code>, etc.) from a clean slate so it can be used freely.</p>
+    <p style="margin:8px 0 14px;"><strong>Linux</strong> (1991, Torvalds): the kernel written from a clean slate. Developed <em>on top of</em> MINIX and influenced by it, but it did not inherit MINIX's code.</p>
+  </div>
+
+  <p>"Writing from a clean slate" sounds like an exceptional feat, but it isn't. As Tanenbaum himself later pointed out, plenty of people in history have written an OS from scratch ── himself (MINIX), Thompson (UNIX), Holt (Tunis), Comer (Xinu), Williams (Coherent)… <strong>Reimplementation is an "ordinary activity" of UNIX culture</strong>.</p>
+
+  <h2><span class="n">04</span>Overlaying the two trees on one picture</h2>
+
+  <p>Now let's place both on the same picture. In the figure below, the horizontal axis is the year, the top half is the <strong>lineage tree (solid lines = code flows)</strong>, and the bottom half is the <strong>reimplementation tree (dotted lines = ideas only)</strong>. Use the buttons to switch trees, and confirm that Linux and MINIX hang on the <em>dotted-line side</em>, while NetBSD and FreeBSD hang on the <em>solid-line side</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The two trees of the UNIX family. Solid = inheritance of real code (lineage), dotted = inheritance of ideas/API only (reimplementation). Multics is an ideological source (no code flows from it).</div>
+    <canvas id="cvTree" width="680" height="380"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-m="both">Both trees</button>
+      <button class="btnmini seg" data-m="gene">Lineage tree only</button>
+      <button class="btnmini seg" data-m="reimpl">Reimplementation tree only</button>
+    </div>
+    <div class="legend">
+      <span><i class="lseg"></i>solid = code flows (lineage)</span>
+      <span><i class="lseg dash"></i>dotted = ideas/API only (reimplementation)</span>
+    </div>
+    <div class="readout" id="rdTree"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The reveal ── this is why "Linux is MINIX's child" is inaccurate</div>
+    <p style="margin:6px 0 0;">Linux is at the end of MINIX's <em>dotted line</em>. That is, it <strong>inherited the ideas (Unix-ness) but not the code (genes)</strong>. "It was developed on top of MINIX (borrowed the delivery room)" from Episode 0 and "it is not MINIX's child (no blood tie)" are <strong>both true at once</strong>, because the delivery room and the lineage are separate matters.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>Reading the famous debate through the two trees</h2>
+
+  <p>On January 29, 1992, Tanenbaum posted "<strong>LINUX is obsolete</strong>" to <code>comp.os.minix</code>, and the famous debate began. What matters here is ── <strong>this was not, in any way, a dispute over code plagiarism</strong>. The point of contention was <em>design philosophy</em>.</p>
+
+  <div class="calc">
+    <span class="tag">The "real point of contention" in the 1992 debate</span>
+    <p style="margin-top:8px;"><strong>Tanenbaum</strong>: the kernel should be small and split up (a <em>microkernel</em>). A <em>monolithic</em> (all-in-one) design like Linux's is "a giant step back into the 1970s." What's more, it's tightly coupled to the 386 and has no future.</p>
+    <p style="margin:8px 0 14px;"><strong>Torvalds</strong>: monolithic is a perfectly sound design choice in practice. "linux is more portable than minix (in the API sense)." ── Linux was later ported to ARM, POWER, SPARC, and many others, and Tanenbaum's "the 386 will be obsolete" prediction proved wrong.</p>
+  </div>
+
+  <p>In other words, the two were <strong>debating "what makes a good design"</strong>, not disputing "whose code it is." In the figure below, switch between the two kernel designs ── the "real substance" of the debate.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The point of contention in the 1992 debate. A microkernel (MINIX style: a small core + components in user space) vs. monolithic (Linux style: everything in the core). The dispute was over design, not code lineage.</div>
+    <canvas id="cvKernel" width="680" height="320"></canvas>
+    <div class="controls">
+      <button class="btnmini seg" data-k="mono">Monolithic (Linux style)</button>
+      <button class="btnmini seg on" data-k="micro">Microkernel (MINIX style)</button>
+    </div>
+    <div class="readout" id="rdKernel"></div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── so what about the "Linux is a copy" claim?</span>
+    Much later, in 2004, a certain organization put out a book (<em>Samizdat</em>) claiming "Linux was illegally copied from MINIX." The result was a <strong>complete refutation</strong>. When a commissioned engineer compared the sources of MINIX and Linux 0.01, there was <em>zero evidence of copying</em>. And the one who pushed back hardest was ── <strong>Tanenbaum himself, the author of MINIX</strong>. A rival's author defended it: "Linus wrote it himself. It's not a copy." There could be no stronger <strong>testimony that "no code flows on the reimplementation tree."</strong>
+  </div>
+
+  <h2><span class="n">06</span>The two trees swap leaves at the crowns</h2>
+
+  <p>The roots are two separate trees, but at the <em>top (the crowns)</em> they exchange leaves. This is where it gets interesting.</p>
+
+  <div class="calc">
+    <span class="tag">Separate roots, crossing at the crowns</span>
+    <p style="margin-top:8px;">• <strong>GNU + Linux</strong>: two leaves of the reimplementation tree (GNU's userland + Linux's kernel) combine to become the OS we casually call "Linux" every day (hence also "GNU/Linux").</p>
+    <p style="margin:8px 0 14px;">• <strong>MINIX 3 ← NetBSD</strong>: the later MINIX 3 took in the userland of NetBSD, on the <em>lineage tree</em> side. This is the true identity of the "the arrow goes the other way and much later" we touched on in Episode 0. The reimplementation tree borrowed a leaf from the lineage tree.</p>
+  </div>
+
+  <p>So the "two trees," though strictly separate at the roots, lend and borrow each other's leaves at the crowns. Hold this image of <em>separate roots, crossing at the crowns</em>, and the "cluttered forest" of the UNIX family comes clearly into view.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the trees are neither fixed nor pure</span>
+    <p style="margin-top:0;">The two trees are a <strong>model</strong> for organizing the story. Reality is more continuous. (1) Even the lineage tree isn't "pureblooded" ── early BSD contained AT&amp;T code, which was gradually removed through the lawsuit until 4.4BSD-Lite became "effectively free." Lineage gets <em>removed and added</em>. (2) "Inheritance of ideas" is a matter of degree too; there are also <strong>standards that deliberately take on compatibility</strong>, like POSIX (a bonus episode). (3) We put Multics→UNIX under "ideas," but this is an influence, not a clear inheritance relationship.</p>
+    <p style="margin-bottom:0;">The point is that the real substance is the <em>perspective</em> of <strong>asking separately "did code flow (genes)?" and "does the behavior resemble (ideas)?"</strong>; the shape of the trees themselves is just a rough guide.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this episode's two trees)</div>
+    <ol>
+      <li>The difference between "code lineage" and "reimplementation of ideas," in one sentence.
+        <details><summary>Show answer</summary><div class="ans">Lineage means inheriting the actual lines of source code (licensing attaches); reimplementation means imitating only the behavior/design and writing the code from a clean slate (the genes are unrelated).</div></details>
+      </li>
+      <li>Explain, using the two trees, why NetBSD cannot be Linux's parent.
+        <details><summary>Show answer</summary><div class="ans">NetBSD is a leaf on the lineage tree (the BSD side), Linux is a leaf on the reimplementation tree ── different trees to begin with. Moreover, NetBSD (1993) came after Linux (1991). Neither the trees nor the timing line up.</div></details>
+      </li>
+      <li>What was the point of contention in the 1992 Tanenbaum–Torvalds debate? Answer without using the word "code."
+        <details><summary>Show answer</summary><div class="ans">Kernel design philosophy. Microkernel (split up) vs. monolithic (all-in-one), and portability. It was a debate over the merits of a design, not a dispute over plagiarism.</div></details>
+      </li>
+      <li>Why are "Linux was developed on top of MINIX" and "Linux is not MINIX's child" both true at once?
+        <details><summary>Show answer</summary><div class="ans">The former is about borrowing the development environment (the delivery room), the latter is about code lineage ── different axes. Borrowing a delivery room without inheriting code produces no blood tie.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Genes and ideas grow on different trees</h2>
+    <p>The UNIX family has two trees. The <strong>lineage tree</strong> is the main current where real code flows: AT&amp;T UNIX → BSD → NetBSD/FreeBSD, and → System V. The origin of the code is so real that the USL v. BSDi lawsuit could trace it line by line. The other, the <strong>reimplementation tree</strong>, inherits only ideas/API and writes the code from a clean slate ── MINIX, GNU, Linux. The two are orthogonal, and "behaving similarly" is a separate matter from "inheriting code."</p>
+    <p>So "Linux is MINIX's child" is inaccurate ── Linux is at the end of MINIX's <em>dotted line</em> (ideas), and it inherited no genes. The 1992 debate, read through the two trees, was a <strong>debate over design (micro vs. monolithic)</strong>, not a dispute over plagiarism, and the 2004 "copy claim" was refuted even by MINIX's own author. Though the roots are separate, at the crowns they exchange leaves, as with GNU⊕Linux or MINIX 3←NetBSD. ── Genes, or ideas. Asking this one question separately is the key to reading a lineage.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Episode 2</span>
+    "The First Linux ── Born from gcc on MINIX." We follow closely, in the year 1991, how the young leaf of the reimplementation tree ── Linux ── gave its first cry. From v0.01, which couldn't run on its own, to v0.11, where Linux could compile Linux itself ── we look at Episode 0's "ignition of the loop" at the resolution of commits and version numbers. This is the moment it leaves the nest of the delivery room (MINIX).
+  </div>
+
+  <div class="foot">
+    This document is Episode 1 of "A History of UNIX That Clicks." Historical facts: the source code of AT&amp;T UNIX (1969, Bell Labs) was inherited through licensing, and UC Berkeley's CSRG derived the BSD family under a source license. In USL v. BSDi (filed 1992, settled 1994), of BSD's 18,000 files only 3 were removed and 70 modified, and 4.4BSD-Lite was released as a version containing no proprietary UNIX code. System V is AT&amp;T's commercial line (1983). MINIX (1987, Tanenbaum), GNU (1983, Stallman), and Linux (1991, Torvalds) are all "Unix-like" independent implementations that do not inherit AT&amp;T UNIX's code. The Tanenbaum–Torvalds debate began with the January 29, 1992 comp.os.minix post "LINUX is obsolete," and the point of contention was microkernel vs. monolithic and portability, not code plagiarism. The 2004 copy claim in <em>Samizdat</em> by Ken Brown / the Alexis de Tocqueville Institution was refuted by a source comparison of MINIX and Linux 0.01, and Tanenbaum, Ritchie, Stallman, and others pushed back. Multics is an ideological influence on UNIX, not a code inheritance. The "two trees" are a model for understanding; in reality, both lineage and idea inheritance vary in degree. ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Printing / making a PDF: ⌘+P (on Windows, Ctrl+P). On screen, use the buttons in Figure 1 to switch between the two trees, and Figure 2 to switch the point of contention (kernel design). "Show answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: the two trees ============ */
+  (function(){
+    var cv=document.getElementById('cvTree'), rd=document.getElementById('rdTree');
+    if(!cv) return;
+    var mode='both';
+    // tree: 'src'(Multics), 'gene', 'reimpl'
+    var NODES=[
+      {id:'multics', l:'Multics',    yr:'~1965', gx:1965, gy:0.30, tree:'src'},
+      {id:'unix',    l:'AT&T UNIX',  yr:'1969',  gx:1969, gy:0.44, tree:'src'},
+      {id:'bsd',     l:'BSD',        yr:'1978',  gx:1978, gy:0.22, tree:'gene'},
+      {id:'sysv',    l:'System V',   yr:'1983',  gx:1983, gy:0.50, tree:'gene'},
+      {id:'b386',    l:'386BSD',     yr:'1992',  gx:1990.5, gy:0.12, tree:'gene'},
+      {id:'netbsd',  l:'NetBSD',     yr:'1993',  gx:1994.4, gy:0.07, tree:'gene'},
+      {id:'freebsd', l:'FreeBSD',    yr:'1993',  gx:1994.4, gy:0.23, tree:'gene'},
+      {id:'gnu',     l:'GNU',        yr:'1983',  gx:1983, gy:0.66, tree:'reimpl'},
+      {id:'minix',   l:'MINIX',      yr:'1987',  gx:1987, gy:0.90, tree:'reimpl'},
+      {id:'linux',   l:'Linux',      yr:'1991',  gx:1991.5, gy:0.74, tree:'reimpl'}
+    ];
+    var EDGES=[
+      {f:'multics', t:'unix', k:'idea'},
+      {f:'unix', t:'bsd',   k:'code'},
+      {f:'unix', t:'sysv',  k:'code'},
+      {f:'bsd',  t:'b386',  k:'code'},
+      {f:'b386', t:'netbsd',k:'code'},
+      {f:'b386', t:'freebsd',k:'code'},
+      {f:'unix', t:'minix', k:'idea'},
+      {f:'unix', t:'gnu',   k:'idea'},
+      {f:'minix',t:'linux', k:'idea'}
+    ];
+    var minY=1962, maxY=1997;
+    function nodeActive(n){
+      if(mode==='both') return true;
+      if(n.tree==='src') return true;
+      return n.tree===mode;
+    }
+    function pos(n,w,h,padL,padT,uW,uH){
+      return { x: padL + (n.gx-minY)/(maxY-minY)*uW, y: padT + n.gy*uH };
+    }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var padL=54, padR=16, padT=20, padB=26, uW=w-padL-padR, uH=h-padT-padB;
+      // central divider line
+      ctx.strokeStyle='#e2e8e3'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(padL, padT+uH*0.56); ctx.lineTo(w-padR, padT+uH*0.56); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#9aa5ab'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Lineage tree (solid = code flows)', padL, padT+10);
+      ctx.fillText('Reimplementation tree (dotted = ideas only)', padL, padT+uH-2);
+      // year axis ticks
+      ctx.fillStyle='#b3bdb4'; ctx.font='9px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+      [1965,1975,1985,1995].forEach(function(yy){
+        var xx=padL+(yy-minY)/(maxY-minY)*uW; ctx.fillText(''+yy, xx, h-6);
+      });
+      var P={}; NODES.forEach(function(n){ P[n.id]=pos(n,w,h,padL,padT,uW,uH); });
+      // edges
+      EDGES.forEach(function(e){
+        var a=P[e.f], b=P[e.t]; var na=NODES.filter(function(x){return x.id===e.f;})[0], nb=NODES.filter(function(x){return x.id===e.t;})[0];
+        var act = nodeActive(na)&&nodeActive(nb) && (mode==='both' || (mode==='gene'&&e.k==='code') || (mode==='reimpl'&&e.k==='idea') || na.tree==='src');
+        // idea edges only relevant to reimpl view; code edges to gene view
+        if(mode==='gene' && e.k==='idea' && !(e.f==='multics')) act=false;
+        if(mode==='reimpl' && e.k==='code') act=false;
+        ctx.save();
+        ctx.globalAlpha = act?1:0.12;
+        if(e.k==='code'){ ctx.strokeStyle='#2166a0'; ctx.setLineDash([]); ctx.lineWidth=2.2; }
+        else { ctx.strokeStyle='#2f7d55'; ctx.setLineDash([5,4]); ctx.lineWidth=2; }
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        // arrowhead
+        var ang=Math.atan2(b.y-a.y,b.x-a.x);
+        ctx.setLineDash([]); ctx.fillStyle=ctx.strokeStyle;
+        ctx.beginPath(); ctx.moveTo(b.x,b.y);
+        ctx.lineTo(b.x-9*Math.cos(ang-0.4), b.y-9*Math.sin(ang-0.4));
+        ctx.lineTo(b.x-9*Math.cos(ang+0.4), b.y-9*Math.sin(ang+0.4));
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      // nodes
+      NODES.forEach(function(n){
+        var p=P[n.id], act=nodeActive(n);
+        ctx.save(); ctx.globalAlpha=act?1:0.16;
+        var col = n.tree==='reimpl' ? '#2f7d55' : (n.tree==='gene' ? '#2166a0' : '#6a6f78');
+        ctx.font='bold 12px "Hiragino Kaku Gothic ProN",sans-serif';
+        var tw=ctx.measureText(n.l).width, bw=Math.max(tw+18, 46), bh=28;
+        ctx.fillStyle='#fff'; ctx.strokeStyle=col; ctx.lineWidth=1.8;
+        rr(ctx,p.x-bw/2,p.y-bh/2,bw,bh,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText(n.l,p.x,p.y-1);
+        ctx.fillStyle='#9aa5ab'; ctx.font='8.5px "SFMono-Regular",Consolas,monospace';
+        ctx.fillText(n.yr, p.x, p.y+10);
+        ctx.restore();
+      });
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      if(mode==='gene') rd.style.background='#e7eef6', rd.style.color='#1e4a78',
+        rd.innerHTML='<strong>The lineage tree</strong>: the real code of AT&amp;T UNIX flowed to BSD and System V, and on to NetBSD/FreeBSD. Its origin was real code that the USL v. BSDi lawsuit could trace line by line.';
+      else if(mode==='reimpl') rd.style.background='#eaf3ee', rd.style.color='#1f5a3c',
+        rd.innerHTML='<strong>The reimplementation tree</strong>: it inherits only UNIX’s ideas/API, and the code is written from a clean slate. MINIX, GNU, Linux. No code flows along the dotted lines.';
+      else rd.style.background='#f0f0ee', rd.style.color='#41474a',
+        rd.innerHTML='The two trees overlaid. <strong>NetBSD/FreeBSD are on the solid (lineage) side; Linux/MINIX/GNU are on the dotted (reimplementation) side.</strong> Different trees, so Linux is not MINIX’s child.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-m]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      mode=b.getAttribute('data-m');
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize', draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: micro vs. monolithic ============ */
+  (function(){
+    var cv=document.getElementById('cvKernel'), rd=document.getElementById('rdKernel');
+    if(!cv) return;
+    var kind='micro', t0=0, raf=null;
+    function draw(t){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var midY=h*0.52;
+      // user/kernel boundary
+      ctx.strokeStyle='#d3ddd4'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(20,midY); ctx.lineTo(w-20,midY); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#9aa5ab'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('user space', 24, 20); ctx.fillText('kernel space', 24, midY+16);
+      ctx.textAlign='center';
+      if(kind==='mono'){
+        // one all-in-one block
+        var bx=w*0.5, bw=w*0.62, bh=h*0.30, by=midY+18;
+        ctx.fillStyle='#e7eef6'; ctx.strokeStyle='#2166a0'; ctx.lineWidth=2.2;
+        rr(ctx,bx-bw/2,by,bw,bh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#1e4a78'; ctx.font='bold 14px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('kernel (all-in-one)', bx, by+22);
+        ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#3a5f86';
+        ctx.fillText('filesystem · drivers · networking · memory management', bx, by+bh*0.66);
+        // app
+        ctx.fillStyle='#f6efe3'; ctx.strokeStyle='#a2621c'; ctx.lineWidth=1.6;
+        rr(ctx,bx-70,midY-52,140,32,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#7a4a10'; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText('app',bx,midY-31);
+        ctx.strokeStyle='#a2621c'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(bx,midY-20); ctx.lineTo(bx,by); ctx.stroke();
+      } else {
+        // small core + server group in user space
+        var kx=w*0.5, kw=w*0.34, kh=h*0.20, ky=midY+22;
+        ctx.fillStyle='#eaf3ee'; ctx.strokeStyle='#2f7d55'; ctx.lineWidth=2.2;
+        rr(ctx,kx-kw/2,ky,kw,kh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#1f5a3c'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('small core', kx, ky+kh*0.42);
+        ctx.font='10.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#3c7a58';
+        ctx.fillText('IPC and scheduler only', kx, ky+kh*0.80);
+        // servers (user space)
+        var servers=[['FS',0.22],['drivers',0.5],['net',0.78]];
+        var sy=midY-52, sh=32;
+        var pts=[];
+        servers.forEach(function(s){
+          var sx=20+(w-40)*s[1], sw=96;
+          ctx.fillStyle='#f6efe3'; ctx.strokeStyle='#a2621c'; ctx.lineWidth=1.6;
+          rr(ctx,sx-sw/2,sy,sw,sh,6); ctx.fill(); ctx.stroke();
+          ctx.fillStyle='#7a4a10'; ctx.font='12px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText(s[0],sx,sy+21);
+          pts.push({x:sx,y:sy+sh});
+        });
+        // message lines + moving dot
+        var ph=((t||0)-t0)/1400; ph=ph-Math.floor(ph);
+        pts.forEach(function(pt){
+          ctx.strokeStyle='#c7d8cd'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+          ctx.beginPath(); ctx.moveTo(pt.x,pt.y); ctx.lineTo(kx,ky); ctx.stroke(); ctx.setLineDash([]);
+          var mx=pt.x+(kx-pt.x)*ph, my=pt.y+(ky-pt.y)*ph;
+          ctx.fillStyle='#2f7d55'; ctx.beginPath(); ctx.arc(mx,my,3.2,0,2*Math.PI); ctx.fill();
+        });
+        ctx.fillStyle='#9aa5ab'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('components run in user space and talk to the core via messages', kx, sy-8);
+      }
+      ctx.textAlign='left';
+    }
+    function loop(t){ if(!t0)t0=t; draw(t); if(kind==='micro') raf=requestAnimationFrame(loop); }
+    function start(){ if(raf)cancelAnimationFrame(raf); if(kind==='micro'){ t0=0; raf=requestAnimationFrame(loop);} else draw(0); }
+    function setReadout(){
+      if(kind==='mono') rd.style.background='#e7eef6', rd.style.color='#1e4a78',
+        rd.innerHTML='<strong>Monolithic (Linux style)</strong>: pack all the functions into the kernel. Fast but large. Tanenbaum criticized it as "a step back into the 1970s."';
+      else rd.style.background='#eaf3ee', rd.style.color='#1f5a3c',
+        rd.innerHTML='<strong>Microkernel (MINIX style)</strong>: the core is minimal, and components run in user space communicating by messages. Safe and modular, Tanenbaum argued. ── The point of contention was <strong>this design</strong>, not code lineage.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-k]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      kind=b.getAttribute('data-k');
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); start();
+    });});
+    window.addEventListener('resize', function(){ if(kind!=='micro') draw(0); });
+    setReadout(); setTimeout(start,60); window.addEventListener('load',start);
+  })();
+})();
+</script>
+</body>
+</html>

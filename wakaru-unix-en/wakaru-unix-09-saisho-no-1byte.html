@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The First Byte — Entered by Hand ｜ A History of UNIX That Clicks, Episode 9</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf5f3; --paper-edge:#ead6cf;   /* Episode 9: red paper */
+    --side:#1f7a6e; --side-bg:#e7f2ef;
+    --warn:#8a4b2f;
+    --calc:#274a70; --calc-bg:#e9eef4;
+    --rule:#e6cdc5; --hair:#d8afa4;
+    --acc:#a83a22;    /* Episode 9 accent = red */
+    --grid:#ecd8d1;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f3d3ca 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#f2e6e2;border:1px solid #ead6cf;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#173e37;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd6e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdf9f8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;cursor:pointer;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;} .btnmini.alt{background:#c98a7c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#f4e0da;color:#7a2513;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9eeeb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfc,#f1e0da);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4e0da;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7a2513;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 9 ／ The Floor of Software</span></div>
+  <p class="eyebrow">The very first machine in the world, with no one to borrow from — how was the first instruction ever entered?</p>
+  <h1>The First Byte — Entered by Hand
+    <span class="sub">The very first machine, which had no one to cross-compile from (Episode 8) and nothing to borrow from at all. It has no assembler, and no paper tape to feed in. A human reads the instruction table, <strong>builds the machine-code numbers by hand</strong>, and enters them into memory one word at a time with <strong>toggle switches</strong>. Our watchword, "the first egg was carved by hand," becomes almost literal fact.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episodes 7 &amp; 8 (assembly / cross-compiling)</span>
+    <span>The reveal: bootstrap = pulling yourself up by your own bootstraps</span>
+  </div>
+
+  <p class="lead">In Episode 8 we saw that a new machine is brought up by borrowing "another machine that already runs." But trace that chain all the way back and you always arrive — at <strong>the very first machine, with no one at all to borrow from</strong>. That first computer in the world had no other machine to assemble for it, and no ready-made paper tape. So how was the very first instruction entered? The answer was as plain as it could possibly be. <strong>A human, by hand.</strong> This is <em>the floor</em> of software's chicken-and-egg.</p>
+
+  <h2><span class="n">01</span>First, a human becomes the assembler — hand-assembly</h2>
+
+  <p>In Episode 7 we saw that the thing which turns assembly (human-readable) into machine code (numbers) is the assembler. If there is no assembler — then <strong>a human does that conversion themselves</strong>. Looking at the CPU's instruction table (the manual), "the opcode for this instruction is 6, the address goes here…", they <em>compute the machine-code numbers by hand, on paper</em>. This is called <strong>hand-assembly</strong>. Picture Episode 7's Figure 1 (assembly), but done with a pencil by a human instead of a machine.</p>
+
+  <div class="term">
+<span class="c">// A human reads the manual and translates into numbers by hand (hand-assembly)</span>
+   Instruction: "Read memory, then go to next"
+   → look up the opcode table … 6032 (octal)  <span class="c">// decided by hand</span>
+   → next word … 5357 (octal)                 <span class="c">// decided by hand</span>
+   <span class="q">This column of numbers is what we'll now enter into the machine "by hand"</span>
+  </div>
+
+  <h2><span class="n">02</span>One word at a time, with toggle switches</h2>
+
+  <p>How do you get the hand-built numbers into memory? Early machines (the PDP-8, early PDP-11, Altair 8800, and so on) had a <strong>row of toggle switches (a front panel)</strong> on the front. Here's how it works — <em>set the bits (0/1) for one word on the switches, press "DEPOSIT," and that one word is written to memory and the address advances by one.</em> Repeat this once per word. Quite literally, you <strong>line up the bits by hand and feed them into the machine</strong>. Try touching the <em>front panel</em> below for yourself.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The front panel (touchable). Click the switches to set bits, and DEPOSIT writes one word to memory. Try entering the sample loader from the top down (values are in octal).</div>
+    <canvas id="cvPanel" width="680" height="360"></canvas>
+    <div class="controls">
+      <span style="font-size:12.5px;">Switch = click to flip between 0/1　／　operate with the buttons below</span>
+    </div>
+    <div class="readout" id="rdPanel">Set the switches, then DEPOSIT. Try matching the first value of the sample.</div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Connecting voice — memory that doesn't forget (core memory)</span>
+    Main memory back then was <strong>magnetic-core memory</strong>, which kept its contents even after the power was switched off. So a bootstrap you'd entered by hand once could <em>survive a power-down</em>. You didn't necessarily have to toggle everything in from scratch each time. Still, that very first time — someone did, after all, enter it by hand.
+  </div>
+
+  <h2><span class="n">03</span>You don't enter all of it — the bootstrap loader</h2>
+
+  <p>Of course, toggling in an entire OS by hand would be insane. So what you enter is <strong>only a very short "loader."</strong> That little loader has just one job — <em>to read a bigger program from paper tape (or, later, disk) into memory and hand execution over to it</em>. The PDP-11's bootstrap loader was designed to be <strong>as short as possible, precisely because you toggle it in by hand</strong>. In many cases, the loading grows step by step, like a staircase: <em>the tiny hand-entered loader → a second-stage loader on paper tape → the OS</em>. Climb that staircase in the figure below.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: The bootstrap staircase. Only the first few words are toggled in by hand. That tiny loader reads the second stage, and the second stage reads the OS. The higher you go, the bigger it gets, and the first seed is the few words carved by hand.</div>
+    <canvas id="cvBoot" width="680" height="320"></canvas>
+    <div class="controls">
+      <label>Climb the stairs<span class="val" id="vBoot">① The human hand (toggle switches)</span>
+        <input type="range" id="boot" min="0" max="3" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdBoot"></div>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time — the watchword becomes literal</div>
+    <p style="margin:6px 0 0;">The series watchword, "<strong>the first egg was carved by hand</strong>," here almost <em>stops being a metaphor</em>. The OS you use now, the compiler, the self-hosting loop from Episode 0 — trace them all the way back and they rest on <strong>a few words that someone typed in by hand, on switches, with a manual in one hand</strong>. The foundation stone at the very bottom of the towering edifice of software was a human finger.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>Etymology — pulling yourself up by your own bootstraps</h2>
+
+  <p>The word <strong>bootstrap</strong> comes from a 19th-century turn of phrase, "to pull yourself up by your own <em>bootstraps</em>." Physically it's impossible — a tall tale. It carries the sense of getting something going out of nothing. In Episode 0 we said, "the loop can't start itself; it must be lifted once, from outside." <strong>The physical site of that "lift from outside" was this very front panel.</strong> And today, when we say to "<strong>boot</strong>" a computer — to turn it on — that too is rooted in this word bootstrap. The power button you press every morning is a distant descendant of the days when people flipped switches by hand.</p>
+
+  <div class="calc">
+    <span class="tag">Episode 0's watchword, redeemed</span>
+    <p style="margin-top:8px;">"Which came first, the chicken or the egg? — The first egg was carved by hand."<br>Neither the chicken (running software) nor the egg (its source and tools) sprang from nothing. Only at the very beginning did <strong>a human carve a few words by hand</strong>, and that tiny seed called a loader, the loader called an OS, a compiler ran on top of the OS, and the compiler entered the loop of reproducing itself. <em>Once the seed is sown, the loop of software making software keeps on turning</em> — this was the shape of the answer to chicken-and-egg.</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — carefully drawing the lines on "one byte" and "by hand"</span>
+    <p style="margin-top:0;">(1) The "1 byte" in the title is symbolic; the unit you actually enter by hand is the <strong>word</strong> (18 bits, 16 bits, and so on, depending on the machine). (2) You didn't hand-toggle everything every time — some of it survived in core memory, and later machines <strong>burned the bootstrap into ROM</strong> and graduated from hand-toggling (the way today's PCs boot is a continuation of that). "Entered by hand" is about <em>the very first time / bringing up a brand-new machine</em>.</p>
+    <p style="margin-bottom:0;">(3) The values, bit counts, and step-by-step procedure in Figure 1 are a simplification to convey the <em>feel</em> of operating a front panel, not a rigorous reproduction of any specific model (storing to memory with toggle switches and the bootstrap loader are real practice). (4) And the biggest caveat of all — <strong>what turns those hand-entered numbers into "meaning" is still the "machine itself," which lies below.</strong> What executes the 0s and 1s of the switches as instructions is wired-up circuitry. We've reached the floor of software, but there is hardware still beneath it — on to the finale, Episode 10.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this episode alone)</div>
+    <ol>
+      <li>What is hand-assembly? In one sentence, contrasting it with Episode 7's assembler.
+        <details><summary>See the answer</summary><div class="ans">The "assembly → machine-code numbers" conversion that an assembler (a program) performs, done by hand by a human reading the manual. The human plays the role of the assembler themselves.</div></details>
+      </li>
+      <li>Briefly describe the operation of putting one word into memory on the front panel.
+        <details><summary>See the answer</summary><div class="ans">Set the bits (0/1) for one word on the toggle switches, and press DEPOSIT to write to the current address. The address advances by one, so you repeat once per word.</div></details>
+      </li>
+      <li>Why do you enter only a short loader, rather than the whole OS by hand?
+        <details><summary>See the answer</summary><div class="ans">Because hand-toggling the whole thing is impractical. You enter a tiny loader by hand and have it read a bigger program (the second-stage loader or the OS) from paper tape and the like. The loading grows step by step, like a staircase.</div></details>
+      </li>
+      <li>What is the etymology of "bootstrap" and "boot," and how does it relate to Episode 0's watchword?
+        <details><summary>See the answer</summary><div class="ans">bootstrap = pulling yourself up by your own bootstraps (an impossibility), carrying the sense of getting going out of nothing. The physical site of Episode 0's "the loop is lifted once, from outside" is the front panel. Today's "boot" (start-up) shares this root. The watchword "the first egg was carved by hand" here becomes literal.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>The floor of software was a human finger</h2>
+    <p>Trace the cross-compiling chain of Episode 8 back and you arrive at the first machine, with no one at all to borrow from. There is no chicken (running software) and no egg (tools). So a human reads the CPU's manual, <strong>builds the machine-code numbers by hand (hand-assembly)</strong>, and <strong>enters them into memory one word at a time with the front panel's toggle switches</strong>. You don't enter all of it — what you enter by hand is only a tiny <strong>bootstrap loader</strong>, which reads a second stage from paper tape, and the second stage becomes a staircase that reads the OS.</p>
+    <p><strong>bootstrap</strong> is the name of the impossibility of "pulling yourself up by your own bootstraps," and the site of that "single lift from outside" was this front panel (the root of today's "boot"). Episode 0's watchword, "the first egg was carved by hand," here becomes almost literal — the foundation stone of the towering edifice of software is a human finger. But what turns the hand-entered 0s and 1s into <em>meaning (execution)</em> is still the <strong>machine itself</strong>, lying below. We've reached the floor of software. One question remains — <em>who made the hardware that turns that machine code into "action"?</em> In the finale, down to the very bottom floor.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time — Episode 10 (the lowest layer, before the finale)</span>
+    "The Floor — Hardware, the True Seed." What turns the hand-entered number <code>6032</code> into the <em>action</em> "read memory"? It's an <strong>instruction decoder</strong> wired from logic gates — and the person who designed that was, again, a human. At the very bottom of the software chain lie wired-up physics, and the hands that made it. On to the last floor of chicken-and-egg.
+  </div>
+
+  <div class="foot">
+    This document is Episode 9 of the series "A History of UNIX That Clicks." Historical facts: early computers (the IBM 650, DEC PDP-5 through PDP-8, early PDP-11, Altair 8800, and others) were equipped with a row of front-panel toggle switches, and the operator manually entered the start-up instructions into memory before handing control to the CPU. Because main memory's magnetic-core memory retained its contents even when powered off, an already-entered bootstrap could survive. The bootstrap loader was designed to be as short as possible because it was toggled in by hand, and it read a second-stage loader (such as a checksummed Binary Loader) or the OS from a paper-tape reader. Hand-assembly is a human working out machine code by hand from the manual, without using an assembler. "bootstrap" derives from the 19th-century "pulling yourself up by your own bootstraps" and is the root of today's "boot" (start-up). The figures, values, and bit counts are simplifications to convey the concept of the operation, not rigorous reproductions of any specific model. What turns the hand-entered machine code into execution (meaning) is the hardware (the instruction decoder and the like), which the next Episode 10 covers. — To print, use your browser's "Print" and "Save as PDF" (in the print version, the figures' controls and the answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, in Figure 1 you can click the front-panel switches and DEPOSIT to write to memory (try entering the sample loader). Figure 2's slider lets you climb the bootstrap staircase. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH,dpr:r};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function oct4(v){ return ((v>>9)&7).toString()+((v>>6)&7)+((v>>3)&7)+(v&7); }
+
+  /* ============ Figure 1: front panel (interactive) ============ */
+  (function(){
+    var cv=document.getElementById('cvPanel'), rd=document.getElementById('rdPanel');
+    if(!cv) return;
+    var NB=12;
+    var bits=new Array(NB).fill(0);
+    var addr=0;
+    var mem=[]; // {addr,val}
+    var TARGET=[ 0o0006, 0o0025, 0o0100 ]; // sample loader (octal): 0006,0025,0100
+    var ptr=0, done=false;
+    // hit regions computed in draw; store for click
+    var swRects=[], depRect=null, clrRect=null;
+    function val(){ var v=0; for(var i=0;i<NB;i++){ if(bits[i]) v|=(1<<i); } return v; }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      // panel bg
+      ctx.fillStyle='#2a2f38'; rr(ctx,10,10,w-20,120,8); ctx.fill();
+      ctx.fillStyle='#c9c0bb'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Data switches (click to set 0/1)　MSB → LSB', 24, 30);
+      // switches (bit NB-1 leftmost)
+      swRects=[];
+      var n=NB, pad=24, gap=(w-2*pad)/n, sw=Math.min(gap*0.62,30);
+      for(var j=0;j<n;j++){
+        var bitIndex=NB-1-j;
+        var cx=pad+gap*j+gap/2, top=42, bh=52;
+        var on=bits[bitIndex];
+        // switch body
+        ctx.fillStyle='#1a1e24'; rr(ctx,cx-sw/2,top,sw,bh,4); ctx.fill();
+        // toggle knob (up=1)
+        ctx.fillStyle= on? '#e2b565':'#5a6068';
+        var ky= on? top+4 : top+bh-4-18;
+        rr(ctx,cx-sw/2+3,ky,sw-6,18,3); ctx.fill();
+        ctx.fillStyle= on? '#ffe6a8':'#8a9098'; ctx.font='bold 11px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+        ctx.fillText(on?'1':'0', cx, top+bh+14);
+        swRects.push({x:cx-sw/2,y:top,w:sw,h:bh,bit:bitIndex});
+      }
+      // value display
+      ctx.fillStyle='#7fd6a0'; ctx.font='bold 15px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='left';
+      ctx.fillText('Current switches = octal '+oct4(val())+'　(next store address '+oct4(addr)+')', 24, 150);
+      // buttons
+      depRect={x:24,y:166,w:120,h:30}; clrRect={x:156,y:166,w:96,h:30};
+      ctx.fillStyle='#a83a22'; rr(ctx,depRect.x,depRect.y,depRect.w,depRect.h,5); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('DEPOSIT (store)', depRect.x+depRect.w/2, depRect.y+20);
+      ctx.fillStyle='#8a7a72'; rr(ctx,clrRect.x,clrRect.y,clrRect.w,clrRect.h,5); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.fillText('CLEAR', clrRect.x+clrRect.w/2, clrRect.y+20);
+      // memory list (right)
+      var mx=w*0.62, my=212;
+      ctx.fillStyle='#7a2513'; ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Memory (words entered)', mx, my);
+      ctx.font='12px "SFMono-Regular",Consolas,monospace'; ctx.fillStyle='#1a1c22';
+      for(var k=0;k<mem.length;k++){ ctx.fillText(oct4(mem[k].addr)+':  '+oct4(mem[k].val), mx, my+18+k*17); }
+      // target list (left)
+      var tx=24, ty=212;
+      ctx.fillStyle='#7a2513'; ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif';
+      ctx.fillText('Sample loader (enter from the top, in octal)', tx, ty);
+      ctx.font='13px "SFMono-Regular",Consolas,monospace';
+      for(var i=0;i<TARGET.length;i++){
+        var got = i<ptr;
+        ctx.fillStyle= got? '#1f7a6e' : (i===ptr? '#a83a22':'#b7a49d');
+        ctx.fillText((got?'✓ ':(i===ptr?'▶ ':'   '))+oct4(TARGET[i]), tx, ty+20+i*20);
+      }
+      if(done){ ctx.fillStyle='#1f7a6e'; ctx.font='bold 13px "Hiragino Kaku Gothic ProN",sans-serif';
+        ctx.fillText('Loader entered! This is what goes off to read the paper tape →', tx, ty+20+TARGET.length*20+6); }
+      ctx.textAlign='left';
+    }
+    function evPos(ev){
+      var r=cv.getBoundingClientRect();
+      return { x:(ev.clientX-r.left)*(cv.clientWidth/r.width)*(cv.width/(cv.clientWidth*(window.devicePixelRatio||1))),
+               y:(ev.clientY-r.top)*(cv.clientHeight/r.height)*(cv.height/(cv.clientHeight*(window.devicePixelRatio||1))) };
+    }
+    function hit(rect,x,y){ return rect && x>=rect.x && x<=rect.x+rect.w && y>=rect.y && y<=rect.y+rect.h; }
+    cv.addEventListener('click', function(ev){
+      var r=cv.getBoundingClientRect();
+      var x=(ev.clientX-r.left)*(cv.width/r.width)/(window.devicePixelRatio||1);
+      var y=(ev.clientY-r.top)*(cv.height/r.height)/(window.devicePixelRatio||1);
+      // switches
+      for(var i=0;i<swRects.length;i++){ var s=swRects[i]; if(x>=s.x-4&&x<=s.x+s.w+4&&y>=s.y&&y<=s.y+s.h){ bits[s.bit]^=1; draw(); return; } }
+      if(hit(depRect,x,y)){
+        var v=val(); mem.push({addr:addr,val:v}); addr++;
+        if(!done && v===TARGET[ptr]){ ptr++; if(ptr>=TARGET.length){ done=true;
+            rd.innerHTML='<strong>Loader entered!</strong> All you entered by hand was just a few words. This tiny loader will now read a bigger program from paper tape — that\'s bootstrapping (on to Figure 2).'; }
+          else rd.innerHTML='Match! Set the next word (octal '+oct4(TARGET[ptr])+') on the switches and DEPOSIT.'; }
+        else if(!done){ rd.innerHTML='Stored octal '+oct4(v)+' at address '+oct4(addr-1)+'. Try setting the bits to hit the sample\'s <strong>'+oct4(TARGET[ptr])+'</strong>.'; }
+        // reset switches for next word (as on a real machine, you re-enter)
+        bits=new Array(NB).fill(0);
+        draw(); return;
+      }
+      if(hit(clrRect,x,y)){ bits=new Array(NB).fill(0); draw(); return; }
+    });
+    window.addEventListener('resize',draw);
+    setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+
+  /* ============ Figure 2: the bootstrap staircase ============ */
+  (function(){
+    var cv=document.getElementById('cvBoot'), sl=document.getElementById('boot'),
+        vBoot=document.getElementById('vBoot'), rd=document.getElementById('rdBoot');
+    if(!cv) return;
+    var ST=[
+      {h:'① The human hand (toggle switches)', size:0.16, col:'#a83a22', note:'A few hand-assembled words, read from the manual and typed in on the switches. Only this step is human work.'},
+      {h:'② The tiny loader', size:0.34, col:'#b0651e', note:'The few words entered by hand. Its one and only job — to read something bigger from paper tape.'},
+      {h:'③ The second-stage loader (paper tape)', size:0.62, col:'#8a5e10', note:'A proper, checksummed loader that the tiny loader reads from paper tape.'},
+      {h:'④ The OS (paper tape / disk)', size:1.0, col:'#1f7a6e', note:'The second-stage loader reads the OS. From then on, a compiler runs on the OS, entering the loop of Episode 0.'}
+    ];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var cur=parseInt(sl.value,10);
+      var n=ST.length, padL=30, padR=20, baseY=h-40, uW=w-padL-padR;
+      var sw=uW/n;
+      // hand at bottom-left
+      for(var i=0;i<n;i++){
+        var x=padL+sw*i, cxp=x+sw/2;
+        var st=ST[i], on=i<=cur;
+        var bw=sw*0.66, bh=20+st.size*(h*0.5);
+        var y=baseY-bh;
+        // arrow from prev (loads next)
+        if(i>0){
+          ctx.strokeStyle= on? '#a83a22':'#e0ccc6'; ctx.fillStyle=ctx.strokeStyle; ctx.lineWidth=2;
+          var px=padL+sw*(i-1)+sw/2, py=baseY-(20+ST[i-1].size*(h*0.5))-6;
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cxp, y-6); ctx.stroke();
+          ctx.save(); ctx.translate(cxp,y-6); var ang=Math.atan2((y-6)-py,cxp-px); ctx.rotate(ang);
+          ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-9,-4); ctx.lineTo(-9,4); ctx.closePath(); ctx.fill(); ctx.restore();
+          if(on){ ctx.fillStyle='#8a5e10'; ctx.font='9px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+            ctx.fillText('reads', (px+cxp)/2, (py+y)/2-4); }
+        }
+        // box
+        ctx.save(); ctx.globalAlpha= on?1:0.2;
+        ctx.fillStyle= i===cur? st.col : (on? '#fff':'#f3ece9'); ctx.strokeStyle=st.col; ctx.lineWidth= i===cur?2.6:1.6;
+        rr(ctx,cxp-bw/2,y,bw,bh,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle= i===cur? '#fff':st.col; ctx.textAlign='center'; ctx.font='bold 11px "Hiragino Kaku Gothic ProN",sans-serif';
+        var lbl=['Hand','Loader (small)','Loader (big)','OS'][i];
+        ctx.fillText(lbl, cxp, y+bh/2+4);
+        ctx.restore();
+        // step number
+        ctx.fillStyle= on? st.col:'#c9beba'; ctx.font='10px "SFMono-Regular",Consolas,monospace'; ctx.textAlign='center';
+        ctx.fillText((i+1)+'', cxp, baseY+16);
+      }
+      // baseline
+      ctx.strokeStyle='#e0ccc6'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(padL,baseY); ctx.lineTo(w-padR,baseY); ctx.stroke();
+      ctx.fillStyle='#b7a49d'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='left';
+      ctx.fillText('Small (the seed carved by hand)', padL, 20); ctx.textAlign='right'; ctx.fillText('Big (loaded automatically)', w-padR, 20); ctx.textAlign='left';
+    }
+    function update(){ var cur=parseInt(sl.value,10), st=ST[cur];
+      vBoot.textContent=st.h; rd.innerHTML='<strong>'+st.h+'</strong>: '+st.note; draw(); }
+    sl.addEventListener('input',update);
+    window.addEventListener('resize',draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+})();
+</script>
+</body>
+</html>

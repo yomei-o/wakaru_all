@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Compiled GCC? | A History of UNIX That Clicks, Episode 3</title>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f8fb; --paper-edge:#dbe4ee;   /* Episode 3: blue paper */
+    --side:#2f6f55; --side-bg:#eaf2ee;
+    --warn:#8a4b2f;
+    --calc:#3a4f6a; --calc-bg:#e9edf3;
+    --rule:#ccd8e4; --hair:#b7c5d4;
+    --acc:#2166a0;    /* Episode 3 accent = blue */
+    --grid:#d5e0eb;
+    --term-bg:#1b2330; --term-ink:#d7dee7; --term-green:#7fd6a0; --term-amber:#e2b565; --term-dim:#8794a5; --term-q:#e88;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.75;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe0ef 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:.88em;background:#eaf0f6;border:1px solid #dbe4ee;border-radius:3px;padding:.05em .35em;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#20342b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbd3df;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .term{margin:24px 0;background:var(--term-bg);border-radius:6px;padding:16px 20px;overflow-x:auto;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:13.5px;line-height:1.75;color:var(--term-ink);
+    box-shadow:0 8px 24px rgba(20,28,40,.22);}
+  .term .p{color:var(--term-green);} .term .c{color:var(--term-dim);} .term .o{color:var(--term-amber);} .term .q{color:var(--term-q);}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btnmini{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:4px;padding:8px 15px;}
+  .btnmini:hover{opacity:.92;}
+  .seg{background:#e3ebf3;color:#33506e;} .seg.on{background:var(--acc);color:#fff;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:12px;padding:10px 14px;border-radius:3px;font-weight:600;line-height:1.65;
+    background:#e7eef6;color:#1e4576;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:12px;border-radius:2px;display:inline-block;}
+
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff5fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#22354a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfdff,#e6edf5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eef6;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1e4576;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.term{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .term{color:#1a1c22;background:#f2f4f7;box-shadow:none;border:1px solid #ccc;}
+    .term .p{color:#2f6f55;} .term .o{color:#8a5a12;} .term .c{color:#777;} .term .q{color:#b33;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>A History of UNIX That Clicks</span><span class="ep">Episode 3 / The right way to spin the loop</span></div>
+  <p class="eyebrow">The gcc that gave birth to Linux ── what made that gcc?</p>
+  <h1>What Compiled GCC?
+    <span class="sub">In Episode 2 we learned that the first Linux was compiled by <code>gcc</code>. But <code>gcc</code> itself is also a program written in C. <em>Where there's no compiler yet, what made the first <code>gcc</code>?</em> The answer: "lift it once with an existing <code>cc</code>, then it builds itself from there" ── the <strong>three-stage bootstrap</strong>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 0 (the self-hosting loop)</span>
+    <span>The reveal: stage2 == stage3 becomes the check</span>
+  </div>
+
+  <p class="lead">The parent that gave birth to Linux was <code>gcc</code>. So who gave birth to the parent <code>gcc</code>? <code>gcc</code> is just a program written in the C language. Which means that to turn <code>gcc</code> into something runnable, <em>you need a C compiler</em>. ── The loop again. <code>gcc</code> is made by <code>gcc</code>, and that <code>gcc</code> too by <code>gcc</code>… This time, we look at how to <strong>ignite this loop correctly and spin it correctly</strong>. As it happens, building <code>gcc</code> involves a strange ritual of "building it three times," and the third time is a device that <em>self-checks</em> the compiler's correctness.</p>
+
+  <h2><span class="n">01</span>gcc is "just a program" written in C</h2>
+
+  <p>First, let's confirm the starting point. <code>gcc</code> is written as C-language source code (modern <code>gcc</code> is C++; this is the honest line, discussed later). So to turn <code>gcc</code> into an executable, you need another C compiler to compile it. <strong>You need a compiler to make a compiler</strong> ── Episode 0's loop is buried inside the tool itself.</p>
+
+  <div class="term">
+<span class="p">$</span> gcc -o linux ...      <span class="c"># gcc builds Linux (Episode 2)</span>
+<span class="p">$</span> cc  -o gcc  gcc.c      <span class="c"># then what about gcc? ← it's written in C</span>
+   <span class="q">↑ without this "cc," the first gcc can't be born</span>
+  </div>
+
+  <h2><span class="n">02</span>The first gcc was ignited "just once" by an existing cc</h2>
+
+  <p>In 1987, when Richard Stallman released the first <code>gcc</code> (GNU C Compiler; 1.0 was May 23, 1987), it was <strong>built by the C compiler that already existed on that machine ── Unix's native <code>cc</code></strong>. He borrowed a "someone else's compiler" from outside the loop, just once, as an ignition device. Once <code>gcc</code> ran, from then on <code>gcc</code> could make <code>gcc</code> (self-hosting).</p>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── the detour called Pastel</span>
+    Stallman initially tried to repurpose the compiler of <em>Pastel</em> (a Pascal-family language) from Livermore, adding a C front end. But it ate several megabytes of stack, and it wouldn't run on the 68000 Unix of the day (with a 64KB stack limit). In the end he <strong>rewrote it from scratch in C</strong>. Not a single line of Pastel remains in <code>gcc</code> (only the C front end he wrote was reused). ── "The borrowed thing wouldn't run, so in the end he wrote it himself." A fitting anecdote from the front lines of bootstrapping.
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── gcc did not "run away" from the chicken and egg</div>
+    <p style="margin:6px 0 0;"><code>gcc</code>'s claim is this ── <strong>"Lend me just one working C compiler. After that, I'll spin the loop myself."</strong> This is not a <em>solution</em> to the chicken and egg, but a <em>deferral</em>. The question gets passed down the staircase to "then, where did that first <code>cc</code> come from?" That <code>cc</code> is Unix's native C compiler = <strong>a descendant of Ritchie's first C compiler</strong> (Episode 5). The journey of tracing the ignition device outside the loop even further back continues.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The three-stage bootstrap ── why build it three times?</h2>
+
+  <p>Here is this episode's highlight. The standard procedure for building <code>gcc</code> correctly (<code>make bootstrap</code>) <strong>builds gcc three times</strong>. In the figure below, advance the stages one at a time.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: The three-stage bootstrap. Existing cc (an outsider) → stage1 → stage2 → stage3. Each stage builds the next, and at the end stage2 and stage3 are compared to confirm they match.</div>
+    <canvas id="cvBoot" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Advance the procedure<span class="val" id="vStep">① existing cc (ignition device) only</span>
+        <input type="range" id="step" min="0" max="4" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rdBoot"></div>
+  </div>
+
+  <div class="calc">
+    <span class="tag">The role of the three stages</span>
+    <p class="lbl">stage 1 ── built by the existing cc</p>
+    <p style="margin:4px 0;">First make one <code>gcc</code> with the "someone-else's compiler." It works, but it's a scaffold with <em>the outsider's quirks (optimization and code generation)</em> mixed in.</p>
+    <p class="lbl">stage 2 ── built by stage1</p>
+    <p style="margin:4px 0;">Make <code>gcc</code> once more with that <code>gcc</code> (stage1). This is the first "<strong>gcc made by gcc</strong>."</p>
+    <p class="lbl">stage 3 ── built by stage2</p>
+    <p style="margin:4px 0 14px;">Make <code>gcc</code> again with <code>gcc</code> (stage2). Both stage2 and stage3 are things "<em>built from the same source by gcc</em>."</p>
+  </div>
+
+  <h2><span class="n">04</span>The reveal ── stage2 == stage3 becomes "grading yourself"</h2>
+
+  <p>A correct compiler should <strong>produce the same output from the same source, regardless of "what it was built with."</strong> So <code>gcc</code> (stage2) and <code>gcc</code> (stage3) ── both "the result of gcc building gcc" ── <em>should match byte for byte</em>. In fact, <code>make compare</code> compares these two. If they match, the compiler can stably reproduce itself = it is working correctly, which is a <strong>self-grading</strong>. If they differ, suspect a compiler bug or non-determinism in the build.</p>
+
+  <div class="keybox">
+    <div class="lbl">Why stage1 can be thrown away ── the fixed point</div>
+    <p style="margin:6px 0 0;">stage1 was made by the "outsider cc," so its quirks may linger in the optimization and the code. But every time you rebuild with <code>gcc</code>, the result converges to <em>a single point (a fixed point)</em>: "<strong>gcc made by gcc</strong>." stage2 reaches that point, and stage3 confirms that "it no longer changes." So <strong>the final product is stage3</strong>, and stage1 is a used-up scaffold. In the figure below, see how, no matter what seed (ignition device) you start from, it settles into the same <code>gcc</code>.</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure 2: Convergence to a fixed point. Even if the "seed compiler" used for ignition differs, rebuilding with gcc makes stage3 settle into the same gcc. That's why stage1 can be thrown away and stage3 is the real deal.</div>
+    <canvas id="cvFix" width="680" height="250"></canvas>
+    <div class="controls">
+      <button class="btnmini seg on" data-s="0">Seed: cc with no optimization</button>
+      <button class="btnmini seg" data-s="1">Seed: a quirky cc</button>
+      <button class="btnmini seg" data-s="2">Seed: a different version of gcc</button>
+    </div>
+    <div class="readout" id="rdFix"></div>
+  </div>
+
+  <h2><span class="n">05</span>Even so, it hasn't run away from the chicken and egg</h2>
+
+  <p>The three-stage bootstrap is the <em>right way to spin the loop</em>, but <strong>stage1 still needs "an existing C compiler."</strong> On a brand-new machine (not a single compiler on it), this can't be done. So what do you do? ── <strong>Bake a <code>gcc</code> for that new CPU using a <code>gcc</code> on a different machine.</strong> This is <em>cross-compilation</em>, the modern version of Episode 8's "carrying paper tape from another machine" (a deep dive in a bonus episode too).</p>
+
+  <p>Either way, the ignition device <code>cc</code> must be <em>obtained from somewhere</em>. Trace its origin and you arrive at Unix's native C compiler, and then <strong>the first C compiler Ritchie wrote</strong>. It's time to trace the hand outside the loop back one more step.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── a few things to correct carefully</span>
+    <p style="margin-top:0;">(1) <strong>Modern gcc is written in C++</strong>, and building it requires a C++ compiler (since GCC 4.8 in 2012). "Written in C" is the historical story. The chicken-and-egg structure is the same (you need a compiler to make a compiler).</p>
+    <p style="margin:0;">(2) stage3 is <em>technically unnecessary for correctness</em>; the functionally finished product is stage2. The third stage exists to "spread gcc's own optimization into the final binary" and to "compare against stage2 as a check." (3) "stage2 == stage3 match" presupposes a <strong>deterministic build</strong> (the ideal that, aside from things like timestamps creeping in, they match). Build reproducibility itself is covered in Bonus Episode ②, "Bootstrappable Builds." (4) And the biggest caveat of all ── <strong>can that "borrowed cc" even be trusted in the first place?</strong> This unsettling question goes to Bonus Episode ①, "Trusting Trust."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode)</div>
+    <ol>
+      <li>Why does "running gcc require a C compiler"? In one sentence.
+        <details><summary>Show answer</summary><div class="ans">Because gcc itself is a program written in C (in modern times, C++), so to turn it into an executable you must compile it with another (or a past) C compiler.</div></details>
+      </li>
+      <li>What did the first gcc (1987) use as its ignition device?
+        <details><summary>Show answer</summary><div class="ans">The C compiler that already existed on that machine (Unix's native cc). Build it once with that, and from then on gcc can make gcc (self-hosting).</div></details>
+      </li>
+      <li>In the three-stage bootstrap, what can you say when stage2 and stage3 match?
+        <details><summary>Show answer</summary><div class="ans">The compiler produces the same output regardless of "what it was built with" = it can stably reproduce itself = it is working correctly, which is a self-check. If they differ, suspect a bug or non-determinism.</div></details>
+      </li>
+      <li>Why can stage1 be thrown away, and why is stage3 the final product?
+        <details><summary>Show answer</summary><div class="ans">stage1 is a scaffold made by the outsider cc, and its quirks may linger. Rebuilding with gcc converges to the fixed point "gcc made by gcc," so you adopt stage2/3, which reached it, and take stage3, which confirmed the convergence, as the final product.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>The loop is ignited by borrowing once and checked by spinning three times</h2>
+    <p>The <code>gcc</code> that gave birth to Linux is itself a program written in C, and running it requires a C compiler ── the chicken-and-egg loop is inside the tool too. The first <code>gcc</code> (1987, Stallman) was <strong>ignited just once by the machine's existing <code>cc</code></strong>, and after that entered self-hosting. This is not a solution to the chicken and egg but a <em>deferral</em>, and the question gets passed down the staircase to "where did that <code>cc</code> come from?"</p>
+    <p>The right way to spin the loop is the <strong>three-stage bootstrap</strong>. Build three times ── existing cc→stage1→stage2→stage3 ── and use <code>make compare</code> to confirm the <strong>byte-for-byte match of stage2 and stage3</strong>. Since a correct compiler should produce the same output no matter what it was built with, a match is evidence of it having <em>graded itself</em>. No matter what seed you start from, the result converges to the <strong>fixed point</strong> "gcc made by gcc," so stage1 is a used-up scaffold and stage3 is the real deal. ── Now, on to the ancestor of that ignition device, <code>cc</code>. First, a detour to see ACK, the compiler of that other educational OS, MINIX.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next ── Episode 4</span>
+    "MINIX and ACK ── The Compiler of an Educational Unix." MINIX was Linux's delivery room in Episode 2. MINIX itself was compiled with Tanenbaum's <strong>ACK (Amsterdam Compiler Kit)</strong>. A different philosophy from <code>gcc</code> ── a design that inserts <em>an intermediate bytecode called EM</em> to support many languages and many machines. It's a good rehearsal for the great invention of "inserting intermediate code," which connects to BCPL/O-code in Episode 6.
+  </div>
+
+  <div class="foot">
+    This document is Episode 3 of "A History of UNIX That Clicks." Historical facts: GCC was developed by Richard Stallman; the first beta 0.9 was released March 22, 1987, and 1.0 on May 23, 1987 (initially C-only, the GNU C Compiler). Stallman first tried to reuse the Pastel-language compiler from Livermore and wrote a C front end, but its stack consumption was large (impossible on the 68000 Unix's 64KB stack limit), so he rewrote it anew in C. No Pastel code is included in GCC. GCC's <code>make bootstrap</code> performs a three-stage build in a native configuration, building stage1 with the host (existing) compiler, stage2 with stage1, and stage3 with stage2. <code>make compare</code> compares stage2 and stage3, checking soundness by exploiting the fact that a correct compiler produces identical output (regardless of what it was built with). stage3 is technically unnecessary for correctness; it is the stage for reflecting GCC's own optimization into the final binary and for the comparison check. Modern GCC is written in C++ (since GCC 4.8, 2012) and requires a C++ compiler to build. The existing cc used for ignition is a Unix-derived C compiler, whose lineage traces back to Ritchie's C compiler (Episode 5). ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the figure controls and answers are frozen / hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Printing / making a PDF: ⌘+P (on Windows, Ctrl+P). On screen, use the slider in Figure 1 to advance the three-stage bootstrap, and the buttons in Figure 2 to change the "seed compiler" and see the convergence to a fixed point. "Show answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  /* ============ Figure 1: the three-stage bootstrap ============ */
+  (function(){
+    var cv=document.getElementById('cvBoot'), sl=document.getElementById('step'),
+        vStep=document.getElementById('vStep'), rd=document.getElementById('rdBoot');
+    if(!cv) return;
+    // boxes: seed, s1, s2, s3
+    var BOX=[
+      {k:'seed', t:'existing cc', s:'outsider / ignition', col:'#8794a5', fill:'#eef1f5'},
+      {k:'s1',   t:'gcc stage1', s:'outsider quirks linger', col:'#b0651e', fill:'#f6efe3'},
+      {k:'s2',   t:'gcc stage2', s:'gcc made by gcc', col:'#2166a0', fill:'#e7eef6'},
+      {k:'s3',   t:'gcc stage3', s:'the real deal (final)', col:'#2166a0', fill:'#e7eef6'}
+    ];
+    var LABELS=['① existing cc (ignition device) only','② stage1: existing cc builds gcc','③ stage2: stage1 builds gcc','④ stage3: stage2 builds gcc','⑤ compare: check with stage2 == stage3'];
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var step=parseInt(sl.value,10);
+      var n=4, padL=20, gap=(w-padL*2)/n, bw=gap*0.72, bh=64, cy=h*0.40;
+      var cx=[]; for(var i=0;i<n;i++){ cx.push(padL+gap*i+gap/2); }
+      // arrows (built-by) between i-1 -> i, shown if step>=i
+      for(i=1;i<n;i++){
+        var shown = step>=i;
+        ctx.save(); ctx.globalAlpha= shown?1:0.12;
+        ctx.strokeStyle='#9aa5b3'; ctx.fillStyle='#9aa5b3'; ctx.lineWidth=2.2;
+        var x0=cx[i-1]+bw/2, x1=cx[i]-bw/2, yy=cy;
+        ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x1-2,yy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x1,yy); ctx.lineTo(x1-9,yy-5); ctx.lineTo(x1-9,yy+5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#6b7683'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('build', (x0+x1)/2, yy-8);
+        ctx.restore();
+      }
+      // boxes
+      for(i=0;i<n;i++){
+        var b=BOX[i], shown = step>=i;
+        ctx.save(); ctx.globalAlpha= shown?1:0.14;
+        ctx.fillStyle=b.fill; ctx.strokeStyle=b.col; ctx.lineWidth= (i===3&&step>=3)?2.6:1.8;
+        rr(ctx,cx[i]-bw/2,cy-bh/2,bw,bh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=b.col; ctx.textAlign='center';
+        ctx.font='bold 13px "SFMono-Regular",Consolas,monospace'; ctx.fillText(b.t, cx[i], cy-6);
+        ctx.font='10.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillText(b.s, cx[i], cy+14);
+        ctx.restore();
+      }
+      // comparison bracket stage2 vs stage3 at step 4
+      if(step>=4){
+        var x2=cx[2], x3=cx[3], by=cy+bh/2+26;
+        ctx.strokeStyle='#2f8d5a'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(x2, cy+bh/2+6); ctx.lineTo(x2, by); ctx.lineTo(x3, by); ctx.lineTo(x3, cy+bh/2+6); ctx.stroke();
+        ctx.fillStyle='#2f8d5a'; ctx.font='bold 14px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('== match → check OK ✓', (x2+x3)/2, by+22);
+        ctx.font='10.5px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.fillStyle='#3c7a58';
+        ctx.fillText('built from the same source by gcc, so they should match byte for byte', (x2+x3)/2, by+40);
+      }
+      ctx.textAlign='left';
+    }
+    function update(){
+      var step=parseInt(sl.value,10);
+      vStep.textContent=LABELS[step];
+      var msg=[
+        'The ignition device = the C compiler that already existed on that machine. There is no gcc yet.',
+        'stage1: the existing cc builds gcc. It works, but it’s a <strong>scaffold</strong> with the outsider’s quirks mixed in.',
+        'stage2: that gcc (stage1) builds gcc. The first <strong>"gcc made by gcc."</strong>',
+        'stage3: gcc (stage2) builds gcc. The same "gcc-made gcc" as stage2.',
+        '<strong>make compare</strong>: if stage2 and stage3 match, the compiler stably reproduces itself = it works correctly. stage3 is the final product.'
+      ][step];
+      rd.innerHTML=msg; draw();
+    }
+    sl.addEventListener('input', update);
+    window.addEventListener('resize', draw);
+    setTimeout(update,60); window.addEventListener('load',update);
+  })();
+
+  /* ============ Figure 2: convergence to a fixed point ============ */
+  (function(){
+    var cv=document.getElementById('cvFix'), rd=document.getElementById('rdFix');
+    if(!cv) return;
+    var sel=0;
+    var SEEDS=[
+      {l:'cc with no optimization', tint:'#c98a6a'},
+      {l:'a quirky cc',   tint:'#7bb08a'},
+      {l:'a different version of gcc', tint:'#8a8fc0'}
+    ];
+    var CANON='#2166a0';
+    function mix(a,b,t){
+      function h2(s){return [parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16)];}
+      var A=h2(a),B=h2(b); var r=Math.round(A[0]+(B[0]-A[0])*t),g=Math.round(A[1]+(B[1]-A[1])*t),bl=Math.round(A[2]+(B[2]-A[2])*t);
+      return 'rgb('+r+','+g+','+bl+')';
+    }
+    function draw(){
+      var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+      ctx.clearRect(0,0,w,h);
+      var seed=SEEDS[sel];
+      var cols=[
+        {t:'stage1', tint:seed.tint,          sub:'outsider quirks linger'},
+        {t:'stage2', tint:mix(seed.tint,CANON,0.75), sub:'gcc made by gcc'},
+        {t:'stage3', tint:CANON,              sub:'fixed point: same for any seed'}
+      ];
+      var n=3, padL=40, gap=(w-padL*2)/n, bw=gap*0.6, bh=76, cy=h*0.42;
+      var cx=[]; for(var i=0;i<n;i++){ cx.push(padL+gap*i+gap/2); }
+      for(i=1;i<n;i++){
+        ctx.strokeStyle='#b7c5d4'; ctx.fillStyle='#b7c5d4'; ctx.lineWidth=2;
+        var x0=cx[i-1]+bw/2, x1=cx[i]-bw/2;
+        ctx.beginPath(); ctx.moveTo(x0,cy); ctx.lineTo(x1-2,cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x1,cy); ctx.lineTo(x1-8,cy-4); ctx.lineTo(x1-8,cy+4); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#6b7683'; ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+        ctx.fillText('rebuild with gcc', (x0+x1)/2, cy-8);
+      }
+      for(i=0;i<n;i++){
+        var c=cols[i];
+        ctx.fillStyle=c.tint; ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1.5;
+        rr(ctx,cx[i]-bw/2,cy-bh/2,bw,bh,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#fff'; ctx.textAlign='center';
+        ctx.font='bold 13px "SFMono-Regular",Consolas,monospace'; ctx.fillText(c.t, cx[i], cy-4);
+        ctx.font='10px "Hiragino Kaku Gothic ProN",sans-serif';
+        // wrap sub
+        ctx.fillText(c.sub, cx[i], cy+16);
+      }
+      // convergence note
+      ctx.fillStyle='#8794a5'; ctx.font='11px "Hiragino Kaku Gothic ProN",sans-serif'; ctx.textAlign='center';
+      ctx.fillText('color = the compiler’s "quirk." With each stage, it converges to the standard gcc (blue)', w/2, h-14);
+      ctx.textAlign='left';
+    }
+    function setReadout(){
+      rd.innerHTML='Seed (the base of stage1) = <strong>'+SEEDS[sel].l+'</strong>. With any seed, rebuilding twice with gcc makes <strong>stage3 converge to the same standard gcc (blue)</strong>. So stage1 is a scaffold you can throw away, and stage3 is the real deal.';
+    }
+    var btns=cv.parentNode.querySelectorAll('.seg[data-s]');
+    btns.forEach(function(b){ b.addEventListener('click', function(){
+      sel=parseInt(b.getAttribute('data-s'),10);
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); });
+      setReadout(); draw();
+    });});
+    window.addEventListener('resize', draw);
+    setReadout(); setTimeout(draw,60); window.addEventListener('load',draw);
+  })();
+})();
+</script>
+</body>
+</html>
