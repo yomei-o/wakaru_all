@@ -9,6 +9,7 @@
 |---|---|---|
 | `wakaru-ba/` | **わかる場** ── なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結）| [index](wakaru-ba/index.html) |
 | `wakaru-soutai/` | **わかる相対論** ── すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力=曲率・可変c≡曲率（全7話・完結）| [index](wakaru-soutai/index.html) |
+| `wakaru-ryoushi/` | **わかる量子** ── ℏ の物語。S/ℏ で古典と量子を分ける。粒と波・波動関数・経路和・シュレディンガー・不確定性・測定（全6話・完結）| [index](wakaru-ryoushi/index.html) |
 | `wakaru/` | **わかる宇宙論** ── 光速・微細構造定数・ゲージから宇宙を読む | [index](wakaru/index.html) |
 | `wakaru-chikara/` | **わかる力** ── 「力」の正体を、場・幾何・対称性まで剥がす | [index](wakaru-chikara/index.html) |
 | `wakaru_shitsuryo/` | **わかる質量** ── 質量とは何か | [index](wakaru_shitsuryo/index.html) |
@@ -21,4 +22,4 @@
 
 ## 構成メモ
 - 各シリーズは**このリポジトリ直下の兄弟フォルダ**として置いています。目次どうしは相対リンクで姉妹編を参照します（例：`wakaru-ba/` の目次 → `../wakaru-chikara/index.html`）。
-- **わかる場**（`wakaru-ba/`、全8話）と **わかる相対論**（`wakaru-soutai/`、全7話）は完結。次シリーズは **わかる量子**（ℏ、S/ℏ が背骨）を予定。
+- **わかる場**（`wakaru-ba/`、全8話）・**わかる相対論**（`wakaru-soutai/`、全7話）・**わかる量子**（`wakaru-ryoushi/`、全6話）が完結。物理4部作は基本定数でつながる（c＝相対論、ℏ＝量子、c+ℏ＝場、c+G＝重力）。今後の予定：量子×フーリエ変換の番外編、全集の見取り図（物理の立方体）。
