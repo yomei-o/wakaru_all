@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Inertial Force Is a Force That Isn't a Force ── Force That Clicks, Episode 4</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5faf8; --paper-edge:#d8e7e2;   /* Episode 4: teal paper (the color of coordinates) */
+    --side:#2f5d62; --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#1d5b56; --calc-bg:#e6f0ed;
+    --rule:#cbdcd7; --hair:#b7ccc5;
+    --acc:#1f7a6e;    /* Episode 4 accent = teal */
+    --grid:#d3e4df;
+    --lab:#2166a0; --rot:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe6df 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c6dbd5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4faf8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1a4741;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfffe,#eef5f3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1a4741;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Force That Clicks</span><span class="ep">Episode 4 / Peeling back the true nature of force, one layer at a time</span></div>
+  <p class="eyebrow">Episodes 2 & 3: everyday forces are electromagnetism → Episode 4: there are "forces that aren't forces at all"</p>
+  <h1>The Inertial Force Is a Force That Isn't a Force
+    <span class="sub">The centrifugal force that flings you outward on a curve, the Coriolis force that turns a typhoon into a swirl. No electron cloud pushes back, and there's no carrier.<br>It is <em>an apparent force that wells up the moment you rotate your coordinates</em>, and if you reselect your coordinates, it vanishes.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's F=ma, inertia, the idea of coordinates</span>
+    <span>Apparent force = the coordinates' balancing entry</span>
+  </div>
+
+  <p class="lead">Up to now we've peeled back the true nature of "pushing, friction, tension" as electromagnetism. This time the flavor changes ── it's the story of <strong>a "force" that isn't a force at all</strong>. The centrifugal force that flings you outward in a curving car, the sense of being pushed backward when a train lurches forward, the Coriolis force that swirls a typhoon into a spiral. You certainly <em>feel</em> all of them, yet there's no electron cloud pushing back and no carrier particle. Here we cash in Episode 1's preview, "the footing of \(F=ma\) depends on coordinates." These are <strong>balancing entries that well up because you rotated (accelerated) your coordinates</strong>, and if you reselect your coordinates they vanish without a trace. This is the beginning of this series' theme of "erasing force."</p>
+
+  <h2><span class="n">01</span>The true nature of the centrifugal force ── it just wants to fly straight</h2>
+
+  <p>On a spinning merry-go-round, you feel pulled outward (the centrifugal force). But seen from outside (from the non-spinning ground), the story is utterly different. You <strong>actually just want to go straight</strong> (inertia). The railing or the floor is holding you back <em>inward</em>. There is no outward force acting anywhere.</p>
+
+  <div class="keybox">
+    <div class="lbl">The core this time ── the centrifugal force is a "balancing entry"</div>
+    <p style="margin:6px 0 0;">Seen in non-rotating coordinates (an inertial frame): the object tries to go straight, and a real force (the railing, the road) pulls it inward. <strong>There is no outward force.</strong><br>Seen in rotating coordinates: the object escapes outward, so to make \(F=ma\) hold, you <em>write in an outward "centrifugal force."</em> This is the coordinates' balancing entry = an apparent force.</p>
+  </div>
+
+  <p>In the figure below, watch a ball released on a spinning disk from <strong>two viewpoints</strong> at once. On the left (from the ground) it goes straight. On the right (from the disk) it curves outward and escapes. The same motion looks like two different faces because of the coordinates.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: A ball released on a spinning disk. Left = seen from the ground (straight = inertia) / right = seen from the disk (curves outward = the balancing entry "called" the centrifugal + Coriolis forces)</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Time t since release<span class="val" id="vk">0.0</span>
+        <input type="range" id="sk" min="0" max="100" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--lab);"></i>from the ground (inertial frame): straight</span>
+      <span><i class="swatch" style="background:var(--rot);"></i>from the disk (rotating frame): curves</span>
+    </div>
+  </div>
+
+  <h2><span class="n">02</span>Two "tells" for spotting an apparent force</h2>
+
+  <p>That inertial forces (the centrifugal and Coriolis forces) are "not real forces" has two clear <strong>giveaway marks</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">The "tells" of an apparent force</span>
+    <p class="lbl">① It has no partner (no reaction pair)</p>
+    <p style="margin-top:8px;">A real force always has a partner (Episode 1, action and reaction). But the centrifugal force has no "partner pushing back." A force without a pair is a sign that it isn't a real force.</p>
+    <p class="lbl">② It's proportional to mass, giving everyone the same acceleration</p>
+    <p style="margin-bottom:14px;">An apparent force always has the form "\(m\times\) (the coordinates' acceleration)." So heavy things and light things are flung <strong>the same way</strong>. This is decisively different from the electromagnetic force (whose effect changes with the charge). ── This point ② is the setup for gravity next time.</p>
+  </div>
+
+  <p>In short, the inertial force is a correction term \(-m\vec{a}_{\text{frame}}\) added to <em>force \(F=ma\) to hold even on accelerating coordinates</em>. Stop accelerating the coordinates (return to an inertial frame), and this term vanishes. <strong>A real force does not vanish when you change coordinates. An apparent force vanishes with the coordinates.</strong> This is the most essential line dividing the two.</p>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── this is the first face of "gauge"</span>
+    "A force that appears and disappears when you change coordinates (your viewpoint)" ── this is the first concrete example, in mechanics, of the <strong>gauge (relabeling of the description)</strong> that came up so insistently in the sister series "Cosmology That Clicks." The physical content (the straight motion seen from the ground) doesn't change, yet the wording of the coordinates gives birth to a "term" called the centrifugal force. In Episode 9, "Where Do Forces Come From," this idea grows all the way into the origin of all four forces. The inertial force is its trailer.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>What the peeling revealed ── there are forces born of coordinates</h2>
+
+  <p>The conclusion of Episode 4. There are two kinds of force: the <strong>real ones that don't vanish even when you change coordinates</strong>, like electromagnetism, and the <strong>apparent ones that well up or vanish with a relabeling of coordinates</strong>, like the centrifugal force. An apparent force is neither a "thing" nor a "relationship"; it is <em>the balancing entry for having chosen accelerating coordinates</em>. The reason we hedged in Episode 1 with "the footing of \(F=ma\) (the inertial frame) depends on your choice" was precisely this.</p>
+
+  <div class="keybox">
+    <div class="lbl">The map of forces became two-layered</div>
+    <p style="margin:6px 0 0;">Real forces (electromagnetism, gravity, strong, weak): don't vanish when you change coordinates… <em>supposedly</em>.<br>Apparent forces (centrifugal, Coriolis, the train's inertial force): well up when coordinates accelerate, vanish in an inertial frame.<br>── But next time, this boundary line wavers. <strong>Which side is gravity on?</strong></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">An honest line</span>
+    <p style="margin-top:0;">Calling something an "apparent force" does not mean it doesn't exist or that you can ignore it. As long as you live on rotating coordinates (the Earth spins too), the centrifugal and Coriolis forces really do affect motion, and if you leave them out of the calculation you'll get the wrong answer. The swirl of a typhoon, Foucault's pendulum, the trajectory of a cannon shell ── all real effects. <strong>"It is not a real interaction (it can be erased by coordinates)" and "it certainly does act in those coordinates"</strong> are compatible.</p>
+    <p style="margin-bottom:0;">The figure is an idealization ignoring friction and gravity (released, the ball travels straight by inertia), and it shows the centrifugal and Coriolis forces lumped together as "the curving in the rotating frame," without separating them.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems</div>
+    <ol>
+      <li>What is the most essential criterion dividing a real force from an apparent force?
+        <details><summary>See the answer</summary><div class="ans">A real force doesn't vanish when you change coordinates (your viewpoint); an apparent force wells up because you chose accelerating coordinates, and vanishes when you return to an inertial frame. Other marks include "whether it has a reaction pair" and "whether it's proportional to mass and gives everyone the same acceleration."</div></details>
+      </li>
+      <li>When you feel the centrifugal force, what is actually happening as seen from the ground (an inertial frame)?
+        <details><summary>See the answer</summary><div class="ans">The object tries to go straight by inertia, and a real force (the railing, the road, etc.) holds it back inward (in the centripetal direction). No outward force is acting.</div></details>
+      </li>
+      <li>That an apparent force "is proportional to mass and gives everyone the same acceleration" is the setup for which force next time?
+        <details><summary>See the answer</summary><div class="ans">Gravity. Gravity too is proportional to mass and gives the same acceleration regardless of mass (Galileo: a feather and an iron ball fall at the same time) ── it has the same "tell" as an apparent force. This is the crux of Episode 5, "Is gravity a force?"</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Rotate the coordinates, and force wells up</h2>
+    <p>The centrifugal and Coriolis forces are "forces that aren't forces," with no electron cloud pushing back and no carrier. Seen from the ground (an inertial frame), the object simply goes straight by inertia while a real force pulls it inward. The true nature of the apparent force is the correction term \(-m\vec a_{\text{frame}}\) added to make \(F=ma\) hold by force on rotating coordinates. So reselect your coordinates and it vanishes ── whereas a real force (like electromagnetism) doesn't.</p>
+    <p>The giveaway marks are "no reaction pair" and "proportional to mass, giving everyone the same acceleration." This second one is the crux of next time. <strong>Gravity too is proportional to mass and gives everyone the same acceleration</strong> ── so could gravity also be an "apparent force" that coordinates can erase? The theme of erasing force thus heads toward its greatest quarry: gravity.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 5</span>
+    "Is gravity a force?" You certainly feel weight, yet in free fall (an elevator whose cable snaps, an astronaut) it <strong>suddenly vanishes</strong>. Push on the mystery of inertial mass and gravitational mass matching exactly (the equivalence principle) and ── gravity turns out not to be a "force"; rather, free fall is the truly straight path, and we feel heavy because the floor is pushing us up (the electromagnetic normal force!). On toward gravity = the geometry of spacetime.</p>
+  </div>
+
+  <div class="foot">
+    This document is Episode 4 of the "Force That Clicks" series, a reading for physics-loving high-schoolers and undergraduates. That inertial forces (the centrifugal force, the Coriolis force, and apparent forces from translational acceleration) appear in non-inertial frames as a correction term \(-m\vec a_{\text{frame}}\) (in a rotating frame, \(-m\vec\omega\times(\vec\omega\times\vec r)\) and \(-2m\vec\omega\times\vec v\)) that keeps \(F=ma\), and that they vanish in an inertial frame ── and that, unlike real interactions, they have no reaction pair and are proportional to mass ── is established content. Nevertheless, inertial forces in non-inertial frames do affect real motion and are indispensable in calculations (the swirl of a typhoon, Foucault's pendulum, etc.). The view of "a force that appears and disappears under a coordinate transformation" connects directly to the treatment of gravity in general relativity (Episode 5) and to the idea of gauge symmetry. The figure is an idealization ignoring friction and gravity, showing the centrifugal and Coriolis forces without distinction as the apparent curving in the rotating frame. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, the slider lets you see the same motion take on two different faces in two coordinate systems. Click "See the answer" to open a solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  var W=1.0, r0=1.0, v=1.0, TMAX=3.0, S=40;
+  function labPos(t){ return {x:r0, y:v*t}; }
+  function rotPos(t){ var th=W*t, x=r0, y=v*t;
+    return {x: x*Math.cos(th)+y*Math.sin(th), y: -x*Math.sin(th)+y*Math.cos(th)}; }
+  function panel(ctx,cx,cy,t,fn,color,label,spin){
+    // platform
+    ctx.strokeStyle='#b7ccc5';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,r0*S,0,7);ctx.stroke();
+    ctx.fillStyle='rgba(31,122,110,0.06)';ctx.beginPath();ctx.arc(cx,cy,r0*S,0,7);ctx.fill();
+    // spoke (fixed in the rotating frame; rotated to the current angle in the inertial frame)
+    var sp = spin? 0 : (W*t);
+    ctx.strokeStyle='#9fc0b8';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(sp)*r0*S, cy-Math.sin(sp)*r0*S);ctx.stroke();
+    ctx.fillStyle='#6b6f60';ctx.beginPath();ctx.arc(cx,cy,3,0,7);ctx.fill();
+    // trail
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.globalAlpha=.5;ctx.beginPath();var f=true;
+    for(var tt=0;tt<=t+1e-9;tt+=0.03){var p=fn(tt);var X=cx+p.x*S, Y=cy-p.y*S;if(f){ctx.moveTo(X,Y);f=false;}else ctx.lineTo(X,Y);}
+    ctx.stroke();ctx.globalAlpha=1;
+    // ball
+    var p=fn(t), bx=cx+p.x*S, by=cy-p.y*S;
+    ctx.fillStyle=color;ctx.beginPath();ctx.arc(bx,by,6,0,7);ctx.fill();
+    ctx.fillStyle=color;ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(label,cx,cy+r0*S+24);ctx.textAlign='left';
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var t=parseInt(sk.value,10)/100*TMAX; vk.textContent=t.toFixed(1);
+    ctx.clearRect(0,0,w,h);
+    // divider line
+    ctx.strokeStyle='#dbe7e2';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2,10);ctx.lineTo(w/2,h-10);ctx.stroke();
+    var cy=h*0.44;
+    panel(ctx,w*0.25,cy,t,labPos,'#2166a0','from the ground (straight)',false);
+    panel(ctx,w*0.75,cy,t,rotPos,'#a83a22','from the disk (curves)',true);
+    rd.textContent='t='+t.toFixed(1)+': the same single ball. On the left (the ground) it flies straight with zero force. On the right (on the spinning disk) it curves outward and escapes ── we just call this the "centrifugal + Coriolis forces" to balance the books of F=ma. Really, no force is acting.';
+  }
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

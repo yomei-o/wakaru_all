@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Inverse Square? ── Force That Clicks, Episode 10</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f8fc; --paper-edge:#d9e2ee;   /* Episode 10: blue paper (space) */
+    --side:#2f5d62; --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#1c4f82; --calc-bg:#e6eef6;
+    --rule:#c9d6e4; --hair:#b6c6d8;
+    --acc:#2166a0;    /* Episode 10 accent = blue */
+    --grid:#d3dfec;
+    --d2:#b0561e; --d3:#2166a0; --d4:#7a3b8a;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfdef0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c6d6e6;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f8fc;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c3a58;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e9f0f7);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c3a58;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:27px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Force That Clicks</span><span class="ep">Episode 10 / Peeling back the true nature of force, one layer at a time</span></div>
+  <p class="eyebrow">Episode 9: force is the connection of a local symmetry &rarr; Episode 10: space is stamped into the &ldquo;shape&rdquo; of that force</p>
+  <h1>Why the Inverse Square?
+    <span class="sub">Both gravity and electricity weaken in inverse proportion to the square of the distance (\(1/r^2\)). Why do they share the same shape?<br>This is not a property of force but &mdash; <em>the fingerprint of space being three-dimensional</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you&rsquo;ll need: area, division, the long-range forces of Episode 6</span>
+    <span>F &prop; 1/r^(dimension&minus;1)</span>
+  </div>
+
+  <p class="lead">Newtonian gravity is \(1/r^2\). The Coulomb force is also \(1/r^2\). They&rsquo;re completely different forces, yet they weaken with distance in <strong>exactly the same shape</strong>. Is this a coincidence? Through Episode 9 we peeled back &ldquo;what force is and why it exists&rdquo;; this time we peel back the <em>shape</em> of force (its dependence on distance). And the surprise is this &mdash; <strong>\(1/r^2\) is not a property of force itself, but the fingerprint of our space being &ldquo;three-dimensional.&rdquo;</strong> If space were two-dimensional it would be \(1/r\); four-dimensional, \(1/r^3\). The dimension of space is engraved into the shape of force.</p>
+
+  <h2><span class="n">01</span>Just diluting &mdash; divide the field lines by area</h2>
+
+  <p>Let&rsquo;s draw the force that gushes from a point as <strong>field lines spreading out radially</strong>. The total number of field lines coming out of the source is not lost or gained along the way (it is conserved). How densely these lines pierce a sphere at distance \(r\) &mdash; that is the strength of the force at that place. The surface area of a sphere is \(4\pi r^2\). Since we divide the same number of lines by a larger area,</p>
+
+  <div class="calc">
+    <span class="tag">Gauss&rsquo;s idea &mdash; a fixed total &divide; area</span>
+    <p class="lbl">Strength of force = density of field lines = total number &divide; area of the sphere</p>
+    $$F \propto \frac{\text{constant}}{4\pi r^2}\ \propto\ \frac{1}{r^2}$$
+    <p style="margin-bottom:14px;">Move away and the sphere&rsquo;s surface grows as \(r^2\), so the same field lines are diluted by that much. Hence \(1/r^2\). It&rsquo;s not that force &ldquo;decides to weaken with distance&rdquo; but that <strong>it&rsquo;s simply diluted over an expanding area</strong>. For both gravity and electricity, field lines gush from a source and spread into three-dimensional space in the same way. That&rsquo;s why they come out to the same \(1/r^2\).</p>
+  </div>
+
+  <h2><span class="n">02</span>Change the dimension, and the exponent changes</h2>
+
+  <p>This is the crux. The &ldquo;2&rdquo; in \(1/r^2\) came from the sphere&rsquo;s area growing as \(r^2\). So &mdash; if the dimension \(d\) of space were different, the size of the &ldquo;surface&rdquo; that spreads becomes \(r^{d-1}\). So the force is \(1/r^{d-1}\). The dimension turns straight into the exponent.</p>
+
+  <div class="keybox">
+    <div class="lbl">The shape of force is set by the dimension of space</div>
+    <p style="margin:6px 0 0;">2D: what spreads is the circumference (\(\propto r\)) &rarr; \(F\propto 1/r\)<br>3D: what spreads is the sphere&rsquo;s surface (\(\propto r^2\)) &rarr; \(F\propto 1/r^2\) (our world)<br>4D: what spreads is the 3-sphere (\(\propto r^3\)) &rarr; \(F\propto 1/r^3\)</p>
+  </div>
+
+  <p>In the figure below, change the dimension of space and watch how the shape of force (and the way field lines dilute) changes. Only when \(d=3\) is it \(1/r^2\) &mdash; the reason we live in an inverse-square world is that space is three-dimensional.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: change the dimension d of space and the force is F&prop;1/r^(d&minus;1). On the left, the &ldquo;surface&rdquo; (d-dimensional) over which field lines spread; on the right, how the force falls off. Only at d=3 is it 1/r&sup2;.</div>
+    <canvas id="cv" width="680" height="320"></canvas>
+    <div class="controls">
+      <label>Dimension d of space<span class="val" id="vk">3</span>
+        <input type="range" id="sk" min="2" max="4" step="1" value="3">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">A connecting voice &mdash; ties back to Episode 6</span>
+    In Episode 6 we saw that &ldquo;if the carrier is massless, the force reaches to infinity (\(1/r^2\)).&rdquo; This time it&rsquo;s the reason for that &ldquo;shape&rdquo; &mdash; <strong>a field made by a massless carrier, spreading into three-dimensional space without cutting off, gives \(1/r^2\)</strong>. If the carrier is heavy, the \(e^{-r/\lambda}\) of Episode 6 multiplies in and it cuts off quickly (Yukawa). <em>The inverse square is a package of &ldquo;massless carrier&rdquo; + &ldquo;three-dimensional space&rdquo; + &ldquo;long range.&rdquo;</em> The shape of force carries the imprint of both the carrier&rsquo;s properties and the dimension of space.
+  </div>
+
+  <div class="divider">&#9671; &#9671; &#9671;</div>
+
+  <h2><span class="n">03</span>What the peeling revealed &mdash; the shape of force is space&rsquo;s fingerprint</h2>
+
+  <p>The conclusion of Episode 10. The shape \(1/r^2\) is not a property intrinsic to force but <strong>the fingerprint of the fact that space is three-dimensional</strong>. Gravity and electricity share the same shape because both dilute their field lines in the same three-dimensional space. In Episode 5 we saw &ldquo;gravity is geometry,&rdquo; but here, more plainly &mdash; <em>for any force, the geometry (dimension) of space is stamped into its distance dependence</em>. This is another appearance of the backbone: force is a relationship that has meaning only on the stage called space.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">\(1/r^2\) holds under the conditions that <strong>the carrier is massless, space is a uniform three dimensions, and the range is far</strong>. At short range other effects come into play (the valley of the interatomic potential in Episode 2 is not \(1/r^2\)). The strong force has a special carrier behavior and does not become inverse-square (Episode 11). And &ldquo;if extra dimensions are curled up small, gravity might deviate from \(1/r^2\) at very short range&rdquo; &mdash; this is being searched for experimentally, and so far the inverse square has not been broken down to below a millimeter.</p>
+    <p style="margin-bottom:0;">The &ldquo;field lines&rdquo; and &ldquo;spreading surface&rdquo; in the figure are a schematic showing the relationship between dimension and the shape of force; they are not a rigorous depiction of higher dimensions (a 4D &ldquo;surface&rdquo; can&rsquo;t be drawn, so it&rsquo;s represented conceptually).</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems</div>
+    <ol>
+      <li>Why do gravity and the Coulomb force, which are completely different forces, both come out to the same \(1/r^2\)?
+        <details><summary>See the answer</summary><div class="ans">In both, field lines (a field) gush from a source and dilute over a sphere (area &prop; r&sup2;) in the same three-dimensional space. The shape is not the force&rsquo;s individuality but a consequence of space being three-dimensional.</div></details>
+      </li>
+      <li>If space were two-dimensional, how would the force weaken with distance?
+        <details><summary>See the answer</summary><div class="ans">In 2D the field lines spread over a circumference (&prop; r), so \(F\propto 1/r\). In general, in d dimensions \(F\propto 1/r^{d-1}\).</div></details>
+      </li>
+      <li>What does &ldquo;the inverse square is not a property of force&rdquo; mean?
+        <details><summary>See the answer</summary><div class="ans">The &ldquo;2&rdquo; in 1/r&sup2; comes from the dimension of space minus 1 (the sphere&rsquo;s surface grows as r&sup2;). It means force itself doesn&rsquo;t decide it; the dimension of space is stamped into the exponent.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>1/r&sup2; is the fingerprint of three-dimensional space</h2>
+    <p>The field lines gushing from a point source conserve their total number and dilute over a sphere at distance \(r\) (area \(4\pi r^2\)). Hence the force is \(1/r^2\). Gravity and electricity share the same shape because their field lines spread in the same three-dimensional space. In general, in \(d\) dimensions the spreading surface is \(r^{d-1}\), so \(F\propto 1/r^{d-1}\). In 2D, \(1/r\); in 4D, \(1/r^3\). <strong>The shape of force was the fingerprint of the dimension of space.</strong></p>
+    <p>Tie it to Episode 6, and the inverse square is the package &ldquo;massless carrier + 3D + long range.&rdquo; Force is a relationship that has meaning only on the stage of space, and the geometry of space is engraved into its distance dependence &mdash; another &ldquo;geometry reflected in force,&rdquo; following on from Episode 5&rsquo;s &ldquo;gravity = geometry.&rdquo; Next time, it&rsquo;s the turn of the one force where this inverse-square common sense is broken: the strong force.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time &mdash; Episode 11</span>
+    &ldquo;The strong force alone is upside-down.&rdquo; Of the four forces, only the strong force betrays common sense &mdash; <strong>the closer, the freer; the farther apart, the stronger</strong>. So far from diluting and fading, the field lines increase their tension the more you pull them apart, and a quark can never be extracted on its own (confinement). Neither the inverse square nor Yukawa applies &mdash; the strangest force of all. It&rsquo;s the flip side of the face we saw in Episode 8, where &ldquo;the strong force gets weaker up close.&rdquo;</p>
+  </div>
+
+  <div class="foot">
+    This document is Episode 10 of the &ldquo;Force That Clicks&rdquo; series, a reading piece for physics-loving high-school and university students. That the inverse-square law follows from Gauss&rsquo;s law (a conserved flux spreading over a hypersphere of area \(\propto r^{d-1}\) in \(d\)-dimensional space), giving \(F\propto 1/r^{d-1}\), and \(1/r^2\) in three dimensions, is established content. The inverse square holds under the conditions that the mediating particle is massless, space is homogeneous and isotropic, and the range is far, and can be modified at short range or with extra dimensions (the short-range inverse square of gravity has been confirmed experimentally down to about the submillimeter scale). The strong force does not become inverse-square, owing to the peculiarity of non-abelian gauge theory (confinement) (Episode 11). The figure is a conceptual model showing the relationship between dimension and the shape of force; it is not a rigorous depiction of higher-dimensional geometry. &mdash; To print, use your browser&rsquo;s &ldquo;Print&rdquo; &rarr; &ldquo;Save as PDF&rdquo; (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: &#8984;+P (Ctrl+P on Windows). On screen, the slider lets you see how the shape of force changes as you change the dimension of space. &ldquo;See the answer&rdquo; opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  var RMIN=0.4, RMAX=4, FHI=6;
+  var COL={2:'#b0561e',3:'#2166a0',4:'#7a3b8a'};
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var dim=parseInt(sk.value,10); vk.textContent=dim;
+    var expn=dim-1;
+    ctx.clearRect(0,0,w,h);
+    var col=COL[dim]||'#2166a0';
+    // === Left: field lines spreading from the source ===
+    var Lx=w*0.26, cy=h*0.42, src={x:60,y:cy};
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(src.x,src.y,7,0,7);ctx.fill();
+    ctx.fillStyle='#6b6f60';ctx.font='11px sans-serif';ctx.fillText('Source',src.x-6,src.y+22);
+    // field lines (radial)
+    var nLines=9, spanY=(w*0.30);
+    ctx.strokeStyle=col;ctx.globalAlpha=.55;ctx.lineWidth=1.4;
+    for(var i=0;i<nLines;i++){
+      var ang=(-0.5+i/(nLines-1))*1.1; // fan shape
+      ctx.beginPath();ctx.moveTo(src.x,src.y);
+      ctx.lineTo(src.x+Math.cos(ang)*spanY, src.y+Math.sin(ang)*spanY);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    // draw the "surface" (arc) at two radii to show the density difference
+    function arcAt(rr,label){
+      var R=rr/RMAX*spanY;
+      ctx.strokeStyle='#9aa5b5';ctx.lineWidth=1.5;ctx.beginPath();
+      ctx.arc(src.x,src.y,R,-0.62,0.62);ctx.stroke();
+      ctx.fillStyle='#6b6f60';ctx.font='10.5px sans-serif';
+      ctx.fillText(label, src.x+Math.cos(0)*R-6, src.y+Math.sin(0.62)*R+16);
+    }
+    arcAt(1.6,'r'); arcAt(3.2,'2r');
+    ctx.fillStyle='#6b6f60';ctx.font='11px sans-serif';
+    ctx.fillText('Spreading surface ∝ r^'+expn, 30, h-20);
+    // === Right: shape of force F=1/r^(d-1) ===
+    var gx=w*0.56, gw=w*0.40, gy=24, gh=h-70, pad=6;
+    function X(r){return gx+(r-RMIN)/(RMAX-RMIN)*gw;}
+    function Y(f){var ff=f;if(ff>FHI)ff=FHI;return gy+(FHI-ff)/FHI*gh;}
+    // grid
+    ctx.strokeStyle='#e0e8f2';ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){var yy=gy+g*gh/4;ctx.beginPath();ctx.moveTo(gx,yy);ctx.lineTo(gx+gw,yy);ctx.stroke();}
+    ctx.strokeStyle='#b6c6d8';ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke();
+    ctx.fillStyle='#6b6f60';ctx.font='11px sans-serif';ctx.fillText('Distance r →', gx+gw-56, gy+gh+16);
+    // reference: 1/r² (faint)
+    ctx.strokeStyle='#b6c6d8';ctx.setLineDash([4,3]);ctx.lineWidth=1.4;ctx.beginPath();var f0=true;
+    for(var r0=RMIN;r0<=RMAX+1e-9;r0+=0.02){var y0=Y(1/(r0*r0));var x0=X(r0);if(f0){ctx.moveTo(x0,y0);f0=false;}else ctx.lineTo(x0,y0);}
+    ctx.stroke();ctx.setLineDash([]);
+    // main: 1/r^(d-1)
+    ctx.strokeStyle=col;ctx.lineWidth=2.8;ctx.beginPath();var f=true;
+    for(var r1=RMIN;r1<=RMAX+1e-9;r1+=0.02){var y1=Y(1/Math.pow(r1,expn));var x1=X(r1);if(f){ctx.moveTo(x1,y1);f=false;}else ctx.lineTo(x1,y1);}
+    ctx.stroke();
+    ctx.fillStyle=col;ctx.font='bold 15px sans-serif';ctx.fillText('F ∝ 1/r^'+expn, gx+gw-120, gy+18);
+    // readout
+    var note = dim===3? 'Our world. The inverse square itself.':(dim===2?'The surface spreads over a circumference (∝r), so the dilution is gentle.':'The surface spreads fast, and the force dilutes sharply.');
+    rd.textContent='Dimension of space d='+dim+' → spreading surface ∝ r^'+expn+' → force F ∝ 1/r^'+expn+'. '+note;
+  }
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

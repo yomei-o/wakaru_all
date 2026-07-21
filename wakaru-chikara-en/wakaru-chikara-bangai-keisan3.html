@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Force on a Lattice ── Force That Clicks, Bonus: Force and Computation ③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8f1; --paper-edge:#e9e1cd;
+    --side:#2f5d62; --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#6f5410; --calc-bg:#f2ebda;
+    --rule:#ddd3ba; --hair:#cdc1a2;
+    --acc:#8a6a1e;
+    --grid:#e3d8bf;
+    --conf:#a83a22; --coul:#2166a0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecdfb8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ddceac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf5;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf7;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#fbf7ec;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a3810;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf7,#f3ecda);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .close{margin:24px 0 0;padding:18px 24px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a3810;}
+  .close .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.close,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Force That Clicks</span><span class="ep">Bonus: Force and Computation ③ (closing the cluster / the last of all bonuses)</span></div>
+  <p class="eyebrow">Computation ①: solve with force ／ ②: unsolvable even with force → ③: confirm, by computation, a force we cannot prove</p>
+  <h1>Force on a Lattice ── <br>Lattice QCD
+    <span class="sub">Episode 11's confinement (quarks cannot be extracted) is mathematically unproven (a Millennium Problem).<br>But carve spacetime into a lattice and compute on a supercomputer, and confinement is properly reproduced.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 11 confinement, Mathematics ③ gauge fields, Computation ①②</span>
+    <span>Confirm, by computation, a force we cannot prove</span>
+  </div>
+
+  <p class="lead">The close of the "Force and Computation" cluster, and <strong>the last of all the bonuses of Force That Clicks</strong>. In Episode 11 we saw the <em>confinement</em> of the strong force (a quark cannot be extracted on its own). And its <strong>mathematical proof still does not exist</strong> ── it remains, as the Yang–Mills mass gap, one of the million-dollar Millennium Prize Problems. So why do physicists believe in confinement? The answer is <strong>computation</strong>. Carve spacetime itself into a lattice and compute the whole strong force on a supercomputer, and ── confinement, and the masses of hadrons, come out properly. <em>It cannot be proven, but the computation speaks.</em> This is the last face of force and computation.</p>
+
+  <h2><span class="n">01</span>The strong force can't be computed with pencil and paper</h2>
+
+  <p>Electromagnetism has a small coupling \(\alpha\approx1/137\), so it could be computed with high precision even by pencil and paper using approximation (perturbation theory) (like the \(g-2\) of Episode 6). But at low energies the strong force has a coupling \(\alpha_s\sim1\) that is <strong>too large</strong>, so approximation fails (the running of Episode 8). And confinement (Episode 11) is precisely a phenomenon of this "strongly acting" regime. <em>Neither approximation nor proof works</em> ── the strong force is more than pencil and paper can handle.</p>
+
+  <h2><span class="n">02</span>Carving spacetime into a lattice ── lattice QCD</h2>
+
+  <p>So we change the approach. Replace continuous spacetime with a <strong>fine lattice (grid)</strong>. Quarks live on the lattice points, and the gluon field that carries the strong force (the gauge field of Mathematics ③) lives on the <strong>links</strong> connecting point to point. Then the field theory, which was infinite-dimensional, becomes a <em>finite number of variables</em> that a computer can handle. After that, let a supercomputer compute the enormous summation over all field configurations (the path integral) using the Monte Carlo method (clever dice) ── this is <strong>lattice QCD</strong>. The very structure we saw in Mathematics ③ as "force = the curvature of a gauge field on lattice links" is put directly onto numbers.</p>
+
+  <div class="keybox">
+    <div class="lbl">The crux this time ── continuum to a lattice, integral to dice</div>
+    <p style="margin:6px 0 0;">Continuous spacetime → a <strong>lattice</strong> (finite points and links). The gauge field rides on the links (Mathematics ③).<br>The infinite path integral → approximated by <strong>Monte Carlo</strong> (rolling clever dice in bulk).<br>The strong force, where approximation (perturbation) fails, can be <em>computed whole, numerically, from first principles</em>.</p>
+  </div>
+
+  <h2><span class="n">03</span>The result ── confinement and mass both come out</h2>
+
+  <p>With lattice QCD, compute the energy (potential) \(V(r)\) when a quark and antiquark are separated by a distance \(r\), and ── <strong>the farther apart, the more it keeps rising linearly</strong> (\(V(r)\approx -a/r+\sigma r\), where \(\sigma\) is the string tension). Because the energy grows without bound, the quarks cannot be pulled apart = <strong>confinement is reproduced</strong> (the "snapping string" of Episode 11). Furthermore, the <strong>masses</strong> of the proton and neutron can be computed from first principles using only the properties of quarks as input, and they <em>agree with measurement to within a few percent</em>. In the figure below, watch how the computed \(V(r)\) on the lattice, shaking off the electromagnetic \(-a/r\) (which levels off), climbs linearly.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: Separate a quark pair on the lattice. The computed potential V(r) (red dots) keeps climbing linearly = confinement. If it were electromagnetic-type (blue −a/r) it would level off. On the left: the lattice and flux tube.</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>Distance r between quarks (separate them on the lattice)<span class="val" id="vk">1.0</span>
+        <input type="range" id="sk" min="0.5" max="6" step="0.05" value="1">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--conf);"></i>Lattice QCD (−a/r + σr, confinement)</span>
+      <span><i class="swatch" style="background:var(--coul);"></i>Electromagnetic-type (−a/r, levels off)</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">A connecting voice ── shaking hands with the sister series "The Universe Is a Computer"</span>
+    Lattice QCD is a leading example of the endeavor to <em>reproduce physics whole on a computer</em>. Drop continuous nature onto a finite lattice and integrate with dice (Monte Carlo) ── this is the very theme of Episode 5 (records and CDs / the discrete and the continuous) and of the sister series "The Universe Is a Computer." <strong>Copy nature onto a computer, and even the shape of a force we cannot prove comes into view.</strong> Force and Computation ① (nature computes with force), ② (unsolvable even with force), ③ (computation confirms a force) ── computation was a tool for solving force, a witness to its unsolvability, and also a stand-in for proof.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>What peeling it back revealed ── computation lights up the threshold of proof</h2>
+
+  <p>The conclusion of Force and Computation ③. <strong>Even a force that cannot be mathematically proven (confinement) can have its shape confirmed by carving spacetime into a lattice and computing.</strong> Lattice QCD reproduced confinement, produced hadron masses from first principles, and made them agree with measurement. The proof (a Millennium Problem) remains unsolved ── yet computation, on the threshold of proof, tells us with overwhelming precision that force indeed behaves that way. <em>To understand (proof) and to confirm (computation) are different. And computation carries us all the way to the edge of what we do not understand.</em></p>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">Lattice QCD is powerful <strong>numerical evidence</strong>, but it is <em>not a mathematical proof</em>. Confinement (the existence of the Yang–Mills mass gap) remains unsolved as a Millennium Prize Problem. Lattice computation also has its own difficulties ── making time imaginary (Euclideanization), the continuum limit of shrinking the lattice spacing toward zero, finite-volume corrections, and the "sign problem" where the computation breaks down once you put in a density. Even so, the reproduction of confinement and hadron masses is an established result that agrees with experiment.</p>
+    <p style="margin-bottom:0;">The figure's \(V(r)=-a/r+\sigma r\) (the Cornell potential) and "computed points" are a schematic showing the qualitative behavior that lattice QCD gives; they are not numerical values from actual lattice data. The lattice and flux tube on the left are also conceptual diagrams.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems</div>
+    <ol>
+      <li>Why can't the strong force (confinement) be computed with pencil and paper (perturbation theory)?
+        <details><summary>See the answer</summary><div class="ans">Because at low energies the coupling α_s is too large, so approximation (perturbation theory) fails. Confinement is a phenomenon of this strong-coupling regime, with no approximation and no proof. So we compute it whole, numerically, on a lattice.</div></details>
+      </li>
+      <li>What shape does the V(r) computed by lattice QCD take to indicate confinement?
+        <details><summary>See the answer</summary><div class="ans">It keeps rising linearly with distance r (V≈−a/r+σr, where σ is the string tension). Because the energy grows without bound, the quarks cannot be pulled apart = confinement. If it were electromagnetic-type −a/r, it would level off.</div></details>
+      </li>
+      <li>Is the achievement of lattice QCD a "proof"?
+        <details><summary>See the answer</summary><div class="ans">No, it is powerful numerical evidence, not a mathematical proof. Confinement (the mass gap) remains unsolved as a Millennium Prize Problem. But it is an established result that agrees with experiment, lighting up the threshold of proof.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>Computation confirms a force we cannot prove</h2>
+    <p>The confinement of the strong force (Episode 11) has a large coupling where approximation fails, and no mathematical proof (a Millennium Problem). So we carve spacetime into a lattice, ride the gauge field on the links (Mathematics ③), and let a supercomputer compute the enormous integral by Monte Carlo = lattice QCD. As a result, the quark-quark potential climbs linearly (confinement reproduced), and hadron masses too, from first principles, agree with measurement. <strong>It cannot be proven, but computation tells the shape of the force.</strong></p>
+    <p>Force and Computation ① (nature solves with force), ② (unsolvable even with force, prediction has a horizon), ③ (computation lights up the threshold of proof) ── computation was a tool for solving force, a witness to its unsolvability, and a stand-in for proof. <em>To understand (proof) and to confirm (computation) are different, and computation carries us all the way to the edge of what we do not understand.</em> With this we close "Force and Computation," and <strong>we close all the bonuses of Force That Clicks.</strong></p>
+  </div>
+
+  <div class="close">
+    <span class="lbl">Force That Clicks ── 13 main episodes + 13 bonuses, complete</span>
+    Beginning from the circle of F=ma, we peeled force back to electromagnetism, geometry, exchange, gauge, and curvature, and walked all the side roads of waves, speed, AI, mathematics, and computation. What remained after the peeling was not force as a thing, but ── <strong>relation, geometry, symmetry, and a nature that makes the action stationary</strong>. We arrived, from the side of force, at the very same room as the sister series "Cosmology That Clicks" (look not at the surface value, but at the ineradicable relation behind it). <strong>Thank you for keeping us company on the long journey.</strong> Until we meet again, somewhere, on the mesh of a lattice.</p>
+  </div>
+
+  <div class="foot">
+    This document is "Force and Computation" ③ (the final episode of all the bonuses) of the bonus edition of the "Force That Clicks" series, a reading piece for high-school and university students who love physics. That low-energy QCD is strongly coupled so perturbation theory cannot be used, that lattice gauge theory (Wilson, 1974) discretizes spacetime and formulates the gauge field non-perturbatively as link variables, the Euclideanization and numerical evaluation of the path integral by the Monte Carlo method, the reproduction of confinement by the linear rise of the quark-quark potential (string tension σ, Cornell type \(V=-a/r+\sigma r\)), and the first-principles computation of hadron masses agreeing with experiment to within a few percent are all established content. However, this is numerical evidence, and the Yang–Mills mass gap (the rigorous proof of confinement) remains unsolved as a Millennium Prize Problem. Lattice computation has challenges such as the continuum limit, finite volume, and the sign problem. The figure is a schematic showing the qualitative behavior of the Cornell-type potential, not numerical values from real data. It shares its theme with the sister series "Cosmology That Clicks" and "The Universe Is a Computer." ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen or hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, the slider lets you watch the potential on the lattice keep climbing linearly (confinement). "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  var a=0.35, sigma=0.72, RMIN=0.5, RMAX=6, VLO=-1.2, VHI=4.2;
+  function Vfull(r){ return -a/r + sigma*r; }
+  function Vcoul(r){ return -a/r; }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var r=parseFloat(sk.value); vk.textContent=r.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    // === left: lattice + flux tube ===
+    var lx=20, ly=24, cols=6, rows=5, cell=Math.min((w*0.34-20)/(cols-1),(h-90)/(rows-1));
+    ctx.fillStyle='#cdc1a2';
+    for(var i=0;i<cols;i++)for(var j=0;j<rows;j++){
+      ctx.beginPath();ctx.arc(lx+i*cell,ly+j*cell,1.8,0,7);ctx.fill();
+    }
+    // lattice links (faint)
+    ctx.strokeStyle='rgba(205,193,162,0.5)';ctx.lineWidth=1;
+    for(var i2=0;i2<cols;i2++)for(var j2=0;j2<rows;j2++){
+      if(i2<cols-1){ctx.beginPath();ctx.moveTo(lx+i2*cell,ly+j2*cell);ctx.lineTo(lx+(i2+1)*cell,ly+j2*cell);ctx.stroke();}
+      if(j2<rows-1){ctx.beginPath();ctx.moveTo(lx+i2*cell,ly+j2*cell);ctx.lineTo(lx+i2*cell,ly+(j2+1)*cell);ctx.stroke();}
+    }
+    // quark pair + flux tube (middle row)
+    var midj=2, qy=ly+midj*cell;
+    var span=(r-RMIN)/(RMAX-RMIN); // 0..1
+    var qi0=0, qi1=Math.round(span*(cols-1));
+    var qx0=lx+qi0*cell, qx1=lx+qi1*cell;
+    ctx.strokeStyle='#a83a22';ctx.lineWidth=6;ctx.globalAlpha=.5;
+    ctx.beginPath();ctx.moveTo(qx0,qy);ctx.lineTo(qx1,qy);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillStyle='#a83a22';ctx.beginPath();ctx.arc(qx0,qy,7,0,7);ctx.fill();
+    ctx.fillStyle='#7a2318';ctx.beginPath();ctx.arc(qx1,qy,7,0,7);ctx.fill();
+    ctx.fillStyle='#6b6f60';ctx.font='11px sans-serif';ctx.fillText('lattice + flux tube', lx, ly+rows*cell+2);
+    // === right: V(r) graph ===
+    var gx=w*0.46, gw=w-gx-20, gy=20, gh=h-70;
+    function X(rr){return gx+(rr-RMIN)/(RMAX-RMIN)*gw;}
+    function Y(v){var vv=v;if(vv>VHI)vv=VHI;if(vv<VLO)vv=VLO;return gy+(VHI-vv)/(VHI-VLO)*gh;}
+    // grid + V=0
+    ctx.strokeStyle='#eee3ce';ctx.lineWidth=1;
+    for(var g2=0;g2<=4;g2++){var yy=gy+g2*gh/4;ctx.beginPath();ctx.moveTo(gx,yy);ctx.lineTo(gx+gw,yy);ctx.stroke();}
+    ctx.strokeStyle='#ddd0b0';ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(gx,Y(0));ctx.lineTo(gx+gw,Y(0));ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle='#cdc1a2';ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke();
+    ctx.fillStyle='#6b6f60';ctx.font='11px sans-serif';ctx.fillText('distance r →', gx+gw-52, gy+gh+16);
+    ctx.save();ctx.translate(gx-8,(gy+gy+gh)/2);ctx.rotate(-Math.PI/2);ctx.fillText('potential V(r)',0,0);ctx.restore();
+    // Coulomb reference (blue, levels off)
+    ctx.strokeStyle='#2166a0';ctx.lineWidth=1.8;ctx.setLineDash([6,4]);ctx.beginPath();var f=true;
+    for(var r1=RMIN;r1<=RMAX+1e-9;r1+=0.03){var y1=Y(Vcoul(r1)+1.0);var x1=X(r1);if(f){ctx.moveTo(x1,y1);f=false;}else ctx.lineTo(x1,y1);}
+    ctx.stroke();ctx.setLineDash([]);
+    // lattice QCD (red, line + computed points)
+    ctx.strokeStyle='#a83a22';ctx.lineWidth=2.6;ctx.beginPath();f=true;
+    for(var r2=RMIN;r2<=RMAX+1e-9;r2+=0.03){var y2=Y(Vfull(r2));var x2=X(r2);if(f){ctx.moveTo(x2,y2);f=false;}else ctx.lineTo(x2,y2);}
+    ctx.stroke();
+    // computed points (data-like)
+    ctx.fillStyle='#a83a22';
+    for(var rp=0.8;rp<=RMAX;rp+=0.6){var xp=X(rp),yp=Y(Vfull(rp));ctx.beginPath();ctx.arc(xp,yp,3.4,0,7);ctx.fill();}
+    // labels
+    ctx.fillStyle='#a83a22';ctx.font='12px sans-serif';ctx.fillText('climbs linearly = confinement', X(3.4), Y(Vfull(3.4))-10);
+    ctx.fillStyle='#2166a0';ctx.fillText('electromagnetic-type would level off', X(2.6), Y(Vcoul(2.6)+1.0)+16);
+    // marker
+    var mx=X(r), my=Y(Vfull(r));
+    ctx.strokeStyle='#8a6a1e';ctx.setLineDash([3,3]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(mx,gy);ctx.lineTo(mx,gy+gh);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#8a6a1e';ctx.beginPath();ctx.arc(mx,my,5.5,0,7);ctx.fill();
+    // readout
+    if(r<1.2) rd.textContent='r='+r.toFixed(2)+' (close): still similar to the electromagnetic type (−a/r). At short range it is Coulomb-like.';
+    else if(r<3) rd.textContent='r='+r.toFixed(2)+': the lattice-computed V(r) enters the linear part (+σr), departing from the electromagnetic type and climbing on.';
+    else rd.textContent='r='+r.toFixed(2)+': V(r) keeps increasing linearly = however far you separate them, the energy grows = the quarks cannot be pulled apart (confinement). Computation reproduced it.';
+  }
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
