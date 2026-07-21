@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全経路を足す ── 最小作用と古典の出現 ── わかる量子 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf7f0; --paper-edge:#e9ddc9;   /* 第3回：経路・作用＝橙の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8a4a12; --calc-bg:#f4ecdb;
+    --rule:#ddd0b8; --hair:#cabb98;
+    --acc:#b0561e;    /* アクセント＝経路の橙 */
+    --grid:#eddfc8;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f1d3ac 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e6d7ba;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefcf7;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f4ecdb;color:#7a4a10;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f0e0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f3d0c;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefcf7,#f3e9d5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4ecdb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f3d0c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6150;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる量子</span><span class="ep">第 3 回 ／ 全経路を足す ── 最小作用と古典の出現</span></div>
+  <p class="eyebrow">二本の道の位相を足した。では道が無数だったら? ── ファインマンの、大胆で美しい答え</p>
+  <h1>全経路を足す ── 最小作用と古典の出現
+    <span class="sub">自然は、始点から終点への<em>あらゆる経路</em>の位相 e^(iS/ℏ) を足し合わせる。<br>ふつうは打ち消し合うが、作用 S が停留する（最小作用の）道の近くだけ、位相が揃って生き残る。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回の位相 S/ℏ と干渉、「わかる力」の最小作用</span>
+    <span>この回：振幅 = Σ e^(iS/ℏ)</span>
+  </div>
+
+  <p class="lead">第2回で、二本の道を通った波動関数を足すと、位相差が干渉になって現れました。では ── <em>道が二本ではなく、無数にあったら?</em> 始点Aから終点Bへ、電子はどの道を通ってもよい。まっすぐも、大回りも、ジグザグも。ファインマンの答えは、拍子抜けするほど大胆です ── <strong>自然は、A から B への"あらゆる経路"それぞれに位相 \(e^{iS/\hbar}\) を割り当て、全部を足し合わせる</strong>。無数の回る矢印の、総和。ふつう、道ごとに作用 \(S\) がてんでバラバラなので、位相もあらゆる向きを向いて<em>打ち消し合う</em>。ところが、作用が<strong>停留する</strong>（変化がゼロ＝最小作用の）道の近くだけは、隣の道と位相がほとんど同じで<em>揃い、生き残る</em>。そして \(S\gg\hbar\) の古典世界では、その一本だけが残って ── <strong>ニュートンの軌道が現れる</strong>。「わかる力」で見た最小作用の原理が、量子の影として立ち上がる回です。</p>
+
+  <h2><span class="n">01</span>道が二本でなく、無数だったら</h2>
+
+  <p>二重スリットの「二本の道」は、じつは特別ではありません。スリットを3本、4本と増やせば道は増える。壁を全部取り払えば ── A から B へ至る道は<strong>無限本</strong>。量子論は、この無限本すべてを平等に扱います。「電子はどの道を通ったのか?」という問い自体が古い ── <em>電子は、すべての道を"同時に"通り、その位相を足した結果として</em> B に現れる。第2回の \(\psi\) の重ね合わせを、経路の全体へ押し広げるのです。</p>
+
+  <h2><span class="n">02</span>自然は、全経路の位相を足す</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">経路和（ファインマンの経路積分）</div>
+    $$\psi(A\to B)=\sum_{\text{すべての経路}} e^{\,iS[\text{経路}]/\hbar}$$
+    <p style="margin:8px 0 0;">A から B への各経路に、その経路の作用 \(S\) で決まる位相 \(e^{iS/\hbar}\)（大きさ1の回る矢印）を割り当て、全部たす。第2回の「二経路の足し算」を、無限本に拡張しただけ。効くのは、やはり作用が \(\hbar\) 何個ぶんか ── \(S/\hbar\)。</p>
+  </div>
+
+  <h2><span class="n">03</span>停留する経路だけ、生き残る</h2>
+
+  <p>無限本を足すと、ほとんどは消えます。理由は位相の<em>回りっぷり</em>。でたらめな遠回りの道は、少し道を変えるだけで作用 \(S\) が大きく変わり、位相 \(S/\hbar\) がぐるぐる回る ── 隣どうしがそっぽを向いて<strong>打ち消し合う</strong>。ところが、作用が<strong>停留する</strong>道（\(\delta S=0\)、少し道を変えても \(S\) が1次では変わらない道）の近くでは、隣の道も<em>ほぼ同じ位相</em>。矢印が揃って<strong>強め合い、生き残る</strong>。</p>
+
+  <div class="keybox">
+    <div class="lbl">生き残るのは δS=0 の道 ── それが最小作用</div>
+    $$\delta S=0\ \ \text{の経路（とその近く）だけが、位相を揃えて残る}$$
+    <p style="margin:8px 0 0;">この \(\delta S=0\) こそ、「わかる力」で見た<strong>最小作用の原理</strong>そのもの。古典力学が「なぜ最小作用の道を選ぶのか」の答えが、ここにある ── <em>選んでいるのではない。全部の道を足したら、最小作用の道の近くだけが生き残るのだ。</em></p>
+  </div>
+
+  <p>そして \(\hbar\) の大小が効きます。\(S\gg\hbar\)（古典・巨視的）だと、位相 \(S/\hbar\) は道のわずかな違いでも猛烈に回るので、打ち消しが激烈 ── 停留経路の<em>ごく細い一本</em>を除いて全滅する。残った一本が<strong>古典の軌道</strong>。逆に \(S\sim\hbar\)（量子）だと、位相はゆっくりしか回らず、停留経路の<em>まわりの幅広い束</em>が生き残る ── これが量子的な広がり、干渉、そしてトンネル効果（古典では通れない道もわずかに生き残る）の正体です。</p>
+
+  <h2><span class="n">04</span>動かしてみる ── 全経路の位相を足す</h2>
+
+  <p>下の図。<strong>左</strong>は A から B への経路の一族（まん中の濃い線が、作用が停留する＝最小作用の道）。<strong>右</strong>は、各経路の矢印 \(e^{iS/\hbar}\) を順に継ぎ足した<em>フェーザの鎖</em>（総和）。停留経路の付近（鎖のまん中）では矢印が揃ってまっすぐ伸び、遠い経路（両端）では位相がぐるぐる回って<strong>渦を巻いて打ち消す</strong>。原点から鎖の先までの太い矢印が、足し合わせた振幅です。</p>
+
+  <p>スライダー「古典さ \(S/\hbar\)」を上げると（\(\hbar\) を小さく＝巨視的に）、両端の渦がきつく巻き、生き残るのは<em>まん中のまっすぐな部分だけ</em> ── 振幅は停留経路（古典の軌道）からの寄与でほぼ決まる。下げると（量子的に）、鎖全体がゆるやかで、幅広い経路が寄与する。<strong>古典の軌道は、量子の全経路和が \(S/\hbar\to\infty\) で残す"芯"</strong>だと、目で確かめられます。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝A→B の経路の一族（濃い線＝停留＝最小作用の道）。右＝各経路の矢印 e^(iS/ℏ) を継ぎ足したフェーザ鎖（コルニュ螺旋）。両端は渦巻いて打ち消し、まん中（停留）が揃って残る。古典さ S/ℏ を上げると停留の一本だけに</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>古典さ S/ℏ（大＝古典・小＝量子） <span class="val" id="vc">18</span>
+        <input type="range" id="sc" min="3" max="70" step="1" value="18">
+      </label>
+      <button id="bq">量子的</button>
+      <button id="bk">古典的</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0561e;"></i>最小作用の道／揃う部分</span>
+      <span><i class="swatch" style="background:#8a8f9c;"></i>遠い経路（渦巻いて打ち消す）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>足し合わせた振幅</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>最小作用は、量子の影</h2>
+
+  <p>これで、「わかる力」で天下りに見えた<strong>最小作用の原理</strong>の正体が分かります。自然は最小作用の道を"選んで"いるのではない ── あらゆる道を足したら、\(S\gg\hbar\) の世界では停留経路の近くだけが生き残るので、<em>結果として</em>最小作用の道だけが見える。古典力学（ニュートンの軌道、最小作用）は、量子論の経路和の \(S/\hbar\to\infty\) 極限が落とす<strong>影</strong>だったのです。第1回で「古典＝\(\hbar\to0\)」と言った、その具体的な仕組みがこれ。</p>
+
+  <p>逆に \(S\sim\hbar\) の量子世界では、停留経路のまわりの束が生き残るので、粒子は一本の軌道を持たず広がり、複数経路が干渉し、古典では越えられない壁をわずかにすり抜ける（トンネル効果）。<em>一本の道（古典）か、束（量子）か</em> ── その分かれ目も、やはり作用の比 \(S/\hbar\) が握っています。単位のある作用 \(S\) は舞台装置、効くのは \(\hbar\) 何個ぶんか、だけ。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 経路和と「停留位相」の射程</span>
+    <p style="margin-top:0;">経路積分（あらゆる経路の \(e^{iS/\hbar}\) の和が振幅を与える、ファインマン）、停留位相近似により \(\delta S=0\)（最小作用）の経路が主要寄与を与え \(S/\hbar\to\infty\) で古典軌道が回復すること、量子領域での経路の広がり・干渉・トンネル効果は、いずれも確立した物理で、経路積分は場の量子論の標準的な道具です。</p>
+    <p style="margin-bottom:0;">ただし。 ① 「あらゆる経路の和」は、数学的には経路の"数え方（測度）"の定義が微妙で、厳密な定式化には注意が要ります（物理の予言は正しく出ます）。 ② 正確には「最小」作用でなく<strong>停留</strong>作用（\(\delta S=0\)。極小・極大・鞍点を含む）。 ③ 図のフェーザ鎖（コルニュ螺旋）は、経路を1つのパラメータ（道のふくらみ）で代表させ、作用を停留点まわりで2次で近似した<em>模式</em>です。実際は経路は無限次元で、作用も系ごとに違います。 ④ 「電子が全経路を同時に通る」は経路積分の計算法の描像で、素朴な実在の主張として深追いしないのが安全です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>なぜ大回りのでたらめな経路は、足し合わせで消えるのか。位相の言葉で。
+        <details><summary>答えを見る</summary><div class="ans">でたらめな経路は、少し道を変えると作用 S が大きく変わり位相 S/ℏ がぐるぐる回る。隣の経路とそっぽを向いて打ち消し合う（渦を巻く）ので、和に残らない。</div></details>
+      </li>
+      <li>逆に、生き残るのはどんな経路か。それは「わかる力」の何と同じか。
+        <details><summary>答えを見る</summary><div class="ans">作用が停留する（δS=0）経路とその近く。隣と位相が揃うから。これは最小作用の原理そのもの。古典の軌道が、こうして経路和から現れる。</div></details>
+      </li>
+      <li>S≫ℏ（古典）と S〜ℏ（量子）で、生き残る経路の"幅"はどう違うか。
+        <details><summary>答えを見る</summary><div class="ans">S≫ℏ：位相が猛烈に回り、停留経路のごく細い一本だけ残る（古典軌道）。S〜ℏ：ゆっくり回り、停留経路まわりの幅広い束が残る（広がり・干渉・トンネル）。幅を決めるのは S/ℏ。</div></details>
+      </li>
+      <li>「自然は最小作用の道を選ぶ」という古典の言い方は、量子的にはどう言い直せるか。
+        <details><summary>答えを見る</summary><div class="ans">選んでいるのではなく、全経路を足すと S≫ℏ では停留（最小作用）経路の近くだけが位相を揃えて生き残るので、結果的にその道だけが見える。最小作用は量子経路和の古典極限の影。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第3回まとめ</span>全経路の位相和 ── 古典は S/ℏ→∞ の影</h2>
+    <p>二経路の干渉（第2回）を無限本に広げたのが<strong>経路積分</strong> ── 自然は A→B のあらゆる経路に位相 \(e^{iS/\hbar}\) を割り当て、全部を足す（\(\psi=\sum e^{iS/\hbar}\)）。でたらめな経路は位相がぐるぐる回って打ち消し合い、作用が<strong>停留する道（\(\delta S=0\)＝最小作用）</strong>の近くだけが位相を揃えて生き残る。「わかる力」の最小作用は、こうして経路和から立ち上がる ── 自然は道を選ぶのでなく、足したら残るのだ。</p>
+    <p>\(S\gg\hbar\)（古典）では位相が猛烈に回り、停留経路のごく細い一本だけが残って<strong>ニュートンの軌道</strong>が現れる。\(S\sim\hbar\)（量子）では停留経路まわりの束が残り、広がり・干渉・トンネル効果になる。<em>古典力学は、量子の全経路和が \(S/\hbar\to\infty\) で落とす影</em>── 第1回の「古典＝\(\hbar\to0\)」の具体的な仕組み。効くのは、やはり作用の比 \(S/\hbar\) だけです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第4回</span>
+    「シュレディンガー方程式と量子化」。経路和は美しいが、実際に \(\psi\) がどう時々刻々変化するかを直接与える"波の運動方程式"があると便利です ── それがシュレディンガー方程式 \(i\hbar\,\partial\psi/\partial t=\hat H\psi\)。そして、この波を<em>箱に閉じ込める</em>と魔法が起きる。両端が節になる定常波しか許されず、弦の倍音のように、エネルギーが<strong>とびとび（量子化）</strong>になる。原子のエネルギー準位も、この「箱の中の波」の帰結。量子化は、波であることの当たり前の結果だったのです。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる量子」シリーズ第3回、物理好きの高校生・大学生向け読み物です。ファインマンの経路積分（遷移振幅が全経路にわたる \(e^{iS/\hbar}\) の和）、停留位相近似により停留作用（\(\delta S=0\)）経路が主要寄与を与え \(\hbar\to0\)（\(S/\hbar\to\infty\)）で古典力学（最小作用の原理・古典軌道）が回復すること、量子領域での経路の広がり・干渉・トンネル効果は、いずれも確立した標準物理で、経路積分は場の量子論・統計力学の標準手法です。経路積分の測度の数学的定式化には注意を要すること、正確には停留（極小・極大・鞍点）作用であること、図のフェーザ鎖は経路を1パラメータで代表し作用を停留点まわり2次で近似した模式であること、「全経路を同時に通る」が計算法の描像であることは本文「正直な線」に明記しました。図右はフレネル／コルニュ螺旋型の位相子和の模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ryoushi-02-hadou.html">第2回 波動関数</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-chikara/index.html">わかる力</a>（最小作用）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では「古典さ S/ℏ」を上げると、フェーザ鎖の両端が渦巻き、停留経路（古典軌道）だけが残ります。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sc=document.getElementById('sc'), vc=document.getElementById('vc'),
+      rd=document.getElementById('rd'), bq=document.getElementById('bq'), bk=document.getElementById('bk');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var C=parseFloat(sc.value); vc.textContent=C.toFixed(0);
+    ctx.clearRect(0,0,w,h);
+
+    /* ---- 左：経路の一族 ---- */
+    var ax=40, bx=w*0.42, midY=h*0.5, amp=h*0.30;
+    // A,B
+    ctx.fillStyle='#7a4a10'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    // 経路 q=-1..1
+    var NP=11;
+    for(var i=0;i<NP;i++){
+      var q=-1+2*i/(NP-1);
+      var isStat=Math.abs(q)<0.001;
+      ctx.strokeStyle = isStat ? '#b0561e' : 'rgba(138,143,156,0.55)';
+      ctx.lineWidth = isStat ? 3 : 1.3;
+      ctx.beginPath();
+      for(var s=0;s<=1.0001;s+=0.02){
+        var x=ax+(bx-ax)*s;
+        var y=midY - q*amp*Math.sin(Math.PI*s);
+        if(s===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle='#1a1c22'; ctx.beginPath(); ctx.arc(ax,midY,5,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(bx,midY,5,0,7); ctx.fill();
+    ctx.fillStyle='#4a4e5a'; ctx.fillText('A', ax, midY+22); ctx.fillText('B', bx, midY+22);
+    ctx.fillStyle='#b0561e'; ctx.font='11px sans-serif';
+    ctx.fillText('最小作用の道', (ax+bx)/2, midY-amp-8);
+
+    /* ---- 右：フェーザ鎖（コルニュ螺旋）Σ e^{iC q²} ---- */
+    var ox=w*0.52, oy=h*0.5, N=220, dq=2.0/N, L=Math.min(w*0.020, 3.2);
+    // 鎖を積む（原点は右パネル中央やや左下）
+    var startx=w*0.56, starty=h*0.78;
+    var px=startx, py=starty;
+    // 事前に終点を求めてスケール調整は簡易固定
+    ctx.lineWidth=2;
+    var prevx=px, prevy=py;
+    for(var k=0;k<N;k++){
+      var q2=-1+2*k/N;
+      var ang=-C*q2*q2;                     // 位相（2次）。符号で上向き螺旋
+      var nx=px+L*Math.cos(ang), ny=py+L*Math.sin(ang);
+      // 色：まん中(停留,|q|小)は濃橙、端は灰
+      var mid=Math.abs(q2)<0.18;
+      ctx.strokeStyle = mid ? '#b0561e' : 'rgba(138,143,156,0.7)';
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(nx,ny); ctx.stroke();
+      px=nx; py=ny;
+    }
+    // 合成振幅（原点→終点）
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=3.2; ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.moveTo(startx,starty); ctx.lineTo(px,py); ctx.stroke();
+    var aang=Math.atan2(py-starty,px-startx);
+    ctx.beginPath(); ctx.moveTo(px,py);
+    ctx.lineTo(px-11*Math.cos(aang-0.4),py-11*Math.sin(aang-0.4));
+    ctx.lineTo(px-11*Math.cos(aang+0.4),py-11*Math.sin(aang+0.4));
+    ctx.closePath(); ctx.fill();
+    var amp2=Math.hypot(px-startx,py-starty);
+
+    ctx.fillStyle='#7a4a10'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('フェーザ鎖 Σ e^(iS/ℏ)', ox+6, 22);
+    ctx.fillStyle='#a83a22'; ctx.font='11px sans-serif';
+    ctx.fillText('合成＝振幅', startx+8, starty+14);
+
+    var msg = C<8 ? '量子的 ── 鎖がゆるく、幅広い経路が寄与（広がり・干渉・トンネル）。'
+            : C>40 ? '古典的 ── 両端がきつく渦巻き、停留経路の一本だけが残る＝ニュートンの軌道。'
+            : '中間 ── 停留経路まわりの束が生き残る。';
+    rd.textContent='古典さ S/ℏ ≈ '+C.toFixed(0)+'。 '+msg
+      +' 端（でたらめな経路）は位相が回って渦を巻き打ち消し、まん中（最小作用）が揃って振幅をつくる。';
+  }
+
+  sc.addEventListener('input', draw);
+  bq.addEventListener('click', function(){ sc.value=5; draw(); });
+  bk.addEventListener('click', function(){ sc.value=60; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
