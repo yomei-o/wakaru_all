@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シュレディンガー方程式と量子化 ── わかる量子 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4faf6; --paper-edge:#d5e6dc;   /* 第4回：シュレディンガー＝緑の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f6a4a; --calc-bg:#e3f1e9;
+    --rule:#c9ddd0; --hair:#b0ccbb;
+    --acc:#2f7d55;    /* アクセント＝シュレディンガーの緑 */
+    --grid:#d3e8db;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b9e4cb 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9e6d5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e3f1e9;color:#1f6a4a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#ecf6f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c5a3e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefc,#e6f2ea);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f1e9;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c5a3e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6b64;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる量子</span><span class="ep">第 4 回 ／ シュレディンガー方程式と量子化</span></div>
+  <p class="eyebrow">波 ψ の運動方程式 ── そして「とびとびのエネルギー」は、連続な波を箱に閉じ込めた当然の帰結</p>
+  <h1>シュレディンガー方程式と量子化
+    <span class="sub">ψ が時々刻々どう変わるかを与える波の規則が、シュレディンガー方程式。<br>波を箱に閉じ込めると、両端が節の定常波しか許されず ── 弦の倍音のように、エネルギーが<em>とびとび</em>になる。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回 p=h/λ、第2回 ψ と位相、弦の定常波</span>
+    <span>この回：iℏ ∂ψ/∂t = Ĥψ、E_n ∝ n²</span>
+  </div>
+
+  <p class="lead">第2・3回で、波動関数 \(\psi\) と、その位相 \(S/\hbar\) の足し合わせを見ました。では実際に、\(\psi\) は時々刻々どう形を変えるのか ── それを直接与える"波の運動方程式"が、<strong>シュレディンガー方程式</strong> \(i\hbar\,\partial\psi/\partial t=\hat H\psi\) です。そして、この波を<em>箱に閉じ込める</em>と、量子論のいちばん有名な顔 ── <strong>エネルギーが「とびとび」になる（量子化）</strong>── が現れます。でも、ここで強調したいことがあります。とびとびになるのは、<em>世界が離散的だから</em>ではありません。ギターの弦が特定の高さの音（倍音）しか出さないのと、まったく同じ ── <strong>連続な波を、両端を固定して閉じ込めると、"はまる"波だけが選ばれ、その結果としてとびとびになる</strong>。量子化は、波であることの、しごく当たり前の帰結なのです。</p>
+
+  <h2><span class="n">01</span>波の運動方程式が要る ── シュレディンガー</h2>
+
+  <p>\(\psi\) が波なら、波の広がり方を決める方程式があるはず。それを、エネルギーの関係「運動エネルギー＋位置エネルギー＝全エネルギー」を波の言葉に翻訳して書いたのが、シュレディンガー方程式です。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">シュレディンガー方程式 ── ψ の時間発展</div>
+    $$i\hbar\,\frac{\partial\psi}{\partial t}=\hat H\psi$$
+    <p style="margin:8px 0 0;">左辺の \(i\hbar\,\partial_t\) が「エネルギー」を、右辺の \(\hat H\)（ハミルトニアン）が運動＋位置のエネルギーを表す。\(i\) と \(\hbar\) がいるのが肝 ── \(i\) のおかげで解が<em>振動する波</em>になり、位相が \(E/\hbar\) の速さで回る（第1回 \(E=\hbar\omega\) そのもの）。「わかる宇宙論」第3回で残った \(i\) は、この \(i\) です。</p>
+  </div>
+
+  <h2><span class="n">02</span>定常状態 ── 位相だけ回る波</h2>
+
+  <p>特別な解として、形が変わらず<em>位相だけ</em>が回る波があります。エネルギーが確定した状態（\(\hat H\psi=E\psi\)）で、時間変化は \(\psi(t)=\psi\,e^{-iEt/\hbar}\) ── 大きさ \(|\psi|^2\) は時間によらず一定なので<strong>定常状態</strong>と呼びます。位相の回る速さが \(E/\hbar=\omega\)。エネルギーが高い状態ほど、速く位相が回る。原子の中の電子の"軌道"は、この定常状態です。では、そのエネルギー \(E\) は、どんな値でも取れるのか? ── 閉じ込めると、取れない。</p>
+
+  <h2><span class="n">03</span>箱に閉じ込めると、とびとびになる</h2>
+
+  <p>いちばん簡単な閉じ込め ── 幅 \(L\) の箱（両側が壁）に電子を入れる。壁の外に出られないので、\(\psi\) は<strong>両端でゼロ</strong>でなければならない。これは、両端を固定した弦とまったく同じ条件。だから許されるのは、両端が節になる<strong>定常波</strong>だけ ── 半波長がちょうど整数個ぴったり収まる波です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── はまる波長 → とびとびのエネルギー</span>
+    <p class="lbl">半波長が n 個ぴったり：波長は</p>
+    $$\lambda_n=\frac{2L}{n}\quad(n=1,2,3,\dots)$$
+    <p class="lbl">ド・ブロイ p=h/λ（第1回）と E=p²/2m を使うと</p>
+    $$E_n=\frac{p_n^2}{2m}=\frac{n^2 h^2}{8mL^2}$$
+    <p style="margin-bottom:14px;">エネルギーは、\(n=1,2,3\dots\) の<strong>とびとびの値（\(E_n\propto n^2\)）</strong>しか取れない。連続な波なのに、閉じ込めの境界条件が、許される波を整数 \(n\) で選び出す ── <em>それが量子化</em>。ギターの弦が基音・2倍音・3倍音…しか鳴らないのと、寸分違わず同じ理屈です。</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">この回の量子数 ── 整数 n</div>
+    <p style="margin:2px 0 0;">とびとびを数える \(n\)（量子数）は、単位のない<strong>整数</strong>。第5回の逆二乗のべき \(d-1\)（わかる場）や、質量の湯川結合のように、物理の"個数"はいつも無次元の整数・比で現れる。\(n\) は「箱に半波長が何個はまるか」そのものです。</p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 箱の中の波</h2>
+
+  <p>下の図。幅 \(L\) の箱に、波 \(\psi=\sin(n\pi x/L)\) を描きます。スライダーで \(n\) を<em>連続的に</em>動かしてみてください。\(n\) が整数のときだけ、波の右端がちょうど壁で<strong>節（ゼロ）になり、"はまる"</strong>（緑＝許される）。整数からずれると、右端が壁からはみ出して<strong>はまらない</strong>（赤＝許されない）。右のはしごは、許されるエネルギー \(E_n\propto n^2\)。</p>
+
+  <p>連続に \(n\) を回しても、<em>物理的に許されるのは、はしごの段（整数 \(n\)）だけ</em>。連続な波の世界の上に、境界条件が"とびとびのふるい"をかけている ── これが量子化の正体です。箱を小さく（\(L\) 小）すると段の間隔（\(\propto1/L^2\)）が広がり、量子化がはっきりする。原子ほど小さく閉じ込めると、エネルギー準位のとびとびが際立ち、原子ごとの決まった色の光（スペクトル線）になる。</p>
+
+  <div class="fig">
+    <div class="cap">図：幅 L の箱の中の波 sin(nπx/L)。n を連続で動かすと、整数のときだけ右端が壁で節になり"はまる"（緑＝許される／赤＝許されない）。右のはしご＝許されるエネルギー E_n∝n²</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>n（箱にはまる半波長の数） <span class="val" id="vn">2.00</span>
+        <input type="range" id="sn" min="0.5" max="5" step="0.02" value="2">
+      </label>
+      <button id="snap">整数に合わせる</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2f7d55;"></i>はまる波（許される・整数 n）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>はまらない波（許されない）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>量子化は「離散な世界」ではない ── 連続な波が、境界で選ばれる</h2>
+
+  <p>ここが、この回でいちばん伝えたいことです。「量子＝世界がとびとび（デジタル）」という印象は、<strong>正確ではありません</strong>。シュレディンガー方程式は、なめらかで<em>連続</em>な波の方程式。空間も時間も連続で、\(\psi\) は連続に変化する。とびとびになるのは、波を<em>閉じ込めた</em>とき、はまるモードだけが選ばれるからで ── <strong>連続な基盤の上に、境界条件がとびとびを生む</strong>。閉じ込めのない自由な電子は、エネルギーを連続にとれる（とびとびにならない）。とびとびは、世界の離散性ではなく、<em>波＋閉じ込め</em>の帰結です。</p>
+
+  <div class="aside">
+    <span class="tag">連続か離散か ── レコードとCDは、同じ曲</span>
+    「量子は離散、相対論は連続」と対比されがちですが、この回が示すのは<em>もっと機微</em>な話です。量子の基盤（波 \(\psi\)）は連続で、とびとびは閉じ込めから<strong>emergent（現れ出る）</strong>もの。連続な波と、そのとびとびのモード（倍音）は、<strong>同じ一つの弦の、二つの見方</strong> ── レコード（連続波形）とCD（とびとびの数値）が同じ曲を運ぶのと同じで、どちらが"本当"でもない。じつは、なめらかな波形とそのとびとびの成分（スペクトル）を行き来する数学が<strong>フーリエ変換</strong>で、量子論はその上に立っています（位置と運動量、時間とエネルギーが、\(\hbar\) を介したフーリエの表・裏）。第5回の不確定性は、まさにこの「連続 ↔ とびとび／広がり ↔ 波長」の裏表から出ます。「わかる宇宙論」第5回のサンプリングとも地続きの主題です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── シュレディンガー方程式の射程</span>
+    <p style="margin-top:0;">シュレディンガー方程式 \(i\hbar\partial_t\psi=\hat H\psi\)、定常状態 \(\psi e^{-iEt/\hbar}\)、箱の中の粒子の量子化 \(E_n=n^2h^2/8mL^2\)・\(\lambda_n=2L/n\)、自由粒子の連続スペクトル、原子のエネルギー準位と輝線スペクトル、量子化が定常波の境界条件（弦の倍音との同型）から出ることは、いずれも確立した物理です。</p>
+    <p style="margin-bottom:0;">ただし。 ① シュレディンガー方程式は<strong>非相対論的</strong>（\(\beta\ll1\)、第1回の"c の物語"を含まない）。相対論と量子を両立させるには場の量子論（ディラック方程式など、SR＋QM＝「わかる場」）が要ります ── 相対論と量子は"対立"ではなく、ここで合流します。 ② 実際の原子は箱でなく、原子核のクーロン引力（3次元）で閉じ込められ、量子数は \(n\) だけでなく角運動量なども加わる。「箱」はいちばん簡単な模型です。 ③ 「量子化＝波＋閉じ込め」は束縛状態の話で、スピンのような"空間の波"に還元しにくい離散性もあります。 ④ プランクスケールで時空自体が離散的か連続かは、未解決（量子重力）── それはこの回の話ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の式だけで解けます）</div>
+    <ol>
+      <li>箱の中の粒子で、n=1 と n=2 のエネルギーの比は? （E_n∝n²）
+        <details><summary>答えを見る</summary><div class="ans">\(E_2/E_1=2^2/1^2=4\)。基底状態(n=1)の4倍。とびとびの間隔は n² で広がる。</div></details>
+      </li>
+      <li>箱の幅 L を半分にすると、エネルギー準位 E_n∝1/L² はどうなるか。閉じ込めが強いほど?
+        <details><summary>答えを見る</summary><div class="ans">\(1/(1/2)^2=4\) 倍。強く閉じ込める（L 小）ほどエネルギーもとびとびの間隔も大きく、量子化がはっきりする。原子サイズで顕著になる理由。</div></details>
+      </li>
+      <li>なぜ整数 n のときだけ波が許されるのか。弦の倍音との共通点で。
+        <details><summary>答えを見る</summary><div class="ans">両端が壁（節）なので、半波長が整数個ぴったり収まる波（両端が節）しか許されない。両端を固定した弦が基音・倍音しか鳴らないのと同じ。境界条件が整数 n を選ぶ。</div></details>
+      </li>
+      <li>「量子＝世界は離散的」は、なぜ正確でないのか。
+        <details><summary>答えを見る</summary><div class="ans">シュレディンガー方程式は連続な波の方程式で、空間・時間・ψ は連続。とびとびは波を閉じ込めたとき、はまるモードだけが選ばれる emergent な結果。自由粒子は連続スペクトル。離散は"波＋閉じ込め"の帰結で、世界の離散性ではない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>量子化は、連続な波を箱に閉じ込めた影</h2>
+    <p>波動関数 \(\psi\) の運動方程式が<strong>シュレディンガー方程式</strong> \(i\hbar\partial_t\psi=\hat H\psi\)。\(i\) のおかげで解は振動する波で、定常状態は位相が \(E/\hbar=\omega\) で回る（第1回 \(E=\hbar\omega\)）。この波を幅 \(L\) の箱に閉じ込めると、両端が節の定常波しか許されず、半波長が整数 \(n\) 個はまる波だけが選ばれて、エネルギーが<strong>とびとび \(E_n=n^2h^2/8mL^2\)</strong> になる ── ギターの倍音と同じ。量子数 \(n\) は、単位のない整数。</p>
+    <p>肝心なのは、<strong>とびとび（量子化）は"世界が離散的"だからではない</strong>こと。シュレディンガー方程式は連続な波の方程式で、離散性は<em>波を閉じ込めたときに、はまるモードが選ばれる</em>emergent な帰結（自由粒子は連続）。連続な波形と、そのとびとびのモードは、レコードとCDのように<em>同じものの二つの見方</em>で、両者を結ぶのがフーリエ変換 ── 次回の不確定性の舞台です。<em>「連続か離散か」は基盤でなく記述の問題、効くのはやはり \(\hbar\)</em>。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回</span>
+    「不確定性 ── ℏ が張る最小の面積」。位置と運動量は、同時にはきっちり決まらない：\(\Delta x\cdot\Delta p\ge\hbar/2\)。これは測定の下手さではなく、<em>波は「狭い場所に集まる」ことと「決まった波長（＝運動量）を持つ」ことを両立できない</em>という、波の一般的な性質（フーリエの表・裏）から出ます ── 短い音は音程が曖昧、長く澄んだ音は位置（時刻）が曖昧、と同じ。位置と運動量の空間に、\(\hbar\) という<strong>最小の面積の粒</strong>がある。連続と離散を結ぶ話の、核心へ。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる量子」シリーズ第4回、物理好きの高校生・大学生向け読み物です。シュレディンガー方程式 \(i\hbar\partial_t\psi=\hat H\psi\)、定常状態 \(\psi(t)=\psi\,e^{-iEt/\hbar}\)（\(\hat H\psi=E\psi\)）、無限井戸（箱）の固有エネルギー \(E_n=n^2h^2/8mL^2\)・波長 \(\lambda_n=2L/n\)、自由粒子の連続スペクトル、境界条件（定常波）による量子化と弦の倍音との同型、原子の離散準位と輝線は、いずれも標準物理です。シュレディンガー方程式が非相対論的でありSRとの両立には場の量子論（ディラック方程式等）が必要なこと（相対論と量子は対立でなく QFT で合流）、現実の原子はクーロン束縛の3次元問題で量子数が複数あること、スピン等の還元しにくい離散性があること、プランクスケールの時空の離散性/連続性は未解決（量子重力）であることは本文「正直な線」に明記しました。図は無限井戸の定常波と離散準位の模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ryoushi-03-keiro.html">第3回 全経路を足す</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru/index.html">わかる宇宙論</a>（サンプリング）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では n を動かすと、整数のときだけ波が箱に"はまり"ます（緑）。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd'), snap=document.getElementById('snap');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var n=parseFloat(sn.value); vn.textContent=n.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    var fit=Math.abs(n-Math.round(n))<0.03;
+    var col = fit ? '#2f7d55' : '#a83a22';
+
+    // 箱（左パネル）
+    var bx=44, bw=w*0.60, by=h*0.5, amp=h*0.30;
+    ctx.strokeStyle='#4a4e5a'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(bx,by-amp-16); ctx.lineTo(bx,by+amp+16); ctx.stroke();       // 左壁
+    ctx.beginPath(); ctx.moveTo(bx+bw,by-amp-16); ctx.lineTo(bx+bw,by+amp+16); ctx.stroke(); // 右壁
+    ctx.strokeStyle='#cfe0d6'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+bw,by); ctx.stroke(); ctx.setLineDash([]);
+
+    // 波 sin(nπ x/L)
+    ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var s=0;s<=1.0001;s+=0.004){
+      var x=bx+bw*s, y=by-amp*Math.sin(n*Math.PI*s);
+      if(s===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // 右端の値（はまり具合）
+    var endY=by-amp*Math.sin(n*Math.PI);
+    ctx.beginPath(); ctx.arc(bx+bw,endY,6,0,7); ctx.fillStyle=col; ctx.fill();
+    if(!fit){
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(bx+bw,by); ctx.lineTo(bx+bw,endY); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.fillStyle='#4a4e5a'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('幅 L の箱', bx+bw/2, by+amp+34);
+    ctx.fillStyle=col; ctx.font='bold 12px sans-serif';
+    ctx.fillText(fit?'はまる（許される）':'はまらない（右端が節でない）', bx+bw/2, by-amp-24);
+
+    // エネルギーはしご（右）
+    var lx=bx+bw+40, lw=w-lx-16, lyB=h-40, lyT=30;
+    ctx.fillStyle='#5f6b64'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('E_n ∝ n²', lx, lyT-10);
+    var Emax=25; // 5²
+    for(var k=1;k<=5;k++){
+      var E=k*k; var yy=lyB-(E/Emax)*(lyB-lyT);
+      ctx.strokeStyle = (fit&&Math.round(n)===k)?'#2f7d55':'#c9ddd0';
+      ctx.lineWidth = (fit&&Math.round(n)===k)?3:1.5;
+      ctx.beginPath(); ctx.moveTo(lx,yy); ctx.lineTo(lx+lw,yy); ctx.stroke();
+      ctx.fillStyle=(fit&&Math.round(n)===k)?'#2f7d55':'#8aa095'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('n='+k, lx+lw+2, yy+4);
+    }
+
+    var Ecur=(n*n).toFixed(2);
+    rd.textContent = fit
+      ? ('n = '+Math.round(n)+'（許される）→ 波長 λ='+ (2).toFixed(0) +'L/'+Math.round(n)+'、エネルギー E ∝ n² = '+Math.round(n*n)+'。箱に半波長が '+Math.round(n)+' 個ぴったり。')
+      : ('n = '+n.toFixed(2)+' は整数でない → 右端が壁で節にならず、はまらない（許されない）。連続な波でも、境界条件が整数 n だけを選ぶ＝量子化。');
+  }
+
+  sn.addEventListener('input', draw);
+  snap.addEventListener('click', function(){ sn.value=Math.round(parseFloat(sn.value))||1; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
