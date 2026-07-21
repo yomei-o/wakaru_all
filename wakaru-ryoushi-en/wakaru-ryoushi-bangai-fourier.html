@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Mechanics and the Fourier Transform ── Quantum That Clicks, Bonus</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f2f9fa; --paper-edge:#d3e6e8;   /* Bonus: Fourier = teal/cyan paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f6a72; --calc-bg:#e0f0f1;
+    --rule:#c7dde0; --hair:#aecdd1;
+    --acc:#1f7a8c;    /* accent = Fourier cyan */
+    --grid:#d3e8ea;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b4e2e6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c7e0e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e0f0f1;color:#1f6a72;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f5f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1a5a62;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fafefe,#e4f1f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e0f0f1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1a5a62;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6d70;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Quantum That Clicks</span><span class="ep">Bonus ／ Quantum Mechanics and the Fourier Transform ── a record and a CD are the same song</span></div>
+  <p class="eyebrow">The math behind the "continuous wave ↔ discrete components" we met in Episodes 4 &amp; 5 ── position and momentum are the front and back of a Fourier transform</p>
+  <h1>Quantum Mechanics and the Fourier Transform
+    <span class="sub">A waveform (a record) and its frequency components (a CD) are two faces of the same song. Position ψ(x) and momentum φ(p) too are<br>the front and back of a Fourier transform, with ℏ as the exchange rate. Uncertainty falls out of this duality automatically.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: superposing sine waves, Episode 1's p=ℏk, Episode 5's Δx·Δp</span>
+    <span>This episode: ψ(x) and φ(p) are a Fourier-transform pair</span>
+  </div>
+
+  <p class="lead">In Episodes 4 and 5 we said that "a continuous waveform and its discrete components (a record and a CD) are two views of the same thing," and promised that the math behind it is the <strong>Fourier transform</strong>. In this bonus episode we dig straight into that. Fourier's discovery, in one line, is this: <em>any waveform whatsoever can be built by superposing pure sine waves (waves of a single wavelength/frequency)</em>. And conversely, any waveform can be decomposed into "which sine waves are present, and how much of each." In quantum theory this carries decisive meaning ── <strong>a wave function seen "in terms of position, \(\psi(x)\)" and seen "in terms of momentum, \(\varphi(p)\)" are exactly the front and back of a Fourier transform</strong>. Two representations of one and the same state. And the exchange rate that links them is \(\hbar\) (\(p=\hbar k\)). The intuition you had ── "these two descriptions are saying the same thing" ── takes its most precise form right here.</p>
+
+  <h2><span class="n">01</span>Waveform and spectrum ── a record and a CD are the same song</h2>
+
+  <p>Picture some music. The groove of a record is the <em>waveform</em> of the air's vibration itself (time → amplitude, continuous). A CD or a spectrum analyzer, on the other hand, holds that sound decomposed into <em>which frequencies it contains, and how much of each</em>. Waveform and spectrum ── <strong>opposite in form, yet carrying exactly the same song</strong>. You can go back and forth from one to the other without losing any information. The math of this round trip is the Fourier transform.</p>
+
+  <div class="keybox">
+    <div class="lbl">Fourier ── any waveform is a superposition of sine waves</div>
+    <p style="margin:2px 0 0;">A waveform \(f(x)\) = sine waves \(e^{ikx}\) of various wave numbers \(k\), added up with weights \(\tilde f(k)\): \(f(x)=\int \tilde f(k)\,e^{ikx}\,dk\). The weight \(\tilde f(k)\) is the "spectrum" ── which wavelengths are present, and how much of each. The waveform (\(f\)) and the spectrum (\(\tilde f\)) are the front and back of the same information.</p>
+  </div>
+
+  <h2><span class="n">02</span>Position ψ(x) and momentum φ(p) are the front and back of a Fourier transform</h2>
+
+  <p>In Episode 1, a wave with a definite momentum was \(e^{ipx/\hbar}\) (a pure sine wave with wave number \(k=p/\hbar\)). Which means ── <em>a wave with definite momentum is precisely the "pure sine wave" of quantum theory</em>. So Fourier's language carries over word for word.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The two representations of the wave function (a Fourier-transform pair)</div>
+    $$\psi(x)=\int \varphi(p)\,e^{ipx/\hbar}\,dp \qquad\Longleftrightarrow\qquad \varphi(p)=\frac{1}{2\pi\hbar}\int \psi(x)\,e^{-ipx/\hbar}\,dx$$
+    <p style="margin:8px 0 0;">\(\psi(x)\) (the wave function seen in terms of position = where it's likely to be) and \(\varphi(p)\) (the wave function seen in terms of momentum = what momentum it's likely to have) are linked by a Fourier transform through \(\hbar\) ── <strong>two representations of the same state</strong>. Neither is the "real" one ── like a record and a CD. To measure momentum is to <em>Fourier-decompose</em> \(\psi\) and read off "which sine waves are present, and how much of each."</p>
+  </div>
+
+  <p>This is also the deeper meaning of Episode 2's \(\psi=|\psi|e^{iS/\hbar}\). A wave whose phase \(S/\hbar\) turns like \(px/\hbar\) through space ── that is the "sine wave" of momentum \(p\). The coefficients of decomposing \(\psi(x)\) into such sine waves are \(\varphi(p)\).</p>
+
+  <h2><span class="n">03</span>Uncertainty is a Fourier theorem itself</h2>
+
+  <p>Fourier has an unshakable theorem ── <strong>a narrow waveform is made of a wide spectrum</strong> (the bandwidth theorem). To make an instantaneous pulse, you have to blend in many frequencies. Conversely, a wave of just a single frequency spreads out over all of time and space. Put in symbols, between the spread of the waveform \(\Delta x\) and the spread of the spectrum \(\Delta k\) ──</p>
+
+  <div class="calc">
+    <span class="tag">Fourier's bandwidth theorem → the uncertainty principle</span>
+    $$\Delta x\cdot\Delta k\ge\tfrac12\quad\xrightarrow{\ p=\hbar k\ }\quad \Delta x\cdot\Delta p\ge\frac{\hbar}{2}$$
+    <p style="margin-bottom:14px;">The left side is a <em>purely wave (signal-processing) theorem</em> with nothing quantum about it. It holds for sound and for radio waves. Just multiply it by Episode 1's exchange rate \(p=\hbar k\) and out comes the <strong>uncertainty principle</strong> of Episode 5. So uncertainty is not a "strange assumption" of quantum theory ── it is <em>the ordinary, inevitable consequence of Fourier that comes along the moment you represent a wave two ways</em>. \(\hbar\) merely puts a physical scale on that fact about waves.</p>
+  </div>
+
+  <h2><span class="n">04</span>Try it ── Fourier synthesis: a narrow spectrum is a wide wave</h2>
+
+  <p>The figure below. <strong>Top</strong> is the waveform \(\psi(x)\); <strong>bottom</strong> is the spectrum (which wave numbers \(k=p/\hbar\) are present, and how much of each). With the slider you can change the <strong>width \(\Delta k\)</strong> of the sine waves being blended (how broad the spectrum is).</p>
+
+  <p>Make the spectrum <em>narrow</em> (only a few wave numbers) and the waveform on top becomes a <em>long, spread-out wave train</em> (momentum is sharp, position is fuzzy). <em>Broaden</em> the spectrum (blend in many wave numbers) and the waveform becomes a <strong>sharp pulse</strong> collected at one point (position is sharp, momentum is fuzzy). To make a narrow pulse you need many sine waves ── this is Fourier, and it is uncertainty. The product of the top and bottom spreads \(\Delta x\cdot\Delta k\) cannot drop below \(1/2\).</p>
+
+  <div class="fig">
+    <div class="cap">Figure: top = waveform ψ(x) (a superposition of many sine waves), bottom = spectrum (the distribution of wave numbers k=p/ℏ present). Broaden Δk and the waveform becomes a sharp pulse; narrow it and it becomes a long wave train. A narrow pulse = many sine waves (uncertainty)</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Spectrum width Δk (breadth of blended wave numbers) <span class="val" id="vk">0.8</span>
+        <input type="range" id="sk" min="0.12" max="2.6" step="0.02" value="0.8">
+      </label>
+      <button id="bn">Toward a single wavelength</button>
+      <button id="bw">Toward a pulse</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f7a8c;"></i>waveform ψ(x)</span>
+      <span><i class="swatch" style="background:#a86a1e;"></i>spectrum φ(k)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>Time and energy, and Fourier all around us</h2>
+
+  <p>Exactly the same duality holds between time and energy. Since \(E=\hbar\omega\) (Episode 1), a time waveform \(\psi(t)\) and an energy spectrum are also a Fourier pair through \(\hbar\). So ──</p>
+
+  <div class="aside">
+    <span class="tag">Lifetime and linewidth ── a short-lived state has a fuzzy energy</span>
+    A state with a precisely defined energy keeps up <em>the same vibration forever</em> as \(e^{-iEt/\hbar}\) ── a pure tone (Episode 4's stationary state). Conversely, a state that decays with lifetime \(\tau\) is a "short tone" cut off in time, so its energy is <strong>blurred</strong> by a width \(\Delta E\sim\hbar/\tau\). The reason the spectral lines of atoms and particles have a <em>width</em> is exactly this (the natural linewidth) ── the shorter-lived a particle, the fuzzier the measured value of its energy (mass). Episode 5's \(\Delta t\cdot\Delta E\ge\hbar/2\) is this very time–energy Fourier duality.</p>
+  </div>
+
+  <p>Fourier is not a tool for quantum theory alone. Diffraction gratings and prisms are <em>physical Fourier transformers</em> that split light into its wavelengths; electron diffraction and X-ray crystallography are Fourier decompositions of matter waves; MRI and audio/image compression (JPEG, MP3) are all Fourier too. And the <strong>sampling</strong> of Episode 5 of "Cosmology That Clicks" (the sampling theorem that links continuous and discrete) is the flip side of Fourier as well. The single point that <em>you can move freely between the continuous (record) and its components (CD)</em> runs through everything from signal processing to quantum mechanics ── the "two descriptions are saying the same thing" you felt was, it turns out, the backbone of physics and mathematics that goes by the name Fourier duality.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the reach of Fourier duality</span>
+    <p style="margin-top:0;">That the position representation \(\psi(x)\) and the momentum representation \(\varphi(p)\) are a Fourier-transform pair with \(\hbar\) at the core; that momentum eigenstates are plane waves \(e^{ipx/\hbar}\); that the uncertainty \(\Delta x\,\Delta p\ge\hbar/2\) follows from the bandwidth theorem \(\Delta x\,\Delta k\ge1/2\) and \(p=\hbar k\); the time–energy Fourier duality and the natural linewidth \(\Delta E\sim\hbar/\tau\); and that diffraction, crystallography, and signal processing are physical Fourier ── these are all established physics and mathematics.</p>
+    <p style="margin-bottom:0;">A few notes. ① Position and momentum form a <em>Fourier pair</em> because they are canonically conjugate. Not every pair of observables works this way (see Episode 5's discussion of conjugate pairs). ② Strictly, a plane wave \(e^{ipx/\hbar}\) is an idealized state that cannot be normalized; real states are treated as wave packets (which can be normalized). ③ "CD/record" is an intuitive analogy for continuous ↔ discrete; the Fourier transform (a continuous spectrum) and sampling / Fourier series (discrete) are related but distinct ── the sampling theorem bridges them. ④ This duality is within the framework of non-relativistic quantum mechanics; in quantum field theory it is extended to the Fourier expansion of field operators (creation and annihilation operators).</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode's ideas)</div>
+    <ol>
+      <li>A state with a precisely defined momentum ── what kind of wave is it in position, and why is its position fuzzy?
+        <details><summary>See the answer</summary><div class="ans">A plane wave \(e^{ipx/\hbar}\) of a single wave number \(k=p/\hbar\). It spreads uniformly over all of space, so its position is completely undetermined (in Fourier, a single frequency = an infinitely spread-out wave).</div></details>
+      </li>
+      <li>To make a sharp pulse in position, what has to happen to the momentum (wave number) components?
+        <details><summary>See the answer</summary><div class="ans">You have to blend in many wave numbers (a wide spectrum). Narrow waveform = wide spectrum (the bandwidth theorem). So sharpening the position blurs the momentum = uncertainty.</div></details>
+      </li>
+      <li>Why does a particle with a shorter lifetime τ have a fuzzier measured energy (mass)?
+        <details><summary>See the answer</summary><div class="ans">The time waveform and energy are a Fourier pair. Short-lived = a short "tone" in time = a wide energy width ΔE∼ℏ/τ (the natural linewidth). This is why the mass of a short-lived particle has a width.</div></details>
+      </li>
+      <li>Separate the "quantum part" and the "purely wave part" of the uncertainty Δx·Δp≥ℏ/2.
+        <details><summary>See the answer</summary><div class="ans">The purely wave (Fourier) part: Δx·Δk≥1/2 (which holds in signal processing too). The quantum part: p=ℏk (exchanging wave number for momentum via ℏ). Multiply them and you get uncertainty. ℏ gives a physical scale to a fact about waves.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus summary</span>Position and momentum are the front and back of a Fourier transform, joined by ℏ</h2>
+    <p>Any waveform can be built from a superposition of pure sine waves (Fourier). In quantum theory, the wave of definite momentum \(e^{ipx/\hbar}\) is that "sine wave," and <strong>the position representation \(\psi(x)\) and the momentum representation \(\varphi(p)\) are a Fourier-transform pair with \(\hbar\) at the core</strong> ── two faces of the same state (a record and a CD). To measure momentum is to Fourier-decompose \(\psi\). And multiply the bandwidth theorem "a narrow waveform is a wide spectrum" \(\Delta x\Delta k\ge1/2\) by \(p=\hbar k\) and out comes <strong>uncertainty \(\Delta x\Delta p\ge\hbar/2\), automatically</strong> ── uncertainty is not a strange assumption but the inevitable consequence of representing a wave two ways.</p>
+    <p>The same duality holds for time and energy (\(E=\hbar\omega\)), giving the natural linewidth by which a short-lived state's energy blurs. From diffraction and crystallography to MP3 ── and all the way to the sampling of "Cosmology That Clicks" ── the Fourier duality that lets you <em>move freely between the continuous (waveform) and its components (spectrum)</em> runs through it all. The "two description systems are saying the same thing" you felt ── its true identity was Fourier duality, the backbone of physics and mathematics. The dimensionful \(x,p\) are stage props; what links them is \(\hbar\), the scale of a ratio.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Toward the collection's capstone</span>
+    With this bonus, quantum theory's "the two descriptions are the same" has been made precise as Fourier duality. Seen more broadly ── relativity and quantum theory, fields and gravity, all connect into a single diagram along the axes of the fundamental constants \(c,\hbar,G\). As the closing of the collection, we've prepared that map separately: <strong>"The Cube of Physics"</strong> (which corner each series sits at). <em>Drop the units, look from ratios and axes, and physics fits on a single page.</em></p>
+  </div>
+
+  <div class="foot">
+    This document is the bonus episode of the "Quantum That Clicks" series, a reader for physics-loving high-schoolers and undergraduates. That the position representation and the momentum representation are linked by a Fourier-transform pair (kernel \(e^{\pm ipx/\hbar}\)); that the momentum eigenfunctions are plane waves; the uncertainty \(\Delta x\,\Delta p\ge\hbar/2\) from the bandwidth theorem \(\Delta x\,\Delta k\ge1/2\) and \(p=\hbar k\); the time–energy Fourier duality and the natural linewidth \(\Delta E\approx\hbar/\tau\); and that diffraction, crystallography, and signal processing are physical Fourier analysis ── these are all established physics and mathematics. That position and momentum form a Fourier pair because of canonical conjugacy and not every pair of observables does; that a plane wave is a non-normalizable idealized state while real states are wave packets; that the continuous Fourier transform and sampling / Fourier series (discrete) are related but distinct concepts bridged by the sampling theorem; and that this document is within the framework of non-relativistic quantum mechanics while in quantum field theory it extends to the Fourier expansion of fields (creation and annihilation operators) ── these are stated plainly in the "honest line" in the body. The figure is a schematic of the Fourier synthesis of a Gaussian wave packet (with \(\Delta x\cdot\Delta k\) constant). ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and the answers are frozen and hidden). Related: <a href="wakaru-ryoushi-05-fukakutei.html">Episode 5, Uncertainty</a> ／ <a href="index.html">Contents</a> ／ <a href="../butsuri-rittai-en.html">The Cube of Physics (collection)</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, changing the spectrum width Δk turns the waveform between a wave train and a pulse. Click "See the answer" to open a solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'),
+      rd=document.getElementById('rd'), bn=document.getElementById('bn'), bw=document.getElementById('bw');
+  var K0=3.0;   // center wave number
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var dk=parseFloat(sk.value); vk.textContent=dk.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    var L=40, R=w-20;
+    var yTopMid=h*0.28, yBotMid=h*0.76, amp=h*0.19;
+
+    // component wave-number list (K0±3dk) and Gaussian weights
+    var N=51, kmin=K0-3*dk, kmax=K0+3*dk, weights=[], ksum=0;
+    for(var i=0;i<N;i++){ var ki=kmin+(kmax-kmin)*i/(N-1);
+      var wt=Math.exp(-0.5*Math.pow((ki-K0)/dk,2)); weights.push({k:ki,w:wt}); ksum+=wt; }
+
+    // top: waveform ψ(x)=Σ w cos(k x)  (x over -6..6)
+    ctx.strokeStyle='#c7dde0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,yTopMid); ctx.lineTo(R,yTopMid); ctx.stroke();
+    ctx.strokeStyle='#1f7a8c'; ctx.lineWidth=2.4; ctx.beginPath();
+    var maxv=0, vals=[];
+    for(var px=L;px<=R;px+=2){
+      var x=((px-L)/(R-L)-0.5)*12;
+      var s=0; for(var j=0;j<N;j++){ s+=weights[j].w*Math.cos(weights[j].k*x); }
+      s/=ksum; vals.push({px:px,v:s}); if(Math.abs(s)>maxv)maxv=Math.abs(s);
+    }
+    for(var m=0;m<vals.length;m++){ var y=yTopMid-amp*(vals[m].v/(maxv||1));
+      if(m===0)ctx.moveTo(vals[m].px,y); else ctx.lineTo(vals[m].px,y); }
+    ctx.stroke();
+    ctx.fillStyle='#1a5a62'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('waveform ψ(x)', L, yTopMid-amp-8);
+
+    // bottom: spectrum (bars)
+    ctx.strokeStyle='#c7dde0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,yBotMid); ctx.lineTo(R,yBotMid); ctx.stroke();
+    var kdispMin=0, kdispMax=6.5;
+    function KX(k){ return L+(k-kdispMin)/(kdispMax-kdispMin)*(R-L); }
+    for(var b=0;b<N;b++){ var bx=KX(weights[b].k); var bh=(weights[b].w)*amp*1.5;
+      ctx.strokeStyle='#a86a1e'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(bx,yBotMid); ctx.lineTo(bx,yBotMid-bh); ctx.stroke(); }
+    ctx.fillStyle='#8a5a12'; ctx.font='bold 12px sans-serif';
+    ctx.fillText('spectrum φ(k)  (k = p/ℏ)', L, yBotMid+22);
+    ctx.fillStyle='#9a8a6a'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('k=0', KX(0), yBotMid+14); ctx.fillText('k₀', KX(K0), yBotMid+14);
+
+    var Dx=1/dk;  // spread of waveform (∝1/Δk)
+    var msg = dk<0.3 ? 'Narrow spectrum → a long, spread-out wave train (momentum sharp, position fuzzy).'
+            : dk>1.8 ? 'Wide spectrum → a sharp pulse (position sharp, momentum fuzzy).'
+            : 'In between ── the more sine waves you blend, the tighter the waveform.';
+    rd.textContent='Spectrum width Δk = '+dk.toFixed(2)+' → waveform spread Δx ∝ 1/Δk ≈ '+Dx.toFixed(2)
+      +'. Product Δx·Δk ≈ 0.5 (constant). '+msg+' A narrow pulse is made of many sine waves = uncertainty.';
+  }
+
+  sk.addEventListener('input', draw);
+  bn.addEventListener('click', function(){ sk.value=0.15; draw(); });
+  bw.addEventListener('click', function(){ sk.value=2.4; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
