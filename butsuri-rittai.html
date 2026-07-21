@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理の立方体 ── わかる全集キャップストーン</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f7fb; --paper-edge:#d9dcec;   /* 立方体：藍の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#2f3866; --calc-bg:#e7e9f4;
+    --rule:#cfd4e6; --hair:#b6bcd6;
+    --acc:#3d4a7a;    /* アクセント＝立方体の藍 */
+    --grid:#dee1ef;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c3c9ea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d2d6ea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:#e7e9f4;color:#2f3866;border:1.5px solid #b6bcd6;border-radius:5px;padding:10px 16px;white-space:nowrap;}
+  .controls button.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+  .controls button:active{transform:translateY(1px);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:11px 14px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7e9f4;color:#2f3866;}
+  .readout a{color:#a83a22;text-decoration:none;font-weight:700;} .readout a:hover{text-decoration:underline;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+  table.corners{width:100%;border-collapse:collapse;margin:18px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.corners th,table.corners td{border:1px solid var(--rule);padding:8px 10px;text-align:left;}
+  table.corners th{background:#e7e9f4;color:#2f3866;font-weight:700;}
+  table.corners a{color:#a83a22;text-decoration:none;} table.corners a:hover{text-decoration:underline;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfcfe,#e6e9f4);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .aside,.caveat,.calc,.keybox,.record,.fig,table.corners{break-inside:avoid;}
+    .controls{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f647a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる全集</span><span class="ep">キャップストーン ／ 物理の立方体</span></div>
+  <p class="eyebrow">相対論・量子・場・重力は、対立する別々の理論ではない ── 一つの立方体の、別々の角だった</p>
+  <h1>物理の立方体
+    <span class="sub">基本定数は 3 つ ── c（相対論）・ℏ（量子）・G（重力）。それぞれをオン/オフするスイッチと見ると、<br>物理の主要理論が、一つの<em>立方体</em>の 8 つの角にきれいに並ぶ。わかるシリーズは、その角の地図です。</span>
+  </h1>
+  <div class="byline">
+    <span>全シリーズの見取り図（ブロンシュタインの立方体）</span>
+    <span>軸：1/c ・ ℏ ・ G</span>
+  </div>
+
+  <p class="lead">「わかる」全集をここまで読むと、相対論・量子・場・重力・宇宙論が、別々の難物ではなく<em>地続き</em>だと感じられるはずです。それを一枚に描くのが、この<strong>物理の立方体</strong>（ブロンシュタインの立方体）。物理には、世界の"効き方"を決める基本定数が 3 つあります ── <strong>c</strong>（光速・相対論）、<strong>ℏ</strong>（作用の粒・量子）、<strong>G</strong>（重力）。この 3 つを、それぞれ「オフ（無視）／オン（効かせる）」のスイッチと見なす。すると 3 つのスイッチの組み合わせ＝2×2×2＝<strong>8 通り</strong>が、立方体の 8 つの角になり、それぞれに人類の主要理論がぴたりと収まる。原点はニュートン、スイッチを入れるたびに新しい理論が現れ、3 つ全部を入れた最後の一角だけが ── 未完成。わかる各シリーズが、この立方体のどこを描いてきたかを、歩いてみましょう。</p>
+
+  <h2><span class="n">01</span>三つの定数、三つのスイッチ</h2>
+
+  <p>それぞれのスイッチの意味は、これまでの各シリーズそのものです。</p>
+
+  <div class="keybox">
+    <div class="lbl">三つのスイッチ</div>
+    <p style="margin:2px 0 0;">・<strong>c（相対論）</strong>：光速が有限だと効かせる。オフ（\(c\to\infty\)）で時間は絶対、オンで時空が一体に（わかる相対論）。<br>
+    ・<strong>ℏ（量子）</strong>：作用の粒 \(\hbar\) を効かせる。オフ（\(\hbar\to0\)）で古典、オンで重ね合わせ・不確定性（わかる量子）。<br>
+    ・<strong>G（重力）</strong>：重力を効かせる。オフで重力なし、オンで質量が引き合う／時空が曲がる。</p>
+  </div>
+
+  <p>「わかる」シリーズが繰り返してきた「ニュートンは<em>ある比の極限</em>」── 相対論の \(\beta\to0\)、量子の \(S/\hbar\to\infty\) ── は、まさに<strong>スイッチをオフにする操作</strong>。立方体の原点（全部オフ）が、ニュートンの世界です。</p>
+
+  <h2><span class="n">02</span>立方体の、八つの角</h2>
+
+  <table class="corners">
+    <tr><th>c</th><th>ℏ</th><th>G</th><th>理論</th><th>わかるシリーズ</th></tr>
+    <tr><td>—</td><td>—</td><td>—</td><td>ニュートン力学</td><td>（古典の出発点）</td></tr>
+    <tr><td>c</td><td>—</td><td>—</td><td>特殊相対論</td><td><a href="wakaru-soutai/index.html">わかる相対論 1〜5</a></td></tr>
+    <tr><td>—</td><td>ℏ</td><td>—</td><td>量子力学</td><td><a href="wakaru-ryoushi/index.html">わかる量子</a></td></tr>
+    <tr><td>—</td><td>—</td><td>G</td><td>ニュートン重力</td><td><a href="wakaru-chikara/index.html">わかる力（重力）</a></td></tr>
+    <tr><td>c</td><td>ℏ</td><td>—</td><td>場の量子論（相対論的量子論）</td><td><a href="wakaru-ba/index.html">わかる場</a></td></tr>
+    <tr><td>c</td><td>—</td><td>G</td><td>一般相対論（重力＝曲率）</td><td><a href="wakaru-soutai/index.html">わかる相対論 6〜7</a></td></tr>
+    <tr><td>—</td><td>ℏ</td><td>G</td><td>非相対論的量子重力（限定的）</td><td>（部分的）</td></tr>
+    <tr><td>c</td><td>ℏ</td><td>G</td><td><strong>量子重力／万物の理論</strong></td><td><strong>未完成</strong></td></tr>
+  </table>
+
+  <p>相対論と量子が「対立する」と言われるのは、この表の<em>最後の一角</em>── \(c,\hbar,G\) を全部オンにした量子重力 ── だけの話。特殊相対論と量子はむしろ仲良く合体して<strong>場の量子論</strong>（わかる場）になり、人類最高精度の理論になっています。対立は"全体"ではなく、"最後の角"に局在しているのです。</p>
+
+  <h2><span class="n">03</span>動かしてみる ── 立方体を歩く</h2>
+
+  <p>下の図は、\(c\)・\(\hbar\)・\(G\) の 3 軸が張る立方体。下のボタンで各スイッチをオン/オフすると、いまいる<strong>角</strong>が光り、その角の理論名と、対応する「わかる」シリーズが表示されます。原点（全オフ）から、辺を一本ずつ渡って、各理論を訪ねてみてください。3 つ全部をオンにした奥の角だけが、赤 ── 人類未踏の量子重力です。</p>
+
+  <div class="fig">
+    <div class="cap">図：c・ℏ・G の立方体。スイッチのオン/オフで、いまいる角（理論）が切り替わる。原点＝ニュートン、各辺を渡ると新理論、三つ全部オンの角＝未完成の量子重力（赤）</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <button id="bc">c：相対論 オフ</button>
+      <button id="bh">ℏ：量子 オフ</button>
+      <button id="bg">G：重力 オフ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#3d4a7a;"></i>いまいる角（確立した理論）</span>
+      <span><i class="dot" style="background:#a83a22;"></i>未完成の角（量子重力）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>わかるシリーズは、立方体のどこか</h2>
+
+  <p>こうして見ると、「わかる」全集の地図が描けます。<strong>わかる相対論</strong>は c 軸（特殊相対論）と c–G 辺（一般相対論）、<strong>わかる量子</strong>は ℏ 軸、<strong>わかる場</strong>は c–ℏ 面（場の量子論）── その心臓のゲージ原理は、まさにこの角の言葉。<strong>わかる力</strong>は、力を古典から場（c–ℏ）まで剥がしていく旅で、立方体を横断します。そして<strong>わかる宇宙論</strong>は、初期宇宙で c・ℏ・G が同時に効く領域をのぞむ ── 立方体の一番奥（量子重力の角）に手を伸ばす試みでした。バラバラに見えた各シリーズは、同じ一つの立方体の、別々の面と角を照らしていたのです。</p>
+
+  <div class="aside">
+    <span class="tag">わかる宇宙論の c·t=一定 と、比の思想</span>
+    立方体の軸は \(c,\hbar,G\) という<em>単位のある定数</em>ですが、実際にどの角にいるかを決めるのは、これまで通り<strong>無次元の比</strong>です ── 速さなら \(\beta=v/c\)、量子性なら \(S/\hbar\)、重力なら \(\Phi/c^2\)。比が \(0\) ならスイッチはオフ（その角に落ちる）、比が \(1\) 級ならオン。「わかる宇宙論」の背骨 \(c\cdot t=\)一定 や、相対論最終回の「可変 c ≡ 曲率」も、<em>単位のある定数の値は座標・記述の選び方で、不変なのは無次元の比だけ</em>という同じ思想。立方体は定数で描くが、住所を決めるのは比なのです。</p>
+  </div>
+
+  <h2><span class="n">05</span>残る一角 ── そして、比から見た宇宙</h2>
+
+  <p>立方体の 7 つの角は、すでに人類のものです。特殊相対論、量子力学、ニュートン重力、場の量子論、一般相対論 ── どれも精密に検証され、技術にもなっている。残るたった一角、\(c\)・\(\hbar\)・\(G\) を<strong>同時に</strong>効かせた<strong>量子重力</strong>だけが、100 年未完成。ブラックホールの中心、宇宙のはじまり（ビッグバン）、時空そのものが量子ゆらぎする世界 ── そこでだけ、立方体の 3 軸が全部いる。弦理論やループ量子重力が、この最後の角を目指しています。</p>
+
+  <p>でも、この全集を通して見えてきたのは、もっと静かな一つの態度です ── <strong>単位のある量（メートル・秒・ニュートン・そして c・ℏ・G の値）は舞台装置。世界の姿を決めるのは、単位のない比だけ</strong>。遅れ数 \(\varepsilon\)、速さ \(\beta\)、作用の \(S/\hbar\)、結合 \(\alpha\)、次元 \(d\)、湯川結合 \(y\) ── どのシリーズも、比から考えれば複雑にはならなかった。難しかったのは物理ではなく、単位から出発する見方のほうだった。立方体の最後の角も、いつか誰かが正しい<em>比</em>を見つけたとき、ふっと簡単になるのかもしれません。</p>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">全集キャップストーン・まとめ</span>四部作は、一つの立方体だった</h2>
+    <p>物理の主要理論は、基本定数 <strong>c・ℏ・G</strong> を軸とする立方体の 8 つの角に並ぶ。原点はニュートン、\(c\) をオンで特殊相対論（わかる相対論）、\(\hbar\) で量子力学（わかる量子）、\(c+\hbar\) で場の量子論（わかる場）、\(c+G\) で一般相対論（わかる相対論後半）。相対論と量子の"対立"は、\(c,\hbar,G\) を全部オンにした<strong>最後の一角＝量子重力</strong>（未完成）だけの話で、特殊相対論と量子はむしろ場の量子論として仲良く合体している。</p>
+    <p>各「わかる」シリーズは、この立方体の別々の面と角を照らす地図だった。そして住所を決めるのは、軸の定数そのものではなく、\(\beta,\ S/\hbar,\ \Phi/c^2,\ \alpha\dots\) という<strong>無次元の比</strong>── 全集を貫く「単位は舞台装置、効くのは比」。残る一角の量子重力も、正しい比が見つかれば、いつか一枚におさまる。<em>そこから考えれば、複雑にならない。</em></p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる」全集のキャップストーン（見取り図）、物理好きの高校生・大学生向け読み物です。基本定数 \(c,\hbar,G\) を軸とする「物理の立方体（ブロンシュタイン／ガモフ–イワネンコ–ランダウの立方体、cGh cube）」は、理論物理の体系を俯瞰する標準的な図式です。各角の対応（原点＝ニュートン力学、\(c\)＝特殊相対論、\(\hbar\)＝量子力学、\(G\)＝ニュートン重力、\(c\hbar\)＝相対論的場の量子論、\(cG\)＝一般相対論、\(c\hbar G\)＝量子重力）は広く用いられる整理で、\(\hbar G\)（非相対論的量子重力）の角は限定的・やや便宜的です。特殊相対論と量子力学は場の量子論として整合的に統合され精密に検証されている一方、一般相対論と量子力学の統合（量子重力）は未完成で、弦理論・ループ量子重力等が研究中であることは確立した理解です。どの角にいるかを無次元比（\(\beta,S/\hbar,\Phi/c^2\) 等）が決めるという整理は本全集の視点で、標準的な物理と矛盾しません。図は cℏG 立方体の等角投影の模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。 各シリーズ：<a href="wakaru-soutai/index.html">わかる相対論</a>／<a href="wakaru-ryoushi/index.html">わかる量子</a>／<a href="wakaru-ba/index.html">わかる場</a>／<a href="wakaru/index.html">わかる宇宙論</a>／<a href="wakaru-chikara/index.html">わかる力</a>／<a href="index.html">全集トップ</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では c・ℏ・G のボタンで立方体の角（理論）を切り替えられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      bc=document.getElementById('bc'), bh=document.getElementById('bh'), bg=document.getElementById('bg');
+  var C=0,H=0,G=0;   // 各スイッチ 0/1
+
+  // 角(a=c,b=h,g=G)の理論とシリーズ
+  var THEORY={};
+  THEORY['000']={n:'ニュートン力学',s:'古典の出発点（全スイッチ・オフ）',link:''};
+  THEORY['100']={n:'特殊相対論',s:'わかる相対論 第1〜5回',link:'wakaru-soutai/index.html'};
+  THEORY['010']={n:'量子力学',s:'わかる量子',link:'wakaru-ryoushi/index.html'};
+  THEORY['001']={n:'ニュートン重力',s:'わかる力（重力）',link:'wakaru-chikara/index.html'};
+  THEORY['110']={n:'場の量子論（相対論的量子論）',s:'わかる場',link:'wakaru-ba/index.html'};
+  THEORY['101']={n:'一般相対論（重力＝曲率）',s:'わかる相対論 第6〜7回',link:'wakaru-soutai/index.html'};
+  THEORY['011']={n:'非相対論的量子重力（限定的）',s:'（部分的な角）',link:''};
+  THEORY['111']={n:'量子重力／万物の理論',s:'未完成 ── 人類未踏の一角',link:''};
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var ox=w*0.30, oy=h*0.74;                      // 原点
+    var ec=[w*0.32, h*0.10];    // c 軸（右・少し下）
+    var eh=[w*0.19, -h*0.145];  // ℏ 軸（奥・右上）
+    var eg=[0, -h*0.42];        // G 軸（上）
+    function V(a,b,g){ return [ox+a*ec[0]+b*eh[0]+g*eg[0], oy+a*ec[1]+b*eh[1]+g*eg[1]]; }
+    function key(a,b,g){ return ''+a+b+g; }
+
+    // 全頂点
+    var verts={};
+    for(var a=0;a<2;a++)for(var b=0;b<2;b++)for(var g=0;g<2;g++) verts[key(a,b,g)]=V(a,b,g);
+
+    // 辺（1ビット違い）
+    var vs=Object.keys(verts);
+    ctx.strokeStyle='#b6bcd6'; ctx.lineWidth=1.6;
+    for(var i=0;i<vs.length;i++)for(var j=i+1;j<vs.length;j++){
+      var diff=0; for(var t=0;t<3;t++) if(vs[i][t]!==vs[j][t]) diff++;
+      if(diff===1){ var p=verts[vs[i]], q=verts[vs[j]];
+        ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); }
+    }
+
+    // 軸ラベル（原点から）
+    ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#26619c'; var pc=V(1,0,0); ctx.fillText('c（相対論）→', (ox+pc[0])/2, (oy+pc[1])/2+20);
+    ctx.fillStyle='#4a3b9c'; var ph=V(0,1,0); ctx.fillText('ℏ（量子）', (ox+ph[0])/2+30, (oy+ph[1])/2-2);
+    ctx.fillStyle='#2f7d55'; var pg=V(0,0,1); ctx.fillText('G（重力）↑', ox-4, (oy+pg[1])/2);
+
+    // 頂点
+    var curKey=key(C,H,G);
+    for(var vk in verts){
+      var pos=verts[vk], isCur=(vk===curKey), isTOE=(vk==='111');
+      var col = isTOE ? '#a83a22' : '#3d4a7a';
+      ctx.beginPath(); ctx.arc(pos[0],pos[1], isCur?9:5, 0,7);
+      ctx.fillStyle = isCur ? col : (isTOE?'#e0b3aa':'#c3c9e0'); ctx.fill();
+      if(isCur){ ctx.strokeStyle=col; ctx.lineWidth=3; ctx.stroke(); }
+      // 短ラベル
+      var th=THEORY[vk];
+      ctx.fillStyle = isCur? col : '#8a90aa'; ctx.font=(isCur?'bold ':'')+'11px sans-serif';
+      var lx=pos[0], ly=pos[1];
+      var dy = (vk[2]==='1')? -12 : 16;   // G on は上へラベル
+      var dx = (vk[0]==='1')? 8 : -8;
+      ctx.textAlign = (vk[0]==='1')?'left':'right';
+      ctx.fillText(th.n, lx+dx, ly+dy);
+    }
+
+    // readout
+    var th=THEORY[curKey];
+    var sw='c='+(C?'オン':'オフ')+' / ℏ='+(H?'オン':'オフ')+' / G='+(G?'オン':'オフ');
+    var linkHtml = th.link ? ('　→ <a href="'+th.link+'">'+th.s+'</a>') : ('　（'+th.s+'）');
+    rd.innerHTML='<strong>'+sw+'</strong> → いまいる角：<strong style="color:'+(curKey==='111'?'#a83a22':'#2f3866')+'">'+th.n+'</strong>'+linkHtml
+      + (curKey==='111' ? '　── c・ℏ・G が全部そろう、人類未踏の角。' : (curKey==='000' ? '　── 全部オフ＝古典の出発点。' : ''));
+
+    bc.className=C?'on':''; bh.className=H?'on':''; bg.className=G?'on':'';
+    bc.textContent='c：相対論 '+(C?'オン':'オフ');
+    bh.textContent='ℏ：量子 '+(H?'オン':'オフ');
+    bg.textContent='G：重力 '+(G?'オン':'オフ');
+  }
+
+  bc.addEventListener('click',function(){C=1-C;draw();});
+  bh.addEventListener('click',function(){H=1-H;draw();});
+  bg.addEventListener('click',function(){G=1-G;draw();});
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

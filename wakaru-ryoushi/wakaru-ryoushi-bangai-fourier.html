@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量子とフーリエ変換 ── わかる量子 番外編</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f2f9fa; --paper-edge:#d3e6e8;   /* 番外：フーリエ＝青緑シアンの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f6a72; --calc-bg:#e0f0f1;
+    --rule:#c7dde0; --hair:#aecdd1;
+    --acc:#1f7a8c;    /* アクセント＝フーリエのシアン */
+    --grid:#d3e8ea;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b4e2e6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c7e0e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e0f0f1;color:#1f6a72;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f5f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1a5a62;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fafefe,#e4f1f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e0f0f1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1a5a62;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6d70;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる量子</span><span class="ep">番外編 ／ 量子とフーリエ変換 ── レコードとCDは、同じ曲</span></div>
+  <p class="eyebrow">第4・5回で触れた「連続な波 ↔ とびとびの成分」の数学 ── 位置と運動量は、フーリエの表と裏</p>
+  <h1>量子とフーリエ変換
+    <span class="sub">波形（レコード）と、その周波数成分（CD）は、同じ曲の二つの姿。位置 ψ(x) と運動量 φ(p) も、<br>ℏ を両替レートにしたフーリエの表・裏。不確定性も、この双対から自動的に出る。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：サイン波の重ね合わせ、第1回 p=ℏk、第5回 Δx·Δp</span>
+    <span>この回：ψ(x) と φ(p) はフーリエ変換対</span>
+  </div>
+
+  <p class="lead">第4回・第5回で「連続な波形と、そのとびとびの成分（レコードとCD）は同じものの二つの見方」と言い、その数学が<strong>フーリエ変換</strong>だと予告しました。この番外編では、そこを正面から掘ります。フーリエの発見は一言でこうです ── <em>どんな波形も、純粋なサイン波（一つの波長・振動数の波）を重ね合わせて作れる</em>。逆に、波形を"どのサイン波がどれだけ入っているか"に分解できる。量子論では、これが決定的な意味を持ちます ── <strong>波動関数を「位置で見る \(\psi(x)\)」と「運動量で見る \(\varphi(p)\)」は、まさにフーリエの表と裏</strong>。同じ一つの状態の、二つの表現。そして両者を結ぶ両替レートが \(\hbar\)（\(p=\hbar k\)）。あなたが直感した「二つの記述系が同じことを言っている」が、ここでいちばん精密な形になります。</p>
+
+  <h2><span class="n">01</span>波形とスペクトル ── レコードとCDは同じ曲</h2>
+
+  <p>音楽を思い浮かべてください。レコードの溝は、空気の振動の<em>波形</em>そのもの（時間 → 振幅、連続）。いっぽうCDやスペクトラムアナライザは、その音を<em>どの周波数がどれだけ含まれるか</em>に分解して持つ。波形とスペクトル ── <strong>形は正反対でも、運んでいる曲はまったく同じ</strong>。片方からもう片方へ、情報を失わず行き来できる。この行き来の数学が、フーリエ変換です。</p>
+
+  <div class="keybox">
+    <div class="lbl">フーリエ ── どんな波形も、サイン波の重ね合わせ</div>
+    <p style="margin:2px 0 0;">波形 \(f(x)\) ＝ いろんな波数 \(k\) のサイン波 \(e^{ikx}\) を、重み \(\tilde f(k)\) で足し合わせたもの：\(f(x)=\int \tilde f(k)\,e^{ikx}\,dk\)。重み \(\tilde f(k)\) が「スペクトル」＝どの波長がどれだけ入っているか。波形（\(f\)）とスペクトル（\(\tilde f\)）は、同じ情報の表と裏。</p>
+  </div>
+
+  <h2><span class="n">02</span>位置 ψ(x) と運動量 φ(p) は、フーリエの表・裏</h2>
+
+  <p>第1回で、運動量が決まった波は \(e^{ipx/\hbar}\)（波数 \(k=p/\hbar\) の純粋なサイン波）でした。ということは ── <em>運動量が決まった波こそ、量子論における"純粋なサイン波"</em>。だからフーリエの言葉がそっくり移せます。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">波動関数の、二つの表現（フーリエ変換対）</div>
+    $$\psi(x)=\int \varphi(p)\,e^{ipx/\hbar}\,dp \qquad\Longleftrightarrow\qquad \varphi(p)=\frac{1}{2\pi\hbar}\int \psi(x)\,e^{-ipx/\hbar}\,dx$$
+    <p style="margin:8px 0 0;">\(\psi(x)\)（位置で見た波動関数＝どこにいそうか）と、\(\varphi(p)\)（運動量で見た波動関数＝どんな運動量を持ちそうか）は、\(\hbar\) を通じたフーリエ変換で結ばれる<strong>同じ状態の二つの表現</strong>。どちらが"本物"でもない ── レコードとCDのように。運動量を測るとは、\(\psi\) を<em>フーリエ分解して</em>「どのサイン波がどれだけ入っているか」を見ることなのです。</p>
+  </div>
+
+  <p>これは第2回の \(\psi=|\psi|e^{iS/\hbar}\) の深い意味でもあります。位相 \(S/\hbar\) が空間で \(px/\hbar\) と回る波 ── それが運動量 \(p\) の"サイン波"。\(\psi(x)\) をそういうサイン波に分解した係数が \(\varphi(p)\) です。</p>
+
+  <h2><span class="n">03</span>不確定性は、フーリエの定理そのもの</h2>
+
+  <p>フーリエには、動かせない定理があります ── <strong>狭い波形は、広いスペクトルでできている</strong>（帯域幅定理）。一瞬のパルスを作るには、たくさんの周波数を混ぜないといけない。逆に、たった一つの周波数の波は、時間・空間じゅうに広がる。数式にすると、波形の広がり \(\Delta x\) とスペクトルの広がり \(\Delta k\) の間に ──</p>
+
+  <div class="calc">
+    <span class="tag">フーリエの帯域幅定理 → 不確定性原理</span>
+    $$\Delta x\cdot\Delta k\ge\tfrac12\quad\xrightarrow{\ p=\hbar k\ }\quad \Delta x\cdot\Delta p\ge\frac{\hbar}{2}$$
+    <p style="margin-bottom:14px;">左は、量子と無関係な<em>純粋に波（信号処理）の定理</em>。音でも電波でも成り立つ。これに、第1回の両替レート \(p=\hbar k\) を掛けるだけで、第5回の<strong>不確定性原理</strong>が出る。つまり不確定性は量子論の"奇妙な仮定"ではなく、<em>波を二通りに表現したら必然的に付いてくる、フーリエの当たり前の帰結</em>。\(\hbar\) は、その波の事実に物理の目盛りを与えているだけです。</p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── フーリエ合成：狭い spectrum は広い波</h2>
+
+  <p>下の図。<strong>上</strong>が波形 \(\psi(x)\)、<strong>下</strong>がスペクトル（どの波数 \(k=p/\hbar\) がどれだけ入っているか）。スライダーで、混ぜるサイン波の<strong>幅 \(\Delta k\)</strong>（スペクトルの広さ）を変えられます。</p>
+
+  <p>スペクトルを<em>狭く</em>する（少数の波数だけ）と、上の波形は<em>長く広がった波列</em>になる（運動量ははっきり、位置はぼやける）。スペクトルを<em>広げる</em>（たくさんの波数を混ぜる）と、波形は一点に集まった<strong>鋭いパルス</strong>になる（位置ははっきり、運動量はぼやける）。狭いパルスを作るには多くのサイン波が要る ── これがフーリエ、そして不確定性。上下の広がりの積 \(\Delta x\cdot\Delta k\) は、\(1/2\) を下回れません。</p>
+
+  <div class="fig">
+    <div class="cap">図：上＝波形 ψ(x)（多数のサイン波の重ね合わせ）、下＝スペクトル（含まれる波数 k=p/ℏ の分布）。Δk を広げると波形が鋭いパルスに、狭めると長い波列に。狭いパルス＝多くのサイン波（不確定性）</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>スペクトルの幅 Δk（混ぜる波数の広さ） <span class="val" id="vk">0.8</span>
+        <input type="range" id="sk" min="0.12" max="2.6" step="0.02" value="0.8">
+      </label>
+      <button id="bn">単一波長に近く</button>
+      <button id="bw">パルスに近く</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f7a8c;"></i>波形 ψ(x)</span>
+      <span><i class="swatch" style="background:#a86a1e;"></i>スペクトル φ(k)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>時間とエネルギー、そして身のまわりのフーリエ</h2>
+
+  <p>まったく同じ双対が、時間とエネルギーの間にもあります。\(E=\hbar\omega\)（第1回）なので、時間波形 \(\psi(t)\) とエネルギースペクトルも、\(\hbar\) を通じたフーリエ対。だから ──</p>
+
+  <div class="aside">
+    <span class="tag">寿命と線幅 ── 短命な状態はエネルギーがぼやける</span>
+    エネルギーがきっちり決まった状態は、\(e^{-iEt/\hbar}\) と<em>永遠に同じ振動</em>を続ける純粋な音（第4回の定常状態）。逆に、寿命 \(\tau\) で崩壊する状態は、時間的に途切れた"短い音"なので、エネルギーが幅 \(\Delta E\sim\hbar/\tau\) だけ<strong>ぼやける</strong>。原子や粒子のスペクトル線に<em>幅</em>があるのは、これ（自然幅）── 短命な粒子ほど、エネルギー（質量）の測定値がぼやける。\(\Delta t\cdot\Delta E\ge\hbar/2\)（第5回）は、この時間・エネルギーのフーリエ双対そのものです。</p>
+  </div>
+
+  <p>フーリエは、量子論だけの道具ではありません。回折格子やプリズムは光を波長に分ける<em>物理的なフーリエ変換器</em>、電子回折・X線結晶構造解析は物質波のフーリエ分解、MRI や音声・画像圧縮（JPEG・MP3）も全部フーリエ。そして「わかる宇宙論」第5回の<strong>サンプリング</strong>（連続と離散を結ぶ標本化定理）も、フーリエの裏側。<em>連続（レコード）と成分（CD）を自在に行き来できる</em>という一点が、信号処理から量子力学まで貫いている ── あなたが感じた「二つの記述は同じことを言っている」は、フーリエ双対という名前を持つ、物理と数学の背骨だったのです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── フーリエ双対の射程</span>
+    <p style="margin-top:0;">位置表現 \(\psi(x)\) と運動量表現 \(\varphi(p)\) が \(\hbar\) を核とするフーリエ変換対であること、運動量固有状態が平面波 \(e^{ipx/\hbar}\) であること、帯域幅定理 \(\Delta x\,\Delta k\ge1/2\) と \(p=\hbar k\) から不確定性 \(\Delta x\,\Delta p\ge\hbar/2\) が出ること、時間・エネルギーのフーリエ双対と自然幅 \(\Delta E\sim\hbar/\tau\)、回折・結晶解析・信号処理が物理的フーリエであることは、いずれも確立した物理・数学です。</p>
+    <p style="margin-bottom:0;">補足。 ① 位置と運動量が<em>フーリエ対</em>になるのは、両者が正準共役だから。すべての観測量の組がこうなるわけではありません（第5回の共役対の話）。 ② 厳密には平面波 \(e^{ipx/\hbar}\) は規格化できない理想状態で、実際の状態は波束（可規格化）として扱います。 ③ 「CD/レコード」は連続↔離散の直感的たとえで、フーリエ変換（連続スペクトル）と、標本化・フーリエ級数（離散）は関連するが別物 ── 標本化定理（サンプリング）が両者を橋渡しします。 ④ この双対は非相対論的量子力学の枠での話で、場の量子論では場の演算子のフーリエ展開（生成・消滅演算子）へと拡張されます。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>運動量がきっちり決まった状態は、位置ではどんな波か。なぜ位置がぼやけるか。
+        <details><summary>答えを見る</summary><div class="ans">単一波数 \(k=p/\hbar\) の平面波 \(e^{ipx/\hbar}\)。空間じゅうに一様に広がるので、位置はまったく定まらない（フーリエで、単一周波数＝無限に広がる波）。</div></details>
+      </li>
+      <li>鋭い位置のパルスを作るには、運動量（波数）の成分はどうなるか。
+        <details><summary>答えを見る</summary><div class="ans">たくさんの波数を混ぜる必要がある（広いスペクトル）。狭い波形＝広いスペクトル（帯域幅定理）。だから位置を鋭くすると運動量がぼやける＝不確定性。</div></details>
+      </li>
+      <li>寿命 τ が短い粒子ほど、エネルギー（質量）の測定値がぼやけるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">時間波形とエネルギーがフーリエ対。短命＝時間的に短い"音"＝エネルギー幅 ΔE∼ℏ/τ が広い（自然幅）。短命な粒子の質量に幅があるのはこれ。</div></details>
+      </li>
+      <li>不確定性 Δx·Δp≥ℏ/2 の「量子的な部分」と「純粋に波の部分」を分けよ。
+        <details><summary>答えを見る</summary><div class="ans">純粋に波（フーリエ）の部分：Δx·Δk≥1/2（信号処理でも成り立つ）。量子的な部分：p=ℏk（ℏ で波数を運動量に両替）。掛け合わせて不確定性。ℏ が波の事実に物理の目盛りを与えている。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編まとめ</span>位置と運動量は、ℏ で結ばれたフーリエの表・裏</h2>
+    <p>どんな波形も純粋なサイン波の重ね合わせで作れる（フーリエ）。量子では、運動量が決まった波 \(e^{ipx/\hbar}\) がその"サイン波"で、<strong>位置表現 \(\psi(x)\) と運動量表現 \(\varphi(p)\) は \(\hbar\) を核とするフーリエ変換対</strong> ── 同じ状態の二つの姿（レコードとCD）。運動量を測るとは \(\psi\) をフーリエ分解すること。そして「狭い波形は広いスペクトル」という帯域幅定理 \(\Delta x\Delta k\ge1/2\) に \(p=\hbar k\) を掛ければ、<strong>不確定性 \(\Delta x\Delta p\ge\hbar/2\) が自動的に出る</strong>── 不確定性は奇妙な仮定でなく、波を二通りに表現したことの必然。</p>
+    <p>同じ双対が時間とエネルギーにもあり（\(E=\hbar\omega\)）、短命な状態のエネルギーがぼやける自然幅になる。回折・結晶解析・MP3・そして「わかる宇宙論」のサンプリングまで、<em>連続（波形）と成分（スペクトル）を自在に行き来できる</em>フーリエ双対が貫いている。あなたが感じた「二つの記述系が同じことを言っている」── その正体は、フーリエ双対という、物理と数学の背骨でした。単位のある \(x,p\) は舞台装置、両者を結ぶのは \(\hbar\) という比の目盛り。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">全集キャップストーンへ</span>
+    この番外で、量子論の「二つの記述は同じ」がフーリエ双対として精密になりました。より大きく見れば ── 相対論と量子、場と重力も、基本定数 \(c,\hbar,G\) の軸で一枚の図につながります。全集の締めとして、その見取り図<strong>「物理の立方体」</strong>を別途用意しました（各シリーズが、どの角にあるか）。<em>単位を捨て、比と軸から見れば、物理は一枚におさまる。</em></p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる量子」シリーズ番外編、物理好きの高校生・大学生向け読み物です。位置表現と運動量表現がフーリエ変換対（核 \(e^{\pm ipx/\hbar}\)）で結ばれること、運動量固有関数が平面波であること、帯域幅定理 \(\Delta x\,\Delta k\ge1/2\) と \(p=\hbar k\) からの不確定性 \(\Delta x\,\Delta p\ge\hbar/2\)、時間・エネルギーのフーリエ双対と自然幅 \(\Delta E\approx\hbar/\tau\)、回折・結晶構造解析・信号処理が物理的フーリエ解析であることは、いずれも確立した物理・数学です。位置と運動量がフーリエ対になるのは正準共役性ゆえで全観測量対がそうではないこと、平面波は非可規格化の理想状態で実状態は波束であること、連続フーリエ変換と標本化・フーリエ級数（離散）は関連するが別概念で標本化定理が橋渡しすること、本稿は非相対論的量子力学の枠で場の量子論では場のフーリエ展開（生成消滅演算子）に拡張されることは本文「正直な線」に明記しました。図はガウス波束のフーリエ合成（\(\Delta x\cdot\Delta k\) 一定）の模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-ryoushi-05-fukakutei.html">第5回 不確定性</a>／<a href="index.html">目次</a>／<a href="../butsuri-rittai.html">物理の立方体（全集）</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスペクトルの幅 Δk を変えると、波形が波列↔パルスに変わります。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'),
+      rd=document.getElementById('rd'), bn=document.getElementById('bn'), bw=document.getElementById('bw');
+  var K0=3.0;   // 中心波数
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var dk=parseFloat(sk.value); vk.textContent=dk.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    var L=40, R=w-20;
+    var yTopMid=h*0.28, yBotMid=h*0.76, amp=h*0.19;
+
+    // 成分の波数リスト（K0±3dk）とガウス重み
+    var N=51, kmin=K0-3*dk, kmax=K0+3*dk, weights=[], ksum=0;
+    for(var i=0;i<N;i++){ var ki=kmin+(kmax-kmin)*i/(N-1);
+      var wt=Math.exp(-0.5*Math.pow((ki-K0)/dk,2)); weights.push({k:ki,w:wt}); ksum+=wt; }
+
+    // 上：波形 ψ(x)=Σ w cos(k x)  （x を -6..6 に）
+    ctx.strokeStyle='#c7dde0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,yTopMid); ctx.lineTo(R,yTopMid); ctx.stroke();
+    ctx.strokeStyle='#1f7a8c'; ctx.lineWidth=2.4; ctx.beginPath();
+    var maxv=0, vals=[];
+    for(var px=L;px<=R;px+=2){
+      var x=((px-L)/(R-L)-0.5)*12;
+      var s=0; for(var j=0;j<N;j++){ s+=weights[j].w*Math.cos(weights[j].k*x); }
+      s/=ksum; vals.push({px:px,v:s}); if(Math.abs(s)>maxv)maxv=Math.abs(s);
+    }
+    for(var m=0;m<vals.length;m++){ var y=yTopMid-amp*(vals[m].v/(maxv||1));
+      if(m===0)ctx.moveTo(vals[m].px,y); else ctx.lineTo(vals[m].px,y); }
+    ctx.stroke();
+    ctx.fillStyle='#1a5a62'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('波形 ψ(x)', L, yTopMid-amp-8);
+
+    // 下：スペクトル（バー）
+    ctx.strokeStyle='#c7dde0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,yBotMid); ctx.lineTo(R,yBotMid); ctx.stroke();
+    var kdispMin=0, kdispMax=6.5;
+    function KX(k){ return L+(k-kdispMin)/(kdispMax-kdispMin)*(R-L); }
+    for(var b=0;b<N;b++){ var bx=KX(weights[b].k); var bh=(weights[b].w)*amp*1.5;
+      ctx.strokeStyle='#a86a1e'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(bx,yBotMid); ctx.lineTo(bx,yBotMid-bh); ctx.stroke(); }
+    ctx.fillStyle='#8a5a12'; ctx.font='bold 12px sans-serif';
+    ctx.fillText('スペクトル φ(k)  （k = p/ℏ）', L, yBotMid+22);
+    ctx.fillStyle='#9a8a6a'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('k=0', KX(0), yBotMid+14); ctx.fillText('k₀', KX(K0), yBotMid+14);
+
+    var Dx=1/dk;  // 波形の広がり（∝1/Δk）
+    var msg = dk<0.3 ? '狭いスペクトル → 長く広がった波列（運動量くっきり・位置ぼやける）。'
+            : dk>1.8 ? '広いスペクトル → 鋭いパルス（位置くっきり・運動量ぼやける）。'
+            : '中間 ── サイン波を混ぜるほど波形が締まる。';
+    rd.textContent='スペクトル幅 Δk = '+dk.toFixed(2)+' → 波形の広がり Δx ∝ 1/Δk ≈ '+Dx.toFixed(2)
+      +'。 積 Δx·Δk ≈ 0.5（一定）。 '+msg+' 狭いパルスは多くのサイン波でできている＝不確定性。';
+  }
+
+  sk.addEventListener('input', draw);
+  bn.addEventListener('click', function(){ sk.value=0.15; draw(); });
+  bw.addEventListener('click', function(){ sk.value=2.4; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
