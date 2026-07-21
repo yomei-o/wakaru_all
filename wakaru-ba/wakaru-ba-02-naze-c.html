@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>なぜ c か ── 速さは硬さ÷重さの平方根 ── わかる場 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7f3; --paper-edge:#e7ddd0;   /* 第2回：速さ・弾む＝暖色の紙 */
+    --side:#4f6a3a; --side-bg:#eef3ea;
+    --warn:#7a3b2a;
+    --calc:#8a4a12; --calc-bg:#f6ece0;   /* 計算色＝古金・橙 */
+    --rule:#ddd2c2; --hair:#cabca6;
+    --acc:#b0561e;    /* アクセント＝速さの橙 */
+    --grid:#ecdfce;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f1d3ac 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#28331f;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e6d6bf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 18px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6ece0;color:#7a4a12;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faf1e7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5a3512;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfbf8,#f3e9dc);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6ece0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5a3512;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b5f4f;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる場</span><span class="ep">第 2 回 ／ なぜ c か ── 速さは硬さ÷重さの平方根</span></div>
+  <p class="eyebrow">第1回で news は「歩く」と言った。では ── その歩く速さは、何が決めているのか</p>
+  <h1>なぜ c か ── 速さは、硬さ÷重さの平方根
+    <span class="sub">弦をはじく音も、水面のさざなみも、光も ── 伝わる速さは、たった一つの同じ骨格で決まる。<br><em>硬さと重さの比の、平方根</em>。そして場の「重さ」がゼロに張りつくと、比は上限 c に達する。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算・平方根、第1回の「隣としか話さない」</span>
+    <span>この回の比：v/c = √(硬さ/重さ) = √(k/m)</span>
+  </div>
+
+  <p class="lead">第1回で、力は場を介して伝わり、場は<em>隣としか話さない</em>から news は光速 \(c\) で「歩く」と言いました。では素朴な問い ── <strong>その歩く速さは、何が決めているのか</strong>。なぜ秒速 30 万 km で、それより速くも遅くもないのか。この回の答えは、拍子抜けするほど普遍的です。弦の音も、地震の波も、光も、伝わる速さはすべて<strong>同じ一つの式</strong>で書ける ── \(v=\sqrt{\text{硬さ}/\text{重さ}}\)。硬いほど速く、重いほど遅い。ただそれだけ。そして電磁場でこの「硬さ」と「重さ」を作ると、\(c=1/\sqrt{\varepsilon_0\mu_0}\) がぽろりと出てくる。「なぜか光速で伝わる」の <em>なぜか</em> は、この回で <em>必然</em> に変わります。</p>
+
+  <h2><span class="n">01</span>伝言ゲームの速さ ── 引っぱる強さと、動きにくさ</h2>
+
+  <p>ぴんと張った弦の左端を、ぱっと弾く。へこみが右へ走っていく。この「へこみが走る速さ」を、伝言ゲームとして分解します。ある一点がへこむと、それは<em>隣を引っぱり上げようとする</em>。この引き戻す強さが<strong>硬さ \(k\)</strong>（弦なら張力）。でも隣には<em>動きにくさ</em>がある。これが<strong>重さ \(m\)</strong>（弦なら密度）。硬さは「早く隣に伝えろ」と急かし、重さは「そう急ぐな」とブレーキをかける。せめぎ合いの結果が、伝わる速さ ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">波の速さ ── すべての波に共通の骨格</div>
+    $$v=\sqrt{\dfrac{\text{硬さ}}{\text{重さ}}}=\sqrt{\dfrac{k}{m}}$$
+    <p style="margin:8px 0 0;">硬さ \(k\) が<strong>分子</strong>（大きいほど速い）、重さ \(m\) が<strong>分母</strong>（大きいほど遅い）。そして両者は<em>平方根</em>の中にいる ── 硬さを4倍にしても、速さは2倍にしかならない。</p>
+  </div>
+
+  <p>なぜ平方根なのか、一言で。硬さ \(k\) は「引き戻す力」を、重さ \(m\) は「加速のしにくさ」を決める。振動の速さ（角振動数）は \(\omega=\sqrt{k/m}\) ── ばね振り子でおなじみのあれ。波の速さも、この振動が隣へ乗り移る速さだから、同じ \(\sqrt{k/m}\) の顔をしている。<em>ばね振り子の \(\sqrt{k/m}\) と、波の速さの \(\sqrt{k/m}\) は、同じもの</em>です。</p>
+
+  <h2><span class="n">02</span>硬いほど速く、重いほど遅い ── 身のまわりで確かめる</h2>
+
+  <p>この一本の式で、身のまわりの「速さの違い」がぜんぶ読めます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 同じ式が、別の顔で何度も出る</span>
+    <p class="lbl">弦を伝わる波（張力 T、線密度 μ）</p>
+    $$v=\sqrt{\dfrac{T}{\mu}}\quad(\text{硬さ}=T,\ \text{重さ}=\mu)$$
+    <p class="lbl">空気や固体を伝わる音（体積弾性率 K、密度 ρ）</p>
+    $$v=\sqrt{\dfrac{K}{\rho}}\quad(\text{硬さ}=K,\ \text{重さ}=\rho)$$
+    <p style="margin-bottom:14px;">ギターの弦を強く張る（\(T\uparrow\)）と音が高くなるのは \(v\uparrow\) だから。太い弦（\(\mu\uparrow\)）の音が低いのは \(v\downarrow\) だから。鉄の中を音が空気の約15倍速く走るのは、鉄が「硬くて（\(K\) 大）、比のうえで軽い」から。<strong>名前は違っても、骨格は全部 \(v=\sqrt{\text{硬さ}/\text{重さ}}\)</strong>。</p>
+  </div>
+
+  <p>ここまでは、目に見える物質の波。ではいよいよ ── 何も無いはずの真空を走る、光の速さへ。</p>
+
+  <h2><span class="n">03</span>光の速さも、同じ骨格 ── c = 1/√(ε₀μ₀)</h2>
+
+  <p>電磁場にも「硬さ」と「重さ」があります。電場には、電気を蓄えようとするときの<em>ため込みにくさ</em>があり、これが電気的な<strong>硬さ</strong>（真空の誘電率 \(\varepsilon_0\) の逆数 \(1/\varepsilon_0\)）。磁場には、電流の変化に逆らう<em>粘り</em>＝慣性があり、これが磁気的な<strong>重さ</strong>（真空の透磁率 \(\mu_0\)）。同じ骨格に入れると ──</p>
+
+  <div class="keybox">
+    <div class="lbl">電磁波（光）の速さ</div>
+    $$c=\sqrt{\dfrac{\text{電気の硬さ}}{\text{磁気の重さ}}}=\sqrt{\dfrac{1/\varepsilon_0}{\mu_0}}=\dfrac{1}{\sqrt{\varepsilon_0\mu_0}}$$
+    <p style="margin:8px 0 0;">硬さ \(=1/\varepsilon_0\)、重さ \(=\mu_0\)。弦の \(\sqrt{T/\mu}\) と、字面まで同じ。</p>
+  </div>
+
+  <p>数を入れてみましょう。実験室の卓上で、光とは無関係に測れる二つの定数 ── \(\varepsilon_0=8.85\times10^{-12}\)、\(\mu_0=1.26\times10^{-6}\) ──</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 電気と磁気の定数だけから、光速が出る</span>
+    $$c=\dfrac{1}{\sqrt{(8.85\times10^{-12})(1.26\times10^{-6})}}\approx 3.0\times10^{8}\ \text{m/s}$$
+    <p style="margin-bottom:14px;">光を一切使わず、電気の実験と磁気の実験だけから計算した速さが、測っておいた<strong>光速そのもの</strong>だった。これが1862年、マクスウェルの震えるような一行です ── 「この速さは光の速さと厳密に一致する。<em>光とは電磁波である</em>と結論せざるをえない」。光の正体は、電磁場の伝言ゲームだったのです。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">対応表 ── 「硬さ／重さ」は場を乗り換えても生き残る</span>
+    弦：硬さ \(T\)・重さ \(\mu\)。 音：硬さ \(K\)・重さ \(\rho\)。 電磁場：硬さ \(1/\varepsilon_0\)・重さ \(\mu_0\)。 ── 場が変わっても、\(v=\sqrt{\text{硬さ}/\text{重さ}}\) という<strong>比の形</strong>だけは不変。単位のある定数（\(T,\mu,\varepsilon_0,\mu_0\)）は舞台装置で、物理を決めるのは<em>比</em>。第1回の「単位のある量は舞台装置」が、ここでも効いています。
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 硬さと重さで、速さが変わる</h2>
+
+  <p>下の図は競走です。<strong>上のレーン</strong>は、硬さ \(k\)・重さ \(m\) を自由に変えられる「ばね鎖」。<strong>下のレーン</strong>は基準として、真空を進む<strong>光</strong>（速さ \(c\)、変えられない）。同時にスタートして、どちらが先に決勝線へ着くか。</p>
+
+  <p>スライダーで硬さ \(k\) を上げると、ばね鎖のパルスは<em>速くなる</em>。重さ \(m\) を上げると<em>遅くなる</em>。表示される速さの比は、ちょうど \(v/c=\sqrt{k/m}\)。\(k=m\)（デフォルト）のとき、比は 1 ── 光とぴったり並走します。硬さと重さが釣り合うと、その場の波は光と同じ速さになる。「なぜ \(c\) か」は、「\(c\) とは、電磁場の硬さと重さが決める、その場に固有の \(\sqrt{k/m}\) だから」なのです。</p>
+
+  <div class="fig">
+    <div class="cap">図：ばね鎖の波（上・硬さ k / 重さ m 可変）と、真空を進む光（下・基準 c）の競走。速さの比は v/c = √(k/m)。k を上げると速く、m を上げると遅く。決勝線に先に着くほうが「速い」</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>硬さ k <span class="val" id="vk">1.00</span>
+        <input type="range" id="sk" min="0.2" max="5" step="0.05" value="1">
+      </label>
+      <label>重さ m <span class="val" id="vm">1.00</span>
+        <input type="range" id="sm" min="0.2" max="5" step="0.05" value="1">
+      </label>
+      <button id="play">⏸ 一時停止</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0561e;"></i>ばね鎖の波（v = c·√(k/m)）</span>
+      <span><i class="swatch" style="background:#2f6d8c;"></i>光（真空）＝基準 c</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>なぜ「上限」なのか ── 無次元で読む c</h2>
+
+  <p>速さそのもの（m/s）には単位がある。単位を消して<em>比</em>にすると、この回の主役が見えます ── 光と比べて、その波はどれだけ遅いか。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">遅さの比 ── 屈折率 n（単位なし）</div>
+    $$n=\dfrac{c}{v}\;(\geq 1)$$
+    <p style="margin:8px 0 0;">真空（何も足さない電磁場）では \(n=1\) ── これが<strong>上限</strong>。ガラスや水では、電子が場に揺すられて<em>いっしょに動く</em>ぶん、余分な「重さ」が加わって \(v<c\)、つまり \(n>1\)。光がガラスで曲がる（屈折する）のは、この \(n\) が 1 より大きいから。</p>
+  </div>
+
+  <p>ここが「上限」の核心です。媒質は、余分な重さ（動く電荷の慣性）を<em>足す</em>ことしかできない。重さを足せば \(v\) は下がり \(n\) は上がる ── だから<strong>真空、つまり余分な重さがゼロのとき、速さは最大値 \(c\) に張りつく</strong>。何も足さないときが、いちばん速い。第6回のヒッグス場も、次回の質量も、じつは「場に重さを足す」話 ── 重さを足された場は \(c\) より遅くなり、届く距離まで縮む。逆に<strong>重さゼロの場（光子）は、比が上限に達して \(c\) ちょうどで走り、無限の彼方まで届く</strong>。「なぜか光速」の <em>なぜか</em> は、「場の重さがゼロだから、\(\sqrt{k/m}\) が上限に達する」という <em>必然</em> だったのです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが厳密で、どこからが「たとえ」か</span>
+    <p style="margin-top:0;">\(v=\sqrt{\text{硬さ}/\text{重さ}}\) は、弦・音・電磁波・水面波など<strong>あらゆる波に本当に共通する厳密な骨格</strong>です（波動方程式から出ます）。\(c=1/\sqrt{\varepsilon_0\mu_0}\)、屈折率 \(n=c/v\geq1\)、媒質が \(v\) を下げること、光子が質量ゼロで \(c\) を出すこと ── すべて確立した物理です。</p>
+    <p style="margin-bottom:0;">ただし二点、正直に。 ① 電磁場は、<em>エーテルという物質がプルプル震えている</em>わけではありません。19世紀はそう想像しましたが、実験（マイケルソン・モーリー）が否定した。\(\varepsilon_0,\mu_0\) は<strong>真空＝場そのものの性質</strong>で、「硬さ・重さ」は場に対する厳密な<em>たとえ</em>（電気回路の \(v=1/\sqrt{LC}\) と数学的に同型）と受け取ってください。 ② この回は「<em>その波がなぜ \(c\) を出すか</em>」を説明しましたが、「<em>なぜ \(c\) が、この宇宙の絶対の速度上限なのか</em>（何も情報は \(c\) を超えられない）」は、もう一段深い相対論＝時空の構造の話で、別の機会に。ここでは「重さゼロの場は \(\sqrt{k/m}\) が最大値に達する」までを、しっかり掴んでください。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の式だけで解けます）</div>
+    <ol>
+      <li>ある弦の張力 \(T\) を4倍にした。波の速さ \(v=\sqrt{T/\mu}\) は何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\sqrt{4}=2\) 倍。平方根の中なので、硬さ4倍でも速さは2倍。硬さを2倍にしたいだけなら張力は\(\sqrt2\)倍でよい、とも読める。</div></details>
+      </li>
+      <li>ばね鎖で硬さ \(k\) を2倍、重さ \(m\) を8倍にした。速さの比 \(v/c=\sqrt{k/m}\) は元の何倍か。
+        <details><summary>答えを見る</summary><div class="ans">\(\sqrt{(2)/(8)}=\sqrt{1/4}=1/2\)。元の半分の速さ。硬く（速く）しても、それ以上に重く（遅く）すれば、正味は遅くなる ── 効くのは \(k\) と \(m\) の<strong>比</strong>だけ。</div></details>
+      </li>
+      <li>あるガラスの屈折率が \(n=1.5\)。ガラス中の光速 \(v\) は真空の何倍か。なぜ 1 より小さくなるのか。
+        <details><summary>答えを見る</summary><div class="ans">\(v=c/n=c/1.5\approx0.67\,c\)。真空の約 2/3。ガラス中では電子が場に揺すられていっしょに動き、余分な「重さ（慣性）」が加わるため \(v<c\)、\(n>1\) になる。重さを足すと遅くなる、の実例。</div></details>
+      </li>
+      <li>「真空でだけ \(n=1\) で、それが最大速度」。この事実を、\(v=\sqrt{\text{硬さ}/\text{重さ}}\) の言葉で一言で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">媒質は場に「余分な重さ」を足すことしかできず、重さを足せば \(v\) は下がる。だから何も足さない真空（余分な重さゼロ）で \(v\) は最大＝\(c\)、\(n=1\)。「上限」とは「重さゼロの状態」のこと。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第2回まとめ</span>速さは √(硬さ/重さ) ── c は上限に張りついた比</h2>
+    <p>第1回で「歩く」と言った news の速さは、何が決めるのか。答えは普遍的で、<strong>あらゆる波の速さ \(=\sqrt{\text{硬さ}/\text{重さ}}=\sqrt{k/m}\)</strong>。硬さが分子（速く）、重さが分母（遅く）、両者は平方根の中。弦 \(\sqrt{T/\mu}\)、音 \(\sqrt{K/\rho}\)、電磁場 \(\sqrt{(1/\varepsilon_0)/\mu_0}=1/\sqrt{\varepsilon_0\mu_0}=c\) ── 名前は違っても骨格は一つ。マクスウェルは電気と磁気の定数だけから \(c\) を出し、光が電磁波だと見抜いた。</p>
+    <p>単位を消して比にすると屈折率 \(n=c/v\geq1\)。媒質は場に<em>余分な重さを足す</em>ことしかできないから \(v\) は下がり \(n>1\)。ゆえに<strong>重さゼロの真空で速さは最大値 \(c\) に張りつく</strong>。「なぜか光速で伝わる」の <em>なぜか</em> は、「担い手（光子）の質量がゼロで、\(\sqrt{k/m}\) が上限に達するから」という <em>必然</em> だった。<em>単位のある \(T,\varepsilon_0,\mu_0\) は舞台装置、物理を決めるのは比 \(\sqrt{k/m}\) と \(n\)</em> ── 場を比で読む、第二歩です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第3回</span>
+    「質量は、場のブレーキ ── 射程は ℏ/mc」。今回、重さゼロの場は \(c\) で無限遠まで届くと言いました。では担い手が<em>重い</em>と、何が起きるのか。重い場は、走りながら<strong>息切れ</strong>して減衰し、届く距離が縮む（湯川）。その届く距離＝射程は、質量 \(m\) で決まる長さ \(\lambda=\hbar/mc\)。電磁気力が宇宙の果てまで届き、弱い力が原子核より小さな範囲でしか効かない ── その違いも、質量という一つのブレーキと、射程と距離の比だけで読めます。「重さを足された場」の物語へ。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる場」シリーズ第2回、物理好きの高校生・大学生向け読み物です。波動方程式から導かれる波の位相速度が \(v=\sqrt{\text{復元係数}/\text{慣性}}\) の形をとること（弦 \(v=\sqrt{T/\mu}\)、音 \(v=\sqrt{K/\rho}\)、電磁波 \(c=1/\sqrt{\varepsilon_0\mu_0}\)）、マクスウェルが電磁気定数から光速を導き光の電磁波説を確立したこと、屈折率 \(n=c/v\geq1\) と媒質中で位相速度が下がること、光子の静止質量がゼロで真空中を \(c\) で伝播することは、いずれも確立した標準物理です。電磁場を「エーテル」という力学的媒質とみなす描像はマイケルソン・モーリー実験以降否定されており、\(\varepsilon_0,\mu_0\) は真空（場）自体の性質です。「硬さ／重さ」の対応は伝送線路の \(v=1/\sqrt{LC}\)（\(1/\varepsilon_0\!\leftrightarrow\!1/C\)、\(\mu_0\!\leftrightarrow\!L\)）との数学的同型に基づく比喩で、\(c\) が情報伝達の絶対上限であること自体は特殊相対性理論（時空の構造）に由来し本回の力学的説明の射程外です。図はパルスの伝播速度比 \(v/c=\sqrt{k/m}\) の模式で、格子の厳密な運動方程式の数値解ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ba-01-okure.html">第1回 遅れ</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では硬さ k・重さ m のスライダーで、ばね鎖の波の速さ（＝光との速さ比 √(k/m)）が変わります。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), sm=document.getElementById('sm'),
+      vk=document.getElementById('vk'), vm=document.getElementById('vm'), rd=document.getElementById('rd'),
+      play=document.getElementById('play');
+  var running=true, t=0, lastReal=null;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function bump(x, center, sig){ var u=(x-center)/sig; return Math.exp(-0.5*u*u); }
+
+  function lane(ctx, w, x0, x1, baseY, center, amp, color, chain){
+    var sig=w*0.032;
+    // 静止線＋（ばね鎖なら）ビーズ
+    ctx.strokeStyle='#e7dccb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x0,baseY); ctx.lineTo(x1,baseY); ctx.stroke();
+    // パルス曲線
+    ctx.strokeStyle=color; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var px=x0; px<=x1; px+=2){
+      var y=baseY - amp*bump(px, center, sig);
+      if(px===x0) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+    if(chain){
+      ctx.fillStyle=color;
+      for(var i=0;i<=22;i++){
+        var bx=x0+(x1-x0)*i/22;
+        var by=baseY - amp*bump(bx, center, sig);
+        ctx.beginPath(); ctx.arc(bx,by,2.6,0,7); ctx.fill();
+      }
+    }
+    // 先頭マーカー
+    ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc(center, baseY - amp, 4.5, 0, 7); ctx.fill();
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var k=parseFloat(sk.value), m=parseFloat(sm.value);
+    vk.textContent=k.toFixed(2); vm.textContent=m.toFixed(2);
+    var ratio=Math.sqrt(k/m);              // v/c
+    var x0=w*0.09, x1=w*0.90;
+    var Ltrav=x1-x0;
+    var Tbase=3.2;                          // 光が端から端まで走る秒数
+    var cpx=Ltrav/Tbase;                    // 光の速さ(px/s)
+    var vA=cpx*ratio;                       // ばね鎖の速さ(px/s)
+    var vmax=Math.max(vA,cpx);
+    var tEnd=Ltrav/vmax;                    // 速いほうが決勝線に着く時刻
+    if(t>tEnd) t=0;                          // リセット
+    var posA=x0+vA*t, posB=x0+cpx*t;
+    posA=Math.min(posA,x1+1); posB=Math.min(posB,x1+1);
+
+    var yA=h*0.34, yB=h*0.70, amp=h*0.15;
+    // 決勝線
+    ctx.strokeStyle='#cabca6'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(x1,20); ctx.lineTo(x1,h-24); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#8a7a5a'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('決勝線', x1, 14); ctx.textAlign='left';
+
+    lane(ctx,w,x0,x1,yA,posA,amp,'#b0561e',true);
+    lane(ctx,w,x0,x1,yB,posB,amp,'#2f6d8c',false);
+
+    ctx.fillStyle='#7a4a12'; ctx.font='12px sans-serif';
+    ctx.fillText('ばね鎖の波（硬さ k・重さ m）', x0, yA+34);
+    ctx.fillStyle='#1f5a6a';
+    ctx.fillText('光（真空）＝基準 c', x0, yB+34);
+
+    var n=1/ratio;
+    var verdict = Math.abs(ratio-1)<0.03 ? '比 = 1 ── 光と並走。硬さと重さが釣り合う場は、光と同じ速さ。'
+                : ratio>1 ? 'ばね鎖のほうが速い（k が m を上回る）。※機械の模型なので c を超えられるが、自然の質量ゼロの場はちょうど c まで。'
+                : 'ばね鎖のほうが遅い（m が k を上回る）。重さを足すと遅くなる ── 屈折率 n>1 の世界。';
+    rd.textContent='硬さ k = '+k.toFixed(2)+' ／ 重さ m = '+m.toFixed(2)
+      +' → 速さの比 v/c = √(k/m) = '+ratio.toFixed(2)
+      +' ／ 遅さの比 n = c/v = '+n.toFixed(2)+'。 '+verdict;
+  }
+
+  function frame(real){
+    if(lastReal==null) lastReal=real;
+    var dt=(real-lastReal)/1000; lastReal=real;
+    if(dt>0.05) dt=0.05;
+    if(running) t+=dt;
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  play.addEventListener('click', function(){
+    running=!running;
+    play.textContent = running ? '⏸ 一時停止' : '▶ 再生';
+  });
+  sk.addEventListener('input', draw);
+  sm.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

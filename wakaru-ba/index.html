@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>わかる場 ── シリーズ目次</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f8f7; --paper-edge:#dbe3e0;
+    --rule:#cdd8d3; --hair:#bcc9c3;
+    --e1:#2f6d8c;   /* 1 遅れ：青緑 */
+    --e2:#b0561e;   /* 2 なぜc：橙 */
+    --e3:#7d3b63;   /* 3 質量：梅紫 */
+    --e4:#9a6a12;   /* 4 α：古金 */
+    --e5:#2166a0;   /* 5 逆二乗：青 */
+    --e6:#8a2f5a;   /* 6 ヒッグス：臙脂 */
+    --eb:#2f7d55;   /* 番外：緑 */
+    --accent:#2f6d8c;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.85;font-size:16px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px 80px;}
+
+  header{background:var(--paper);border-bottom:1px solid var(--paper-edge);
+    padding:56px 0 40px;margin-bottom:40px;box-shadow:0 10px 40px rgba(0,0,0,.05);}
+  .head-in{max-width:820px;margin:0 auto;padding:0 40px;}
+  .kicker{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.34em;color:var(--accent);font-weight:700;margin:0 0 16px;}
+  h1{font-size:44px;line-height:1.2;margin:0 0 14px;font-weight:600;letter-spacing:.03em;}
+  .tagline{font-size:17px;color:var(--ink-soft);max-width:648px;line-height:1.8;margin:0;}
+  .meta{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:22px;
+    padding-top:18px;border-top:2px solid var(--ink);display:flex;gap:22px;flex-wrap:wrap;}
+
+  .dlbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:20px 24px;margin-bottom:36px;}
+  .dlbar .txt{flex:1;min-width:200px;}
+  .dlbar .txt strong{display:block;font-size:15px;margin-bottom:2px;}
+  .dlbar .txt span{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;background:var(--ink);color:#fff;
+    border:none;border-radius:5px;padding:14px 26px;transition:transform .1s ease,opacity .2s ease;white-space:nowrap;}
+  .btn:hover{transform:translateY(-1px);} .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.55;cursor:progress;transform:none;}
+  .dlnote{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;width:100%;}
+
+  .lede{background:var(--paper);border:1px solid var(--rule);border-left:4px solid var(--accent);
+    border-radius:6px;padding:22px 26px;margin-bottom:36px;font-size:15.5px;line-height:1.9;}
+  .lede b{font-weight:600;}
+  .lede .em{background:linear-gradient(transparent 62%, #bfe0dc 62%);padding:0 .05em;font-style:normal;}
+
+  .cards{display:flex;flex-direction:column;gap:16px;}
+  a.card,.card{display:flex;gap:22px;align-items:stretch;text-decoration:none;color:inherit;
+    background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow:hidden;
+    transition:transform .12s ease,box-shadow .2s ease,border-color .2s ease;}
+  a.card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.10);border-color:var(--hair);}
+  .card.soon{opacity:.62;}
+  .spine{width:8px;flex-shrink:0;}
+  .card-body{padding:22px 24px 20px;flex:1;min-width:0;}
+  .card-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+  .epno{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11.5px;letter-spacing:.18em;font-weight:700;}
+  .badge{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:10.5px;letter-spacing:.1em;font-weight:700;padding:2px 9px;border-radius:20px;background:#e6ece9;color:var(--ink-soft);}
+  .badge.live{background:#e0efe8;color:#1f6b45;}
+  .badge.soon{background:#eaeaea;color:#8a8a8a;}
+  .card-title{font-size:22px;font-weight:600;letter-spacing:.02em;margin:0 0 8px;line-height:1.35;}
+  .card-desc{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;color:var(--ink-soft);line-height:1.75;margin:0;}
+  .card-eq{font-style:italic;color:var(--ink);}
+  .arrow{align-self:center;padding-right:22px;color:var(--hair);font-size:22px;flex-shrink:0;}
+
+  .divlabel{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.24em;color:var(--ink-soft);font-weight:700;
+    margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+
+  footer{margin-top:48px;padding-top:22px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;}
+  footer a{color:var(--accent);text-decoration:none;} footer a:hover{text-decoration:underline;}
+
+  @media (max-width:640px){
+    .head-in{padding:0 22px;} h1{font-size:32px;}
+    a.card,.card{gap:0;} .card-body{padding:18px 18px 16px;} .arrow{display:none;} .btn{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <p class="kicker">物理好きの高校生・大学生のための読み物シリーズ</p>
+    <h1>わかる場</h1>
+    <p class="tagline">なぜ力は、光速で伝わるのか。「場」を一枚ずつ剥がすと、出てくるのは実体ではなく比だった ── 遅れの比、硬さと重さの比、射程の比、強さの比。姉妹編「わかる力」の番外『力の速さ』を、こんどは場の側から、単位のない数（無次元量）だけで組み直す。</p>
+    <div class="meta">
+      <span>本編6＋番外 予定</span>
+      <span>各話：日常語 → 一つの比 → 種明かし → 練習問題</span>
+      <span>動く図つき／印刷・PDF化対応</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="lede">
+    このシリーズの背骨は一文で言えます ── <span class="em">場は「比」でできている</span>。<br>
+    力が光速で伝わるのは「なぜか」ではなく<b>必然</b>で、場は<b>隣としか話さない</b>から news は歩いて伝わり（第1回）、その速さは<b>硬さ÷重さの平方根 √(k/m)</b>で決まる（第2回）。担い手の<b>質量が場のブレーキ</b>になり射程は ℏ/mc（第3回）、力の強さは単位のない<b>結合定数 α</b>（第4回）、薄まり方 1/r² は<b>空間が3次元という比</b>（第5回）。単位のある量はすべて帳簿。残るのは比だけ。
+  </div>
+
+  <div class="dlbar">
+    <div class="txt">
+      <strong>公開済みファイルを一括ダウンロード</strong>
+      <span>下のボタンで、公開済みの回を1つの ZIP にまとめて保存できます（回が増えると対象も増えます）。</span>
+      <div class="dlnote" id="dlnote"></div>
+    </div>
+    <button class="btn" id="zipbtn">↓ ZIP で一括ダウンロード</button>
+  </div>
+
+  <div class="divlabel">本編</div>
+  <div class="cards">
+
+    <a class="card" href="wakaru-ba-01-okure.html">
+      <div class="spine" style="background:var(--e1);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e1);">第 1 回</span><span class="badge live">動く図つき</span></div>
+        <div class="card-title">遅れ ── 力は「今」でなく「さっき」届く</div>
+        <p class="card-desc">力は瞬時には伝わらない。あなたが感じる力は、源の“今”ではなく、光の旅の時間ぶんだけ<b>昔</b>を指している。場とは、その遅れを各点に貯めておく帳簿。ニュートンの瞬時力は、遅れの比がゼロに見える近似だった。<span class="card-eq">遅れ数 ε = (r/c) / T</span></p>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a class="card" href="wakaru-ba-02-naze-c.html">
+      <div class="spine" style="background:var(--e2);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e2);">第 2 回</span><span class="badge live">動く図つき</span></div>
+        <div class="card-title">なぜ c か ── 速さは硬さ÷重さの平方根</div>
+        <p class="card-desc">どんな波の速さも √(復元/慣性)。場も同じで、電磁場の速さ c は電気的な硬さと磁気的な重さの比。場の“重さ”がゼロに張り付くと、比は上限 c に達する。<span class="card-eq">v = √(k/m) ／ c = 1/√(ε₀μ₀)</span></p>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--e3);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e3);">第 3 回</span><span class="badge soon">近日</span></div>
+        <div class="card-title">質量は、場のブレーキ ── 射程は ℏ/mc</div>
+        <p class="card-desc">担い手が重いと場はすぐ息切れし、届く距離が縮む（湯川）。光子は質量ゼロだから無限遠まで＝光速・無限射程。射程と距離の比だけで、力の“届き方”が読める。<span class="card-eq">射程 λ = ℏ/mc</span></p>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--e4);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e4);">第 4 回</span><span class="badge soon">近日</span></div>
+        <div class="card-title">強さは、単位のない数 ── α ≈ 1/137</div>
+        <p class="card-desc">場の“結びつきの強さ”は単位を持たない一つの数。電磁気は 1/137、重力は電子どうしで約 10⁻⁴³。姉妹編の α が、ここで場の言葉に翻訳される。<span class="card-eq">α = e²/(4πε₀ℏc)</span></p>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--e5);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e5);">第 5 回</span><span class="badge soon">近日</span></div>
+        <div class="card-title">薄まりは、次元の比 ── 1/r² の正体</div>
+        <p class="card-desc">場の線は消えも増えもせず、球の表面に薄く広がるだけ。表面積は r² に比例するから、密度は 1/r²。これは力の性質ではなく、空間が3次元という比の指紋。<span class="card-eq">場の密度 ∝ 1/r^(d−1)</span></p>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--e6);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--e6);">第 6 回</span><span class="badge soon">近日</span></div>
+        <div class="card-title">質量の出どころ ── ヒッグス場という「抵抗」</div>
+        <p class="card-desc">第3回で質量は場のブレーキだった。ではその質量はどこから来るのか。真空を満たすヒッグス場との<b>結びつきの強さ（湯川結合）</b>が、粒子ごとの質量を決める。質量すら、ヒッグス場の基準値に対する<b>無次元の比</b>だった。<span class="card-eq">m = y·v/√2（y は無次元）</span></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divlabel">番外・予定（本編の比を、姉妹編とつなぐ）</div>
+  <div class="cards">
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--eb);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--eb);">番外 ①</span><span class="badge soon">構想中</span></div>
+        <div class="card-title">静かな場と、揺れる場（放射）</div>
+        <p class="card-desc">等速で動く源の場は現在位置を指し、一見“瞬時”。でも情報は運ばない。加速だけが波（放射）を出し、c で news を伝える。「わかる力」番外『力の速さ』の場バージョン。<span class="card-eq">加速 → 放射</span></p>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="spine" style="background:var(--eb);"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="epno" style="color:var(--eb);">番外 ②</span><span class="badge soon">構想中</span></div>
+        <div class="card-title">場はどこから来るのか（ゲージ）</div>
+        <p class="card-desc">位相の曖昧さを各点で自由に選ぶと、それを取りつくろう場が生まれる ── 「わかる宇宙論」第8回のゲージ原理へ橋を架ける。場は、比を各点で合わせるための相棒だった。<span class="card-eq">∂ → D = ∂ − iA</span></p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    「わかる場」シリーズ（姉妹編「わかる力」「わかる宇宙論」と地続き）。各話は、わかりやすい語りと、それが物理的に何を意味するかの「種明かし」、そして「どこまでが確立した物理で、どこからが理解のための言い換えか」を示す<b>正直な線</b>をセットで運びます。「場は帳簿」「力は幻」等の表現は理解のための言い換えで、場・力・エネルギーの枠組みそのものは有効です。 ── 各ページはブラウザの「印刷 → PDF に保存」で PDF 化できます。この目次と各話 HTML は同じフォルダに置いてください（リンクが相対パスのため）。
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // 公開済みファイル（回が増えたらここに追記）
+  var FILES = [
+    "wakaru-ba-01-okure.html",
+    "wakaru-ba-02-naze-c.html"
+  ];
+  var btn=document.getElementById('zipbtn'), note=document.getElementById('dlnote');
+  btn.addEventListener('click', function(){
+    if(typeof JSZip==='undefined'){
+      note.textContent='ネットに接続できないため ZIP を作れません。各カードを開いて個別に保存してください。';
+      return;
+    }
+    btn.disabled=true; var orig=btn.textContent; btn.textContent='まとめています…'; note.textContent='';
+    var zip=new JSZip(); var folder=zip.folder('wakaru-ba');
+    var done=0, failed=[];
+    function finalize(){
+      if(failed.length===FILES.length){
+        note.textContent='ファイルを読み込めませんでした。この目次を各話 HTML と同じフォルダに置いた状態で開いてください。';
+        btn.disabled=false; btn.textContent=orig; return;
+      }
+      zip.generateAsync({type:'blob'}).then(function(blob){
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement('a'); a.href=url; a.download='wakaru-ba-series.zip';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        btn.disabled=false; btn.textContent='✓ ダウンロード完了';
+        note.textContent = failed.length? ('注：'+failed.length+' 件は読み込めませんでした。') : ('全 '+FILES.length+' ファイルを wakaru-ba-series.zip に保存しました。');
+        setTimeout(function(){btn.textContent=orig;},2500);
+      }).catch(function(){ btn.disabled=false; btn.textContent=orig; note.textContent='ZIP の生成に失敗しました。'; });
+    }
+    FILES.forEach(function(fn){
+      fetch(fn).then(function(r){ if(!r.ok) throw new Error(); return r.text(); })
+        .then(function(txt){ folder.file(fn, txt); })
+        .catch(function(){ failed.push(fn); })
+        .finally(function(){ done++; if(done===FILES.length) finalize(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
