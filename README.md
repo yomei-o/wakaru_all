@@ -7,7 +7,8 @@
 
 | フォルダ | シリーズ | 目次 |
 |---|---|---|
-| `wakaru-ba/` | **わかる場** ── なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く | [index](wakaru-ba/index.html) |
+| `wakaru-ba/` | **わかる場** ── なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結）| [index](wakaru-ba/index.html) |
+| `wakaru-soutai/` | **わかる相対論** ── すべてを c で割る。β・γ・時空間隔で読む（制作中）| [index](wakaru-soutai/index.html) |
 | `wakaru/` | **わかる宇宙論** ── 光速・微細構造定数・ゲージから宇宙を読む | [index](wakaru/index.html) |
 | `wakaru-chikara/` | **わかる力** ── 「力」の正体を、場・幾何・対称性まで剥がす | [index](wakaru-chikara/index.html) |
 | `wakaru_shitsuryo/` | **わかる質量** ── 質量とは何か | [index](wakaru_shitsuryo/index.html) |
@@ -20,4 +21,4 @@
 
 ## 構成メモ
 - 各シリーズは**このリポジトリ直下の兄弟フォルダ**として置いています。目次どうしは相対リンクで姉妹編を参照します（例：`wakaru-ba/` の目次 → `../wakaru-chikara/index.html`）。
-- 制作中の最新シリーズは **わかる場**（`wakaru-ba/`）。第1回「遅れ」・第2回「なぜ c か」公開済み、第3回以降を追加中。
+- **わかる場**（`wakaru-ba/`）は全8話で完結。制作中の最新シリーズは **わかる相対論**（`wakaru-soutai/`、第1回公開・第2回以降を追加中）。
