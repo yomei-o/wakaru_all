@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chasing "Light Used to Be Faster" on a Computer — Cosmology That Clicks, Ep. 4</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22;
+    --ink-soft:#4a4e5a;
+    --paper:#faf8f3;
+    --paper-edge:#ece6d8;
+    --side:#2f5d62;
+    --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#1d4e6b;      /* 第4回の計算色＝計算機の青 */
+    --calc-bg:#e8eef4;
+    --rule:#d8d2c4;
+    --hair:#c9c2b2;
+    --acc:#2166a0;       /* 第4回アクセント＝青（数値・計算機） */
+    --grid:#d7d0c1;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,"Iowan Old Style","Palatino Linotype",'Noto Serif',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;
+  }
+  .sheet{
+    max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;
+    box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);
+  }
+  .series{
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;
+  }
+  .series .ep{color:var(--ink-soft);letter-spacing:.16em;font-weight:600;font-size:11.5px;}
+  .eyebrow{
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12px;letter-spacing:.2em;color:var(--side);margin:0 0 22px;font-weight:600;
+  }
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-top:26px;
+    padding-top:18px;border-top:2px solid var(--ink);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:30px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d3e2f0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);
+    padding:16px 22px;font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);
+    padding:16px 22px;font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c6d2e0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;}
+  .calc .lbl{font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  /* コード風ブロック */
+  .code{margin:22px 0;background:#12222e;color:#d6e6ef;border-radius:4px;
+    font-family:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+    font-size:13.5px;line-height:1.7;padding:18px 20px;overflow-x:auto;letter-spacing:0;}
+  .code .cm{color:#7fa7b8;}    /* コメント */
+  .code .kw{color:#8fd6a0;}    /* キーワード */
+  .code .nm{color:#f0c674;}    /* 数値 */
+  .code .fn{color:#9ec9ff;}    /* 関数 */
+
+  /* インタラクティブ図 */
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfaf6;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:150px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f6f9fc;}
+  .prob .lbl{font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;}
+  .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;}
+  .ans{color:#1f3547;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfcf9,#f6f2e9);}
+  .record h2{margin-top:0;}
+  .record p:last-child{margin-bottom:0;}
+
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9f0f6;border-radius:2px;
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;font-size:14px;color:#1f3547;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.code{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .code{background:#f0f0f0;color:#111;border:1px solid #ccc;}
+    .code .cm,.code .kw,.code .nm,.code .fn{color:#111;}
+    .controls{display:none;}
+    details{display:none;}
+    .no-print{display:none;}
+  }
+  @media (max-width:640px){
+    .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:27px;} body{font-size:16px;}
+    .code{font-size:12px;}
+  }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Helvetica Neue",Arial,'Noto Sans',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Cosmology That Clicks</span><span class="ep">Episode 4 · the math-friendly edition</span></div>
+  <p class="eyebrow">The "light slows down" universe from Episode 1 — this time you run it yourself</p>
+  <h1>Chasing "Light Used to Be<br>Faster" on a Computer
+    <span class="sub">Not just staring at equations — compute them step by step and make the graphs move.<br>The figures below are the real thing: drag a slider and they recompute on the spot.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: repeated addition (a recurrence), a little programming</span>
+    <span>\(c(t)=c_0 t_0/t\)</span>
+  </div>
+
+  <p class="lead">In Episode 1 we rewrote cosmic expansion as "the speed of light slowly drops." The equations were elegant — but "staring at" an equation and "running" it are different kinds of understanding. This time we'll <em>step that universe forward on a computer</em>. No hard math needed: all it takes is "add a little to the previous value to make the next one" — repeated addition. And the figures on this page aren't decoration; they're real data your browser computes on the spot. Drag the sliders and spin the universe.</p>
+
+  <h2><span class="n">STEP 01</span>Turn the continuous equation into the computer's language: a recurrence</h2>
+
+  <p>Episode 1's rule was \(c(t)=\dfrac{c_0 t_0}{t}\). How far light has traveled was speed × time, added up: \(D=\displaystyle\int c(t)\,dt\). "Integral" sounds intimidating, but to a computer it's just <strong>"add up the distance traveled, a small time \(\Delta t\) at a time."</strong> Written as a recurrence (make the next value from the previous one) —</p>
+
+  <div class="keybox">
+    <div class="lbl">A form the computer understands (a recurrence)</div>
+    $$t_{n+1} = t_n + \Delta t,\qquad D_{n+1} = D_n + c(t_n)\,\Delta t = D_n + \frac{c_0 t_0}{t_n}\,\Delta t$$
+  </div>
+
+  <p>"Advance the time by \(\Delta t\). In that interval light travels \(c(t_n)\times\Delta t\), so add it to the distance." Repeating this thousands of times is tedious for a human but a computer's specialty. As a program it's just a few lines.</p>
+
+  <div class="code"><span class="cm"># In Episode 1's universe, add up the distance light travels, one step at a time</span>
+c0, t0 = <span class="nm">1.0</span>, <span class="nm">1.0</span>          <span class="cm"># normalize today's speed and age to 1</span>
+dt = <span class="nm">0.001</span>                <span class="cm"># small time step</span>
+t, D = <span class="nm">0.001</span>, <span class="nm">0.0</span>       <span class="cm"># can't divide at exactly t=0, so start just after</span>
+
+<span class="kw">while</span> t &lt; t0:
+    c = c0 * t0 / t          <span class="cm"># speed of light at this moment (faster in the past!)</span>
+    D = D + c * dt           <span class="cm"># add the distance traveled</span>
+    t = t + dt
+
+<span class="fn">print</span>(D)   <span class="cm"># -> keeps growing (diverges logarithmically)</span></div>
+
+  <p>The heart of this program is the one line \(c = c_0 t_0 / t\). The smaller \(t\) is (the younger the universe), the larger \(c\), racking up distance fast early on. That was the essence of "early light reached far." Let's watch it happen in the next figure.</p>
+
+  <h2><span class="n">STEP 02</span>Run it — the further back, the more light's speed shoots up</h2>
+
+  <p>First, let's plot the speed of light itself, \(c(t)=c_0t_0/t\), against the age of the universe. The slider below is the time step \(\Delta t\). Moving it changes how finely the smooth curve gets tracked.</p>
+
+  <div class="fig">
+    <div class="cap">Fig. 1: How the speed of light c(t) changes over time (blue = true curve, dots = the computer's stepped values)</div>
+    <canvas id="cv1" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Time step Δt <span class="val" id="v1">0.05</span>
+        <input type="range" id="s1" min="0.005" max="0.2" step="0.005" value="0.05">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>true curve c(t)=c₀t₀/t</span>
+      <span><i class="swatch" style="background:#c46b1c;border-radius:50%;width:8px;height:8px;"></i>computer's steps</span>
+    </div>
+  </div>
+
+  <p>The curve shooting up on the left (the past) is "light was fast in the young universe." Make the step coarser and you'll see the dots fail to keep up with that steep part, drifting off the curve — the fate of numerical computation, which leads into STEP 04.</p>
+
+  <h2><span class="n">STEP 03</span>The distance light has reached — the horizon really does "keep growing"</h2>
+
+  <p>Next, let's plot the distance \(D\) that STEP 01's program added up (the horizon light has reached) against time. In Episode 1 we said "\(\int c_0t_0/t\,dt\) diverges logarithmically — grows without bound." Let's verify that with the computer's addition.</p>
+
+  <div class="fig">
+    <div class="cap">Fig. 2: The buildup of the distance light has reached, D(t) (grows logarithmically without bound)</div>
+    <canvas id="cv2" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Start time of the computation t_start <span class="val" id="v2">0.010</span>
+        <input type="range" id="s2" min="0.002" max="0.1" step="0.002" value="0.01">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>accumulated distance D(t)</span>
+    </div>
+  </div>
+
+  <p>The slider is "when to start computing." Start adding from an earlier moment (a younger universe) and — because the speed of light is enormous early on — <strong>the total distance jumps way up</strong>. The closer you get to the beginning, the more it grows without bound — this is the "logarithmic divergence," the numerical version of Episode 1's conclusion that any two points in the universe, however far apart, could once have been in contact.</p>
+
+  <div class="aside">
+    <span class="tag">The reveal (linking to Episode 1)</span>
+    This "grows without bound" of \(D\) is exactly why the horizon problem of standard cosmology doesn't arise in a \(c\cdot t=\text{constant}\) universe. But the same caveat as before — what's doing the work isn't changing \(c\), it's the way the universe expands, \(a\propto t\) (straight-line expansion). Even numerically, the two draw exactly the same curve.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">STEP 04</span>The practical core — why "changing variables" speeds up the computation</h2>
+
+  <p>This is the most interesting part of the episode. As Fig. 1 showed, early on (the past) the speed of light changes sharply, so tracking it requires a fine step \(\Delta t\). But later it's gentle, where a fine step is wasted. <em>Compute the whole thing at one fineness and you're forced to make every interval as fine as the early part — very slow.</em></p>
+
+  <p>So we swap the "ruler" for time. Instead of ordinary time \(t\), use \(u=\ln t\) (the logarithm of \(t\)) as the new time. Then \(t=e^u\), and the speed of light becomes</p>
+
+  $$c = \frac{c_0 t_0}{t} = c_0 t_0\, e^{-u}$$
+
+  <p>— a <strong>smooth exponential</strong> in \(u\). The sharp spike is gone, and the whole range can be tracked at nearly one fineness. The same accuracy, with far fewer steps — this is the essence of "changing variables speeds up the computation." In the figure below, compare the same physics on the \(t\) axis and the \(u=\ln t\) axis.</p>
+
+  <div class="fig">
+    <div class="cap">Fig. 3: The same c(t) on the ordinary time axis (left) and the log-time axis u=ln t (right). The right is smooth — trackable with few points</div>
+    <canvas id="cv3" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Number of points (fewer = "faster computation") <span class="val" id="v3">14</span>
+        <input type="range" id="s3" min="6" max="40" step="1" value="14">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>true curve</span>
+      <span><i class="swatch" style="background:#c46b1c;border-radius:50%;width:8px;height:8px;"></i>evenly spaced points</span>
+    </div>
+  </div>
+
+  <p>Try reducing the number of points. On the left (ordinary time), few points miss the steep early curve and drift far off it. But on the right (log time), the same few points track the curve cleanly. <strong>Without throwing away a single bit of information, just by swapping the "ruler," the computation got easier</strong> — this is the visible, real thing behind Episode 1's "speedup that isn't an approximation."</p>
+
+  <div class="aside">
+    <span class="tag">The reveal — this is a real technique from cosmology</span>
+    In numerical cosmology, using exactly this \(u=\ln a\) (the log of the scale factor) as the time variable is standard practice. It lets you track the rapidly-changing early universe at even spacing, speeding up the computation by orders of magnitude. When Episode 1 said "\(c\cdot t=\text{constant}\) is easy to compute," this "ruler swap" is what it meant. Not new physics — a clever choice of coordinates was the real substance.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line (kept light, just one)</span>
+    <p style="margin:0;">"Changing variables speeds things up" only works when the problem <strong>becomes smooth in that variable</strong>. A problem that's already uniform across the whole range won't speed up from a swap (it's already smooth). This time it worked because the \(c\cdot t=\text{constant}\) universe had a bias — "steep only early on." It's not magic; it's the skill of choosing a "ruler" to match the problem's bias.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (if you can code, actually run them)</div>
+    <ol>
+      <li>In STEP 01's program, if you set \(\Delta t\) to \(0.01\) versus \(0.0001\) and compare \(D\), how would you predict the value changes?
+        <details><summary>Show answer</summary>
+        <div class="ans">The finer it is, the more accurately it picks up the steep early part, so \(D\) grows larger, approaching the true (diverging) value. A coarse step misses the early part and underestimates \(D\).</div>
+        </details>
+      </li>
+      <li>After switching to \(u=\ln t\), why can the speed of light \(c=c_0t_0 e^{-u}\) be called "smooth"?
+        <details><summary>Show answer</summary>
+        <div class="ans">\(e^{-u}\) changes at a gentle rate as \(u\) varies, with no infinitely steep spike like on the \(t\) axis. With no sharp changes, even evenly spaced points don't miss the curve.</div>
+        </details>
+      </li>
+      <li>Give one example, from this episode's reasoning, of a problem where "speedup via change of variables" does NOT work.
+        <details><summary>Show answer</summary>
+        <div class="ans">A problem with uniform change — like something moving at constant speed from start to finish. With no bias, no "ruler" swap changes where the points land, so there's no speedup. (It's already an optimal encoding.)</div>
+        </details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Wrap-up</span>Once you "run" the equation, the practical payoff appears</h2>
+    <p>We turned the continuous equation \(\int c\,dt\) into the computer's language (the recurrence \(D_{n+1}=D_n+c(t_n)\Delta t\)) and added it up step by step. In the young universe the speed of light shoots up, and the distance light has reached keeps growing logarithmically — Episode 1's conclusion, reproduced in the graph before your eyes.</p>
+    <p>And the core this time was the <em>ruler swap</em> to \(u=\ln t\). Without discarding information, just by changing coordinates, the computation of sharp changes gets orders of magnitude easier. When Episode 1 said "\(c\cdot t=\text{constant}\) is easy to compute," this clever choice of coordinates is what it meant. <strong>A notation that's easy to understand is often, at the same time, a notation that's fast</strong> — that's what became visible this time, hands-on.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming next — Episode 5</span>
+    "Can You Tell a Record from a CD? — The Sampling Theorem." This time you experienced "stepping in points." So — how far can you tell apart a world chopped into points from a smooth one? Using exactly the same math as putting music on a CD (the Nyquist theorem), we close in on the boundary between discrete and continuous.
+  </div>
+
+  <div class="foot">
+    This is Episode 4 of "Cosmology That Clicks," a reading piece for curious high-schoolers. Every figure is real data computed on the spot in your browser, visualizing \(c(t)=c_0t_0/t\), the numerical integration of \(D=\int c\,dt\) by Euler's method, and the change of variables to \(u=\ln t\). Numbers are normalized dimensionless examples. Speedup via change of variables (time reparametrization) is a technique genuinely used in numerical computation and numerical cosmology. — To print, use your browser's Print → Save as PDF (in the printed version, the interactive figures and answers are static/hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, sliders recompute the figures and "Show answer" opens the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var C0=1, T0=1;
+
+  function setupHiDPI(cv){
+    var ratio = window.devicePixelRatio || 1;
+    var cssW = cv.clientWidth || cv.width;
+    var cssH = cv.height * (cssW / cv.width);
+    cv.width = Math.round(cssW*ratio);
+    cv.height = Math.round(cssH*ratio);
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    return {ctx:ctx, w:cssW, h:cssH};
+  }
+
+  function axes(ctx,w,h,pad,xlab,ylab){
+    ctx.strokeStyle='#c9c2b2'; ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(pad,8); ctx.lineTo(pad,h-pad); ctx.lineTo(w-8,h-pad);
+    ctx.stroke();
+    ctx.fillStyle='#6b6f60';
+    ctx.font='12px sans-serif';
+    ctx.fillText(xlab, w-70, h-pad+16);
+    ctx.save(); ctx.translate(14,20); ctx.fillText(ylab,0,0); ctx.restore();
+  }
+
+  // ---- 図1：c(t) 真の曲線 + 刻み点 ----
+  var cv1=document.getElementById('cv1'), s1=document.getElementById('s1'), v1=document.getElementById('v1');
+  function draw1(){
+    var d=setupHiDPI(cv1), ctx=d.ctx, w=d.w, h=d.h, pad=42;
+    var dt=parseFloat(s1.value); v1.textContent=dt.toFixed(3);
+    ctx.clearRect(0,0,w,h);
+    var tMin=0.08, tMax=1.0, cMax=C0*T0/tMin;
+    function X(t){return pad+(t-tMin)/(tMax-tMin)*(w-pad-12);}
+    function Y(c){return (h-pad)-(c/cMax)*(h-pad-12);}
+    // grid
+    ctx.strokeStyle='#eee7d8'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){var yy=8+g*(h-pad-8)/4;ctx.beginPath();ctx.moveTo(pad,yy);ctx.lineTo(w-8,yy);ctx.stroke();}
+    axes(ctx,w,h,pad,'age of universe t','speed of light c');
+    // true curve
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=2.2; ctx.beginPath();
+    var first=true;
+    for(var t=tMin;t<=tMax+1e-9;t+=0.005){var x=X(t),y=Y(C0*T0/t); if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);}
+    ctx.stroke();
+    // sampled points
+    ctx.fillStyle='#c46b1c';
+    for(var ts=tMin; ts<=tMax+1e-9; ts+=dt){
+      var x=X(ts), y=Y(C0*T0/ts);
+      ctx.beginPath(); ctx.arc(x,y,3.4,0,7); ctx.fill();
+    }
+  }
+
+  // ---- 図2：D(t) 積み上げ ----
+  var cv2=document.getElementById('cv2'), s2=document.getElementById('s2'), v2=document.getElementById('v2');
+  function draw2(){
+    var d=setupHiDPI(cv2), ctx=d.ctx, w=d.w, h=d.h, pad=46;
+    var tstart=parseFloat(s2.value); v2.textContent=tstart.toFixed(3);
+    ctx.clearRect(0,0,w,h);
+    var dt=0.002, tMax=1.0;
+    // integrate
+    var ts=[], Ds=[], D=0;
+    for(var t=tstart;t<=tMax+1e-9;t+=dt){ D+=C0*T0/t*dt; ts.push(t); Ds.push(D); }
+    var Dmax=Ds[Ds.length-1]*1.05;
+    function X(t){return pad+(t-0)/(tMax-0)*(w-pad-12);}
+    function Y(v){return (h-pad)-(v/Dmax)*(h-pad-12);}
+    ctx.strokeStyle='#eee7d8'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){var yy=8+g*(h-pad-8)/4;ctx.beginPath();ctx.moveTo(pad,yy);ctx.lineTo(w-8,yy);ctx.stroke();}
+    axes(ctx,w,h,pad,'age of universe t','distance reached D');
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i=0;i<ts.length;i++){var x=X(ts[i]),y=Y(Ds[i]); if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+    ctx.stroke();
+    // fill under
+    ctx.lineTo(X(ts[ts.length-1]),h-pad); ctx.lineTo(X(ts[0]),h-pad); ctx.closePath();
+    ctx.fillStyle='rgba(33,102,160,0.10)'; ctx.fill();
+    // annotate total
+    ctx.fillStyle='#1d4e6b'; ctx.font='13px sans-serif';
+    ctx.fillText('Total distance D ≈ '+Ds[Ds.length-1].toFixed(2), w-190, 26);
+  }
+
+  // ---- 図3：t軸 vs u=ln t 軸 ----
+  var cv3=document.getElementById('cv3'), s3=document.getElementById('s3'), v3=document.getElementById('v3');
+  function draw3(){
+    var d=setupHiDPI(cv3), ctx=d.ctx, w=d.w, h=d.h;
+    var N=parseInt(s3.value,10); v3.textContent=N;
+    ctx.clearRect(0,0,w,h);
+    var midx=w/2, pad=38, panelW=midx-pad-14;
+    var tMin=0.08, tMax=1.0, cMax=C0*T0/tMin;
+
+    // left panel : t axis
+    (function(){
+      var ox=pad;
+      function X(t){return ox+(t-tMin)/(tMax-tMin)*panelW;}
+      function Y(c){return (h-pad)-(c/cMax)*(h-pad-14);}
+      ctx.strokeStyle='#c9c2b2';ctx.lineWidth=1;ctx.beginPath();
+      ctx.moveTo(ox,8);ctx.lineTo(ox,h-pad);ctx.lineTo(ox+panelW,h-pad);ctx.stroke();
+      ctx.fillStyle='#6b6f60';ctx.font='12px sans-serif';ctx.fillText('ordinary time t',ox,h-pad+16);
+      ctx.strokeStyle='#2166a0';ctx.lineWidth=2;ctx.beginPath();var f=true;
+      for(var t=tMin;t<=tMax+1e-9;t+=0.004){var x=X(t),y=Y(C0*T0/t);if(f){ctx.moveTo(x,y);f=false;}else ctx.lineTo(x,y);}
+      ctx.stroke();
+      ctx.fillStyle='#c46b1c';
+      for(var i=0;i<N;i++){var tt=tMin+(tMax-tMin)*i/(N-1);var x=X(tt),y=Y(C0*T0/tt);ctx.beginPath();ctx.arc(x,y,3.4,0,7);ctx.fill();}
+    })();
+
+    // right panel : u = ln t axis
+    (function(){
+      var ox=midx+14;
+      var uMin=Math.log(tMin), uMax=Math.log(tMax);
+      function X(u){return ox+(u-uMin)/(uMax-uMin)*panelW;}
+      function Y(c){return (h-pad)-(c/cMax)*(h-pad-14);}
+      ctx.strokeStyle='#c9c2b2';ctx.lineWidth=1;ctx.beginPath();
+      ctx.moveTo(ox,8);ctx.lineTo(ox,h-pad);ctx.lineTo(ox+panelW,h-pad);ctx.stroke();
+      ctx.fillStyle='#6b6f60';ctx.font='12px sans-serif';ctx.fillText('log time u = ln t',ox,h-pad+16);
+      ctx.strokeStyle='#2166a0';ctx.lineWidth=2;ctx.beginPath();var f=true;
+      for(var u=uMin;u<=uMax+1e-9;u+=(uMax-uMin)/120){var t=Math.exp(u);var x=X(u),y=Y(C0*T0/t);if(f){ctx.moveTo(x,y);f=false;}else ctx.lineTo(x,y);}
+      ctx.stroke();
+      ctx.fillStyle='#c46b1c';
+      for(var i=0;i<N;i++){var uu=uMin+(uMax-uMin)*i/(N-1);var t=Math.exp(uu);var x=X(uu),y=Y(C0*T0/t);ctx.beginPath();ctx.arc(x,y,3.4,0,7);ctx.fill();}
+    })();
+
+    // divider
+    ctx.strokeStyle='#e2dccd';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(midx,8);ctx.lineTo(midx,h-8);ctx.stroke();
+  }
+
+  function drawAll(){ draw1(); draw2(); draw3(); }
+  s1.addEventListener('input',draw1);
+  s2.addEventListener('input',draw2);
+  s3.addEventListener('input',draw3);
+  window.addEventListener('resize',drawAll);
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){
+    MathJax.startup.promise.then(drawAll);
+  }
+  setTimeout(drawAll,60);
+  window.addEventListener('load',drawAll);
+})();
+</script>
+</body>
+</html>
