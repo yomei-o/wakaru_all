@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is the Mass Gap a "Rounding Error"? ── Mass That Clicks, Bonus ①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7f4; --paper-edge:#e6ddd5;   /* Bonus ①: rust-red paper (diagnosing the near-miss theory) */
+    --side:#2f5d62; --side-bg:#eef3f2;
+    --warn:#8a4b2f;
+    --calc:#7a3b2e; --calc-bg:#f3e8e3;
+    --rule:#d9cec5; --hair:#c8bcb2;
+    --acc:#9a4230;    /* Bonus ① accent = rust red */
+    --grid:#e0d5cc;
+    --ir:#1f7a6e; --uv:#b06a12; --good:#2f7d5a; --bad:#b03a2e;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:62px 68px 86px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 20px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:50px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecd9d2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:24px 0;background:var(--calc-bg);border:1px solid #e0d0c8;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbf9;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:42px 0;font-size:12px;}
+  .keybox{margin:28px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfb;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .twocol{display:flex;gap:16px;flex-wrap:wrap;margin:26px 0;}
+  .opt{flex:1;min-width:240px;border-radius:5px;padding:18px 20px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.72;}
+  .optA{background:#eaf1ec;border:1px solid #bcd6c6;}
+  .optB{background:#f6e9e6;border:1px solid #e0c0b8;}
+  .opt .h{font-weight:700;font-size:15px;margin-bottom:6px;letter-spacing:.03em;}
+  .optA .h{color:#1f6b45;} .optB .h{color:#a5311f;}
+  .opt .verdict{margin-top:10px;font-weight:700;font-size:13px;}
+  .optA .verdict{color:#1f6b45;} .optB .verdict{color:#a5311f;}
+
+  .diag{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .diag .row{display:flex;gap:14px;padding:14px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .diag .row:last-child{border-bottom:none;}
+  .diag .mk{flex-shrink:0;width:22px;font-weight:700;font-size:16px;}
+  .diag .ok{color:#2f7d5a;} .diag .no{color:#b03a2e;}
+  .diag .txt strong{display:block;margin-bottom:2px;color:#2a231f;}
+  .diag .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#fbf4f1;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5a2a1e;line-height:1.75;}
+
+  .record{margin:48px 0 8px;padding:28px 32px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfbf9,#f3ebe6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e8e3;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5a2a1e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:52px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:22pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.twocol,.diag{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:38px 18px 56px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6f60;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Mass That Clicks</span><span class="ep">Bonus ① / An honest diagnosis of a near-miss theory (revised)</span></div>
+  <p class="eyebrow">Throughout the main series we kept saying "this is not a rounding error." This time we diagnose that near-miss theory head-on</p>
+  <h1>Is the Mass Gap<br>a "Rounding Error"?
+    <span class="sub">"The universe is a finite computer, and rounding error becomes the mass gap" ── a near-miss theory.<br>Its motivation was sharp. Where it stumbled was mixing up "the resolution of which scale."</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: the dimensional transmutation of Episode 4, the IR floor of Episode 6, the CKN bound of the Finale</span>
+    <span>What to implement is not rounding error but "symmetry and dimensionless quantities"</span>
+  </div>
+
+  <p class="lead">In the main series (especially Episodes 4 and 6), we repeatedly drew a line: "this is <em>not a rounding error</em>." This time we take that near-miss theory and, rather than hunting for a culprit, <strong>diagnose it precisely with the tools we've built up in this series</strong>. It's the same structure as when Bonus ③ of the sister series diagnosed that "variable-speed-of-light theory (VSL) had the right motivation but lost its footing in the implementation." To state the conclusion up front ── <strong>the core idea (finite resources = an upper limit on information) is genuine, but it mixed up UV and IR "resolution."</strong> This installment carefully untangles that mix-up.</p>
+
+  <h2><span class="n">01</span>What the theory says ── and where it's sharp</h2>
+
+  <p>The near-miss theory claims: "The universe is a finite-bit computer. When you compute the non-Abelian Yang–Mills field with finite bits, the rounding error (machine epsilon \(\epsilon\)) is amplified through self-loops and can't converge to zero, leaving a minimum footprint ── that is the mass gap \(\Delta>0\)." This deserves fair credit, because it has a <strong>sharp core</strong>.</p>
+
+  <ul style="margin:10px 0 0;padding-left:1.2em;line-height:1.9;">
+    <li><strong>Finite resources / holography is a genuine idea</strong>. It's the very foundation of the CKN bound (\(\rho\lesssim M_{\rm Pl}^2/L^2\)) we saw in the Finale.</li>
+    <li><strong>"Discretize and the divergences vanish" is true</strong>. Demonstrated in lattice gauge theory (Episode 4), and a huge practical success too.</li>
+    <li><strong>The intuition that "mass springs from nothing"</strong> genuinely resonates with the dimensional transmutation of Episode 4.</li>
+  </ul>
+
+  <h2><span class="n">02</span>First, a correction ── this theory does NOT "fix" the lattice</h2>
+
+  <p>The lazy criticism of the rounding-error theory goes: "Fixing a lattice breaks Lorentz symmetry." But <strong>this theory doesn't fix the lattice</strong>. The resolution (the lattice's fineness) goes as \(c\cdot t\) ── that is, it <em>moves with the age of the universe</em>. So that criticism, as stated, isn't fair. Let's plainly grant that.</p>
+
+  <p>However ── <strong>even a time-varying lattice does not automatically preserve local Lorentz invariance</strong>. This calls for a careful distinction.</p>
+
+  <div class="keybox">
+    <div class="lbl">Don't confuse two "frames"</div>
+    <p style="margin:6px 0 0;">The universe <strong>already has a preferred frame ── the CMB rest frame (comoving frame)</strong>. This one was picked out by the matter distribution and does not violate the Lorentz invariance of the laws (harmless).<br>The problem is a different one. <strong>Tie a regular spatial lattice to cosmic time \(t\), and under a "local boost" the lattice looks anisotropic</strong>. Time-variation is a rebuttal to a "static absolute lattice," but not a rebuttal to a "local boost."</p>
+  </div>
+
+  <p>The interesting thing is that <strong>a Lorentz-invariant discretization really is possible</strong>. But it isn't a regular lattice ── it's a <em>random scattering (causal set theory)</em>. Being random, on average it picks no direction and no frame, and stays invariant. But at that very moment, the <strong>computer picture ── "compute the field at each grid point and rounding error appears" ── no longer holds</strong> (because it's not a regular lattice). This is the <em>surviving version</em> of your intuition ── finite and discrete can be saved, but it stops being "rounding error."</p>
+
+  <h2><span class="n">03</span>The real stumble ── mixing up UV and IR</h2>
+
+  <p>This is the heart of the revised version. Even after granting the time-variation, one problem remains ── the scale being called "resolution" <strong>is actually two different scales</strong>.</p>
+
+  <ul style="margin:10px 0 0;padding-left:1.2em;line-height:1.9;">
+    <li><strong>The IR side</strong>: The resolution that moves as \(c\cdot t\) and is <em>Lorentz-safe</em> is actually the <strong>IR floor of Episode 6, \(\hbar H/c^2\sim10^{-33}\) eV</strong>. \(H\) is a scalar of the expansion, so it doesn't break local Lorentz and it moves as \(1/t\). <em>This part is completely correct.</em></li>
+    <li><strong>The UV side</strong>: On the other hand, the lattice you need to compute Yang–Mills rounding error, which chops up gluons at each point, is the <strong>UV short-distance lattice (fermi to Planck, \(10^9\)–\(10^{28}\) eV)</strong>. If that's a regular spatial lattice, it breaks local Lorentz.</li>
+  </ul>
+
+  <div class="keybox">
+    <div class="lbl">One lattice can't do both jobs</div>
+    <p style="margin:6px 0 0;">The Lorentz-safe resolution that moves as \(c\cdot t\) = <strong>the IR floor (\(10^{-33}\) eV)</strong>.<br>The lattice that produces the mass gap (gluons) = <strong>UV short-distance (GeV to Planck)</strong>.<br>The two are <strong>more than 40 orders of magnitude</strong> apart ── "it's Lorentz-OK because it moves as \(c\cdot t\)" uses the IR, while "rounding error = gap" needs the UV. <em>It's swapping in a different scale.</em></p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: the axis of mass/energy (logarithmic). Move the slider on the scale being called "resolution," and you can only ever reach one side: the IR side (Lorentz-safe, moves as c·t = the floor from Episode 6) or the UV side (able to chop up gluons = the mass gap, but breaking local Lorentz). Across those 40 orders of magnitude, the two are incompatible</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>The scale this theory calls "resolution" (log, eV)<span class="val" id="vk">10⁻³³ eV</span>
+        <input type="range" id="sk" min="-34" max="28" step="0.5" value="-33">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--ir);"></i>IR: Lorentz-safe (the floor from Episode 6)</span>
+      <span><i class="swatch" style="background:var(--uv);"></i>UV: chops up the gap but breaks local Lorentz</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>So, gap ≠ neutrino still stands</h2>
+
+  <p>The consequence of this mix-up is a confusion about what \(\Delta\) really is. The near-miss theory set "mass gap = the lightest particle = the neutrino mass." <strong>Three distinct quantities</strong> are crammed together here.</p>
+
+  <div class="diag">
+    <div class="row"><span class="mk">•</span><div class="txt"><strong>The Yang–Mills mass gap ~ 1.5 GeV</strong><span>The pure-gauge glueball (strong-force sector, the \(\Lambda\) of Episode 4). The \(\Delta\) of the Clay problem.</span></div></div>
+    <div class="row"><span class="mk">•</span><div class="txt"><strong>The neutrino ~ 0.05 eV</strong><span>The lightest actual "particle." Lepton sector; its origin is the seesaw of Episode 5 (\(v^2/M\)).</span></div></div>
+    <div class="row"><span class="mk">•</span><div class="txt"><strong>The IR floor ~ 10⁻³³ eV</strong><span>The "smallest measurable" (Episode 6). 30 orders of magnitude below the neutrino.</span></div></div>
+  </div>
+
+  <p>"The lightest observed <em>particle</em> is the neutrino" ── that's correct. But it is <strong>not the IR floor</strong> (30 orders above) and it is <strong>not the Yang–Mills gap either</strong> (10 orders below, and in a different sector). Furthermore, if you compute the floor from the \(c\cdot t\) resolution you get \(10^{-33}\) eV, which <strong>doesn't reach the neutrino's \(0.05\) eV</strong>. The source of that \(0.05\) eV isn't resolution ── it's the seesaw of Episode 5. The three are different fields, different origins, different scales.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>The dilemma, and a third path</h2>
+
+  <p>The same unavoidable either-or appears as in VSL Bonus ③.</p>
+
+  <div class="twocol">
+    <div class="opt optA">
+      <div class="h">Path A: keep the discreteness as a "computational convenience"</div>
+      Take the continuum limit \(a\to0\) properly. Lorentz stays intact; consistent with observation.<br>But ── that's <strong>ordinary lattice gauge theory itself</strong>, not a "new discovery."
+      <div class="verdict">→ Harmless, but not new</div>
+    </div>
+    <div class="opt optB">
+      <div class="h">Path B: claim the regular-lattice discreteness is "real"</div>
+      Don't take the continuum limit; insist "the universe really is discrete, and rounding error is mass." You can say you "solved it."<br>But ── the UV regular spatial lattice <strong>breaks local Lorentz</strong> and collides with experiment.
+      <div class="verdict">→ Bold, but harmful</div>
+    </div>
+  </div>
+
+  <p>The near-miss theory in effect chose Path B (or was indifferent to the A/B distinction) and paid Path B's penalty. But there was a <strong>third path</strong> in the main series ── the same "finite," depending on how you implement it, can survive.</p>
+
+  <div class="keybox">
+    <div class="lbl">Two ways to use "finite" without breaking anything</div>
+    <p style="margin:6px 0 0;">① <strong>CKN / holography (Finale)</strong>: use finiteness as a "black hole = upper limit on information" → break neither Lorentz nor symmetry, and link UV and IR at the meV scale.<br>② <strong>Causal sets</strong>: make the discreteness a "random scattering" → preserve Lorentz invariance (but since it's not a regular lattice, the "rounding error" picture disappears).</p>
+  </div>
+
+  <p>The intuition you first grasped ── "the universe can only hold finite information" ── was <strong>correct</strong>. It's just that if you implement it as <em>regular-lattice rounding error</em> you lose your footing, whereas if you implement it as <em>an upper limit on information (holography) or random discreteness (causal sets)</em> it survives. <strong>What you must protect is not the discreteness of the implementation, but symmetry (Lorentz) and the running of dimensionless quantities</strong> ── this is the mass-side version of Bonus ③'s lesson, "protect \(\alpha\), not \(c\)."</p>
+
+  <div class="diag">
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>Core idea: finite resources / an upper limit on information</strong><span>Genuine. The foundation of the Finale's CKN bound. Lives on as holography / causal sets.</span></div></div>
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>The resolution moves as c·t (time-variation)</strong><span>Correct. That's the IR floor of Episode 6, \(\hbar H/c^2\). Lorentz-safe.</span></div></div>
+    <div class="row"><span class="mk no">✗</span><div class="txt"><strong>Chopping up UV gluons (the gap) with that IR resolution</strong><span>A UV/IR mix-up. Treating two things 40 orders apart as one lattice.</span></div></div>
+    <div class="row"><span class="mk no">✗</span><div class="txt"><strong>gap = neutrino mass = rounding error</strong><span>Confusing three distinct quantities. The mechanism is not an implementation-dependent \(\epsilon\) but the dimensional transmutation of Episode 4 (fixed uniquely by the running of a dimensionless quantity).</span></div></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">An honest line ── so as not to gloat</span>
+    <p style="margin-top:0;">This diagnosis isn't meant to knock down the rounding-error theory. Just as VSL was genuine research, this theory too shares the same core as the modern frontier of physics that captures the universe with finite information (holography, the swampland, causal sets). The lesson we could learn ── <strong>protect symmetry and dimensionless quantities, not the implementation</strong>, and <strong>don't confuse the UV and IR "resolutions"</strong> ── is what's valuable.</p>
+    <p style="margin-bottom:0;">And as we saw in the Finale, even the "correct implementation" ── CKN / holographic dark energy ── still has unpaid homework (the equation-of-state \(w\) problem). It's not that one side is perfect. Every line of thought is carrying unpaid homework somewhere.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with today's material)</div>
+    <ol>
+      <li>Is "a time-varying lattice preserves local Lorentz" correct?
+        <details><summary>See the answer</summary><div class="ans">Not correct. The universe's CMB rest frame is a harmless preferred frame, but tying a regular spatial lattice to cosmic time \(t\) still makes the lattice look anisotropic under a local boost, breaking local Lorentz. Time-variation is a rebuttal to a "static absolute lattice," not to a "local boost." A Lorentz-invariant discretization is possible if it's a random scattering (causal sets), but that isn't a regular lattice and the "rounding error" picture no longer holds.</div></details>
+      </li>
+      <li>What is "mixing up UV and IR"?
+        <details><summary>See the answer</summary><div class="ans">The resolution that moves as \(c\cdot t\) and is Lorentz-safe is the IR floor \(\hbar H/c^2\sim10^{-33}\) eV (Episode 6). Meanwhile, the lattice needed to compute gluons = the mass gap via rounding error is UV short-distance (GeV to Planck). The two are more than 40 orders of magnitude apart, and one lattice can't do both jobs. "It's Lorentz-OK because of c·t" uses the IR, while "rounding error = gap" needs the UV ── a bait-and-switch.</div></details>
+      </li>
+      <li>Name the ways to use the finite-resources idea "without breaking anything."
+        <details><summary>See the answer</summary><div class="ans">(1) The Finale's CKN / holography (use finiteness as a "black hole = upper limit on information" → preserve Lorentz). (2) Causal sets (make the discreteness a random scattering to preserve Lorentz invariance). Neither is "regular lattice + rounding error."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus ① summary</span>What you must protect is not the implementation but "symmetry and dimensionless quantities"</h2>
+    <p>The core of the rounding-error theory (finite resources = an upper limit on information) is genuine, the same as the frontier. Moving the lattice as \(c\cdot t\) is correct too ── that's the IR floor of Episode 6. Where it stumbled was trying to <strong>chop up UV gluons (GeV to Planck) with that IR resolution (\(10^{-33}\) eV, Lorentz-safe)</strong> (a UV/IR mix-up). So push it with a regular lattice and you break local Lorentz (harmful); keep it at the continuum limit and it's just ordinary lattice gauge theory (harmless but not new). And it was confusing three distinct quantities into one (the gap \(\sim\)1.5 GeV / the neutrino \(\sim\)0.05 eV / the IR floor \(\sim10^{-33}\) eV).</p>
+    <p>The genuine mass gap is the <strong>dimensional transmutation</strong> of Episode 4 (fixed uniquely by the running of a dimensionless quantity); the correct use of finite information is the <strong>CKN / holography</strong> of the Finale, or causal sets (which don't break symmetry). <em>Don't cling to implementation-dependent values; protect the symmetry and dimensionless quantities you must protect, and don't confuse UV and IR</em> ── VSL's lesson holds, unchanged, for the mass gap.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Bonus ②</span>
+    "Mass is not conserved." This time we clear up a more familiar misconception. Why don't we say "you get heavier the faster you move (relativistic mass)" anymore? What increases is energy; mass itself doesn't depend on speed ── we go back to Episode 1's \(E^2=(mc^2)^2+(pc)^2\) and pin down the meaning of "invariant mass."
+  </div>
+
+  <div class="foot">
+    This document is Bonus ① (revised) of the "Mass That Clicks" series, a piece for physics-loving high-schoolers and undergraduates. The following are all established physics / standard understanding: that the Yang–Mills mass gap (the Clay Millennium Prize problem) concerns the glueball mass of pure gauge theory (\(\sim1.5\) GeV scale, strong-force sector) and is distinct from the neutrino mass (\(\sim0.05\) eV, lepton sector, seesaw origin) and the IR floor (\(\sim10^{-33}\) eV, cosmological lower bound); that a regular spatial lattice breaks local Lorentz invariance (even when made time-varying) whereas causal sets based on random scattering are statistically Lorentz-invariant; that the cosmological comoving (CMB) rest frame is a preferred frame but does not break the Lorentz invariance of the fundamental laws; that dimensional transmutation gives a scale uniquely from the running of a dimensionless coupling whereas the rounding error of a discretization is implementation-dependent; and that the CKN / holographic handling of finite information is a framework that preserves symmetry. This piece has no intent to disparage any particular individual's theory; it appreciates the core idea (finite information) while diagnosing the implementation-level flaw of mixing up the UV/IR "resolution." ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (Cmd+P on Mac). On screen, move the slider on "resolution" and you'll see that the IR (Lorentz-safe) and the UV (chopping up the gap) can't coexist. Click "See the answer" to open each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  var XL=-34, XR=28;
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, pad=30;
+    var S=parseFloat(sk.value);
+    vk.innerHTML='10<sup>'+S.toFixed(1)+'</sup> eV';
+    ctx.clearRect(0,0,w,h);
+    function X(L){return pad+(L-XL)/(XR-XL)*(w-pad-14);}
+    var yAx=h*0.60;
+    // zones
+    ctx.fillStyle='rgba(31,122,110,0.13)';ctx.fillRect(X(-34),20,X(-30)-X(-34),h-pad-20);
+    ctx.fillStyle='rgba(176,106,18,0.13)';ctx.fillRect(X(9),20,X(28)-X(9),h-pad-20);
+    ctx.font='11px sans-serif';
+    ctx.fillStyle='#1f7a6e';ctx.fillText('IR: Lorentz-safe', X(-34)+2, 34);
+    ctx.fillStyle='#8a5a1e';ctx.fillText('UV: chops up the gap (Lorentz broken)', X(9)+2, 34);
+    // axis
+    ctx.strokeStyle='#c8bcb2';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(pad,yAx);ctx.lineTo(w-8,yAx);ctx.stroke();
+    // ticks
+    ctx.font='10px sans-serif';
+    for(var L=-33;L<=27;L+=6){var x=X(L);
+      ctx.strokeStyle='#e0d5cc';ctx.beginPath();ctx.moveTo(x,yAx-4);ctx.lineTo(x,yAx+4);ctx.stroke();
+      ctx.fillStyle='#a99a8c';ctx.fillText('10^'+L, x-11, yAx+16);}
+    // semantic markers
+    function mk(L,label,color,up){var x=X(L);ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,yAx,4,0,7);ctx.fill();
+      ctx.fillStyle=color;ctx.font='11px sans-serif';ctx.fillText(label, x-6, up?yAx-10:yAx+28);}
+    mk(-33,'IR floor','#1f7a6e',true);
+    mk(-1.3,'neutrino','#8a7f74',false);
+    mk(9.2,'glueball ~GeV','#8a5a1e',true);
+    mk(28,'Planck','#8a7f74',false);
+    // slider marker
+    var xs=X(S);
+    ctx.strokeStyle='#9a4230';ctx.setLineDash([4,3]);ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(xs,20);ctx.lineTo(xs,yAx);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#9a4230';ctx.beginPath();ctx.arc(xs,yAx,6,0,7);ctx.fill();
+    ctx.fillStyle='#9a4230';ctx.font='12px sans-serif';ctx.fillText('this theory\'s "resolution"', xs-40, yAx-40);
+    // readout
+    if(S<=-20){
+      rd.style.background='#e4f1ed';rd.style.color='#165a4e';
+      rd.textContent='IR side: moves as c·t and is Lorentz-safe (= the IR floor of Episode 6). But it\'s ~10⁻³³ eV ── 30 orders below the neutrino, and unrelated to gluons = the mass gap.';
+    } else if(S>=6){
+      rd.style.background='#f4ecdd';rd.style.color='#8a5a1e';
+      rd.textContent='UV side: a short-distance lattice that can chop up gluons = the mass gap (~GeV and up). But being a regular spatial lattice, it breaks local Lorentz ── contradicting experiment (~10⁻¹⁸).';
+    } else {
+      rd.style.background='#f3e8e3';rd.style.color='#7a3b2e';
+      rd.textContent='Neither here nor there: neither the Lorentz-safe IR nor the gap-producing UV. One lattice can\'t do both (a 40-order gap).';
+    }
+  }
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Map of the Remaining Holes: Settled / Testable / Sharply Open / The One Hole ── Mass That Clicks, Finale · Technical Appendix 12</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4c5060;
+    --paper:#f6f7f9; --paper-edge:#d4d7e0;
+    --side:#3a4250; --side-bg:#eceef3;
+    --warn:#8a4b2f;
+    --calc:#2d3345; --calc-bg:#e7eaf0;
+    --rule:#ccd0da; --hair:#b6bbc8;
+    --acc:#3a4250;
+    --grid:#d4d8e2;
+    --settled:#2f7d5a; --testable:#8a5320; --sharp:#6e3350; --hole:#2f3550;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.94;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:62px 68px 88px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.11);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:31px;line-height:1.32;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:16.5px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.04em;line-height:1.78;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:50px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d3d7e4 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#293040;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:24px 0;background:var(--calc-bg);border:1px solid #ccd1de;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfbfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:300px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e7eaf0;color:#2d3345;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:44px 0;font-size:12px;}
+  .keybox{margin:28px 0;padding:22px 28px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+  .keybox.hl{border-color:var(--acc);border-width:2px;background:linear-gradient(180deg,#fdfdff,#eceef4);}
+
+  .tier{margin:20px 0;border-radius:5px;overflow:hidden;border:1px solid var(--rule);}
+  .tier .head{padding:10px 16px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-weight:700;font-size:14px;color:#fff;letter-spacing:.05em;display:flex;justify-content:space-between;}
+  .tier .body{padding:12px 18px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;line-height:1.7;background:#fbfbfd;}
+  .tier .body ul{margin:4px 0;padding-left:1.2em;} .tier .body li{margin:4px 0;}
+  .t-settled .head{background:var(--settled);} .t-test .head{background:var(--testable);}
+  .t-sharp .head{background:var(--sharp);} .t-hole .head{background:var(--hole);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eceef4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#262b3d;line-height:1.75;}
+
+  .record{margin:48px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdff,#eaecf2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .fin{margin:24px 0 0;padding:22px 26px;background:#e7eaf0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#262b3d;line-height:1.9;}
+  .fin .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:52px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.7;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:21pt;} h1 .sub{font-size:12pt;}
+    h2{font-size:15pt;margin-top:22pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fin,.fig,.tier{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:22px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#63677a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Mass That Clicks</span><span class="ep">Finale · Technical Appendix 12 / A Map of the Remaining Holes (an overview of the journey)</span></div>
+  <p class="eyebrow">The arrival point of a 25-part climb, on a single map</p>
+  <h1>A Map of the Remaining Holes<br><span style="font-size:22px;">Settled / Testable / Sharply Open / The One Hole</span>
+    <span class="sub">What this journey accomplished is not "we solved it" but ── <em>turning the vague belief "the universe is a finite-resource computer" into a precise map of "which single piece of quantum gravity we're betting on"</em>. We survey it in four tiers.</span>
+  </h1>
+  <div class="byline">
+    <span>Prerequisite: the whole of Appendices 7–11</span>
+    <span>Where it arrives: the remaining holes all fall into just one (QG dynamics)</span>
+  </div>
+
+  <p class="lead">It was a long climb ── from the floor of mass (Episodes 1–6), to the frontier of S=A/4 (7), the type I proposition (8), the stage of Λ (9), the fusion of the horizon CFT (10), and the price and prediction of finiteness (11). To close, as the rule demands, without claiming "we solved it," I lay down <strong>a map that honestly sorts the arrival points</strong>. Four tiers: <strong>settled / testable / sharply open / the one hole</strong>. And what becomes visible at the end is the structure that ── <em>the remaining holes are not scattered; they all fall into one hole</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the arrival points of the 25-part journey, in four tiers. From the bottom up: <strong>settled (solid footing) → testable (observation adjudicates) → sharply open (the one missing equation) → the one hole (QG dynamics · the un-broken-ground parent)</strong>. Select a tier with the slider and the results and current status belonging to it light up</div>
+    <canvas id="cv" width="680" height="380"></canvas>
+    <div class="controls">
+      <label>Select a tier (0 = settled … 3 = the one hole)<span class="val" id="vk">settled</span>
+        <input type="range" id="sk" min="0" max="3" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">Settled tier: results on solid footing.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--settled);"></i>settled</span>
+      <span><i class="swatch" style="background:var(--testable);"></i>testable</span>
+      <span><i class="swatch" style="background:var(--sharp);"></i>sharply open</span>
+      <span><i class="swatch" style="background:var(--hole);"></i>the one hole</span>
+    </div>
+  </div>
+
+  <h2><span class="n">01</span>Settled ── solid footing</h2>
+
+  <div class="tier t-settled">
+    <div class="head"><span>SETTLED ── footing to stand on</span><span>established / exact</span></div>
+    <div class="body">
+      <ul>
+        <li><strong>II₁ = the limit of finite I_N</strong> (8, 9) ── the meaning of "finiteness" is mathematically exact. The continuum limit is the very culprit that breaks type I.</li>
+        <li><strong>\(S=A/4G\) comes out robustly</strong> (7) ── entanglement + induced gravity + generalized entropy (cutoff-independent).</li>
+        <li><strong>The logarithmic correction \(-\tfrac32\ln A\) agrees</strong> (10) ── LQG and CFT coincide at the γ-independent order.</li>
+      </ul>
+    </div>
+  </div>
+  <p>This is not a "wager" but the arrival point of standard physics. It's where it was confirmed that your intuition (finite · discrete) <strong>stands precisely</strong> in the language of algebra types and entropy.</p>
+
+  <h2><span class="n">02</span>Testable ── observation adjudicates</h2>
+
+  <div class="tier t-test">
+    <div class="head"><span>TESTABLE ── falsifiable seeds</span><span>DESI / Euclid, etc.</span></div>
+    <div class="body">
+      <ul>
+        <li><strong>\(w\ne-1\) / the relaxation of dark energy</strong> (4, 5, 11) ── required by BB avoidance + c·t's growing resource. DESI hints at \(w_0>-1\) today (the sign of \(w_a\) is in tension = observation adjudicates).</li>
+        <li><strong>Discrete spectrum · Poincaré recurrence</strong> (5, 11) ── a consequence of finite dimension. A prediction in principle.</li>
+        <li><strong>Unitarity · the Page curve closes finitely</strong> (11) ── the good edge of finiteness.</li>
+      </ul>
+    </div>
+  </div>
+  <p>Not a belief but a <strong>falsifiable stance</strong>. In particular, the relaxation of \(w\) is a seed where consistency, the framework, and observation all point the same way ── a weakness promoted to a prediction.</p>
+
+  <h2><span class="n">03</span>Sharply open ── the one missing equation</h2>
+
+  <div class="tier t-sharp">
+    <div class="head"><span>SHARP OPEN ── a question written at the granularity of equations</span><span>unresolved but precise</span></div>
+    <div class="body">
+      <ul>
+        <li><strong>The \(k\leftrightarrow c\) match of the horizon CFT</strong> (10) ── are the LQG Chern–Simons level \(k\) and the central charge \(c\) of the edge modes / Carlip the same boundary CFT? If so, Cardy returns \(S=A/4G\), \(\gamma\) is derived, and <strong>the two 1/4's become one</strong>.</li>
+      </ul>
+    </div>
+  </div>
+  <p>This is not a "deep mystery" but a <strong>precise question</strong>. It's written at the granularity of a paper's problem statement, and the Carlip / Jacobson lines are aiming at exactly this. It's not connected, but the single point to be connected has been identified.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>The one hole ── the parent of all the rest</h2>
+
+  <div class="tier t-hole">
+    <div class="head"><span>THE ONE HOLE ── the dynamics of quantum gravity</span><span>the un-broken-ground parent</span></div>
+    <div class="body">
+      <ul>
+        <li><strong>The existence of a background-independent finite dynamics</strong> (crack 1) ── does there exist a theory whose states are countable and which, at \(G\to0\), returns CLPW's II₁ together with \(S_{\rm gen}\)? <strong>= the dynamical completion of quantum gravity itself.</strong></li>
+        <li>Cross-sections ── <strong>the completion of the 4D spinfoam</strong> (3, unbroken ground · with a blueprint), <strong>the fusion of the substrate</strong> (4, unbroken ground + the prior question "is it even needed?"), <strong>the relational emergence of the observer</strong> (Page–Wootters, no realization).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="keybox hl">
+    <div class="lbl">Structure ── the remaining holes all fall into one</div>
+    <p style="margin:0;">1 (dynamics) is the hole itself. 3 is a tunnel that peers into it; 4 and the observer are details of its walls. <strong>The remaining cracks 1, 3, 4 + the observer are all cross-sections of the one hole, "we do not possess a dynamical theory of quantum gravity."</strong> This is not a special failure of the c·t framework but THE unresolved problem of all of physics.</p>
+  </div>
+
+  <h2><span class="n">05</span>Meta-verdict ── what the journey accomplished</h2>
+
+  <p>The hole (1) is filled by no one. So what did this climb accomplish ──</p>
+
+  <div class="aside">
+    <span class="tag">Achievement ── turning a belief into a map</span>
+    It turned the vague belief "the universe is a finite-resource computer" into <strong>a precise map of "which single piece of quantum gravity we're betting on."</strong> Settled (footing to stand on) / testable (can be tested) / sharply open (a question written in equations) / the one hole (QG dynamics). <strong>The content of the wager has been sorted at the granularity of a paper.</strong> Few have filled the hole, but few can point so precisely at "which hole they're betting on" either.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the rule</span>
+    <p style="margin-top:0;">This map contains not a single "we solved it." Settled is standard physics, testable is undetermined, sharply open is unresolved, and the one hole is quantum gravity itself. At any of the four tiers, if I declare in conversation that a hole is "filled," that is the fake.</p>
+    <p style="margin-bottom:0;">And the fact that the top tier (the one hole) is not filled is not a defeat for this framework ── because <strong>no one in humanity stands there</strong>. The worth of the journey lies not in whether we leaped over the last hole (no one can) but in <strong>whether we honestly sorted the footing, seeds, sharp questions, and hole into four tiers</strong>.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Questions to check yourself</div>
+    <ol>
+      <li>Why can we say the remaining cracks 1, 3, 4 + the observer are "one hole"?
+        <details><summary>One answer</summary><div class="ans">1 (the existence of a background-independent finite dynamics = QG dynamics) is the parent, and if you had it, it would also be 3 (a 4D theory), would fix 4 (how the substrate works), and would contain the observer (a relational clock). 3, 4, and the observer are merely subproblems / cross-sections of 1. So the remaining holes all fall into the single hole, "we do not possess a dynamical theory of quantum gravity." This is not specific to the framework but is unresolved for all of physics.</div></details>
+      </li>
+      <li>Even though it is "not solved," why does this journey have worth?
+        <details><summary>One answer</summary><div class="ans">Because it sorted a vague belief into the four tiers settled / testable / sharply open / the one hole, and identified, at the granularity of a paper, which single piece of quantum gravity the wager depends on. Since no one stands at the top tier (QG dynamics), being unable to fill it is not defeat but our current location. The worth of the journey lies not in whether we leaped over the hole but in whether we could honestly map the footing, seeds, sharp questions, and hole.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Appendix 12 summary</span>The four-tier map ── and the hole is one</h2>
+    <p>We sorted the 25-part climb into four tiers. <strong>Settled</strong> (II₁ = finite I_N, S=A/4G, the logarithmic agreement) is footing that stands as standard physics. <strong>Testable</strong> (the relaxation of w, discrete spectrum, unitarity) are falsifiable seeds. <strong>Sharply open</strong> (the horizon CFT's \(k\leftrightarrow c\)) is a single question written at the granularity of equations. <strong>The one hole</strong> (background-independent finite dynamics = QG dynamics) is the parent of all the rest, and 3, 4, and the observer are its cross-sections.</p>
+    <p>The remaining holes all fall into one, "we do not possess the dynamics of quantum gravity" ── <strong>not a defeat of the framework but the frontier of all of physics</strong>. What this journey accomplished is not filling the hole but <strong>turning a vague belief into a precise map that shows the content of the wager at the granularity of a paper</strong>. As the rule demands, I do not say the hole is filled.</p>
+  </div>
+
+  <div class="fin">
+    <span class="lbl">Mass That Clicks ── the true close of the finale</span>
+    Starting from "what is weight?" we passed through the floor of mass, symmetry, running, the seesaw, the IR floor, and the handshake at the meV, crossed the four walls of the discreteness hypothesis, and climbed all the way to the frontier of S=A/4, the type I proposition, the stage of Λ, the horizon CFT, and the price of finiteness. What remained at the end was one hole that won't fill ── <strong>the dynamics of quantum gravity</strong>. That is proof that your wager was connected straight to a genuine frontier.<br>No theory of everything comes out of a chat (and if one does, doubt it, is the rule). But ── <strong>your "universe = finite resource," the more you dug, became not a vague belief but a map at the granularity of a paper: confirmed footing, testable seeds, a sharp question, and the one hole</strong>. Compared to a fake completion, holding this map and being able to stand honestly at the edge of the frontier is far more distant, and far more real. To have climbed all the way here ── well done.
+  </div>
+
+  <div class="foot">
+    This document is Technical Appendix 12 of the "Mass That Clicks" series finale, the overview map of the journey. The breakdown of the four tiers ── settled (the hyperfinite II₁ factor being the limit of finite-dimensional matrix algebras, \(S=A/4G\) from entanglement + induced gravity, the agreement of the γ-independent logarithmic correction), testable (the relaxation \(w\ne-1\) of dark energy and DESI/Euclid, the discrete spectrum and Poincaré recurrence from finite dimension, the consistency of finite dimension with unitarity/Page curve), sharply open (the tuning-free-ification of the \(1/4\) via the match of the Chern–Simons level and central charge of the horizon boundary CFT), the one hole (the existence of a background-independent, finite, UV-complete quantum-gravity dynamics, and the recovery of its semiclassical type II · continuum type III₁) ── the standing of each is as in the notes of Appendices 7–11, each clearly distinguishing established results, current research topics, and unresolved problems. This note claims no particular completed theory and instead organizes the known arrival points and remaining unresolved issues into four tiers. The figure is a schematic showing the classification of results, not a quantitative scale. \(c\cdot t=\text{const}\) is a restatement of coordinates and units; the local speed of light is invariant. ── Print / PDF: browser "Print" → "Save as PDF" (in the print version the sliders and answers are static and hidden).</div>
+
+</div>
+<p class="hint no-print">Print / make PDF: Ctrl+P (⌘+P on Mac). On screen, select one of the four tiers (settled / testable / sharply open / the one hole) with the slider and each tier's results and current status light up. "One answer" opens the solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  var tiers=[
+    {name:'settled', sub:'SETTLED ── footing to stand on', col:'#2f7d5a',
+     chips:['II₁ = the limit of finite I_N (8,9)','S=A/4G robustly (7)','agreement of the log correction −3/2 (10)'],
+     read:'Settled: footing that stands as standard physics. Finite · discrete stands precisely in algebra types and entropy.'},
+    {name:'testable', sub:'TESTABLE ── falsifiable seeds', col:'#8a5320',
+     chips:['w≠−1 / relaxation (DESI · 4,5,11)','discrete spectrum · recurrence (5,11)','unitarity · Page curve (11)'],
+     read:'Testable: falsifiable seeds. The relaxation of w is where consistency, framework, and observation point the same way = promoted to a prediction.'},
+    {name:'sharply open', sub:'SHARP OPEN ── a question written in equations', col:'#6e3350',
+     chips:['the k↔c match of the horizon CFT (10)','= the missing equation that fuses the two 1/4\'s into one'],
+     read:'Sharply open: unresolved but written as a single question at the granularity of equations. If k↔c holds, γ is derived and the two 1/4\'s become one.'},
+    {name:'the one hole', sub:'THE ONE HOLE ── QG dynamics', col:'#2f3550',
+     chips:['the existence of a background-independent finite dynamics (1 = QG dynamics)','cross-sections: 4D completion (3) / substrate fusion (4) / observer emergence'],
+     read:'The one hole: a background-independent finite dynamics = quantum gravity itself. The remaining cracks 1, 3, 4 + the observer are all cross-sections of this one hole. No one has filled it.'}
+  ];
+  function rr(ctx,x,y,w,h,r){ ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var sel=parseInt(sk.value,10); vk.textContent=tiers[sel].name;
+    ctx.clearRect(0,0,W,H);
+    var padX=14, padT=12, gap=10;
+    var bandH=(H-padT*2-gap*3)/4;
+    // draw from bottom (settled) to top (hole): index 0 at bottom
+    for(var i=0;i<4;i++){
+      var t=tiers[i];
+      var yTop = padT + (3-i)*(bandH+gap); // i=0 bottom
+      var active = (i===sel);
+      // band background
+      ctx.globalAlpha = active?1:0.32;
+      ctx.fillStyle = t.col; rr(ctx,padX,yTop,W-padX*2,bandH,6); ctx.fill();
+      // inner panel
+      ctx.globalAlpha = active?1:0.5;
+      ctx.fillStyle='#ffffff'; rr(ctx,padX+5,yTop+26,W-padX*2-10,bandH-32,4); ctx.fill();
+      ctx.globalAlpha=1;
+      // header text
+      ctx.fillStyle= active?'#ffffff':'rgba(255,255,255,0.85)';
+      ctx.font='bold 12.5px sans-serif';ctx.textAlign='left';
+      ctx.fillText(t.sub, padX+12, yTop+17);
+      ctx.textAlign='right';ctx.font='11px sans-serif';
+      ctx.fillText(['established/exact','observation adjudicates','unresolved but precise','the un-broken-ground parent'][i], W-padX-12, yTop+17);
+      // chips
+      var cx=padX+14, cy=yTop+26+ (bandH-32)/2;
+      ctx.textAlign='left';
+      var fs = active?12.5:11.5;
+      ctx.font=(active?'bold ':'')+fs+'px sans-serif';
+      ctx.fillStyle= active? t.col : '#8a8f9e';
+      var chips=t.chips, lineY = yTop+42;
+      for(var j=0;j<chips.length;j++){
+        ctx.fillText('• '+chips[j], cx, lineY + j*17);
+      }
+    }
+    rd.textContent = tiers[sel].read;
+  }
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
