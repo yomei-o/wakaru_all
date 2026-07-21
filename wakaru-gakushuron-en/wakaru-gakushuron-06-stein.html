@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolution and Learning Were the Same Computation ── Learning That Clicks, Episode 6</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241d13; --ink-soft:#574a38;
+    --paper:#fbf6ee; --paper-edge:#e8dcc4;   /* Episode 1: learning / life / energy = amber paper */
+    --side:#6f4b1f; --side-bg:#f4ece0;
+    --warn:#8a4b2f;
+    --calc:#a05c12; --calc-bg:#f7edda;   /* compute color = amber */
+    --rule:#e3d6bd; --hair:#c9b48a;
+    --acc:#b06a10;    /* accent = amber */
+    --grid:#eaddc4;
+    --ok:#3d7a3a; --bad:#a83a22; --hot:#c0392b; --cold:#2a6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2dca0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c1a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e4d2ac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--acc);
+    border:none;border-radius:3px;padding:9px 18px;cursor:pointer;align-self:flex-end;}
+  .btn:hover{background:#96590c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .readout.ok{background:#eef2e6;color:#3a6030;}
+  .readout.local{background:#f6ecda;color:#8a5a12;}
+  .readout.bad{background:#f6e2dc;color:#9a3520;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  table.verdict{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.verdict th,table.verdict td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.55;}
+  table.verdict th{background:#f3e6cd;color:#7a4e10;font-weight:700;}
+  table.verdict .v-ok{color:var(--ok);font-weight:700;}
+  table.verdict .v-bad{color:var(--bad);font-weight:700;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9f2e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6a4410;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfaf4,#f2e7d1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e7cf;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4410;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8a7a5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Learning That Clicks</span><span class="ep">Episode 6 ／ Unification ── ES = BP, the heart of the series</span></div>
+  <p class="eyebrow">Reading evolution, learning, and consciousness through a single gradient</p>
+  <h1>Evolution and Learning Were the Same Computation
+    <span class="sub">"Evolution strategies (ES)," which descend a slope without differentiating, and "backpropagation (BP)," which descend by differentiating. Two things that look utterly different turn out — through a single equation, Stein's lemma — to be the <em>exact same gradient</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Gaussian integrals, integration by parts, and Episode 5's nonstandard analysis</span>
+    <span>Key of the episode: \(\dfrac{1}{\sigma^2}\,\mathbb{E}\!\left[L(\theta+\varepsilon)\,\varepsilon\right]=\nabla L_\sigma(\theta)\)</span>
+  </div>
+
+  <p class="lead">Over the series so far, we've picked up two ways of "going downhill." One is Episode 2's <strong>backpropagation (BP)</strong> ── differentiate the loss, compute the gradient \(\nabla L\) straight, and descend: a sharp, local tool. The other is Episode 4's <strong>evolution strategies (ES)</strong> ── use no differentiation at all; scatter many perturbations and average the "directions that turned out good": a blunt but robust, population-level tool. <em>Learning that differentiates</em> and <em>evolution that doesn't</em>. In philosophy the two look diametrically opposed. And yet, in truth, the two are <strong>computing exactly the same gradient</strong>. ES is BP wearing the face of "integration," and BP is ES wearing the face of "differentiation." What proves this coincidence is a classic of statistics ── <strong>Stein's lemma</strong>. This episode is the heart of the series. Skipping not a single step of the derivation, let's walk on our own two feet all the way to the final identity.</p>
+
+  <h2><span class="n">01</span>Two ways down ── integration and differentiation</h2>
+
+  <p>First, let's set the two side by side. Let's borrow ahead of time the <strong>smoothed loss (Gaussian smoothing)</strong> that will be the star of Episode 7. It's the loss \(L\) "leveled out" by blurring it around the center \(\theta\) with Gaussian noise \(\varepsilon\) of standard deviation \(\sigma\).</p>
+
+  <div class="keybox">
+    <div class="lbl">Smoothed loss (blur around θ with σ)</div>
+    $$J(\theta)\;=\;\mathbb{E}_{\varepsilon\sim\mathcal{N}(0,\sigma^2 I)}\!\bigl[\,L(\theta+\varepsilon)\,\bigr]\;=\;L_\sigma(\theta)$$
+  </div>
+
+  <p>Lowering this \(L_\sigma\) is the shared goal of the two. So how do the two get their hands on its gradient \(\nabla L_\sigma(\theta)\)?</p>
+
+  <p><strong>ES (the evolution, integration face).</strong> Scatter \(N\) perturbations \(\varepsilon_1,\dots,\varepsilon_N\) from the center \(\theta\) using a Gaussian, and measure <em>only the evaluation value</em> \(L(\theta+\varepsilon_i)\) of each. No differentiation. Then take "the average of the perturbations weighted by their evaluation values" ── this is ES's gradient estimate. A global operation that gathers the <em>values</em> of the loss and <em>integrates (averages)</em> them.</p>
+
+  <div class="calc" style="margin-top:14px;">
+    <span class="tag">Set the two estimators side by side</span>
+    <p class="lbl">ES: average of (evaluation value × perturbation) (no differentiation, global)</p>
+    $$\hat{g}_{\mathrm{ES}}\;=\;\frac{1}{\sigma^2}\cdot\frac{1}{N}\sum_{i=1}^{N} L(\theta+\varepsilon_i)\,\varepsilon_i$$
+    <p class="lbl">BP: average of gradients in a neighborhood (with differentiation, local)</p>
+    $$\hat{g}_{\mathrm{BP}}\;=\;\frac{1}{N}\sum_{i=1}^{N}\nabla L(\theta+\varepsilon_i)\quad\bigl(\text{as}\ N\to\infty,\ \mathbb{E}[\nabla L(\theta+\varepsilon)]\bigr)$$
+  </div>
+
+  <p><strong>BP (the learning, differentiation face).</strong> At each point, differentiate the loss and read the gradient \(\nabla L\) directly. For the gradient of the blurred loss, just average the gradients in the neighborhood. A local operation that gathers the <em>slopes</em> of the loss.</p>
+
+  <p>One is an <em>integral of values</em>, the other a <em>differential of slopes</em>. The information used and the computational philosophy differ. And yet these two converge to the same quantity. The bridge is Stein's lemma.</p>
+
+  <h2><span class="n">02</span>Stein's lemma ── integration by parts for the Gaussian</h2>
+
+  <p>The key is one beautiful equation the Gaussian distribution possesses. The average of a quantity "multiplied" by Gaussian noise turns into the average of that quantity "differentiated" ── a theorem that bridges integration (averaging) and differentiation, made exactly for this episode.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">Stein's lemma (integration by parts for the Gaussian)</div>
+    $$\varepsilon\sim\mathcal{N}(0,\sigma^2 I),\quad
+      \mathbb{E}\!\left[\,\varepsilon\, f(\varepsilon)\,\right]\;=\;\sigma^2\,\mathbb{E}\!\left[\,\nabla f(\varepsilon)\,\right]$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);">(\(f\) is taken to be a sufficiently nice function ── differentiable, and not blowing up as \(\varepsilon\) heads off to infinity.)</p>
+  </div>
+
+  <p>The left side is the average of "the product of the noise \(\varepsilon\) and the function value \(f\)"; the right side is the average of "the derivative of \(f\)." Left is an integral of values, right is an average of slopes. <strong>This is exactly the skeleton of the ES–BP relationship.</strong> Why does this equation hold ── it comes out in one line from a single property of the Gaussian density. In the next section let's prove the one-dimensional case all the way to the end (the multidimensional case is just applying the same argument to each component).</p>
+
+  <h2><span class="n">03</span>Proof in one dimension ── integration by parts to the finish</h2>
+
+  <p>The heart of the proof is a <em>differential equation</em> satisfied by the Gaussian density \(p(\varepsilon)\). Differentiate the Gaussian and it comes back as itself, multiplied by \(-\varepsilon/\sigma^2\) ── from this single point, integration by parts does everything else for us.</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── integration by parts for the Gaussian</span>
+    <p class="lbl">① The Gaussian density, and its derivative</p>
+    $$p(\varepsilon)=\frac{1}{\sqrt{2\pi}\,\sigma}\,e^{-\varepsilon^2/(2\sigma^2)}
+      \qquad\Longrightarrow\qquad p'(\varepsilon)=-\frac{\varepsilon}{\sigma^2}\,p(\varepsilon)$$
+    <p class="lbl">② So "ε × density" can be rewritten as "the derivative of the density"</p>
+    $$\varepsilon\,p(\varepsilon)\;=\;-\,\sigma^2\,p'(\varepsilon)$$
+    <p class="lbl">③ Substitute this into the average \(\mathbb{E}[\varepsilon f(\varepsilon)]\)</p>
+    $$\mathbb{E}\!\left[\varepsilon f(\varepsilon)\right]
+      =\int_{-\infty}^{\infty}\!\varepsilon\, f(\varepsilon)\,p(\varepsilon)\,d\varepsilon
+      =-\,\sigma^2\!\int_{-\infty}^{\infty}\! f(\varepsilon)\,p'(\varepsilon)\,d\varepsilon$$
+    <p class="lbl">④ Integrate by parts (the boundary term vanishes as \(p\to 0\))</p>
+    $$\int f\,p'\,d\varepsilon
+      =\underbrace{\bigl[\,f(\varepsilon)\,p(\varepsilon)\,\bigr]_{-\infty}^{\infty}}_{=\,0}
+      -\int f'(\varepsilon)\,p(\varepsilon)\,d\varepsilon
+      =-\int f'(\varepsilon)\,p(\varepsilon)\,d\varepsilon$$
+    <p class="lbl">⑤ Put it back into ③, and the two minus signs line up</p>
+    $$\mathbb{E}\!\left[\varepsilon f(\varepsilon)\right]
+      =-\,\sigma^2\left(-\int f'(\varepsilon)\,p(\varepsilon)\,d\varepsilon\right)
+      =\sigma^2\!\int f'(\varepsilon)\,p(\varepsilon)\,d\varepsilon
+      =\sigma^2\,\mathbb{E}\!\left[f'(\varepsilon)\right]$$
+    <p style="margin-bottom:14px;">And so \(\mathbb{E}[\varepsilon f(\varepsilon)]=\sigma^2\,\mathbb{E}[f'(\varepsilon)]\) ── <span style="color:var(--ok);font-weight:700;">Stein's lemma (one-dimensional) is rigorously proved</span>. No approximation whatsoever. Just the Gaussian density's property \(p'=-(\varepsilon/\sigma^2)p\) and integration by parts. The boundary term vanishes because, as long as \(f\) is gentler than the Gaussian's tail, \(f(\varepsilon)p(\varepsilon)\to 0\).</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Why "integration by parts" works so well here</span>
+    Integration by parts is the operation of "shoving the differentiation onto whatever it's multiplying." Here, we take the differentiation that was on the \(f\) we want to measure, temporarily let the Gaussian density \(p\) shoulder it (③), translate that into "multiply by \(\varepsilon\)" via \(p'=-(\varepsilon/\sigma^2)p\), and use integration by parts to hand it back to the \(f\) side once more (④⑤). <em>On the Gaussian, differentiation and "multiplying by \(\varepsilon\)" are two sides of the same coin</em> ── this is the true identity of Stein's lemma, and it is the very reason ES (multiplication) and BP (differentiation) later coincide.
+  </div>
+
+  <h2><span class="n">04</span>The central identity ── ES = BP = ∇Lσ</h2>
+
+  <p>The preparations are complete. Substitute \(f(\varepsilon)=L(\theta+\varepsilon)\) into Stein's lemma. From the chain rule, note that the gradient with respect to \(\varepsilon\) equals the gradient with respect to \(\theta\) ── \(\nabla_\varepsilon L(\theta+\varepsilon)=\nabla_\theta L(\theta+\varepsilon)\).</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── applying it to the main problem</span>
+    <p class="lbl">① Put \(f(\varepsilon)=L(\theta+\varepsilon)\) into Stein's lemma</p>
+    $$\mathbb{E}\!\left[\varepsilon\,L(\theta+\varepsilon)\right]\;=\;\sigma^2\,\mathbb{E}\!\left[\nabla L(\theta+\varepsilon)\right]$$
+    <p class="lbl">② Divide both sides by \(\sigma^2\)</p>
+    $$\frac{1}{\sigma^2}\,\mathbb{E}\!\left[L(\theta+\varepsilon)\,\varepsilon\right]\;=\;\mathbb{E}\!\left[\nabla L(\theta+\varepsilon)\right]$$
+    <p class="lbl">③ Swap the averaging and differentiation (\(\nabla_\theta\) can come outside the average over \(\varepsilon\))</p>
+    $$\mathbb{E}\!\left[\nabla_\theta L(\theta+\varepsilon)\right]\;=\;\nabla_\theta\,\mathbb{E}\!\left[L(\theta+\varepsilon)\right]\;=\;\nabla L_\sigma(\theta)$$
+  </div>
+
+  <p>Stringing the three together on one line, the <strong>backbone identity of this series</strong> appears.</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl" style="color:var(--acc);">The central identity ── ES and BP are the same gradient</div>
+    $$\underbrace{\frac{1}{\sigma^2}\,\mathbb{E}\!\left[\,L(\theta+\varepsilon)\,\varepsilon\,\right]}_{\text{ES: integral of values, global}}
+      \;=\;
+      \underbrace{\mathbb{E}\!\left[\,\nabla L(\theta+\varepsilon)\,\right]}_{\text{BP: average of slopes, local}}
+      \;=\;
+      \nabla\,\mathbb{E}\!\left[L(\theta+\varepsilon)\right]
+      \;=\;
+      \nabla L_\sigma(\theta)$$
+  </div>
+
+  <p>The far left is ES ── a global "integral" quantity, <em>using no differentiation</em>, that averages the evaluation values \(L(\theta+\varepsilon)\) weighted by the perturbations \(\varepsilon\). The middle is BP ── a local "differential" quantity that averages the gradients obtained by <em>differentiating</em> at infinitely many neighboring points. These two are <strong>exactly equal</strong>. And moreover both are nothing but the gradient \(\nabla L_\sigma\) of the smoothed loss \(L_\sigma\).</p>
+
+  <div class="keybox" style="border:none;background:transparent;text-align:center;padding:6px 0;">
+    <p style="font-size:19px;margin:0;line-height:1.7;"><strong>ES is BP on the smoothed loss.</strong><br>Evolution and learning were computing the same gradient.</p>
+  </div>
+
+  <p>It's not an approximation. It's not a finite difference. Stein's lemma, an <em>exact equation</em>, ties the two worlds together with a single line. Evolution that doesn't differentiate and learning that does were merely computing the same gradient of the same terrain \(L_\sigma\), just wearing different faces.</p>
+
+  <h2><span class="n">05</span>Let's run it ── the theorem shakes hands before your eyes</h2>
+
+  <p>The figure below is a visualization of the identity itself. On top of a two-dimensional loss terrain (contour lines) we place a single point \(\theta\) (red), and from there scatter \(N\) Gaussian perturbations (amber dots). The <strong>green arrow</strong> is the ES estimate \(\hat{g}\), built from the left-side formula using <em>only the evaluation values</em> of the scattered points. The <strong>black arrow</strong> is the true smoothed gradient \(\nabla L_\sigma\) (the right side), which can be computed analytically for this terrain. Turn \(N\) up ── the ES arrow converges toward the true gradient <em>as if drawn to it</em> (the estimate's scatter is \(\propto 1/N\)). Change \(\sigma\) and the strength of the blur ── i.e., the true gradient itself ── changes.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: The central identity on a loss terrain (sum of negative Gaussian wells). Green = ES estimate ĝ = (1/Nσ²)Σ L(θ+εᵢ)εᵢ (values only, no differentiation) / black = true smoothed gradient ∇Lσ (right side, analytic value). Raise N and green converges to black ── this is the theorem's evidence itself.</div>
+    <canvas id="cv" width="680" height="600"></canvas>
+    <div class="controls">
+      <label>Population size N (number of perturbations)<span class="val" id="vN">40</span>
+        <input type="range" id="sN" min="0" max="100" step="1" value="46">
+      </label>
+      <label>Blur σ (spread of perturbations)<span class="val" id="vsig">0.35</span>
+        <input type="range" id="ssig" min="0.08" max="0.85" step="0.01" value="0.35">
+      </label>
+      <button class="btn" id="run">Redraw ↻</button>
+    </div>
+    <div class="readout local" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#241d13;"></i>True smoothed gradient ∇Lσ (right side)</span>
+      <span><i class="swatch" style="background:#3d7a3a;"></i>ES estimate ĝ (left side, values only)</span>
+      <span><i class="dot" style="background:#c0392b;"></i>Center θ</span>
+      <span><i class="dot" style="background:rgba(176,106,16,.6);"></i>Perturbation θ+εᵢ</span>
+    </div>
+  </div>
+
+  <p>What about \(N=2\)? The green arrow points in a wildly different direction each time, and its length is all over the place too ── no wonder, since we're trying to guess a gradient from just two evaluation values. But raise \(N\) to a few hundred and green lands exactly on black. <em>Just by gathering evaluation values and averaging</em>, without differentiating, the gradient you'd get by differentiating is recovered. The readout's "angle difference" heads toward \(0^\circ\), and the "magnitude ratio" toward \(1\). This is the visible meaning of "ES is an unbiased estimate of BP."</p>
+
+  <h2><span class="n">06</span>Integration and differentiation shake hands ── in the language of nonstandard analysis</h2>
+
+  <p>Using the language of nonstandard analysis from last time (Episode 5), this convergence becomes even more transparent. Rather than making the population size \(N\) large while keeping it finite, let's take \(N\) to be <em>hyperfinite</em> (an infinite hypernatural number). Then the ES sum becomes a <strong>hyperfinite sum</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">The nonstandard reading ── the standard part recovers the gradient</div>
+    $$\mathrm{st}\!\left(\frac{1}{\sigma^2}\cdot\frac{1}{N}\sum_{i=1}^{N} L(\theta+\varepsilon_i)\,\varepsilon_i\right)
+      \;=\;\frac{1}{\sigma^2}\,\mathbb{E}\!\left[L(\theta+\varepsilon)\,\varepsilon\right]
+      \;=\;\nabla L_\sigma(\theta)$$
+  </div>
+
+  <p>The evaluation-value-weighted average over a population of infinitely many individuals. Its <strong>standard part \(\mathrm{st}\)</strong> (the "visible value" with the infinitesimal fluctuation shaved off) matches exactly the right-side expectation ── the true gradient. As we saw in Episode 5, each individual of the population is an infinitesimal perturbation filling the <em>monad (infinitesimal neighborhood)</em> of the center \(\theta\), and the <em>consensus</em> of those infinitesimals recovers the gradient of the standard world. For finite \(N\), a fluctuation of \(\propto 1/N\) (the deviation from the infinitesimal, in Episode 5's terms) remains in this consensus; but if \(N\) is hyperfinite, that deviation is infinitesimal and \(\mathrm{st}\) erases it.</p>
+
+  <div class="aside">
+    <span class="tag">Integration and differentiation shake hands on the Gaussian</span>
+    Ordinarily integration (gathering values and averaging) and differentiation (the slope at a single point) are opposite operations. Yet in Stein's lemma they are joined by an equals sign. The left side is "a global quantity integrating the whole population," the right side "a local quantity, the gradient at a single point." <em>The symmetry of the distribution called the Gaussian</em> reconciles this global and this local. The same truth that evolution discovered "in the macro of a population" and learning discovered "in the micro of a gradient," each separately ── that truth was \(\nabla L_\sigma\).
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>The verdict ── what is exact, and what to watch out for</h2>
+
+  <p>This coincidence is powerful, but exactly what it claims needs to be judged carefully. Let's put three common turns of phrase, all three, on trial.</p>
+
+  <table class="verdict">
+    <tr><th>Claim</th><th>Examination</th><th>Verdict</th></tr>
+    <tr>
+      <td>"ES is a finite-difference approximation of BP (just mimicking the derivative with a difference quotient)."</td>
+      <td>No. ES isn't numerically differentiating the raw \(L\); it's an <strong>unbiased estimate of the gradient of the smoothed loss \(L_\sigma\)</strong>. Not a finite difference, but a rigorous average quantity given by Stein's identity.</td>
+      <td class="v-bad">✗ (rejected)</td>
+    </tr>
+    <tr>
+      <td>"ES and BP coincide exactly on the raw loss \(L\)."</td>
+      <td>What coincides is the gradient of the σ-blurred \(L_\sigma\), not the gradient of the raw \(L\). The two coincide only in the limit \(\sigma\to 0\) (and when \(L\) is smooth).</td>
+      <td class="v-bad">handle with care</td>
+    </tr>
+    <tr>
+      <td>"Stein's identity is exact (not an approximation)."</td>
+      <td>Correct. Under mild assumptions of integrability and smoothness, it's a complete equation derived from integration by parts. In Section 3 we proved it using no approximation at all.</td>
+      <td class="v-ok">survives</td>
+    </tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── what is "the same" is the gradient of Lσ, not the raw L</span>
+    <p style="margin-top:0;">The identity \(\tfrac{1}{\sigma^2}\mathbb{E}[L(\theta+\varepsilon)\,\varepsilon]=\nabla L_\sigma(\theta)\) is an <strong>exact equation</strong> from Stein's lemma (under mild assumptions of integrability and smoothness). But the sense in which ES and BP are "the same" here is only about the <em>gradient of the smoothed loss \(L_\sigma\)</em>. As long as \(\sigma\) is finite, \(\nabla L_\sigma\) deviates from the gradient \(\nabla L\) of the raw loss ── the true nature of this deviation, and the role \(\sigma\) plays, is precisely next time's subject.</p>
+    <p style="margin-bottom:0;">Even so, the claim is plenty strong. Evolution (ES) and learning (BP) are not separate principles but <strong>two faces (integration and differentiation) of one and the same gradient computation</strong>. One gathers the population's values, the other differentiates at a single point ── the apparatus is completely different, yet the gradient they point to is the same. This is the backbone of this series. Next time we'll reread this \(\sigma\) as "resolution / temperature," and watch how blurring smooths the terrain and fills in local minima.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode's identity)</div>
+    <ol>
+      <li>In Stein's lemma, set \(f(\varepsilon)=\varepsilon\) (one-dimensional, \(\varepsilon\sim\mathcal N(0,\sigma^2)\)). What comes out? Compute the left and right sides separately.
+        <details><summary>See the answer</summary><div class="ans">Left side \(\mathbb{E}[\varepsilon\cdot\varepsilon]=\mathbb{E}[\varepsilon^2]=\sigma^2\). Right side \(\sigma^2\,\mathbb{E}[f'(\varepsilon)]=\sigma^2\,\mathbb{E}[1]=\sigma^2\). Both sides come out \(\sigma^2\) and coincide, showing that Stein's lemma contains the familiar fact "the variance is \(\sigma^2\)."</div></details>
+      </li>
+      <li>When the loss is the quadratic \(L(\theta)=\tfrac12\|\theta\|^2\), find the gradient of the smoothed loss \(\nabla L_\sigma(\theta)\). How does it differ from the raw gradient \(\nabla L=\theta\)?
+        <details><summary>See the answer</summary><div class="ans">\(L_\sigma(\theta)=\mathbb{E}[\tfrac12\|\theta+\varepsilon\|^2]=\tfrac12\|\theta\|^2+\tfrac12\,\mathbb{E}\|\varepsilon\|^2=\tfrac12\|\theta\|^2+\text{constant}\). The constant vanishes under differentiation, so \(\nabla L_\sigma(\theta)=\theta=\nabla L(\theta)\). For a quadratic, smoothing doesn't change the gradient (so this is the special case that looks like "coincides with the raw \(L\)"). For a general nonlinear \(L\), a deviation appears ── that's the verdict table's "handle with care."</div></details>
+      </li>
+      <li>For the ES estimate \(\hat g=\tfrac{1}{\sigma^2}\cdot\tfrac1N\sum_i L(\theta+\varepsilon_i)\varepsilon_i\), if you quadruple \(N\), by roughly what factor does the estimate's "scatter (standard deviation)" change? Can you confirm it in the figure?
+        <details><summary>See the answer</summary><div class="ans">The variance is \(\propto 1/N\), so quadrupling \(N\) makes the variance \(1/4\), and the standard deviation, its square root, \(1/2\). In the figure, as you enlarge \(N\) the green arrow's range of thrashing shrinks by exactly half each time, and you can see it converging to the black arrow. This is the typical behavior of an "unbiased but variance-carrying estimate."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 6 summary</span>Evolution and learning are two faces of one and the same gradient</h2>
+    <p>ES is a global tool that only integrates evaluation values; BP is a local tool that differentiates to get the gradient (STEP 01). What bridges the two is Stein's lemma \(\mathbb{E}[\varepsilon f(\varepsilon)]=\sigma^2\mathbb{E}[\nabla f]\) (STEP 02), which can be proved <em>rigorously</em> from just the Gaussian density's \(p'=-(\varepsilon/\sigma^2)p\) and integration by parts (STEP 03). Putting in \(f(\varepsilon)=L(\theta+\varepsilon)\) and tidying up gives the central identity \(\tfrac1{\sigma^2}\mathbb{E}[L(\theta+\varepsilon)\varepsilon]=\mathbb{E}[\nabla L(\theta+\varepsilon)]=\nabla L_\sigma(\theta)\) ── ES = BP = the gradient of the smoothed loss (STEP 04). In the figure, the higher \(N\) goes the more the ES estimate converges to the true gradient (STEP 05), and in nonstandard analysis the standard part of the hyperfinite sum recovers the gradient (STEP 06). But what is "the same" is the gradient of \(L_\sigma\), not the raw \(L\) (STEP 07).</p>
+    <p>Evolution that doesn't differentiate and learning that does were not different things. They were merely computing the same gradient of the same terrain \(L_\sigma\), through the two faces of integration and differentiation ── this coincidence is the heart of this series. Only one question remains. So then, what is \(\sigma\)?</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming up next ── Episode 7</span>
+    <strong>Blur it, and the terrain becomes smooth.</strong> This time, the smoothed loss \(L_\sigma\) tied ES and BP together. Its \(\sigma\) is not merely "the size of the noise." Blur the terrain with \(\sigma\) and the fine valleys (local minima) fill in, leaving only the large flow ── \(\sigma\) is <em>resolution and temperature</em>. Grasp the big picture with a large \(\sigma\), then shrink it to descend into the details. We take on local minima, our nemesis ever since Episode 1, with the weapon of blurring.
+  </div>
+
+  <div class="foot">
+    This document is Episode 6 of the "Learning That Clicks" series, a reading for high-school and university students interested in physics, math, and AI. Stein's lemma (for \(\varepsilon\sim\mathcal N(0,\sigma^2 I)\), \(\mathbb{E}[\varepsilon f(\varepsilon)]=\sigma^2\mathbb{E}[\nabla f(\varepsilon)]\)) is a classical statistical equation due to C. Stein, and the one-dimensional proof here (the Gaussian density's relation \(p'=-(\varepsilon/\sigma^2)p\), integration by parts, and the vanishing of the boundary term) holds rigorously under the mild assumptions of integrability, sufficient smoothness, and decay at the tails. Applying this to \(f(\varepsilon)=L(\theta+\varepsilon)\) and using the exchange of averaging and gradient (justified under standard conditions such as dominated convergence) yields the identity \(\tfrac1{\sigma^2}\mathbb{E}[L(\theta+\varepsilon)\varepsilon]=\mathbb{E}[\nabla L(\theta+\varepsilon)]=\nabla L_\sigma(\theta)\), which shows that the evolution-strategies (ES) gradient estimate is an unbiased estimate of the gradient of the smoothed loss \(L_\sigma\) (the same relation as the Evolution Strategies formulation of Salimans et al.). To emphasize: this coincidence is not about the gradient of the raw loss \(L\), but strictly about the gradient of the σ-smoothed \(L_\sigma\). The terrain in this document's figure is an illustrative model built from a sum of negative Gaussian functions, and the true \(\nabla L_\sigma\) is drawn exactly using the property that Gaussian smoothing closes analytically (the convolution of two Gaussians is a Gaussian). That the estimator's variance decreases as \(\propto 1/N\) is a general property of the sample mean of independent samples. The interpretation via the standard part of a hyperfinite sum in nonstandard analysis is a rereading connected to Episode 5's framework. ── To print, use your browser's "Print" and choose "Save as PDF" (in the print version the sliders and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, raising "Population size N" makes the green ES-estimate arrow converge to the black true gradient ∇Lσ. Use "Blur σ" to change the strength of the smoothing, and "Redraw" to redraw the perturbations. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'),
+      sN=document.getElementById('sN'), vN=document.getElementById('vN'),
+      ssig=document.getElementById('ssig'), vsig=document.getElementById('vsig'),
+      rd=document.getElementById('rd'), btn=document.getElementById('run');
+
+  // ---- Loss terrain: sum of negative Gaussian wells L(x,y) = -Σ A_k exp(-r²/(2 w_k²)) ----
+  var WELLS=[
+    {A:1.00, cx:-0.85, cy:-0.55, w:0.75},
+    {A:0.78, cx: 0.85, cy: 0.65, w:0.60},
+    {A:0.55, cx: 0.55, cy:-0.95, w:0.50}
+  ];
+  // The center θ being evaluated (fixed)
+  var THx=-0.10, THy=0.30;
+  var XLO=-2, XHI=2, YLO=-2, YHI=2;
+
+  function Lraw(x,y){ // raw loss L
+    var s=0;
+    for(var k=0;k<WELLS.length;k++){var W=WELLS[k];
+      var rx=x-W.cx, ry=y-W.cy, r2=rx*rx+ry*ry;
+      s+=W.A*Math.exp(-r2/(2*W.w*W.w));
+    }
+    return -s;
+  }
+  // Gradient of the smoothed loss ∇L_σ (Gaussian convolution closes: s²=w²+σ²)
+  function gradLsig(x,y,sig){
+    var s2v=sig*sig, gx=0, gy=0;
+    for(var k=0;k<WELLS.length;k++){var W=WELLS[k];
+      var s2=W.w*W.w+s2v;
+      var rx=x-W.cx, ry=y-W.cy, r2=rx*rx+ry*ry;
+      var c=W.A*(W.w*W.w)/(s2*s2)*Math.exp(-r2/(2*s2));
+      gx+=c*rx; gy+=c*ry;
+    }
+    return [gx,gy];
+  }
+
+  // ---- Gaussian random number (Box–Muller) ----
+  function randn(){
+    var u=0,v=0;
+    while(u===0) u=Math.random();
+    while(v===0) v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+  }
+
+  function sliderToN(s){ // 0..100 → 2..6000 (exponential)
+    return Math.max(2, Math.round(2*Math.pow(3000, s/100)));
+  }
+
+  var samps=[]; // {ex,ey}
+  function resample(){
+    var N=sliderToN(parseFloat(sN.value)), sig=parseFloat(ssig.value);
+    samps=[];
+    for(var i=0;i<N;i++){ samps.push({ex:sig*randn(), ey:sig*randn()}); }
+  }
+
+  // ES estimate ĝ = (1/(σ²)) · (1/N) Σ L(θ+εᵢ) εᵢ
+  function esEstimate(){
+    var sig=parseFloat(ssig.value), s2=sig*sig, N=samps.length, gx=0, gy=0;
+    for(var i=0;i<N;i++){
+      var ex=samps[i].ex, ey=samps[i].ey;
+      var Lv=Lraw(THx+ex, THy+ey);
+      gx+=Lv*ex; gy+=Lv*ey;
+    }
+    return [gx/(s2*N), gy/(s2*N)];
+  }
+
+  function lerpC(a,b,t){ // hex a→b
+    var A=parseInt(a.slice(1),16), B=parseInt(b.slice(1),16);
+    var ar=(A>>16)&255, ag=(A>>8)&255, ab=A&255;
+    var br=(B>>16)&255, bg=(B>>8)&255, bb=B&255;
+    var r=Math.round(ar+(br-ar)*t), g=Math.round(ag+(bg-ag)*t), bl=Math.round(ab+(bb-ab)*t);
+    return 'rgb('+r+','+g+','+bl+')';
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var padL=40, padR=16, padT=14, padB=30;
+    var plotW=w-padL-padR, plotH=h-padT-padB;
+    var sc=Math.min(plotW/(XHI-XLO), plotH/(YHI-YLO));
+    var ox=padL+(plotW-sc*(XHI-XLO))/2;
+    var oy=padT+(plotH-sc*(YHI-YLO))/2;
+    function X(x){return ox+(x-XLO)*sc;}
+    function Y(y){return oy+(YHI-y)*sc;}
+    ctx.clearRect(0,0,w,h);
+
+    // --- Heatmap (deeper amber the deeper the well) ---
+    var LMIN=-1.15, LMAX=0.02, G=84, cw=sc*(XHI-XLO)/G, ch=sc*(YHI-YLO)/G;
+    for(var i=0;i<G;i++){
+      for(var j=0;j<G;j++){
+        var x=XLO+(XHI-XLO)*(i+0.5)/G, y=YHI-(YHI-YLO)*(j+0.5)/G;
+        var t=(Lraw(x,y)-LMIN)/(LMAX-LMIN); if(t<0)t=0; if(t>1)t=1;
+        ctx.fillStyle=lerpC('#7a4e10','#fdf7ea', t);
+        ctx.fillRect(ox+i*cw-0.5, oy+j*ch-0.5, cw+1, ch+1);
+      }
+    }
+    // --- Contour lines (marching squares) ---
+    var NC=52, levels=[-1.05,-0.85,-0.65,-0.48,-0.34,-0.22,-0.13,-0.06];
+    var gx0=XLO, gy0=YLO, dx=(XHI-XLO)/NC, dy=(YHI-YLO)/NC;
+    var grid=[];
+    for(var a=0;a<=NC;a++){grid[a]=[]; for(var b=0;b<=NC;b++){ grid[a][b]=Lraw(gx0+a*dx, gy0+b*dy); }}
+    function ip(v1,v2,lv){ var dnm=(v2-v1); return dnm===0?0.5:(lv-v1)/dnm; }
+    ctx.strokeStyle='rgba(60,44,20,0.30)'; ctx.lineWidth=1;
+    for(var li=0;li<levels.length;li++){
+      var lv=levels[li];
+      ctx.beginPath();
+      for(var a2=0;a2<NC;a2++){
+        for(var b2=0;b2<NC;b2++){
+          var v0=grid[a2][b2], v1=grid[a2+1][b2], v2=grid[a2+1][b2+1], v3=grid[a2][b2+1];
+          var idx=(v0>lv?1:0)|(v1>lv?2:0)|(v2>lv?4:0)|(v3>lv?8:0);
+          if(idx===0||idx===15) continue;
+          var xL=gx0+a2*dx, xR=xL+dx, yB=gy0+b2*dy, yT=yB+dy;
+          // Intersections on each edge (edge 0: bottom, 1: right, 2: top, 3: left)
+          var pB=[xL+ip(v0,v1,lv)*dx, yB];
+          var pR=[xR, yB+ip(v1,v2,lv)*dy];
+          var pT=[xL+ip(v3,v2,lv)*dx, yT];
+          var pLe=[xL, yB+ip(v0,v3,lv)*dy];
+          function seg(p,q){ ctx.moveTo(X(p[0]),Y(p[1])); ctx.lineTo(X(q[0]),Y(q[1])); }
+          switch(idx){
+            case 1: case 14: seg(pLe,pB); break;
+            case 2: case 13: seg(pB,pR); break;
+            case 3: case 12: seg(pLe,pR); break;
+            case 4: case 11: seg(pR,pT); break;
+            case 6: case 9:  seg(pB,pT); break;
+            case 7: case 8:  seg(pLe,pT); break;
+            case 5: seg(pLe,pT); seg(pB,pR); break;
+            case 10: seg(pLe,pB); seg(pR,pT); break;
+          }
+        }
+      }
+      ctx.stroke();
+    }
+
+    // --- Perturbation points (draw up to 400) ---
+    var drawn=Math.min(samps.length,400);
+    for(var s=0;s<drawn;s++){
+      var px=X(THx+samps[s].ex), py=Y(THy+samps[s].ey);
+      ctx.fillStyle='rgba(176,106,16,0.55)';
+      ctx.beginPath(); ctx.arc(px,py,2.0,0,7); ctx.fill();
+    }
+
+    // --- Arrows ---
+    var sig=parseFloat(ssig.value);
+    var gt=gradLsig(THx,THy,sig);        // true smoothed gradient (right side)
+    var ge=esEstimate();                 // ES estimate (left side)
+    var gtN=Math.hypot(gt[0],gt[1]);
+    var geN=Math.hypot(ge[0],ge[1]);
+    var target=0.95;                     // length of the true arrow (data units)
+    var K=(gtN>1e-9)?(target/gtN):0;     // common scale for both arrows
+    function arrow(vx,vy,color,lw){
+      var x1=THx+K*vx, y1=THy+K*vy;
+      var p0x=X(THx), p0y=Y(THy), p1x=X(x1), p1y=Y(y1);
+      var ang=Math.atan2(p1y-p0y, p1x-p0x), hl=9;
+      ctx.strokeStyle=color; ctx.lineWidth=lw;
+      ctx.beginPath(); ctx.moveTo(p0x,p0y); ctx.lineTo(p1x,p1y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p1x,p1y);
+      ctx.lineTo(p1x-hl*Math.cos(ang-0.4), p1y-hl*Math.sin(ang-0.4));
+      ctx.lineTo(p1x-hl*Math.cos(ang+0.4), p1y-hl*Math.sin(ang+0.4));
+      ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+    }
+    if(K>0){
+      arrow(ge[0],ge[1],'#3d7a3a',3.0);   // green: ES estimate
+      arrow(gt[0],gt[1],'#241d13',2.4);   // black: true gradient
+    }
+    // Center θ
+    ctx.fillStyle='#c0392b'; ctx.beginPath(); ctx.arc(X(THx),Y(THy),6,0,7); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#241d13'; ctx.font='bold 12px sans-serif'; ctx.fillText('θ', X(THx)+9, Y(THy)-8);
+
+    report(gt,ge,gtN,geN);
+  }
+
+  function report(gt,ge,gtN,geN){
+    var N=samps.length, sig=parseFloat(ssig.value);
+    var dot=gt[0]*ge[0]+gt[1]*ge[1];
+    var cos=(gtN>1e-9&&geN>1e-9)?dot/(gtN*geN):0;
+    cos=Math.max(-1,Math.min(1,cos));
+    var ang=Math.acos(cos)*180/Math.PI;
+    var ratio=(gtN>1e-9)?(geN/gtN):0;
+    var base='N='+N+', σ='+sig.toFixed(2)+' | angle difference between ES estimate and true gradient ∇Lσ = '+ang.toFixed(1)+'°, magnitude ratio |ĝ|/|∇Lσ| = '+ratio.toFixed(2)+'.';
+    if(ang<8 && ratio>0.82 && ratio<1.18){
+      rd.className='readout ok';
+      rd.textContent=base+' Green and black nearly overlap ── ES (integral of values) has recovered BP (differential of slopes). This is the evidence for the central identity. Raise N further and the angle difference → 0°, the ratio → 1.';
+    } else if(N<20){
+      rd.className='readout bad';
+      rd.textContent=base+' N is small, so the estimate thrashes wildly (variance ∝ 1/N). Raise N and green gets drawn toward black.';
+    } else {
+      rd.className='readout local';
+      rd.textContent=base+' A deviation still remains. Raise N and the angle difference approaches 0°, the magnitude ratio 1 (the scatter shrinks as 1/N).';
+    }
+  }
+
+  function refresh(){ resample(); draw(); }
+  function syncLabels(){ vN.textContent=sliderToN(parseFloat(sN.value)); vsig.textContent=parseFloat(ssig.value).toFixed(2); }
+
+  sN.addEventListener('input',function(){ syncLabels(); refresh(); });
+  ssig.addEventListener('input',function(){ syncLabels(); refresh(); });
+  btn.addEventListener('click',refresh);
+  window.addEventListener('resize',draw);
+
+  syncLabels(); resample();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60);
+  window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

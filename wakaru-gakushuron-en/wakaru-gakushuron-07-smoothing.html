@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blur it, and the terrain turns smooth ── Learning That Clicks, Episode 7</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241d13; --ink-soft:#574a38;
+    --paper:#fbf6ee; --paper-edge:#e8dcc4;   /* Episode 1: learning, life, energy = amber paper */
+    --side:#6f4b1f; --side-bg:#f4ece0;
+    --warn:#8a4b2f;
+    --calc:#a05c12; --calc-bg:#f7edda;   /* calc color = amber */
+    --rule:#e3d6bd; --hair:#c9b48a;
+    --acc:#b06a10;    /* accent = amber */
+    --grid:#eaddc4;
+    --ok:#3d7a3a; --bad:#a83a22; --hot:#c0392b; --cold:#2a6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2dca0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c1a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e4d2ac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--acc);
+    border:none;border-radius:3px;padding:9px 18px;cursor:pointer;align-self:flex-end;}
+  .btn:hover{background:#96590c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .readout.ok{background:#eef2e6;color:#3a6030;}
+  .readout.local{background:#f6ecda;color:#8a5a12;}
+  .readout.bad{background:#f6e2dc;color:#9a3520;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  table.verdict{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.verdict th,table.verdict td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.55;}
+  table.verdict th{background:#f3e6cd;color:#7a4e10;font-weight:700;}
+  table.verdict .v-ok{color:var(--ok);font-weight:700;}
+  table.verdict .v-bad{color:var(--bad);font-weight:700;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9f2e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6a4410;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfaf4,#f2e7d1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e7cf;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4410;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8a7a5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Learning That Clicks</span><span class="ep">Episode 7 ／ Blur &amp; resolution ── escaping the local minimum</span></div>
+  <p class="eyebrow">Reading evolution, learning, and mind through a single gradient</p>
+  <h1>Blur it, and the terrain turns smooth
+    <span class="sub">Squint at the loss landscape ── blur it with a Gaussian kernel and the shallow valleys melt away,<br>leaving only the global basin standing out. We grasp what \(\nabla L_\sigma\) — the thing ES was computing last time — really is, and get a grip on σ, the "resolution dial."</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: gradient descent (Ep. 1), Gaussian smoothing (Ep. 6), a little expectation</span>
+    <span>Key idea this time: \(L_\sigma(\theta)=\mathbb{E}_{\varepsilon\sim\mathcal N(0,\sigma^2 I)}\!\left[L(\theta+\varepsilon)\right]\)</span>
+  </div>
+
+  <p class="lead">In Episode 1 we honestly ruled that the blind ball, seeing only the slope beneath its feet, <em>gets stuck in a shallow valley and can't climb out</em>. Even if a deeper valley sits right next door, it can't tell ── that was the fate of gradient descent. Today we get a tool that loosens this weakness head-on. The watchword is <strong>"blur."</strong> Smooth away the fine bumps of the terrain, as if squinting, and the shallow valleys vanish, leaving only the truly deep basin. In the language of math, this is <strong>convolving the loss \(L\) with a Gaussian kernel</strong>. And this very operation is exactly what the evolution strategy ES from last time (Episode 6) was computing, without knowing it: \(\nabla L_\sigma\). The blur strength \(\sigma\) is the dial that sets <em>the resolution at which the learner sees the terrain</em> ── a single knob that brokers a deal between exploration and exploitation.</p>
+
+  <h2><span class="n">01</span>Episode 1's unfinished business ── how do we cross a local minimum?</h2>
+
+  <p>Let's review. Learning means lowering the loss \(L(\theta)\); the update rule is \(\theta\leftarrow\theta-\eta\nabla L(\theta)\). But points where \(\nabla L=0\) are not only the global minimum. <strong>Local minima</strong> ── dips where the ground beneath you is flat and so you stop, even though a deeper valley lies right next to you ── are everywhere. The blind ball cannot judge on its own whether the valley it's standing in is shallow or deep.</p>
+
+  <p>So what do we do? The naive idea is "if only it could see farther." But there's no god who takes in the whole landscape at a glance. So we flip the thinking around ── <em>we remake the terrain itself into something easier to see</em>. Smooth away the fine bumps, and the shallow dips fill in, leaving only the broad-stroke undulations. Doing this "smoothing" rigorously is what blurring = smoothing is.</p>
+
+  <h2><span class="n">02</span>What blurring is ── convolution with a Gaussian kernel</h2>
+
+  <p>To "blur" is to replace the value at each point \(\theta\) with <strong>a weighted average of the values in its neighborhood</strong>. Nearer points count more, farther points less. Using the Gaussian distribution \(p_\sigma(\varepsilon)=\dfrac{1}{(2\pi\sigma^2)^{n/2}}\exp\!\left(-\dfrac{\|\varepsilon\|^2}{2\sigma^2}\right)\) for these weights gives <strong>Gaussian smoothing</strong>. We write the smoothed loss as \(L_\sigma\).</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">Smoothed loss ── blurring L with a Gaussian kernel (the key idea this time)</div>
+    $$L_\sigma(\theta)\;=\;(L * p_\sigma)(\theta)\;=\;\int L(\theta+\varepsilon)\,p_\sigma(\varepsilon)\,d\varepsilon\;=\;\mathbb{E}_{\varepsilon\sim\mathcal N(0,\sigma^2 I)}\!\left[L(\theta+\varepsilon)\right]$$
+  </div>
+
+  <p>The three faces are the same thing. On the left is <em>convolution</em> \(*\) (the language of signal processing), in the middle is an <em>integral</em> (the weighted average itself), and on the right is an <em>expectation</em> ("jitter randomly around \(\theta\) with \(\mathcal N(0,\sigma^2 I)\) and average \(L\)"). The larger \(\sigma\) is, the wider the jitter, so the average draws in points from farther away and the terrain blurs more strongly. That expectation on the right ── you should recognize it. <strong>What ES was estimating with samples last time was precisely the gradient of this \(L_\sigma\), namely \(\nabla L_\sigma\).</strong></p>
+
+  <div class="aside">
+    <span class="tag">Connection to Episode 6 ── ES was descending the "blurred terrain"</span>
+    In Episode 6 we showed that the update direction of the evolution strategy ES equals \(\nabla L_\sigma(\theta)=\dfrac{1}{\sigma^2}\,\mathbb{E}_{\varepsilon}\!\left[\varepsilon\,L(\theta+\varepsilon)\right]\) (Stein's identity for the Gaussian). In other words, ES was rolling ── without differentiating ── not on the raw terrain \(L\) but on <strong>the terrain \(L_\sigma\) pre-blurred by \(\sigma\)</strong>. Whereas BP computes the raw \(\nabla L\), what ES computes is always \(\nabla L_\sigma\) ── the perturbation width \(\sigma\) is itself "the resolution at which the terrain is seen." Today we put this \(\sigma\) center stage.
+  </div>
+
+  <h2><span class="n">03</span>The three properties of blurring ── why the corners come off</h2>
+
+  <p>The convolution \(L_\sigma=L*p_\sigma\) has three properties that are the key to escaping local minima.</p>
+
+  <p><strong>(1) It becomes arbitrarily smooth.</strong> Even if \(L\) is jagged (has points where it can't be differentiated), the Gaussian kernel \(p_\sigma\) can be differentiated infinitely many times. In a convolution you can shift the differentiation onto the smooth side ── \(\nabla^k L_\sigma = L * \nabla^k p_\sigma\) ── so \(L_\sigma\) becomes <em>infinitely differentiable</em> (\(C^\infty\)). Blurring rounds off every corner of the terrain.</p>
+
+  <p><strong>(2) Shallow local minima disappear.</strong> Averaging over the neighborhood makes thin ridges and shallow dips cancel out and level off. The larger \(\sigma\) is, the wider the range of the average, so <em>the shallowest valleys go first</em>, and in the end only the broad-stroke basin remains. The shallow valley that trapped the ball in Episode 1 gets filled in by blurring.</p>
+
+  <p><strong>(3) As \(\sigma\to0\), it returns to the original.</strong> When \(\sigma\to0\) the Gaussian kernel collapses into a delta function (\(p_\sigma\to\delta\)), and the averaging range shrinks to a single point, so \(L_\sigma\to L\). Turn the blur to zero and the terrain returns to the raw \(L\). This "can-return" property later becomes the foundation of annealing.</p>
+
+  <div class="calc">
+    <span class="tag">Try it ── "blur" a quadratic by hand</span>
+    <p class="lbl">Smoothing the simplest terrain L(θ)=θ² (1D)</p>
+    $$L_\sigma(\theta)=\mathbb{E}\!\left[(\theta+\varepsilon)^2\right]=\mathbb{E}\!\left[\theta^2+2\theta\varepsilon+\varepsilon^2\right]=\theta^2+2\theta\underbrace{\mathbb{E}[\varepsilon]}_{0}+\underbrace{\mathbb{E}[\varepsilon^2]}_{\sigma^2}=\theta^2+\sigma^2$$
+    <p class="lbl">Blurring adds only the constant σ². The gradient doesn't move</p>
+    $$\nabla L_\sigma(\theta)=2\theta=\nabla L(\theta)$$
+    <p style="margin-bottom:14px;">Blur a quadratic and the whole terrain simply <em>lifts</em> by \(\sigma^2\); the shape doesn't change. The gradient \(2\theta\) is unchanged regardless of \(\sigma\) ── which is why, for a quadratic, ES's gradient estimate (Stein's identity) becomes a <span style="color:var(--ok);font-weight:700;">special case that matches the raw gradient \(\nabla L\) exactly</span>. But this is a miracle only because it's a quadratic. On a terrain with several valleys, blurring changes the shape itself ── it <strong>melts the shallow valleys</strong>. Let's see that in the next figure.</p>
+  </div>
+
+  <h2><span class="n">04</span>σ is resolution ── the exploration–exploitation dial</h2>
+
+  <p>\(\sigma\) is not merely a technical parameter. It is <strong>the "resolution" at which the learner (or evolution) sees the terrain</strong>. Squint and you see the broad-stroke undulations; peer closely and you see the details ── \(\sigma\) is the dial for that focus adjustment.</p>
+
+  <div class="keybox">
+    <div class="lbl">The trade-off σ decides</div>
+    $$\underbrace{\text{large }\sigma}_{\text{hazy big picture}}\;\longleftrightarrow\;\underbrace{\text{small }\sigma}_{\text{sharp detail}}$$
+  </div>
+
+  <p><strong>Large \(\sigma\) (exploration).</strong> The terrain blurs strongly, the shallow local minima vanish, and the global basin floats up. So the ball escapes shallow valleys and can grasp, in broad strokes, "which region is low." The price is that the true optimum blurs ── the bottom of \(L_\sigma\) generally shifts away from the bottom of the raw \(L\).</p>
+
+  <p><strong>Small \(\sigma\) (exploitation).</strong> The terrain approaches the raw \(L\), so the optimum is accurate. The price is that all the fine valleys become visible ── you get caught in the nearest local minimum right away.</p>
+
+  <p>Look broadly and you won't lose your way but your aim is loose; look closely and your aim is accurate but you fall into traps. This tug-of-war is the <em>exploration–exploitation trade-off</em>. So then ── <strong>start large, gradually shrink</strong>, right? That's annealing, coming up next.</p>
+
+  <h2><span class="n">05</span>Give it a try ── watch the shallow valleys melt</h2>
+
+  <p>The terrain \(L(\theta)\) below has three valleys. The center is a <strong>deep valley (the global minimum)</strong>, and the left and right are <strong>shallow valleys (local minima)</strong>. The thin curve is the raw \(L\), the thick curve is the blurred \(L_\sigma\). Drag the \(\sigma\) slider to the right and \(L_\sigma\) is recomputed by a <em>numerical convolution</em> that takes the Gaussian-weighted sum over the neighborhood at each grid point, melting the valleys away shallowest-first. With "Roll the ball," you can also watch which basin a ball descending on \(L_\sigma\) settles into.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: a multimodal loss L(θ)=0.10θ²−0.70cos(2.4θ)−0.06θ (thin line) and the same blurred with a Gaussian kernel, Lσ(θ) (thick line). Raise σ and the shallow valleys vanish into a single basin ── with large σ the ball reaches the global basin</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Blur strength σ (resolution)<span class="val" id="vsig">0.05</span>
+        <input type="range" id="sig" min="0.05" max="1.60" step="0.01" value="0.05">
+      </label>
+      <button class="btn" id="run">Roll the ball ▶</button>
+    </div>
+    <div class="readout local" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#d8b878;"></i>raw terrain L(θ)</span>
+      <span><i class="swatch" style="background:var(--acc);"></i>blurred terrain Lσ(θ)</span>
+      <span><i class="dot" style="background:#c0392b;"></i>ball (descending on Lσ)</span>
+      <span><i class="dot" style="background:#3d7a3a;"></i>minima of Lσ</span>
+    </div>
+  </div>
+
+  <p>As you raise \(\sigma\), the shallow left and right valleys vanish first, and eventually the terrain becomes a single gentle basin (the number of minima goes \(3\to1\)). In this state, roll the ball from the right edge and it slides into the global basin undisturbed by the valleys along the way ── the shallow valley it couldn't escape in Episode 1 has been filled in by blurring. Note, though, that with too large a \(\sigma\) the bottom of \(L_\sigma\) shifts from center and no longer matches the raw optimum.</p>
+
+  <h2><span class="n">06</span>Annealing ── σ from large to small, and on to cosmology</h2>
+
+  <p>The standard move for getting the best of both exploration and exploitation is <strong>annealing</strong>. <em>First grasp the global basin with a large \(\sigma\), then gradually lower \(\sigma\) to refine.</em> By property (3), \(L_\sigma\to L\) as \(\sigma\to0\), so in the end you can converge to the bottom of the raw terrain ── the true optimum. Early on you pick the correct basin in broad strokes; late on you settle in and hit the bottom. It's exactly the same idea as annealing metal, cooling it gradually from a high temperature to reduce crystal defects.</p>
+
+  <div class="aside">
+    <span class="tag">Bridge to Cosmology That Clicks ── σ is a "temperature" and a "grain size"</span>
+    Notice here that \(\sigma\) behaves <strong>like a temperature</strong>. High \(\sigma\) = high temperature = broad exploration; low \(\sigma\) = low temperature = settling to a point. The sister series "Cosmology That Clicks" viewed <em>the universe as a computer with finite resources</em>, reread temperature as an <em>update rate</em>, and drew a picture in which, in an expanding universe, the resolution grows finer with time like \(c\cdot t=\text{const}\). The same picture is here too ── \(\sigma\) is a <strong>finite resolution</strong>, and seeing the terrain infinitely finely is (given the cost of samples) not possible. <em>The resolution \(\sigma\) at which life sees the terrain is the very grain size of that computer.</em> Annealing (lowering \(\sigma\)) is the learning version of the process by which the universe cools and raises its resolution. Next time we push on to the actual entity that runs this computation at planetary scale.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>The verdict ── what blurring can and can't do</h2>
+
+  <p>Blurring (smoothing) is a powerful practical technique for escaping local minima, but it's no free lunch. Let's rule honestly.</p>
+
+  <table class="verdict">
+    <tr><th>Question</th><th>Gaussian smoothing's answer</th><th>Verdict</th></tr>
+    <tr>
+      <td>Can it escape shallow local minima?</td>
+      <td>Yes. Raise \(\sigma\) and the shallow valleys melt, and the global basin floats up</td>
+      <td class="v-ok">Yes</td>
+    </tr>
+    <tr>
+      <td>Is what it finds the optimum of the raw terrain \(L\)?</td>
+      <td>No. At finite \(\sigma\), \(L_\sigma\neq L\) and the position of the bottom shifts (smoothing bias)</td>
+      <td class="v-bad">shifts at finite σ</td>
+    </tr>
+    <tr>
+      <td>Even so, can it reach the true optimum?</td>
+      <td>Yes. Anneal toward \(\sigma\to0\) and \(L_\sigma\to L\). But the sample (cost) increases</td>
+      <td class="v-ok">yes if annealed</td>
+    </tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── blurring has no free lunch either</span>
+    <p style="margin-top:0;">Blurring is a practical technique for escaping local minima, but there's a price. At large \(\sigma\), the true optimum shifts (\(L_\sigma\neq L\)). This can be recovered by annealing to \(\sigma\to0\) ── but a large \(\sigma\) increases the <em>variance</em> of the samples, and so the number of samples needed for a gradient estimate of the same accuracy, that is, the <strong>computational cost, goes up</strong>. The "freedom to escape shallow valleys" can only be bought in exchange for cost. There is no free lunch.</p>
+    <p style="margin-bottom:0;">Even so, this "\(\sigma\) = resolution" viewpoint connects directly to the spine of the series ── <em>life sees, learns, and evolves on the terrain with finite energy (= finite samples)</em>. Infinite resolution can't be bought. So then, what is the entity actually running this computation at planetary scale? Next time, we'll name that protagonist.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this episode's formulas alone)</div>
+    <ol>
+      <li>Find \(L_\sigma(\theta)\), the smoothing of \(L(\theta)=\theta^2+3\theta+5\) (1D) by the Gaussian kernel \(\mathcal N(0,\sigma^2)\). Does the gradient \(\nabla L_\sigma\) match the raw \(\nabla L\)?
+        <details><summary>See the answer</summary><div class="ans">\(L_\sigma(\theta)=\mathbb{E}[(\theta+\varepsilon)^2+3(\theta+\varepsilon)+5]=(\theta^2+\sigma^2)+3\theta+5=L(\theta)+\sigma^2\). It lifts by the constant \(\sigma^2\) only. The gradient is \(\nabla L_\sigma=2\theta+3=\nabla L\), which <em>matches</em> ── for functions that are quadratic (or lower), smoothing does not change the gradient.</div></details>
+      </li>
+      <li>A certain 1D terrain has three valleys of differing depth. As you increase \(\sigma\) from \(0\), do they vanish "shallowest-first" or "deepest-first"? Give the reason too.
+        <details><summary>See the answer</summary><div class="ans">Shallowest-first. A local minimum vanishes when the barrier surrounding it (the local maximum) is leveled by blurring and the valley fills in. A shallow valley has a small height difference from its barrier, so it is leveled and vanishes first, at a small \(\sigma\). The deeper and wider the basin, the larger the \(\sigma\) it survives to. You can check this by raising \(\sigma\) in the figure.</div></details>
+      </li>
+      <li>Why is annealing (lowering \(\sigma\) from large to small) better than a fixed, medium \(\sigma\)? Explain using properties (2) and (3).
+        <details><summary>See the answer</summary><div class="ans">Early on, the large \(\sigma\) makes shallow valleys vanish by property (2), so you can pick the correct global basin (exploration). Late on, at \(\sigma\to0\), property (3) gives \(L_\sigma\to L\), so you can converge to the <em>true bottom</em> of that basin (exploitation). With a fixed \(\sigma\), too large shifts the bottom (bias) and too small gets caught in shallow valleys ── you can't have both. By taking time to lower \(\sigma\), you obtain exploration and exploitation in sequence.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 7 summary</span>Blur it, and the shallow valleys melt</h2>
+    <p>The weakness of local minima (Ep. 1) is loosened by "blurring" the terrain (STEP 01). Blurring is convolution with a Gaussian kernel, \(L_\sigma=L*p_\sigma=\mathbb{E}_\varepsilon[L(\theta+\varepsilon)]\), and this is the very terrain of the \(\nabla L_\sigma\) that ES was computing last time (STEP 02). Blurring has three properties ── (1) it becomes infinitely differentiable, (2) shallow local minima vanish, (3) it returns to \(L\) as \(\sigma\to0\) (STEP 03). For a quadratic, smoothing doesn't change the gradient (only a constant \(\sigma^2\) is added), a special case where Stein's estimate matches the raw gradient (calc). \(\sigma\) is the <em>resolution = the exploration–exploitation dial</em>: large is the big picture, small is precise (STEP 04). In the figure, raising \(\sigma\) takes the minima from \(3\to1\) (STEP 05). With annealing (\(\sigma\) large→small) you can grasp the global basin and then refine, and \(\sigma\) resonates with cosmology as temperature and grain size (STEP 06). But a finite \(\sigma\) shifts the bottom, and a large \(\sigma\) eats variance = cost ── no free lunch (STEP 07).</p>
+    <p>Blurring gave the blind ball the freedom to "squint." But that resolution can only be bought with finite energy. This viewpoint of "seeing and learning on the terrain with finite resources" expands at last to planetary scale next time ── to the vast learning computer that life runs.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 8</span>
+    <strong>The biosphere is one GPU.</strong> Rolling on a blurred terrain, with finite energy, over countless samples ── the entity actually running that computation at planetary scale is the totality of life, the biosphere. Fueled by the energy raining down from the sun, we'll read the biosphere as one enormous computer in which countless living things keep estimating \(\nabla L_\sigma\) in parallel. The resolution σ gets translated there into "the energy available."
+  </div>
+
+  <div class="foot">
+    This document is Episode 7 of the "Learning That Clicks" series, a reading piece for high-schoolers and undergraduates interested in physics, math, and AI. The smoothed loss \(L_\sigma=L*p_\sigma=\mathbb{E}_{\varepsilon\sim\mathcal N(0,\sigma^2 I)}[L(\theta+\varepsilon)]\), the fact that Gaussian convolution makes its target infinitely differentiable (\(\nabla^k L_\sigma=L*\nabla^k p_\sigma\)), the fact that \(L_\sigma\to L\) as \(\sigma\to0\) since \(p_\sigma\to\delta\), the fact that smoothing a quadratic \(L_\sigma(\theta)=\theta^2+\sigma^2\) leaves the gradient unchanged, and \(\nabla L_\sigma(\theta)=\sigma^{-2}\,\mathbb{E}_\varepsilon[\varepsilon\,L(\theta+\varepsilon)]\) (Stein's identity for the Gaussian, Ep. 6) are all established mathematics. "The shallower a local minimum, the smaller the \(\sigma\) at which it vanishes first" is a qualitative tendency for general smooth multimodal functions; strictly, it depends on the barrier height and valley width. The terrain in this article's figure, \(L(\theta)=0.10\theta^2-0.70\cos(2.4\theta)-0.06\theta\), is an illustrative model, and the positions and depths of the minima and the \(\sigma\) values at which they vanish are numerical guides. The \(L_\sigma\) in the figure is computed by a numerical convolution that normalizes the Gaussian-weighted sum \(\sum_k L(\theta+k\Delta)\exp(-(k\Delta)^2/2\sigma^2)\) at each grid point. The correspondence of annealing to temperature and resolution, and the connection to "Cosmology That Clicks," are offered as functional and conceptual analogies. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static/hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, move "Blur strength σ" to melt the shallow valleys, and use "Roll the ball" to watch a ball descend on Lσ. "See the answer" opens the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'),
+      ss=document.getElementById('sig'), vs=document.getElementById('vsig'),
+      rd=document.getElementById('rd'), btn=document.getElementById('run');
+  // raw terrain L(θ)=0.10θ²−0.70cos(2.4θ)−0.06θ
+  function Lf(t){ return 0.10*t*t - 0.70*Math.cos(2.4*t) - 0.06*t; }
+  // Gaussian smoothing Lσ(θ): numerical convolution, normalized Σ L(θ+z) exp(−z²/2σ²)
+  function Lsig(t,s){
+    if(s<1e-3) return Lf(t);
+    var N=60, span=4*s, dz=2*span/N, sum=0, wsum=0;
+    for(var j=0;j<=N;j++){
+      var z=-span+dz*j, w=Math.exp(-(z*z)/(2*s*s));
+      sum+=Lf(t+z)*w; wsum+=w;
+    }
+    return sum/wsum;
+  }
+  // numerical gradient of Lσ (central difference)
+  function dLsig(t,s){ var h=0.02; return (Lsig(t+h,s)-Lsig(t-h,s))/(2*h); }
+
+  var TH_LO=-4, TH_HI=4, L_LO=-1.0, L_HI=2.7;
+  var NPT=280;
+  var theta=null, traj=[], step=0, raf=null, rolling=false;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  // sample Lσ at NPT points and count the minima
+  function sampleAndCountMinima(s){
+    var arr=[], i, t;
+    for(i=0;i<=NPT;i++){ t=TH_LO+(TH_HI-TH_LO)*i/NPT; arr.push(Lsig(t,s)); }
+    var mins=[];
+    for(i=1;i<NPT;i++){
+      if(arr[i]<arr[i-1] && arr[i]<=arr[i+1]){
+        mins.push(TH_LO+(TH_HI-TH_LO)*i/NPT);
+      }
+    }
+    return {arr:arr, mins:mins};
+  }
+  function draw(){
+    var s=parseFloat(ss.value);
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, padL=44, padB=42, padT=16;
+    function X(t){return padL+(t-TH_LO)/(TH_HI-TH_LO)*(w-padL-14);}
+    function Y(l){return (h-padB)-(l-L_LO)/(L_HI-L_LO)*(h-padB-padT);}
+    ctx.clearRect(0,0,w,h);
+    // grid (horizontal lines of L)
+    ctx.strokeStyle='#efe4cd';ctx.lineWidth=1;ctx.fillStyle='#bda877';ctx.font='9px sans-serif';
+    for(var l=0;l<=2;l++){var y=Y(l);ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-8,y);ctx.stroke();ctx.fillText('L='+l,6,y-3);}
+    // raw terrain L (thin faint line)
+    ctx.strokeStyle='#d8b878';ctx.lineWidth=1.4;ctx.beginPath();var f=true,i,t,x,y;
+    for(i=0;i<=NPT;i++){t=TH_LO+(TH_HI-TH_LO)*i/NPT;x=X(t);y=Y(Lf(t));if(f){ctx.moveTo(x,y);f=false;}else ctx.lineTo(x,y);}
+    ctx.stroke();
+    // blurred terrain Lσ (thick amber line)
+    var samp=sampleAndCountMinima(s), arr=samp.arr, mins=samp.mins;
+    ctx.strokeStyle='#b06a10';ctx.lineWidth=2.8;ctx.beginPath();f=true;
+    for(i=0;i<=NPT;i++){t=TH_LO+(TH_HI-TH_LO)*i/NPT;x=X(t);y=Y(arr[i]);if(f){ctx.moveTo(x,y);f=false;}else ctx.lineTo(x,y);}
+    ctx.stroke();
+    // minima markers of Lσ
+    for(i=0;i<mins.length;i++){var mt=mins[i];
+      ctx.fillStyle='#3d7a3a';ctx.beginPath();ctx.arc(X(mt),Y(Lsig(mt,s)),4,0,7);ctx.fill();}
+    // axis labels
+    ctx.fillStyle='#6b5a38';ctx.font='12px sans-serif';
+    ctx.fillText('θ (parameter) →', w-140, h-padB+26);
+    ctx.save();ctx.translate(14,h/2+30);ctx.rotate(-Math.PI/2);ctx.fillText('L (loss = height)',0,0);ctx.restore();
+    // trajectory (faint dots)
+    for(var k=0;k<traj.length;k++){var tt=traj[k];
+      ctx.fillStyle='rgba(192,57,43,'+(0.10+0.28*k/Math.max(1,traj.length))+')';
+      ctx.beginPath();ctx.arc(X(tt),Y(Lsig(tt,s)),2.4,0,7);ctx.fill();}
+    // ball (on Lσ)
+    if(theta!==null && isFinite(theta) && theta>=TH_LO && theta<=TH_HI){
+      var bx=X(theta), by=Y(Lsig(theta,s));
+      // descent-direction arrow −∇Lσ
+      var g=dLsig(theta,s), dir=(g>0?-1:1);
+      var aLen=Math.min(44,12+Math.abs(g)*20);
+      ctx.strokeStyle='#3d7a3a';ctx.lineWidth=2.0;ctx.beginPath();
+      ctx.moveTo(bx,by);ctx.lineTo(bx+dir*aLen,by);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(bx+dir*aLen,by);ctx.lineTo(bx+dir*(aLen-7),by-4);
+      ctx.lineTo(bx+dir*(aLen-7),by+4);ctx.closePath();ctx.fillStyle='#3d7a3a';ctx.fill();
+      ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(bx,by,6.5,0,7);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    }
+    return mins;
+  }
+  function statusReport(mins){
+    var s=parseFloat(ss.value), n=mins.length;
+    if(n<=1){
+      rd.className='readout ok';
+      rd.textContent='σ='+s.toFixed(2)+': Lσ has '+n+' minimum. The shallow valleys have all melted into a single global basin. "Roll the ball" here and it reaches the bottom undisturbed by the valleys along the way (though the larger σ is, the more the bottom shifts from the raw optimum).';
+    } else {
+      rd.className='readout local';
+      rd.textContent='σ='+s.toFixed(2)+': Lσ has '+n+' minima. Raise σ and they vanish shallowest-first (thin line = raw L, thick line = blurred Lσ).';
+    }
+  }
+  function frame(){
+    var s=parseFloat(ss.value);
+    var g=dLsig(theta,s), eta=0.05;
+    var stepSize=eta*g;
+    theta=theta-stepSize;
+    if(theta<TH_LO)theta=TH_LO; if(theta>TH_HI)theta=TH_HI;
+    step++;
+    traj.push(theta);
+    if(traj.length>500)traj.shift();
+    draw();
+    if(Math.abs(stepSize)<8e-4 || step>=700){ rolling=false; rollReport(); return; }
+    raf=requestAnimationFrame(frame);
+  }
+  function rollReport(){
+    var s=parseFloat(ss.value), Lv=Lsig(theta,s);
+    if(Math.abs(theta)<1.2){
+      rd.className='readout ok';
+      rd.textContent='Reached the global basin: θ='+theta.toFixed(2)+', Lσ='+Lv.toFixed(3)+' (σ='+s.toFixed(2)+', '+step+' steps). The shallow valleys had melted, so even starting from the right edge it reached the deep central valley. Lower σ to anneal and you can get even closer to the raw optimum.';
+    } else {
+      rd.className='readout local';
+      rd.textContent='Caught in a shallow valley: θ='+theta.toFixed(2)+', Lσ='+Lv.toFixed(3)+' (σ='+s.toFixed(2)+', '+step+' steps). σ is small and the valleys remain, so it stopped short of the global basin. Raise σ and try rolling again.';
+    }
+  }
+  function start(){
+    if(raf)cancelAnimationFrame(raf);
+    theta=3.3; traj=[theta]; step=0; rolling=true;
+    rd.className='readout local'; rd.textContent='The ball descends from the right edge, following the slope −∇Lσ of the blurred terrain Lσ…';
+    raf=requestAnimationFrame(frame);
+  }
+  function redraw(){ if(!rolling){ var mins=draw(); statusReport(mins);} else { draw(); } }
+  ss.addEventListener('input',function(){ vs.textContent=parseFloat(ss.value).toFixed(2); redraw(); });
+  btn.addEventListener('click',start);
+  window.addEventListener('resize',function(){ draw(); });
+  vs.textContent=parseFloat(ss.value).toFixed(2);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){var m=draw();statusReport(m);});}
+  setTimeout(function(){var m=draw();statusReport(m);},60);
+  window.addEventListener('load',function(){var m=draw();statusReport(m);});
+})();
+</script>
+</body>
+</html>

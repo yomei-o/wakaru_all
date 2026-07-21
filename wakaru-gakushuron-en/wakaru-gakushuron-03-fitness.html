@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fitness Landscape ── Biology and Machine Learning Were Drawing the Same Picture ── Learning That Clicks, Episode 3</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241d13; --ink-soft:#574a38;
+    --paper:#fbf6ee; --paper-edge:#e8dcc4;   /* Episode 1: learning, life, energy = amber paper */
+    --side:#6f4b1f; --side-bg:#f4ece0;
+    --warn:#8a4b2f;
+    --calc:#a05c12; --calc-bg:#f7edda;   /* calculation color = amber */
+    --rule:#e3d6bd; --hair:#c9b48a;
+    --acc:#b06a10;    /* accent = amber */
+    --grid:#eaddc4;
+    --ok:#3d7a3a; --bad:#a83a22; --hot:#c0392b; --cold:#2a6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2dca0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c1a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e4d2ac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--acc);
+    border:none;border-radius:3px;padding:9px 18px;cursor:pointer;align-self:flex-end;}
+  .btn:hover{background:#96590c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .readout.ok{background:#eef2e6;color:#3a6030;}
+  .readout.local{background:#f6ecda;color:#8a5a12;}
+  .readout.bad{background:#f6e2dc;color:#9a3520;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  table.verdict{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.verdict th,table.verdict td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.55;}
+  table.verdict th{background:#f3e6cd;color:#7a4e10;font-weight:700;}
+  table.verdict .v-ok{color:var(--ok);font-weight:700;}
+  table.verdict .v-bad{color:var(--bad);font-weight:700;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9f2e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6a4410;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfaf4,#f2e7d1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e7cf;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4410;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8a7a5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Learning That Clicks</span><span class="ep">Episode 3 ／ The Fitness Landscape ── Foundations of Theoretical Biology</span></div>
+  <p class="eyebrow">Evolution, learning, and consciousness read through a single gradient</p>
+  <h1>The Fitness Landscape
+    <span class="sub">Biology and machine learning were drawing the same picture.<br>The "peaks" landscape Sewall Wright sketched in 1932 is just Episode 1's loss landscape turned upside down.<br>Natural selection is gradient ascent up that terrain ── the exact same operation as the descent into the valley that we call learning.</span>
+  </h1>
+  <div class="byline">
+    <span>What you'll need: the gradient from Episode 1, mean and variance, a little calculus</span>
+    <span>The key for this episode: \(\dot x_i = x_i\,(f_i-\bar f)\)</span>
+  </div>
+
+  <p class="lead">A machine "learns"; a living thing "evolves." We tend to speak of these two as though they belonged to entirely separate worlds. One is a story of mathematics and computers, the other a story of life stretching back to the dawn of time. And yet the <strong>loss landscape</strong> we drew in Episode 1 ── that scenery with the parameter \(\theta\) along the horizontal axis and the badness \(L(\theta)\) as height ── was not, in fact, an invention of machine learning. It is the very same picture, merely flipped upside down, as the <strong>adaptive landscape</strong> that population geneticist Sewall Wright drew back in <em>1932</em> to explain evolution. Biology aims for "high peaks = well-adapted genotypes"; machine learning aims for "low valleys = weights with small loss." Only the name and the direction differ. In this episode we'll see that natural selection is, on paper, <strong>gradient ascent up the landscape</strong> itself, and that the "local-minimum trap" we met in Episode 1 comes back here wearing exactly the same face ── as <em>getting stuck on a local peak</em>. Across a gap of eighty years, evolution and learning turn out to be standing on the same terrain.</p>
+
+  <h2><span class="n">01</span>Are learning and evolution really different?</h2>
+
+  <p>In Episode 1 we defined learning in a single line ── <strong>moving the parameters \(\theta\) so as to lower the loss \(L(\theta)\)</strong>. The update rule is \(\theta\leftarrow\theta-\eta\nabla L\). In Episode 2 we saw the mechanism by which a neural network computes that gradient \(\nabla L\) automatically, via the chain rule (backpropagation, BP). So far, this is all a story of "machines learning."</p>
+
+  <p>So what about the evolution of living things? There is no god who kindly differentiates DNA for us. And yet life has kept adapting to its environment for billions of years. If evolution ran on a principle <em>utterly different</em> from learning, the backbone of this series would snap. Conversely, if it performs the same operation on the same terrain ── then "learning machines" and "evolving life" are of one continuous piece. Let me put the answer up front. <strong>They are the same.</strong> To see it, let's first set Wright's landscape right next to Episode 1's.</p>
+
+  <h2><span class="n">02</span>Wright's adaptive landscape ── the loss landscape, flipped upside down</h2>
+
+  <p>Wright put the genotype (or trait) \(\theta\) on the horizontal axis, and took as height how successfully an individual carrying that \(\theta\) survives and leaves offspring. This height is called <strong>fitness</strong>, \(F(\theta)\). The higher the peak, the "better-adapted \(\theta\)"; the lower the valley, the "harder-to-survive \(\theta\)." Evolution is the process of a population <em>climbing toward the peaks</em> of this landscape ── that is Wright's picture.</p>
+
+  <p>Compare it with Episode 1's loss landscape. There, "lower valleys are better"; here, "higher peaks are better." Only up and down are reversed; the undulations of the terrain themselves are identical. In equations, the two are joined by a single identity.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">Loss and fitness differ only by a sign</div>
+    $$L(\theta)\;=\;-\,F(\theta)$$
+  </div>
+
+  <p>Lowering the loss (descending the valley) is exactly the same operation as raising the fitness (climbing the hill). In Episode 1 we moved in the direction of \(-\nabla L\), which was <em>steepest descent</em>; but if \(L=-F\), then \(-\nabla L=+\nabla F\). In other words, it is nothing but <strong>gradient ascent in the direction of the fitness gradient \(\nabla F\)</strong>. Only the direction is turned around: it's the same slope, descended by one and climbed by the other.</p>
+
+  <div class="aside">
+    <span class="tag">Why could a biologist eighty years ago draw a "landscape"?</span>
+    In 1932, when Wright drew his landscape, there were no computers and no machine learning. What he was grappling with was a pure biological question: how gene frequencies shift within a population. Even so, whenever you have "an adjustable something \(\theta\)" and "a single number \(F\) that measures how good it is," a landscape inevitably rises up ── because this is not the tool of any one field but <strong>the geometry of the act of optimization itself</strong>. That machine learning later arrived at the same picture is no coincidence.
+  </div>
+
+  <h2><span class="n">03</span>What is selection? ── the replicator equation</h2>
+
+  <p>Let's turn "a population climbs the peaks" into proper equations. Suppose the population contains types (genotypes / strategies) \(i=1,2,\dots,n\), and let the <strong>frequency</strong> of type \(i\) in the population be \(x_i\) (with \(x_i\ge0,\ \sum_i x_i=1\)). If the fitness of type \(i\) is \(f_i\) (its average reproductive success per individual), then the <strong>mean fitness</strong> of the whole population is</p>
+
+  <div class="keybox">
+    <div class="lbl">Mean fitness (fitness averaged, weighted by frequency)</div>
+    $$\bar f\;=\;\sum_{j} x_j\, f_j$$
+  </div>
+
+  <p>What is natural selection? <em>Types above average increase, types below average decrease</em> ── that's all. The differential equation that captures exactly that one sentence is the <strong>replicator equation</strong>.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The replicator equation (the heart of natural selection)</div>
+    $$\dot x_i\;=\;x_i\,\bigl(f_i-\bar f\bigr)$$
+  </div>
+
+  <p>Reading it is easy. The quantity in the parentheses, \(f_i-\bar f\), is how far type \(i\) sits "above average." If this is positive (above the mean), then \(\dot x_i>0\) and the frequency grows; if negative (below the mean), it shrinks. The \(x_i\) out front is an amplification factor set by <em>how many of that type there currently are</em> ── so a type not currently present in the population (\(x_i=0\)) stays at \(\dot x_i=0\) no matter how superior it would be; it never springs up on its own. This single point is the setup for the "local-peak trap" to come.</p>
+
+  <p>First, let's verify that this equation preserves the total of the frequencies (a sanity check that it remains a probability distribution).</p>
+
+  <div class="calc">
+    <span class="tag">Check ── the total doesn't budge</span>
+    $$\sum_i \dot x_i=\sum_i x_i(f_i-\bar f)=\sum_i x_i f_i-\bar f\sum_i x_i=\bar f-\bar f\cdot 1=0$$
+    <p style="margin-bottom:14px;">All we use is \(\sum_i x_i f_i=\bar f\) and \(\sum_i x_i=1\). Since the rate of change of the total is \(0\), \(\sum_i x_i\) stays at \(1\) forever. Selection merely <span style="color:var(--calc);font-weight:700;">redistributes the slices of the pie</span>; the pie itself neither grows nor shrinks.</p>
+  </div>
+
+  <h2><span class="n">04</span>Why does mean fitness keep rising?</h2>
+
+  <p>The most beautiful consequence of the replicator equation is this ── <strong>as long as the fitnesses are held fixed, the population's mean fitness \(\bar f\) never decreases</strong>. What's more, the amount by which it rises is exactly equal to the <em>spread (variance)</em> within the population. Let's derive it by hand.</p>
+
+  <div class="calc">
+    <span class="tag">Try it ── find the rate of change of mean fitness</span>
+    <p class="lbl">Since \(f_i\) is constant, differentiating the mean \(\bar f=\sum_j x_j f_j\) in time gives</p>
+    $$\frac{d\bar f}{dt}=\sum_i \dot x_i\,f_i=\sum_i x_i(f_i-\bar f)\,f_i$$
+    <p class="lbl">Expand the parentheses and use Σx_i f_i = f̄</p>
+    $$=\sum_i x_i f_i^2-\bar f\sum_i x_i f_i=\langle f^2\rangle-\bar f^{\,2}$$
+    <p class="lbl">This is precisely the definition of variance</p>
+    $$\frac{d\bar f}{dt}=\mathrm{Var}_x(f)=\sum_i x_i\,(f_i-\bar f)^2\;\ge\;0$$
+    <p style="margin-bottom:14px;">Variance is a sum of squares, so it is <span style="color:var(--ok);font-weight:700;">always at least \(0\)</span>. Hence \(\bar f\) increases monotonically, and it halts only when everyone has the same fitness (variance \(=0\)). This is the core of <strong>Fisher's fundamental theorem of natural selection</strong> ── <em>the mean rises by exactly the amount of the spread</em>. Diversity itself was the fuel that drives evolution forward.</p>
+  </div>
+
+  <p>This relationship holds cleanly even for a single discrete step. In the small numerical experiment below, let's confirm with a calculator that \(\bar f\) really does rise, and that the amount it rises matches the variance exactly.</p>
+
+  <div class="calc">
+    <span class="tag">Try it ── run one generation with three types</span>
+    <p style="margin-top:2px;">Three types, with fitnesses \(f=(1.0,\ 1.2,\ 0.9)\). The initial frequencies are all equal, \(x=(\tfrac13,\tfrac13,\tfrac13)\). We run the discrete update rule \(x_i\leftarrow x_i\bigl(1+(f_i-\bar f)\bigr)\) just once.</p>
+    <p class="lbl">First, the mean fitness</p>
+    $$\bar f=\tfrac13(1.0+1.2+0.9)=\tfrac{3.1}{3}=1.0333$$
+    <p class="lbl">Update each type (multiply by f_i−f̄)</p>
+    $$x_1'=\tfrac13(1-0.0333)=0.3222,\quad x_2'=\tfrac13(1+0.1667)=0.3889,\quad x_3'=\tfrac13(1-0.1333)=0.2889$$
+    <p style="margin:10px 0 -2px;">The total is \(0.3222+0.3889+0.2889=1.0000\) ── the sum is preserved exactly (just as we checked in STEP 03, there is no need even to renormalize). The superior type 2 grew, and the inferior type 3 shrank. The new mean is</p>
+    $$\bar f'=0.3222\times1.0+0.3889\times1.2+0.2889\times0.9=1.0489$$
+    <p class="lbl">Compare the rise against the variance</p>
+    $$\Delta\bar f=1.0489-1.0333=0.0156,\qquad \mathrm{Var}_x(f)=\tfrac13\bigl[(-0.0333)^2+(0.1667)^2+(-0.1333)^2\bigr]=0.0156$$
+    <p style="margin-bottom:14px;">A perfect match. <span style="color:var(--ok);font-weight:700;">\(\Delta\bar f=\mathrm{Var}_x(f)\)</span> ── the mean rises by exactly the amount of the spread. The numbers moved just as the theory predicted.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">The mean trait moves along the fitness gradient (the spirit of Price / Lande)</span>
+    Looking not at discrete types but at a continuous trait \(\theta\) (body size, say), the motion of the population's <strong>mean trait \(\bar\theta\)</strong> can be written \(\dfrac{d\bar\theta}{dt}\propto \mathrm{Cov}(\theta,\,f)\) ── the more a trait correlates with the high-fitness side, the more the mean is pulled that way. If fitness is a function of \(\theta\), \(f=F(\theta)\), then this covariance points in the direction along the <em>fitness gradient \(\nabla F\)</em> (this is what the Price and Lande equations say). We'll skip the rigorous proof; grasping the direction alone is enough ── <strong>the population's mean moves in the direction that climbs the landscape</strong>. This is the continuous version of "selection = gradient ascent."
+  </div>
+
+  <p>To sum up, natural selection is the <em>sign-flipped twin</em> of Episode 1's gradient descent. One descends the valley of \(L\) via \(-\nabla L\); the other climbs the peaks of \(F\) via \(+\nabla F\). The population crawls its way up toward the peaks of the landscape.</p>
+
+  <h2><span class="n">05</span>Let's play with it ── a population climbing the peaks</h2>
+
+  <p>The landscape below is the fitness \(F(\theta)\), and it has two peaks. On the left is a <strong>low peak (a local optimum)</strong>, and on the right a <strong>high peak (the global optimum)</strong>. Between them lies a deep valley. The cluster of orange dots is <em>the individuals of the population</em>, and the red marker is their <strong>mean \(\bar\theta\)</strong>. The population starts at the foot of the low peak on the left. When you press "Advance a generation," each generation repeats ① selection according to fitness (fitter individuals leave more offspring) and ② mutation (fluctuation added to the offspring's trait), and the population climbs the slope.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: natural selection on the fitness landscape F(θ). Selection pushes the population up toward the nearest peak, and mutation supplies the breadth of exploration ── with small mutation the population sticks to the low peak, and with larger mutation it can cross the valley to the high peak</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Selection pressure β (strength of selection)<span class="val" id="vbeta">3.0</span>
+        <input type="range" id="beta" min="0.2" max="8.0" step="0.1" value="3.0">
+      </label>
+      <label>Mutation width σ (breadth of exploration)<span class="val" id="vsig">0.08</span>
+        <input type="range" id="sig" min="0.02" max="0.60" step="0.01" value="0.08">
+      </label>
+      <button class="btn" id="run">Advance a generation ▶</button>
+    </div>
+    <div class="readout local" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--acc);"></i>Fitness landscape F(θ)</span>
+      <span><i class="dot" style="background:rgba(160,92,18,.55);"></i>Individual (population)</span>
+      <span><i class="dot" style="background:#c0392b;"></i>Population mean θ̄</span>
+      <span><i class="dot" style="background:#3d7a3a;"></i>High peak (global)</span>
+    </div>
+  </div>
+
+  <p>First run it with the initial setting (mutation \(\sigma=0.08\)) unchanged. The population glides up <em>the low peak on the left</em>, sticks there, and stops moving. The mean fitness rose, yet even though there's a higher peak right next door, it can't reach it. Next, before you press "Advance a generation" again, try <strong>raising the mutation width \(\sigma\) to around \(0.35\)</strong> and running it. The individuals' spread reaches across the valley to the right slope, and once selection acts there, the population eventually <em>hops over to the high peak</em>. Raising the selection pressure \(\beta\) makes the climb fast but narrows the field of view; lowering it makes the climb slow but more exploratory.</p>
+
+  <h2><span class="n">06</span>The local-peak trap ── Episode 1's weakness returns unchanged</h2>
+
+  <p>The "sticking to the low peak" we just saw is exactly the same thing as Episode 1's <strong>local-minimum trap</strong>. There, the ball got stuck in a shallow valley and couldn't get out. Here, the population climbs all the way up a low peak and can't come back down. Flip up and down with \(L=-F\), and a local minimum becomes, unchanged, a local maximum (a local peak). Same landscape, same weakness.</p>
+
+  <p>Recall that the replicator equation was \(\dot x_i=x_i(f_i-\bar f)\). There's an \(x_i\) out front ── <em>types that aren't present don't increase</em>. So by pure selection alone, the population can't take a single step off the peak it's standing on. To cross the valley to another peak, you need <strong>a mechanism that tries out places you're not currently in</strong> ── namely mutation (= exploration of the landscape). When we raised \(\sigma\) in the simulation and the population managed to cross the valley, it was because mutation played the role of "trying the neighbor." Diversity is the fuel that raises the mean, and at the same time the <em>lifeline</em> for escaping a local peak.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>The verdict ── is selection the same thing as Episode 1's gradient descent?</h2>
+
+  <p>Every episode, this series honestly judges the powers and the limits of its tools. For the fitness landscape and natural selection, let's answer three questions.</p>
+
+  <table class="verdict">
+    <tr><th>Question</th><th>What the fitness landscape + natural selection says</th><th>Verdict</th></tr>
+    <tr>
+      <td>Is natural selection the same operation as Episode 1's gradient descent?</td>
+      <td>The same. Under \(L=-F\), selection = gradient ascent on the fitness landscape = gradient descent on the loss landscape. Isomorphic, differing only by a sign</td>
+      <td class="v-ok">Isomorphic</td>
+    </tr>
+    <tr>
+      <td>Does the population's mean fitness always rise?</td>
+      <td>It never falls. \(d\bar f/dt=\mathrm{Var}_x(f)\ge0\) (monotonically non-decreasing if fitnesses are fixed)</td>
+      <td class="v-ok">Non-decreasing</td>
+    </tr>
+    <tr>
+      <td>Does it always reach the highest peak (the global optimum)?</td>
+      <td>Not necessarily. It sticks to a nearby local peak ── exactly the same weakness as Episode 1</td>
+      <td class="v-bad">No guarantee</td>
+    </tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the landscape is powerful, but it's also an idealization</span>
+    <p style="margin-top:0;">The fitness landscape is the finest picture we have for surveying evolution, but it carries several idealizations. First, <strong>real landscapes are not stationary</strong> ── under the coevolution of predator and prey, or frequency-dependent selection (where whether a type is favored changes as it becomes more common), the landscape itself ripples as the population moves. In a world where "the footing you're climbing on shifts," the peak metaphor is too naive. Second, the picture we saw here had a one-dimensional trait, but <strong>intuition changes dramatically in high dimensions</strong>, where local peaks have far more "escape routes" than you'd expect. Third, the replicator equation is an <strong>infinite-population, noise-free</strong> approximation; in finite populations, chance fluctuations (genetic drift) come into play.</p>
+    <p style="margin-bottom:0;">Even so ── <strong>the structural identity "selection = optimization on a landscape" is the real thing</strong>. Learning and evolution are doing the same computation on the same terrain, differing only in sign. And here one sharp question remains. Both Episode 1's gradient descent and Episode 2's BP assumed that \(\nabla L\) <em>can be computed</em>. But nature has no god of differentiation. You cannot differentiate DNA. <strong>So how does non-differentiable nature come to know the gradient of the slope?</strong> Next time, that answer ── evolution strategies (ES).</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with only this episode's equations)</div>
+    <ol>
+      <li>Two types, fitnesses \(f=(2,\ 1)\), frequencies \(x=(0.5,\ 0.5)\). Perform the discrete update \(x_i\leftarrow x_i(1+(f_i-\bar f))\) once, and confirm that \(\bar f\) rises and that the amount it rises matches \(\mathrm{Var}_x(f)\).
+        <details><summary>See the answer</summary><div class="ans">\(\bar f=0.5\cdot2+0.5\cdot1=1.5\). Update: \(x_1'=0.5(1+0.5)=0.75,\ x_2'=0.5(1-0.5)=0.25\) (sum is 1). New mean \(\bar f'=0.75\cdot2+0.25\cdot1=1.75\). \(\Delta\bar f=0.25\). Variance \(\mathrm{Var}=0.5(0.5)^2+0.5(-0.5)^2=0.25\). A perfect match ── the mean rises by exactly the amount of the spread.</div></details>
+      </li>
+      <li>When all fitnesses are equal (\(f_1=f_2=\dots=f_n\)), what happens to the frequencies \(x_i\) under the replicator equation?
+        <details><summary>See the answer</summary><div class="ans">Everyone equals the mean, so \(f_i-\bar f=0\), hence \(\dot x_i=0\). The frequencies don't move at all. With variance \(0\), \(d\bar f/dt=\mathrm{Var}_x(f)=0\), so the mean doesn't move either ── without the "spread" that gives selection something to distinguish, evolution stops. The flip side of "diversity is fuel."</div></details>
+      </li>
+      <li>Under pure selection (the replicator equation alone), the population cannot move from the peak it's standing on to another, higher peak. Why? Answer by relating it to Episode 1's local minimum.
+        <details><summary>See the answer</summary><div class="ans">Because of the \(x_i\) at the front of \(\dot x_i=x_i(f_i-\bar f)\), a type currently at frequency \(0\) doesn't increase (\(\dot x_i=0\)), and the population can only climb <em>within the range of types it already has</em>. Once the variance is exhausted on the nearby peak, \(d\bar f/dt=0\) and it halts. This is the same trap as gradient descent, which looks only at the slope underfoot and stops at a local minimum (with \(L=-F\), local minimum ↔ local maximum). To cross the valley, you need mutation = exploration that tries out places you aren't (this leads to the ES of the next episode, and the "blurring the landscape" of Episode 7).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 3 summary</span>Selection is climbing the landscape</h2>
+    <p>Wright's fitness landscape \(F(\theta)\) is the same picture as Episode 1's loss landscape, joined by \(L(\theta)=-F(\theta)\) (STEP 02). Natural selection is the replicator equation \(\dot x_i=x_i(f_i-\bar f)\) ── types above average increase, types below average decrease (STEP 03). If fitnesses are fixed, mean fitness is monotonically non-decreasing, and the amount it rises equals the population's variance, \(d\bar f/dt=\mathrm{Var}_x(f)\ge0\) (STEP 04, Fisher's fundamental theorem). So selection is <em>gradient ascent</em>, differing from gradient descent on the loss landscape only by a sign. But Episode 1's local minimum returns here as the local-peak trap, and pure selection cannot cross the valley ── mutation, the exploration, is the lifeline (STEP 06).</p>
+    <p>Learning and evolution were doing the same computation on the same terrain. Just one question remains ── <strong>how does non-differentiable nature come to know that gradient?</strong> Next time, on to a way of descending the slope without any differentiation at all.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 4</span>
+    <strong>Evolution is descending the slope without differentiating.</strong> Both Episode 1's BP and this episode's gradient ascent assumed we could compute the gradient \(\nabla F\). But nature cannot differentiate. So what does it do ── it scatters, then averages over the directions that turned out well. Evolution strategies (ES) estimate "something like a gradient" by weighting randomly tried points by their fitness. We'll dissect just how close this magic trick ── grasping the direction of the slope without differentiation ── actually is to the true gradient.
+  </div>
+
+  <div class="foot">
+    This document is Episode 3 of the "Learning That Clicks" series, a piece written for high-school and university students interested in physics, mathematics, and AI. The adaptive (fitness) landscape is a concept introduced by S. Wright in 1932, standing in an upside-down relationship, \(L=-F\), to machine learning's loss landscape. The replicator equation \(\dot x_i=x_i(f_i-\bar f)\), and, when fitnesses do not depend on time, \(d\bar f/dt=\mathrm{Var}_x(f)\ge0\) (the core corresponding to the continuous-time, single-locus version of Fisher's fundamental theorem of natural selection), are established mathematics. The Price and Lande equations, which express the change in the mean trait via a covariance, are introduced for direction only; the rigorous derivation is omitted. The landscape in this article's figure, \(F(\theta)=\exp\!\bigl(-\tfrac{(\theta+1.2)^2}{2\cdot0.35^2}\bigr)+1.6\,\exp\!\bigl(-\tfrac{(\theta-1.0)^2}{2\cdot0.45^2}\bigr)+0.05\), is an illustrative model, and the heights and positions of the left and right peaks are numerical guides only. The simulation is a particle approximation with finite individuals and mutation (close to an evolution strategy), and differs strictly from the infinite-population, noise-free idealization of the replicator equation. The dynamic reshaping of the landscape under coevolution and frequency-dependent selection, the change in intuition in high dimensions, and the mathematical agreement between evolution strategies (ES) and BP (in later episodes) are each handled in their respective episodes. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the sliders and answers are frozen and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, change the "selection pressure" and the "mutation width," then press "Advance a generation" to watch the population climb the peaks. Try seeing how small mutation sticks to the low peak while large mutation moves to the high peak. Click "See the answer" to open the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'),
+      sb=document.getElementById('beta'), vb=document.getElementById('vbeta'),
+      ss=document.getElementById('sig'), vs=document.getElementById('vsig'),
+      rd=document.getElementById('rd'), btn=document.getElementById('run');
+  // fitness landscape F(θ)=local peak(θ=-1.2, height 1.0) + global peak(θ=1.0, height 1.6) + baseline 0.05
+  var PK_L=-1.2, PK_G=1.0;
+  function F(t){
+    var a=t-PK_L, b=t-PK_G;
+    return 1.0*Math.exp(-a*a/(2*0.35*0.35)) + 1.6*Math.exp(-b*b/(2*0.45*0.45)) + 0.05;
+  }
+  var TH_LO=-2.6, TH_HI=2.6, F_LO=0.0, F_HI=1.8;
+  var N=140;
+  var pop=[], gen=0, raf=null, frameCt=0, running=false;
+
+  function randn(){ var u=1-Math.random(), v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function initPop(){
+    pop=[]; for(var i=0;i<N;i++){ pop.push(PK_L+0.15*randn()); } gen=0;
+  }
+  function clamp(t){ if(t<TH_LO) return TH_LO; if(t>TH_HI) return TH_HI; return t; }
+
+  function stats(){
+    var mth=0, mf=0, i;
+    for(i=0;i<N;i++){ mth+=pop[i]; mf+=F(pop[i]); }
+    mth/=N; mf/=N;
+    var vth=0; for(i=0;i<N;i++){ var d=pop[i]-mth; vth+=d*d; } vth/=N;
+    return {mth:mth, mf:mf, sd:Math.sqrt(vth)};
+  }
+
+  // one generation: selection (fitness-proportional resample) + mutation
+  function stepGen(){
+    var beta=parseFloat(sb.value), sigma=parseFloat(ss.value), i;
+    var f=[], fmax=-1e9;
+    for(i=0;i<N;i++){ f[i]=F(pop[i]); if(f[i]>fmax) fmax=f[i]; }
+    var w=[], sum=0;
+    for(i=0;i<N;i++){ w[i]=Math.exp(beta*(f[i]-fmax)); sum+=w[i]; }
+    var cum=[], c=0;
+    for(i=0;i<N;i++){ c+=w[i]/sum; cum[i]=c; }
+    var np=[];
+    for(var k=0;k<N;k++){
+      var r=Math.random(), idx=N-1;
+      for(i=0;i<N;i++){ if(cum[i]>=r){ idx=i; break; } }
+      np.push(clamp(pop[idx]+sigma*randn()));
+    }
+    pop=np; gen++;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, padL=44, padB=42, padT=16;
+    function X(t){return padL+(t-TH_LO)/(TH_HI-TH_LO)*(w-padL-14);}
+    function Y(fv){return (h-padB)-(fv-F_LO)/(F_HI-F_LO)*(h-padB-padT);}
+    ctx.clearRect(0,0,w,h);
+    // grid (horizontal lines of F)
+    ctx.strokeStyle='#efe4cd';ctx.lineWidth=1;ctx.fillStyle='#bda877';ctx.font='9px sans-serif';
+    for(var l=0;l<=1;l+=0.5){var y=Y(l);ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-8,y);ctx.stroke();ctx.fillText('F='+l.toFixed(1),4,y-3);}
+    var y15=Y(1.5);ctx.beginPath();ctx.moveTo(padL,y15);ctx.lineTo(w-8,y15);ctx.stroke();ctx.fillText('F=1.5',4,y15-3);
+    // landscape curve
+    ctx.strokeStyle='#b06a10';ctx.lineWidth=2.6;ctx.beginPath();var first=true;
+    for(var i=0;i<=260;i++){var t=TH_LO+(TH_HI-TH_LO)*i/260; var x=X(t),y=Y(F(t)); if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);}
+    ctx.stroke();
+    // peak markers
+    function peak(t,label,color){var x=X(t),y=Y(F(t));
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,3.5,0,7);ctx.fill();
+      ctx.fillStyle='#8a7a5a';ctx.font='11px sans-serif';ctx.fillText(label,x-20,y-9);}
+    peak(PK_L,'Low peak','#a86518'); peak(PK_G,'High peak','#3d7a3a');
+    // axis labels
+    ctx.fillStyle='#6b5a38';ctx.font='12px sans-serif';
+    ctx.fillText('θ (trait) →', w-118, h-padB+26);
+    ctx.save();ctx.translate(14,h/2+34);ctx.rotate(-Math.PI/2);ctx.fillText('F (fitness = height)',0,0);ctx.restore();
+    // individuals (point cloud)
+    for(var k=0;k<N;k++){var tt=pop[k];
+      ctx.fillStyle='rgba(160,92,18,0.42)';
+      ctx.beginPath();ctx.arc(X(tt),Y(F(tt)),3.0,0,7);ctx.fill();}
+    // population mean
+    var st=stats(), mx=X(st.mth), my=Y(F(st.mth));
+    if(isFinite(mx)){
+      ctx.strokeStyle='rgba(192,57,43,0.35)';ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(mx,Y(F_LO));ctx.lineTo(mx,my);ctx.stroke();
+      ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(mx,my,6.5,0,7);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    }
+    return st;
+  }
+
+  function report(st, mode){
+    var msg='Generation '+gen+' ｜ mean fitness f̄='+st.mf.toFixed(3)+' ｜ mean trait θ̄='+st.mth.toFixed(2)+'.';
+    if(mode==='running'){
+      rd.className='readout local';
+      rd.textContent='Evolving… '+msg+' Selection is pushing the population up toward the peak.';
+      return;
+    }
+    if(st.sd>0.55){
+      rd.className='readout bad';
+      rd.textContent=msg+' The mutation σ is too large, so the population scatters widely and can\'t gather onto a peak (large spread = mean fitness fails to grow). Try lowering σ a little.';
+    } else if(st.mth>0.3){
+      rd.className='readout ok';
+      rd.textContent=msg+' Reached the high peak (the global optimum) ── it crossed the valley and hopped over to the highest peak. Jackpot.';
+    } else if(st.mth<-0.3){
+      rd.className='readout local';
+      rd.textContent=msg+' It stuck to the low peak (a local optimum). The mean rose, but there\'s a higher peak right next door. Try raising the mutation width σ to around 0.35 and running again.';
+    } else {
+      rd.className='readout local';
+      rd.textContent=msg+' It\'s partway across the valley. Change the selection pressure or mutation width and press "Advance a generation" once more.';
+    }
+  }
+
+  function loop(){
+    frameCt++;
+    if(frameCt%3===0){ stepGen(); }
+    var st=draw();
+    if(gen>=180){ running=false; raf=null; report(st,'done'); btn.textContent='Once more ▶'; return; }
+    report(st,'running');
+    raf=requestAnimationFrame(loop);
+  }
+  function start(){
+    if(running){ return; }
+    if(raf) cancelAnimationFrame(raf);
+    if(gen>=180 || gen===0){ initPop(); }
+    running=true; frameCt=0; btn.textContent='Evolving…';
+    raf=requestAnimationFrame(loop);
+  }
+
+  function syncLabels(){ vb.textContent=parseFloat(sb.value).toFixed(1); vs.textContent=parseFloat(ss.value).toFixed(2); }
+  sb.addEventListener('input',syncLabels);
+  ss.addEventListener('input',syncLabels);
+  btn.addEventListener('click',start);
+  window.addEventListener('resize',draw);
+  syncLabels();
+  initPop();
+  function firstDraw(){ var st=draw();
+    rd.className='readout local';
+    rd.textContent='The initial population is at the foot of the low peak (θ̄='+st.mth.toFixed(2)+'). Press "Advance a generation" to begin selection and mutation.';
+  }
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){initPop();firstDraw();});}
+  setTimeout(function(){initPop();firstDraw();},60);
+  window.addEventListener('load',function(){initPop();firstDraw();});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Is a Race to Compute Efficiently ── Learning That Clicks, Episode 9</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241d13; --ink-soft:#574a38;
+    --paper:#fbf6ee; --paper-edge:#e8dcc4;   /* Episode 1: learning / life / energy = amber paper */
+    --side:#6f4b1f; --side-bg:#f4ece0;
+    --warn:#8a4b2f;
+    --calc:#a05c12; --calc-bg:#f7edda;   /* calc color = amber */
+    --rule:#e3d6bd; --hair:#c9b48a;
+    --acc:#b06a10;    /* accent = amber */
+    --grid:#eaddc4;
+    --ok:#3d7a3a; --bad:#a83a22; --hot:#c0392b; --cold:#2a6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2dca0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c1a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e4d2ac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--acc);
+    border:none;border-radius:3px;padding:9px 18px;cursor:pointer;align-self:flex-end;}
+  .btn:hover{background:#96590c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .readout.ok{background:#eef2e6;color:#3a6030;}
+  .readout.local{background:#f6ecda;color:#8a5a12;}
+  .readout.bad{background:#f6e2dc;color:#9a3520;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  table.verdict{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.verdict th,table.verdict td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.55;}
+  table.verdict th{background:#f3e6cd;color:#7a4e10;font-weight:700;}
+  table.verdict .v-ok{color:var(--ok);font-weight:700;}
+  table.verdict .v-bad{color:var(--bad);font-weight:700;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9f2e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6a4410;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfaf4,#f2e7d1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e7cf;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4410;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8a7a5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Learning That Clicks</span><span class="ep">Episode 9 / The Landauer principle and bits per joule</span></div>
+  <p class="eyebrow">Reading evolution, learning, and consciousness through a single gradient</p>
+  <h1>Life Is a Race to Compute Efficiently
+    <span class="sub">Erase a single bit of information, and the universe charges you at least \(k_BT\ln 2\) in heat. Evaluation, selection, the firing of a neuron ── all are computation, and<br>computation demands energy. So life is exactly this: a contest over <em>how many bits of adaptation you can squeeze out of one joule</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: logarithms and exponentials, a taste of thermodynamics (\(k_BT\))</span>
+    <span>Key of this episode: \(E_{\min}=k_BT\ln 2\)</span>
+  </div>
+
+  <p class="lead">Last time, we looked at the biosphere as one enormous computer ── a GPU that has been running for billions of years. But is that computer running <em>for free</em>? No. Physics is harsher than that. <strong>Processing information always costs energy.</strong> And this cost has a <em>minimum price</em> set by the universe itself ── the Landauer principle. Erasing one bit of information dumps at least \(k_BT\ln 2\) of energy away as heat. At room temperature that is a mere \(2.9\times10^{-21}\) joules, but it is not zero. And with that, the face of life changes completely. Where to hunt for food, which genes to pass on, how to take the next step ── every one of these is "computation that measures a gradient," and because it is computation, it must pay a thermodynamic cost. Which is why natural selection has quietly judged organisms along one more axis. <strong>Whoever can squeeze more "information that matters for adaptation" out of the same one joule</strong> survives. Today we reread life as a contest in computational efficiency, using this yardstick of <em>bits per joule</em> ── information per joule.</p>
+
+  <h2><span class="n">01</span>Computation Is Not Free</h2>
+
+  <p>We tend to think of computation as an abstract event "inside the head." An equation is complete on paper; thought lies outside the laws of physics. And yet, in the mid-twentieth century, physicists stumbled onto a strange question ── <em>physically, how much does computation actually "cost"?</em> Flipping a switch, overwriting a bit, forgetting information you no longer need ── these are all physical processes within this universe. Atoms move, electrons flow, heat is generated. So there must be a price tag attached.</p>
+
+  <p>The answer came in 1961, from Rolf Landauer at IBM. What he found was the part of computation's price tag that <strong>can never be reduced to zero</strong>. No matter how cleverly you design it, no matter what future technology you use, there is a floor below which it cannot get cheaper. And its source, surprisingly, lay hidden in the operation of "erasing."</p>
+
+  <h2><span class="n">02</span>The Landauer Principle ── Forgetting Requires Heat</h2>
+
+  <p>Landauer's insight was this. The one thing in computation whose energy cost is truly unavoidable is a <em>logically irreversible operation</em> ── above all, <strong>the erasure of information</strong>. Take a bit you didn't know was 0 or 1, and crush it so that it "is guaranteed to become 0." This operation folds two possible states into one. Information decreases by one bit. And then the second law of thermodynamics demands that the entropy you just lost be expelled somewhere. The only place it can go is the surrounding heat bath ── in other words, <strong>it must be thrown out as heat</strong>. The minimum price is the following equation.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The Landauer principle (minimum energy to erase one bit)</div>
+    $$E_{\min}\;=\;k_B\,T\,\ln 2$$
+  </div>
+
+  <p>Here \(k_B=1.38\times10^{-23}\ \mathrm{J/K}\) is Boltzmann's constant, \(T\) is the absolute temperature, and \(\ln 2\approx0.693\) is the coefficient that translates "two possibilities → one," a factor-of-two count of cases, into information. The higher the temperature, and the more information you erase, the more heat you pay. Let's plug in numbers at room temperature, \(T=300\,\mathrm{K}\).</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── how much for one bit at room temperature</span>
+    <p class="lbl">(1) Compute k_B T ln2 numerically at T=300 K</p>
+    $$E_{\min}=(1.38\times10^{-23})\times 300 \times 0.693 \;\approx\; 2.9\times10^{-21}\ \mathrm{J}$$
+    <p class="lbl">Converting to electron volts (1 eV = 1.602×10⁻¹⁹ J)</p>
+    $$2.9\times10^{-21}\ \mathrm{J}\;\div\;1.602\times10^{-19}\ \mathrm{J/eV}\;\approx\;0.018\ \mathrm{eV/bit}$$
+    <p style="margin-bottom:14px;">Forgetting one bit costs, at room temperature, about \(2.9\times10^{-21}\) joules ── dizzyingly small. But it is <span style="color:var(--calc);font-weight:700;">by no means zero</span>. This is the "floor of computation." Put the other way: erase \(10^{21}\) bits and you finally reach a few joules ── enough heat to warm a glass of water just a touch. Little by little, it adds up.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">A bridge to the sister series ── Cosmology That Clicks, Episode 10</span>
+    The very same equation \(k_BT\ln 2\) also appears in <strong>"Cosmology That Clicks," Episode 10</strong> of our sister series. Its theme there is "why can we describe black holes and the whole universe in terms of information?" ── and its starting point was exactly this: <em>"erasing one bit = \(k_BT\ln 2\)."</em> That information and thermodynamics form one continuous landscape is one of the greatest discoveries of twentieth-century physics. Cosmology uses this equation at the <strong>scale of the universe</strong>; the theory of learning uses it at the <strong>scale of life</strong>. We are crossing one and the same bridge from both sides ── the universe's law that erasing information always produces heat applies equally to stars and to cells.
+  </div>
+
+  <h2><span class="n">03</span>Life Processes Information ── So It Pays the Cost</h2>
+
+  <p>Here we connect to the view that runs through this whole series. Since Episode 1 we have seen both learning and evolution as computation that "descends the slope of a loss = moves by measuring a gradient." If so, then <strong>the life that carries out that computation cannot escape Landauer's price tag</strong>. This is not an abstraction. The everyday activities of a living thing are, quite literally, physical information processing.</p>
+
+  <ul>
+    <li><strong>Evaluating</strong> ── Is this food safe? Is this rival strong? Folding sensory input into "good / bad" is computation that involves compressing information = erasure.</li>
+    <li><strong>Selecting</strong> ── Natural selection itself is a vast information process that narrows down survivors from a "bundle of candidates," the diverse individuals. The death of an individual is an operation that rewrites the information held by the population.</li>
+    <li><strong>Computing with neurons</strong> ── The firing of neurons and the weighting of synapses is, literally, electrochemical computation. And it comes with measurable energy consumption.</li>
+  </ul>
+
+  <p>And this cost is not armchair theory; it has left its mark on the design of living things. <strong>The proofreading machinery of DNA replication</strong> detects copying errors, erases them, and replaces them with the correct base ── a device that erases and rewrites information, burning extra energy (ATP) for the sake of accuracy. The same goes for <strong>the energy-thrifty design of neural spikes</strong>. In carrying information, the brain has been honed over evolution to move only the bare minimum of ions. Precisely because computation is costly, the <em>tricks for computing cheaply</em> were the ones selected.</p>
+
+  <h2><span class="n">04</span>Computational Efficiency Under Selection ── Bits per Joule</h2>
+
+  <p>Now that we have come this far, we can write down one more of natural selection's yardsticks. To survive, an organism must obtain <em>gradient information</em> about its environment ── "which way should I move to raise my fitness?" But acquiring and processing information costs energy. And energy is finite ── there's a limit to how much you can eat. So the deciding factor can be written like this.</p>
+
+  <div class="keybox">
+    <div class="lbl">The efficiency yardstick ── information per joule</div>
+    $$\eta_{\text{info}}\;=\;\frac{\text{information gained that matters for adaptation [bit]}}{\text{energy spent [J]}}\quad(\text{bits per joule})$$
+  </div>
+
+  <p>From the same amount of food (the same joules), an individual that can squeeze out more "information that matters for adaptation" can act correctly on fewer resources. That difference piles up across generations. So natural selection quietly judges not only how high your fitness is, but also <strong>at what price you computed that fitness</strong>. It is not the individual that runs fast, but the one that <em>runs the same distance on fewer calories</em>, that gets selected. The brain that can reach the same decision with less neural activity gets selected. <strong>Computational efficiency, too, is a target of selection.</strong></p>
+
+  <p>This viewpoint reminds us of the weakness of evolution strategies (ES) we saw a couple of episodes back. ES could estimate a gradient only by "letting one sample = one individual actually live, then measuring its fitness." The cost of one sample is <em>the energy of one individual's entire lifetime, and one death</em>. To gain a single bit of gradient, life burns a staggering quantity of joules. This "computation that is too expensive" is exactly the setup for next time.</p>
+
+  <h2><span class="n">05</span>Let's Run It ── Comparing the Cost to Arrive</h2>
+
+  <p>The figure below shows how many joules a strategy burns <strong>cumulatively</strong> to close in on a certain goal of adaptation (the "progress toward the goal" on the horizontal axis). The vertical axis takes cumulative energy in units of \(k_BT\), on a <em>logarithmic</em> scale (biological costs and the Landauer limit are many orders of magnitude apart, so without a log scale they wouldn't fit in one figure). It is a simple model: the "adaptive information" required to reach progress \(p\) is \(I(p)=-\log_2(1-p)\) bits, and the cost per bit differs from strategy to strategy.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: cumulative energy needed to reach the goal (90% progress). Green = an efficient strategy (brain-like computation, ~10⁶ k_BT/bit), amber = the sample-inefficient ES (varies with the slider). Gray dashed = the Landauer limit (k_BT ln2/bit, the floor of physics). The more efficient the strategy, the lower (less energy) it achieves the same arrival.</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>ES inefficiency (cost per bit)<span class="val" id="vc">1.0×10¹² k_BT/bit</span>
+        <input type="range" id="cES" min="8" max="18" step="0.1" value="12">
+      </label>
+    </div>
+    <div class="readout local" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#3d7a3a;"></i>Efficient strategy (learning-like)</span>
+      <span><i class="swatch" style="background:var(--acc);"></i>ES (evolution, sample-inefficient)</span>
+      <span><i class="swatch" style="background:#9a8a66;"></i>Landauer limit (floor)</span>
+    </div>
+  </div>
+
+  <p>Drag the slider for ES inefficiency (cost per bit) and the amber curve moves up and down. No matter how efficient you make it, <em>no curve comes anywhere near the gray floor (the Landauer limit)</em> ── this is the heart of today's verdict. At the same time, green (the efficient strategy) runs <strong>far below</strong> amber (ES). It reaches the same level of progress with orders of magnitude less energy. This "gap between green and amber" is exactly the room natural selection takes aim at, and it is the true nature of next time's theme ── <em>learning, the cheap shortcut</em>.</p>
+
+  <h2><span class="n">06</span>The Marvel of the Brain ── Far from the Limit, Yet Wildly Smart</h2>
+
+  <p>So where does the finest computer in existence ── the human brain ── operate, relative to this floor? The brain consumes roughly \(20\ \mathrm{W}\), that is, twenty joules per second. If it could spend all of that energy on "bit erasure" right at the Landauer limit, how many bits could it erase per second at most? Let's estimate.</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── the brain's Landauer ceiling, and its distance from the limit</span>
+    <p class="lbl">(2) Upper bound on bits per second if all 20 W went into erasure computation</p>
+    $$\frac{20\ \mathrm{J/s}}{2.9\times10^{-21}\ \mathrm{J/bit}}\;\approx\;6.9\times10^{21}\ \mathrm{bit/s}$$
+    <p class="lbl">Compared with the brain's actual operation count (roughly ~10¹⁶ ops/second)</p>
+    $$\frac{20\ \mathrm{J/s}}{10^{16}\ \text{ops/s}}\;=\;2\times10^{-15}\ \mathrm{J/op}\;=\;\frac{2\times10^{-15}}{4.14\times10^{-21}}\,k_BT\;\approx\;5\times10^{5}\,k_BT/\text{op}$$
+    <p style="margin-bottom:14px;">The physical floor permits an upper bound of \(6.9\times10^{21}\) bits per second. Yet the brain actually performs only about \(\sim10^{16}\) operations per second ── <span style="color:var(--calc);font-weight:700;">less than a millionth of that ceiling</span>. Turned around: per operation, the brain uses not \(k_BT\ln 2\) (= the floor for one bit) but \(10^4\) to \(10^6\) times that much energy. <span style="color:var(--bad);font-weight:700;">It sits many orders of magnitude above the Landauer limit.</span> There is no contradiction ── the fact that the ceiling is \(6.9\times10^{21}\) bit/s while actual operations stay at \(10^{16}\)/s is just another way of saying "it uses a large amount of \(k_BT\) per operation = it is far from the limit."</p>
+  </div>
+
+  <p>Even so, the brain is a marvel. That figure of \(\sim10^5\,k_BT\) per operation is often <strong>orders of magnitude better</strong> than the energy today's digital computers spend on comparable operations. As a living thing it is unbelievably energy-thrifty, while from the standpoint of the physical floor it is unbelievably wasteful ── the two are perfectly compatible. Life has not <em>saturated</em> the limit. But it has, without doubt, been honed in the direction of the limit. The proofreading machinery, the energy-thrifty neurons ── these are the marks of that honing.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>The Verdict ── Where Physics Ends and Story Begins</h2>
+
+  <p>Today we judge the established physics and the interpretation laid on top of it clearly apart. Mix them, and a beautiful story becomes a lie.</p>
+
+  <table class="verdict">
+    <tr><th>Claim</th><th>Substance</th><th>Verdict</th></tr>
+    <tr>
+      <td>Is the Landauer principle correct?</td>
+      <td>Logically irreversible erasure of one bit requires at least \(k_BT\ln 2\) of energy. Established physics, both theoretically and experimentally.</td>
+      <td class="v-ok">◯ Established</td>
+    </tr>
+    <tr>
+      <td>Is computational efficiency under selection pressure?</td>
+      <td>Metabolic costs are real, and there are marks of honed efficiency such as proofreading machinery and energy-thrifty neurons. The direction "efficiency, too, is selected for" is sound.</td>
+      <td class="v-ok">◯ Sound</td>
+    </tr>
+    <tr>
+      <td>Does life operate near the Landauer limit?</td>
+      <td>It does not. Even the brain uses \(10^4\) to \(10^6\,k_BT\) per operation, many orders of magnitude from the limit. "Saturates the limit" does not hold.</td>
+      <td class="v-bad">× Does not hold</td>
+    </tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── "efficiency is selected" and "saturates the limit" are two different things</span>
+    <p style="margin-top:0;">The Landauer principle is solid physics. And the claim about the <em>direction</em> ── that "computational efficiency is selected for" ── is sound too. Metabolic costs are real, and there are concrete examples of efficiency being selected, such as DNA proofreading and energy-thrifty neurons. Up to here, we can say it with our heads held high.</p>
+    <p style="margin-bottom:0;">But to step one pace further and declare outright that <strong>"life operates near the computational and thermodynamic optimum"</strong> is not yet established ── indeed, as we saw in the main text, organisms are <em>many orders of magnitude</em> away from the Landauer limit. So we draw the line honestly. The claim that is interesting <em>and</em> defensible is <strong>"efficiency is selected for (honed in the direction of the limit)"</strong> ── not <strong>"it saturates the limit."</strong> Not confusing these two is where integrity divides. ── And that story about "efficiency" leads straight into next time. ES (evolution) pays one lifetime and one death for a single bit of gradient. Is there no invention that computes the same gradient more cheaply? There is. It is called <em>learning</em>.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with today's equations and numbers alone)</div>
+    <ol>
+      <li>At a temperature of \(T=310\ \mathrm{K}\) (about human body temperature), what is the minimum energy \(k_BT\ln 2\) to erase one bit? How does it compare with the \(2.9\times10^{-21}\ \mathrm{J}\) at room temperature, \(300\ \mathrm{K}\)?
+        <details><summary>Show the answer</summary><div class="ans">\(E_{\min}=1.38\times10^{-23}\times310\times0.693\approx2.97\times10^{-21}\ \mathrm{J}\). That is about \(3.0\times10^{-21}\ \mathrm{J}\), a factor of \(310/300\approx1.03\) larger than at \(300\ \mathrm{K}\) ── roughly 3% more. Because it is proportional to temperature, the warmer it is, the higher the minimum cost to erase one bit.</div></details>
+      </li>
+      <li>Raising the temperature of one gram of water by one degree takes about \(4.2\ \mathrm{J}\). If you were to generate that \(4.2\ \mathrm{J}\) of heat "by bit erasure alone," how many bits at least must you erase at room temperature?
+        <details><summary>Show the answer</summary><div class="ans">\(4.2\ \mathrm{J}\div 2.9\times10^{-21}\ \mathrm{J/bit}\approx1.4\times10^{21}\ \mathrm{bit}\). Even if the floor for one bit is tiny, pile up \(10^{21}\) bits and it becomes an everyday amount of energy ── a felt sense that information erasure really is physical heat. Note too that it is close in order of magnitude to the brain's ceiling from Section 5, \(6.9\times10^{21}\ \mathrm{bit/s}\).</div></details>
+      </li>
+      <li>Suppose the brain uses about \(5\times10^{5}\,k_BT\) per operation. How many times the Landauer limit (one-bit erasure \(=\ln 2\,k_BT\approx0.69\,k_BT\)) is this? Does this number support or refute the claim that "life operates near the limit"?
+        <details><summary>Show the answer</summary><div class="ans">\(5\times10^{5}/0.69\approx7\times10^{5}\), i.e. about 700,000 times. That is 5 to 6 orders of magnitude above the limit. So the strong claim "operates near the limit" is <em>refuted</em>. What we can support is the weaker (and correct) directional claim: "efficiency has been honed in the direction of the limit."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 9 Summary</span>Life is a race to squeeze information out of a joule</h2>
+    <p>Computation is not free (STEP 01). By the Landauer principle, erasing one bit requires at least \(E_{\min}=k_BT\ln 2\), which at room temperature is \(2.9\times10^{-21}\ \mathrm{J}\approx0.018\ \mathrm{eV}\) (STEP 02, the same bridge as Episode 10 of the sister series "Cosmology That Clicks"). Evaluation, selection, and neural computation are all information processing, and life bears this cost ── DNA proofreading and energy-thrifty neurons are the marks of it (STEP 03). So selection also judges organisms along the efficiency axis of <em>bits per joule</em> (STEP 04). As the figure showed, an efficient strategy achieves the same arrival with less energy (STEP 05). The brain runs on \(20\ \mathrm{W}\); at the Landauer ceiling it should be able to erase \(6.9\times10^{21}\) bits per second, yet in reality it uses \(10^4\) to \(10^6\,k_BT\) per operation ── many orders of magnitude from the limit (STEP 06). Hence the verdict: the limit is established (◯), the direction "efficiency is selected for" is sound (◯), but saturation of the limit does not hold (×) (STEP 07).</p>
+    <p>Life does not reach the physical floor. But it has, without doubt, been descending the slope toward that floor. Next time is the story of the invention that descends that slope the most cheaply of all ── evolution pays one lifetime and one death for a single bit of gradient. A computation method orders of magnitude cheaper than that exists in this universe.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 10</span>
+    <strong>Learning is a shortcut evolution discovered.</strong> To gain a single bit of gradient, evolution strategies (ES) pay the energy of one individual's whole lifetime, and one death ── an all-too-expensive computation. What if you could test "what happens if I fail" in a model inside your head, without actually dying? What if you could squeeze a large amount of gradient information out of a single experience? That is the invention called <em>learning</em>. We dissect the overwhelmingly cheap shortcut for computing gradients that evolution took billions of years to reach.
+  </div>
+
+  <div class="foot">
+    This document is Episode 9 of the "Learning That Clicks" series, a piece of reading for high-school and university students interested in physics, mathematics, and AI. The Landauer principle (logically irreversible erasure of one bit requires at least \(E_{\min}=k_BT\ln 2\) of energy, dissipated as heat) is established physics, derived by R. Landauer in 1961; at room temperature \(T=300\ \mathrm{K}\), \(k_BT\ln 2=(1.38\times10^{-23})\times300\times0.693\approx2.9\times10^{-21}\ \mathrm{J}\approx0.018\ \mathrm{eV/bit}\) (\(k_B\) is Boltzmann's constant; 1 eV = 1.602×10⁻¹⁹ J). The estimates for the brain ── consumption \(\approx20\ \mathrm{W}\) and \(\sim10^{16}\) operations/second, roughly \(10^4\) to \(10^6\,k_BT\) per operation, and the Landauer ceiling \(20/2.9\times10^{-21}\approx6.9\times10^{21}\ \mathrm{bit/s}\) ── are all order-of-magnitude guides; the figures shift depending on how one defines a brain "operation" and how one measures power consumption. The figure in this article is an illustrative model that simplifies the required information to reach progress \(p\) as \(I(p)=-\log_2(1-p)\) bits and a strategy's cost as "a constant number of \(k_BT\) per bit"; values such as efficient strategy ~10⁶ k_BT/bit and ES 10⁸–10¹⁸ k_BT/bit are examples meant to convey the concept. The directional claim that "computational efficiency is under selection pressure (honed in the direction of the limit)" is sound, but the strong claim that "life operates near the computational and thermodynamic optimum (saturates the limit)" is not established, and organisms are in fact many orders of magnitude from the Landauer limit. This line was made explicit in the verdict table and the "honest line" in the main text. Episode 10 of the sister series "Cosmology That Clicks" treats the same \(k_BT\ln 2\) at the scale of the universe. The relationship between evolution strategies (ES) and learning is taken up head-on next time (Episode 10). ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the sliders and answers are frozen and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (on Windows, Ctrl+P). On screen, drag the "ES inefficiency" slider and the amber curve (the ES cumulative energy) moves up and down. Confirm that no matter how much you improve efficiency, it never reaches the gray floor (the Landauer limit), and that green (the efficient strategy) always runs below. "Show the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'),
+      sc=document.getElementById('cES'), vc=document.getElementById('vc'),
+      rd=document.getElementById('rd');
+  // constants
+  var kT=4.14e-21;          // k_B T at 300K [J]
+  var cFloor=Math.LN2;      // Landauer limit = ln2 [k_BT/bit] ≈0.693
+  var cEff=1e6;             // efficient strategy (brain-like) [k_BT/bit]
+  var P_TGT=0.9;            // target progress
+  // adaptive information [bit] needed to reach progress p
+  function Ip(p){ return -Math.log(1-p)/Math.LN2; }
+  // drawing range (vertical is log10(cumulative energy / k_BT))
+  var P_LO=0.03, P_HI=0.955, Y_LO=-2, Y_HI=19;
+
+  function cES(){ return Math.pow(10, parseFloat(sc.value)); }
+
+  // superscript digits
+  function sup(n){
+    var s=''+Math.abs(Math.round(n)), map={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+    var out=''; for(var i=0;i<s.length;i++) out+=map[s[i]];
+    return (n<0?'⁻':'')+out;
+  }
+  // scientific notation m×10^e
+  function sci(x,dig){
+    if(!isFinite(x)||x<=0) return '0';
+    var e=Math.floor(Math.log10(x)), m=x/Math.pow(10,e);
+    if(m>=9.9995){m/=10;e++;}
+    return m.toFixed(dig)+'×10'+sup(e);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, padL=54, padB=42, padT=16;
+    function X(p){return padL+(p-P_LO)/(P_HI-P_LO)*(w-padL-14);}
+    function Y(lv){return (h-padB)-(lv-Y_LO)/(Y_HI-Y_LO)*(h-padB-padT);}
+    ctx.clearRect(0,0,w,h);
+    // horizontal grid (powers of 10)
+    ctx.font='9px sans-serif';
+    var ticks=[0,3,6,9,12,15,18];
+    for(var t=0;t<ticks.length;t++){
+      var y=Y(ticks[t]);
+      ctx.strokeStyle='#efe4cd';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-8,y);ctx.stroke();
+      ctx.fillStyle='#bda877';ctx.fillText('10'+sup(ticks[t]),6,y+3);
+    }
+    // shared function to draw a curve
+    function curve(c,color,width,dash){
+      ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash||[]);
+      ctx.beginPath();var f=true;
+      for(var i=0;i<=220;i++){
+        var p=P_LO+(P_HI-P_LO)*i/220;
+        var e=c*Ip(p); if(e<=0) continue;
+        var lv=Math.log10(e); if(lv<Y_LO) lv=Y_LO;
+        var x=X(p),y=Y(lv);
+        if(f){ctx.moveTo(x,y);f=false;}else ctx.lineTo(x,y);
+      }
+      ctx.stroke();ctx.setLineDash([]);
+    }
+    // Landauer floor (gray, dashed) / efficient strategy (green) / ES (amber)
+    curve(cFloor,'#9a8a66',2.0,[6,4]);
+    curve(cEff,'#3d7a3a',2.4);
+    curve(cES(),'#b06a10',2.8);
+    // vertical line at target progress
+    var xt=X(P_TGT);
+    ctx.strokeStyle='#c9b48a';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(xt,padT);ctx.lineTo(xt,h-padB);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#8a7a5a';ctx.font='10px sans-serif';ctx.fillText('goal 90%',xt-26,padT+10);
+    // arrival markers at the target
+    function mark(c,color){var e=c*Ip(P_TGT);var lv=Math.log10(e);var x=X(P_TGT),y=Y(lv);
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,4,0,7);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();}
+    mark(cFloor,'#9a8a66');mark(cEff,'#3d7a3a');mark(cES(),'#b06a10');
+    // axis labels
+    ctx.fillStyle='#6b5a38';ctx.font='12px sans-serif';
+    ctx.fillText('progress p (toward the goal of adaptation) →', w-260, h-padB+26);
+    ctx.save();ctx.translate(16,h/2+80);ctx.rotate(-Math.PI/2);ctx.fillText('cumulative energy (k_BT, log)',0,0);ctx.restore();
+  }
+
+  function report(){
+    var It=Ip(P_TGT);                    // ≈3.322 bit
+    var c=cES();
+    var E_ES_kT=c*It,      E_ES_J=E_ES_kT*kT;
+    var E_ef_kT=cEff*It,   E_ef_J=E_ef_kT*kT;
+    var E_fl_kT=cFloor*It, E_fl_J=E_fl_kT*kT;
+    var ratioES=c/cFloor, ratioEf=cEff/cFloor;
+    rd.className='readout local';
+    rd.innerHTML='Information needed to reach 90% progress ≈ 3.32 bit.'+
+      '<br>ES: about '+sci(E_ES_J,1)+' J ('+sci(E_ES_kT,1)+' k_BT) = about '+sci(ratioES,1)+'× the Landauer limit.'+
+      '<br>Efficient strategy: about '+sci(E_ef_J,1)+' J (about '+sci(ratioEf,1)+'× the limit) for the same arrival ── orders of magnitude cheaper than ES.'+
+      '<br>The physical floor (Landauer limit): about '+sci(E_fl_J,1)+' J. Whatever the strategy, life sits many orders of magnitude above the floor.';
+  }
+
+  function syncLabel(){ vc.textContent=sci(cES(),1)+' k_BT/bit'; }
+
+  sc.addEventListener('input',function(){ syncLabel(); draw(); report(); });
+  window.addEventListener('resize',draw);
+  syncLabel(); report();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){draw();});}
+  setTimeout(draw,60);
+  window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

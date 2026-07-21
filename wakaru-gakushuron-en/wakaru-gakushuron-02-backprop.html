@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backpropagation Is the Ledger of the Chain Rule ── Learning That Clicks, Episode 2</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241d13; --ink-soft:#574a38;
+    --paper:#fbf6ee; --paper-edge:#e8dcc4;   /* Episode 1: learning, life, energy = amber paper */
+    --side:#6f4b1f; --side-bg:#f4ece0;
+    --warn:#8a4b2f;
+    --calc:#a05c12; --calc-bg:#f7edda;   /* calculation color = amber */
+    --rule:#e3d6bd; --hair:#c9b48a;
+    --acc:#b06a10;    /* accent = amber */
+    --grid:#eaddc4;
+    --ok:#3d7a3a; --bad:#a83a22; --hot:#c0392b; --cold:#2a6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2dca0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c1a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e4d2ac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf4;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--acc);
+    border:none;border-radius:3px;padding:9px 18px;cursor:pointer;align-self:flex-end;}
+  .btn:hover{background:#96590c;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;}
+  .readout.ok{background:#eef2e6;color:#3a6030;}
+  .readout.local{background:#f6ecda;color:#8a5a12;}
+  .readout.bad{background:#f6e2dc;color:#9a3520;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfbf6;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  table.verdict{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.verdict th,table.verdict td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.55;}
+  table.verdict th{background:#f3e6cd;color:#7a4e10;font-weight:700;}
+  table.verdict .v-ok{color:var(--ok);font-weight:700;}
+  table.verdict .v-bad{color:var(--bad);font-weight:700;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f9f2e3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6a4410;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfaf4,#f2e7d1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3e7cf;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#6a4410;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:23pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8a7a5a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Learning That Clicks</span><span class="ep">Episode 2 ／ Backpropagation ── the ledger that builds the gradient automatically</span></div>
+  <p class="eyebrow">Evolution, learning, and consciousness, read through a single gradient</p>
+  <h1>Backpropagation Is<br>the Ledger of the Chain Rule
+    <span class="sub">In Episode 1 we treated the gradient \(\nabla L\) as something already in hand. How does a neural network compute it automatically?<br>The answer is the derivative of a composite function ── the chain rule ── run <em>backward</em>, from output to input, by a diligent bookkeeper.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's gradient descent, the derivative of a composite function (the chain rule)</span>
+    <span>Key to this episode: \(\dfrac{dL}{d\theta}=\dfrac{dL}{dh}\dfrac{dh}{d\theta}\)</span>
+  </div>
+
+  <p class="lead">Last time, we distilled learning into a single equation ── \(\theta\leftarrow\theta-\eta\,\nabla L\). Nudge the parameters a little in the direction opposite the gradient. Walk downhill. But that equation smuggled in a quiet <em>assumption</em>: <strong>the gradient \(\nabla L\) is already in hand</strong>. So who computes that \(\nabla L\)? In a neural network with a hundred million weights, how do you obtain, for all hundred million, "how much does the loss change if I move each weight"? Done naively, this computation is hopelessly expensive ── yet there is a trick that dispatches the whole thing <em>for roughly the same cost as a single forward pass</em>. That is <strong>backpropagation (backprop, BP)</strong>. Its true nature is no magic: it is nothing but the derivative of a composite function you learned in high school ── the <strong>chain rule</strong> ── carried backward from output to input by a meticulous bookkeeper. Today we open that ledger one page at a time and watch, with our own hands, the moment \(\nabla L\) is born.</p>
+
+  <h2><span class="n">01</span>Last episode's homework ── where does ∇L come from?</h2>
+
+  <p>To run the update rule \(\theta\leftarrow\theta-\eta\,\nabla L\), you need every component of the gradient \(\nabla L=\big(\partial L/\partial\theta_1,\dots,\partial L/\partial\theta_n\big)\). The most naive approach is to do exactly what the definition says: poke each knob a little. Move parameter \(\theta_i\) by \(\varepsilon\) and divide by the change in the loss ── the so-called <strong>finite difference</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">The naive method (finite difference) ── correct, but expensive</div>
+    $$\frac{\partial L}{\partial \theta_i}\;\approx\;\frac{L(\theta+\varepsilon e_i)-L(\theta)}{\varepsilon}$$
+  </div>
+
+  <p>This equation is correct. But to obtain <em>one</em> \(\partial L/\partial\theta_i\), you have to compute \(L(\theta+\varepsilon e_i)\), the loss with only \(\theta_i\) shifted ── that is, you must run the entire network once (one forward pass). The gradient has \(n\) components. So naively that means <strong>\(n\) forward passes</strong>. With a million weights, every single step downhill costs a million runs of the network. Learning would never finish. Backpropagation folds those \(n\) passes into <em>essentially one</em>. The key is the chain rule that follows.</p>
+
+  <h2><span class="n">02</span>The chain rule ── the derivative of a composite function is a chain of multiplications</h2>
+
+  <p>A neural network is a <strong>composite function</strong>, simple functions stacked many layers deep. "Multiply by a weight," "apply a nonlinearity," "multiply by another weight"… stacked up, and at the end it produces a loss \(L\). The derivative of a composite function obeys just one rule ── the chain rule. If the loss is a two-layer stack \(L=g(h(\theta))\), then</p>
+
+  <div class="keybox">
+    <div class="lbl">The chain rule (derivative of a composite function)</div>
+    $$\frac{dL}{d\theta}\;=\;\frac{dL}{dh}\cdot\frac{dh}{d\theta}$$
+  </div>
+
+  <p>Take "how much \(h\) moves when \(\theta\) moves (\(dh/d\theta\))" and multiply it by "how much \(L\) moves when \(h\) moves (\(dL/dh\))." You <em>multiply together</em> the sensitivities along the way. It works the same when there are more layers: for \(L=f_3(f_2(f_1(\theta)))\), you just add one factor at a time ──</p>
+
+  <div class="keybox">
+    <div class="lbl">Even with many layers, it's just a chain of products</div>
+    $$\frac{dL}{d\theta}\;=\;\frac{dL}{df_2}\cdot\frac{df_2}{df_1}\cdot\frac{df_1}{d\theta}$$
+  </div>
+
+  <p>Here lies an asymmetry that pays off later. This product gives <em>the same answer whichever end you start multiplying from</em>, but the <strong>order</strong> of multiplication changes the amount of computation. Multiplying from the input side is the forward direction; <strong>multiplying from the output side (the \(L\) side) is backpropagation</strong>. Why going backward is cheaper is a bill we settle in Section 6. First, let's run this chain on a concrete two-layer network.</p>
+
+  <h2><span class="n">03</span>The forward pass ── first, push values forward</h2>
+
+  <p>Consider the smallest possible network: one input, two weights. Input \(x\), weights \(w_1,w_2\), target \(y\). Along the way we insert one sigmoid, \(\sigma(z)=1/(1+e^{-z})\). Compute the values in order, from left to right ── this is the <strong>forward pass</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">Forward pass ── values flowing forward, from input to loss</div>
+    $$z_1=w_1 x,\quad a_1=\sigma(z_1),\quad \hat y=w_2 a_1,\quad L=\tfrac12(\hat y-y)^2$$
+  </div>
+
+  <p>First mix linearly to get \(z_1\), bend it with the nonlinearity to get \(a_1\), multiply by a weight again for the prediction \(\hat y\), then square the gap from the target to get the loss \(L\). <strong>Here is the crucial part</strong> ── in the forward pass we keep not only the answer \(L\) but <em>all the intermediate values \(z_1,\,a_1,\,\hat y\) that came out along the way</em>. These entries become the master ledger for the bookkeeping we call backpropagation. Let's record one thing in advance ── the derivative of the sigmoid. It has a very well-behaved form.</p>
+
+  <div class="aside">
+    <span class="tag">The sigmoid's derivative can be written in terms of itself</span>
+    Differentiating \(\sigma(z)=\dfrac{1}{1+e^{-z}}\) gives \(\sigma'(z)=\sigma(z)\big(1-\sigma(z)\big)\). In other words, <strong>as long as you have \(a_1=\sigma(z_1)\), already computed in the forward pass, the derivative \(\sigma'(z_1)=a_1(1-a_1)\) comes out in a single multiplication</strong>. You don't even need to recompute \(e^{-z}\) at \(z_1\) ── another dividend of "keeping the intermediate values on file."
+  </div>
+
+  <h2><span class="n">04</span>The backward pass ── the ledger that distributes the error δ backward</h2>
+
+  <p>Once the forward pass reaches \(L\), we now trace the chain rule in reverse, <strong>starting from the output side</strong>. Begin with "how much \(L\) moves when the prediction \(\hat y\) moves," then hand that sensitivity backward one layer at a time. The quantity being handed along is traditionally called \(\delta\) (delta) ── <em>the "share of blame for the loss" assigned to each node</em>.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">Backward pass ── the chain rule from the back. Distribute δ and settle each gradient</div>
+    $$\delta_{\text{out}}=\frac{\partial L}{\partial \hat y}=\hat y-y$$
+    $$\frac{\partial L}{\partial w_2}=\delta_{\text{out}}\cdot a_1,\qquad
+      \frac{\partial L}{\partial a_1}=\delta_{\text{out}}\cdot w_2$$
+    $$\frac{\partial L}{\partial z_1}=\frac{\partial L}{\partial a_1}\cdot \sigma'(z_1),\qquad
+      \frac{\partial L}{\partial w_1}=\frac{\partial L}{\partial z_1}\cdot x$$
+  </div>
+
+  <p>Each line is one link of the chain rule. Starting from the output's blame \(\delta_{\text{out}}=\hat y-y\) (exactly the amount you missed by), <strong>the right-hand term flows into the left</strong>. Since \(\hat y=w_2 a_1\), the sensitivity to \(w_2\) is \(a_1\) times, and the sensitivity to \(a_1\) is \(w_2\) times. Next, because we pass through \(a_1=\sigma(z_1)\), we multiply by \(\sigma'(z_1)\) to get the blame for \(z_1\); finally, since \(z_1=w_1 x\), we multiply by \(x\) to get the gradient for \(w_1\). Can you see that <em>the \(\delta\) once sent backward is reused at each layer</em>? This is the beauty of the "ledger": \(\partial L/\partial a_1\) is reused directly in computing \(\partial L/\partial z_1\), and \(\partial L/\partial z_1\) in turn flows into \(\partial L/\partial w_1\). Let's settle the accounts all the way through with actual numbers.</p>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── computing ∇L to the end on a 2-layer net</span>
+    <p class="lbl">Setup: x=1, y=0, w₁=0.5, w₂=0.8 (using σ(0.5)=0.6225)</p>
+    <p class="lbl">① Forward pass (values forward)</p>
+    $$z_1=w_1 x=0.5,\quad a_1=\sigma(0.5)=0.6225,\quad \hat y=w_2 a_1=0.8\times0.6225=0.4980$$
+    $$L=\tfrac12(\hat y-y)^2=\tfrac12(0.4980)^2=0.1240$$
+    <p class="lbl">② Backward pass (error δ backward)</p>
+    $$\delta_{\text{out}}=\hat y-y=0.4980$$
+    $$\frac{\partial L}{\partial w_2}=\delta_{\text{out}}\cdot a_1=0.4980\times0.6225=0.3100$$
+    $$\frac{\partial L}{\partial a_1}=\delta_{\text{out}}\cdot w_2=0.4980\times0.8=0.3984$$
+    $$\sigma'(z_1)=\sigma(0.5)\big(1-\sigma(0.5)\big)=0.6225\times0.3775=0.2350$$
+    $$\frac{\partial L}{\partial z_1}=\frac{\partial L}{\partial a_1}\cdot\sigma'(z_1)=0.3984\times0.2350=0.0936$$
+    $$\frac{\partial L}{\partial w_1}=\frac{\partial L}{\partial z_1}\cdot x=0.0936\times1=0.0936$$
+    <p style="margin-bottom:14px;">With <span style="color:var(--ok);font-weight:700;">just one round trip</span> of backpropagation, we have the gradient for every parameter, \(\nabla L=\big(\partial L/\partial w_1,\ \partial L/\partial w_2\big)=(0.0936,\ 0.3100)\). All that's left is to plug it into Episode 1's update rule \(w\leftarrow w-\eta\,\nabla L\). The weight with the larger blame, \(w_2\), moves more ── the weight that swung the loss harder gets corrected harder.</p>
+  </div>
+
+  <h2><span class="n">05</span>Try it ── flow δ through the computational graph</h2>
+
+  <p>Below is the network above, laid out as a single <strong>computational graph</strong>. The top row (amber) is the forward pass ── values flowing left to right; the bottom row (green) is the backward pass ── gradients \(\delta\) flowing right to left. The boxed \(\partial L/\partial w_1,\ \partial L/\partial w_2\) are the gradients you use directly for the update. \(x=1,\ y=0\) are fixed; move the knobs for the weights \(w_1,\ w_2\) and each value of the forward pass and each gradient of the backward pass reassemble simultaneously.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: computational graph of the 2-layer net. Top = forward pass (values forward) / bottom = backward pass (gradients δ backward). Move w₁, w₂ and ∇L is recomputed instantly. The readout shows "how L changes if you take one step down this gradient."</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Weight w₁<span class="val" id="vw1">0.50</span>
+        <input type="range" id="w1" min="-2" max="2" step="0.05" value="0.5">
+      </label>
+      <label>Weight w₂<span class="val" id="vw2">0.80</span>
+        <input type="range" id="w2" min="-2" max="2" step="0.05" value="0.8">
+      </label>
+      <button class="btn" id="reset">Reset to initial values ↺</button>
+    </div>
+    <div class="readout ok" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#c08a2a;"></i>Forward pass (values forward)</span>
+      <span><i class="swatch" style="background:#3d7a3a;"></i>Backward pass (gradients δ backward)</span>
+      <span><i class="dot" style="background:#eaf2e4;border:1px solid #3d7a3a;"></i>Gradient used for the update ∂L/∂w</span>
+    </div>
+  </div>
+
+  <p>Move things around a bit and you start to see the ledger breathe. Since we're aiming for \(y=0\), the closer \(\hat y\) is to \(0\), the smaller both \(L\) and the gradients become ── set \(w_2\) near \(0\) and \(\hat y\to0\), and the loss all but vanishes. Conversely, make \(w_1\) large and \(a_1\) gets pushed up onto the flat shoulder of the sigmoid (\(\sigma'\approx0\)), so \(\partial L/\partial w_1\) withers away ── this is the seed of the "vanishing gradient" we'll meet in a later episode. Whichever weight you touch, confirm that the bottom row's gradients are all updated at once, in <em>a single backward flow</em>.</p>
+
+  <h2><span class="n">06</span>Why it's fast ── the O(n)-vs-O(1) bookkeeping trick</h2>
+
+  <p>Here we return to Section 1's homework. Finite differences cost one forward pass per gradient component, \(n\) passes in all ── a weight of \(O(n)\), directly proportional to the number of parameters. Backpropagation, however, runs <strong>one forward pass and one backward pass</strong> and spits out all \(n\) gradients <em>together</em>. However many parameters there are, the number of round trips does not change ── measured against a single forward pass, the extra cost is essentially \(O(1)\).</p>
+
+  <div class="keybox">
+    <div class="lbl">Cost of getting the same ∇L (in units of one forward pass)</div>
+    $$\text{Finite difference:}\ \underbrace{O(n)\ \text{passes}}_{\text{proportional to # of parameters}}\qquad\text{vs}\qquad \text{Backprop:}\ \underbrace{O(1)}_{\text{all gradients in one round trip}}$$
+  </div>
+
+  <p>The reveal is the <em>direction</em> in which you multiply the chain rule (the asymmetry from Section 2). Compute the shared output-side factor \(\delta\) once, and <strong>reuse it</strong> at every layer. Once you've found \(\partial L/\partial z_1\), you can pass it straight into \(\partial L/\partial w_1\) ── had you multiplied forward, from the input side, you'd have to rebuild the sensitivity chain from scratch for every parameter, sliding right back to \(O(n)\). It is precisely because you flow backward that the intermediate \(\delta\) becomes shared property across all parameters. This is the heart of <strong>reverse-mode automatic differentiation</strong>, and backpropagation is simply its name in machine learning.</p>
+
+  <div class="aside">
+    <span class="tag">What the "ledger" metaphor really is</span>
+    In the forward pass you enter the intermediate values (\(z_1,a_1,\hat y\)) into the <em>master ledger</em>; in the backward pass you consult it while transcribing and settling each node's <em>share of blame \(\delta\)</em>, in order from the output ── it is accounting itself. That's why "no number, once computed, is ever built again." The meticulousness of allocating each portion of the loss to each weight, down to the last cent, is what gives rise to the \(O(1)\) speed.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>The verdict ── what backpropagation can and cannot do</h2>
+
+  <p>Even a powerful bookkeeper has ground rules that must hold for it to work. Let's judge honestly.</p>
+
+  <table class="verdict">
+    <tr><th>Question</th><th>Backpropagation's answer</th><th>Verdict</th></tr>
+    <tr>
+      <td>Can it produce the gradient \(\nabla L\) exactly, and cheaply?</td>
+      <td>Yes. Unlike the finite-difference approximation, it gives the <em>exact value</em> via the chain rule, for all parameters, in one round trip = \(O(1)\)</td>
+      <td class="v-ok">Can do</td>
+    </tr>
+    <tr>
+      <td>Does it work for any loss and any network?</td>
+      <td>It requires \(L\) to be differentiable and the intermediate values of the forward pass to be retained (memory and smoothness are prerequisites)</td>
+      <td class="v-bad">Requires prerequisites</td>
+    </tr>
+    <tr>
+      <td>Can it be used for evolution in nature?</td>
+      <td>No. Living things have no god to differentiate their loss ── the very machinery for flowing a chain of derivatives backward simply doesn't exist</td>
+      <td class="v-bad">Cannot</td>
+    </tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── beyond the world where you can differentiate</span>
+    <p style="margin-top:0;">Backpropagation, as reverse-mode automatic differentiation, is an <strong>established technique that delivers exact gradients cheaply</strong>. Nearly all of today's deep learning stands on top of it. But let's honestly draw two lines ── (1) it requires <strong>differentiability and retention of the computational graph</strong>. It only runs when \(L\) is smooth and you can keep the intermediate values of the forward pass on file. (2) <strong>Biological evolution has none of this</strong>. There is no device in nature to differentiate DNA, and no master ledger to record intermediate values.</p>
+    <p style="margin-bottom:0;">So in a world where you can't differentiate, how do you walk downhill? The answer is a method that <strong>descends without differentiating</strong> ── evolution strategies (ES) (Episode 4). And before that, we'll confirm that this loss landscape and biology's fitness landscape were the same picture (Episode 3). More astonishingly still, "BP that differentiates" and "ES that doesn't" turn out, in Episode 6, to be <em>mathematically the same computation</em>. The ledger we assembled today will, at that point, step back onto this stage as one of the two leads in the comparison.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode's equations)</div>
+    <ol>
+      <li>On the same 2-layer net, let \(x=1,\ y=0,\ w_1=1,\ w_2=1\). Using \(\sigma(1)=0.7311\), find \(L,\ \delta_{\text{out}},\ \partial L/\partial w_2\).
+        <details><summary>See the answer</summary><div class="ans">\(z_1=1,\ a_1=\sigma(1)=0.7311,\ \hat y=1\times0.7311=0.7311\). \(L=\tfrac12(0.7311)^2=0.2673\). \(\delta_{\text{out}}=\hat y-y=0.7311\). \(\partial L/\partial w_2=\delta_{\text{out}}\cdot a_1=0.7311\times0.7311=0.5345\).</div></details>
+      </li>
+      <li>In backpropagation, why does \(\partial L/\partial z_1=\partial L/\partial a_1\cdot\sigma'(z_1)\) pick up a \(\sigma'(z_1)\) along the way? Explain in the language of the chain rule.
+        <details><summary>See the answer</summary><div class="ans">Because \(z_1\) is a composite that affects \(L\) <em>only through</em> \(a_1=\sigma(z_1)\). By the chain rule \(\dfrac{\partial L}{\partial z_1}=\dfrac{\partial L}{\partial a_1}\dfrac{\partial a_1}{\partial z_1}\), the local sensitivity \(\partial a_1/\partial z_1=\sigma'(z_1)\) enters as the factor for that one link. This is why, on the sigmoid's shoulder (\(\sigma'\approx0\)), the gradient nearly vanishes.</div></details>
+      </li>
+      <li>On a net with \(n=1{,}000{,}000\) parameters, roughly how many forward passes' worth of effort does it take to get the gradient \(\nabla L\) once, for finite differences and for backpropagation respectively?
+        <details><summary>See the answer</summary><div class="ans">Finite differences take one forward pass per component, about \(1{,}000{,}001\) passes including the base point = \(O(n)\). Backpropagation is one forward pass + one backward pass, roughly two forward passes' worth = \(O(1)\), independent of the number of parameters. A million-fold difference. This is exactly why learning becomes practical.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 2 summary</span>∇L is born from a backward-running ledger</h2>
+    <p>The \(\nabla L\) demanded by the update rule \(\theta\leftarrow\theta-\eta\nabla L\) can be approximated by naive finite differences in \(O(n)\) forward passes (STEP 01). Because a neural network is a composite function, its derivative chains into a product via the chain rule (STEP 02). The forward pass pushes values and intermediate values forward and records them (STEP 03); the backward pass distributes the error \(\delta\) backward from the output, starting from \(\delta_{\text{out}}=\hat y-y\), settling the gradient of each layer (STEP 04; in the worked example, \(\nabla L=(0.0936,\,0.3100)\)). By multiplying the chain <em>from the back</em> and reusing the intermediate \(\delta\), all gradients are obtained exactly, in one round trip = \(O(1)\) ── this is the heart of reverse-mode automatic differentiation (STEP 06). But it presupposes differentiability and retention of intermediate values, and cannot be used for evolution (STEP 07).</p>
+    <p>To the \(\nabla L\) that was Episode 1's "assumption," we've now properly connected a supply. Next time we step away from the machine for a moment and confirm that this loss landscape is the same picture as biology's <em>fitness landscape</em>. And then, on to a way of descending that landscape without differentiating ── where, in Episode 6, we'll be reunited with today's ledger.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Coming up ── Episode 3</span>
+    <strong>The fitness landscape ── biology and machine learning were drawing the same picture.</strong> The loss landscape we've been descending was nothing but the fitness landscape drawn by population geneticist Wright over eighty years ago, flipped upside down. Peaks and valleys, mountain ranges and saddles ── we'll unfold the single scenery that evolution and learning share, and build a bridge to the question: "in a world with no god to differentiate, how has life walked downhill?"
+  </div>
+
+  <div class="foot">
+    This document is Episode 2 of the "Learning That Clicks" series, a reading piece for high-schoolers and undergraduates interested in physics, mathematics, and AI. Backpropagation applies the chain rule of composite functions \(\frac{dL}{d\theta}=\frac{dL}{dh}\frac{dh}{d\theta}\) in reverse mode, delivering the <em>exact value</em> of the gradient \(\nabla L\) for all parameters together in one forward pass + one backward pass (\(O(1)\) in units of one forward pass) ── this is an established mathematical and computational technique. It is also a known fact that gradient approximation by finite differences requires \(O(n)\) forward passes for \(n\) parameters, and that the sigmoid \(\sigma(z)=1/(1+e^{-z})\) satisfies \(\sigma'(z)=\sigma(z)(1-\sigma(z))\). The 2-layer net in this piece is a minimal model for exposition, and values such as \(\sigma(0.5)=0.6225\) are rounded to about the fourth decimal place as ballpark figures (\(\nabla L\approx(0.0936,\,0.3100)\)). That backpropagation presupposes differentiability and retention of the computational graph, that biological evolution has neither, and the mathematical equivalence with evolution strategies (ES) (Episode 6) are treated in later episodes. ── To print, use your browser's "Print" and "Save as PDF" (in the print version, the sliders and answers are frozen and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, move the weights "w₁" and "w₂" and the forward-pass values and backward-pass gradient ∇L reassemble at once, with "how L changes if you step downhill" shown in the readout. Click "See the answer" to open a solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'),
+      sw1=document.getElementById('w1'), vw1=document.getElementById('vw1'),
+      sw2=document.getElementById('w2'), vw2=document.getElementById('vw2'),
+      rd=document.getElementById('rd'), btn=document.getElementById('reset');
+  var X=1, Y=0;   // input and target are fixed
+  function sig(z){return 1/(1+Math.exp(-z));}
+  function sigp(z){var s=sig(z); return s*(1-s);}
+  // compute forward pass + backward pass together
+  function compute(w1,w2){
+    var z1=w1*X, a1=sig(z1), yhat=w2*a1, L=0.5*(yhat-Y)*(yhat-Y);
+    var dout=yhat-Y, dw2=dout*a1, da1=dout*w2, dz1=da1*sigp(z1), dw1=dz1*X;
+    return {z1:z1,a1:a1,yhat:yhat,L:L,dout:dout,dw2:dw2,da1:da1,dz1:dz1,dw1:dw1};
+  }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function arrow(ctx,x1,y1,x2,y2,color){
+    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    var a=Math.atan2(y2-y1,x2-x1);
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-9*Math.cos(a-0.4), y2-9*Math.sin(a-0.4));
+    ctx.lineTo(x2-9*Math.cos(a+0.4), y2-9*Math.sin(a+0.4));
+    ctx.closePath(); ctx.fill();
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var w1=parseFloat(sw1.value), w2=parseFloat(sw2.value), c=compute(w1,w2);
+    ctx.clearRect(0,0,w,h);
+    var top=64, bh=44, bw=72;
+    var nodes=[
+      {t:'x',  v:X.toFixed(2),      s:'input'},
+      {t:'z₁', v:c.z1.toFixed(3),   s:'= w₁·x'},
+      {t:'a₁', v:c.a1.toFixed(3),   s:'= σ(z₁)'},
+      {t:'ŷ', v:c.yhat.toFixed(3),  s:'= w₂·a₁'},
+      {t:'L',  v:c.L.toFixed(3),    s:'= ½(ŷ−y)²'}
+    ];
+    var n=5, x0=52, x1=w-52, gap=(x1-x0)/(n-1);
+    function cx(i){return x0+gap*i;}
+    var cy=top+bh/2;
+    // headings
+    ctx.textAlign='left'; ctx.font='bold 12px sans-serif';
+    ctx.fillStyle='#b06a10'; ctx.fillText('① Forward pass ── values forward  →', 14, 22);
+    ctx.fillStyle='#3d7a3a'; ctx.fillText('② Backward pass ── gradients δ backward  ←', 14, h-116);
+    // forward-pass arrows + edge labels
+    var elabs=['×w₁ ('+w1.toFixed(2)+')', 'σ', '×w₂ ('+w2.toFixed(2)+')', '½(·−y)²'];
+    ctx.textAlign='center';
+    for(var i=0;i<n-1;i++){
+      var xa=cx(i)+bw/2+2, xb=cx(i+1)-bw/2-2;
+      arrow(ctx,xa,cy,xb,cy,'#c08a2a');
+      ctx.fillStyle='#8a5a12'; ctx.font='11px sans-serif';
+      ctx.fillText(elabs[i], (cx(i)+cx(i+1))/2, top-9);
+    }
+    // nodes (rectangles)
+    for(i=0;i<n;i++){
+      var bx=cx(i)-bw/2;
+      ctx.fillStyle='#fdfbf6'; ctx.strokeStyle='#b06a10'; ctx.lineWidth=1.8;
+      ctx.fillRect(bx,top,bw,bh); ctx.strokeRect(bx,top,bw,bh);
+      ctx.fillStyle='#7a4e10'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(nodes[i].t, cx(i), top+17);
+      ctx.fillStyle='#241d13'; ctx.font='13px sans-serif';
+      ctx.fillText(nodes[i].v, cx(i), top+36);
+      ctx.fillStyle='#8a7a5a'; ctx.font='10px sans-serif';
+      ctx.fillText(nodes[i].s, cx(i), top+bh+13);
+    }
+    // backward-pass arrows (right to left)
+    var yB=h-84;
+    for(i=n-1;i>0;i--){
+      arrow(ctx, cx(i)-bw/2-2, yB, cx(i-1)+bw/2+2, yB, '#3d7a3a');
+    }
+    // gradient labels
+    ctx.textAlign='center'; ctx.font='11px sans-serif';
+    function glab(mx,txt,param,extra){
+      if(param){
+        ctx.font='bold 11px sans-serif';
+        var wt=ctx.measureText(txt).width;
+        ctx.fillStyle='#eaf2e4'; ctx.fillRect(mx-wt/2-6, yB+13, wt+12, 18);
+        ctx.strokeStyle='#3d7a3a'; ctx.lineWidth=1; ctx.strokeRect(mx-wt/2-6, yB+13, wt+12, 18);
+        ctx.fillStyle='#2f5f2c'; ctx.fillText(txt, mx, yB+26);
+        ctx.font='11px sans-serif';
+      } else {
+        ctx.fillStyle='#3d7a3a'; ctx.fillText(txt, mx, yB+26);
+      }
+      if(extra){
+        ctx.fillStyle='#6b8a5a'; ctx.font='10px sans-serif';
+        ctx.fillText(extra, mx, yB+42); ctx.font='11px sans-serif';
+      }
+    }
+    glab((cx(3)+cx(4))/2, 'δ_out='+c.dout.toFixed(3), false, null);
+    glab((cx(2)+cx(3))/2, '∂L/∂w₂='+c.dw2.toFixed(3), true, '∂L/∂a₁='+c.da1.toFixed(3));
+    glab((cx(1)+cx(2))/2, '∂L/∂z₁='+c.dz1.toFixed(3), false, null);
+    glab((cx(0)+cx(1))/2, '∂L/∂w₁='+c.dw1.toFixed(3), true, null);
+    ctx.textAlign='left';
+    report(c, w1, w2);
+  }
+  function report(c, w1, w2){
+    var eta=1.0;
+    var nw1=w1-eta*c.dw1, nw2=w2-eta*c.dw2;
+    var Lnew=compute(nw1,nw2).L, dL=Lnew-c.L;
+    if(dL<-1e-9){
+      rd.className='readout ok';
+      rd.textContent='Current loss L='+c.L.toFixed(4)+'. Descending one step with these two gradients (η=1.0: w₁←w₁−η∂L/∂w₁, w₂←w₂−η∂L/∂w₂) takes L to '+Lnew.toFixed(4)+', a decrease of '+dL.toFixed(4)+'. One round trip of backpropagation gathered the gradients for every parameter, and we walked downhill.';
+    } else if(dL>1e-9){
+      rd.className='readout local';
+      rd.textContent='Current loss L='+c.L.toFixed(4)+'. With one step at η=1.0, L went to '+Lnew.toFixed(4)+' (+'+dL.toFixed(4)+') ── it increased instead. The step size η is too large and we jumped clear over the valley. Even with the gradient pointing the right way, Episode 1\'s "learning-rate tightrope" is at work here too.';
+    } else {
+      rd.className='readout local';
+      rd.textContent='Current loss L='+c.L.toFixed(4)+'. The gradient is nearly 0, so moving one step barely changes L (a flat point where ∇L≈0). Try moving the weights to pull away from the valley.';
+    }
+  }
+  function syncLabels(){ vw1.textContent=parseFloat(sw1.value).toFixed(2); vw2.textContent=parseFloat(sw2.value).toFixed(2); }
+  sw1.addEventListener('input', function(){ syncLabels(); draw(); });
+  sw2.addEventListener('input', function(){ syncLabels(); draw(); });
+  btn.addEventListener('click', function(){ sw1.value=0.5; sw2.value=0.8; syncLabels(); draw(); });
+  window.addEventListener('resize', draw);
+  syncLabels();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){ MathJax.startup.promise.then(function(){ draw(); }); }
+  setTimeout(draw, 60);
+  window.addEventListener('load', draw);
+})();
+</script>
+</body>
+</html>
