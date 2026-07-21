@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting Hands-On — Measuring Dimension from How Things Connect | The Universe Is a Computer, Episode 4</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#16241a; --ink-soft:#46584c;
+    --paper:#f0f7f2; --paper-edge:#d5e8db;   /* green paper: growth / emergence */
+    --side:#2f5d45; --side-bg:#e6f1ea;
+    --warn:#8a4b2f;
+    --calc:#1f6b45; --calc-bg:#e4f1ea;
+    --rule:#cfe3d6; --hair:#b3d0bd;
+    --acc:#2f7d54;    /* accent = green */
+    --grid:#d8ece0;
+    --data:#2f7d54; --fit:#b06a12;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:35px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#1c2c22;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c3e6cf 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#213328;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c3ddcd;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#f8fcf9;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e4f1ea;color:#1f6b45;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef8f1;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#164a32;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefc,#eaf4ee);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 0;}
+  .nav a{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;
+    color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;
+    background:#eef8f1;font-weight:600;letter-spacing:.03em;}
+  .nav a:hover{background:#e4f1ea;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;} .nav{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6f63;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Universe Is a Computer</span><span class="ep">Episode 4 / Getting Hands-On (a toy model)</span></div>
+  <p class="eyebrow">Enough describing. This time we actually run it and watch dimension "come out"</p>
+  <h1>Measuring Dimension from How Things Connect
+    <span class="sub">Actually count the number of points \(N(r)\) reachable in \(r\) steps from the center. The slope \(D\) of \(N(r)\sim r^{D}\) is the <strong>measured dimension</strong>.<br>Dimension isn't something you declare; it was an output <em>measured from how things connect (the rule)</em> — and we confirm it right in the browser.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools: Episode 1's \(D=d\ln N/d\ln r\), Episode 2's "geometry emerges"</span>
+    <span>Measurement: count \(N(r)\) by BFS from the center</span>
+  </div>
+
+  <p class="lead">Episodes 1–3 were talk. This time we <strong>get hands-on</strong>. Pick a simple "connection rule," and the computer counts steps breadth-first from the center, and <em>the dimension of space gets measured on the spot and comes out</em>. Dimension isn't fixed in advance; it <strong>appears as a measured value from how things are connected</strong> — we watch, with a real object, the thing Episode 2 called "geometry is output."</p>
+
+  <h2><span class="n">01</span>Don't "build" space — "measure" it</h2>
+
+  <p>The way to measure dimension is exactly Episode 1's formula. Let \(N(r)\) be the <strong>number of points reachable within \(r\) steps</strong> from the center point. For a \(d\)-dimensional connection, this grows like a volume, \(N(r)\sim r^{d}\). So:</p>
+
+  <div class="calc">
+    <span class="tag">The measured dimension — Episode 1's formula, on a graph</span>
+    $$N(r)\sim r^{D}\quad\Longrightarrow\quad \boxed{\,D=\frac{d\ln N}{d\ln r}\,}$$
+    <p style="margin:10px 0 0;">Plot \(N(r)\) on log–log axes, and <strong>the slope of the straight line is the measured dimension \(D\)</strong>. It's just Episode 1's \(F=1/(Cn)^D\) read from the "quantity-increasing" side. The figure below <em>actually counts</em> this \(N(r)\) with breadth-first search (BFS) — the numbers are real measurements, no cheating.</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: pick a connection rule (chain / lattice 2D / lattice 3D / lattice 4D / tree). The computer counts \(N(r)\) by BFS from the center, plots it log–log, and outputs the <strong>slope = the measured dimension \(D\)</strong>. The gray dashed lines are reference slopes for dimensions 1, 2, 3, 4</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Connection rule<span class="val" id="vr">Lattice 4D (the cosmic target)</span>
+        <input type="range" id="sr" min="0" max="4" step="1" value="3">
+      </label>
+    </div>
+    <div class="readout" id="rd">Pick a rule with the slider and it recounts N(r) on the spot and measures the dimension.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--data);"></i>Measured N(r)</span>
+      <span><i class="swatch" style="background:var(--fit);"></i>Least-squares fit (slope = D)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">02</span>What happened — dimension came out by measurement, not declaration</h2>
+
+  <p>Switch the rule and the measured \(D\) changes: a chain gives \(\approx1\), lattice 2D gives \(\approx2\), 3D gives \(\approx3\), and <strong>4D approaches \(4\)</strong> (because the lattice is finite, the measurement comes out a bit low, and it converges to \(4\) as the lattice grows larger — this itself is the <em>discrete → continuous shrinkage</em>). Nowhere is it written "the dimension is 4" — we gave <em>only the connection rule</em>, counted \(N(r)\), and dimension came out as a measured value.</p>
+
+  <div class="keybox">
+    <div class="lbl">Only the tree fails to yield a dimension</div>
+    <p style="margin:6px 0 0;">Pick the tree and \(N(r)\) grows <strong>exponentially</strong>, and it does <em>not</em> lie on a power law \(r^D\) (on log–log it bends upward). = It has no finite dimension ("infinite-dimensional"). <strong>Not every rule yields a nice dimension</strong> — this too is an important measurement.</p>
+  </div>
+
+  <h2><span class="n">03</span>Honestly, this is half a cheat</h2>
+
+  <p>The 4 came out satisfyingly, but <strong>we put the connection rule (the lattice) in by hand</strong>. Lattice 4D embeds "dimension 4" in the wiring from the start, and we just measured it back. <em>True emergence</em> needs the wiring <strong>itself</strong> to be <strong>"grown" from local rewrite rules</strong> that carry no point information. This connects directly to Episode 2's layer 3 (the update rule = the gap).</p>
+
+  <div class="aside">
+    <span class="tag">The real recipe (Episode 2's, restated + made concrete here)</span>
+    1. Hold the state as a graph (not an array) / 2. Update with reversible local rewrites / 3. Impose a causal ordering (partial order) / 4. And <strong>measure the emergent dimension with this episode's \(D=d\ln N/d\ln r\), checking whether it flows toward \(\to4\)</strong>. In fact <strong>the Wolfram model, causal sets, and CDT</strong> do exactly this, and in CDT a 4-dimensional expanding universe <em>numerically grows</em> — though the causal condition is put in by hand, and the continuum limit is still the frontier. Guessing "the rule that grows the wiring" is the gap that remains unfilled.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">What this toy <strong>can show</strong>: (1) dimension is a <em>measured quantity</em> of connectivity, an output rather than a declaration. (2) The emergence of geometry is possible in principle. (3) If things are connected 4-dimensionally, measuring gives 4. (4) There are perfectly ordinary rules, like the tree, where <em>dimension is not defined</em>.</p>
+    <p style="margin-bottom:0;">What this toy <strong>cannot show</strong>: that the universe <em>is</em> 4-dimensional (because we put the connection in by hand). Deriving 4 dimensions + Lorentz invariance <em>from</em> local rewrite rules (= Episode 2's layer-3 gap, unfilled). The figure's \(N(r)\) is measured on a finite-size lattice, so at large \(r\) it plateaus at the boundary (that part is excluded from the fit). Nothing in this document is "solved."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable from this one page + the figure)</div>
+    <ol>
+      <li>In this demo, was dimension "declared" or "measured"? How did it come out?
+        <details><summary>See the answer</summary><div class="ans">Measured. We actually counted N(r), the "number of points reachable within r steps," by BFS from the center, and got it as the slope D = d ln N / d ln r of the log–log plot. Dimension was not set in advance.</div></details>
+      </li>
+      <li>Why does no "dimension" come out for the tree?
+        <details><summary>See the answer</summary><div class="ans">Because N(r) grows exponentially (roughly doubling each step) and does not lie on a power law r^D. On log–log it doesn't become a straight line but bends upward = it has no finite dimension (infinite-dimensional). Small-world-like connections behave the same way.</div></details>
+      </li>
+      <li>Give one thing this toy can show and one it cannot.
+        <details><summary>See the answer</summary><div class="ans">Can show: dimension is an output quantity measured from connectivity, and emergence is possible (4D connections give 4). Cannot show: that the universe is 4-dimensional (because the connection was put in by hand), and the derivation of 4 dimensions + Lorentz from local rules (= the gap).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 4 summary</span>Dimension came out, measured from how things connect</h2>
+    <p>We got hands-on. Picking a connection rule, counting \(N(r)\) by BFS from the center, and reading the log–log slope, we <strong>measured the dimension</strong> — chain 1, lattice 2D→2, 3D→3, 4D→4, and the tree diverges (no dimension). We confirmed with a real object that dimension is not a declaration but <em>a measured quantity of connectivity = an output</em>. Tangible evidence for Episode 2's "geometry emerges."</p>
+    <p>But the lattice is <strong>half a cheat</strong> that embeds dimension in the wiring. The real thing grows the wiring <em>itself</em> from local rewrite rules and checks \(D\to4\) (which the Wolfram model / causal sets / CDT actually do). <strong>Guessing that rule = Episode 2's layer-3 gap</strong>, and we don't fill it — per the code, we plant no flag.</p>
+  </div>
+
+  <div class="nav">
+    <a href="uchu-keisanki-03-hyogen.html">← Episode 3: A zoo of representations</a>
+    <a href="uchu-keisanki-index.html">To the contents</a>
+  </div>
+
+  <div class="foot">
+    This document is Episode 4 of "The Universe Is a Computer" series. The figure actually generates d-dimensional lattice graphs (chain, 2D, 3D, 4D) and a binary tree in the browser, counts "the number of vertices N(r) within distance r" by breadth-first search (BFS) from the center, and measures the slope of the log–log plot by least squares to output the emergent dimension D (all numbers are on-the-spot measurements; the boundary-saturation region is excluded from the fit). The lattice-ball volume \(N(r)\sim r^{d}\) and the binary tree's exponential growth \(N(r)\sim2^{r}\), the measurement of dimension via growth dimension / spectral dimension, and the emergence of dimension from discrete geometry in the Wolfram model, causal sets, and CDT (including the numerical emergence of a 4-dimensional de Sitter-like universe in CDT) are established mathematics / active research programs. Deriving 4 dimensions + Lorentz invariance <em>from</em> local rewrite rules is a current open problem, and this demo's lattice is a schematic that builds dimension into the wiring (= an illustration of the mechanism of emergence, not a derivation of the universe's dimension). — To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (⌘+P on Mac). On screen, picking a rule with the slider recounts N(r) on the spot, and the log–log slope = the measured dimension comes out. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sr=document.getElementById('sr'), vr=document.getElementById('vr'), rd=document.getElementById('rd');
+  var RULES=[
+    {name:'Chain (1-dimensional connection)', kind:'grid', d:1, L:401},
+    {name:'Lattice 2D',           kind:'grid', d:2, L:201},
+    {name:'Lattice 3D',           kind:'grid', d:3, L:41},
+    {name:'Lattice 4D (the cosmic target)', kind:'grid', d:4, L:31},
+    {name:'Tree',        kind:'tree', depth:12}
+  ];
+  var cache={};
+
+  function buildGrid(d,L){
+    var strides=new Array(d); strides[0]=1;
+    for(var i=1;i<d;i++) strides[i]=strides[i-1]*L;
+    var total=strides[d-1]*L;
+    var half=Math.floor(L/2), center=0;
+    for(i=0;i<d;i++) center+=half*strides[i];
+    var dist=new Int32Array(total); for(i=0;i<total;i++) dist[i]=-1;
+    dist[center]=0; var q=[center], head=0, maxR=0;
+    while(head<q.length){
+      var idx=q[head++], dc=dist[idx];
+      for(i=0;i<d;i++){
+        var c=Math.floor(idx/strides[i])%L;
+        if(c>0){ var n1=idx-strides[i]; if(dist[n1]<0){dist[n1]=dc+1; q.push(n1); if(dc+1>maxR)maxR=dc+1;} }
+        if(c<L-1){ var n2=idx+strides[i]; if(dist[n2]<0){dist[n2]=dc+1; q.push(n2); if(dc+1>maxR)maxR=dc+1;} }
+      }
+    }
+    var layer=new Array(maxR+1); for(i=0;i<=maxR;i++)layer[i]=0;
+    for(i=0;i<total;i++) if(dist[i]>=0) layer[dist[i]]++;
+    return cumFrom(layer,total,maxR);
+  }
+  function buildTree(depth){
+    var total=Math.pow(2,depth+1)-1;
+    var layer=new Array(depth+1);
+    for(var r=0;r<=depth;r++) layer[r]=Math.pow(2,r); // nodes at depth r
+    return cumFrom(layer,total,depth);
+  }
+  function cumFrom(layer,total,maxR){
+    var C=new Array(maxR+1), s=0;
+    for(var r=0;r<=maxR;r++){ s+=layer[r]; C[r]=s; }
+    return {C:C, total:total, maxR:maxR};
+  }
+  function measure(ruleIdx){
+    if(cache[ruleIdx]) return cache[ruleIdx];
+    var R=RULES[ruleIdx], res, pts=[];
+    if(R.kind==='tree'){
+      res=buildTree(R.depth);
+      var trhi=Math.min(R.depth-2,res.maxR);
+      for(var r=2;r<=trhi;r++) pts.push([Math.log(r),Math.log(res.C[r])]);
+      res.pts=pts; res.isTree=true; res.d=null; res.slope=null; res.rule=R;
+      cache[ruleIdx]=res; return res;
+    }
+    res=buildGrid(R.d,R.L);
+    // clean radius window: r < L/2 (ball never touches a face => pure r^d growth),
+    // measured on the LARGE end where the log-log slope has converged toward d.
+    var rhi=Math.min((R.L>>1)-1, res.maxR), rlo=Math.max(4, rhi>>1);
+    if(rhi<=rlo) rlo=Math.max(2, rhi-2);
+    var step=Math.max(1, Math.floor((rhi-rlo)/30));
+    for(var rr=rlo; rr<=rhi; rr+=step) pts.push([Math.log(rr), Math.log(res.C[rr])]);
+    var n=pts.length, sx=0,sy=0,sxx=0,sxy=0;
+    for(var k=0;k<n;k++){ sx+=pts[k][0]; sy+=pts[k][1]; sxx+=pts[k][0]*pts[k][0]; sxy+=pts[k][0]*pts[k][1]; }
+    res.pts=pts; res.slope=(n*sxy-sx*sy)/(n*sxx-sx*sx || 1); res.isTree=false; res.d=R.d; res.rule=R;
+    cache[ruleIdx]=res; return res;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, pad=54, padT=18, padR=18;
+    var idx=parseInt(sr.value,10), R=RULES[idx]; vr.textContent=R.name;
+    var res=measure(idx);
+    ctx.clearRect(0,0,w,h);
+    // data ranges in ln
+    var xs=res.pts.map(function(p){return p[0];}), ys=res.pts.map(function(p){return p[1];});
+    var xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
+    var ymin=0, ymax=Math.max.apply(null,ys)*1.05;
+    if(!(xmax>xmin)){xmax=xmin+1;}
+    function X(x){return pad+(x-xmin)/(xmax-xmin)*(w-pad-padR);}
+    function Y(y){return (h-pad)-(y-ymin)/(ymax-ymin)*(h-pad-padT);}
+    // grid + axis labels
+    ctx.font='11px sans-serif';
+    ctx.strokeStyle='#e0ede5';ctx.lineWidth=1;
+    for(var gx=0;gx<=5;gx++){var xv=xmin+(xmax-xmin)*gx/5;var x=X(xv);
+      ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,h-pad);ctx.stroke();
+      ctx.fillStyle='#8fae9c';ctx.fillText('r='+Math.round(Math.exp(xv)), x-12, h-pad+16);}
+    // axes
+    ctx.strokeStyle='#b3d0bd';ctx.lineWidth=1;ctx.beginPath();
+    ctx.moveTo(pad,padT);ctx.lineTo(pad,h-pad);ctx.lineTo(w-padR,h-pad);ctx.stroke();
+    ctx.fillStyle='#4a6a56';ctx.font='12px sans-serif';
+    ctx.fillText('radius r (steps, log–log) →', w-210, h-pad+30);
+    ctx.save();ctx.translate(15,h/2+40);ctx.rotate(-Math.PI/2);ctx.fillText('N(r) = number of points reached (log–log)', 0,0);ctx.restore();
+    // reference slopes 1..4 through first data point
+    if(res.pts.length){
+      var x0=res.pts[0][0], y0=res.pts[0][1];
+      var refs=[1,2,3,4];
+      ctx.setLineDash([4,4]);ctx.lineWidth=1.2;ctx.strokeStyle='#c2ddca';
+      for(var ri=0;ri<refs.length;ri++){
+        var m=refs[ri];
+        ctx.beginPath();
+        ctx.moveTo(X(x0),Y(y0));
+        var xe=xmax, ye=y0+m*(xe-x0);
+        ctx.lineTo(X(xe),Y(Math.min(ye,ymax)));
+        ctx.stroke();
+        if(y0+m*(xmax-x0)<=ymax){
+          ctx.fillStyle='#95b8a2';ctx.fillText('slope '+m, X(xmax)-40, Y(y0+m*(xmax-x0))-3);
+        }
+      }
+      ctx.setLineDash([]);
+    }
+    // fit line (skip meaningful straight fit for tree)
+    var isTree=(R.kind==='tree');
+    if(!isTree && res.pts.length){
+      var xa=res.pts[0][0], xb=res.pts[res.pts.length-1][0];
+      var ya=res.pts[0][1], m=res.slope;
+      ctx.strokeStyle='#b06a12';ctx.lineWidth=2.4;ctx.beginPath();
+      ctx.moveTo(X(xa),Y(ya));ctx.lineTo(X(xb),Y(ya+m*(xb-xa)));ctx.stroke();
+    }
+    // data points
+    ctx.fillStyle='#2f7d54';
+    for(var k=0;k<res.pts.length;k++){
+      ctx.beginPath();ctx.arc(X(res.pts[k][0]),Y(res.pts[k][1]),3.2,0,7);ctx.fill();
+    }
+    // slope annotation
+    ctx.font='bold 15px sans-serif';
+    if(isTree){
+      ctx.fillStyle='#8a4b2f';
+      ctx.fillText('measured D = diverges (exponential growth, not a power law)', X(xmin)+8, Y(ymax)+6);
+    }else{
+      ctx.fillStyle='#1f6b45';
+      ctx.fillText('measured D = '+res.slope.toFixed(2)+' (designed '+R.d+')', X(xmin)+8, Y(ymax)+6);
+    }
+    // readout
+    var msg;
+    if(isTree){
+      msg='Rule = tree: N(r) roughly doubles each step = exponential growth, not lying on r^D. On log–log it bends upward = it has no finite dimension (dimension undefined). Not "every rule yields a dimension."';
+    }else{
+      var conv = res.slope < R.d-0.05 ? ' Because the lattice is finite, it comes out a bit below the design value — the larger the lattice, the more it converges to '+R.d+' (= the discrete → continuous shrinkage).' : '';
+      msg='Rule = '+R.name+': N(r) measured by BFS → log–log slope = measured dimension D ≈ '+res.slope.toFixed(2)+' (designed '+R.d+'). Dimension came out measured from how things connect, not declared.'+conv;
+    }
+    rd.textContent=msg;
+  }
+  sr.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

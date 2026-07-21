@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Imaginary Dimension ── When Zoom Gets Notched (Opening D to Complex Numbers)</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#241a26; --ink-soft:#57495a;
+    --paper:#faf3fb; --paper-edge:#ebd9ee;   /* magenta paper: complex / oscillation */
+    --side:#6a3a70; --side-bg:#f2e7f4;
+    --warn:#9a5327;
+    --calc:#8e2f86; --calc-bg:#f5e6f4;
+    --rule:#e6d1ea; --hair:#cdaad4;
+    --acc:#a02b8c;    /* accent = magenta */
+    --grid:#eedbf1;
+    --line:#a02b8c; --ref:#cf9ad0; --osc:#1f8aa0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:36px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#2a2430;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecc8ec 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#2c2534;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e0c3de;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdf7fd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f3e6f2;color:#7a1f6c;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.dt{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  table.dt th,table.dt td{border:1px solid var(--rule);padding:9px 12px;text-align:left;line-height:1.6;}
+  table.dt th{background:var(--side-bg);color:var(--side);font-weight:700;letter-spacing:.04em;font-size:12.5px;}
+  table.dt td .d{color:var(--acc);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdf9fd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f7edf6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5c1650;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdf9fd,#f2e6f3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fig,table.dt{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6d5570;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Universe Is a Computer</span><span class="ep">Episode 8 (extended) ／ The imaginary dimension</span></div>
+  <p class="eyebrow">After the finale ── from a single question, "what happens if you make \(D\) imaginary?"</p>
+  <h1>The imaginary dimension ── when zoom gets notched
+    <span class="sub">In Episode 1 we found \(D\) is a "reading." So what happens if you <strong>open that reading to complex numbers</strong>?<br>The imaginary part does not measure "size." It measures <strong>how it repeats under zoom</strong> ── an orthogonal, separate axis.</span>
+  </h1>
+  <div class="byline">
+    <span>Core: imaginary part = your favorite zoom factor / because we are on the real side, the flow never closes</span>
+    <span>Hook equation: \(D=a+i\beta\)</span>
+  </div>
+
+  <p class="lead">Episode 1 concluded that the dimension \(D\) is not a number the world possesses, but a <strong>gauge reading on an instrument</strong>, read off via \(D=-d\ln F/d\ln n\). If it is a scale reading ── then <em>it need not be real</em>. This episode opens \(D\) straight to complex numbers. The answer is astonishingly clean: <strong>the real part is decay (the ordinary dimension), the imaginary part is oscillation (the notch of zoom)</strong>. And finally, why our world sits on the imaginary-part-zero side, and why that makes <em>the flow of mass "never close"</em> ── it all links in one line to the finale of the sister series "Mass That Clicks."</p>
+
+  <h2><span class="n">01</span>Recap ── a purely real \(D\) is a "straight slope"</h2>
+
+  <p>Setting \(x=Cn\) (size measured in units of resolution), the ruler formula becomes a single exponential:</p>
+
+  <div class="calc">
+    <span class="tag">Opening it up in logs</span>
+    $$F=\frac{1}{(Cn)^{D}}=(Cn)^{-D}=e^{-D\,\ln(Cn)}$$
+    <p style="margin:10px 0 0;">If \(D\) is real, the log-log plot (\(\ln F\) versus \(\ln n\)) is a <strong>straight line</strong>, with slope \(-D\). That is what you saw with the Episode 1 slider. A surface gives \(D=2\), a wave (line) \(D=1\), a solid \(3\). Integers are just special readings, and non-integer values could be read off too ── but they were all <em>real</em>.</p>
+  </div>
+
+  <p>Now let us push one step further. If \(D\) is a "reading," then feeding in a complex number and computing <strong>doesn't make the formula complain</strong>. Let's try it.</p>
+
+  <h2><span class="n">02</span>Opening \(D\) to complex numbers ── the real part decays, the imaginary part rotates</h2>
+
+  <p>Feed \(D=a+i\beta\) (real part \(a\), imaginary part \(\beta\)) into the exponent. By the law of exponents it splits in two:</p>
+
+  <div class="calc">
+    <span class="tag">The reveal ── one line splits the roles</span>
+    $$F=(Cn)^{-a}\cdot e^{-i\beta\ln(Cn)}
+      =\underbrace{(Cn)^{-a}}_{\text{decay}}\cdot\underbrace{\big[\cos(\beta\ln Cn)-i\,\sin(\beta\ln Cn)\big]}_{\text{rotation (oscillation)}}$$
+    <p style="margin:10px 0 0;">Just Euler's formula \(e^{-i\theta}=\cos\theta-i\sin\theta\), with \(\theta=\beta\ln(Cn)\).</p>
+  </div>
+
+  <ul style="margin:10px 0 0;padding-left:1.2em;line-height:1.9;">
+    <li><strong>Real part \(a\)</strong>: the usual dimension. The log-log slope = <em>how size grows or shrinks</em> (surface = 2, wave = 1, Cantor = 0.63…).</li>
+    <li><strong>Imaginary part \(\beta\)</strong>: the <em>frequency of oscillation</em> in \(\ln(Cn)\). Since \(|e^{-i\beta\ln Cn}|=1\), it has <strong>no effect at all</strong> on decay. It only lays <em>ripples</em> on top of the slope.</li>
+  </ul>
+
+  <p>The purest case ── the <strong>pure imaginary \(D=i\beta\)</strong> with \(a=0\) ── lays the truth bare. \(|F|=1\) always holds. <em>Nothing grows or shrinks.</em> Scale \(n\) and \(F\) just spins around the unit circle ── <strong>pure log-periodic oscillation</strong>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure 1: the complex dimension \(D=a+i\beta\). The horizontal axis is \(n\) (log). The <strong>real part \(a\)</strong> slider sets the decay of the envelope \(\pm(Cn)^{-a}\) = the ordinary dimension, and the <strong>imaginary part \(\beta\)</strong> slider sets the fineness of <em>the ripples running inside it</em>. Set \(\beta=0\) and the ripples vanish, returning to Episode 1's plain straight line (power law).</div>
+    <canvas id="cv1" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Real part a (decay = ordinary dimension)<span class="val" id="va">0.6</span>
+        <input type="range" id="sa" min="0" max="3" step="0.05" value="0.6">
+      </label>
+      <label>Imaginary part β (oscillation frequency = notch of zoom)<span class="val" id="vb">4.0</span>
+        <input type="range" id="sb" min="0" max="12" step="0.1" value="4">
+      </label>
+    </div>
+    <div class="readout" id="rd1">Move the sliders and the envelope (decay = real part) and the ripples (oscillation = imaginary part) change separately.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--line);"></i>\(\mathrm{Re}\,F=(Cn)^{-a}\cos(\beta\ln Cn)\)</span>
+      <span><i class="swatch" style="background:var(--ref);"></i>envelope \(\pm(Cn)^{-a}\) (real part a)</span>
+      <span><i class="swatch" style="background:var(--osc);"></i>notch of favorite zoom λ</span>
+    </div>
+  </div>
+
+  <h2><span class="n">03</span>Meaning ── the imaginary dimension is "a mark that zoom has been notched"</h2>
+
+  <p>Let's derive the condition for one full turn. Each time the phase \(\beta\ln(Cn)\) increases by \(2\pi\), \(F\) returns to its original value. This happens when \(n\) changes by <strong>a fixed factor</strong>:</p>
+
+  <div class="calc">
+    <span class="tag">The favorite zoom factor</span>
+    $$n\to n\cdot\lambda \ \text{makes } F \text{ return},\qquad \lambda=e^{2\pi/\beta},\qquad \beta=\frac{2\pi}{\ln\lambda}$$
+  </div>
+
+  <p>Here is the crux. A pure power law \(n^{-D}\) allows \(n\to\lambda n\) for <strong>any \(\lambda\)</strong> ── it has a <em>continuous</em> scale symmetry. But when the world has a <strong>special magnification</strong> (a branching ratio, one renormalization step, a nesting ratio), that symmetry drops to a <em>discrete</em> scale symmetry allowing only \(n\to\lambda^k n\) (integer \(k\)). That favorite factor is exactly what shows up as the imaginary part of \(D\):</p>
+
+  <div class="keybox">
+    <div class="lbl">This episode in one line</div>
+    <p style="margin:6px 0 0;"><strong>The imaginary dimension = a mark that "continuous zoom" has broken into "notched zoom."</strong> The imaginary part \(\beta\) is that notch width itself (the log of the favorite factor \(\lambda\)). Where the real part measures <em>size</em>, the imaginary part measures <em>how it repeats under zoom</em> ── an orthogonal, separate axis.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Connects to Episode 3</span>
+    In Episode 3, "the zoo of representations," we saw that continuous and discrete are one invariant read in different <em>directions</em>. The imaginary dimension is the equation-form version of that bridge ── <strong>the discreteness of scale (a favorite zoom) appears as the imaginary part of a dimension that looks continuous</strong>. Discrete or continuous is representation, but "is there a notch" becomes the <em>readable</em> difference of whether \(\beta\ne0\) or \(\beta=0\).
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>This is not a game ── the complex dimensions of the Cantor set</h2>
+
+  <p>The imaginary dimension is not a mathematical prank but <strong>real mathematics</strong>. Self-similar fractals in fact carry <em>complex dimensions</em>. Take the middle-thirds Cantor set (divide into three, discard the middle, repeat forever): its naive dimension is \(\ln2/\ln3\approx0.63\), but the complete set of dimensions is:</p>
+
+  <div class="calc">
+    <span class="tag">Complex dimensions of the Cantor set (Lapidus)</span>
+    $$D_k=\underbrace{\frac{\ln 2}{\ln 3}}_{\text{real part = dimension of size}}+\;i\,\underbrace{\frac{2\pi k}{\ln 3}}_{\text{imaginary part = imprint of zoom ratio 3}},\qquad k=0,\pm1,\pm2,\dots$$
+    <p style="margin:10px 0 0;">The real part is the <strong>familiar fractal dimension</strong>. The imaginary spacing \(2\pi/\ln3\) is the direct imprint that this set <strong>returns to itself under a 3× zoom</strong> (\(\lambda=3\)). So it is exactly the general formula <em>\(\beta=2\pi/\ln\lambda\)</em>.</p>
+  </div>
+
+  <p>As a result, measuring the "volume" of the Cantor set (properly, the Minkowski content) shows, on top of the power law, a <strong>log-periodic pulsation with period \(\ln3\)</strong>. This is a real, observable phenomenon and even has a name ── <em>discrete scale invariance (DSI)</em>. It has been observed and studied as a log-periodic precursor oscillation in rock fracture before earthquakes, prices before financial crashes, aftershock sequences, and more (Sornette et al.).</p>
+
+  <div class="fig">
+    <div class="cap">Figure 2: dimensions arrayed on the complex plane. Horizontal axis = real part (dimension of size), vertical axis = imaginary part. The <strong>number of divisions b</strong> and <strong>number kept k</strong> sliders array the complex dimensions of a self-similar fractal as points. The real part is fixed at the single value \(\ln k/\ln b\), and the imaginary part is notched like a ladder at spacing \(2\pi/\ln b\) ── that notch is the fingerprint of the zoom ratio \(b\). (\(b=3,\,k=2\) is the Cantor set.)</div>
+    <canvas id="cv2" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Divisions b (into how many parts = zoom ratio)<span class="val" id="vB">3</span>
+        <input type="range" id="sB" min="2" max="8" step="1" value="3">
+      </label>
+      <label>Kept k (how many of them to keep)<span class="val" id="vK">2</span>
+        <input type="range" id="sK" min="1" max="7" step="1" value="2">
+      </label>
+    </div>
+    <div class="readout" id="rd2">With the sliders, the real part (dimension of size) and the imaginary notch (zoom ratio) move separately.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--line);border-radius:50%;width:9px;height:9px;"></i>complex dimension \(D_k\)</span>
+      <span><i class="swatch" style="background:var(--ref);"></i>real part \(=\ln k/\ln b\) (dimension of size)</span>
+      <span><i class="swatch" style="background:var(--osc);"></i>imaginary notch \(2\pi/\ln b\)</span>
+    </div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>So why are we on the "real side"? ── and why mass never ends</h2>
+
+  <p>Here we land on the topic of mass. The dimension we observe (3 for space, 4 for spacetime) is <strong>purely real, imaginary part zero</strong>. It is the state with \(\beta=0\) in Figure 1. Which means:</p>
+
+  <div class="keybox">
+    <div class="lbl">The consequence of being on the real side</div>
+    <p style="margin:6px 0 0;"><strong>There is no closing period.</strong> Raise the scale and \(F\) never returns to the same value again. It just flows on smoothly ── this is the true nature of "the flow of mass never ends."</p>
+  </div>
+
+  <p>This is exactly Episode 4 of the sister series "Mass That Clicks." Spacetime \(D=4\) is the special dimension where couplings <strong>run only logarithmically</strong> (marginal). Log flow is the slowest and never stops on its own. Into that never-stopping flow, one scale sneaks in as an <em>integration constant</em> ── this is dimensional transmutation:</p>
+
+  <div class="calc">
+    <span class="tag">Mass wells up from a flow that never ends</span>
+    $$\Lambda = E\,e^{-1/(b\,\alpha)}\qquad(\text{the integration constant of log running gives birth to a mass scale})$$
+    <p style="margin:10px 0 0;">If there were an imaginary part = a notch of your own, the flow would close and complete itself every factor of \(\lambda\). But the real world has none. So the flow runs to the very end, and the <strong>stop (cutoff) must be given from outside</strong> ── above by \(M_{\text{Pl}}\) (Planck), below by \(\hbar H_0/c^2\) (the floor of minimum mass set by the size of the universe).</p>
+  </div>
+
+  <h3>The payout ── because it doesn't close, the "geometric mean" appears</h3>
+
+  <p>And finally it all connects cleanly. When the flow has <strong>no favorite scale</strong> (purely real, log-symmetric), the only natural scale you can build between the two ends \(m_{\text{IR}}\) and \(M_{\text{Pl}}\) is the midpoint on the log axis ── that is, the <strong>geometric mean</strong>:</p>
+
+  <div class="keybox">
+    <div class="lbl">The minimum always points to the maximum</div>
+    $$m\sim\sqrt{m_{\text{IR}}\cdot M_{\text{Pl}}}\quad(\approx\mathrm{meV})$$
+    <p style="margin:8px 0 0;">"No special factor = symmetric about the log axis = midpoint," so it becomes the geometric mean. <strong>The imaginary part being zero, so the flow never closes</strong>, is conversely the reason the two ends are joined by a geometric mean. Precisely because it doesn't close, the two ends point at each other.</p>
+  </div>
+
+  <p>Put another way ── <em>we observe with a \(D\) of imaginary part zero. So mass rides not a closed period but a flow that keeps running logarithmically, and its scale lands on the geometric mean of the two ends.</em> The story of the imaginary dimension connects in one line all the way to the finale of mass.</p>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">Introduce an imaginary dimension and \(F\) becomes <strong>complex</strong>. If \(F\) is a real observable like a force, a count, or a probability, it cannot mean anything as it stands ── what you can read is \(\mathrm{Re}\,F\) or \(|F|\), or \(F\) reinterpreted as an "amplitude." <em>What is physically observed is the log-periodic ripple riding on the power law, not the imaginary part of \(D\) itself.</em></p>
+    <p style="margin-bottom:0;">Discrete scale invariance, complex dimensions, Lapidus's theory, and log-periodic precursors are <strong>all established mathematics / phenomenology</strong>. However, log periodicity has <em>not been observed</em> in the running of the fundamental laws of particle physics (were it there, it would be evidence of a discrete scale symmetry = a notched spacetime). And "why is space exactly real 3-dimensional, with no imaginary part" is not a puzzle specific to this framework but an <em>open problem of physics as a whole</em>. We do not fill it here ── "do not say solved" is the rule of the whole series. The imaginary dimension is <strong>not</strong> "something between a surface and a wave"; the one thing that is certain is only this: it is a separate axis, orthogonal to size.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable from this sheet)</div>
+    <ol>
+      <li>For a pure imaginary \(D=i\beta\), what happens to \(|F|\)?
+        <details><summary>See the answer</summary><div class="ans">\(|F|=|(Cn)^{-i\beta}|=|e^{-i\beta\ln Cn}|=1\). Always 1. Nothing grows or shrinks; scale \(n\) and it just spins around the unit circle = pure log-periodic oscillation. Decay (size) is carried by the real part alone; the imaginary part moves only the phase = the oscillation.</div></details>
+      </li>
+      <li>What is the relation between the imaginary part \(\beta\) and the "favorite zoom factor \(\lambda\)"? What is it for the Cantor set (3× zoom)?
+        <details><summary>See the answer</summary><div class="ans">\(\lambda=e^{2\pi/\beta}\), inversely \(\beta=2\pi/\ln\lambda\), since it returns after the phase advances by \(2\pi\). For a 3× zoom (\(\lambda=3\)), \(\beta=2\pi/\ln3\approx5.71\). It is the mark of a continuous scale symmetry having dropped to a discrete scale symmetry of factor 3.</div></details>
+      </li>
+      <li>"We observe with a real dimension, so the flow of mass never ends" ── what does this mean, and what does it not mean?
+        <details><summary>See the answer</summary><div class="ans">It means: with no imaginary part = no closing period, the running of couplings across scale does not stop on its own and keeps flowing logarithmically. So the stops (\(M_{\text{Pl}}\), \(\hbar H_0/c^2\)) are given from outside, and the scale between lands on the log midpoint = the geometric mean \(\sqrt{m_{\text{IR}}M_{\text{Pl}}}\). It does not mean: that the value of mass is infinite (the value is finite and definite). What never ends is the <em>flow</em>, not the <em>value</em>. Nor does it link directly to "because space is 3-dimensional" ── what matters is the separate thread that spacetime's 4 dimensions are the critical dimension of log running.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Summary</span>The imaginary part is "the notch of zoom"; because the real part is nonzero, the flow never closes</h2>
+    <p>Because the dimension \(D\) is a reading, it can be opened to complex numbers. Feed in \(D=a+i\beta\) and \(F=(Cn)^{-a}[\cos(\beta\ln Cn)-i\sin(\beta\ln Cn)]\) ── <strong>the real part \(a\) is decay (the ordinary dimension of size), the imaginary part \(\beta\) is log-periodic oscillation</strong>. The imaginary part is not "between a surface and a wave" but an orthogonal axis measuring <em>how it repeats under zoom</em>, with \(\beta=2\pi/\ln\lambda\) = the notch of a favorite factor \(\lambda\). It is the mark of a continuous scale symmetry broken into a discrete one, and it exists in reality as the complex dimensions of the Cantor set and as log-periodic precursors (DSI).</p>
+    <p>We are on the <strong>real side with imaginary part zero</strong> ── so there is no closing period, mass keeps running logarithmically (dimensional transmutation \(\Lambda=Ee^{-1/b\alpha}\)), the stops come from outside (\(M_{\text{Pl}}\), \(\hbar H_0/c^2\)), and the scale between lands on the <strong>log midpoint = the geometric mean \(\sqrt{m_{\text{IR}}M_{\text{Pl}}}\approx\mathrm{meV}\)</strong>. Precisely because it doesn't close, the minimum points to the maximum. The remaining "why real 3 dimensions" is a hole of physics as a whole ── we leave it honestly open.</p>
+  </div>
+
+  <div class="no-print" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 0;">
+    <a href="uchu-keisanki-07-shirushi.html" style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:13px;color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;background:#f7edf6;font-weight:600;letter-spacing:.03em;">← Finale: not a flag, but a marker</a>
+    <a href="uchu-keisanki-09-bibun.html" style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:13px;color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;background:#f7edf6;font-weight:600;letter-spacing:.03em;">Episode 9: The equations of information and the equations of physics →</a>
+  </div>
+
+  <div class="foot">
+    This document is Episode 8 (extended, a summary of a conversation, honest version) of the series "The Universe Is a Computer." Euler's formula \(e^{-i\theta}=\cos\theta-i\sin\theta\), the decomposition of the complex exponent \((Cn)^{-(a+i\beta)}\), discrete scale invariance (DSI) and log-periodic oscillation, the complex dimensions of fractals (M. Lapidus's theory of complex dimensions, with \(D_k=\ln2/\ln3+i\,2\pi k/\ln3\) as poles of the geometric zeta function), the phenomenology of log-periodic precursors (D. Sornette et al.'s work on fracture, earthquakes, and finance), logarithmic running of couplings in 4-dimensional spacetime and dimensional transmutation \(\Lambda=Ee^{-1/b\alpha}\), and the geometric mean \(\mathrm{meV}\sim\sqrt{m_{\text{IR}}M_{\text{Pl}}}\) based on the CKN bound are all established mathematics / physics, or content honestly delineated in the sister series "Mass That Clicks." \(F=1/(Cn)^D\) is a rewriting of the defining relation of dimension, \(D=-d\ln F/d\ln n\), and opening \(D\) to complex numbers is mathematically consistent, but log periodicity (an imaginary part) has not been observed in the running of the fundamental laws. "Why is space real 3-dimensional with no imaginary part" is an open problem today. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the sliders and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (⌘+P on Mac). On screen, in Figure 1 the real part = decay and imaginary part = ripples move separately, and in Figure 2 the complex dimensions array like a ladder. Click "See the answer" to reveal each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  /* ---------- Figure 1: complex dimension D=a+iβ, plot Re F on a log x-axis ---------- */
+  var cv1=document.getElementById('cv1'),
+      sa=document.getElementById('sa'), va=document.getElementById('va'),
+      sb=document.getElementById('sb'), vb=document.getElementById('vb'),
+      rd1=document.getElementById('rd1');
+  var UMAX=6; // ln(Cn) 0..6  (Cn ≈ 1..403)
+  function draw1(){
+    var d=setupHiDPI(cv1), ctx=d.ctx, w=d.w, h=d.h, padL=48, padR=16, padT=14, padB=34;
+    var a=parseFloat(sa.value), b=parseFloat(sb.value);
+    va.textContent=a.toFixed(2); vb.textContent=b.toFixed(1);
+    var x0=padL, x1=w-padR, ymid=(padT+(h-padB))/2, yamp=(h-padB-padT)/2*0.94;
+    ctx.clearRect(0,0,w,h);
+    function X(u){return x0+(u/UMAX)*(x1-x0);}
+    function Y(v){return ymid - v*yamp;}   // v in [-1,1]
+    // grid: vertical lines at Cn = 1,2,4,...,256 (ln steps)
+    ctx.font='11px sans-serif';
+    var marks=[1,2,4,8,16,32,64,128,256];
+    for(var i=0;i<marks.length;i++){
+      var u=Math.log(marks[i]); if(u>UMAX+0.01) continue;
+      var x=X(u);
+      ctx.strokeStyle='#f0e2f2';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,h-padB);ctx.stroke();
+      ctx.fillStyle='#b48fb8';ctx.fillText(String(marks[i]), x-6, h-padB+16);
+    }
+    // preferred-zoom ticks (osc): u = m*2π/β  (each = one full ripple / λ multiply)
+    if(b>0.001){
+      var per=2*Math.PI/b;
+      ctx.strokeStyle='#8fd0dc';ctx.lineWidth=1.2;ctx.setLineDash([3,4]);
+      for(var m=1;m*per<=UMAX+1e-6;m++){
+        var xx=X(m*per);
+        ctx.beginPath();ctx.moveTo(xx,padT);ctx.lineTo(xx,h-padB);ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+    // zero axis
+    ctx.strokeStyle='#d8c4dc';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,Y(0));ctx.lineTo(x1,Y(0));ctx.stroke();
+    // envelope ±(Cn)^{-a}
+    ctx.strokeStyle='#cf9ad0';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+    var s;
+    ctx.beginPath();for(s=0;s<=240;s++){var u2=UMAX*s/240;var e=Math.exp(-a*u2);ctx.lineTo(X(u2),Y(e));}ctx.stroke();
+    ctx.beginPath();for(s=0;s<=240;s++){var u3=UMAX*s/240;var e2=Math.exp(-a*u3);ctx.lineTo(X(u3),Y(-e2));}ctx.stroke();
+    ctx.setLineDash([]);
+    // main curve Re F = e^{-a u} cos(β u)
+    ctx.strokeStyle='#a02b8c';ctx.lineWidth=2.6;ctx.beginPath();
+    for(s=0;s<=680;s++){var u=UMAX*s/680; var y=Math.exp(-a*u)*Math.cos(b*u); ctx.lineTo(X(u),Y(y));}
+    ctx.stroke();
+    // axes labels
+    ctx.fillStyle='#6d5570';ctx.font='12px sans-serif';
+    ctx.fillText('size n (log scale) →', x1-150, h-padB+30);
+    ctx.save();ctx.translate(15,ymid+34);ctx.rotate(-Math.PI/2);ctx.fillText('Re F (real part)', 0,0);ctx.restore();
+    // readout
+    if(b<0.05){
+      rd1.textContent='Imaginary part β = 0: just a power law (a decaying straight line seen via Re). No closing period ── however high you raise n, it never returns to the same value. The real-side world.';
+    }else{
+      var lam=Math.exp(2*Math.PI/b);
+      rd1.textContent='Real part a = '+a.toFixed(2)+' (envelope decay = ordinary dimension) / imaginary part β = '+b.toFixed(1)
+        +' → favorite zoom λ = e^(2π/β) ≈ '+ (lam>=1000? lam.toExponential(2): lam.toFixed(2))
+        +' (multiply n by λ and it returns to the same phase = spacing of the dashed vertical lines). The oscillation does not change size, it only notches the phase.';
+    }
+  }
+  sa.addEventListener('input',draw1); sb.addEventListener('input',draw1);
+
+  /* ---------- Figure 2: dimensions arrayed on the complex plane D_k = lnk/lnb + i·(2πk/lnb) ---------- */
+  var cv2=document.getElementById('cv2'),
+      sB=document.getElementById('sB'), vB=document.getElementById('vB'),
+      sK=document.getElementById('sK'), vK=document.getElementById('vK'),
+      rd2=document.getElementById('rd2');
+  function draw2(){
+    var B=parseInt(sB.value,10);
+    var K=parseInt(sK.value,10);
+    if(K>=B){ K=B-1; sK.value=K; }        // kept < divisions
+    if(K<1){ K=1; sK.value=1; }
+    vB.textContent=B; vK.textContent=K;
+    var d=setupHiDPI(cv2), ctx=d.ctx, w=d.w, h=d.h, padL=54, padR=120, padT=18, padB=36;
+    ctx.clearRect(0,0,w,h);
+    var Dre=Math.log(K)/Math.log(B);      // real part
+    var p=2*Math.PI/Math.log(B);          // imaginary spacing
+    var MMAX=3;                           // draw k=-3..3
+    var reMax=1.35;                       // Re axis 0..1.35
+    var imMax=(MMAX+0.6)*p;               // Im axis symmetric
+    function X(re){return padL+(re/reMax)*(w-padL-padR);}
+    function Y(im){return (padT+(h-padB))/2 - (im/imMax)*((h-padB-padT)/2);}
+    // axes
+    ctx.strokeStyle='#d8c4dc';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(X(0),padT);ctx.lineTo(X(0),h-padB);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(X(0),Y(0));ctx.lineTo(w-padR+30,Y(0));ctx.stroke();
+    // Re axis ticks
+    ctx.font='11px sans-serif';ctx.fillStyle='#b48fb8';
+    for(var t=0;t<=1.2;t+=0.2){ var x=X(t); ctx.strokeStyle='#f0e2f2';ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,h-padB);ctx.stroke();
+      ctx.fillStyle='#b48fb8';ctx.fillText(t.toFixed(1), x-8, h-padB+16); }
+    // real-part vertical marker
+    ctx.strokeStyle='#cf9ad0';ctx.lineWidth=1.6;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(X(Dre),padT);ctx.lineTo(X(Dre),h-padB);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#a4489f';ctx.font='bold 12px sans-serif';
+    ctx.fillText('real part = ln k / ln b = '+Dre.toFixed(3), X(Dre)+6, padT+14);
+    // spacing bracket (between k=1 and k=2) on the right side
+    ctx.strokeStyle='#1f8aa0';ctx.lineWidth=1.4;
+    var bx=X(Dre)+40;
+    if(bx>w-padR-6) bx=X(Dre)+40;
+    ctx.beginPath();ctx.moveTo(bx,Y(0));ctx.lineTo(bx,Y(p));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx-4,Y(0));ctx.lineTo(bx+4,Y(0));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx-4,Y(p));ctx.lineTo(bx+4,Y(p));ctx.stroke();
+    ctx.fillStyle='#166f82';ctx.font='11px sans-serif';
+    ctx.fillText('notch 2π/ln b', bx+7, Y(p/2)+4);
+    ctx.fillText('= '+p.toFixed(2), bx+7, Y(p/2)+18);
+    // dots
+    for(var k=-MMAX;k<=MMAX;k++){
+      var im=k*p, x=X(Dre), y=Y(im);
+      ctx.fillStyle = (k===0)? '#7a1f6c' : '#a02b8c';
+      ctx.beginPath();ctx.arc(x,y,(k===0?6:5),0,7);ctx.fill();
+      ctx.fillStyle='#8a5a86';ctx.font='11px sans-serif';
+      ctx.fillText('k='+k, x-40, y+4);
+    }
+    // axis labels
+    ctx.fillStyle='#6d5570';ctx.font='12px sans-serif';
+    ctx.fillText('real part (dimension of size) →', w-padR-70, h-padB+30);
+    ctx.save();ctx.translate(16,(padT+(h-padB))/2+34);ctx.rotate(-Math.PI/2);ctx.fillText('imaginary part (notch of zoom)', 0,0);ctx.restore();
+    // readout
+    var lam=B;
+    var name = (B===3&&K===2)? '= the middle-thirds Cantor set' : '';
+    rd2.textContent='Divide into b='+B+' and keep k='+K+' '+name+'. The real part (dimension of size) = ln'+K+'/ln'+B+' = '+Dre.toFixed(3)
+      +' is fixed at one point. The imaginary part is a ladder at spacing 2π/ln'+B+' = '+p.toFixed(2)+'. This notch is the fingerprint of the zoom ratio '+lam+'.';
+  }
+  sB.addEventListener('input',draw2); sK.addEventListener('input',draw2);
+
+  window.addEventListener('resize',function(){draw1();draw2();});
+  function boot(){draw1();draw2();}
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(boot);}
+  setTimeout(boot,60); window.addEventListener('load',boot);
+})();
+</script>
+</body>
+</html>

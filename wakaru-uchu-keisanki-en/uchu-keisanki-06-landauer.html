@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Only Erasing Has a Cost ── Landauer and Reversible Computing ｜ The Universe Is a Computer, Episode 6</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#141c26; --ink-soft:#465468;
+    --paper:#eef3fa; --paper-edge:#d3e0f0;   /* blue paper: energy / heat */
+    --side:#2c4a72; --side-bg:#e6eef7;
+    --warn:#8a4b2f;
+    --calc:#1f5590; --calc-bg:#e6eef7;
+    --rule:#cdddef; --hair:#aecae6;
+    --acc:#2f6fb0;    /* accent = blue */
+    --grid:#dbe7f5;
+    --b1:#c0603a; --b0:#2f6fb0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:34px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#1a2430;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bcd6ef 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1f3149;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c6d8ee;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#f7fafe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e6eef7;color:#1f5590;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:12px;height:12px;border-radius:50%;display:inline-block;}
+
+  table.dt{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.dt th,table.dt td{border:1px solid var(--rule);padding:9px 12px;text-align:left;line-height:1.6;vertical-align:top;}
+  table.dt th{background:var(--side-bg);color:var(--side);font-weight:700;letter-spacing:.04em;font-size:12.5px;}
+  table.dt td .g{color:var(--acc);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef4fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c476f;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfdff,#e9f0f8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 0;}
+  .nav a{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;
+    color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;
+    background:#eef4fb;font-weight:600;letter-spacing:.03em;}
+  .nav a:hover{background:#e6eef7;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fig,table.dt{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;} .nav{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:24px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5a6678;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Universe Is a Computer</span><span class="ep">Episode 6 ／ Landauer and Reversible Computing</span></div>
+  <p class="eyebrow">Where information and physics touch at a single number</p>
+  <h1>Only erasing has a cost
+    <span class="sub">Computation itself can, in principle, be <strong>free</strong>. Heat is generated only when you <em>discard (erase) information</em>.<br>The minimum cost is \(kT\ln 2\) ── the "information = physics" of Episode 3 becomes, here, one number you can measure.</span>
+  </h1>
+  <div class="byline">
+    <span>Callbacks: Episode 3 (the information = physics duality), Episode 2 (the universe is reversible)</span>
+    <span>Hook equation: \(E_{\min}=kT\ln 2\)</span>
+  </div>
+
+  <p class="lead">In Episode 3 we said, "information and physics are just two directions for reading one invariant." That may have sounded abstract. This time is the scene where it becomes <strong>something you can touch as a concrete number</strong> ── <em>erase one bit and you release at least \(kT\ln2\) of heat</em> (Landauer's principle, confirmed by experiment). And <strong>computation itself can be free</strong> (reversible computing). The cost was tied not to computing, but to <em>discarding information</em>.</p>
+
+  <h2><span class="n">01</span>Erase information and heat comes out ── Landauer's principle</h2>
+
+  <div class="calc">
+    <span class="tag">Minimum cost of erasing one bit</span>
+    $$E_{\min}=kT\ln 2\;\approx\;2.9\times10^{-21}\,\text{J}\;\approx\;0.018\,\text{eV}\quad(\text{room temperature})$$
+    <p style="margin:10px 0 0;">Why "erasure"? ── A <em>logically irreversible</em> operation (erase, overwrite, AND) <strong>merges distinct states into one</strong>. Phase space (the number of possible states) shrinks. By the second law, that shrinkage must be <strong>paid off as heat to the environment</strong>. For one bit (2 states → 1 state), that is \(k\ln2\) of entropy, or \(kT\ln2\) as heat. Tiny, but a floor that is <strong>not zero</strong>.</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: the heat of bit erasure. A bit sits in a double well, left (= 1) or right (= 0). Advance the erasure protocol with the slider and it <strong>lowers the barrier and tilts</strong>, gathering both states into the right (= 0). By the amount the <em>state count drops 2 → 1</em>, the heat meter on the right fills to \(kT\ln2\).</div>
+    <canvas id="cv" width="680" height="320"></canvas>
+    <div class="controls">
+      <label>Progress of the erasure protocol<span class="val" id="vp">0%</span>
+        <input type="range" id="sp" min="0" max="100" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">Advance the slider and the two states merge into one, dissipating heat up to kT ln2.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--b1);"></i>bit = 1 (left)</span>
+      <span><i class="swatch" style="background:var(--b0);"></i>bit = 0 (right)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">02</span>Computation itself is free ── reversible computing (Bennett)</h2>
+
+  <p>Conversely, an operation that does <strong>not</strong> merge states has no such floor. <em>Reversible gates</em> (NOT, CNOT, Toffoli, Fredkin) throw nothing away and map one-to-one, so in principle they are <strong>zero-cost</strong>. Keep the intermediate "garbage" around and, at the end, run it backwards (uncompute) so you fold it up without erasing ── then any computation can be made reversible (Bennett).</p>
+
+  <div class="keybox">
+    <div class="lbl">Where the cost lives</div>
+    <p style="margin:6px 0 0;">What eats energy is <strong>not "computing" but "erasing" (logical irreversibility)</strong>. Computation can, in principle, be free. Heat is generated <em>only at the moment you discard information</em>.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The touch point of information = physics ── the payoff from Episode 3</h2>
+
+  <p>Here Episode 3 gets cashed out. <strong>Maxwell's demon</strong>: sort molecules using information and you seem to break the second law for free. The answer to a long-standing puzzle ── <em>eventually the demon must erase its memory and reset, and at that moment it pays \(kT\ln2\) per bit</em> (Bennett, Landauer). The payment always cancels the gain, and the law holds.</p>
+
+  <div class="aside">
+    <span class="tag">Episode 3 becomes one number</span>
+    This is a mechanistic proof that <strong>the Shannon entropy (information) and the thermodynamic entropy (physics) are one and the same</strong>. The invariant we spoke of in Episode 3 ── "from the information side / from the physics side = directions of reading, same invariant" ── shows its face here as <strong>a single measurable number, \(kT\ln2\)</strong>. The demon's "information" and "heat" balance in the same currency.
+  </div>
+
+  <h2><span class="n">04</span>What it means for the universe ── payoff from Episode 2 and the reveal</h2>
+
+  <p>In Episode 2, the pass condition was that the universe-as-computer is <strong>reversible / unitary</strong>. Reversible = never erasing = <em>zero Landauer cost</em>. So <strong>at the root, the universe does not dissipate, and there is no arrow of time</strong>. Then where does the heat, dissipation, and direction of time that we clearly feel come from?</p>
+
+  <div class="keybox">
+    <div class="lbl">The reveal ── heat is "information you stopped tracking"</div>
+    <p style="margin:6px 0 0;">Dissipation is born from <strong>coarse-graining</strong>. When we treat things macroscopically, we <em>stop following</em> the microscopic degrees of freedom. That <strong>discarded (untracked) information is heat</strong>. Entropy increase = information <em>flowing from accessible (macro) to inaccessible (micro)</em>. The root may be reversible, but by exactly the amount of tracking we gave up, heat increases in our ledger.</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">Landauer's principle (\(E_{\min}=kT\ln2\)) is established physics, <strong>confirmed by experiment</strong> (Bérut et al. 2012, Jun et al. 2014). Reversible computing (Bennett) and the resolution of Maxwell's demon are also standard. But \(kT\ln2\) is a <em>lower bound</em>: today's computers dissipate \(10^{4}\text{–}10^{6}\) times more or worse (not a practical limit but a floor in principle). The deepest foundations (the generality of the derivation) are still debated.</p>
+    <p style="margin-bottom:0;">"The universe never erases = at the root there is no arrow of time" is a correct framework, but <strong>why the universe began at low entropy (the Past Hypothesis) is a separate unsolved problem</strong> (the arrow-of-time episode of the sister series). Landauer gives the "information ⟷ heat" link, but not "why the beginning was low-entropy." This document plants no "solved" flag.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable from this sheet + figure)</div>
+    <ol>
+      <li>Why does only "erasure" carry a cost, while "computation" can be free?
+        <details><summary>See the answer</summary><div class="ans">Erasure is logically irreversible, merging distinct states into one = phase space shrinks = by the second law you pay kT ln2 of heat. Reversible gates (NOT/CNOT/Toffoli) do not merge states and are one-to-one, so there is no floor. That is why, if you keep the garbage and uncompute it, computation is in principle zero-cost.</div></details>
+      </li>
+      <li>How is Maxwell's demon resolved, and how does it relate to Episode 3?
+        <details><summary>See the answer</summary><div class="ans">The gain the demon obtains by sorting is always cancelled when it erases its memory to reinitialize, paying kT ln2 per bit, so the second law holds. This is the proof that Shannon entropy (information) = thermodynamic entropy (physics) = the "information and physics are the same invariant" of Episode 3, now appearing as one number, kT ln2.</div></details>
+      </li>
+      <li>In a unitary (reversible) universe, where do dissipation and the arrow of time come from?
+        <details><summary>See the answer</summary><div class="ans">At the root it is reversible with zero dissipation. Dissipation arises from coarse-graining = ceasing to track microscopic degrees of freedom, and the discarded information becomes heat. Entropy increase = information flowing from macro to micro. But "why it began at low entropy (the Past Hypothesis)" is a separate unsolved problem.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 6 summary</span>Heat is generated only when you discard</h2>
+    <p>Erasing one bit releases at least \(kT\ln2\) of heat (Landauer, experimentally confirmed) ── because a logically irreversible operation merges states and shrinks phase space. Reversible computing (Bennett), by contrast, is in principle free. The cost is tied to <strong>"erasure," not "computation."</strong> Maxwell's demon is resolved here too, and <strong>Episode 3's "information = physics" became one measurable number, \(kT\ln2\)</strong>.</p>
+    <p>The reversible universe of Episode 2 does not dissipate at the root and has no arrow of time. The heat and direction of time we see arise from <strong>coarse-graining = information we stopped tracking</strong>. Entropy increase = the macro → micro flow of information. But the reason for the low-entropy initial condition is a separate hole ── we plant no flag there.</p>
+  </div>
+
+  <div class="nav">
+    <a href="uchu-keisanki-05-kiyaku.html">← Episode 5: You just have to run it (computational irreducibility)</a>
+    <a href="uchu-keisanki-index.html">To the table of contents</a>
+  </div>
+
+  <div class="foot">
+    This document is Episode 6 of the series "The Universe Is a Computer." Landauer's principle (the minimum dissipation of erasing one bit, \(E_{\min}=kT\ln2\), about \(2.9\times10^{-21}\) J ≈ 0.018 eV at room temperature) and its experimental verification (Bérut et al. 2012, Jun et al. 2014), logical irreversibility and phase-space contraction, reversible computing (Bennett, the Toffoli / Fredkin gates, uncompute), the information-theoretic resolution of Maxwell's demon (Szilard / Bennett / Landauer), the identity of Shannon entropy and thermodynamic entropy, and effective entropy increase via coarse-graining are all established physics / information theory. \(kT\ln2\) is a lower bound, and current computers dissipate orders of magnitude more. The framework in which "the universe is unitary and has no fundamental arrow of time" is standard, but the low-entropy initial condition (the Past Hypothesis) and the origin of the arrow of time are open problems today. The figure is a schematic of an erasure protocol via a double-well potential, and the heat meter illustrates reaching \(kT\ln2\). ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (⌘+P on Mac). On screen, advancing the erasure protocol with the slider merges the two states into one and dissipates heat up to kT ln2. Click "See the answer" to reveal each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sp=document.getElementById('sp'), vp=document.getElementById('vp'), rd=document.getElementById('rd');
+  var LN2=Math.log(2);
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function V(x,phi){ return (1-phi)*Math.pow(x*x-1,2) + phi*1.5*Math.pow(x-1,2); }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var phi=parseInt(sp.value,10)/100; vp.textContent=Math.round(phi*100)+'%';
+    ctx.clearRect(0,0,w,h);
+    // layout: left potential panel, right heat meter
+    var mL=54, mR=w-150, top=24, bot=h-40;
+    // sample V
+    var N=160, xs=[], vsr=[], xmin=-1.35, xmax=1.35, vmin=1e9, vmax=-1e9;
+    for(var i=0;i<=N;i++){ var x=xmin+(xmax-xmin)*i/N; var v=V(x,phi); xs.push(x); vsr.push(v); if(v<vmin)vmin=v; if(v>vmax)vmax=v; }
+    var Vspan=(vmax-vmin)||1;
+    function X(x){return mL+(x-xmin)/(xmax-xmin)*(mR-mL);}
+    function Y(v){return bot-(v-vmin)/Vspan*(bot-top);}
+    // axis baseline
+    ctx.strokeStyle='#aecae6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(mL,bot);ctx.lineTo(mR,bot);ctx.stroke();
+    // x labels 1 / 0
+    ctx.fillStyle='#7a4a30';ctx.font='12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('1', X(-1), bot+18);
+    ctx.fillStyle='#2f6fb0';ctx.fillText('0', X(1), bot+18);
+    ctx.fillStyle='#5a6678';ctx.fillText('bit state (left = 1 / right = 0)', (mL+mR)/2, top-8);
+    ctx.textAlign='left';
+    // potential curve
+    ctx.strokeStyle='#2c4a72';ctx.lineWidth=2.6;ctx.beginPath();
+    for(i=0;i<=N;i++){ var px=X(xs[i]),py=Y(vsr[i]); if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py);}
+    ctx.stroke();
+    // find local minima
+    var minima=[];
+    for(i=1;i<N;i++){ if(vsr[i]<=vsr[i-1] && vsr[i]<vsr[i+1]) minima.push(i); }
+    if(minima.length===0){ var mi=0; for(i=1;i<=N;i++) if(vsr[i]<vsr[mi]) mi=i; minima=[mi]; }
+    var iLeft=minima[0], iRight=minima[minima.length-1];
+    function ball(ix,col){ var bx=X(xs[ix]),by=Y(vsr[ix]); ctx.fillStyle=col;ctx.beginPath();ctx.arc(bx,by-8,8,0,7);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke(); }
+    // bit=1 ball (left minimum), bit=0 ball (right minimum)
+    ball(iLeft,'#c0603a');
+    ball(iRight,'#2f6fb0');
+    // state count label
+    var nstates=(iLeft===iRight)?1:2;
+    ctx.fillStyle=nstates===2?'#2c4a72':'#1f5590';ctx.font='bold 13px sans-serif';
+    ctx.fillText('states : '+nstates+(nstates===1?' (merge complete)':''), mL, top+6);
+    // ---- heat meter (right) ----
+    var hx=mR+52, hw=34, hTop=top+6, hBot=bot;
+    ctx.fillStyle='#5a6678';ctx.font='12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('heat dissipated', hx+hw/2, hTop-8);
+    ctx.strokeStyle='#aecae6';ctx.lineWidth=1;ctx.strokeRect(hx,hTop,hw,hBot-hTop);
+    // full = kT ln2 at phi=1
+    var frac=phi; // illustrative: heat grows with protocol progress to kT ln2
+    var fillH=(hBot-hTop)*frac;
+    var g=ctx.createLinearGradient(0,hBot,0,hTop); g.addColorStop(0,'#c0603a'); g.addColorStop(1,'#e0a060');
+    ctx.fillStyle=g; ctx.fillRect(hx,hBot-fillH,hw,fillH);
+    // kT ln2 marker line at top
+    ctx.strokeStyle='#8a4b2f';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(hx-6,hTop);ctx.lineTo(hx+hw+6,hTop);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#8a4b2f';ctx.font='11px sans-serif';ctx.textAlign='left';
+    ctx.fillText('kT ln2', hx+hw+8, hTop+4);
+    ctx.textAlign='center';
+    ctx.fillStyle='#7a4a30';ctx.font='bold 12px sans-serif';
+    ctx.fillText((frac*LN2).toFixed(2)+' kT', hx+hw/2, hBot+16);
+    ctx.textAlign='left';
+    // readout
+    var joules=(frac*LN2*4.14e-21);
+    var msg;
+    if(nstates===2) msg='Progress '+Math.round(phi*100)+'%: the two states (1 and 0) are still separate. While the barrier stands, the bit is preserved and heat is still small. Dissipation ≈ '+(frac*LN2).toFixed(2)+' kT.';
+    else msg='Progress '+Math.round(phi*100)+'%: the two states merged into one = the bit was erased. By the amount the state count shrinks 2 → 1, heat ≈ '+(frac*LN2).toFixed(2)+' kT (≈ '+joules.toExponential(1)+' J) goes to the environment. This is Landauer’s floor, kT ln2.';
+    rd.textContent=msg;
+  }
+  sp.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Compute the Universe — Resources, Architecture, Program | The Universe Is a Computer, Episode 2</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#16202020; --ink:#152023; --ink-soft:#44585c;
+    --paper:#eef6f6; --paper-edge:#d2e5e6;   /* blue-green paper: computation / circuits */
+    --side:#2c5c60; --side-bg:#e5f0f0;
+    --warn:#8a4b2f;
+    --calc:#0a6b72; --calc-bg:#e2f0f0;
+    --rule:#c8dede; --hair:#aacaca;
+    --acc:#0d7d84;    /* accent = blue-green */
+    --grid:#d3e6e6;
+    --mem:#0d7d84; --ops:#b06a12;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:35px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#1e2b2e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b9e3e3 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1f3336;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bcdcdc;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#f8fcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e2f0f0;color:#0a6068;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.dt{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.dt th,table.dt td{border:1px solid var(--rule);padding:9px 12px;text-align:left;line-height:1.6;vertical-align:top;}
+  table.dt th{background:var(--side-bg);color:var(--side);font-weight:700;letter-spacing:.04em;font-size:12.5px;}
+  table.dt td .g{color:var(--acc);font-weight:700;}
+  table.dt td .x{color:var(--warn);font-weight:700;}
+
+  .check{margin:22px 0;padding:20px 24px 12px;border:1.5px solid var(--acc);border-radius:2px;background:#f2fafa;}
+  .check .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .check ol{margin:0;padding-left:1.3em;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;}
+  .check li{margin:9px 0;line-height:1.7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfefe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef8f8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#0c4d52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefe,#eaf4f4);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 0;}
+  .nav a{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;
+    color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;
+    background:#f2fafa;font-weight:600;letter-spacing:.03em;}
+  .nav a:hover{background:#e2f0f0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fig,table.dt,.check{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;} .nav{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6f70;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Universe Is a Computer</span><span class="ep">Episode 2 / How to Compute</span></div>
+  <p class="eyebrow">Counting the universe as a "computational process," without going through physics</p>
+  <h1>How to Compute the Universe
+    <span class="sub">The question splits into three layers — <strong>resources</strong> (how many bits, how many operations) / <strong>architecture</strong> (what kind of computer) / <strong>program</strong> (the update rule).<br>Layer 1 is essentially settled. Layer 2 has strong candidates. Layer 3 is the gap.</span>
+  </h1>
+  <div class="byline">
+    <span>Premise: universe = a computational process on finite resources (stated explicitly as a hypothesis)</span>
+    <span>Hook: \(10^{90}\) bits, \(10^{120}\) operations</span>
+  </div>
+
+  <p class="lead">Once you see "the universe is a computer," the next question is <em>then how does it compute?</em> This splits into three independent questions — how many <strong>resources</strong> does it use, what kind of <strong>computer</strong> is it, and by what <strong>update rule (program)</strong> does it run? Taking them in order, the layer where the answer is known and the layer nobody has separate cleanly.</p>
+
+  <h2><span class="n">01</span>Three layers — resources, architecture, program</h2>
+
+  <ul style="margin:10px 0 0;padding-left:1.2em;line-height:1.95;">
+    <li><strong>1. Resources</strong>: memory (number of bits) and total operation count. <span style="color:var(--acc);font-weight:600;">→ essentially answered</span></li>
+    <li><strong>2. Architecture</strong>: classical cellular automaton, quantum circuit, or tensor network? <span style="color:var(--acc);font-weight:600;">→ strong candidates exist</span></li>
+    <li><strong>3. Program</strong>: the update rule that advances the state by one step. <span style="color:var(--warn);font-weight:600;">→ the gap. Nobody has it</span></li>
+  </ul>
+
+  <h2><span class="n">02</span>Resources — here "computational complexity" gives the answer</h2>
+
+  <p>You don't have to love physics; you can count purely (Seth Lloyd). The spec sheet for the computer called the universe:</p>
+
+  <div class="keybox">
+    <div class="lbl">The universe's resource spec</div>
+    <ul style="margin:6px 0 0;padding-left:1.2em;line-height:1.9;">
+      <li><strong>Memory</strong>: horizon area ÷ 4 (bits). The holographic bound gives \(\approx10^{122}\) bits; matter alone gives \(\approx10^{90}\) bits.</li>
+      <li><strong>Total operations</strong>: energy × time ÷ \(\hbar\) (the Margolus–Levitin limit). Since the Big Bang, \(\approx10^{120}\) operations.</li>
+      <li><strong>Clock</strong>: elapsed time.</li>
+    </ul>
+  </div>
+
+  <p>And the key is <strong>how it grows</strong>. The horizon expands as \(\sim(ct)^2\), so both memory and operation count <em>grow as the square of time</em>:</p>
+
+  <div class="calc">
+    <span class="tag">How the RAM grows — this is what \(c\cdot t\) really is</span>
+    $$N_{\text{bit}}(t)\;\sim\;\frac{(ct)^2}{\ell_P^2}\;=\;\left(\frac{t}{t_P}\right)^{2},\qquad \text{operations}\;\sim\;\left(\frac{t}{t_P}\right)^{2}$$
+    <p style="margin:10px 0 0;">The universe = "a computer whose RAM grows as time squared." Last episode's watchword, \(c\cdot t\), was really <strong>the speed at which memory capacity grows</strong>. In terms of last time's growth order \(D=-d\ln F/d\ln n\), the growth order of resources with respect to time is 2.</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: how the RAM (number of bits) of the computer called the universe grows. Drag the slider through cosmic time (Planck time → now), and the memory \(N=(t/t_P)^2\) grows as a <strong>straight line of slope 2</strong> on log–log axes. From 1 bit (Planck time) to \(10^{122}\) bits (now)</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Cosmic time \(\log_{10}(t/t_P)\) (decades since the Planck time)<span class="val" id="vt">60.9</span>
+        <input type="range" id="st" min="0" max="60.9" step="0.1" value="60.9">
+      </label>
+    </div>
+    <div class="readout" id="rd">Drag the slider through cosmic time and the memory and operation count change.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--mem);"></i>Memory N = (t/t_P)² (slope 2)</span>
+      <span><i class="swatch" style="background:var(--ops);"></i>Present-day marker</span>
+    </div>
+  </div>
+
+  <p>This layer 1 is bookkeeping of <strong>computational complexity</strong> more than physics. Without adding a single hypothesis, you can flatly say "the universe = a computational process that has run \(10^{120}\) operations on \(10^{90}\) bits." This is solid ground.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>Architecture — three candidates, with a clear ranking</h2>
+
+  <p>So what is this computer <strong>made of</strong>? There are three serious candidates. And two observational facts (quantum correlations = Bell, no preferred frame = Lorentz invariance) sort them mercilessly:</p>
+
+  <table class="dt">
+    <tr><th>Computer</th><th>Strengths</th><th>Fatal flaw (the honest line)</th></tr>
+    <tr>
+      <td><strong>Classical cellular automaton</strong><br>(Zuse, Fredkin, Wolfram)</td>
+      <td>The most "computer-like." A lattice of simple local rules.</td>
+      <td><span class="x">Bell's inequality</span> (quantum correlations) rules out classical local rules. A lattice has a preferred frame and <span class="x">breaks Lorentz invariance</span>. It fights both major facts.</td>
+    </tr>
+    <tr>
+      <td><strong>Quantum circuit</strong><br>(Lloyd, Deutsch)</td>
+      <td>Quantum is <span class="g">native</span>. Unitary = <span class="g">reversible computation</span>. Consistent with \(10^{120}\) operations.</td>
+      <td>Still assumes space and geometry as a given "array."</td>
+    </tr>
+    <tr>
+      <td><strong>Tensor network</strong><br>(it from qubit)</td>
+      <td><span class="g">Space and dimension are outputs</span> (the wiring = geometry). Error-correcting codes protect locality.</td>
+      <td>The update rule is unknown. Rigorous results so far exist only inside the box (AdS).</td>
+    </tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">The verdict of the sorting</div>
+    <p style="margin:6px 0 0;"><strong>A "literal lattice cellular automaton" is essentially dead</strong> (Bell + Lorentz). What survives is <strong>quantum computation</strong>, and if you <em>want space itself to be an output</em>, a <strong>tensor network</strong>. "Put the universe on a grid" is the very first idea to throw away.</p>
+  </div>
+
+  <h2><span class="n">04</span>The program = the gap — and "run it," not "solve it"</h2>
+
+  <p>What remains is the update rule. This is where computation theory speaks most sharply. And it's harsh:</p>
+
+  <ul style="margin:10px 0 0;padding-left:1.2em;line-height:1.9;">
+    <li><strong>Computational irreducibility</strong> (Wolfram): even with a simple rule, there may be no shortcut to the result — <em>you can only actually run it one step at a time</em>. If so, "computing the universe" is not about finding a clever closed formula, but rather it is <strong>impossible to predict any faster than real time</strong>.</li>
+    <li><strong>A Kolmogorov-style lower bound</strong>: the shortest program that outputs the universe, \(K(\text{universe})\), cannot be made shorter than its information content. <strong>Compression has a floor</strong> (this is what last episode's "conservation of complexity" really was). "Make it simpler" hits this limit.</li>
+    <li>We know neither \(K\) nor the rule. All we know is the <strong>upper bound on resources (= the holographic memory floor)</strong>.</li>
+  </ul>
+
+  <h2><span class="n">05</span>The checklist any valid update rule must pass</h2>
+
+  <p>If you're going to write "the universe's program," it fails unless it passes <strong>all</strong> of these. These are the gates for being promoted to observation:</p>
+
+  <div class="check">
+    <div class="lbl">Pass conditions for the update rule</div>
+    <ol>
+      <li><strong>Reversible / unitary</strong> — it must not erase information (Landauer; no global bit erasure).</li>
+      <li><strong>Local</strong> — bounded fan-in/out per step = a cap on information propagation = this is \(c\).</li>
+      <li><strong>Lorentz-invariant</strong> — no preferred frame. = <em>no grids allowed</em>. This is where most candidates die.</li>
+      <li><strong>Quantum</strong> — it must violate Bell's inequality. = naive classical local rules are out.</li>
+      <li><strong>Geometry emerges</strong> — space = the adjacency structure of the state, not built in as an array.</li>
+    </ol>
+  </div>
+
+  <h2><span class="n">06</span>A minimal recipe you can run — one line at a time, in the native tongue</h2>
+
+  <p>The most naive way to build something that passes the whole checklist above:</p>
+
+  <ol style="margin:10px 0 0;padding-left:1.3em;line-height:1.95;">
+    <li>Hold the state as a <strong>graph / tensor network</strong> (not an array — for condition 3).</li>
+    <li>Update it with <strong>reversible local rewrites</strong>.</li>
+    <li>Impose a <strong>causal ordering (a partial order = causal set)</strong> on the rewrites (Lorentz can emerge from here).</li>
+    <li>Measure the emergent dimension with <strong>last episode's formula \(D=-d\ln F/d\ln n\)</strong> (= the growth order of reachable states), and check whether <strong>it flows toward \(D\to4\)</strong>.</li>
+  </ol>
+
+  <div class="aside">
+    <span class="tag">The realization — you land on the same blueprint as the physics you disliked</span>
+    This recipe is really <strong>the Wolfram model / causal sets / CDT</strong>. Even if you enter from computation without going through physics, once you seriously work out "how to compute," you land in the <em>same place</em> as the blueprint physics reached by another route. Whether the entry is computation or physics, the frontier is one and the same.
+  </div>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">"The universe = computation" is a genuine and venerable lineage (Wheeler's <em>it from bit</em>, Zuse, Fredkin, Wolfram, 't Hooft's cellular-automaton interpretation, Lloyd). It's no crank idea. <strong>But "it is literally computation" is a hypothesis, not a theorem</strong> — getting both Lorentz invariance and quantum behavior (Bell correlations) out of classical computation is the unsolved hard part.</p>
+    <p style="margin-bottom:0;">The resource estimates (\(10^{90}\) bits, \(10^{120}\) operations) are established complexity results. The sorting of architectures (a lattice CA struggling against Bell + Lorentz) is also an established argument. But layer 3, the update rule, is unknown — and if it's computationally irreducible, in principle there's no shortcut. Nothing in this document is "solved."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable from this one page)</div>
+    <ol>
+      <li>Into which three layers does the question "compute the universe" split?
+        <details><summary>See the answer</summary><div class="ans">1. Resources (how many bits, how many operations); 2. Architecture (what kind of computer); 3. Program (the update rule). Layer 1 is essentially answered (10⁹⁰ bits, 10¹²⁰ operations), layer 2 has strong candidates (quantum circuit ~ tensor network), and layer 3 is the gap.</div></details>
+      </li>
+      <li>Give two reasons "universe = classical cellular automaton" is essentially dead.
+        <details><summary>See the answer</summary><div class="ans">(1) Bell's inequality — quantum correlations cannot be reproduced by classical local rules (local hidden variables). (2) Lorentz invariance — a fixed grid has a preferred frame and clashes with relativity. What survives is quantum computation, and to make space an output, a tensor network.</div></details>
+      </li>
+      <li>If the update rule is "computationally irreducible," what does "computing the universe" come to mean?
+        <details><summary>See the answer</summary><div class="ans">Since there's no shortcut to the result, you cannot leap ahead with a clever closed formula; you can only actually run it one step at a time. = You cannot predict the universe's future any faster than real time. Not "solve" but "run."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 2 summary</span>Solid ground, strong candidates, one lone gap</h2>
+    <p>"How to compute the universe" splits into three layers. <strong>1. Resources</strong> is solid ground — \(10^{90}\) bits, \(10^{120}\) operations, RAM growing as time squared (= \(c\cdot t\)). <strong>2. Architecture</strong> is already sorted — a lattice CA fails on Bell + Lorentz, the front-runner is the quantum circuit, and to make space an output, the tensor network. <strong>3. The program</strong> alone is the gap, and if it's computationally irreducible, there's nothing to do but "run" it rather than "solve" it.</p>
+    <p>If you're going to write it, there are five gates — reversible, local, Lorentz-invariant, quantum, emergent geometry. The minimal build that passes them all is <strong>causal reversible graph rewriting</strong>, checked by whether last episode's \(D=-d\ln F/d\ln n\) flows to \(\to4\). Even entering from computation out of distaste for physics, you land on the same blueprint (Wolfram / causal sets / CDT).</p>
+  </div>
+
+  <div class="nav">
+    <a href="uchu-keisanki-jigen.html">← Episode 1: Dimension is a readout · what "making it simple" really means</a>
+    <a href="uchu-keisanki-index.html">To the contents</a>
+  </div>
+
+  <div class="foot">
+    This document is Episode 2 of "The Universe Is a Computer" series. The estimates of the universe's information content and operation count (Lloyd 2002: holographic bound \(\sim10^{122}\) bits, matter \(\sim10^{90}\) bits, \(\sim10^{120}\) operations, the Margolus–Levitin limit), the \(t^2\) growth of resources that accompanies horizon area \(\propto(ct)^2\), the exclusion of classical local hidden variables by quantum correlations (Bell's theorem), the tension between a fixed lattice and Lorentz invariance, reversible computation and Landauer's principle, computational irreducibility (Wolfram), the Kolmogorov-complexity lower bound, and the emergence of geometry via tensor networks / holographic codes, causal sets, CDT, and the Wolfram model are all established computation theory / physics, or active research programs. That "the universe is literally computation" is a hypothesis, and reconciling Lorentz invariance + quantum behavior from classical computation, as well as layer 3, the update rule, are current open problems. The numbers are order-of-magnitude, and the figure's \(N=(t/t_P)^2\) is a schematic of the holographic bound. — To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (⌘+P on Mac). On screen, the slider lets you watch the RAM grow as time squared against cosmic time. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'), rd=document.getElementById('rd');
+  var LNOW=60.9; // log10(t_now/t_P)
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function supExp(n){ // returns "10^n" style string
+    return '10^'+n.toFixed(0);
+  }
+  function ageStr(L){
+    var tsec=5.39e-44*Math.pow(10,L);
+    if(tsec<1e-30) return tsec.toExponential(1)+' s (about the Planck time)';
+    if(tsec<1) return tsec.toExponential(1)+' s';
+    if(tsec<3.15e7) return tsec.toExponential(1)+' s';
+    var yr=tsec/3.156e7;
+    if(yr<1e6) return yr.toExponential(1)+' yr';
+    return (yr/1e9).toFixed(1)+' billion yr'+'? '; // fallback (unused)
+  }
+  function ageNice(L){
+    var tsec=5.39e-44*Math.pow(10,L);
+    if(tsec<1) return tsec.toExponential(1)+' s';
+    var yr=tsec/3.156e7;
+    if(yr>=1e9) return (yr/1e9).toFixed(1)+' billion yr';
+    if(yr>=1) return yr.toExponential(1)+' yr';
+    return tsec.toExponential(1)+' s';
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, pad=54, padT=16, padR=16;
+    var L=parseFloat(st.value); vt.textContent=L.toFixed(1);
+    var ymax=2*LNOW*1.02; // log10(N) max ~ 123.8
+    ctx.clearRect(0,0,w,h);
+    function X(l){return pad+(l/LNOW)*(w-pad-padR);}      // l = log10(t/tP) 0..60.9
+    function Y(ln){return (h-pad)-(ln/ymax)*(h-pad-padT);} // ln = log10(N) 0..ymax
+    // grid vertical every 10 decades
+    ctx.font='11px sans-serif';
+    for(var gx=0;gx<=60;gx+=10){
+      var x=X(gx);
+      ctx.strokeStyle='#e2f0f0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,h-pad);ctx.stroke();
+      ctx.fillStyle='#8fb2b2';ctx.fillText(gx.toString(), x-5, h-pad+16);
+    }
+    // horizontal grid (log N) every 20
+    for(var gy=0;gy<=120;gy+=20){
+      var y=Y(gy);
+      ctx.strokeStyle='#eef6f6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-padR,y);ctx.stroke();
+      ctx.fillStyle='#9fbcbc';ctx.fillText('10^'+gy, pad-40, y+3);
+    }
+    // axes
+    ctx.strokeStyle='#aacaca';ctx.lineWidth=1;ctx.beginPath();
+    ctx.moveTo(pad,padT);ctx.lineTo(pad,h-pad);ctx.lineTo(w-padR,h-pad);ctx.stroke();
+    ctx.fillStyle='#4a6a6a';ctx.font='12px sans-serif';
+    ctx.fillText('Cosmic time log₁₀(t / t_P) →', w-230, h-pad+30);
+    ctx.save();ctx.translate(14,h/2+40);ctx.rotate(-Math.PI/2);ctx.fillText('Memory N (bits, log–log)', 0,0);ctx.restore();
+    // main line N=(t/tP)^2 -> log10 N = 2L, slope 2
+    ctx.strokeStyle='#0d7d84';ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(X(0),Y(0));ctx.lineTo(X(LNOW),Y(2*LNOW));ctx.stroke();
+    // milestone: Planck
+    ctx.fillStyle='#0d7d84';ctx.beginPath();ctx.arc(X(0),Y(0),4,0,7);ctx.fill();
+    ctx.fillStyle='#3a6a6a';ctx.font='11px sans-serif';ctx.fillText('Planck time = 1 bit', X(0)+6, Y(0)-6);
+    // milestone: now
+    ctx.fillStyle='#b06a12';ctx.beginPath();ctx.arc(X(LNOW),Y(2*LNOW),5,0,7);ctx.fill();
+    ctx.fillStyle='#8a5a1e';ctx.fillText('Now ≈ 10^122 bits', X(LNOW)-150, Y(2*LNOW)+18);
+    // slider marker
+    var xm=X(L), ym=Y(2*L);
+    ctx.strokeStyle='#b06a12';ctx.setLineDash([5,4]);ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(xm,ym);ctx.lineTo(xm,h-pad);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad,ym);ctx.lineTo(xm,ym);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#b06a12';ctx.beginPath();ctx.arc(xm,ym,5,0,7);ctx.fill();
+    // slope label
+    ctx.fillStyle='#0a6068';ctx.font='bold 12px sans-serif';
+    ctx.fillText('slope = 2 (RAM ∝ time²)', X(22), Y(2*22)-12);
+    // readout
+    var logN=2*L, ops=Math.min(120, logN); // ops ~ (t/tP)^2 too, cap display at 120 (Lloyd)
+    rd.textContent='Cosmic time ≈ '+ageNice(L)+' (10^'+L.toFixed(1)+' times the Planck time) → memory ≈ 10^'+logN.toFixed(0)+' bits, operations ≈ 10^'+Math.min(120,logN).toFixed(0)+'. RAM grows as time squared = this is c·t.';
+  }
+  st.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

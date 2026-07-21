@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You Can Only Run It — Computational Irreducibility | The Universe Is a Computer, Episode 5</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#221c12; --ink-soft:#57503f;
+    --paper:#faf6ee; --paper-edge:#ecdfca;   /* amber paper: complexity / irreducibility */
+    --side:#6f5320; --side-bg:#f3ebda;
+    --warn:#8a3f2f;
+    --calc:#8a5a12; --calc-bg:#f3ebda;
+    --rule:#e6d8bd; --hair:#d3c19a;
+    --acc:#b5731a;    /* accent = amber */
+    --grid:#ecdfca;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:35px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#2a2416;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecd6a6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#33290f;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6e7df;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2018;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ddca9f;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfaf3;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .btns button{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:12px;
+    border:1px solid var(--rule);background:#f3ebda;color:var(--side);border-radius:3px;padding:6px 10px;cursor:pointer;font-weight:600;}
+  .btns button:hover{background:#ecdfca;}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f3ebda;color:#7a5210;}
+
+  table.dt{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.dt th,table.dt td{border:1px solid var(--rule);padding:9px 12px;text-align:left;line-height:1.6;vertical-align:top;}
+  table.dt th{background:var(--side-bg);color:var(--side);font-weight:700;letter-spacing:.04em;font-size:12.5px;}
+  table.dt td .g{color:var(--acc);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefcf7;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#fbf3e4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#6f4a10;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefcf7,#f3ebda);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 0;}
+  .nav a{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;
+    color:var(--acc);text-decoration:none;padding:10px 16px;border:1px solid var(--rule);border-radius:3px;
+    background:#fbf3e4;font-weight:600;letter-spacing:.03em;}
+  .nav a:hover{background:#f3ebda;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fig,table.dt{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;} .nav{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:25px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6f5f45;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Universe Is a Computer</span><span class="ep">Episode 5 / Computational Irreducibility</span></div>
+  <p class="eyebrow">Even if "solving" is impossible in principle, that is not defeat</p>
+  <h1>You Can Only Run It
+    <span class="sub">Many rules have <strong>no shortcut</strong>. The only way to know the state \(n\) steps ahead is to actually run \(n\) steps.<br>This is not a gap in our knowledge but <em>a theorem about the system</em> — and it's also the reason novelty and complexity arise.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools: Episode 2's "update rule = the gap," Kolmogorov's compression floor</span>
+    <span>Core: computational irreducibility (Wolfram)</span>
+  </div>
+
+  <p class="lead">In Episode 2 we touched on the idea that if the universe's update rule is "computationally irreducible," then to compute the universe is <em>not to find a clever formula but to run it</em>. This time we take it head-on. We look with our own eyes at <strong>problems with shortcuts and problems without</strong>, actually running cellular automata, and go all the way to why "unsolvable" is not defeat.</p>
+
+  <h2><span class="n">01</span>Problems with a shortcut / problems without</h2>
+
+  <p>A planet's position can be <strong>leaped ahead by a formula</strong> to \(1000\) years from now — no need to step through \(1000\) steps. This is <em>computationally reducible</em>. It's no accident that most textbook physics is reducible: <strong>we pick "solvable" problems to put in textbooks</strong>. Reducible systems are really a <em>special, lucky corner</em>.</p>
+
+  <p>Many systems, on the other hand, require <strong>actually running \(n\) steps</strong> to know the state \(n\) steps ahead. You can't jump with a formula. This is <em>computationally irreducible</em>. The system is <strong>its own fastest simulator</strong>, and no faster predictor exists.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: a space-time diagram from actually running a naive cellular automaton (1D, 2-state). The top is the initial state; time runs downward. The slider changes the rule number \(0\text{–}255\). <strong>Reducible</strong> rules (nested, striped) can be leaped ahead by a formula; <strong>irreducible</strong> rules (random, complex) can't be known without running</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>Rule number (0–255)<span class="val" id="vr">30</span>
+        <input type="range" id="sr" min="0" max="255" step="1" value="30">
+      </label>
+      <div class="btns">
+        <button data-r="90">90 reducible</button>
+        <button data-r="250">250 reducible</button>
+        <button data-r="30">30 irreducible</button>
+        <button data-r="110">110 universal</button>
+      </div>
+    </div>
+    <div class="readout" id="rd">Change the rule with the slider or a button, and it runs on the spot and draws the space-time diagram.</div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">What to look for</span>
+    <strong>Rule 90</strong> = the Sierpiński triangle. Each cell is "Pascal's triangle mod 2," so you can produce any position <em>by formula, without running</em> = reducible. <strong>Rule 30</strong> = random, and it was actually used for random-number generation. No shortcut has been found = irreducible. <strong>Rule 110</strong> = complex, and it's <em>Turing-universal</em> (it can compute anything) = irreducible in principle. From the same "simple local rule," both reducible and irreducible cases emerge.
+  </div>
+
+  <h2><span class="n">02</span>Why there's no shortcut — universality and undecidability</h2>
+
+  <p>"No shortcut" is not just a rule of thumb; there's a theorem at the root. When a system can do <strong>universal computation</strong> (as Rule 110 can), you can embed <em>any computation</em> inside it. Then answering "what does this initial state eventually become" in general would amount to solving the <strong>halting problem</strong> (Turing) — which is <em>impossible</em>.</p>
+
+  <div class="keybox">
+    <div class="lbl">The root of there being no shortcut</div>
+    <p style="margin:6px 0 0;"><strong>Universal computation ⟹ the halting problem / Rice's theorem ⟹ general prediction of long-term behavior is undecidable</strong>. So a "function that gives the answer before running" is impossible in principle. The <em>dynamic face</em> of Episode 2's Kolmogorov compression floor: if the trajectory is incompressible, then \(K(\text{trajectory})\approx\) its length = it can't be summarized.</p>
+  </div>
+
+  <h2><span class="n">03</span>What does it mean for the universe?</h2>
+
+  <p>Let's shine light again on Episode 2's layer-3 gap. <strong>If the universe's update rule is irreducible</strong> — and if it's universal, it almost certainly is — then "computing the universe" is <em>not finding a magic closed formula</em>. <strong>The universe is running itself, and there's no shortcut that overtakes it</strong>. There is, in principle, no way to know the future any faster than real time.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>The reveal — why "unsolvable" is not defeat</h2>
+
+  <p>Here's the heart of this episode. Irreducibility sounds like despair, but it's the opposite:</p>
+
+  <table class="dt">
+    <tr><th>Consequence of irreducibility</th><th>Why it's a positive</th></tr>
+    <tr><td><strong>Science doesn't stop</strong></td><td>Even if the whole is irreducible, <span class="g">reducible pockets</span> are everywhere (symmetries, conservation laws, effective theories, statistical laws). Science = <em>the work of finding reducible islands in an irreducible sea</em>.</td></tr>
+    <tr><td><strong>Determinism ≠ predictability</strong></td><td>Even if the rule is fully fixed, you don't know the result until you run it. It's precisely because of irreducibility that <em>genuine novelty and complexity</em> arise.</td></tr>
+    <tr><td><strong>Not a gap in knowledge but a theorem</strong></td><td>"No shortcut" is not our ignorance but a <em>structural fact about the system</em>. Not a missing piece to be filled, but a verified property.</td></tr>
+    <tr><td><strong>The deep reason for the code</strong></td><td>If someone claims "I obtained a closed solution" for an irreducible system, doubt it first — this is the basis for this series' <em>"doubt the solved."</em></td></tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;">Computational irreducibility is Wolfram's framework — empirically ubiquitous and intuitive — but <strong>"the universe is computationally irreducible" depends on the hypothesis that its update rule is universal</strong>, and that's unproven. Reducible / irreducible is not binary but a <em>spectrum</em>, and even irreducible systems have reducible aspects (which is why physics has predicted so well — it captures reducible islands like symmetry and coarse-graining. No contradiction).</p>
+    <p style="margin-bottom:0;">The halting problem, Rice's theorem, and Rule 110's universality (Cook) are <strong>rigorous mathematics</strong>, but applying them literally to physical prediction requires the hypothesis "universe = universal computer." The figure is an actual run of a naive 1D cellular automaton, an <em>illustration</em> of reducible / irreducible, not a proof of which the universe is. Nothing in this document is "solved."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable from this one page + the figure)</div>
+    <ol>
+      <li>State the difference between computationally reducible and irreducible in one line.
+        <details><summary>See the answer</summary><div class="ans">Reducible = you can leap ahead by a formula or the like (know n steps ahead in fewer than n steps). Irreducible = there's no shortcut and you can only actually run n steps (the system is its own fastest simulator). Planetary orbits are reducible; Rule 30 is irreducible.</div></details>
+      </li>
+      <li>Why can we say in general that "there's no shortcut"?
+        <details><summary>See the answer</summary><div class="ans">Because a system that can do universal computation can embed any computation, so general prediction of long-term behavior becomes undecidable by the halting problem / Rice's theorem. Rule 110 is a concrete example of universality. So a "function that answers before running" is impossible in principle.</div></details>
+      </li>
+      <li>Give one reason science is not defeated even if "the universe is irreducible."
+        <details><summary>See the answer</summary><div class="ans">Because science is the work of finding "reducible pockets" (symmetries, conservation laws, effective theories, statistical laws) within an irreducible whole. Also, determinism ≠ predictability, and it's precisely because of irreducibility that genuine novelty arises. The absence of a shortcut is not ignorance but a theorem about the system.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 5 summary</span>Can't be overtaken, but not defeat</h2>
+    <p>Problems with a shortcut (reducible) are a lucky corner; most are <strong>irreducible</strong> — to know the state \(n\) steps ahead, you must run \(n\) steps. The root is universality and undecidability (halting problem, Rice), the dynamic face of Kolmogorov's compression floor. In the figure we actually saw Rule 90 (reducible, has a formula) and Rule 30 / 110 (irreducible, can only be run). If the universe's rule is irreducible, <strong>there's no shortcut that overtakes the universe, in principle</strong>.</p>
+    <p>But "unsolvable" is not defeat but progress: science = the work of finding reducible islands in an irreducible sea, determinism ≠ predictability, and it's precisely because of irreducibility that novelty emerges. Above all — the basis for <strong>this series' very code</strong>, "if someone claims a 'closed solution' for an irreducible system, doubt it," was right here. We plant no flag.</p>
+  </div>
+
+  <div class="nav">
+    <a href="uchu-keisanki-04-toy.html">← Episode 4: Getting hands-on (a toy model)</a>
+    <a href="uchu-keisanki-index.html">To the contents</a>
+  </div>
+
+  <div class="foot">
+    This document is Episode 5 of "The Universe Is a Computer" series. The figure actually time-evolves an elementary cellular automaton (1D, 2-state, 3-neighbor, 256 rules, Wolfram classification) in the browser from a single-cell initial condition with periodic boundaries, drawn as a space-time diagram (all on-the-spot real runs). The additivity of Rules 90 / 150 (a closed formula via Pascal's triangle mod 2 = reducible), the pseudo-randomness of Rule 30 (adopted for Mathematica's random numbers), the Turing completeness of Rule 110 (Cook), computational irreducibility (Wolfram), the halting problem / Rice's theorem (Turing / Rice), and incompressibility via Kolmogorov complexity are all established computation theory. That "the universe's update rule is computationally irreducible / universal" is a hypothesis, and reducible and irreducible form a continuous spectrum; the predictability of physics comes from the reducible aspects of systems (symmetry, coarse-graining, statistics) — which does not contradict irreducibility. — To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are static and hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: Ctrl+P (⌘+P on Mac). On screen, changing the rule with the slider or buttons runs it on the spot and shows the space-time diagram. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sr=document.getElementById('sr'), vr=document.getElementById('vr'), rd=document.getElementById('rd');
+  var NOTES={
+    0:'Class 1: everything dies out (fully reducible)',255:'Class 1: everything fills in (fully reducible)',
+    90:'Class 2: nested (Sierpiński) = has the Pascal-triangle mod 2 formula = reducible',
+    60:'Class 2: additive (one-sided Sierpiński) = has a formula = reducible',
+    150:'Class 2: additive (XOR) = has a formula = reducible',
+    250:'Class 2: simple stripes = reducible',254:'Class 2: simple filling = reducible',
+    30:'Class 3: random = used for random-number generation = no shortcut = irreducible',
+    45:'Class 3: random = irreducible',105:'Class 3: random = irreducible',
+    110:'Class 4: complex = Turing-universal = irreducible in principle',
+    54:'Class 4: complex = irreducible',137:'Class 4: complex = irreducible',124:'Class 4: complex = irreducible'
+  };
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h, pad=8;
+    var rule=parseInt(sr.value,10); vr.textContent=rule;
+    ctx.clearRect(0,0,w,h);
+    var cs=3; // cell pixel size
+    var W=Math.floor((w-2*pad)/cs), H=Math.floor((h-2*pad)/cs);
+    if(W<10||H<10){return;}
+    var cur=new Uint8Array(W); cur[W>>1]=1;
+    var x0=pad+((w-2*pad)-W*cs)/2, y0=pad;
+    ctx.fillStyle='#f7f3ea'; ctx.fillRect(x0,y0,W*cs,H*cs);
+    ctx.fillStyle='#2a2416';
+    for(var t=0;t<H;t++){
+      for(var i=0;i<W;i++){ if(cur[i]) ctx.fillRect(x0+i*cs, y0+t*cs, cs, cs); }
+      var nxt=new Uint8Array(W);
+      for(i=0;i<W;i++){
+        var l=cur[(i-1+W)%W], c=cur[i], rr=cur[(i+1)%W];
+        var idx=(l<<2)|(c<<1)|rr;
+        nxt[i]=(rule>>idx)&1;
+      }
+      cur=nxt;
+    }
+    // note
+    var note=NOTES[rule] || 'You can only "run it and see" to judge this rule — which is itself a demonstration of irreducibility.';
+    rd.textContent='Rule '+rule+': '+note;
+  }
+  sr.addEventListener('input',draw);
+  var btns=document.querySelectorAll('.btns button');
+  for(var b=0;b<btns.length;b++){ btns[b].addEventListener('click',function(){ sr.value=this.getAttribute('data-r'); draw(); }); }
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
