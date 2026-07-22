@@ -18,6 +18,7 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 | **Relativity That Clicks** | Divide everything by c. β · γ · spacetime interval · E=mc² · simultaneity · gravity = curvature · variable-c ≡ curvature (7 episodes, complete) | [open](https://yomei-o.github.io/wakaru_all/wakaru-soutai-en/index.html) |
 | **Quantum That Clicks** | The story of ℏ. S/ℏ separates classical from quantum: grain & wave, wave function, sum over paths, Schrödinger, uncertainty, measurement (6 episodes + bonus, complete) | [open](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi-en/index.html) |
 | **Fields That Click** | Why forces travel at the speed of light. Reading fields as "dimensionless ratios" (8 episodes, complete) | [open](https://yomei-o.github.io/wakaru_all/wakaru-ba-en/index.html) |
+| **Black Holes That Click** | The diagonal of the cube (c · ℏ · G), read through information and bits: horizon · entropy = bit count · Hawking temperature · fastest computer · holography · information paradox (6 episodes, complete) | [open](https://yomei-o.github.io/wakaru_all/wakaru-blackhole-en/index.html) |
 | **Force That Clicks** | Peel back what "force" really is — down to fields, geometry, and symmetry | [open](https://yomei-o.github.io/wakaru_all/wakaru-chikara-en/index.html) |
 | **Mass That Clicks** | What mass actually is | [open](https://yomei-o.github.io/wakaru_all/wakaru-shitsuryo-en/index.html) |
 | **The Universe Is a Computer** | Read the cosmos through the lens of computation | [open](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki-en/uchu-keisanki-index.html) |
@@ -26,7 +27,7 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 **★ Map of the whole collection: [The Physics Cube](https://yomei-o.github.io/wakaru_all/butsuri-rittai-en.html)** ── take in every series at a glance along the three axes c · ℏ · G.
 
-(English folders: `wakaru-uchuron-en/` · `wakaru-soutai-en/` · `wakaru-ryoushi-en/` · `wakaru-ba-en/` · `wakaru-chikara-en/` · `wakaru-shitsuryo-en/` · `wakaru-uchu-keisanki-en/` · `wakaru-gakushuron-en/` · `wakaru-unix-en/`)
+(English folders: `wakaru-uchuron-en/` · `wakaru-soutai-en/` · `wakaru-ryoushi-en/` · `wakaru-ba-en/` · `wakaru-blackhole-en/` · `wakaru-chikara-en/` · `wakaru-shitsuryo-en/` · `wakaru-uchu-keisanki-en/` · `wakaru-gakushuron-en/` · `wakaru-unix-en/`)
 
 ## 日本語版 (Japanese originals)
 

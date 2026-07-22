@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fastest Computer ── Black Holes That Click #4</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4faf8; --paper-edge:#d5e6e0;   /* 第4回：計算＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f5a4e; --calc-bg:#e2f0eb;
+    --rule:#c8ddd5; --hair:#aecec2;
+    --acc:#2f7d6a;    /* アクセント＝緑青 */
+    --grid:#d3e8e0;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b3e0d3 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9e2da;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#0b0f12;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e2f0eb;color:#1f5a4e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#ecf6f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c5a3e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefc,#e6f2ea);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e2f0eb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c5a3e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+    .fig canvas{background:#fff !important;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6b64;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Black Holes That Click</span><span class="ep">Episode 4 ／ The Fastest Computer ── scrambler and queue</span></div>
+  <p class="eyebrow">Not "a hole where computation stopped" ── it is a place where computation is maxed out and information is waiting in the queue</p>
+  <h1>The Fastest Computer ── scrambler and queue
+    <span class="sub">A black hole is nature's fastest and densest computer. It scrambles infalling information at the speed limit set by physics,<br>stores it maximally mixed in a queue on the surface, and spits it back out little by little as Hawking radiation.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: the bit count S from Episode 2, and the temperature T and radiation from Episode 3</span>
+    <span>This episode's ratio: scrambling time t* ~ (ℏ/k_BT) ln S</span>
+  </div>
+
+  <p class="lead">In Episode 3 we saw that a black hole keeps emitting Hawking radiation for an unimaginably long time, right up until it has evaporated away completely. During all that time, what <em>is</em> the information swallowed by the horizon doing? Naively you might want to say "it got crushed and stopped." But seen through the eyes of information theory, it is almost exactly the opposite ── <strong>a black hole is nature's fastest and densest computer</strong>. It stirs the \(10^{77}\) bits of memory we counted in Episode 2 at <em>the very speed limit physics allows</em> (the fastest scrambler). The infalling information has not vanished, and it has not stopped ── <strong>it is stacked maximally mixed in a queue on the surface, waiting its turn, and comes back as radiation</strong>. Not a "hole where things stopped" but "a place where computation is maxed out and things are waiting in the queue." This viewpoint sets the table for the information paradox in the episodes to come.</p>
+
+  <h2><span class="n">01</span>What is the hole doing until it evaporates?</h2>
+
+  <p>In Episode 2 we learned that a black hole carries <strong>the maximum entropy (amount of information)</strong> for its size. Maximum entropy = <em>the largest number of states it can take</em> = maximum memory. In Episode 3 we saw that it has a temperature and slowly spits out energy (information?) through radiation. Put the two together and a black hole looks like "a device that holds a vast memory and takes its time processing and outputting the contents" ── in other words, a <strong>computer</strong>. And its performance sits at <em>the very limits of physics</em>.</p>
+
+  <h2><span class="n">02</span>The ultimate laptop ── the fastest, densest computer</h2>
+
+  <p>Physics places an <strong>upper bound</strong> on both the speed and the capacity of computation (following the argument of Lloyd and others). Operation speed is capped by energy, and memory is capped by entropy ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The physical limits of computation</div>
+    $$\text{operation speed}\ \lesssim\ \frac{E}{\hbar}\qquad \text{memory}\ \sim\ S\ (\text{the bit count from Episode 2})$$
+    <p style="margin:8px 0 0;">The speed of operations is capped by the available energy \(E\) divided by \(\hbar\) (even flipping a single bit takes a minimum time \(\sim\hbar/E\)). Memory is the logarithm of the number of possible states = the entropy. <strong>A black hole is the object that maximizes memory (entropy) for a given size</strong> ── which is why it is the ultimate computer holding the "densest memory" (the limiting case of Lloyd's "ultimate laptop").</p>
+  </div>
+
+  <h2><span class="n">03</span>The fastest scrambler ── the bound on chaos</h2>
+
+  <p>What makes a black hole stand out is the speed of the <em>mixing</em> of its memory. Drop something in, and its information <strong>mixes into the many degrees of freedom of the horizon in a flash</strong>, so that it can no longer be recovered locally (scrambling). This mixing speed ── the ferocity of the chaos ── also has a physical upper bound, and a black hole <strong>saturates it</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">The bound on chaos, and the scrambling time</div>
+    $$\lambda\ \le\ \frac{2\pi k_B T}{\hbar}\qquad t_*\ \sim\ \frac{\hbar}{2\pi k_B T}\,\ln S$$
+    <p style="margin:8px 0 0;">The growth rate of chaos \(\lambda\) (the Lyapunov exponent) has an upper bound set by the temperature (a proven inequality), and a black hole <em>exactly saturates</em> it = the fastest scrambler. The time \(t_*\) to finish mixing everything grows only as the <strong>logarithm (\(\ln S\))</strong> of the bit count \(S\) ── even for an astronomical number of bits, the mixing is astonishingly fast.</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Let's try it ── the scrambling time of a solar-mass BH</span>
+    <p style="margin:2px 0 0;">\(\hbar/(2\pi k_BT)\) is roughly the time it takes light to cross the horizon \(\sim R_s/c\). For a solar mass, \(R_s\sim3\) km, so this is \(\sim10^{-5}\) s. The logarithm of the bit count \(S\sim10^{77}\) is \(\ln(10^{77})\approx177\). Multiplying them ──</p>
+    $$t_*\sim 10^{-5}\ \text{s}\times177\approx\ \text{a few milliseconds}$$
+    <p style="margin-bottom:14px;">It completely scrambles \(10^{77}\) bits in a mere <strong>few milliseconds</strong>. That is orders of magnitude faster than ordinary matter (where diffusion slows down as a power of the bit count). This is why a black hole is called the "fastest scrambler."</p>
+  </div>
+
+  <h2><span class="n">04</span>Try it in motion ── the queue of information</h2>
+
+  <p>Look at the figure below. From the left, <strong>ordered information (colored bits)</strong> falls toward the horizon (the glowing band in the center). When it reaches the horizon, the information is <em>maximally mixed</em> (its colors are averaged to gray) and <strong>accumulates as a queue</strong>. Then, over time, it is spat out to the right little by little as <strong>Hawking radiation</strong> (gray photons). The "Drop information" button lets you throw in a batch all at once.</p>
+
+  <p>What to watch for ── the infalling information does <em>not</em> disappear. It accumulates in the horizon's queue, gets mixed (order is lost), and leaves as radiation. Neither "stopped" nor "vanished," but <strong>processed at maximum speed and waiting its turn</strong>. Whether the outgoing radiation <em>truly carries the original information out</em>, though ── that is the big problem of the next episode.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: left = ordered information falls toward the horizon (the glowing band in the center) → accumulates maximally mixed in the queue (turning gray) → returns to the right little by little as Hawking radiation. Information neither stops nor vanishes; it is mixed and waits its turn.</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <button id="drop">Drop information</button>
+      <button id="play">⏸ Pause</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#e0b23a;"></i>Ordered information (infalling)</span>
+      <span><i class="dot" style="background:#8a8f9c;"></i>Queue (mixed/stored)</span>
+      <span><i class="dot" style="background:#c9d4d0;"></i>Radiation (returning)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>Not "stopped" but "maxed out and waiting in the queue"</h2>
+
+  <p>Let's gather everything so far into a single picture. Seen from outside, just outside the horizon there is a <strong>hot, thin membrane</strong> (the stretched horizon / membrane paradigm), and infalling information is <em>absorbed into it, mixed at maximum speed, stored up</em>, and <em>seeps back out over time</em> as Hawking radiation. In Episode 3's "frozen star," the reason information seemed to freeze onto the surface when viewed from outside is that it appears to stick to this membrane.</p>
+
+  <div class="aside">
+    <span class="tag">The right way to restate "stopped"</span>
+    Calling the horizon "a place where computation stopped" was inaccurate. Correctly stated ── <strong>computation is maxed out to the physical limit (the fastest scrambler), and the information is stacked maximally mixed in a queue on the surface, returning little by little as radiation</strong>. It did not stop; it is <em>being processed at top speed and waiting its turn</em>. But the "contents waiting in line are a jumbled mess (already scrambled)" ── they are not lined up in orderly fashion like a queue at a counter. And the biggest question ── does that information <strong>really come back (is it conserved)</strong>? Quantum mechanics says "yes (unitary)," but Hawking's original calculation said "no." Next time, on to this collision.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── what's established, and where the frontier begins</span>
+    <p style="margin-top:0;">The physical limits of computation (operation speed capped by energy, memory capped by entropy) are rigorous results (the Margolus–Levitin bound and the like), and it is likewise established that a black hole has the maximum entropy = densest memory for a given size. The bound on chaos \(\lambda\le2\pi k_BT/\hbar\) (Maldacena–Shenker–Stanford 2016) is a <strong>proven inequality</strong>, and it is widely accepted that black holes (and the holographic models that describe them) saturate it.</p>
+    <p style="margin-bottom:0;">That said. ① "Black hole = fastest scrambler" and "\(t_*\sim(\hbar/2\pi k_BT)\ln S\)" are the <em>fast scrambling conjecture</em> of Sekino–Susskind (2008); it is strongly supported in holographic models, but a rigorous general proof is still lacking. ② "Black hole = computer" and "queue on the surface" are an <strong>information-theoretic interpretation and metaphor</strong>; they are useful as a restatement of standard physics, but do not take them naively as a literal, real device. ③ The stretched horizon (membrane paradigm) is an effective description meant for the external observer; for the person actually falling in, there is no membrane (complementarity, Episode 1). ④ Scrambling (information becoming locally unrecoverable) is different from information <em>vanishing</em> (in principle it is reversible and conserved). But "whether it truly returns to the outside upon evaporation" is precisely the information paradox that went unsolved for so long (covered in Episode 6, along with recent progress). ⑤ For this research episode we could not complete primary verification on the frontier side (scrambling and the chaos bound), so the account relies on standard reviews.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with this episode's ideas)</div>
+    <ol>
+      <li>When the bit count \(S\) grows from \(10^{77}\) to \(10^{154}\) (squared), by what factor does the scrambling time \(t_*\propto\ln S\) increase?
+        <details><summary>See the answer</summary><div class="ans">\(\ln(10^{154})/\ln(10^{77})=2\), so twofold. Because it is a logarithm, even squaring the bit count only doubles the time ── astonishingly fast (a fast scrambler).</div></details>
+      </li>
+      <li>Why can we say a black hole is the "densest memory"? Connect this with Episodes 2 and 5.
+        <details><summary>See the answer</summary><div class="ans">Because it realizes the maximum entropy = the maximum number of states = the maximum bit count for a given size (surface area) (the Bekenstein bound / holography). No more memory can be packed into the same size.</div></details>
+      </li>
+      <li>Why is "computation is stopped at the horizon" inaccurate? What is the correct way to put it?
+        <details><summary>See the answer</summary><div class="ans">In information theory it is the reverse: computation is maxed out to the physical limit (the fastest scrambler). Correctly stated: "it is processed at maximum speed, the information accumulates maximally mixed in a queue on the surface, and returns little by little as radiation." Not stopped, but waiting its turn.</div></details>
+      </li>
+      <li>Why is information being "scrambled" different from it "vanishing"?
+        <details><summary>See the answer</summary><div class="ans">Scrambling is information mixing into many degrees of freedom so that it becomes locally unrecoverable (in principle reversible; conserved as a whole). That is different from vanishing (being irreversibly lost). But whether it truly returns to the outside upon evaporation is the point of contention in the information paradox (Episode 6).</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 4 summary</span>The fastest, densest computer ── information does not vanish; it waits its turn in the queue</h2>
+    <p>Until it evaporates, a black hole is, in information-theoretic terms, <strong>nature's fastest and densest computer</strong>. Operation speed is capped by energy and memory by entropy (the bit count from Episode 2), and a black hole has <em>maximum entropy = densest memory</em>. Moreover, it stirs the infalling information at a speed that saturates the bound on chaos \(\lambda\le2\pi k_BT/\hbar\) ── the <strong>fastest scrambler</strong> ── and the time to finish mixing is \(t_*\sim(\hbar/2\pi k_BT)\ln S\), growing only as the logarithm of the bit count (a few milliseconds for a solar mass).</p>
+    <p>So "computation stops at the horizon" is inaccurate. Correctly stated ── <strong>computation is maxed out, the information accumulates maximally mixed in a queue on the surface (the stretched horizon), and returns little by little as radiation</strong>. Neither stopped nor vanished, but processed at top speed and waiting its turn. But the contents waiting are already scrambled, and whether they <em>truly return to the outside (are conserved)</em> is the biggest mystery ── the collision of quantum mechanics ("it returns") against Hawking's original calculation ("it vanishes") is next episode's <strong>information paradox</strong>. On to the head-on collision of ℏ and G.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 5</span>
+    "The holographic principle ── the world is written on a surface." In Episode 2 we saw that information is determined not by <em>volume</em> but by the horizon's <em>surface area</em>. Push this to its conclusion and you arrive at the Bekenstein bound ── the information that can be packed into a region is capped by its <strong>surface area</strong> (in Planck units) ── and then at an even bolder principle: <em>all the information of the contents of a 3D volume can be encoded on its 2D boundary</em> (the holographic principle). The world may be written on a surface, like a hologram. It is the leading clue in quantum gravity.</p>
+  </div>
+
+  <div class="foot">
+    This document is Episode 4 of the "Black Holes That Click" series, a piece of reading for physics-loving high school and university students. The physical limits of computation (the upper bound on operation speed ~E/ℏ: the Margolus–Levitin bound; memory ~entropy), the fact that a black hole has the maximum entropy (densest memory) for a given size, and the bound on quantum chaos \(\lambda\le2\pi k_BT/\hbar\) (Maldacena–Shenker–Stanford 2016, a proven inequality) together with its saturation by black holes are established / widely accepted results. That a black hole is the fastest scrambler with scrambling time \(t_*\sim(\hbar/2\pi k_BT)\ln S\) is the conjecture/result of Sekino–Susskind (2008) and Hayden–Preskill (2007), strongly supported in holographic models but without a completed general rigorous proof; that "black hole = computer / queue on the surface" and the "stretched horizon (membrane paradigm)" are an information-theoretic interpretation and an effective description meant for the external observer (by complementarity there is no membrane for the infalling observer); that scrambling and information loss are distinct concepts and that whether information is conserved upon evaporation is itself the point of contention in the information paradox (Episode 6); and that in preparing this series we could not complete primary-source verification on the frontier side and rely on standard reviews ── all of this is spelled out in the "honest line" in the main text. The figure is a qualitative schematic of the falling, mixing, and radiating of information. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the animation and answers are static / hidden). Adjacent episodes: <a href="wakaru-blackhole-03-hawking.html">Episode 3, The Hawking Temperature</a>／<a href="index.html">Contents</a>／sister series <a href="../wakaru-uchu-keisanki-en/uchu-keisanki-index.html">The Universe Is a Computer</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, "Drop information" lets you watch information get mixed and stored in the horizon's queue and return as radiation. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      dropBtn=document.getElementById('drop'), play=document.getElementById('play');
+  var running=true, lastReal=null;
+  var parts=[];  // {x,y,vx,phase,color,hold}
+  var queueCount=0, radiatedCount=0, spawnAcc=0;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function hue(i){ return 'hsl('+((i*47)%360)+',70%,58%)'; }
+
+  function spawn(){
+    var h=cv.clientHeight||cv.height;
+    parts.push({x:6,y:h*0.5+(Math.random()*40-20),vx:70+Math.random()*30,phase:'in',color:hue(parts.length),hold:0});
+  }
+
+  function step(dt){
+    var w=cv.clientWidth||cv.width, h=cv.clientHeight||cv.height;
+    var hx=w*0.44;   // 地平面の位置
+    // 自動投入（ゆっくり）
+    spawnAcc+=dt;
+    if(spawnAcc>0.55){ spawnAcc=0; if(parts.filter(function(p){return p.phase==='in';}).length<10) spawn(); }
+    for(var i=parts.length-1;i>=0;i--){
+      var p=parts[i];
+      if(p.phase==='in'){
+        p.x+=p.vx*dt;
+        if(p.x>=hx){ p.phase='queue'; p.x=hx+(Math.random()*24-12); p.y=h*0.5+(Math.random()*60-30); p.hold=0.8+Math.random()*1.6; queueCount++; }
+      } else if(p.phase==='queue'){
+        // 混合：位置をゆらし、色を灰へ
+        p.x=hx+(Math.random()*24-12); p.y+= (Math.random()*2-1)*8*dt*10;
+        p.y=Math.max(h*0.5-34,Math.min(h*0.5+34,p.y));
+        p.hold-=dt;
+        if(p.hold<=0){ p.phase='out'; p.vx=60+Math.random()*40; p.y=h*0.5+(Math.random()*50-25); queueCount--; radiatedCount++; }
+      } else { // out
+        p.x+=p.vx*dt;
+        if(p.x>w+8){ parts.splice(i,1); }
+      }
+    }
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var hx=w*0.44;
+    // 地平面（光る帯）＋グロー
+    var g=ctx.createLinearGradient(hx-30,0,hx+30,0);
+    g.addColorStop(0,'rgba(47,125,106,0)'); g.addColorStop(0.5,'rgba(80,220,180,0.5)'); g.addColorStop(1,'rgba(47,125,106,0)');
+    ctx.fillStyle=g; ctx.fillRect(hx-30,10,60,h-20);
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(hx-1.5,10,3,h-20);
+    ctx.fillStyle='#7fe0c6'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('horizon (stretched horizon)', hx, h-6);
+    ctx.fillStyle='#8a8f9c';
+    ctx.fillText('information →', w*0.16, 18); ctx.fillText('→ Hawking radiation', w*0.80, 18);
+
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i];
+      if(p.phase==='in'){ ctx.fillStyle=p.color; }
+      else if(p.phase==='queue'){ ctx.fillStyle='#8a8f9c'; }
+      else { ctx.fillStyle='#c9d4d0'; }
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.phase==='in'?4.5:3.5,0,7); ctx.fill();
+    }
+
+    rd.textContent='Infalling info: '+parts.filter(function(p){return p.phase==='in';}).length
+      +' ／ Queue (mixed/stored): '+queueCount
+      +' ／ Returned as radiation: '+radiatedCount
+      +'. Information does not vanish; it accumulates maximally mixed in the horizon’s queue and returns little by little as radiation (order is lost). Scrambling time ~ (ℏ/2πk_BT)·ln S.';
+  }
+
+  function frame(real){
+    if(lastReal==null) lastReal=real;
+    var dt=(real-lastReal)/1000; lastReal=real; if(dt>0.05)dt=0.05;
+    if(running) step(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  dropBtn.addEventListener('click', function(){ for(var i=0;i<8;i++) spawn(); });
+  play.addEventListener('click', function(){ running=!running; play.textContent=running?'⏸ Pause':'▶ Play'; });
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
