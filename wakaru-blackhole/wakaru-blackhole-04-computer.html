@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最速のコンピュータ ── スクランブラーとキュー ── わかるブラックホール 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4faf8; --paper-edge:#d5e6e0;   /* 第4回：計算＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f5a4e; --calc-bg:#e2f0eb;
+    --rule:#c8ddd5; --hair:#aecec2;
+    --acc:#2f7d6a;    /* アクセント＝緑青 */
+    --grid:#d3e8e0;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b3e0d3 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9e2da;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#0b0f12;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e2f0eb;color:#1f5a4e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#ecf6f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c5a3e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefc,#e6f2ea);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e2f0eb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c5a3e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+    .fig canvas{background:#fff !important;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6b64;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるブラックホール</span><span class="ep">第 4 回 ／ 最速のコンピュータ ── スクランブラーとキュー</span></div>
+  <p class="eyebrow">「計算が止まった穴」ではない ── 計算が振り切れ、情報が順番待ちしている場所だ</p>
+  <h1>最速のコンピュータ ── スクランブラーとキュー
+    <span class="sub">ブラックホールは、自然界で最速・最密の計算機。落ちた情報を物理の上限速度でかき混ぜ、<br>表面のキューに最大混合で貯めて、ホーキング放射として少しずつ吐き出す。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回のビット数 S、第3回の温度 T と放射</span>
+    <span>この回の比：スクランブル時間 t* ~ (ℏ/k_BT) ln S</span>
+  </div>
+
+  <p class="lead">第3回で、ブラックホールは蒸発しきるまで、途方もなく長い時間をかけてホーキング放射を出し続けると見ました。その間、地平面に飲み込まれた情報は<em>何をしている</em>のか。素朴には「潰れて止まった」と思いたくなりますが、情報理論の目で見ると、まるで逆です ── <strong>ブラックホールは、自然界で最速・最密のコンピュータ</strong>。第2回で数えた \(10^{77}\) ビットのメモリを、物理の許す<em>限界いっぱいの速さ</em>でかき混ぜている（最速のスクランブラー）。落ちた情報は、消えたのでも止まったのでもなく ── <strong>表面のキューに最大混合で積まれ、順番を待って、放射として返ってくる</strong>。「止まった穴」ではなく「計算が振り切れて順番待ちの場所」。この視点が、次回以降の情報パラドックスの下ごしらえになります。</p>
+
+  <h2><span class="n">01</span>蒸発するまで、穴は何をしているか</h2>
+
+  <p>第2回で、ブラックホールは同じ大きさで<strong>最大のエントロピー（情報量）</strong>を持つ、と学びました。エントロピーが最大＝<em>取りうる状態が最も多い</em>＝メモリが最大。第3回で、温度があり、放射でゆっくりエネルギー（情報?）を吐き出す。この二つを合わせると、ブラックホールは「巨大なメモリを持ち、時間をかけて中身を処理・出力する装置」── つまり<strong>計算機</strong>として見える。しかもその性能は、<em>物理の限界そのもの</em>です。</p>
+
+  <h2><span class="n">02</span>究極のラップトップ ── 最速・最密の計算機</h2>
+
+  <p>物理には、計算の速さと容量の<strong>上限</strong>があります（ロイドらの議論）。演算速度はエネルギーで頭打ち、メモリはエントロピーで頭打ち ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">計算の物理限界</div>
+    $$\text{演算速度}\ \lesssim\ \frac{E}{\hbar}\qquad \text{メモリ}\ \sim\ S\ (\text{第2回のビット数})$$
+    <p style="margin:8px 0 0;">演算の速さは使えるエネルギー \(E\) を \(\hbar\) で割ったぶんが上限（1ビット反転にも最小の時間 \(\sim\hbar/E\) が要る）。メモリは取りうる状態の対数＝エントロピー。<strong>ブラックホールは、与えられた大きさでメモリ（エントロピー）を最大にした天体</strong>── だから「最密のメモリ」を持つ究極のコンピュータなのです（ロイドの"ultimate laptop"の極限）。</p>
+  </div>
+
+  <h2><span class="n">03</span>最速のスクランブラー ── カオスの上限</h2>
+
+  <p>ブラックホールが際立つのは、メモリの<em>混ぜ方</em>の速さ。何かを落とすと、その情報は地平面のたくさんの自由度に<strong>あっという間に混ざり</strong>、局所的には取り出せなくなる（スクランブル）。この混ざる速さ ── カオスの激しさ ── にも物理の上限があり、ブラックホールは<strong>それを飽和</strong>します。</p>
+
+  <div class="keybox">
+    <div class="lbl">カオスの上限と、スクランブル時間</div>
+    $$\lambda\ \le\ \frac{2\pi k_B T}{\hbar}\qquad t_*\ \sim\ \frac{\hbar}{2\pi k_B T}\,\ln S$$
+    <p style="margin:8px 0 0;">カオスの成長率 \(\lambda\)（リアプノフ指数）には温度で決まる上限があり（証明された不等式）、ブラックホールはこれを<em>ちょうど飽和</em>する＝最速のスクランブラー。全体を混ぜ終える時間 \(t_*\) は、ビット数 \(S\) の<strong>対数（\(\ln S\)）</strong>でしか増えない ── 天文学的なビット数でも、混ぜるのは驚くほど速い。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 太陽質量BHのスクランブル時間</span>
+    <p style="margin:2px 0 0;">\(\hbar/(2\pi k_BT)\) は、だいたい地平面を光が横切る時間 \(\sim R_s/c\)。太陽質量なら \(R_s\sim3\) km なので \(\sim10^{-5}\) 秒。ビット数 \(S\sim10^{77}\) の対数は \(\ln(10^{77})\approx177\)。かけ算して ──</p>
+    $$t_*\sim 10^{-5}\ \text{s}\times177\approx\ \text{数ミリ秒}$$
+    <p style="margin-bottom:14px;">\(10^{77}\) ビットを、わずか<strong>数ミリ秒</strong>で完全にかき混ぜる。ふつうの物質（拡散はビット数のべきで遅くなる）とは桁違いに速い。だからブラックホールは「fastest scrambler（最速のかき混ぜ機）」と呼ばれます。</p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 情報のキュー</h2>
+
+  <p>下の図。左から<strong>順序だった情報（色つきのビット）</strong>が地平面（中央の光る帯）へ落ちていきます。地平面に着くと、情報は<em>最大混合でかき混ぜられ</em>（色が灰色に均される）、<strong>キューとして貯まる</strong>。そして時間をかけて、右へ<strong>ホーキング放射</strong>（灰色の光子）として少しずつ吐き出される。「情報を落とす」ボタンでまとめて投入できます。</p>
+
+  <p>見てほしいのは ── 落ちた情報は<em>消えていない</em>。地平面のキューに貯まり、混ぜられ（順序は失われる）、放射として出ていく。「止まった」でも「消えた」でもなく、<strong>最大速度で処理され、順番待ちしている</strong>。ただし出ていく放射が<em>元の情報を本当に持ち出せているか</em> ── そこが次回の大問題です。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝順序だった情報が地平面（中央の光る帯）へ落下 → キューに最大混合で貯まる（灰色化）→ 右へホーキング放射として少しずつ返る。情報は止まらず消えず、混ぜられて順番待ち</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <button id="drop">情報を落とす</button>
+      <button id="play">⏸ 一時停止</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#e0b23a;"></i>順序だった情報（落下中）</span>
+      <span><i class="dot" style="background:#8a8f9c;"></i>キュー（混合・貯蔵）</span>
+      <span><i class="dot" style="background:#c9d4d0;"></i>放射（返っていく）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>「止まった」でなく「振り切れて順番待ち」</h2>
+
+  <p>ここまでを、一つの描像にまとめます。外から見ると、地平面のすぐ外に<strong>熱くて薄い膜</strong>（stretched horizon／膜のパラダイム）があり、落ちた情報はそこに<em>吸われ、最大速度でかき混ぜられ、貯め込まれ</em>、ホーキング放射として<em>時間をかけて滲み出す</em>。第3回の「凍結星」で、外から見ると情報が表面で凍りつくように見えたのは、この膜に貼りついて見えるから。</p>
+
+  <div class="aside">
+    <span class="tag">「止まっている」の正しい言い直し</span>
+    地平面を「計算が止まった場所」と言うのは不正確でした。正しくは ── <strong>計算は物理の上限まで振り切れ（最速スクランブラー）、情報は表面のキューに最大混合で積まれ、放射で少しずつ返る</strong>。止まったのではなく、<em>最速で処理されて順番待ちしている</em>。ただし「順番待ちの中身はぐしゃぐしゃ（スクランブル済み）」で、行列のように順序よく並んで待つのではない。そして最大の問い ── その情報は<strong>本当に返ってくるのか（保存されるのか）</strong>。量子力学は「はい（ユニタリ）」と言うが、ホーキングの当初計算は「いいえ」と言った。次回、この衝突へ。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまで確立、どこから最前線</span>
+    <p style="margin-top:0;">計算の物理限界（演算速度がエネルギーで、メモリがエントロピーで頭打ち）は厳密な結果（マルゴラス–レビティン限界など）で、ブラックホールが与えられた大きさで最大エントロピー＝最密メモリなのも確立。カオスの上限 \(\lambda\le2\pi k_BT/\hbar\)（Maldacena–Shenker–Stanford 2016）は<strong>証明された不等式</strong>で、ブラックホール（を記述するホログラフィ模型）がこれを飽和することも広く受け入れられています。</p>
+    <p style="margin-bottom:0;">ただし。 ① 「ブラックホール＝最速のスクランブラー」「\(t_*\sim(\hbar/2\pi k_BT)\ln S\)」は Sekino–Susskind の<em>予想（fast scrambling conjecture, 2008）</em>で、ホログラフィ模型で強く支持されるが厳密な一般証明はまだ。 ② 「ブラックホール＝コンピュータ」「表面のキュー」は<strong>情報理論的な解釈・比喩</strong>で、標準物理の言い換えとして有用だが、素朴に実在の装置と受け取らない。 ③ stretched horizon（膜のパラダイム）は外部観測者向けの有効記述で、落ちる本人には膜はない（相補性、第1回）。 ④ スクランブル（情報が局所的に取り出せなくなる）は、情報が<em>消える</em>こととは違う（原理的には可逆・保存）。だが「蒸発で本当に外へ返るか」は、長らく未解決だった情報パラドックスそのもの（第6回で扱い、近年の到達点も）。 ⑤ このリサーチ回では最前線側（スクランブル・カオス限界）の一次検証は完了できず、標準的レビューに基づく記述です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>ビット数 \(S\) が \(10^{77}\) から \(10^{154}\)（2乗）に増えると、スクランブル時間 \(t_*\propto\ln S\) は何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\ln(10^{154})/\ln(10^{77})=2\) 倍。対数なので、ビット数が2乗になっても時間は2倍にしかならない ── 驚異的に速い（fast scrambler）。</div></details>
+      </li>
+      <li>なぜブラックホールは「最密のメモリ」と言えるのか。第2回・第5回と結びつけて。
+        <details><summary>答えを見る</summary><div class="ans">与えられた大きさ（表面積）で最大のエントロピー＝最大の状態数＝最大のビット数を実現しているから（ベッケンシュタイン限界・ホログラフィ）。同じサイズでこれ以上メモリは詰められない。</div></details>
+      </li>
+      <li>「地平面で計算が止まっている」はなぜ不正確か。正しい言い方は?
+        <details><summary>答えを見る</summary><div class="ans">情報理論では逆で、計算は物理の上限まで振り切れている（最速スクランブラー）。正しくは「最大速度で処理され、情報が表面のキューに最大混合で貯まり、放射で少しずつ返る」。止まったのでなく順番待ち。</div></details>
+      </li>
+      <li>情報が「スクランブルされる」ことと「消える」ことは、なぜ違うのか。
+        <details><summary>答えを見る</summary><div class="ans">スクランブルは、情報が多くの自由度に混ざって局所的には取り出せなくなること（原理的には可逆・全体としては保存）。消える（非可逆に失われる）とは別。ただし蒸発で本当に外へ返るかは情報パラドックス（第6回）の争点。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>最速・最密の計算機 ── 情報は消えず、キューで順番待ち</h2>
+    <p>蒸発するまでの間、ブラックホールは情報理論的には<strong>自然界で最速・最密のコンピュータ</strong>。演算速度はエネルギー、メモリはエントロピー（第2回のビット数）で頭打ちで、ブラックホールは<em>最大エントロピー＝最密メモリ</em>。しかも落ちた情報を、カオスの上限 \(\lambda\le2\pi k_BT/\hbar\) を飽和する速さでかき混ぜる<strong>最速のスクランブラー</strong>── 混ぜ終える時間は \(t_*\sim(\hbar/2\pi k_BT)\ln S\) で、ビット数の対数でしか増えない（太陽質量で数ミリ秒）。</p>
+    <p>だから「地平面で計算が止まる」は不正確。正しくは ── <strong>計算は振り切れ、情報は表面のキュー（stretched horizon）に最大混合で貯まり、放射で少しずつ返る</strong>。止まったのでも消えたのでもなく、最速で処理されて順番待ち。ただし待っている中身はスクランブル済みで、しかも<em>本当に外へ返る（保存される）のか</em>は最大の謎 ── 量子力学「返る」対 ホーキング当初計算「消える」の衝突が、次回の<strong>情報パラドックス</strong>。ℏ と G の正面衝突へ。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回</span>
+    「ホログラフィック原理 ── 世界は表面に書かれている」。第2回で、情報が<em>体積</em>でなく地平面の<em>表面積</em>で決まると見ました。これを突き詰めると、ベッケンシュタイン限界 ── ある領域に詰め込める情報は、その<strong>表面積</strong>（プランク単位）で頭打ち ── に行き着き、さらに大胆な原理へ：<em>3次元の中身の情報は、すべて2次元の境界に符号化できる</em>（ホログラフィック原理）。世界は、ホログラムのように表面に書かれているのかもしれない。量子重力の最有力の手がかりです。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかるブラックホール」シリーズ第4回、物理好きの高校生・大学生向け読み物です。計算の物理限界（演算速度の上限 ~E/ℏ：マルゴラス–レビティン限界、メモリ ~エントロピー）、ブラックホールが与えられた大きさで最大エントロピー（最密メモリ）であること、量子カオスの上限 \(\lambda\le2\pi k_BT/\hbar\)（Maldacena–Shenker–Stanford 2016、証明された不等式）とブラックホールによる飽和は、確立/広く受け入れられた結果です。ブラックホールが最速のスクランブラーでスクランブル時間 \(t_*\sim(\hbar/2\pi k_BT)\ln S\) となることは Sekino–Susskind（2008）およびHayden–Preskill（2007）の予想・結果で、ホログラフィ模型で強く支持されるが一般の厳密証明は未完であること、「ブラックホール＝コンピュータ／表面のキュー」「stretched horizon（膜のパラダイム）」が情報理論的解釈・外部観測者向け有効記述（相補性により落下観測者には膜はない）であること、スクランブルと情報消失は別概念で蒸発時の情報保存自体は情報パラドックスの争点（第6回）であること、また本シリーズの下調べでは最前線側の一次資料検証を完了できず標準的レビューに依拠していることは本文「正直な線」に明記しました。図は情報の落下・混合・放射の定性的模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではアニメと解答は静止・非表示になります）。前後の回：<a href="wakaru-blackhole-03-hawking.html">第3回 ホーキング温度</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-uchu-keisanki/uchu-keisanki-index.html">宇宙は計算機</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では「情報を落とす」で、情報が地平面のキューに混ぜられ貯まり、放射で返る様子が見られます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      dropBtn=document.getElementById('drop'), play=document.getElementById('play');
+  var running=true, lastReal=null;
+  var parts=[];  // {x,y,vx,phase,color,hold}
+  var queueCount=0, radiatedCount=0, spawnAcc=0;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function hue(i){ return 'hsl('+((i*47)%360)+',70%,58%)'; }
+
+  function spawn(){
+    var h=cv.clientHeight||cv.height;
+    parts.push({x:6,y:h*0.5+(Math.random()*40-20),vx:70+Math.random()*30,phase:'in',color:hue(parts.length),hold:0});
+  }
+
+  function step(dt){
+    var w=cv.clientWidth||cv.width, h=cv.clientHeight||cv.height;
+    var hx=w*0.44;   // 地平面の位置
+    // 自動投入（ゆっくり）
+    spawnAcc+=dt;
+    if(spawnAcc>0.55){ spawnAcc=0; if(parts.filter(function(p){return p.phase==='in';}).length<10) spawn(); }
+    for(var i=parts.length-1;i>=0;i--){
+      var p=parts[i];
+      if(p.phase==='in'){
+        p.x+=p.vx*dt;
+        if(p.x>=hx){ p.phase='queue'; p.x=hx+(Math.random()*24-12); p.y=h*0.5+(Math.random()*60-30); p.hold=0.8+Math.random()*1.6; queueCount++; }
+      } else if(p.phase==='queue'){
+        // 混合：位置をゆらし、色を灰へ
+        p.x=hx+(Math.random()*24-12); p.y+= (Math.random()*2-1)*8*dt*10;
+        p.y=Math.max(h*0.5-34,Math.min(h*0.5+34,p.y));
+        p.hold-=dt;
+        if(p.hold<=0){ p.phase='out'; p.vx=60+Math.random()*40; p.y=h*0.5+(Math.random()*50-25); queueCount--; radiatedCount++; }
+      } else { // out
+        p.x+=p.vx*dt;
+        if(p.x>w+8){ parts.splice(i,1); }
+      }
+    }
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    var hx=w*0.44;
+    // 地平面（光る帯）＋グロー
+    var g=ctx.createLinearGradient(hx-30,0,hx+30,0);
+    g.addColorStop(0,'rgba(47,125,106,0)'); g.addColorStop(0.5,'rgba(80,220,180,0.5)'); g.addColorStop(1,'rgba(47,125,106,0)');
+    ctx.fillStyle=g; ctx.fillRect(hx-30,10,60,h-20);
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(hx-1.5,10,3,h-20);
+    ctx.fillStyle='#7fe0c6'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('地平面（stretched horizon）', hx, h-6);
+    ctx.fillStyle='#8a8f9c';
+    ctx.fillText('情報 →', w*0.16, 18); ctx.fillText('→ ホーキング放射', w*0.80, 18);
+
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i];
+      if(p.phase==='in'){ ctx.fillStyle=p.color; }
+      else if(p.phase==='queue'){ ctx.fillStyle='#8a8f9c'; }
+      else { ctx.fillStyle='#c9d4d0'; }
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.phase==='in'?4.5:3.5,0,7); ctx.fill();
+    }
+
+    rd.textContent='落下中の情報：'+parts.filter(function(p){return p.phase==='in';}).length
+      +' ／ キュー（混合・貯蔵）：'+queueCount
+      +' ／ 放射で返った：'+radiatedCount
+      +'。 情報は消えず、地平面のキューに最大混合で貯まり、放射で少しずつ返る（順序は失われる）。スクランブル時間 ~ (ℏ/2πk_BT)·ln S。';
+  }
+
+  function frame(real){
+    if(lastReal==null) lastReal=real;
+    var dt=(real-lastReal)/1000; lastReal=real; if(dt>0.05)dt=0.05;
+    if(running) step(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  dropBtn.addEventListener('click', function(){ for(var i=0;i<8;i++) spawn(); });
+  play.addEventListener('click', function(){ running=!running; play.textContent=running?'⏸ 一時停止':'▶ 再生'; });
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
