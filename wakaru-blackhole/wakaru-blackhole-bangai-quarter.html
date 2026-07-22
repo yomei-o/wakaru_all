@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1/4 を手で出す ── わかるブラックホール 番外編</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f2f9fa; --paper-edge:#d3e6e8;   /* 番外：導出＝シアンの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f6a72; --calc-bg:#e0f0f1;
+    --rule:#c7dde0; --hair:#aecdd1;
+    --acc:#1f7a8c;    /* アクセント＝シアン */
+    --grid:#d3e8ea;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b4e2e6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c7e0e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 16px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e0f0f1;color:#1f6a72;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f5f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1a5a62;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fafefe,#e4f1f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e0f0f1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1a5a62;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6d70;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるブラックホール</span><span class="ep">番外編 ／ 1/4 を手で出す ── 輸入するのは 2π ひとつだけ</span></div>
+  <p class="eyebrow">第2回で「係数 1/4 だけは比では出ない」と言った ── では、どこまで手で出せるか、やってみる</p>
+  <h1>1/4 を手で出す
+    <span class="sub">ベッケンシュタイン–ホーキングの S＝A/(4ℓ_P²)。この 1/4 は、じつはほとんど"比"で組み上がる。<br>手計算で進めなくなる場所はたった一つ ── 「加速すると温度が見える」の <em>2π</em> だけ。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回 R_s、第2回 S∝A、第一法則、そして 2π（虚時間＝温度）</span>
+    <span>この回：1/4 = 4π ÷ 16π</span>
+  </div>
+
+  <p class="lead">第2回で、ブラックホールのエントロピー \(S=A/(4\ell_P^2)\) の骨格（面積則）は比だけで出るが、<strong>係数 1/4 だけは量子重力の計算が要る</strong>と書きました。α の 137.036 は誰も導けない謎でしたが、この 1/4 は<em>手が届く</em>── それを実際にやってみるのが、この番外編です。結論を先に言うと ── <strong>1/4 は、あなたの"比"でほとんど組み上がります。</strong> ①地平面の半径、②表面重力、④第一法則、⑤面積 ── ここは全部、単位のある量を並べて割るだけ。手計算が止まる場所は、たった一箇所だけ：<strong>③「加速すると温度が見える」という関係の 2π</strong>。そしてその 2π の正体は、あなたの「わかる宇宙論」第9回 ──〈i を虚軸に回すと温度が生まれる〉── そのもの。輸入するのは、この 2π 一個だけ。あとは全部、手の中です。</p>
+
+  <h2><span class="n">01</span>面積則までは比、1/4 だけが残っていた</h2>
+
+  <p>次元だけで押すと、エントロピーが持てる長さの単位はプランク長 \(\ell_P\) しかないので、\(S\propto A/\ell_P^2\)（面積則）まではすぐ出る。でも「\(1/4\) か、\(1\) か、\(1/2\) か」という<strong>純粋な数</strong>は、次元解析からは絶対に出てこない。ここに、本物の物理（力学）が一滴だけ要る。その一滴が何なのかを、手を動かして突き止めます。</p>
+
+  <h2><span class="n">02</span>手計算チェーン ①② ── 1/4 の"芽"はここに生まれる</h2>
+
+  <div class="calc">
+    <span class="tag">① 地平面の半径（第1回・比）</span>
+    $$R_s=\frac{2GM}{c^2}$$
+    <span class="tag" style="margin-top:12px;">② 表面重力 ＝ ニュートンの重力を R_s で（比）</span>
+    $$g=\frac{GM}{R_s^2}=\frac{GM}{(2GM/c^2)^2}=\frac{c^4}{4GM}$$
+    <p style="margin-bottom:14px;">ここに<strong>最初の 1/4 の芽</strong>がある ── シュワルツシルト半径の「2」を2乗して、\(4\) が分母に出た。まだ何も輸入していない、純粋な手計算。（面白いことに、ニュートンの重力を \(R_s\) で計算しただけの \(g=c^4/4GM\) が、一般相対論の"表面重力"とぴたり一致する。第1回の「ニュートンがなぜか当たる」の親戚。）</p>
+  </div>
+
+  <h2><span class="n">03</span>③ ここだけ輸入 ── 加速すると温度が見える（2π）</h2>
+
+  <p>唯一、比では出せない一滴がこれ。<strong>強く加速している場所（＝地平面のそば）に立つと、真空が"温度を持った熱いもの"に見える</strong>（ウンルー効果）。その温度は、加速度（表面重力）\(g\) にこう結びつく ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">輸入する種 ── 加速 → 温度（2π が主役）</div>
+    $$k_BT=\frac{\hbar\,g}{2\pi c}=\frac{\hbar c^3}{8\pi GM}$$
+    <p style="margin:8px 0 0;">分母の <strong>2π</strong> が、この番外の"魔法"の全部。②で出た \(g=c^4/4GM\) を入れると \(8\pi=2\pi\times4\)。第2回・第3回のホーキング温度の形が、ここで手に入る。</p>
+  </div>
+
+  <p>この 2π はどこから来るのか。統計力学の基本定理です ── <strong>温度 \(T\) の世界は、時間を虚数に回すと（\(t\to i\tau\)）、虚時間が周期 \(\hbar/k_BT\) で丸まった世界と同じ</strong>（わかる宇宙論⑨「i を虚軸に回すと温度」）。地平面のそばの時空を虚時間に回すと、<em>尖り（円錐の特異点）を作らないための周期がちょうど 2π/(表面重力)</em> に決まる ── 「一周は 2π」という角度の話が、温度を決める。だから輸入したのは、じつは「虚時間は周期的＝それが温度」という一点だけ。ここから先は、また比の世界に戻ります。</p>
+
+  <h2><span class="n">04</span>手計算チェーン ④⑤⑥ ── 1/4 が組み上がる</h2>
+
+  <div class="calc">
+    <span class="tag">④ 第一法則で積分（比）</span>
+    $$dS=\frac{dE}{T}=\frac{c^2\,dM}{k_BT}=\frac{8\pi G M}{\hbar c}\,dM\ \Rightarrow\ S=\frac{4\pi G}{\hbar c}M^2$$
+    <span class="tag" style="margin-top:12px;">⑤ 面積で書き直す（比）</span>
+    $$A=4\pi R_s^2=\frac{16\pi G^2M^2}{c^4}\ \Rightarrow\ M^2=\frac{c^4A}{16\pi G^2}$$
+    <span class="tag" style="margin-top:12px;">⑥ 合体</span>
+    $$S=\frac{4\pi G}{\hbar c}\cdot\frac{c^4A}{16\pi G^2}=k_B\frac{c^3A}{4G\hbar}=k_B\frac{A}{4\ell_P^2}$$
+    <p style="margin-bottom:14px;">出た。<strong>1/4 の正体は \(\dfrac{4\pi}{16\pi}\)</strong> ── 温度側から積分で出た \(4\pi\)（④）を、面積側の \(16\pi\)（＝球の \(4\pi\) × \(R_s\) の \(2^2\)）で割ったもの。<em>温度の π と 面積の π が割り算されて、1/4 になる。</em></p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">この番外の結論</div>
+    $$\boxed{\,S=k_B\frac{A}{4\ell_P^2}\,}\qquad \frac14=\frac{4\pi}{16\pi}$$
+    <p style="margin:8px 0 0;">①②④⑤⑥ は全部あなたの"比"。輸入したのは③の <strong>2π</strong> ひとつだけ。α の 137.036 と違って、<strong>1/4 は手で出せる数</strong>だった。</p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 1/4 の組み立て</h2>
+
+  <p>下の図は、①→⑥のステップを1つずつ踏んで、\(1/4\) が組み上がっていく様子。「次のステップ」で進めてください。各段でどの式が加わり、どこで「4」と「16」が生まれ、最後に \(4\pi/16\pi=1/4\) に落ちるかが、目で追えます。③のところだけ「輸入：2π」の札がつきます ── そこが唯一、比では出せない一滴です。</p>
+
+  <div class="fig">
+    <div class="cap">図：1/4 の手計算ビルダー。①R_s → ②表面重力（2²=4の芽）→ ③温度（輸入：2π）→ ④第一法則で積分（4π）→ ⑤面積（16π）→ ⑥ 1/4=4π/16π。「次のステップ」で組み上がる</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <button id="prev">← 戻る</button>
+      <button id="next">次のステップ →</button>
+      <button id="all">全部見る</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f7a8c;"></i>手計算（比）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>輸入した種（2π）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>2π の正体 ── 温度は"虚時間の輪"、2π は"一周"</h2>
+
+  <p>③で輸入した 2π を、もう一段かみ砕きます。話は二段：<strong>(A) そもそも温度とは"虚時間の輪"のこと</strong>、<strong>(B) 地平面ではその輪の一周が 2π ちょうどでないと尖ってしまう</strong>。この二つを合わせると、2π が温度に化けます。</p>
+
+  <p><strong>(A) 温度は、虚時間の輪の"長さ"</strong>。量子の時間発展は \(e^{-iHt/\hbar}\)、統計力学のボルツマン因子は \(e^{-H/k_BT}\)。この二つを見比べると ──</p>
+
+  <div class="calc">
+    <span class="tag">見比べる ── ボルツマン因子は「虚時間の時間発展」</span>
+    $$\underbrace{e^{-iHt/\hbar}}_{\text{時間発展}}\quad\xrightarrow{\ t=-i\hbar/k_BT\ }\quad \underbrace{e^{-H/k_BT}}_{\text{ボルツマン因子}}$$
+    <p style="margin-bottom:14px;">つまり「温度 \(T\) で存在する」＝「<strong>虚時間 \(\tau=it\) の方向に、長さ \(\hbar/k_BT\) だけ進む</strong>」こと。しかも統計平均はぐるっと足し合わせ（トレース）なので、虚時間の両端がつながり ── <strong>虚時間は周期 \(\hbar/k_BT\) の"輪（円）"に丸まる</strong>。輪が<em>短い＝熱い</em>、輪が<em>長い＝冷たい</em>。温度とは、虚時間の輪の長さの逆数だった（KMS 条件、わかる宇宙論⑨の"i を虚軸に回すと温度"の中身）。</p>
+  </div>
+
+  <p><strong>(B) 地平面のそばは"極座標の平面"── だから一周は 2π</strong>。ブラックホールのそばの時空を虚時間に回すと、（虚時間, 地平面からの距離）の2次元が、ちょうど<strong>平面の極座標 \(ds^2=d\rho^2+\rho^2 d\varphi^2\)</strong> の形になる（\(\rho\)＝地平面からの距離、\(\varphi\)＝虚時間から作った"角度"）。ここで大事なのは ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">尖らせない条件 ＝ 一周ちょうど 2π</div>
+    <p style="margin:2px 0 0;">平面を極座標で見たとき、中心（\(\rho=0\)＝地平面）が<strong>なめらか（尖っていない）</strong>であるためには、角度 \(\varphi\) が<em>ちょうど 2π で一周</em>しなければならない。2π より短ければ<strong>円錐の尖り</strong>、長ければ<strong>ひだ</strong>ができて、時空がそこで壊れる。折り紙で円錐を作るとき、切り取る角度（欠損）だけ尖るのと同じ ── <strong>「きれいな平面＝一周 2π」</strong>。</p>
+  </div>
+
+  <p>この「角度 \(\varphi\) は表面重力 \(\kappa\) と虚時間から \(\varphi\propto\kappa\tau\) で作られる」ので、<em>\(\varphi\) が 2π で一周</em>＝<em>虚時間 \(\tau\) の周期が \(2\pi/\kappa\)（×c）</em>。これを (A) の「虚時間の周期＝\(\hbar/k_BT\)」と等号で結ぶと ──</p>
+
+  <div class="calc">
+    <span class="tag">(A)＝(B) を等号で結ぶ</span>
+    $$\underbrace{\frac{\hbar}{k_BT}}_{\text{(A) 温度の輪}}=\underbrace{\frac{2\pi c}{\kappa}}_{\text{(B) 尖らせない一周}}\quad\Rightarrow\quad k_BT=\frac{\hbar\kappa}{2\pi c}=\frac{\hbar c^3}{8\pi GM}$$
+    <p style="margin-bottom:14px;">③のホーキング温度が、<strong>「虚時間の輪の長さ（温度）」＝「地平面を尖らせない一周（2π）」</strong>という<em>幾何のなめらかさ</em>だけから出た。輸入した"種"の正体は ── <strong>「一周は 360°＝2π」</strong>、ただそれだけ。円周率の 2π が、そのままブラックホールの温度の 2π。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">ついでに：温度を経由せず 1/4 を直接（ギボンズ–ホーキング）</span>
+    虚時間ブラックホールを \(n\) 枚重ねる（replica）と、地平面の"一周"が \(2\pi n\) になり、\(n\neq1\) で<strong>円錐の尖り（角度の欠損）</strong>ができる。円錐の曲率は \(\int R=2\times(\text{欠損角})\times(\text{面積})\)。これをアインシュタイン作用（前係数 <strong>1/16πG</strong>）に入れて \(n\) で微分すると、<em>温度を経由せず 1/4 が直接</em>出る（1/4 ＝ 作用の 1/16πG × 円錐の 4π）。輸入するのは「作用の 1/16πG」と「一周 2π」だけ。しかもこの"虚時間を n 枚重ねる"機械は、第6回の islands／複製ワームホールと<strong>まったく同じ土俵</strong>です。</div>
+
+  <p>まとめると、③の 2π は魔法でも何でもなく ── <strong>「温度＝虚時間の輪の長さ」＋「地平面を尖らせない一周＝2π」</strong>という二つの当たり前の組合せ。次元解析（比）からは出ない一滴だけれど、その一滴の正体は<em>円周の 2π</em>。それさえ認めれば、1/4 は全部あなたの手で出せる。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「手で出した」の意味</span>
+    <p style="margin-top:0;">ここで示した導出（②の \(g=c^4/4GM\)、③のホーキング温度、④⑤⑥の熱力学、そして 1/4＝4π/16π）は、いずれも標準的な半古典の結果と一致します。円錐欠損／ギボンズ–ホーキングのユークリッド経路積分による 1/4 の導出も確立しています。「輸入は 2π ひとつ」というのは、この半古典の枠内での正確なまとめです。</p>
+    <p style="margin-bottom:0;">ただし。 ① ②のニュートン的な表面重力 \(g=GM/R_s^2=c^4/4GM\) が一般相対論の表面重力と一致するのは"うまくいく偶然"に近く、正当な導出は一般相対論（表面重力 \(\kappa\)）です（第1回の「ニュートンがなぜか当たる」と同種）。 ② この 1/4 は<strong>半古典（熱力学的・幾何的）な導出</strong>で、「なぜ地平面が \(A/4\ell_P^2\) 個の微視的状態を持つのか」を<em>数え上げで</em>説明するのは別の課題 ── それを果たすのが弦理論（Strominger–Vafa 1996、状態を数えて 1/4 を再現）やループ量子重力（イミルジ・パラメータの固定で 1/4）で、第2回・第6回の話。 ③ 「加速→温度」の 2π は本物の量子効果（ウンルー効果／KMS）で、次元解析からは出ない ── だから「輸入ゼロ」にはできない。 ④ \(A/4\) は先頭項で、対数補正や（重力作用が非アインシュタインなら）Wald エントロピーへの一般化がある。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の式だけで解けます）</div>
+    <ol>
+      <li>最終結果の 1/4 は、どの二つの数の割り算か。それぞれ何に由来するか。
+        <details><summary>答えを見る</summary><div class="ans">\(1/4=4\pi/16\pi\)。分子の 4π は温度（8π）から第一法則で積分して出た（④）。分母の 16π は面積 A=4πR_s² の球の 4π と、R_s=2GM/c² の 2² =4 の積（⑤）。温度の π と幾何の π の割り算。</div></details>
+      </li>
+      <li>この導出で、比（次元解析・手計算）では出せず、輸入せざるをえなかったのはどのステップか。
+        <details><summary>答えを見る</summary><div class="ans">③の「加速→温度」\(k_BT=\hbar g/2\pi c\) の 2π。これはウンルー効果／KMS（虚時間の周期性＝温度）という本物の量子効果で、次元解析からは出ない唯一の一滴。</div></details>
+      </li>
+      <li>②の \(g=c^4/4GM\) はニュートン力学で出したのに、なぜ使えるのか。正直な注意は?
+        <details><summary>答えを見る</summary><div class="ans">ニュートンの重力 \(GM/R_s^2\) を \(R_s=2GM/c^2\) で計算すると偶然にも一般相対論の表面重力と一致するため。ただし正当な導出は一般相対論（第1回の「ニュートンがなぜか当たる」と同種の、係数まで合う一致）。</div></details>
+      </li>
+      <li>「1/4 は手で出せるが、α の 137.036 は出せない」── この違いを一言で。
+        <details><summary>答えを見る</summary><div class="ans">1/4 は、比の手計算＋2π（虚時間＝温度）という既知の物理から導け、しかも弦理論・LQGが独立に再現する"導けた数"。137.036 は今のどの理論からも導けない、真に未解決の入力。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編まとめ</span>1/4 = 4π/16π ── 輸入は 2π ひとつだけ</h2>
+    <p>ベッケンシュタイン–ホーキングの \(S=A/(4\ell_P^2)\) の 1/4 は、ほとんど"比"で組み上がる。① \(R_s=2GM/c^2\)、② 表面重力 \(g=GM/R_s^2=c^4/4GM\)（ここで 2²=4 の芽）、④ 第一法則で \(S=4\pi GM^2/\hbar c\)、⑤ 面積 \(A=16\pi G^2M^2/c^4\)、⑥ 合体して \(S=k_B A/4\ell_P^2\)。<strong>1/4 の正体は 4π/16π</strong>（温度の π ÷ 幾何の π）。手計算が止まるのは③だけ ── <strong>「加速すると温度が見える」の 2π</strong>（ウンルー／KMS、わかる宇宙論⑨の虚時間＝温度）。</p>
+    <p>だから正直に言えば ── <strong>1/4 は完全に手で出せる。ただし "虚時間は周期的＝温度" という 2π 一個だけは、物理として認める必要がある</strong>。そこは比では出ない、量子と幾何が出会う本物の一滴。でも輸入が 2π ひとつまで削れるのは気持ちいい。α の 137.036 が「導けない謎」だったのに対し、この 1/4 は<em>手が届く成功例</em>── しかも弦理論・LQGが独立に同じ 1/4 を再現する（第2・6回）。「比で骨格、輸入は 2π、残りは全部あなたの手の中」。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">シリーズに戻る</span>
+    この番外は、第2回「エントロピー＝ビット数」と第6回「情報パラドックスと量子重力」の間の"手を動かす回"でした。1/4 が手で出せたのは、半古典（熱力学＋幾何）の勝利。<em>なぜ地平面がその個数の状態を持つのか</em>を微視的に数える話は、第6回の量子重力（弦・LQG・islands）へ。全体の見取り図は<a href="../butsuri-rittai.html">物理の立方体</a>へ。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかるブラックホール」シリーズ番外編、物理好きの高校生・大学生向け読み物です。ベッケンシュタイン–ホーキング エントロピー \(S=k_Bc^3A/(4G\hbar)=k_BA/(4\ell_P^2)\) が、シュワルツシルト半径 \(R_s=2GM/c^2\)、表面重力 \(\kappa=c^4/4GM\)、ホーキング温度 \(k_BT=\hbar\kappa/2\pi c=\hbar c^3/8\pi GM\)、熱力学第一法則の組合せで導かれ、係数 \(1/4=4\pi/16\pi\) が温度と面積の π の比として現れること、その温度の \(2\pi\) が虚時間の周期性（KMS 条件・ウンルー効果）に由来すること、円錐欠損によるギボンズ–ホーキングのユークリッド経路積分でも 1/4 が直接得られることは、いずれも確立した半古典物理です。ニュートン的計算 \(g=GM/R_s^2\) が一般相対論の表面重力と一致するのは係数まで合う（正当な導出は一般相対論）こと、半古典の 1/4 と微視的状態数え上げ（弦理論 Strominger–Vafa 1996／ループ量子重力）は別の達成であること、\(2\pi\) は次元解析からは出ない量子効果であること、\(A/4\) が先頭項で対数補正・Wald エントロピーへの一般化があることは本文「正直な線」に明記しました。図は導出ステップの段階表示で、係数の起源を追う教育用の模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版では操作と解答は静止・非表示になります）。関連：<a href="wakaru-blackhole-02-entropy.html">第2回 エントロピー</a>／<a href="wakaru-blackhole-06-paradox.html">第6回 量子重力</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru/index.html">わかる宇宙論</a>（虚時間＝温度）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では「次のステップ」で 1/4 が組み上がります。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      prev=document.getElementById('prev'), next=document.getElementById('next'), allb=document.getElementById('all');
+  var step=1, MAX=6;
+  var STEPS=[
+    {t:'① 地平面の半径', eq:'R_s = 2GM/c²', note:'第1回・比。手計算。', imp:false},
+    {t:'② 表面重力（比）', eq:'g = GM/R_s² = c⁴/(4GM)', note:'R_s の 2 を2乗 → 分母に 4。1/4 の"芽"がここに。', imp:false},
+    {t:'③ 加速 → 温度【輸入：2π】', eq:'k_BT = ℏg/(2πc) = ℏc³/(8πGM)', note:'唯一の輸入。2π は虚時間＝温度（ウンルー／KMS）。8π=2π×4。', imp:true},
+    {t:'④ 第一法則で積分（比）', eq:'dS=c²dM/(k_BT) → S = 4πG M²/(ℏc)', note:'温度側から 4π が出た。', imp:false},
+    {t:'⑤ 面積で書き直す（比）', eq:'A=4πR_s² → M² = c⁴A/(16πG²)', note:'面積側に 16π（球の4π × 2²）。', imp:false},
+    {t:'⑥ 合体', eq:'S = k_B c³A/(4Gℏ) = k_B A/(4ℓ_P²)', note:'1/4 = 4π/16π（温度のπ ÷ 幾何のπ）。', imp:false}
+  ];
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    // 進捗ドット
+    for(var i=0;i<MAX;i++){
+      var on=(i<step);
+      ctx.beginPath(); ctx.arc(40+i*26, 26, 7, 0,7);
+      ctx.fillStyle = on ? (STEPS[i].imp?'#a83a22':'#1f7a8c') : '#cfe0e2'; ctx.fill();
+      ctx.fillStyle='#5f6d70'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(''+(i+1), 40+i*26, 45);
+    }
+    // 各ステップの式を積み上げ表示
+    var y=76, lh=38;
+    for(var s=0;s<step;s++){
+      var st=STEPS[s], cur=(s===step-1);
+      ctx.textAlign='left';
+      ctx.fillStyle = st.imp ? '#a83a22' : '#1f6a72';
+      ctx.font = 'bold '+(cur?14:12)+'px sans-serif';
+      ctx.fillText(st.t, 40, y);
+      ctx.fillStyle = cur ? '#111' : '#6a7a7c';
+      ctx.font = (cur?'bold ':'')+ (cur?17:14)+'px "Courier New",monospace';
+      ctx.fillText(st.eq, 56, y+20);
+      y+=lh + (cur?6:0);
+    }
+    // 最終強調
+    if(step>=MAX){
+      ctx.strokeStyle='#1f7a8c'; ctx.lineWidth=2;
+      var by=y+2;
+      ctx.strokeRect(48, by, w-96, 40);
+      ctx.fillStyle='#a83a22'; ctx.font='bold 20px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('1/4 = 4π / 16π   ✓ 手で出た', w/2, by+26);
+    }
+
+    var st=STEPS[step-1];
+    rd.textContent='ステップ '+step+'/'+MAX+'：'+st.t+' ── '+st.note
+      + (step<MAX?'':'  ／ 完成：輸入したのは③の 2π ひとつだけ。残りは全部あなたの比。');
+    next.disabled=false;
+  }
+
+  next.addEventListener('click', function(){ if(step<MAX) step++; draw(); });
+  prev.addEventListener('click', function(){ if(step>1) step--; draw(); });
+  allb.addEventListener('click', function(){ step=MAX; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
