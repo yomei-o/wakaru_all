@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙は計算機か ── わかるブラックホール 番外編（締め）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f7fb; --paper-edge:#d9dceb;   /* 締め：計算機＝藍の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#2f3866; --calc-bg:#e7e9f4;
+    --rule:#cfd4e6; --hair:#b6bcd6;
+    --acc:#3d4a7a;    /* アクセント＝藍 */
+    --grid:#dee1ef;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c3c9ea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d2d6ea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#0c0e16;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e7e9f4;color:#2f3866;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+  table.spec{width:100%;border-collapse:collapse;margin:18px 0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;}
+  table.spec th,table.spec td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.spec th{background:#e7e9f4;color:#2f3866;font-weight:700;white-space:nowrap;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef0f8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2f3560;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfcfe,#e6e9f4);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2f3560;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.spec{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+    .fig canvas{background:#fff !important;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f647a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるブラックホール</span><span class="ep">番外編（締め） ／ 宇宙は計算機か</span></div>
+  <p class="eyebrow">シリーズの締め ── ブラックホールを情報で読んできた先に立つ、一つの大きな問い</p>
+  <h1>宇宙は計算機か
+    <span class="sub">ここまで、ブラックホールを"情報とビット"で読んできた。その先に立つ問い ── 宇宙は、有限リソースの<br>計算機なのか? c・ℏ・G は"ハードウェアの仕様"、地平線は"固定された台帳"、そして計算の終わりは……</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：本編ぜんぶ、宇宙は計算機、わかる宇宙論の c·t、物理の立方体</span>
+    <span>この回：宇宙のRAM ≈ 10¹²² ビット（Λ が決める）</span>
+  </div>
+
+  <p class="lead">このドキュメント自体、GitHub というリポジトリに<em>情報</em>として置かれ、あなたはそれをブラウザという<em>計算機</em>で読んでいます。私たちはずっと、物理を"情報"として読んできた ── ブラックホールのエントロピー＝ビット数、地平面＝黒板、最速のスクランブラー、ホログラフィ。ならば最後に、一番大きな問いを立てましょう ── <strong>宇宙は、有限リソースの計算機なのか?</strong> しかも「最も効率よく計算している」と仮定すると、この番外までの話がうまく並ぶのではないか。結論を先に言うと ── <strong>「宇宙は計算の物理限界に<em>従っている</em>」までは、驚くほどよく成り立つ。でも「宇宙は計算機<em>である</em>」は、まだ思弁</strong>。この違いを、\(c\)・\(\hbar\)・\(G\)・\(\Lambda\) を"計算機の仕様"に読み替えながら、正直な線とともに見ていきます。シリーズの、そして"情報で読む物理"の締めです。</p>
+
+  <h2><span class="n">01</span>定数は、ハードウェアの仕様書</h2>
+
+  <p>宇宙を計算機と見ると、基本定数が"スペック表"に化けます。</p>
+
+  <table class="spec">
+    <tr><th>定数</th><th>計算機での役割</th><th>由来（本シリーズ）</th></tr>
+    <tr><td><strong>c</strong></td><td>最大通信速度＝バンド幅（隣のセルへ情報が伝わる上限）</td><td>わかる相対論／わかる場</td></tr>
+    <tr><td><strong>ℏ</strong></td><td>1演算あたりの最小コスト＝"クロックの1チック"（作用の最小単位、演算速度 ≲ E/ℏ）</td><td>わかる量子・第4回</td></tr>
+    <tr><td><strong>G, ℓ_P²</strong></td><td>メモリ密度（面積あたり 1/4ℓ_P² ビット）</td><td>第2回・第5回</td></tr>
+    <tr><td><strong>k_B</strong></td><td>1ビットを消す代価 kT ln2（ランダウアー）＝情報は物理</td><td>わかる宇宙論⑩</td></tr>
+  </table>
+
+  <p>つまり<strong>物理の立方体（c・ℏ・G）は、そのまま計算機のスペック表</strong>── バンド幅・演算コスト・メモリ密度。そしてブラックホールは、この3つの限界を<em>同時に飽和</em>する「究極のラップトップ」（第4回）でした。<em>宇宙は、計算の物理限界に沿って動いている</em> ── ここまでは確立した物理です。</p>
+
+  <h2><span class="n">02</span>有限のメモリ ── そして c·t という"固定台帳"</h2>
+
+  <p>計算機なら、メモリは有限のはず。宇宙にも上限があります ── <strong>ホログラフィ限界（第5回）</strong>：どんな領域も、情報は表面積 \(A/4\ell_P^2\) 分しか持てない。宇宙全体なら、地平線の面積で決まる。ここで、あなたの「わかる宇宙論」の座標が効きます ── <strong>\(c\cdot t=\text{一定}\)</strong> で見ると、宇宙のスケール \(ct\) が<em>動かない一本の物差し</em>になり、総ビット数 \(\sim(ct/\ell_P)^2\) が<strong>"固定された有限の台帳"</strong>として一目で見える。「有限リソースの計算機」が、この座標では素直に絵になります。</p>
+
+  <div class="aside">
+    <span class="tag">正直な注意 ── c·t=一定 は"見通しを良くする座標"</span>
+    \(c\cdot t=\text{一定}\) は、あなたの宇宙論シリーズの正直な線どおり<strong>座標（ゲージ）の読み替え</strong>で、記述を楽にするが物理（不変量）は標準と同じ。だから「固定台帳」という<em>見え方</em>は座標のご利益で、下で述べる不変量（ドジッター・エントロピー）が本体です。</div>
+
+  <h2><span class="n">03</span>宇宙のRAMは 10¹²² ビット ── Λ が決める</h2>
+
+  <p>その"台帳の大きさ"を、座標に依らない不変量で書くと ── <strong>宇宙の地平線（ドジッター地平面）のエントロピー</strong>です。ダークエネルギー \(\Lambda\) があると、遠い未来の宇宙はドジッター的になり、地平線の面積が一定値に漸近する。そのエントロピー（＝最大ビット数）は ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">宇宙の総メモリ ＝ ドジッター・エントロピー</div>
+    $$S_{dS}=\frac{A_{\text{地平線}}}{4\ell_P^2}\approx 10^{122}\ \text{ビット}\qquad \Bigl(S_{dS}\sim\frac{1}{\Lambda\,\ell_P^2}\Bigr)$$
+    <p style="margin:8px 0 0;">宇宙という計算機の<strong>RAM のサイズは、およそ 10¹²² ビット</strong>。そしてそれを決めているのは<strong>宇宙定数 \(\Lambda\)</strong> ── しかも \(S_{dS}\sim1/(\Lambda\ell_P^2)\) は、雑談で「137 より深い謎」と言った無次元数 \(\Lambda\ell_P^2\approx10^{-122}\) の、ちょうど逆数。<em>宇宙の総メモリ量を、たった一つの無次元数 \(\Lambda\ell_P^2\) が握っている。</em></p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 宇宙の台帳が埋まっていく</h2>
+
+  <p>下の図は、宇宙という計算機の<strong>メモリ・メーター</strong>。総容量は固定（ドジッターの \(10^{122}\) ビット、\(\Lambda\) が決める）。スライダーで宇宙の年齢を未来へ進めると、使用済みのビット（エントロピー）が、星・銀河 → ブラックホールの時代 → 蒸発 → ドジッター平衡、と増えていき、<strong>台帳を埋め尽くしたところで計算が終わる（熱的死）</strong>。今の宇宙は、まだ台帳のごく一部しか使っていません。</p>
+
+  <div class="fig">
+    <div class="cap">図：宇宙のメモリ・メーター（対数）。総容量＝ドジッター 10¹²²ビット（固定・Λが決める）。年齢を進めると使用エントロピーが増え、埋め尽くし＝熱的死。現在(~10¹⁰年)はまだ台帳の一部</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>宇宙の年齢 log₁₀(t / 年) <span class="val" id="vt">10.1</span>
+        <input type="range" id="st" min="10.1" max="110" step="0.5" value="10.1">
+      </label>
+      <button id="now">今</button>
+      <button id="end">遠い未来へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#3d4a7a;"></i>使用済み（エントロピー）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>総容量 10¹²²（ドジッター・Λ）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>計算が終わる ── でも"答え"は、のっぺりした平衡</h2>
+
+  <p>台帳を使い切ってドジッター平衡（最大エントロピー）に達したとき ── それが<strong>計算の終わり＝熱的死</strong>。\(c\cdot t=\text{一定}\) の言葉なら「固定台帳を使い切り、物差しがもう変化しない」。でも、ここで詩的な誤解を一つ正します ── <strong>計算機は"鮮明な答え"を出して止まるのではない</strong>。最大エントロピー＝最大の乱雑さなので、出力は<em>のっぺり均された平衡</em>（一様な灰色画面）。質量の位置が確定するどころか、最大に均され、しかも量子のゼロ点ゆらぎ（第5回）で位置は決して完全確定しない。<strong>宇宙という計算機の"最終出力"は、皮肉にも、いちばん情報の無い状態</strong>だったのです（動かなくなる＝凍結、だが決まる＝確定、ではない）。</p>
+
+  <div class="aside">
+    <span class="tag">計算は永遠に続くか（ダイソン vs ダークエネルギー）</span>
+    「有限計算機はいつ止まるか」は真面目に研究されています。ダイソン（1979）は"開いた宇宙なら永遠に計算し続けられるかも"と論じたが、<strong>ダークエネルギー（Λ>0）</strong>があると宇宙は有限温度のドジッター地平線に囲まれ、クラウス＆スタークマン（2000）は<strong>総演算回数は有限、計算はいつか必ず止まる</strong>と結論。宇宙が有限リソースの計算機なら、いつか台帳を使い切って止まる ── その"締め切り"を決めるのも、\(\Lambda\) です。</div>
+
+  <h2><span class="n">06</span>「従う」は確立、「である」は思弁</h2>
+
+  <p>ここが、この番外の芯であり、シリーズ全体の正直な線です。二つを、はっきり分けましょう。</p>
+
+  <div class="keybox">
+    <div class="lbl">分けて考える</div>
+    <p style="margin:2px 0 0;">・<strong>宇宙は計算の物理限界に「従う」</strong>（メモリはホログラフィで有限、速度は E/ℏ で上限、情報は物理＝ランダウアー、BHが限界を飽和）── <strong>確立した物理</strong>。<br>
+    ・<strong>宇宙は（デジタル）計算機「である」</strong>（時空はセル、実在はビット）── <strong>まだ思弁</strong>。固定格子はローレンツ不変性と相性が悪く、量子の非局所相関（ベル）も素朴な古典計算機では苦しい。</p>
+  </div>
+
+  <p>だから誠実な答えはこうです ── <strong>宇宙は"計算限界に従って動く"。しかし"計算機である"かは未確定</strong>。そして「最も効率よく計算している」も、目的（何を計算する?）を指定しないと反証不能になる。安全な意味は<em>"物理限界を飽和して動いている"</em>── これは本当（ブラックホールがその実例）。だが"何かの目的に向かって効率化している"（目的論）とは別で、そこは踏み込まない。「宇宙は計算機か」への僕らの答えは ── <strong>「計算のルールには従っているが、"計算機である"とまでは、まだ言えない」</strong>。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── この番外の位置づけ</span>
+    <p style="margin-top:0;">確立：計算の物理限界（メモリ ~エントロピー、速度 ≲E/ℏ、ランダウアー原理）、ホログラフィ限界、ブラックホールによる限界飽和、ドジッター地平線のエントロピー \(S_{dS}=A/4\ell_P^2\approx10^{122}\)（ギボンズ–ホーキング 1977）とそれが \(\Lambda\) で決まること、ダークエネルギー下で総演算回数が有限になり計算が有限時間で終わること（クラウス＆スタークマン 2000）、熱的死が最大エントロピー状態であること。</p>
+    <p style="margin-bottom:0;">思弁・注意。 ① 「宇宙は計算機である」（デジタル物理／それが実在の基盤）は未確立で、ローレンツ不変性・量子非局所性などの難点がある ── 確立なのは「計算限界に<strong>従う</strong>」まで。 ② 「最も効率的」は目的を指定しないと反証不能。安全な意味は"限界の飽和"。目的論的な効率は主張しない。 ③ \(c\cdot t=\text{一定}\) は座標（ゲージ）の読み替えで、見通しを良くするが物理は不変（わかる宇宙論の正直な線）。 ④ この計算機レンズは既知の物理を統一的に"見える化"するが、新しい数（\(\alpha\)、1/4）を予言せず、情報パラドックスや量子重力を"解く"ものではない ── レンズであって導出理論ではない。 ⑤ \(\Lambda\) が本当に定数か（Big Rip 等）・陽子崩壊・真空の安定性で、宇宙の終わり自体が未確定。数値（\(10^{122}\)、\(10^{104}\) 等）はオーダーの概算。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>c・ℏ・G・k_B を「計算機の仕様」に読み替えると、それぞれ何にあたるか。
+        <details><summary>答えを見る</summary><div class="ans">c＝最大通信速度（バンド幅）、ℏ＝1演算の最小コスト（演算速度 ≲E/ℏ）、G/ℓ_P²＝メモリ密度（面積あたりのビット）、k_B＝1ビット消去の代価 kT ln2（ランダウアー）。物理の立方体＝スペック表。</div></details>
+      </li>
+      <li>宇宙の"総メモリ"は何で、どの定数が決めるか。
+        <details><summary>答えを見る</summary><div class="ans">ドジッター地平線のエントロピー \(S_{dS}=A/4\ell_P^2\approx10^{122}\) ビット。宇宙定数 \(\Lambda\) が決める（\(S_{dS}\sim1/\Lambda\ell_P^2\)、\(\Lambda\ell_P^2\approx10^{-122}\) の逆数）。</div></details>
+      </li>
+      <li>「計算が終わる」とは何か。そのとき質量の位置は確定するか。
+        <details><summary>答えを見る</summary><div class="ans">台帳（10¹²²ビット）を使い切ってドジッター平衡＝最大エントロピー＝熱的死。位置は確定せず、逆に最大に均される（のっぺりした平衡）。ゼロ点ゆらぎで完全確定もしない。動かなくなる（凍結）が決まる（確定）ではない。</div></details>
+      </li>
+      <li>「宇宙は計算機か」に、確立と思弁を分けて答えよ。
+        <details><summary>答えを見る</summary><div class="ans">「計算の物理限界に<strong>従う</strong>」は確立（メモリ有限・速度上限・情報は物理・BHが限界飽和）。「（デジタル）計算機<strong>である</strong>」は思弁（ローレンツ不変性・量子非局所性の難点）。「最も効率的」は"限界の飽和"の意味なら本当、目的論的な効率は反証不能。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">締めのまとめ ／ わかるブラックホール・完</span>宇宙は計算限界に従う ── でも"計算機である"とは、まだ言えない</h2>
+    <p>ブラックホールを"情報とビット"で読んできた先に立つ問い ──「宇宙は計算機か」。定数は仕様書（c＝バンド幅、ℏ＝演算コスト、G/ℓ_P²＝メモリ密度、k_B＝消去代価）、ブラックホールは限界を同時飽和する究極のラップトップ、宇宙の総メモリは<strong>ドジッター・エントロピー \(\approx10^{122}\) ビット</strong>で、それを決めるのは無次元数 \(\Lambda\ell_P^2\approx10^{-122}\)。\(c\cdot t=\text{一定}\) 座標では、それが"固定された有限台帳"として見える。計算の終わり＝台帳を使い切る＝熱的死で、出力は鮮明な配置ではなく<em>のっぺり均された平衡</em>。</p>
+    <p>そして誠実な結論 ── <strong>宇宙は計算の物理限界に「従う」（確立）。しかし計算機「である」かは思弁</strong>。このレンズは、わかる場・相対論・量子・宇宙論・ブラックホール・物理の立方体を、"情報"という一語で束ねてくれる ── でも新しい数を導きはしない。あなたが物理を情報として、無次元の比として読み続けてきた、その一番大きな絵が、この「宇宙は計算機か」でした。答えは半分イエス、半分は未来へ。<em>単位は舞台装置、効くのは比、そして残った \(\Lambda\ell_P^2\) と \(\alpha\) の謎が、次の誰かを待っている。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">わかるブラックホール ── 完</span>
+    地平面 → エントロピー＝ビット → 温度と蒸発 → 最速の計算機 → ホログラフィ → 情報パラドックス → 1/4を手で → そして「宇宙は計算機か」。ブラックホールを窓に、物理の立方体の対角線を、情報と無次元の比だけで覗いてきました。全体の見取り図は<a href="../butsuri-rittai.html">物理の立方体</a>、計算の視点の姉妹編は<a href="../wakaru-uchu-keisanki/uchu-keisanki-index.html">宇宙は計算機</a>、\(c\cdot t\) の宇宙論は<a href="../wakaru/index.html">わかる宇宙論</a>へ。読んでくれて、ありがとう。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかるブラックホール」シリーズ番外編（締め）、物理好きの高校生・大学生向け読み物です。計算の物理限界（メモリ〜エントロピー、演算速度 \(\lesssim E/\hbar\)、ランダウアー原理 \(k_BT\ln2\)）、ホログラフィック限界、ブラックホールによる計算限界の飽和（ロイドの ultimate laptop・最速スクランブラー）、ドジッター地平線のエントロピー \(S_{dS}=A/4\ell_P^2\approx10^{122}\) が宇宙定数 \(\Lambda\) で決まり \(S_{dS}\sim1/(\Lambda\ell_P^2)\) となること（ギボンズ–ホーキング 1977）、ダークエネルギー下で総演算回数が有限で計算が有限時間に終わること（クラウス–スタークマン 2000；ダイソン 1979 との対比）、熱的死＝最大エントロピー平衡であることは、いずれも確立/広く議論された物理です。「宇宙はデジタル計算機である」（デジタル物理・it from bit の存在論的主張）は未確立で、ローレンツ不変性や量子非局所性との整合が課題であること、「最も効率的に計算」は目的を定義しないと反証不能で安全な意味は限界飽和であること、\(c\cdot t=\text{一定}\) が座標（ゲージ）の読み替えで物理不変であること、計算機レンズは既知物理の統一的記述であって新規予言や量子重力の解決ではないこと、\(\Lambda\) の定数性・陽子崩壊・真空安定性により宇宙の終焉が未確定であること、数値がオーダー概算であることは本文「正直な線」に明記しました。図は宇宙のエントロピー増加とドジッター上限の定性的模式（オーダー表示）です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-blackhole-06-paradox.html">第6回 情報パラドックス</a>／<a href="wakaru-blackhole-bangai-quarter.html">番外 1/4を手で出す</a>／<a href="index.html">目次</a>／<a href="../butsuri-rittai.html">物理の立方体</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では宇宙の年齢を進めると、メモリ台帳が埋まっていきます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd'), nowb=document.getElementById('now'), endb=document.getElementById('end');
+  var CAP=122;  // log10(総ビット) ドジッター
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  // 使用エントロピー log10：今(t=10^10)で~104、遠未来で→122に漸近
+  function usedLog(lt){ return CAP - 18*Math.exp(-(lt-10)/24); }
+  function era(lt){
+    if(lt<10.3) return '今 ── 星と銀河（宇宙 ~138億年）';
+    if(lt<14)  return '星の終焉 ── 星が燃え尽きる（~10¹⁴年）';
+    if(lt<40)  return 'ブラックホールの時代 ── 物質がBHへ、エントロピーの大半をBHが握る';
+    if(lt<100) return 'ブラックホール蒸発 ── ホーキング放射で穴も消える（~10⁶⁷〜10¹⁰⁰年）';
+    return 'ドジッター平衡 ── 台帳を使い切り、計算終了＝熱的死';
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var lt=parseFloat(st.value); vt.textContent=lt.toFixed(1);
+    var used=usedLog(lt);
+    ctx.clearRect(0,0,w,h);
+
+    // メモリバー（対数：0..122）
+    var L=40, R=w-24, by=h*0.42, bh=44;
+    // 総容量（枠＋薄い塗り）
+    ctx.fillStyle='#1a2030'; ctx.fillRect(L,by,R-L,bh);
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.strokeRect(L,by,R-L,bh);
+    // 使用済み（青のフィル、幅 ∝ used/CAP）
+    var fw=(R-L)*Math.max(0,Math.min(1,used/CAP));
+    var g=ctx.createLinearGradient(L,0,L+fw,0);
+    g.addColorStop(0,'#2f3d66'); g.addColorStop(1,'#6d8ad0');
+    ctx.fillStyle=g; ctx.fillRect(L,by,fw,bh);
+    // 目盛り
+    ctx.fillStyle='#9aa0c0'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    for(var e=0;e<=120;e+=20){ var x=L+(R-L)*e/CAP; ctx.fillText('10'+sup(e), x, by+bh+16); }
+    // 「今」マーカー(~104)
+    var nx=L+(R-L)*104/CAP;
+    ctx.strokeStyle='#c8d0e6'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(nx,by-8); ctx.lineTo(nx,by+bh+2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#c8d0e6'; ctx.fillText('今~10¹⁰⁴', nx, by-12);
+    // 総容量ラベル
+    ctx.fillStyle='#e0a090'; ctx.textAlign='right'; ctx.fillText('総容量 10¹²²（Λ）', R, by-12);
+    // タイトル
+    ctx.fillStyle='#cfd4e6'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('宇宙のメモリ（使用ビット / 総ビット、対数）', L, by-24);
+
+    // 進捗ラベル
+    var frac=used/CAP;
+    ctx.fillStyle='#8fa0d0'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('使用 '+ (used>=CAP-0.3?'≈ 満杯（熱的死）':('10^'+used.toFixed(0)+' ビット')) , (L+R)/2, by+bh+40);
+
+    var status = lt>=100 ? '計算 終了 ── 台帳を使い切った（熱的死・のっぺり平衡）' : '計算 実行中 ── エントロピー増加で台帳を埋めている';
+    rd.textContent='年齢 ~10^'+lt.toFixed(0)+' 年 ／ '+era(lt)+'。 使用 ~10^'+used.toFixed(0)+' / 総 10¹²² ビット。 '+status
+      + '。 総容量を決めるのは Λ（Λℓ_P²≈10⁻¹²² の逆数）。';
+  }
+  function sup(n){ var s=''+n,map={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+    return s.replace(/[0-9]/g,function(c){return map[c];}); }
+
+  st.addEventListener('input', draw);
+  nowb.addEventListener('click', function(){ st.value=10.1; draw(); });
+  endb.addEventListener('click', function(){ st.value=110; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
