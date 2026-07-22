@@ -18,6 +18,7 @@
 | **わかる場** | なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
 | **わかる相対論** | すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力=曲率・可変c≡曲率（全7話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
 | **わかる量子** | ℏ の物語。S/ℏ で古典と量子を分ける。粒と波・波動関数・経路和・シュレディンガー・不確定性・測定（全6話・完結＋番外）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) |
+| **わかるブラックホール** | 立方体の対角線(c・ℏ・G)を、情報とビットで。地平面・エントロピー=ビット・ホーキング温度・最速計算機・ホログラフィ・情報パラドックス（全6話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-blackhole/index.html) |
 | **わかる宇宙論** | 光速・微細構造定数・ゲージから宇宙を読む | [開く](https://yomei-o.github.io/wakaru_all/wakaru/index.html) |
 | **わかる力** | 「力」の正体を、場・幾何・対称性まで剥がす | [開く](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) |
 | **わかる質量** | 質量とは何か | [開く](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) |
@@ -27,7 +28,7 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望。
 
-（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🌐 English editions（英語版）
 
