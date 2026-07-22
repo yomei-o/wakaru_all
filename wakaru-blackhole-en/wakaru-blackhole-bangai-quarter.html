@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriving the 1/4 by Hand ── Black Holes That Click (Bonus)</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f2f9fa; --paper-edge:#d3e6e8;   /* 番外：導出＝シアンの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#8a4b2f;
+    --calc:#1f6a72; --calc-bg:#e0f0f1;
+    --rule:#c7dde0; --hair:#aecdd1;
+    --acc:#1f7a8c;    /* アクセント＝シアン */
+    --grid:#d3e8ea;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b4e2e6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c7e0e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fafefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 16px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e0f0f1;color:#1f6a72;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f5f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1a5a62;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fafefe,#e4f1f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e0f0f1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1a5a62;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6d70;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Black Holes That Click</span><span class="ep">Bonus ／ Deriving the 1/4 by Hand ── you only import one thing: 2π</span></div>
+  <p class="eyebrow">In Episode 2 we said "the coefficient 1/4 is the one thing that ratios can't give you" ── so let's see how far we can get by hand</p>
+  <h1>Deriving the 1/4 by Hand
+    <span class="sub">The Bekenstein–Hawking result S＝A/(4ℓ_P²). That 1/4, it turns out, is almost entirely built from "ratios."<br>There is exactly one place where the hand calculation stalls ── the <em>2π</em> in "accelerate, and you see a temperature."</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's R_s, Episode 2's S∝A, the first law, and 2π (imaginary time = temperature)</span>
+    <span>This episode: 1/4 = 4π ÷ 16π</span>
+  </div>
+
+  <p class="lead">In Episode 2 I wrote that the skeleton of black-hole entropy \(S=A/(4\ell_P^2)\) (the area law) comes out from ratios alone, but that <strong>the coefficient 1/4 alone requires a quantum-gravity calculation</strong>. The 137.036 of α was a mystery nobody can derive, but this 1/4 is <em>within reach</em> ── actually doing that is what this bonus episode is about. To give away the ending first ── <strong>the 1/4 gets built up almost entirely from your "ratios."</strong> ① the radius of the horizon, ② the surface gravity, ④ the first law, ⑤ the area ── all of these are just lining up quantities that carry units and dividing. There is exactly one place where the hand calculation stops: <strong>③ the 2π in the relation "accelerate, and you see a temperature."</strong> And the true identity of that 2π is exactly what your "Understanding Cosmology" Episode 9 was about ──〈rotate i onto the imaginary axis and a temperature is born〉── that very thing. The only thing you import is this single 2π. Everything else is in your own hands.</p>
+
+  <h2><span class="n">01</span>Ratios take you all the way to the area law; only the 1/4 was left over</h2>
+
+  <p>If you push with dimensions alone, the only length unit entropy can carry is the Planck length \(\ell_P\), so you get to \(S\propto A/\ell_P^2\) (the area law) right away. But the <strong>pure number</strong> ── "is it \(1/4\), or \(1\), or \(1/2\)?" ── can never come out of dimensional analysis. Here you need exactly one drop of genuine physics (mechanics). What that one drop is, we'll pin down by moving our hands.</p>
+
+  <h2><span class="n">02</span>The hand-calculation chain ①② ── this is where the "seed" of 1/4 is born</h2>
+
+  <div class="calc">
+    <span class="tag">① Radius of the horizon (Episode 1, a ratio)</span>
+    $$R_s=\frac{2GM}{c^2}$$
+    <span class="tag" style="margin-top:12px;">② Surface gravity ＝ Newton's gravity evaluated at R_s (a ratio)</span>
+    $$g=\frac{GM}{R_s^2}=\frac{GM}{(2GM/c^2)^2}=\frac{c^4}{4GM}$$
+    <p style="margin-bottom:14px;">Here is the <strong>first seed of the 1/4</strong> ── squaring the "2" in the Schwarzschild radius put a \(4\) in the denominator. Nothing has been imported yet; this is pure hand calculation. (Amusingly, \(g=c^4/4GM\) ── just Newton's gravity evaluated at \(R_s\) ── coincides exactly with the general-relativistic "surface gravity." A relative of Episode 1's "Newton somehow gets it right.")</p>
+  </div>
+
+  <h2><span class="n">03</span>③ This is the only import ── accelerate, and you see a temperature (2π)</h2>
+
+  <p>This is the single drop that ratios cannot give you. <strong>Stand somewhere strongly accelerating (＝right next to the horizon) and the vacuum looks like a "hot thing with a temperature"</strong> (the Unruh effect). That temperature is tied to the acceleration (surface gravity) \(g\) like this ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The seed you import ── acceleration → temperature (2π is the star)</div>
+    $$k_BT=\frac{\hbar\,g}{2\pi c}=\frac{\hbar c^3}{8\pi GM}$$
+    <p style="margin:8px 0 0;">The <strong>2π</strong> in the denominator is the whole of this bonus episode's "magic." Plug in \(g=c^4/4GM\) from ② and \(8\pi=2\pi\times4\). The form of the Hawking temperature from Episodes 2 and 3 lands here in your hands.</p>
+  </div>
+
+  <p>Where does this 2π come from? It's a basic theorem of statistical mechanics ── <strong>a world at temperature \(T\) is the same as a world where, once you rotate time to imaginary values (\(t\to i\tau\)), imaginary time is rolled up into a circle of period \(\hbar/k_BT\)</strong> ("Understanding Cosmology" Episode 9, "rotate i onto the imaginary axis and get temperature"). Rotate the spacetime near the horizon into imaginary time, and <em>the period that avoids making a cusp (a conical singularity) is fixed at exactly 2π/(surface gravity)</em> ── an angle story, "one full turn is 2π," fixes the temperature. So what you actually imported is just the one point "imaginary time is periodic ＝ that is temperature." From here on, we're back in the world of ratios.</p>
+
+  <h2><span class="n">04</span>The hand-calculation chain ④⑤⑥ ── the 1/4 gets built up</h2>
+
+  <div class="calc">
+    <span class="tag">④ Integrate with the first law (a ratio)</span>
+    $$dS=\frac{dE}{T}=\frac{c^2\,dM}{k_BT}=\frac{8\pi G M}{\hbar c}\,dM\ \Rightarrow\ S=\frac{4\pi G}{\hbar c}M^2$$
+    <span class="tag" style="margin-top:12px;">⑤ Rewrite in terms of area (a ratio)</span>
+    $$A=4\pi R_s^2=\frac{16\pi G^2M^2}{c^4}\ \Rightarrow\ M^2=\frac{c^4A}{16\pi G^2}$$
+    <span class="tag" style="margin-top:12px;">⑥ Combine</span>
+    $$S=\frac{4\pi G}{\hbar c}\cdot\frac{c^4A}{16\pi G^2}=k_B\frac{c^3A}{4G\hbar}=k_B\frac{A}{4\ell_P^2}$$
+    <p style="margin-bottom:14px;">There it is. <strong>The identity of the 1/4 is \(\dfrac{4\pi}{16\pi}\)</strong> ── the \(4\pi\) that came from integrating on the temperature side (④), divided by the \(16\pi\) on the area side (＝the sphere's \(4\pi\) × the \(2^2\) from \(R_s\)). <em>The π of the temperature and the π of the area get divided, and out comes 1/4.</em></p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">The conclusion of this bonus</div>
+    $$\boxed{\,S=k_B\frac{A}{4\ell_P^2}\,}\qquad \frac14=\frac{4\pi}{16\pi}$$
+    <p style="margin:8px 0 0;">①②④⑤⑥ are all your "ratios." The only thing you imported is the <strong>2π</strong> of ③. Unlike α's 137.036, <strong>the 1/4 was a number you can derive by hand</strong>.</p>
+  </div>
+
+  <h2><span class="n">05</span>Play with it ── assembling the 1/4</h2>
+
+  <p>The figure below steps through ①→⑥ one at a time, showing how the \(1/4\) gets built up. Advance with "Next step." At each stage you can follow with your eyes which equation is added, where the "4" and "16" are born, and how it finally lands on \(4\pi/16\pi=1/4\). Only at ③ does an "import: 2π" tag appear ── that's the single drop that ratios can't give you.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the by-hand builder of the 1/4. ①R_s → ②surface gravity (the 2²=4 seed) → ③temperature (import: 2π) → ④integrate with the first law (4π) → ⑤area (16π) → ⑥ 1/4=4π/16π. It assembles as you press "Next step."</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <button id="prev">← Back</button>
+      <button id="next">Next step →</button>
+      <button id="all">Show all</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f7a8c;"></i>hand calculation (ratio)</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>the imported seed (2π)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>What the 2π really is ── temperature is an "imaginary-time loop," 2π is "one full turn"</h2>
+
+  <p>Let's chew the 2π imported at ③ one stage finer. The story is in two parts: <strong>(A) temperature, at its root, is an "imaginary-time loop,"</strong> and <strong>(B) at the horizon, one turn of that loop has to be exactly 2π or it forms a cusp.</strong> Put these two together and the 2π turns into temperature.</p>
+
+  <p><strong>(A) Temperature is the "length" of the imaginary-time loop.</strong> Quantum time evolution is \(e^{-iHt/\hbar}\), and the Boltzmann factor of statistical mechanics is \(e^{-H/k_BT}\). Set these two side by side ──</p>
+
+  <div class="calc">
+    <span class="tag">Compare ── the Boltzmann factor is "imaginary-time evolution"</span>
+    $$\underbrace{e^{-iHt/\hbar}}_{\text{time evolution}}\quad\xrightarrow{\ t=-i\hbar/k_BT\ }\quad \underbrace{e^{-H/k_BT}}_{\text{Boltzmann factor}}$$
+    <p style="margin-bottom:14px;">In other words, "to exist at temperature \(T\)" ＝ "to advance a length \(\hbar/k_BT\) in the direction of <strong>imaginary time \(\tau=it\)</strong>." And because the statistical average is a full sum around (a trace), the two ends of imaginary time join up ── <strong>imaginary time rolls up into a "loop (circle)" of period \(\hbar/k_BT\)</strong>. A <em>short loop ＝ hot</em>, a <em>long loop ＝ cold</em>. Temperature turns out to be the inverse of the length of the imaginary-time loop (the KMS condition; the substance of "Understanding Cosmology" Episode 9's "rotate i onto the imaginary axis and get temperature").</p>
+  </div>
+
+  <p><strong>(B) The region near the horizon is "a plane in polar coordinates" ── so one full turn is 2π.</strong> Rotate the spacetime near a black hole into imaginary time, and the two dimensions (imaginary time, distance from the horizon) take exactly the form of <strong>the plane in polar coordinates \(ds^2=d\rho^2+\rho^2 d\varphi^2\)</strong> (\(\rho\)＝distance from the horizon, \(\varphi\)＝the "angle" built from imaginary time). What matters here is ──</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The no-cusp condition ＝ one full turn is exactly 2π</div>
+    <p style="margin:2px 0 0;">When you view a plane in polar coordinates, for the center (\(\rho=0\)＝the horizon) to be <strong>smooth (not a cusp)</strong>, the angle \(\varphi\) has to <em>go around in exactly 2π</em>. Shorter than 2π and you get a <strong>conical cusp</strong>; longer and you get a <strong>fold</strong>, and spacetime breaks there. It's the same as folding paper into a cone: it becomes pointed by exactly the angle you cut away (the deficit) ── <strong>"a clean plane ＝ one turn of 2π."</strong></p>
+  </div>
+
+  <p>Since this "angle \(\varphi\) is built from the surface gravity \(\kappa\) and imaginary time as \(\varphi\propto\kappa\tau\)," <em>\(\varphi\) going around in 2π</em> ＝ <em>the period of imaginary time \(\tau\) is \(2\pi/\kappa\) (×c)</em>. Set this equal to (A)'s "period of imaginary time ＝ \(\hbar/k_BT\)" ──</p>
+
+  <div class="calc">
+    <span class="tag">Set (A) ＝ (B) as an equation</span>
+    $$\underbrace{\frac{\hbar}{k_BT}}_{\text{(A) the temperature loop}}=\underbrace{\frac{2\pi c}{\kappa}}_{\text{(B) the no-cusp turn}}\quad\Rightarrow\quad k_BT=\frac{\hbar\kappa}{2\pi c}=\frac{\hbar c^3}{8\pi GM}$$
+    <p style="margin-bottom:14px;">The Hawking temperature of ③ came out purely from the <em>smoothness of geometry</em>: <strong>"the length of the imaginary-time loop (temperature)" ＝ "the one turn that keeps the horizon from cusping (2π)."</strong> The true identity of the imported "seed" is ── <strong>"one full turn is 360°＝2π,"</strong> that and nothing more. The 2π of the circle circumference is, as is, the 2π of the black hole's temperature.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">While we're here: getting the 1/4 directly, without going through temperature (Gibbons–Hawking)</span>
+    Stack \(n\) copies of the imaginary-time black hole (replica) and the "one turn" at the horizon becomes \(2\pi n\); for \(n\neq1\) you get a <strong>conical cusp (angle deficit)</strong>. The curvature of a cone is \(\int R=2\times(\text{deficit angle})\times(\text{area})\). Put this into the Einstein action (prefactor <strong>1/16πG</strong>) and differentiate in \(n\), and the <em>1/4 comes out directly, without going through temperature</em> (1/4 ＝ the action's 1/16πG × the cone's 4π). All you import is "the action's 1/16πG" and "one turn of 2π." And this machine of "stacking n copies of imaginary time" is on <strong>exactly the same footing</strong> as the islands / replica wormholes of Episode 6.</div>
+
+  <p>To sum up, the 2π of ③ is no magic at all ── it's a combination of two obvious things: <strong>"temperature ＝ the length of the imaginary-time loop" ＋ "the turn that keeps the horizon from cusping ＝ 2π."</strong> It's a drop that dimensional analysis (ratios) can't give you, but the identity of that drop is <em>the 2π of a circle's circumference</em>. Accept that much, and the 1/4 is entirely yours to derive by hand.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── what "derived by hand" means</span>
+    <p style="margin-top:0;">The derivation shown here (② \(g=c^4/4GM\), ③ the Hawking temperature, ④⑤⑥ the thermodynamics, and 1/4＝4π/16π) all agrees with the standard semiclassical results. The derivation of the 1/4 via the conical-deficit / Gibbons–Hawking Euclidean path integral is also well established. "The only import is a single 2π" is an accurate summary within this semiclassical framework.</p>
+    <p style="margin-bottom:0;">That said. ① The reason the Newtonian surface gravity \(g=GM/R_s^2=c^4/4GM\) of ② agrees with the general-relativistic surface gravity is close to a "happy coincidence"; the legitimate derivation is general relativity (surface gravity \(\kappa\)) (same kind of thing as Episode 1's "Newton somehow gets it right"). ② This 1/4 is a <strong>semiclassical (thermodynamic / geometric) derivation</strong>; explaining "why the horizon has \(A/4\ell_P^2\) microscopic states" <em>by counting</em> is a separate task ── that's carried out by string theory (Strominger–Vafa 1996, counting states to reproduce the 1/4) and loop quantum gravity (fixing the Immirzi parameter to get the 1/4), the story of Episodes 2 and 6. ③ The 2π of "acceleration → temperature" is a genuine quantum effect (Unruh effect / KMS) that dimensional analysis can't give you ── so you can't get to "zero imports." ④ \(A/4\) is the leading term; there are logarithmic corrections and, if the gravitational action is non-Einstein, a generalization to Wald entropy.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Practice problems (solvable with just this episode's equations)</div>
+    <ol>
+      <li>The 1/4 in the final result is the division of which two numbers? Where does each come from?
+        <details><summary>Show answer</summary><div class="ans">\(1/4=4\pi/16\pi\). The 4π in the numerator came from integrating the temperature (8π) with the first law (④). The 16π in the denominator is the product of the sphere's 4π in the area A=4πR_s² and the 2²=4 from R_s=2GM/c² (⑤). The division of the temperature's π by the geometry's π.</div></details>
+      </li>
+      <li>In this derivation, which step could not be obtained from ratios (dimensional analysis / hand calculation) and had to be imported?
+        <details><summary>Show answer</summary><div class="ans">The 2π in ③'s "acceleration → temperature" \(k_BT=\hbar g/2\pi c\). This is a genuine quantum effect ── the Unruh effect / KMS (periodicity of imaginary time ＝ temperature) ── the one and only drop that can't come out of dimensional analysis.</div></details>
+      </li>
+      <li>The \(g=c^4/4GM\) of ② was derived with Newtonian mechanics, so why can we use it? What's the honest caveat?
+        <details><summary>Show answer</summary><div class="ans">Because computing Newton's gravity \(GM/R_s^2\) at \(R_s=2GM/c^2\) coincidentally agrees with the general-relativistic surface gravity. But the legitimate derivation is general relativity (an agreement, right down to the coefficient, of the same kind as Episode 1's "Newton somehow gets it right").</div></details>
+      </li>
+      <li>"The 1/4 can be derived by hand, but α's 137.036 can't" ── the difference, in one line.
+        <details><summary>Show answer</summary><div class="ans">The 1/4 can be derived from known physics ── ratio hand-calculations ＋ 2π (imaginary time ＝ temperature) ── and on top of that string theory and LQG independently reproduce it: a "number that got derived." The 137.036 is a genuinely open input that no current theory can derive.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus-episode summary</span>1/4 = 4π/16π ── the only import is a single 2π</h2>
+    <p>The 1/4 in Bekenstein–Hawking's \(S=A/(4\ell_P^2)\) gets built up almost entirely from "ratios." ① \(R_s=2GM/c^2\), ② surface gravity \(g=GM/R_s^2=c^4/4GM\) (the 2²=4 seed here), ④ the first law gives \(S=4\pi GM^2/\hbar c\), ⑤ the area \(A=16\pi G^2M^2/c^4\), ⑥ combine to \(S=k_B A/4\ell_P^2\). <strong>The identity of the 1/4 is 4π/16π</strong> (the temperature's π ÷ the geometry's π). The only place the hand calculation stalls is ③ ── <strong>the 2π of "accelerate, and you see a temperature"</strong> (Unruh / KMS, the imaginary-time-＝-temperature of "Understanding Cosmology" Episode 9).</p>
+    <p>So to be honest ── <strong>the 1/4 can be completely derived by hand. Except that a single 2π ── "imaginary time is periodic ＝ temperature" ── has to be accepted as physics.</strong> That is the drop ratios can't give you, the genuine one where quantum and geometry meet. But it feels good that the import can be pared down to a single 2π. Whereas α's 137.036 was a "mystery you can't derive," this 1/4 is a <em>success story within reach</em> ── and string theory and LQG independently reproduce the same 1/4 (Episodes 2 and 6). "Ratios for the skeleton, 2π for the import, and the rest is entirely in your hands."</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Back to the series</span>
+    This bonus was the "get your hands moving" episode sitting between Episode 2 "Entropy ＝ bit count" and Episode 6 "The information paradox and quantum gravity." That the 1/4 could be derived by hand is a victory for the semiclassical (thermodynamics ＋ geometry). The story of counting <em>why the horizon has that number of states</em> microscopically goes to Episode 6's quantum gravity (strings / LQG / islands). For the big-picture map, head to <a href="../butsuri-rittai-en.html">the cube of physics</a>.</p>
+  </div>
+
+  <div class="foot">
+    This document is a bonus episode of the "Black Holes That Click" series, a piece of reading for physics-loving high-school and university students. That the Bekenstein–Hawking entropy \(S=k_Bc^3A/(4G\hbar)=k_BA/(4\ell_P^2)\) is derived from the combination of the Schwarzschild radius \(R_s=2GM/c^2\), the surface gravity \(\kappa=c^4/4GM\), the Hawking temperature \(k_BT=\hbar\kappa/2\pi c=\hbar c^3/8\pi GM\), and the first law of thermodynamics; that the coefficient \(1/4=4\pi/16\pi\) appears as the ratio of the temperature's and the area's π; that the temperature's \(2\pi\) originates in the periodicity of imaginary time (the KMS condition / the Unruh effect); and that the 1/4 also comes out directly from the Gibbons–Hawking Euclidean path integral with a conical deficit ── all of these are established semiclassical physics. That the Newtonian calculation \(g=GM/R_s^2\) agrees with the general-relativistic surface gravity right down to the coefficient (the legitimate derivation being general relativity), that the semiclassical 1/4 and the microscopic state-counting (string theory Strominger–Vafa 1996 / loop quantum gravity) are separate achievements, that the \(2\pi\) is a quantum effect that dimensional analysis can't give you, and that \(A/4\) is the leading term with logarithmic corrections and a generalization to Wald entropy, are all spelled out in the "The honest line" section of the main text. The figure is a staged display of the derivation steps, a schematic for educational use that tracks the origin of the coefficient. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the controls and answers are static and hidden). Related: <a href="wakaru-blackhole-02-entropy.html">Episode 2, Entropy</a>／<a href="wakaru-blackhole-06-paradox.html">Episode 6, Quantum gravity</a>／<a href="index.html">Contents</a>／sister series <a href="../wakaru-uchuron-en/index.html">Understanding Cosmology</a> (imaginary time ＝ temperature).
+  </div>
+
+</div>
+<p class="hint no-print">Print / save as PDF: ⌘+P (Ctrl+P on Windows). On screen, "Next step" builds up the 1/4. "Show answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), rd=document.getElementById('rd'),
+      prev=document.getElementById('prev'), next=document.getElementById('next'), allb=document.getElementById('all');
+  var step=1, MAX=6;
+  var STEPS=[
+    {t:'① Radius of the horizon', eq:'R_s = 2GM/c²', note:'Episode 1, a ratio. Hand calculation.', imp:false},
+    {t:'② Surface gravity (ratio)', eq:'g = GM/R_s² = c⁴/(4GM)', note:'Square the 2 in R_s → a 4 in the denominator. The "seed" of 1/4 is here.', imp:false},
+    {t:'③ Acceleration → temperature [import: 2π]', eq:'k_BT = ℏg/(2πc) = ℏc³/(8πGM)', note:'The only import. The 2π is imaginary time ＝ temperature (Unruh / KMS). 8π=2π×4.', imp:true},
+    {t:'④ Integrate with the first law (ratio)', eq:'dS=c²dM/(k_BT) → S = 4πG M²/(ℏc)', note:'A 4π came out from the temperature side.', imp:false},
+    {t:'⑤ Rewrite in terms of area (ratio)', eq:'A=4πR_s² → M² = c⁴A/(16πG²)', note:'16π on the area side (the sphere\'s 4π × 2²).', imp:false},
+    {t:'⑥ Combine', eq:'S = k_B c³A/(4Gℏ) = k_B A/(4ℓ_P²)', note:'1/4 = 4π/16π (the temperature\'s π ÷ the geometry\'s π).', imp:false}
+  ];
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    ctx.clearRect(0,0,w,h);
+    // 進捗ドット
+    for(var i=0;i<MAX;i++){
+      var on=(i<step);
+      ctx.beginPath(); ctx.arc(40+i*26, 26, 7, 0,7);
+      ctx.fillStyle = on ? (STEPS[i].imp?'#a83a22':'#1f7a8c') : '#cfe0e2'; ctx.fill();
+      ctx.fillStyle='#5f6d70'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(''+(i+1), 40+i*26, 45);
+    }
+    // 各ステップの式を積み上げ表示
+    var y=76, lh=38;
+    for(var s=0;s<step;s++){
+      var st=STEPS[s], cur=(s===step-1);
+      ctx.textAlign='left';
+      ctx.fillStyle = st.imp ? '#a83a22' : '#1f6a72';
+      ctx.font = 'bold '+(cur?14:12)+'px sans-serif';
+      ctx.fillText(st.t, 40, y);
+      ctx.fillStyle = cur ? '#111' : '#6a7a7c';
+      ctx.font = (cur?'bold ':'')+ (cur?17:14)+'px "Courier New",monospace';
+      ctx.fillText(st.eq, 56, y+20);
+      y+=lh + (cur?6:0);
+    }
+    // 最終強調
+    if(step>=MAX){
+      ctx.strokeStyle='#1f7a8c'; ctx.lineWidth=2;
+      var by=y+2;
+      ctx.strokeRect(48, by, w-96, 40);
+      ctx.fillStyle='#a83a22'; ctx.font='bold 20px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('1/4 = 4π / 16π   ✓ derived by hand', w/2, by+26);
+    }
+
+    var st=STEPS[step-1];
+    rd.textContent='Step '+step+'/'+MAX+': '+st.t+' ── '+st.note
+      + (step<MAX?'':'  ／ Done: the only thing imported was ③\'s single 2π. All the rest is your ratios.');
+    next.disabled=false;
+  }
+
+  next.addEventListener('click', function(){ if(step<MAX) step++; draw(); });
+  prev.addEventListener('click', function(){ if(step>1) step--; draw(); });
+  allb.addEventListener('click', function(){ step=MAX; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
