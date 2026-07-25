@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The two places it leaks ── Renormalization That Clicks, Episode 6</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9fb; --paper-edge:#dcdfe8;   /* Episode 6: the hierarchy problem = slate paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#3d4257; --calc-bg:#e9ebf1;
+    --rule:#d5d8e2; --hair:#b9bece;
+    --acc:#4a4f6a;    /* accent = the slate of hierarchy */
+    --grid:#e4e7ee;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ccd2e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d3d7e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e9ebf1;color:#3d4257;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef0f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#343850;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,#e8eaf1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9ebf1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#343850;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6473;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Episode 6 / The two places it leaks</span></div>
+  <p class="eyebrow">Modern physics' two greatest puzzles have exactly the same shape ── coarse-graining fails here and only here</p>
+  <h1>The two places it leaks
+    <span class="sub">The hierarchy problem and the cosmological constant problem.<br>These two demand cancellations of 10⁻³⁴ and 10⁻¹²⁰, and that is nothing but the flip side of<br><em>the Standard Model having exactly two relevant operators</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 4's relevant / irrelevant, a feel for orders of magnitude, exponents</span>
+    <span>The heart of this episode: a relevant operator cannot shield the floor above</span>
+  </div>
+
+  <p class="lead">In Episode 4 we saw the magic of coarse-graining ── details from the floor above die as \((E/\Lambda)^n\), and the floor below closes in its own language. Hence chemists need not know about quarks. But <em>the magic has exactly two holes</em>. <strong>The Higgs mass</strong> and <strong>the cosmological constant</strong>. These two alone cannot shield themselves from the far-off floor of the Planck scale and take the hit square on. And the observed values are \(10^{34}\) and \(10^{120}\) times smaller than that hit ── as if the bare value and the quantum correction had <em>agreed in advance to cancel to the 34th digit, to the 120th digit</em>. These are modern physics' two greatest puzzles. And the important thing is ── <strong>they have the same shape</strong>. This episode reads that shape.</p>
+
+  <h2><span class="n">01</span>Why are most quantities protected?</h2>
+
+  <p>Start with why things are <em>usually</em> fine. In quantum theory every quantity receives corrections from the world at higher energies. Most of the time this is harmless because <strong>a symmetry protects it</strong>.</p>
+
+  <table class="tbl">
+    <tr><th>Quantity</th><th>Protecting symmetry</th><th>How the correction enters</th><th>Danger</th></tr>
+    <tr><td>electron mass</td><td>chiral symmetry</td><td>\(\delta m \propto m\ln(\Lambda/m)\) ── <em>multiplicatively</em></td><td>safe (zero stays zero)</td></tr>
+    <tr><td>photon / gluon mass</td><td>gauge symmetry</td><td>forbidden outright (zero)</td><td>safe</td></tr>
+    <tr><td>couplings such as charge</td><td>(dimension-4 operators)</td><td>slowly, as \(\ln\Lambda\)</td><td>safe</td></tr>
+    <tr><td><strong>Higgs mass²</strong></td><td><strong>none</strong></td><td>\(\delta m_H^2 \propto \Lambda^2\) ── <em>additively</em></td><td style="color:#a83a22;"><strong>dangerous</strong></td></tr>
+    <tr><td><strong>cosmological constant (vacuum energy)</strong></td><td><strong>none</strong></td><td>\(\delta\rho \propto \Lambda^4\)</td><td style="color:#a83a22;"><strong>most dangerous</strong></td></tr>
+  </table>
+
+  <p>The electron row is the crucial one. If the correction is <em>proportional</em> to \(m\) (multiplicative), then a small starting value keeps a small correction ── so it can stay small. That is called being <strong>technically natural</strong>. If instead the correction enters <em>additively</em> as \(\Lambda^2\), a small starting value is swamped and smallness cannot be maintained.</p>
+
+  <h2><span class="n">02</span>The Higgs and its 34 digits</h2>
+
+  <div class="calc">
+    <span class="tag">Order of magnitude ── the Higgs mass cancellation</span>
+    <p style="margin:2px 0 0;">As long as you trust the Standard Model, the quantum correction enters as the square of the cutoff \(\Lambda\). Taking \(\Lambda\) to be the Planck scale, \(1.22\times10^{19}\ \mathrm{GeV}\):</p>
+    $$\delta m_H^2 \sim \Lambda^2 \approx 1.5\times10^{38}\ \mathrm{GeV^2}$$
+    <p style="margin:6px 0 0;">But the measured Higgs mass is 125 GeV, i.e.</p>
+    $$m_H^2 \approx 1.6\times10^{4}\ \mathrm{GeV^2}$$
+    <p style="margin-bottom:14px;">The ratio is \(1.6\times10^{4}/1.5\times10^{38}\approx10^{-34}\). The bare value and the correction must therefore <strong>agree and cancel to the 34th digit</strong>. A trillionth of a trillionth of another hundred-millionth. <em>Too painful to call a coincidence</em> ── hence the <strong>hierarchy problem</strong>.</p>
+  </div>
+
+  <h2><span class="n">03</span>The cosmological constant and its 120 digits</h2>
+
+  <div class="calc">
+    <span class="tag">Order of magnitude ── this one is worse by orders of magnitude</span>
+    <p style="margin:2px 0 0;">The vacuum has quantum-fluctuation energy too, naively of order \(\Lambda^4\):</p>
+    $$\rho_{\text{theory}}\sim \Lambda^4 \approx (1.22\times10^{19})^4 \approx 2\times10^{76}\ \mathrm{GeV^4}$$
+    <p style="margin:6px 0 0;">The value inferred from the observed accelerating expansion is</p>
+    $$\rho_{\text{observed}}\sim 10^{-47}\ \mathrm{GeV^4}$$
+    <p style="margin-bottom:14px;">The ratio is about <strong>\(10^{-123}\)</strong> (often quoted as roughly \(10^{-120}\), depending on how you estimate). It is sometimes called the worst theoretical prediction in the history of physics. This is the <strong>cosmological constant problem</strong>.</p>
+  </div>
+
+  <h2><span class="n">04</span>These two have the same shape</h2>
+
+  <p>Here is the heart. Translated into Episode 4's language, why it is <em>only</em> these two becomes a single line.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The heart of this episode ── a relevant operator cannot shield the floor above</div>
+    <table class="tbl" style="margin:10px 0 6px;">
+      <tr><th>Operator dimension d</th><th>What coarse-graining does</th><th>Examples in the Standard Model</th></tr>
+      <tr><td>\(d&gt;4\): irrelevant</td><td><strong>shrinks</strong> as \((E/\Lambda)^{d-4}\)</td><td>almost everything (which is why the world has layers)</td></tr>
+      <tr><td>\(d=4\): marginal</td><td>drifts logarithmically</td><td>gauge couplings, Yukawa couplings</td></tr>
+      <tr><td>\(d&lt;4\): <strong>relevant</strong></td><td><strong>grows</strong> as you head to low energy</td><td style="color:#a83a22;"><strong>exactly two of them</strong></td></tr>
+    </table>
+    <p style="margin:8px 0 0;">Those two are ── <strong>the identity operator with \(d=0\) (the cosmological constant)</strong> and <strong>\(H^\dagger H\) with \(d=2\) (the Higgs mass²)</strong>. Every other potentially relevant term (a fermion mass \(\bar\psi\psi\) with \(d=3\), a gauge-field mass \(A^2\) with \(d=2\)) is <em>forbidden by a symmetry</em>. So <strong>the universe has exactly two unprotected relevant operators ── and those two are precisely modern physics' two greatest puzzles</strong>.</p>
+  </div>
+
+  <p>Put differently: <em>coarse-graining works only in the irrelevant directions</em>. In the relevant directions, coarse-graining does not discard information ── it <strong>magnifies the floor above and brings it down</strong>. So it cannot be shielded. <strong>The hierarchy problem and the cosmological constant problem are not "new puzzles"; they are the flip side of the very fact that the world has layers.</strong> Why the magic works and why it fails in exactly two places come from the same theorem.</p>
+
+  <h2><span class="n">05</span>Try it ── what does matching 34 digits actually look like?</h2>
+
+  <p>The easiest way to feel how strange "agreement to 34 digits" is, is to lay the digits out. The figure below places two enormous numbers ── the <strong>bare value</strong> and the <strong>quantum correction</strong> ── side by side, with a slider for "how many digits agree."</p>
+
+  <p>Matching digits cancel and vanish; the <em>leftovers</em> are the physical quantity we observe. For the Higgs you need about 34 digits, for the cosmological constant about 120, before you reach the observed value ── switch between the two problems with the button and compare how far away the mark is.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the digits of the bare value and the quantum correction laid side by side. Grey = digits that cancelled, coloured = digits that survive. Moving the slider changes the residue (the observed physical quantity). The point is to see how strange the required number of matching digits is</div>
+    <canvas id="cv" width="680" height="270"></canvas>
+    <div class="controls">
+      <label>Number of matching digits <span class="val" id="vk">20</span>
+        <input type="range" id="sk" min="0" max="130" step="1" value="20">
+      </label>
+      <button id="mode">Problem: Higgs mass</button>
+      <button id="fit">Snap to the observed value</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b9bece;"></i>digits that cancelled</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>surviving digits (= the observed quantity)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>So why is it like that?</h2>
+
+  <p>No answer yet. There are three leading positions.</p>
+
+  <table class="tbl">
+    <tr><th>Position</th><th>Claim</th><th>Where it stands</th></tr>
+    <tr><td><strong>① a new symmetry protects it</strong></td><td>supersymmetry or similar makes the \(\Lambda^2\) correction cancel against contributions from partner particles ── i.e. "no protecting symmetry" is simply wrong</td><td>the most beautiful solution, but no superpartners have shown up at the LHC in the expected mass range. Optimism has cooled</td></tr>
+    <tr><td><strong>② anthropics / multiverse</strong></td><td>there are countless universes and the value varies; observers only exist where galaxies can form</td><td>Weinberg used this reasoning in 1987 to predict an upper bound on the cosmological constant, and the 1998 observation fell within it. But testing it is hard</td></tr>
+    <tr><td><strong>③ "naturalness" is the wrong criterion</strong></td><td>the intuition that "matched digits are unnatural" may itself be a groundless aesthetic</td><td>a growing number of researchers take this line. But its predictive power is weak</td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">The single most important sentence in this episode</span>
+    <strong>Coarse-graining leaks in exactly two places. And those two places come from precisely the same theorem that makes coarse-graining work.</strong><br>
+    "The world has layers" and "there is a hierarchy problem" are two sides of one coin. If there were no relevant operators at all, there would be no cosmological constant and no Higgs mass ── no scale of mass would be set, and therefore no matter and no atoms. <em>The two holes that trouble us are also the two things that give the world a size.</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the reach of the phrase "matching digits"</span>
+    <p style="margin-top:0;"><strong>Established:</strong> that quantum corrections to the Higgs mass squared enter as the square of the cutoff (scalars have no symmetry protecting their mass); that fermion masses are protected by chiral symmetry and gauge-field masses by gauge symmetry; the classification of operators as relevant/marginal/irrelevant by dimension; that the unprotected relevant operators of the Standard Model are the identity operator (cosmological constant) and \(H^\dagger H\); that the ratios between the measured values (\(m_H\approx125\) GeV, the cosmological constant energy density) and naive Planck-scale estimates are around \(10^{-34}\) and \(10^{-120}\); and that Weinberg (1987) derived an anthropic upper bound on the cosmological constant which later observations fell within ── all established physics and standard understanding.</p>
+    <p style="margin-bottom:0;"><strong>Things to be careful about:</strong> (1) The language of "\(\Lambda^2\) corrections cancelling against a bare value" is <strong>tied to cutoff regularisation</strong>. In other schemes such as dimensional regularisation the \(\Lambda^2\) terms never appear and the problem instead presents itself as a hierarchy between scales (the masses of new particles, say). The figure's "match the digits" picture is a visualisation for intuition, not the literal calculation. (2) The \(10^{-120}\) for the cosmological constant swings between roughly \(10^{-120}\) and \(10^{-123}\) depending on where you cut. (3) The very premise that "unnatural means it needs explaining" (naturalness) is not an established physical principle but a <em>guideline</em>, and its validity is currently under debate ── that is position ③ above. (4) This episode is therefore an organisation of an unsolved puzzle in the language of the renormalization group, not a solution.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises (solvable with this episode's ideas)</div>
+    <ol>
+      <li>Why can the electron mass stay small while the Higgs mass cannot?
+        <details><summary>See the answer</summary><div class="ans">The electron mass is protected by chiral symmetry, so the correction enters <strong>multiplicatively</strong> as \(\delta m\propto m\ln(\Lambda/m)\) (small stays small). The Higgs has no such symmetry, and its correction enters <strong>additively</strong> as \(\delta m_H^2\propto\Lambda^2\), so smallness cannot be maintained.</div></details>
+      </li>
+      <li>State the relation between "the world has layers" and "there is a hierarchy problem."
+        <details><summary>See the answer</summary><div class="ans">Two sides of the same theorem. Coarse-graining cuts off the floor above only in the irrelevant directions (\(d>4\)); in relevant directions (\(d<4\)) the influence of the floor above is magnified on the way down. There are exactly two unprotected relevant operators (the cosmological constant and \(H^\dagger H\)), and they are the two great puzzles.</div></details>
+      </li>
+      <li>Why is the cosmological constant problem "worse" than the Higgs hierarchy problem? Answer with orders of magnitude.
+        <details><summary>See the answer</summary><div class="ans">The Higgs faces a \(\Lambda^2\) correction with a ratio of \(10^{-34}\); the cosmological constant faces \(\Lambda^4\) with about \(10^{-120}\). The higher dimension means a bigger correction and a matching requirement more than three times as severe.</div></details>
+      </li>
+      <li>What would the universe be like with no relevant operators at all?
+        <details><summary>See the answer</summary><div class="ans">Nothing would set a scale of mass, so neither particle masses nor vacuum energy would be determined and no structures with a size ── atoms ── could form. The two troublesome holes are also what give the world a size.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 6 summary</span>Why the magic works and why it fails twice come from one theorem</h2>
+    <p>Quantum corrections are usually protected by symmetry ── electron mass by chiral symmetry, gauge-field mass by gauge symmetry. Protected quantities take their corrections <em>multiplicatively</em> and can stay small. But <strong>the Higgs mass² and the vacuum energy have no protecting symmetry</strong> and take direct <em>additive</em> hits of \(\Lambda^2\) and \(\Lambda^4\). Matching the observed values then requires cancellations of <strong>34</strong> and <strong>120</strong> digits.</p>
+    <p>And it is no accident that there are exactly two. In Episode 4's language, <strong>the Standard Model has exactly two unprotected relevant operators (\(d&lt;4\))</strong> ── the \(d=0\) identity operator (the cosmological constant) and the \(d=2\) \(H^\dagger H\) (the Higgs mass²). In relevant directions, coarse-graining doesn't shield the floor above; it <em>magnifies and delivers it</em>. So <strong>"the world has layers" and "there is a hierarchy problem" are two sides of one coin</strong>. No answer yet (a new symmetry / anthropics / naturalness being the wrong criterion, all three still in play).</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 7 (finale), "Resolution as a dimension"</span>
+    In the finale we turn the viewpoint 180 degrees. So far coarse-graining has been "a procedure for discarding information" ── but in AdS/CFT, <strong>the radial direction of the bulk corresponds to the renormalization scale of the boundary theory</strong>. Going deeper <em>is</em> coarse-graining. One dimension of space turns out to be an axis of resolution. Then "the universe is coarse-grainable" and "the universe is holographic" become <em>two descriptions of one claim</em>. The finale of the sister series "Relativity That Clicks" ── descriptions are interchangeable ── and Episode 5 of "Black Holes That Click" ── the holographic principle ── converge here into a single line.
+  </div>
+
+  <div class="foot">
+    This document is Episode 6 of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. Quadratically divergent corrections to a scalar mass squared; protection of fermion masses by chiral symmetry and of gauge-field masses by gauge symmetry; 't Hooft's technical naturalness; the classification of operators as relevant/marginal/irrelevant by dimension; that the Standard Model's unprotected relevant operators are the identity operator and \(H^\dagger H\); the roughly \(10^{-34}\) tuning implied by a 125 GeV Higgs against the Planck scale; the roughly \(10^{-120}\) ratio between the theoretical estimate and observed value of the vacuum energy; and Weinberg's (1987) anthropic upper bound on the cosmological constant ── all established physics and standard understanding. That the phrase "a \(\Lambda^2\) correction cancelling against a bare value" is tied to cutoff regularisation (and appears differently in dimensional regularisation), that \(10^{-120}\) depends on how one estimates, and that naturalness is a guideline under debate rather than an established principle, is spelled out in the body's "honest line." The figure is a visualisation for intuiting the strangeness of the required matching, not a reproduction of the actual calculation. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Adjacent episodes: <a href="wakaru-kurikomi-05-hatan.html">Episode 5, When coarse-graining breaks</a> / <a href="wakaru-kurikomi-07-kaizoudo.html">Episode 7, Resolution as a dimension</a> / <a href="index.html">Contents</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen the slider changes how many digits match, and the button switches between the Higgs and the cosmological constant. "Snap to the observed value" jumps to the required number of digits. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'),
+      rd=document.getElementById('rd'), modeBtn=document.getElementById('mode'), fitBtn=document.getElementById('fit');
+  var higgs=true;
+
+  var DIG='31415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679';
+  while(DIG.length<140) DIG+=DIG;
+
+  function cfg(){
+    return higgs
+      ? {name:'Higgs mass²', unit:'GeV²', bare:38.18, obs:4.19, need:34, note:'Λ² = (1.22×10¹⁹ GeV)² ≈ 1.5×10³⁸ GeV², against an observed m_H² ≈ 1.6×10⁴ GeV²'}
+      : {name:'vacuum energy density', unit:'GeV⁴', bare:76.35, obs:-47, need:123, note:'Λ⁴ ≈ 2×10⁷⁶ GeV⁴, against an observed ρ ≈ 10⁻⁴⁷ GeV⁴'};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function drawRow(ctx,x,y,cw,label,k,total,mode){
+    ctx.fillStyle='#4a4f6a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(label, x, y-6);
+    for(var i=0;i<total;i++){
+      var matched=(i<k);
+      if(mode==='res'){
+        ctx.fillStyle = matched? '#f2f3f7' : '#fbeae6';
+      } else {
+        ctx.fillStyle = matched? '#e5e7ee' : '#fbeae6';
+      }
+      ctx.fillRect(x+i*cw, y, cw-0.8, 15);
+      var ch = (mode==='res' && matched)? '0' : DIG.charAt((mode==='b'? i : i+7)%DIG.length);
+      if(mode==='res' && matched) ch='0';
+      ctx.fillStyle = matched? '#b9bece' : '#a83a22';
+      ctx.font='9px monospace'; ctx.textAlign='center';
+      if(cw>4.2) ctx.fillText(ch, x+i*cw+cw/2-0.4, y+11);
+    }
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var C=cfg();
+    var k=parseInt(sk.value,10); vk.textContent=k+' digits';
+    ctx.clearRect(0,0,w,h);
+
+    var TOTAL=130, x=14, cw=(w-28)/TOTAL;
+    var y0=34;
+    drawRow(ctx,x,y0,cw,'bare value (first digit is the 10^'+C.bare.toFixed(0)+' place)',k,TOTAL,'b');
+    drawRow(ctx,x,y0+46,cw,'quantum correction (opposite sign)',k,TOTAL,'c');
+    ctx.strokeStyle='#b9bece'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,y0+70); ctx.lineTo(x+TOTAL*cw,y0+70); ctx.stroke();
+    drawRow(ctx,x,y0+82,cw,'what is left after adding (= the observed quantity)',k,TOTAL,'res');
+
+    ctx.fillStyle='#7f8496'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+    for(var t=0;t<=130;t+=10){
+      ctx.fillText(t, x+t*cw, y0+114);
+      ctx.strokeStyle='#e4e7ee'; ctx.beginPath();
+      ctx.moveTo(x+t*cw, y0+100); ctx.lineTo(x+t*cw, y0+105); ctx.stroke();
+    }
+    ctx.fillStyle='#4a4f6a'; ctx.font='10px sans-serif';
+    ctx.fillText('number of matching digits', x+TOTAL*cw/2, y0+128);
+
+    var xn=x+C.need*cw;
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(xn,y0-18); ctx.lineTo(xn,y0+100); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('the observed value needs this many ('+C.need+')', Math.min(xn+5, w-230), y0-22);
+
+    var xk=x+k*cw;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(xk,y0-8); ctx.lineTo(xk,y0+100); ctx.stroke();
+
+    modeBtn.textContent='Problem: '+(higgs?'Higgs mass':'cosmological constant');
+    var resExp=C.bare-k;
+    var extra;
+    if(higgs){
+      extra='→ Higgs mass ≈ <b>10^'+(resExp/2).toFixed(1)+' GeV</b>'+(k===34?' (= 125 GeV, correct)':'')
+        +' (observed: 125 GeV = 10^2.1 GeV)';
+    } else {
+      extra='→ vacuum energy density ≈ <b>10^'+resExp.toFixed(0)+' GeV⁴</b> (observed: 10⁻⁴⁷ GeV⁴)';
+    }
+    var verdict;
+    if(k<C.need-3) verdict='Nowhere near ── the residue is still <b>10^'+(C.need-k)+' times</b> the observed value.';
+    else if(k>C.need+3) verdict='Overshot ── now it is smaller than the observed value.';
+    else verdict='Spot on ── <b>can you explain this many digits as a coincidence?</b> That is the '+(higgs?'hierarchy problem':'cosmological constant problem')+'.';
+    rd.innerHTML=C.note+'.<br>Matching digits <b>'+k+'</b> / required <b>'+C.need+'</b> '+extra+'.<br>'+verdict;
+  }
+
+  sk.addEventListener('input', draw);
+  modeBtn.addEventListener('click', function(){ higgs=!higgs; sk.value=Math.min(130, cfg().need-14); draw(); });
+  fitBtn.addEventListener('click', function(){ sk.value=cfg().need; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

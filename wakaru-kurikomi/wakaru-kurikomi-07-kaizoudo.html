@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>解像度という次元 ── わかる繰り込み 第7回（最終回）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf7f0; --paper-edge:#e9ddc9;   /* 第7回：解像度＝橙の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8a4a12; --calc-bg:#f4ecdb;
+    --rule:#ddd0b8; --hair:#cabb98;
+    --acc:#b0561e;    /* アクセント＝解像度の橙 */
+    --grid:#eddfc8;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0d9a6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e6d7ba;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefcf7;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f4ecdb;color:#7a4a10;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f0e0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f3d0c;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefcf7,#f3e9d5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f4ecdb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f3d0c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6150;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 7 回（最終回） ／ 解像度という次元</span></div>
+  <p class="eyebrow">粗視化を「情報を捨てる手続き」ではなく「空間を 1 次元進むこと」として見ると、二つの主張が同じものになる</p>
+  <h1>解像度という次元
+    <span class="sub">AdS/CFT では、奥行き方向がそのまま繰り込みスケールに対応する。<br>奥へ進むこと＝粗視化すること。<br>すると〈宇宙は粗視化できる〉と〈宇宙はホログラフィックだ〉は、<em>同じ主張の二つの記述</em>になる。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回の繰り込み群の流れ、第1回の粗視化、ホログラフィック原理の気分</span>
+    <span>この回の芯：動径座標 z ↔ 繰り込みスケール 1/E</span>
+  </div>
+
+  <p class="lead">第4回で「粗視化を繰り返すと理論が<strong>流れる</strong>」と言いました。流れる、というからには、それは<em>何かの上を</em>流れているはずです。その「何か」を、私たちはずっと<strong>解像度の軸</strong>と呼んできました ── 細かく見るか、粗く見るか。この最終回で主張したいのは、たった一つのことです：<em>その軸は、比喩ではないかもしれない</em>。ある種の理論では、解像度の軸は<strong>本物の空間の一次元</strong>として現れます。境界に住む理論を粗視化していくことが、そのまま「奥へ進むこと」に対応する ── AdS/CFT のホログラフィック繰り込みです。そしてもしそうなら、シリーズを通して言ってきた「宇宙は粗視化できる」と、「わかるブラックホール」第5回の「宇宙はホログラフィックだ」は、<strong>同じ一つのことを二通りに言っているだけ</strong>になります。</p>
+
+  <h2><span class="n">01</span>流れているなら、それは何かの上を流れている</h2>
+
+  <p>繰り込み群の流れを、もういちど絵にしてみます。いちばん細かい記述（UV：ミクロ）から出発して、粗視化を 1 回するたびに理論が変わり、粗い記述（IR：マクロ）へ向かって流れていく。</p>
+
+  <p>この絵で、横軸は「理論の中身（結合定数）」でした。では<strong>縦軸</strong>は? ── それは<em>どれくらい粗く見ているか</em>、つまり<strong>解像度</strong>です。物理学者はこの軸を「スケール」と呼び、ふつうは便宜的な記帳の軸として扱ってきました。実在の何かだとは思っていなかった。</p>
+
+  <h2><span class="n">02</span>その軸を、本物の次元として描く ── AdS/CFT</h2>
+
+  <p>1997 年に登場したホログラフィー対応（AdS/CFT）は、次のような驚くべき等式を主張します。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 奥行きは、解像度である</div>
+    $$\underbrace{d\ \text{次元の場の理論（境界）}}_{\text{重力なし}}\ \equiv\ \underbrace{(d+1)\ \text{次元の重力理論（バルク）}}_{\text{次元が 1 つ多い}}$$
+    <p style="margin:8px 0 0;">増えた 1 次元 ── バルクの<strong>動径座標 \(z\)</strong> ── が何に対応するかというと、境界理論の<strong>繰り込みスケール</strong>です：</p>
+    $$z\ \longleftrightarrow\ \frac{1}{E}\qquad
+    \begin{cases}z\to 0\ \text{（境界の近く）} & \text{UV ＝ 細かく見る}\\[2pt] z\ \text{が大きい（奥）} & \text{IR ＝ 粗く見る}\end{cases}$$
+    <p style="margin:8px 0 0;">つまり <strong>奥へ進むこと＝粗視化すること</strong>。第1回でブロックの一辺を大きくしていったあの操作が、この理論では<em>空間を移動する運動</em>になります。</p>
+  </div>
+
+  <p>これは思いつきではなく、計算で確認された対応です。境界理論の繰り込み群方程式が、バルクの重力場が \(z\) 方向に従う運動方程式と<strong>同じ形になる</strong>（ホログラフィック繰り込み）。UV での発散を取り除く操作が、バルクでは境界近くの体積の発散を切る操作にぴったり対応する。「スケール」という記帳用の軸が、<em>重力の側から見ると本物の距離だった</em>。</p>
+
+  <div class="calc">
+    <span class="tag">もう一つの証拠 ── テンソルネットワーク</span>
+    <p style="margin:2px 0 14px;">量子多体系を効率よく表す計算手法に <strong>MERA</strong> というものがあります。これは「粗視化の層」を何段も積み上げたネットワークで、実質<em>繰り込み群を絵にしたもの</em>。2009 年にスウィングルが指摘したのは、<strong>この層構造の形が、AdS 時空を格子で刻んだものにそっくりだ</strong>ということでした。粗視化の「段数」が、そのまま奥行きになっている。純粋に情報処理の都合で作られた図と、重力の時空が、同じ形をしていた ── これが「解像度は次元かもしれない」と真面目に言われる理由の一つです。</p>
+  </div>
+
+  <h2><span class="n">03</span>動かしてみる ── 奥行きへ潜ると、解像度が落ちる</h2>
+
+  <p>下の図の上端が<strong>境界</strong>（一番細かい、生の情報）。下へ行くほど<strong>バルクの奥</strong>です。各深さの横一列は、境界の模様を<em>その深さに応じた幅で粗視化したもの</em>を描いています。つまり<strong>この絵全体が、繰り込み群の流れそのもの</strong>です。</p>
+
+  <p>スライダーで深さ \(z\) を動かしてください。潜るほど模様がぼやけていく ── <em>それが「粗視化する」ということの、この理論での姿</em>。同時に、三角形のくさびが描かれます。これは「境界のこの範囲を知っていれば、バルクのこの深さまで再構成できる」という関係（おおよそ深さ \(\sim\) 幅の半分）を表しています。<strong>広い範囲をまとめて見るほど、深くまで潜れる</strong>。</p>
+
+  <div class="fig">
+    <div class="cap">図：上端＝境界（生の情報）、下へ行くほどバルクの奥＝粗い記述。各行は境界の模様をその深さに応じた幅で粗視化したもの。三角のくさびは「境界の幅 W の領域が、深さ ≈ W/2 までを覆う」という対応。奥行き＝解像度の軸</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>バルクの深さ z（＝粗視化の強さ） <span class="val" id="vz">0.10</span>
+        <input type="range" id="sz" min="1" max="100" step="1" value="10">
+      </label>
+      <button id="wedge">くさびを表示：ON</button>
+      <button id="reseed">境界の模様を変える</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0561e;"></i>境界の情報（濃淡）</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>選んだ深さ z</span>
+      <span><i class="swatch" style="background:#4a4f6a;"></i>境界領域と、それが覆うバルクのくさび</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>すると、二つの主張が同じものになる</h2>
+
+  <p>ここまで来ると、シリーズの最初の問いに答えが出ます ── <em>なぜ宇宙は粗視化できるのか</em>。</p>
+
+  <p>ホログラフィーの側から見ると、それは「なぜ宇宙には奥行きがあるのか」と同じ問いになります。<strong>粗視化できることと、余分な一次元があることが、同じ事実の二つの顔</strong>だからです。</p>
+
+  <table class="tbl">
+    <tr><th>粗視化の言葉</th><th>ホログラフィーの言葉</th></tr>
+    <tr><td>解像度を落とす</td><td>バルクの奥へ進む</td></tr>
+    <tr><td>繰り込み群の流れ</td><td>重力場の \(z\) 方向の運動方程式</td></tr>
+    <tr><td>irrelevant な演算子が消える（第4回）</td><td>奥へ行くほど場が減衰する</td></tr>
+    <tr><td>relevant な演算子が拡大する（第6回）</td><td>奥へ行くほど場が成長し、時空を変形する</td></tr>
+    <tr><td>捨てた情報の量＝エントロピー（第1回）</td><td>面積 ÷ 4 ＝エントロピー（ブラックホール第2回）</td></tr>
+    <tr><td>粗く見ても答えが変わらない</td><td>体積の情報が、表面に書ける</td></tr>
+  </table>
+
+  <p>最後の行が、ホログラフィック原理そのものです。<em>三次元の中身の情報が、二次元の表面に収まってしまう</em> ── 「わかるブラックホール」第5回で見た、あの主張。この対応表の下で読み直すと、<strong>ホログラフィック原理とは「宇宙が粗視化可能であることの、幾何学的な表現」</strong>だ、ということになります。</p>
+
+  <div class="aside">
+    <span class="tag">「わかる相対論」最終回と、同じ構図</span>
+    姉妹編「わかる相対論」の最終回は、<em>重力を「曲がった時空」と描いても「場所で変わる光速」と描いても、観測量は同じ ── 記述は取り替え可能</em>、という話でした。この回も、まったく同じ構図をしています ── <strong>「情報を捨てる手続き」と描いても「空間を 1 次元進む」と描いても、同じ一つのことの二つの記述</strong>。単位のある数字も、座標の取り方も、そして「解像度」という記帳の軸さえ舞台装置で、残るのは関係だけ。四つのシリーズが、ここで同じ場所に着きます。
+  </div>
+
+  <h2><span class="n">05</span>宇宙はサボっていない ── シリーズの結論</h2>
+
+  <p>最後に、このシリーズの出発点にあった問いに答えます。<em>宇宙は計算資源が有限だから、面倒になると計算をサボって確率で済ませているのではないか?</em></p>
+
+  <p>資源が有限なのは本当です。ロイドの見積もりでは、観測可能な宇宙がビッグバン以来こなした演算はおよそ \(10^{120}\) 回、使っているビットは \(10^{90}\) 個。ホログラフィック上限は \(10^{122}\) ビット。<strong>上限は実在します</strong>。しかしこのシリーズが 7 回かけて見てきたのは、その上限が「サボる理由」としては現れていない、ということでした。</p>
+
+  <div class="keybox">
+    <div class="lbl">シリーズの結論 ── 誰がサボっているのか</div>
+    <p style="margin:0 0 8px;"><strong>宇宙はサボっていない。サボらざるを得ないのは、私たちのほうだ。</strong></p>
+    <p style="margin:0;">位相は消えず、環境に薄まっているだけ（第3回）。崩壊も再帰時刻が伸びただけで、方程式はユニタリなまま（第2回）。もし宇宙が本当に丸めていたら、量子コンピュータは動かないし、エコーで位相は戻ってこない。<em>帳簿はどこまでも保存されている</em>。ただし追跡コストが宇宙の計算能力を超えるので、私たちは確率で書くしかない。そして<strong>「確率で書いても同じ答えになる」ことを保証してくれているのが、繰り込み群と粗視化という、宇宙の側の親切設計</strong>です。有限の資源上限は、サボる言い訳としてではなく ── <em>ブラックホールの正体として</em>現れている。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── ここは、まだ地図の端です</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>AdS/CFT 対応（マルダセナ 1997）が具体的な例で膨大な検証を受けていること、バルクの動径座標が境界理論の繰り込みスケールとして振る舞うこと（UV/IR 対応、ホログラフィック繰り込み）、境界理論の繰り込み群方程式がバルクの運動方程式として書けること、MERA テンソルネットワークの層構造と AdS 時空の離散化の類似（スウィングル 2009）、ホログラフィック原理とブラックホールのエントロピー \(S=A/4\)、ロイドによる宇宙の計算能力の見積もり（\(\sim10^{120}\) 演算、\(\sim10^{90}\) ビット）は、いずれも確立した理論的結果または標準的理解です。</p>
+    <p style="margin-bottom:0;"><strong>ここから先は未確立です：</strong>① AdS/CFT が厳密に定式化されているのは<strong>反ドジッター時空</strong>（負の宇宙定数）であり、<em>私たちの宇宙はそうではありません</em>（宇宙定数は正）。ドジッター的な宇宙でのホログラフィーは活発な研究対象ですが、確立していません。したがって「私たちの宇宙の奥行きが解像度である」とは<strong>まだ言えません</strong>。② 「粗視化＝空間を進む」は、対応が成り立つ枠組みの中での正確な言明であって、任意の理論に対する一般定理ではありません。③ MERA と AdS の関係は示唆的な類似であり、厳密な等号は確立していません。④ 図は「奥行き＝解像度」を体感するための模式で、実際の AdS 時空の計量や測地線を解いたものではありません（くさびの深さ ≈ 幅 /2 も、円形の因果くさびに基づく大づかみな関係です）。 ── この回は、シリーズがたどり着いた<em>最も遠い足場</em>であって、確定した結論ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>AdS/CFT で、バルクの動径座標 \(z\) は境界理論の何に対応するか。\(z\to0\) と \(z\) が大きいのはそれぞれ何か。
+        <details><summary>答えを見る</summary><div class="ans">繰り込みスケール（\(z\leftrightarrow 1/E\)）。\(z\to0\)（境界の近く）が UV ＝細かく見る、\(z\) が大きい（奥）が IR ＝粗く見る。<strong>奥へ進むこと＝粗視化すること</strong>。</div></details>
+      </li>
+      <li>「宇宙は粗視化できる」と「宇宙はホログラフィックだ」が同じ主張になりうるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">粗視化の階層（解像度の軸）が、余分な 1 次元として実現されているから。体積の情報が表面に収まる（ホログラフィー）とは、奥行き方向の情報が境界の解像度の階層で尽くされている、ということ。</div></details>
+      </li>
+      <li>第4回の relevant / irrelevant は、バルクの言葉では何になるか。
+        <details><summary>答えを見る</summary><div class="ans">irrelevant な演算子＝奥へ行くほど<strong>減衰する</strong>場。relevant な演算子＝奥へ行くほど<strong>成長して時空を変形する</strong>場。第6回の「二か所だけ漏れる」は、バルクでは「その二つだけが奥で暴れる」に翻訳される。</div></details>
+      </li>
+      <li>「宇宙は計算をサボっている」という主張に対する、このシリーズの答えを一文で。
+        <details><summary>答えを見る</summary><div class="ans">宇宙はサボっていない。位相も情報も保存されていて（量子コンピュータとエコーがその証拠）、追跡を諦めているのは私たちのほう。ただし「諦めても同じ答えになる」ことを保証してくれるのが繰り込み群であり、それが世界を層に分けている。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第7回まとめ ／ わかる繰り込み・完結</span>粗視化は、たぶん空間の一方向だった</h2>
+    <p>繰り込み群は「流れ」でした。流れる以上、それは何かの上を流れている ── その軸を<strong>解像度</strong>と呼んできましたが、AdS/CFT では<em>それが本物の空間の一次元として現れます</em>。バルクの動径座標 \(z\) が境界理論の繰り込みスケール（\(z\leftrightarrow1/E\)）に対応し、<strong>奥へ進むこと＝粗視化すること</strong>。境界理論の繰り込み群方程式は、バルクの重力場が \(z\) 方向に従う運動方程式として書けます。MERA テンソルネットワークの層構造が AdS 時空の刻みに似ているのも、同じことを別の角度から言っている。</p>
+    <p>この視点では、対応表が引けます ── irrelevant／relevant は奥での減衰／成長に、捨てた情報の量（エントロピー）は面積 ÷ 4 に、そして「粗く見ても答えが変わらない」は「体積の情報が表面に書ける」に。<strong>ホログラフィック原理とは、宇宙が粗視化可能であることの幾何学的な表現</strong>かもしれない。姉妹編「わかる相対論」最終回とまったく同じ構図で ── <em>記述は取り替え可能、変わらないのは関係だけ</em>。</p>
+    <p>そしてシリーズの結論。<strong>宇宙はサボっていない。サボらざるを得ないのは私たちのほうだ。</strong> 位相は消えず環境に薄まり、帳簿は保存されている。ただし追跡コストが宇宙の計算能力（\(10^{120}\) 演算、\(10^{90}\) ビット）を超えるので、確率で書くしかない。<em>そして「確率で書いても同じ答えになる」ことを保証してくれているのが、繰り込み群という宇宙側の親切設計です。</em>有限の資源上限は、サボる理由としてではなく、ブラックホールの正体として現れている ── そこから先は「わかるブラックホール」へ。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">わかる繰り込み・完結 ── そして二つの番外編へ</span>
+    本編はこれで完結です。ただし、大きな宿題が二つ残っています。<strong>番外編①「なぜ低エントロピーから始まったのか」</strong>── 粗視化<em>できる</em>ことと、粗視化して<em>面白いことが起きる</em>ことは別です。時間の矢も層構造も、宇宙が異常に特殊な初期条件（ペンローズの見積もりで \(1/10^{10^{123}}\)）から始まったからこそ生まれた。<strong>番外編②「観測者とは粗視化装置である」</strong>── なぜ宇宙は粗視化できるのか、その三つ目の答え。記憶も学習も予測も、情報を捨てる操作なしには成立しません。姉妹編「わかる学習論」と握手する回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第7回（最終回）、物理好きの高校生・大学生向け読み物です。AdS/CFT 対応（マルダセナ 1997）、バルクの動径座標と境界理論の繰り込みスケールの対応（UV/IR 対応：サスキンド–ウィッテン、ホログラフィック繰り込み：de Boer–Verlinde–Verlinde ほか）、境界の繰り込み群方程式とバルクの運動方程式の対応、MERA テンソルネットワークと AdS 時空の離散化の類似（スウィングル 2009）、ホログラフィック原理とベッケンシュタイン–ホーキングのエントロピー \(S=A/4\)、およびロイドによる宇宙の計算能力の見積もりは、いずれも確立した理論的結果または標準的理解です。ただし AdS/CFT が厳密に定式化されているのは負の宇宙定数を持つ反ドジッター時空であり、正の宇宙定数を持つ現実の宇宙へのホログラフィーの拡張は未確立であること、「粗視化＝空間を進む」が対応の成り立つ枠組み内での言明であって一般定理ではないこと、MERA と AdS の関係が厳密な等号ではなく示唆的類似であることは、本文「正直な線」に明記しました。図は「奥行き＝解像度」を体感するための模式で、AdS 計量や測地線を解いたものではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前の回：<a href="wakaru-kurikomi-06-kaisou.html">第6回 漏れている二か所</a>／番外：<a href="wakaru-kurikomi-bangai-kako.html">なぜ低エントロピーから始まったのか</a>・<a href="wakaru-kurikomi-bangai-kansokusha.html">観測者とは粗視化装置である</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-blackhole/index.html">わかるブラックホール</a>・<a href="../wakaru-soutai/index.html">わかる相対論</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで深さ z を動かすと解像度が落ちていきます。「くさびを表示」で境界領域とバルクの対応が見られます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sz=document.getElementById('sz'), vz=document.getElementById('vz'),
+      rd=document.getElementById('rd'), wedgeBtn=document.getElementById('wedge'), reseed=document.getElementById('reseed');
+  var showWedge=true, seed=20240726;
+
+  var NX=192;                 // 境界の細かさ
+  var field=null;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  function build(sd){
+    var rnd=mulberry32(sd), f=new Float64Array(NX);
+    // いろいろなスケールの構造を重ねる（自己相似っぽく）
+    for(var oct=0; oct<7; oct++){
+      var n=Math.pow(2,oct+1), amp=1/Math.pow(2,oct*0.35);
+      var ph=rnd()*Math.PI*2, w=1+rnd();
+      for(var i=0;i<NX;i++){
+        f[i]+= amp*Math.sin(2*Math.PI*n*w*i/NX+ph);
+      }
+    }
+    var mx=0; for(var j=0;j<NX;j++) mx=Math.max(mx,Math.abs(f[j]));
+    for(var j2=0;j2<NX;j2++) f[j2]=0.5+0.46*f[j2]/mx;
+    return f;
+  }
+  field=build(seed);
+
+  function smooth(f,width){
+    // 幅 width（セル数）のボックス平均。周期境界。
+    var wI=Math.max(1,Math.round(width));
+    if(wI<=1) return f;
+    var out=new Float64Array(NX);
+    for(var i=0;i<NX;i++){
+      var s=0;
+      for(var d=-Math.floor(wI/2); d<=Math.floor(wI/2); d++){
+        s+=f[(i+d+NX*4)%NX];
+      }
+      out[i]=s/(2*Math.floor(wI/2)+1);
+    }
+    return out;
+  }
+  function col(v){
+    var t=Math.max(0,Math.min(1,v));
+    var r=Math.round(255+(176-255)*t), g=Math.round(255+(86-255)*t), b=Math.round(255+(30-255)*t);
+    return 'rgb('+r+','+g+','+b+')';
+  }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var zi=parseInt(sz.value,10), z=zi/100;   // 0.01 〜 1.00
+    vz.textContent=z.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    var L=54, R=w-14, T=32, B=h-34;
+    var NROW=44, rowH=(B-T)/NROW, cw=(R-L)/NX;
+
+    // バルク：各行を、その深さに応じた幅で粗視化
+    for(var r=0;r<NROW;r++){
+      var zz=(r+0.5)/NROW;                      // 0..1
+      var width=1+zz*zz*NX*0.30;                // 深いほど広く平均
+      var g=smooth(field,width);
+      for(var i=0;i<NX;i++){
+        ctx.fillStyle=col(g[i]);
+        ctx.fillRect(L+i*cw, T+r*rowH, cw+0.7, rowH+0.7);
+      }
+    }
+    ctx.strokeStyle='#cabb98'; ctx.lineWidth=1; ctx.strokeRect(L+.5,T+.5,R-L,B-T);
+
+    // 境界（生の情報）を上に別枠で
+    for(var i2=0;i2<NX;i2++){
+      ctx.fillStyle=col(field[i2]);
+      ctx.fillRect(L+i2*cw, T-20, cw+0.7, 15);
+    }
+    ctx.strokeStyle='#7a3b1a'; ctx.lineWidth=1.4; ctx.strokeRect(L+.5,T-20.5,R-L,15);
+
+    // ラベル
+    ctx.fillStyle='#7a4a10'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('境界（z→0）＝ UV ＝ いちばん細かい記述', L, T-26);
+    ctx.textAlign='right';
+    ctx.save(); ctx.translate(16,(T+B)/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.font='11px sans-serif'; ctx.fillStyle='#7a4a10';
+    ctx.fillText('← バルクの奥行き z ＝ 粗視化 →',0,0); ctx.restore();
+    ctx.textAlign='left'; ctx.font='11px sans-serif'; ctx.fillStyle='#7a4a10';
+    ctx.fillText('IR ＝ いちばん粗い記述', L, B+16);
+
+    // 選んだ深さ
+    var yz=T+z*(B-T);
+    ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.moveTo(L,yz); ctx.lineTo(R,yz); ctx.stroke();
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('z = '+z.toFixed(2), L-6, yz+4);
+
+    // 因果くさび
+    if(showWedge){
+      var cx=(L+R)/2, half=(R-L)*0.18;
+      ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
+      ctx.beginPath();
+      ctx.moveTo(cx-half, T); ctx.lineTo(cx, T+half); ctx.lineTo(cx+half, T); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(cx-half, T-2); ctx.lineTo(cx+half, T-2); ctx.stroke();
+      ctx.fillStyle='#4a4f6a'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('境界の幅 W の領域', cx, T+half+14);
+      ctx.fillText('が覆うバルク（深さ ≈ W/2）', cx, T+half+27);
+    }
+    wedgeBtn.textContent='くさびを表示：'+(showWedge?'ON':'OFF');
+
+    var width=1+z*z*NX*0.30;
+    var msg;
+    if(z<0.15) msg='境界のすぐ近く ── ほぼ生の情報。<b>UV（細かく見る）</b>。';
+    else if(z<0.55) msg='中ほど ── 細かい構造から順に消えていく。まさに<b>繰り込み群の途中</b>。';
+    else msg='深いところ ── 大きな構造しか残っていない。<b>IR（粗く見る）</b>。';
+    rd.innerHTML='深さ z = <b>'+z.toFixed(2)+'</b> → その行は境界の <b>'+Math.round(width)+'</b> セル分を平均した姿'
+      +'（境界は '+NX+' セル）。'+msg+'<br>'
+      +'この絵の <b>縦方向がまるごと繰り込み群の流れ</b>です ── 「情報を捨てる手続き」と「空間を 1 次元進むこと」が、同じ一つの動きになっています。';
+  }
+
+  sz.addEventListener('input', draw);
+  wedgeBtn.addEventListener('click', function(){ showWedge=!showWedge; draw(); });
+  reseed.addEventListener('click', function(){ seed=Math.floor(Math.random()*1e9); field=build(seed); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

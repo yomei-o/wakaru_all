@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>捨てても同じ ── わかる繰り込み 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8fafd; --paper-edge:#dde4ee;   /* 第1回：粗視化＝青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#1f4f7b; --calc-bg:#e7eef6;
+    --rule:#d3dceb; --hair:#b8c5da;
+    --acc:#26619c;    /* アクセント＝粗視化の青 */
+    --grid:#e2e9f3;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c5d9ee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdcea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e7eef6;color:#1f4f7b;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef4fa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d3f5e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e9f0f8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eef6;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d3f5e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 1 回 ／ 捨てても同じ ── 粗視化とは何か</span></div>
+  <p class="eyebrow">コップの水の分子を 10²³ 個ぜんぶ追わなくても、温度と圧力の2つで沸騰する時刻が当たる ── なぜ捨ててよいのか</p>
+  <h1>捨てても同じ
+    <span class="sub">情報を捨てているのに、答えが変わらない。<br>これは手抜きではなく、<em>宇宙がそういう構造をしている</em>ということだ。その理由は 1/√N という一行に書いてある。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：高校物理の熱力学（温度・圧力）、平方根、対数の気分</span>
+    <span>この回の芯：ゆらぎ ∝ 1/√N</span>
+  </div>
+
+  <p class="lead">目の前のコップに水が 180 mL 入っているとします。分子はおよそ <strong>6×10²⁴ 個</strong>。一個ずつ位置（3つの数）と速度（3つの数）を書き出すと、数字は 3.6×10²⁵ 個。1 個 1 バイトで足りたとしても、人類が持っている全ストレージを何桁も超えます。<em>原理的に、追えません</em>。ところが私たちは、このコップを火にかけたとき何分後に沸くかを、<strong>温度と圧力というたった2つの数</strong>から予測できて、しかも当たる。10²⁴ 個の数字を捨てて 2 個にした ── 圧縮率にして 10⁻²⁴ ── のに、答えが変わらない。この「<em>捨てても同じ</em>」という奇跡が、このシリーズの全部です。第1回では、なぜ捨ててよいのかを一行で押さえます。</p>
+
+  <h2><span class="n">01</span>追いきれない。それでも当たる</h2>
+
+  <p>まず、どれくらい絶望的かをはっきりさせておきます。ニュートン力学は完璧な処方箋です ── すべての分子の初期位置と初速がわかれば、あとは方程式を解くだけで未来が決まる。問題は「わかれば」の部分で、必要な数字が 10²⁵ 個ある。集めることも、書き留めることも、解くこともできない。</p>
+
+  <p>ところが、熱力学は同じコップについて<strong>3行</strong>で答えを出します。温度、圧力、体積。この3つを与えれば、水が沸く温度も、膨張する量も、エンジンが取り出せる仕事の上限も出る。しかも実験と合う。<em>10²⁵ 個の数字のうち 10²⁵ 個を捨てて、3 個だけ残しても、予測が壊れない</em>。この操作を <strong>粗視化（coarse-graining）</strong>と呼びます。</p>
+
+  <p>これは「だいたい合っていればいい」という妥協ではありません。マクロな量については、精度がむしろ<em>異常に高い</em>のです。理由が次の一行にあります。</p>
+
+  <h2><span class="n">02</span>なぜ当たるのか ── 1/√N という一行</h2>
+
+  <div class="keybox">
+    <div class="lbl">この回の芯 ── 数が増えるほど、平均は鋭くなる</div>
+    $$\frac{\text{ゆらぎ}}{\text{平均}}\;\sim\;\frac{1}{\sqrt{N}}$$
+    <p style="margin:8px 0 0;">\(N\) 個のばらばらなものを足して平均すると、ばらつきは \(\sqrt{N}\) でしか増えないのに、合計は \(N\) で増える。だから相対的なばらつきは \(1/\sqrt{N}\) で<strong>消えていく</strong>。中心極限定理の、いちばん使う形です。</p>
+  </div>
+
+  <p>サイコロを 1 個振れば出目は 1〜6 でばらばら。100 個振って平均をとると 3.5 のまわりにかなり集まり、10000 個なら 3.5 から 1% も外れません。<em>個々は乱れているのに、平均は鋭い</em>。粗視化が効くのは、この鋭さのおかげです。</p>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── コップの水の圧力は、どれくらい「鋭い」か</span>
+    <p style="margin:2px 0 0;">分子数 \(N\approx 6\times10^{24}\)。相対ゆらぎは</p>
+    $$\frac{1}{\sqrt{N}}\approx\frac{1}{\sqrt{6\times10^{24}}}\approx 4\times10^{-13}$$
+    <p style="margin-bottom:14px;">つまり圧力計の針は、13 桁目まで動かない。世界最高の圧力計でも 6〜7 桁が限界ですから、<strong>ゆらぎは原理的に見えない</strong>。「温度」や「圧力」がまるで実在の量のように振る舞うのは、\(N\) が大きいからです。<em>マクロ変数の鋭さは、粒子数が保証している</em>。</p>
+  </div>
+
+  <p>逆に言えば、\(N\) が小さければ粗視化は失敗します。花粉の微粒子は水分子に叩かれてふらふら動く（ブラウン運動）── これは、微粒子が小さくて衝突数 \(N\) が足りず、\(1/\sqrt{N}\) が<em>見えてしまった</em>状態です。粗視化は万能の魔法ではなく、<strong>\(N\) が大きいという条件つきの定理</strong>。この「条件つき」が第5回の主題になります。</p>
+
+  <table class="tbl">
+    <tr><th>対象</th><th class="num">構成要素の数 N</th><th class="num">相対ゆらぎ 1/√N</th><th>粗視化は</th></tr>
+    <tr><td>コップの水</td><td class="num">6×10²⁴</td><td class="num">4×10⁻¹³</td><td>完璧に効く</td></tr>
+    <tr><td>細胞1個の中のあるタンパク質</td><td class="num">10³ 個程度</td><td class="num">3%</td><td>ゆらぎが効く（生物はこれを使う）</td></tr>
+    <tr><td>花粉の微粒子への衝突</td><td class="num">見える程度</td><td class="num">目に見える</td><td>破れる（ブラウン運動）</td></tr>
+    <tr><td>電子1個</td><td class="num">1</td><td class="num">100%</td><td>まったく効かない</td></tr>
+  </table>
+
+  <h2><span class="n">03</span>捨てた分を数える ── それがエントロピー</h2>
+
+  <p>ここで、熱力学のいちばん謎めいた量に、まっすぐな意味が与えられます。<strong>エントロピーとは、捨てた情報の量そのもの</strong>です。</p>
+
+  <p>温度と圧力を指定しても、それに合うミクロな配置（どの分子がどこにいてどう飛んでいるか）は膨大にあります。その通り数を \(W\) とすると、</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">ボルツマンの墓碑銘 ── 捨てた情報の量</div>
+    $$S=k\log W$$
+    <p style="margin:8px 0 0;">\(W\) は「マクロには同じに見えるミクロ配置の数」。だから \(S\) は<strong>マクロを決めても決まらずに残った自由度の量</strong>＝粗視化で捨てた情報の量です。情報の単位（ビット）で書けば \(S/(k\ln 2)\) ビット。1 mol の気体でおよそ <strong>10²⁵ ビット</strong> ── これが、温度と圧力の 2 つを残すために床に捨てられた量。</p>
+  </div>
+
+  <p>この読み替えは強力です。「エントロピーは増える」（熱力学第二法則）は、<em>捨てた情報は勝手には戻ってこない</em>と言い換えられる。コーヒーにミルクを落とすと混ざるのに、混ざったコーヒーがひとりでに分離しないのは、分離した配置の数が混ざった配置の数より圧倒的に少ないから ── ただそれだけです。<strong>粗視化とエントロピーと時間の矢は、同じ一つのことの三つの呼び名</strong>。（ではなぜ最初は分離していたのか? という問いは番外編①へ。）</p>
+
+  <div class="aside">
+    <span class="tag">「近似」ではない、という点が大事</span>
+    粗視化はよく「近似」と誤解されますが、マクロ変数の予測については<em>近似ではありません</em>。捨てた 10²⁵ ビットは、温度や圧力の値に \(10^{-13}\) の桁でしか影響しない ── つまり、<strong>捨てたものは最初から答えに入っていなかった</strong>。近似とは「本当は要るものを省くこと」ですが、粗視化は「要らないものを見分けて落とすこと」です。この違いが、第4回の「普遍性」で決定的になります。
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 別のミクロが、同じマクロになる</h2>
+
+  <p>下の図で、実際に捨ててみます。上下 2 段は、<strong>まったく別のミクロ配置 A と B</strong>（乱数の振り方が違う）。左が生のミクロ、右がそれをブロックごとに平均した粗視化像です。</p>
+
+  <p>スライダーで<em>ブロックの一辺</em>を大きくしていってください。すると二つのことが同時に起きます ── ① 右側の像がなめらかになる（ゆらぎが \(1/\sqrt{N}\) で消える）。② <strong>A と B の右側が、見分けられなくなる</strong>。ミクロでは似ても似つかない二つが、粗視化すると同じ顔になる。<em>捨てられているのは「どちらの出自か」という情報</em>です。これが第4回の普遍性の予告編になります。</p>
+
+  <div class="fig">
+    <div class="cap">図：上段＝ミクロ配置 A、下段＝別のミクロ配置 B（乱数が違うだけ、背後の macro 分布は同じ）。左＝生のミクロ、右＝ブロック平均した粗視化像。スライダーでブロック一辺を大きくすると、右側は滑らかになり、同時に A と B の区別がつかなくなる</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>ブロックの一辺（粗視化の強さ） <span class="val" id="vb">1</span>
+        <input type="range" id="sb" min="0" max="5" step="1" value="0">
+      </label>
+      <button id="reseed">ミクロを振り直す</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#26619c;"></i>値が大きい</span>
+      <span><i class="swatch" style="background:#cfdcea;"></i>値が小さい</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>捨てると、新しい「層」が生まれる</h2>
+
+  <p>粗視化のいちばん不思議な副産物は、<strong>捨てた先に、元になかった概念が現れる</strong>ことです。</p>
+
+  <p>水分子 1 個に「温度」はありません。「圧力」も「粘性」も「表面張力」もない。これらは分子が 10²⁴ 個集まって、しかも個々を捨てたときにはじめて意味を持つ量です。つまり粗視化は情報を減らす操作なのに、<em>減らした先に新しい語彙が生まれる</em>。だから世界は、独立に閉じた層のミルフィーユになっています。</p>
+
+  <div class="calc">
+    <span class="tag">層のミルフィーユ ── それぞれが自分の言葉で閉じている</span>
+    <p style="margin:2px 0 14px;">素粒子 → 原子核 → 原子 → 分子・化学 → 物質・熱 → 生物 → 心 → 社会。<br>
+    化学者はクォークを知らずに反応を予測でき、工学者は原子を知らずに橋を架けられる。<strong>上の階の詳細を知らなくても、下の階の法則が閉じている</strong> ── これが層が層として成立している、ということ。物理学者アンダーソンはこれを「<em>More is Different</em>（多いことは違うことだ）」と呼びました（1972年）。第4回で、なぜ層が閉じるのかを繰り込み群として厳密にします。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「捨ててよい」が成り立つ条件</span>
+    <p style="margin-top:0;">粗視化が有効であること、相対ゆらぎが \(1/\sqrt{N}\) で減ること（大数の法則・中心極限定理）、ボルツマンの \(S=k\log W\) がミクロ配置の数え上げであること、そしてエントロピーが情報量として読めること（シャノン、ジェインズ）は、いずれも確立した物理・数学です。</p>
+    <p style="margin-bottom:0;">ただし「いつでも捨ててよい」わけではありません。粗視化が正当化されるのは、おおむね ① <strong>\(N\) が大きい</strong>（そうでないとゆらぎが見える）、② <strong>スケールが分離している</strong>（ミクロの速い運動とマクロのゆっくりした変化が桁で離れている）、③ <strong>局所平衡が成り立つ</strong>、の三つが揃うときです。臨界点・乱流・カオスではこれらが破れ、捨てたものが答えに戻ってきます（第5回）。また「どの変数を残すか」は物理法則が自動で決めてくれるわけではなく、問いに応じて人間が選ぶ面があります ── だからエントロピーには「どう粗視化したか」への依存性がある、という論点（ジェインズら）も残っています。本シリーズは、この<em>選び方まで含めて物理が教えてくれる</em>のが繰り込み群だ、という立場で進みます。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>粒子数が 10⁶ 個の系と 10¹² 個の系で、相対ゆらぎは何倍ちがうか。
+        <details><summary>答えを見る</summary><div class="ans">\(1/\sqrt{N}\) なので、\(\sqrt{10^{12}/10^{6}}=10^3\) 倍。粒子数が 10⁶ 倍になると、ゆらぎは 1000 分の 1 になる。「大きいものほど法則が厳密に見える」のはこのため。</div></details>
+      </li>
+      <li>「エントロピーが増える」を、情報の言葉で言い換えよ。
+        <details><summary>答えを見る</summary><div class="ans">「マクロを指定しても決まらないミクロ配置の数が増える」＝<strong>粗視化で捨てられる情報の量が増える</strong>。混ざったコーヒーが自然に分離しないのは、分離状態の配置数が圧倒的に少ないから。捨てた情報は勝手に戻らない。</div></details>
+      </li>
+      <li>粗視化が「近似」ではないと言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">捨てた自由度がマクロ変数の値に与える影響が \(1/\sqrt{N}\)（コップの水なら \(10^{-13}\)）しかなく、測定精度より何桁も小さいから。近似は「本当は要るものを省く」ことだが、粗視化は「答えに入っていないものを落とす」こと。</div></details>
+      </li>
+      <li>図で、ブロックを大きくすると A と B の見分けがつかなくなるのはなぜか。この現象は何の予告編か。
+        <details><summary>答えを見る</summary><div class="ans">A と B の違いは独立な乱数（＝ミクロの出自）だけで、ブロック平均するとその差は \(1/\sqrt{N}\) で消える。一方、背後の macro 分布は共通なので残る。<strong>粗視化はミクロの出自を消し、マクロの構造だけを残す</strong>。これが第4回「普遍性」── 水と磁石が同じ臨界指数を持つ理由 ── の予告編。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第1回まとめ</span>捨ててよいのは、捨てたものが答えに入っていないから</h2>
+    <p>コップの水の 10²⁴ 個の分子を、温度と圧力の 2 つに潰しても予測は当たる。当たる理由は <strong>相対ゆらぎ ∝ 1/√N</strong> ── 数が増えるほど平均は鋭くなり、コップの水なら 13 桁目まで動かない。だからマクロ変数は「実在の量」のように振る舞う。捨てた分の量には名前があって、それが<strong>エントロピー \(S=k\log W\)</strong>。第二法則は「捨てた情報は勝手には戻らない」の言い換え。</p>
+    <p>そして粗視化の副産物として、<strong>元になかった概念（温度・圧力・粘性）が生まれ、世界は層のミルフィーユになる</strong>。ただし効くのは \(N\) が大きく、スケールが分離しているときだけ ── その条件が破れる場所は第5回で数えます。次回はもっと極端な例へ。<em>1 個の粒子について「捨てる」とはどういうことか</em> ── 中性子の寿命 880 秒を、確率ではなく位相の話として読み直します。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第2回「位相か、確率か」</span>
+    第1回は「たくさんあるから捨ててよい」でした。では、<strong>たった1個</strong>の粒子ではどうか。中性子は平均 880 秒で崩壊します。あれは神様がサイコロを振っているのか? 実は違って、量子論では中性子の質量を<em>複素数</em> \(m-i\Gamma/2\) にするだけで崩壊が出てきます ── つまり<strong>崩壊とは、位相が複素平面側へ回っていくこと</strong>。では「振動」（行って戻る）と「崩壊」（戻らない）を分けているのは何か。答えは<em>行き先が離散か連続か</em>で、そこに粗視化がもう一度顔を出します。</p>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第1回、物理好きの高校生・大学生向け読み物です。大数の法則・中心極限定理により強度量の相対ゆらぎが \(1/\sqrt{N}\) で減衰すること、ボルツマンの関係 \(S=k\log W\) がマクロ状態に対応するミクロ状態数の対数であること、統計力学的エントロピーが情報理論的エントロピーと同一の構造を持つこと、熱力学第二法則が粗視化と結びつくこと、そして創発的マクロ変数（温度・圧力・粘性）が単一構成要素には定義されないことは、いずれも確立した物理・標準的理解です。粗視化の妥当性が \(N\gg1\)・スケール分離・局所平衡に依存すること、および粗視化の選び方に依存する部分が残ること（エントロピーの観測者依存性をめぐる議論）は本文「正直な線」に明記しました。図は背後の共通なマクロ分布に独立な乱数を重ねた 2 つのミクロ配置をブロック平均する模式で、実際の分子配置の描画ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。次の回：<a href="wakaru-kurikomi-02-isou.html">第2回 位相か、確率か</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーでブロックの一辺を変えると、粗視化像が滑らかになり、A と B の区別が消えていきます。「ミクロを振り直す」で乱数を再生成。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sb=document.getElementById('sb'), vb=document.getElementById('vb'),
+      rd=document.getElementById('rd'), reseed=document.getElementById('reseed');
+
+  var NX=64, NY=16;          // 微細セル数（1パネルあたり）
+  var seedA=12345, seedB=98765;
+  var fieldA=null, fieldB=null;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  // 背後の共通マクロ分布（なめらか）
+  function macro(i,j){
+    var x=i/NX, y=j/NY;
+    return 0.5 + 0.30*Math.sin(2*Math.PI*(x-0.15)) * Math.cos(Math.PI*(y-0.5));
+  }
+  function build(seed){
+    var rnd=mulberry32(seed), f=new Float64Array(NX*NY);
+    for(var j=0;j<NY;j++) for(var i=0;i<NX;i++){
+      f[j*NX+i]=macro(i,j)+(rnd()-0.5)*0.95;   // ミクロの乱れ（出自）
+    }
+    return f;
+  }
+  function rebuild(){ fieldA=build(seedA); fieldB=build(seedB); }
+  rebuild();
+
+  function blockAvg(f,b){
+    var bx=Math.ceil(NX/b), by=Math.ceil(NY/b), out=new Float64Array(bx*by);
+    for(var J=0;J<by;J++) for(var I=0;I<bx;I++){
+      var s=0,c=0;
+      for(var j=J*b;j<Math.min((J+1)*b,NY);j++) for(var i=I*b;i<Math.min((I+1)*b,NX);i++){ s+=f[j*NX+i]; c++; }
+      out[J*bx+I]= c? s/c : 0;
+    }
+    return {d:out,bx:bx,by:by};
+  }
+  function col(v){
+    var t=Math.max(0,Math.min(1,v));
+    var r=Math.round(255+(38-255)*t), g=Math.round(255+(97-255)*t), bl=Math.round(255+(156-255)*t);
+    return 'rgb('+r+','+g+','+bl+')';
+  }
+  function drawPanel(ctx,x,y,w,h,d,nx,ny){
+    var cw=w/nx, ch=h/ny;
+    for(var j=0;j<ny;j++) for(var i=0;i<nx;i++){
+      ctx.fillStyle=col(d[j*nx+i]);
+      ctx.fillRect(x+i*cw, y+j*ch, Math.ceil(cw)+0.5, Math.ceil(ch)+0.5);
+    }
+    ctx.strokeStyle='#b8c5da'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,w,h);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var bi=parseInt(sb.value,10), b=Math.pow(2,bi);
+    vb.textContent=b+' × '+b;
+    ctx.clearRect(0,0,w,h);
+
+    var pw=(w-3*22)/2, ph=(h-4*30)/2;
+    var x1=22, x2=22+pw+22, y1=30, y2=30+ph+40;
+
+    ctx.font='bold 12px sans-serif'; ctx.fillStyle='#26619c'; ctx.textAlign='left';
+    ctx.fillText('ミクロ配置 A（生）', x1, y1-9);
+    ctx.fillText('A を粗視化（'+b+'×'+b+' 平均）', x2, y1-9);
+    ctx.fillText('ミクロ配置 B（生・別の乱数）', x1, y2-9);
+    ctx.fillText('B を粗視化（'+b+'×'+b+' 平均）', x2, y2-9);
+
+    drawPanel(ctx,x1,y1,pw,ph,fieldA,NX,NY);
+    drawPanel(ctx,x1,y2,pw,ph,fieldB,NX,NY);
+    var ca=blockAvg(fieldA,b), cb=blockAvg(fieldB,b);
+    drawPanel(ctx,x2,y1,pw,ph,ca.d,ca.bx,ca.by);
+    drawPanel(ctx,x2,y2,pw,ph,cb.d,cb.bx,cb.by);
+
+    // A と B の粗視化像の差（RMS）
+    var s=0;
+    for(var k=0;k<ca.d.length;k++){ var e=ca.d[k]-cb.d[k]; s+=e*e; }
+    var rms=Math.sqrt(s/ca.d.length);
+    // 生の差
+    var s0=0;
+    for(var k2=0;k2<fieldA.length;k2++){ var e0=fieldA[k2]-fieldB[k2]; s0+=e0*e0; }
+    var rms0=Math.sqrt(s0/fieldA.length);
+
+    var N=b*b;
+    rd.innerHTML='ブロック一辺 '+b+' ＝ 1ブロックに <b>N = '+N+'</b> セル。'
+      +'理論のゆらぎ 1/√N = <b>'+(1/Math.sqrt(N)*100).toFixed(1)+'%</b>。 '
+      +'残ったセル数：'+(NX*NY)+' → <b>'+(ca.bx*ca.by)+'</b>（'+(100*ca.bx*ca.by/(NX*NY)).toFixed(1)+'% に圧縮）。<br>'
+      +'A と B の違い：生では '+(rms0*100).toFixed(1)+'% → 粗視化後 <b>'+(rms*100).toFixed(1)+'%</b>。'
+      +' 捨てられているのは「どちらの出自か」という情報で、共通のマクロ構造だけが残ります。';
+  }
+
+  sb.addEventListener('input', draw);
+  reseed.addEventListener('click', function(){
+    seedA=Math.floor(Math.random()*1e9); seedB=Math.floor(Math.random()*1e9);
+    rebuild(); draw();
+  });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

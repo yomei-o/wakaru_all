@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase, or probability? ── Renormalization That Clicks, Episode 2</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8fd; --paper-edge:#e2dbee;   /* Episode 2: phase = violet paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#5a3a92; --calc-bg:#efe9f7;
+    --rule:#ded5ec; --hair:#c5b8dc;
+    --acc:#6d4aa7;    /* accent = the violet of phase */
+    --grid:#e8e1f2;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9cbee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ddd2ee;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#efe9f7;color:#4d2f83;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3eefa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#432a72;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ece5f6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe9f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#432a72;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#665a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Episode 2 / Phase, or probability?</span></div>
+  <p class="eyebrow">The neutron's 880 seconds is not the time God spends rolling dice ── make the mass complex and decay falls out</p>
+  <h1>Phase, or probability?
+    <span class="sub">When exactly did the neutron decay?<br>Decay is <em>the phase rotating into the complex plane</em>, and what separates oscillation from decay is whether the destination is discrete or continuous.<br>Coarse-graining hides inside a single particle too.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's coarse-graining, exponentials, complex numbers (having an i is enough)</span>
+    <span>The heart of this episode: m → m − iΓ/2</span>
+  </div>
+
+  <p class="lead">A free neutron decays into a proton, an electron and an antineutrino after about <strong>880 seconds</strong>. Textbooks say "there is a fixed probability of decaying per unit time," and from that derive the exponential law \(N(t)=N_0e^{-t/\tau}\) ── as if every neutron were rolling dice each second. But there is no "roll dice" term anywhere in quantum mechanics. <em>There is only the rotation of phase.</em> In fact, making the neutron's mass ever so slightly complex ── \(m\to m-i\Gamma/2\) ── makes exponential decay come out <strong>automatically</strong>. Decay is the phase you were tracking escaping into the complex plane. So why is it "never back" decay rather than "there and back" oscillation? The answer is <em>whether the destination is discrete or continuous</em>, and Episode 1's coarse-graining shows up there once more.</p>
+
+  <h2><span class="n">01</span>Is 880 seconds a dice roll?</h2>
+
+  <p>The exponential law of radioactive decay fits a probabilistic picture so comfortably that it is usually explained this way: "each particle is memoryless and decays with probability \(1/\tau\) per second, so the survivors fall off exponentially." A surviving neutron is indistinguishable from a newborn one (memorylessness). This matches experiment well.</p>
+
+  <p>But the basic equation of quantum mechanics (Schrödinger's) is completely <strong>deterministic</strong>. A state evolves by a rotation of phase, \(e^{-iEt/\hbar}\), and probability only enters at measurement. So why does a neutron decay "on its own" when nobody is looking?</p>
+
+  <div class="aside">
+    <span class="tag">First, a check ── "both a neutron and p+e+ν̄" is an allowed state</span>
+    Counterintuitively, a mid-decay neutron is a <em>superposition</em>: $$|\psi(t)\rangle=\alpha(t)\,|n\rangle+\beta(t)\,|p\,e^-\bar\nu_e\rangle$$ Nothing forbids this. The charge is 0 on both sides (\(0\) and \(+1-1+0\)), baryon number is 1 on both, lepton number is 0 on both. <strong>Every conserved quantity matches, so they may be superposed coherently.</strong> A state in which "it hasn't been settled yet whether this is a neutron or a proton+electron+antineutrino" exists in principle.
+  </div>
+
+  <h2><span class="n">02</span>Make the mass complex and decay falls out</h2>
+
+  <p>A stable particle evolves by a phase turning at constant rate: \(e^{-imc^2t/\hbar}\). Now add a tiny imaginary part to the mass.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The heart of this episode ── decay is the phase turning into the complex plane</div>
+    $$m\;\longrightarrow\;m-i\frac{\Gamma}{2c^2}\qquad\Longrightarrow\qquad e^{-imc^2t/\hbar}\;\longrightarrow\;\underbrace{e^{-imc^2t/\hbar}}_{\text{ordinary phase}}\cdot\underbrace{e^{-\Gamma t/2\hbar}}_{\text{amplitude shrinks}}$$
+    <p style="margin:8px 0 0;">Probability is the square of the amplitude, so the survival probability is \(P(t)=e^{-\Gamma t/\hbar}=e^{-t/\tau}\). <strong>The exponential law came out without rolling a single die.</strong> \(\Gamma\) is called the <em>decay width</em>, and \(\Gamma=\hbar/\tau\). This is the standard treatment, known as the Wigner–Weisskopf approximation.</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Working out Γ for the neutron</span>
+    <p style="margin:2px 0 0;">With \(\hbar=6.58\times10^{-16}\ \mathrm{eV\cdot s}\) and \(\tau\approx 879\ \mathrm{s}\):</p>
+    $$\Gamma=\frac{\hbar}{\tau}=\frac{6.58\times10^{-16}}{879}\approx 7.5\times10^{-19}\ \mathrm{eV}$$
+    <p style="margin-bottom:14px;">The neutron's mass-energy is 939 MeV \(=9.4\times10^{8}\) eV, so the imaginary part is <strong>\(10^{-27}\) times the real part</strong>. Making the mass just that slightly complex gives you an 880-second lifetime. <em>Decay is a very small imaginary part of the mass.</em></p>
+  </div>
+
+  <h2><span class="n">03</span>Two pieces of evidence that it isn't dice</h2>
+
+  <p>You might think the two ways of speaking are equivalent. They are not ── <strong>they differ observably</strong>. A pure probabilistic process would give an exactly exponential survival curve forever; quantum mechanics departs from the exponential in two places.</p>
+
+  <div class="calc">
+    <span class="tag">Departure ① Short times ── t², not exponential (the quantum Zeno effect)</span>
+    <p style="margin:2px 0 14px;">In the very first moments the survival probability falls as $$P(t)\approx 1-\left(\frac{\Delta E\,t}{\hbar}\right)^2$$ ── <strong>quadratically</strong> (an exponential would give the linear \(1-t/\tau\)). Quadratic means the slope is zero at \(t\to0\) ── so if you <em>measure repeatedly and keep resetting the clock, decay stops</em>. This is the <strong>quantum Zeno effect</strong>, confirmed in ion-trap experiments in 1990 (Itano et al.). If it were dice, watching would change nothing.</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Departure ② Very long times ── slower than exponential (a power-law tail)</span>
+    <p style="margin:2px 0 14px;">Many lifetimes later, the survival probability is known theoretically to leave the exponential and cross over to a <strong>power-law tail</strong> (Khalfin's theorem). The reason is that energy is bounded below (there is nothing underneath). A pure probabilistic process has no such reason. Catching this experimentally is extremely hard and reports are very few.</p>
+  </div>
+
+  <p>That short-time \(t^2\) is precisely <em>the stage where the phase is only beginning to slip</em>. The amplitude is still undecided about where to go and is leaking with its phase intact. The exponential law appears only afterwards ── once the phases have scattered. <strong>The exponential law is not a fundamental law; it emerges from coarse-graining.</strong> Same shape as Episode 1.</p>
+
+  <h2><span class="n">04</span>What separates oscillation from decay ── discrete or continuous</h2>
+
+  <p>Here is the main point. Two kinds of behaviour exist in the world, both of them "phase leaking."</p>
+
+  <table class="tbl">
+    <tr><th></th><th>Oscillation (there and back)</th><th>Decay (never back)</th></tr>
+    <tr><td>Examples</td><td>neutrino oscillation, kaon mixing</td><td>neutron decay, atomic emission</td></tr>
+    <tr><td>Destination states</td><td><strong>discrete</strong> (a countable number)</td><td><strong>continuous</strong> (an infinitely dense spectrum)</td></tr>
+    <tr><td>Energy</td><td>nearly degenerate (tiny splitting)</td><td>a big release (Q = 782 keV for the neutron)</td></tr>
+    <tr><td>Behaviour</td><td>periodic, reversible</td><td>exponential, irreversible</td></tr>
+    <tr><td>The phase</td><td>keeps turning in step</td><td>scatters and never lines up again</td></tr>
+  </table>
+
+  <p>The neutron's destination is a <strong>three-body continuum</strong>. Proton, electron and antineutrino can share the energy in any proportion, so the destination states form a continuous infinity. And they carry 782 keV as they <em>fly away</em>. The phases scatter and never realign. If the destination had been a single discrete level at matching energy, the neutron would have <strong>oscillated back and forth with p+e+ν̄</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">Order of magnitude ── the "can't tell any more" time is not 880 seconds</span>
+    <p style="margin:2px 0 0;">How long until you can no longer tell a neutron from p+e+ν̄? That is set by the energy spread \(Q\) of the destination:</p>
+    $$t_{\text{distinguish}}\sim\frac{\hbar}{Q}=\frac{6.58\times10^{-16}\ \mathrm{eV\cdot s}}{7.82\times10^{5}\ \mathrm{eV}}\approx 8\times10^{-22}\ \mathrm{s}$$
+    <p style="margin-bottom:14px;">The decay lifetime, meanwhile, is 879 seconds. The ratio is <strong>10²⁴</strong>. The time for the superposition to break is <em>24 orders of magnitude shorter</em> than the time to decay. The destination escapes long before a single period can complete, so you get exponential decay rather than oscillation. <strong>Those 24 orders of magnitude are what separates oscillation from decay.</strong></p>
+  </div>
+
+  <h2><span class="n">05</span>Try it ── add destinations and oscillation becomes decay</h2>
+
+  <p>The figure below solves, on the spot, the minimal model of one initial state (the neutron) coupled to \(M\) destinations (final states). <em>The coupling strength is auto-adjusted so that the decay rate stays the same.</em> The only thing you move is <strong>the number of destinations \(M\)</strong>.</p>
+
+  <p>Start at \(M=1\) (one destination) ── the survival probability swings cleanly between 0 and 1. <strong>That is oscillation.</strong> Push \(M\) up and the swings get ragged, then melt into a <em>smooth exponential</em>. <strong>That is decay.</strong> The underlying equation is the same unitary phase rotation throughout; not one die was rolled. The only thing that changed is <em>how many destinations there are</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: survival probability P(t) of the initial state. Increase the number of destinations M and you go from oscillation (reversible) to exponential decay (irreversible). The dashed line is e^(−Γt); the thin curve is the short-time quadratic 1−(ΔE t/ħ)². The "return" bump ── the recurrence ── runs off to the right as M grows</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Number of destinations (final states) M <span class="val" id="vm">1</span>
+        <input type="range" id="sm" min="0" max="20" step="1" value="0">
+      </label>
+      <button id="lg">y-axis: linear</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#6d4aa7;"></i>survival probability P(t) (exact time evolution)</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>exponential e^(−Γt)</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>short-time quadratic (Zeno regime)</span>
+    </div>
+  </div>
+
+  <p>Watch the <strong>"return" bump</strong>. When \(M\) is small, the survival probability dips and then climbs back (the phases realign; information returns). As \(M\) grows, that recurrence time runs off to the right. A real neutron has a continuous infinity of destinations, so <em>the recurrence time is effectively at infinity</em>. That's why it never comes back. <strong>Irreversibility just means the recurrence time is longer than your observation time</strong> ── exactly the reason the coffee and milk in Episode 1 didn't separate.</p>
+
+  <h2><span class="n">06</span>The bottle and the beam disagree ── the neutron lifetime puzzle</h2>
+
+  <p>This "decay = where does the amplitude leak" view formulates an experimental puzzle very cleanly. The neutron lifetime is measured two ways, and <em>the values don't agree</em>.</p>
+
+  <table class="tbl">
+    <tr><th>Method</th><th>What is counted</th><th>What is measured</th><th class="num">Value</th></tr>
+    <tr><td><strong>Bottle</strong> (trap ultracold neutrons, count survivors)</td><td>remaining neutrons</td><td>total width Γ<sub>tot</sub> = the rate at which neutrons <em>disappear</em></td><td class="num">877.8 ± 0.3 s</td></tr>
+    <tr><td><strong>Beam</strong> (count protons emerging from neutrons in flight)</td><td>protons produced</td><td>partial width Γ<sub>p</sub> = the rate at which protons <em>appear</em></td><td class="num">888 ± 2 s</td></tr>
+  </table>
+
+  <p>The gap is about 10 seconds, roughly 1%. And the sign is suggestive ── <strong>more neutrons disappear than protons appear</strong>. Read plainly: "about 1% of neutrons turn into something that makes no proton." <em>There is a second leak.</em></p>
+
+  <div class="calc">
+    <span class="tag">So is it "different environments change the decay rate"? ── the orders don't reach</span>
+    <p style="margin:2px 0 0;">A bottle (confined, magnetic field, slow) and a beam (free flight) are very different environments. Could the phase turn differently? The yardstick is the energy spread of the destination, \(Q=782\) keV.</p>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>Effect</th><th class="num">Energy shift</th><th class="num">Ratio to Q</th></tr>
+      <tr><td>Ultracold-neutron confinement (~100 neV)</td><td class="num">10⁻⁷ eV</td><td class="num">10⁻¹³</td></tr>
+      <tr><td>1 T magnetic trap (μ<sub>n</sub>B)</td><td class="num">6×10⁻⁸ eV</td><td class="num">10⁻¹³</td></tr>
+      <tr><td>Time dilation in flight (hundreds of m/s)</td><td class="num">—</td><td class="num">10⁻¹²</td></tr>
+      <tr><td>Gravitational redshift at the Earth's surface</td><td class="num">—</td><td class="num">10⁻¹⁶</td></tr>
+    </table>
+    <p style="margin-bottom:14px;">The largest is <strong>10⁻¹³</strong>. The gap to explain is <strong>10⁻²</strong> ── <em>eleven orders of magnitude short</em>. The decay rate is set by MeV-scale phase space, so nudging it at the neV scale does nothing. Consistently, magnetic-trap experiments varied field, trap size and holding time and the lifetime did not move. <strong>This route is closed both theoretically and experimentally.</strong></p>
+  </div>
+
+  <p>So what's left? Two families of explanation.</p>
+
+  <p><strong>① An unknown leak (new physics).</strong> For instance a <em>dark decay</em> \(n\to\chi+\gamma\) with a branching ratio near 1%. Or ── exactly this episode's theme ── the neutron mixing very weakly with a mirror-sector partner \(n'\) and <em>oscillating</em> into it; the bottle counts that as "disappeared" while the beam, watching only protons, is largely unaffected. Sign and size both fit. However, dark decay is strongly constrained by neutron stars (such a leak softens the equation of state and caps the maximum mass near \(0.7\,M_\odot\), contradicting the observed \(2\,M_\odot\) neutron stars), and most of the mirror-neutron parameter space has been excluded by searches.</p>
+
+  <p><strong>② A systematic error in the beam method.</strong> This is the current majority view. Bottle measurements <em>agree with one another across genuinely different principles</em> (material bottles, wall-free magnetic traps), while the beam method depends on absolute neutron-flux calibration and proton collection efficiency ── both places where a 1% systematic could hide. A higher-precision beam experiment is expected to settle it.</p>
+
+  <div class="aside">
+    <span class="tag">And yet mixing really is there ── at the quark level</span>
+    The idea that "decay rates are set by phase and mixing" is <em>already realised inside the Standard Model</em>. Neutron decay is really the quark transition \(d\to u+W^-\), and the "d quark" the weak interaction sees is a <strong>mixture</strong> of the real d, s and b (CKM mixing): $$d'=V_{ud}\,d+V_{us}\,s+V_{ub}\,b,\qquad |V_{ud}|\approx0.974$$ The neutron lifetime goes as \(|V_{ud}|^{-2}\). So <strong>a real mixing angle is already baked into the number 880 seconds</strong>. The intuition "surely this is decided by a phase" is literally correct here.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── what is established and what is hypothesis</span>
+    <p style="margin-top:0;"><strong>Established:</strong> that decay follows from unitary time evolution of amplitudes; that the Wigner–Weisskopf approximation with complex energy \(E-i\Gamma/2\) gives the exponential law; \(\Gamma=\hbar/\tau\); the short-time quadratic behaviour and the quantum Zeno effect (experimentally confirmed); the long-time power-law tail (Khalfin's theorem; experimental verification is limited); that a discrete final state gives Rabi oscillation while a continuum gives irreversible decay (Friedrichs model / Fermi's golden rule); CKM mixing with \(|V_{ud}|\approx0.974\); the roughly 4σ discrepancy between bottle and beam neutron lifetimes; and that environmental effects fall orders of magnitude short.</p>
+    <p style="margin-bottom:0;"><strong>Hypothesis / unsettled:</strong> the cause of the lifetime puzzle is <em>not settled</em>. New physics such as dark decay or mirror-neutron oscillation is attractive but strongly constrained by neutron-star masses and direct searches; the current mainstream view is an unidentified systematic in the beam method. The experimental values quoted here are representative values as of writing and may be updated by new measurements or reanalyses. Also, the "complex mass" is an approximation rather than an exact solution, and we are not claiming decay is exactly exponential ── on the contrary, <em>its not being exact</em> was the evidence that the amplitude picture, not the probability picture, is the right one.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises (solvable with this episode's ideas)</div>
+    <ol>
+      <li>If a particle's lifetime \(\tau\) is 10 times longer, what happens to its decay width \(\Gamma\)?
+        <details><summary>See the answer</summary><div class="ans">\(\Gamma=\hbar/\tau\), so it is 1/10 as large. Long-lived means narrow. Conversely, short-lived unstable particles have "blurred" masses (broad resonances).</div></details>
+      </li>
+      <li>Give two reasons why neutron decay is "decay" rather than "oscillation."
+        <details><summary>See the answer</summary><div class="ans">(1) The destination is a three-body <strong>continuum</strong> with infinitely dense states (a discrete destination could be returned from). (2) The products carry away 782 keV and <strong>fly off</strong>, so the phases never realign. The recurrence time is effectively infinite.</div></details>
+      </li>
+      <li>What does each of the bottle and beam methods measure? What would a discrepancy mean?
+        <details><summary>See the answer</summary><div class="ans">The bottle measures the <strong>total width</strong> (rate of disappearance); the beam measures the <strong>partial width for making protons</strong>. τ<sub>bottle</sub> &lt; τ<sub>beam</sub> means "disappearance is faster than proton production" ── i.e. there is another leak that makes no proton (or one of the methods has a systematic).</div></details>
+      </li>
+      <li>Why does "the environment changes how the phase slips, so the lifetime changes" fail?
+        <details><summary>See the answer</summary><div class="ans">The decay rate is set by the destination's energy spread \(Q\sim\)MeV. Confinement (neV) and magnetic fields (10⁻⁸ eV) are only \(10^{-13}\) of that ── eleven orders short of the 1% \(=10^{-2}\) to be explained. Experimentally, varying field and holding time left the lifetime unchanged.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 2 summary</span>Decay is the phase turning into the complex plane</h2>
+    <p>Make the mass <strong>just slightly complex</strong>, \(m-i\Gamma/2c^2\), and exponential decay comes out ── no dice required. For the neutron the imaginary part is \(10^{-27}\) of the real part, and that is the 880 seconds. Two pieces of evidence that the amplitude picture, not the probability picture, is right: the short-time \(t^2\) behaviour (the quantum Zeno effect, experimentally confirmed) and the long-time power-law tail. <strong>The exponential law is not fundamental; it is the result of coarse-graining.</strong></p>
+    <p>And what separates oscillation from decay is <strong>whether the destination is discrete or continuous</strong>. For the neutron the "can no longer tell n from p+e+ν̄" time is \(\hbar/Q\approx8\times10^{-22}\) s, <em>24 orders of magnitude shorter</em> than the 879-second lifetime. It cannot complete even one period, so it decays. Irreversibility is nothing but "the recurrence time exceeds the observation time" ── the same thing as the coffee and the milk. The 1% bottle-versus-beam discrepancy is neatly formulated in this framework as total-vs-partial width, i.e. <strong>is there a second leak?</strong> (Cause unsettled.)</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 3, "Bigger means more classical"</span>
+    This time it was the phase of <strong>a single particle</strong> becoming untrackable. Next we scale that up to <strong>objects</strong>. Why can an electron be in superposition and a cat cannot? Not because "the phase disappeared" but because <em>the phase was diluted into the environment</em> ── and dilution accelerates explosively with size. A speck of dust in air goes classical in the \(10^{-30}\)-second range; even in vacuum, the photons of the cosmic microwave background do it. <strong>"Treat it as probability once it's big" is not a mood but a theorem with a computable clock.</strong>
+  </div>
+
+  <div class="foot">
+    This document is Episode 2 of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. That the exponential law follows from unitary time evolution of an unstable state (Wigner–Weisskopf approximation, complex energy \(E-i\Gamma/2\), \(\Gamma=\hbar/\tau\)); the short-time quadratic regime and the quantum Zeno effect (experimentally confirmed by Itano et al. 1990 among others); the long-time power-law tail (Khalfin's theorem); that a discrete final state gives Rabi oscillation while a continuum gives irreversible decay (Friedrichs model, Fermi's golden rule); that the CKM element \(|V_{ud}|\approx0.974\) governs the neutron lifetime; and the roughly 4σ bottle-versus-beam discrepancy ── all of this is established physics and standard understanding. That the cause of the lifetime puzzle (new physics such as dark decay or mirror-neutron oscillation, versus a beam-method systematic) is unsettled, and that the quoted experimental values are representative as of writing, is spelled out in the body's "honest line." The figure numerically integrates, in the browser, a minimal model of one level coupled to M levels; it does not reproduce the actual phase space of neutron decay (the coupling is normalised so that the decay rate stays fixed). ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Adjacent episodes: <a href="wakaru-kurikomi-01-soshika.html">Episode 1, Throw it away, same answer</a> / <a href="wakaru-kurikomi-03-decoherence.html">Episode 3, Bigger means more classical</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-ryoushi-en/index.html">Quantum That Clicks</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen, moving the slider changes the number of destinations M and turns oscillation into exponential decay. The button switches the y-axis to logarithmic. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'), vm=document.getElementById('vm'),
+      rd=document.getElementById('rd'), lgBtn=document.getElementById('lg');
+  var logAxis=false;
+
+  var W=40;          // bandwidth over which the final states spread
+  var GAM=1.0;       // target decay rate (coupling normalised so it is M-independent)
+  var TMAX=8.0;
+  var NT=600;        // output points
+  var SUB=5;         // internal steps per output point
+
+  var MLIST=[1,2,3,4,5,6,8,10,13,16,20,25,31,39,49,61,77,97,121,151,189];
+
+  function simulate(M){
+    var g=Math.sqrt(GAM*W/(2*Math.PI*M));
+    var E=new Float64Array(M);
+    if(M===1){ E[0]=0; }
+    else { for(var k=0;k<M;k++) E[k]=-W/2 + W*k/(M-1); }
+
+    var ar=new Float64Array(M+1), ai=new Float64Array(M+1);
+    ar[0]=1;
+    var steps=SUB, dt=TMAX/(NT*steps);
+    var out=new Float64Array(NT+1); out[0]=1;
+
+    var kr=[new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1)];
+    var ki=[new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1)];
+    var tr=new Float64Array(M+1), ti=new Float64Array(M+1);
+
+    function deriv(xr,xi,dr,di){
+      var sr=0,si=0;
+      for(var k=1;k<=M;k++){ sr+=xr[k]; si+=xi[k]; }
+      dr[0]= g*si;  di[0]= -g*sr;
+      for(var k2=1;k2<=M;k2++){
+        var e=E[k2-1];
+        dr[k2]= e*xi[k2] + g*xi[0];
+        di[k2]= -e*xr[k2] - g*xr[0];
+      }
+    }
+    var idx=1;
+    for(var n=0;n<NT*steps;n++){
+      deriv(ar,ai,kr[0],ki[0]);
+      for(var q=0;q<=M;q++){ tr[q]=ar[q]+0.5*dt*kr[0][q]; ti[q]=ai[q]+0.5*dt*ki[0][q]; }
+      deriv(tr,ti,kr[1],ki[1]);
+      for(var q1=0;q1<=M;q1++){ tr[q1]=ar[q1]+0.5*dt*kr[1][q1]; ti[q1]=ai[q1]+0.5*dt*ki[1][q1]; }
+      deriv(tr,ti,kr[2],ki[2]);
+      for(var q2=0;q2<=M;q2++){ tr[q2]=ar[q2]+dt*kr[2][q2]; ti[q2]=ai[q2]+dt*ki[2][q2]; }
+      deriv(tr,ti,kr[3],ki[3]);
+      for(var q3=0;q3<=M;q3++){
+        ar[q3]+= dt/6*(kr[0][q3]+2*kr[1][q3]+2*kr[2][q3]+kr[3][q3]);
+        ai[q3]+= dt/6*(ki[0][q3]+2*ki[1][q3]+2*ki[2][q3]+ki[3][q3]);
+      }
+      if((n+1)%steps===0){ out[idx++]= ar[0]*ar[0]+ai[0]*ai[0]; }
+    }
+    return {P:out, g:g, dE:Math.sqrt(g*g*M), Trec: (M>1? 2*Math.PI/(W/(M-1)) : Math.PI/g)};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var M=MLIST[parseInt(sm.value,10)]; vm.textContent=M;
+    var res=simulate(M);
+    ctx.clearRect(0,0,w,h);
+
+    var L=56, R=w-16, T=18, B=h-38;
+    var PMIN=1e-4;
+    function X(t){ return L+(R-L)*t/TMAX; }
+    function Y(p){
+      if(logAxis){
+        var v=Math.max(p,PMIN);
+        return B-(B-T)*(Math.log10(v)-Math.log10(PMIN))/(0-Math.log10(PMIN));
+      }
+      return B-(B-T)*p;
+    }
+
+    ctx.strokeStyle='#c5b8dc'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#6a6076'; ctx.textAlign='right';
+    if(logAxis){
+      for(var e=0;e>=-4;e--){
+        var yy=Y(Math.pow(10,e));
+        ctx.strokeStyle='#efeaf6'; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+        ctx.fillText('10^'+e, L-6, yy+4);
+      }
+    } else {
+      for(var pv=0;pv<=1.0001;pv+=0.25){
+        var yy2=Y(pv);
+        ctx.strokeStyle='#efeaf6'; ctx.beginPath(); ctx.moveTo(L,yy2); ctx.lineTo(R,yy2); ctx.stroke();
+        ctx.fillText(pv.toFixed(2), L-6, yy2+4);
+      }
+    }
+    ctx.textAlign='center';
+    for(var tt=0;tt<=TMAX+0.001;tt+=2){ ctx.fillText(tt.toFixed(0), X(tt), B+16); }
+    ctx.fillText('time t (in units where the lifetime 1/Γ is 1)', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(14,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('survival probability P(t)',0,0); ctx.restore();
+
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var i=0;i<=NT;i++){ var t=TMAX*i/NT, p=Math.exp(-GAM*t); if(i===0)ctx.moveTo(X(t),Y(p)); else ctx.lineTo(X(t),Y(p)); }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=1.4; ctx.beginPath();
+    var tz=1/res.dE;
+    for(var i2=0;i2<=60;i2++){
+      var t2=tz*i2/60, p2=1-Math.pow(res.dE*t2,2);
+      if(p2<0) break;
+      if(i2===0)ctx.moveTo(X(t2),Y(p2)); else ctx.lineTo(X(t2),Y(p2));
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var i3=0;i3<=NT;i3++){
+      var t3=TMAX*i3/NT, p3=res.P[i3];
+      if(i3===0)ctx.moveTo(X(t3),Y(p3)); else ctx.lineTo(X(t3),Y(p3));
+    }
+    ctx.stroke();
+
+    if(res.Trec<TMAX){
+      ctx.strokeStyle='#b9a8d6'; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+      ctx.beginPath(); ctx.moveTo(X(res.Trec),T); ctx.lineTo(X(res.Trec),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#8a76ad'; ctx.textAlign='left'; ctx.font='11px sans-serif';
+      ctx.fillText('recurrence', X(res.Trec)+4, T+12);
+    }
+
+    lgBtn.textContent = logAxis? 'y-axis: logarithmic' : 'y-axis: linear';
+    var msg;
+    if(M===1) msg='Only one destination ── pure <b>oscillation</b>. The survival probability swings between 0 and 1 and the information always comes back. This is the neutrino-oscillation / kaon-mixing side.';
+    else if(M<=8) msg='A few destinations ── the oscillation gets ragged but there are still <b>returns</b> (recurrences). The boundary between reversible and irreversible.';
+    else if(M<=40) msg='More destinations ── essentially <b>exponential decay</b>, though the recurrence bump is still in view.';
+    else msg='Many destinations ── visually a perfect <b>exponential decay</b>. The recurrence has fled off-screen and it is effectively irreversible.';
+    rd.innerHTML='Destinations <b>M = '+M+'</b>, recurrence time ≈ <b>'+res.Trec.toFixed(1)+'</b> (in lifetimes), Zeno time ħ/ΔE ≈ '+(1/res.dE).toFixed(2)+'.<br>'+msg
+      +' The equation stayed a unitary phase rotation the whole way; not one die was rolled.';
+  }
+
+  sm.addEventListener('input', draw);
+  lgBtn.addEventListener('click', function(){ logAxis=!logAxis; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

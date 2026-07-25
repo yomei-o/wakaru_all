@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>位相か、確率か ── わかる繰り込み 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8fd; --paper-edge:#e2dbee;   /* 第2回：位相＝すみれの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#5a3a92; --calc-bg:#efe9f7;
+    --rule:#ded5ec; --hair:#c5b8dc;
+    --acc:#6d4aa7;    /* アクセント＝位相のすみれ */
+    --grid:#e8e1f2;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9cbee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ddd2ee;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#efe9f7;color:#4d2f83;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3eefa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#432a72;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ece5f6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe9f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#432a72;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#665a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 2 回 ／ 位相か、確率か</span></div>
+  <p class="eyebrow">中性子の寿命 880 秒は、神様がサイコロを振っている時間ではない ── 質量を複素数にすると、崩壊が出てくる</p>
+  <h1>位相か、確率か
+    <span class="sub">中性子はいつ「崩壊した」のか。<br>崩壊とは<em>位相が複素平面側へ回っていくこと</em>で、振動と崩壊を分けるのは行き先が離散か連続か。<br>粒子 1 個のなかにも、粗視化がひそんでいる。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の粗視化、指数関数、複素数（虚数 i があれば十分）</span>
+    <span>この回の芯：m → m − iΓ/2</span>
+  </div>
+
+  <p class="lead">自由な中性子はおよそ <strong>880 秒</strong>で陽子・電子・反ニュートリノに崩壊します。教科書は「単位時間あたり一定の確率で崩壊する」と書き、そこから指数関数則 \(N(t)=N_0e^{-t/\tau}\) を出す。まるで各中性子が毎秒サイコロを振っているかのように。でも、量子力学に「サイコロを振る」という項はどこにも書かれていません。<em>あるのは、位相の回転だけ</em>です。実は、中性子の質量をほんの少し複素数にする ── \(m\to m-i\Gamma/2\) ── だけで、指数関数的崩壊は<strong>自動的に出てきます</strong>。つまり崩壊とは、追いかけていた位相が複素平面の側へ逃げていくこと。ではなぜ「行って戻る」振動ではなく「戻らない」崩壊になるのか。答えは<em>行き先が離散か連続か</em>で、そこに第1回の粗視化がもう一度顔を出します。</p>
+
+  <h2><span class="n">01</span>880 秒は、サイコロか</h2>
+
+  <p>放射性崩壊の指数関数則は、確率的な描像とあまりに相性がよく、ふつうこう説明されます ── 「各粒子は記憶を持たず、毎秒 \(1/\tau\) の確率で崩壊する。だから残る数は指数関数で減る」。生き残った中性子は、生まれたてと区別がつかない（無記憶性）。これは実験とよく合います。</p>
+
+  <p>ところが量子力学の基本方程式（シュレディンガー方程式）は、完全に<strong>決定論的</strong>です。状態は \(e^{-iEt/\hbar}\) という位相の回転で時間発展するだけで、確率が顔を出すのは測定のときだけ。ではなぜ、誰も測っていないのに中性子は「勝手に」崩壊するのか。</p>
+
+  <div class="aside">
+    <span class="tag">まず確認 ── 「中性子であり、かつ p+e+ν̄ である」状態は許される</span>
+    直感に反しますが、崩壊途中の中性子は<em>重ね合わせ</em>です。$$|\psi(t)\rangle=\alpha(t)\,|n\rangle+\beta(t)\,|p\,e^-\bar\nu_e\rangle$$これは禁止されていません。電荷は両方とも 0（\(0\) と \(+1-1+0\)）、バリオン数は両方 1、レプトン数は両方 0。<strong>保存量がすべて一致するので、コヒーレントに重ね合わせてよい</strong>。「中性子なのか、陽子＋電子＋ニュートリノなのか、まだ決まっていない」状態は、原理的に存在します。
+  </div>
+
+  <h2><span class="n">02</span>質量を複素数にすると、崩壊が出てくる</h2>
+
+  <p>崩壊しない粒子の時間発展は、位相が一定の速さで回るだけです：\(e^{-imc^2t/\hbar}\)。ここで質量にほんの小さな虚部を足してみます。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 崩壊は、位相が複素平面側へ回ること</div>
+    $$m\;\longrightarrow\;m-i\frac{\Gamma}{2c^2}\qquad\Longrightarrow\qquad e^{-imc^2t/\hbar}\;\longrightarrow\;\underbrace{e^{-imc^2t/\hbar}}_{\text{ふつうの位相}}\cdot\underbrace{e^{-\Gamma t/2\hbar}}_{\text{振幅が減る}}$$
+    <p style="margin:8px 0 0;">振幅の 2 乗が確率なので、生存確率は \(P(t)=e^{-\Gamma t/\hbar}=e^{-t/\tau}\)。<strong>指数関数則が、サイコロを一度も振らずに出てきました</strong>。\(\Gamma\) を<em>崩壊幅</em>といい、寿命との関係は \(\Gamma=\hbar/\tau\)。これはウィグナー–ワイスコップの近似と呼ばれる、標準的な扱いです。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">中性子の Γ を出してみる</span>
+    <p style="margin:2px 0 0;">\(\hbar=6.58\times10^{-16}\ \mathrm{eV\cdot s}\)、\(\tau\approx 879\ \mathrm{s}\) を入れると</p>
+    $$\Gamma=\frac{\hbar}{\tau}=\frac{6.58\times10^{-16}}{879}\approx 7.5\times10^{-19}\ \mathrm{eV}$$
+    <p style="margin-bottom:14px;">中性子の質量エネルギーは 939 MeV ＝ \(9.4\times10^{8}\) eV ですから、虚部は実部の <strong>\(10^{-27}\) 倍</strong>。ほんのわずかに複素数にしただけで、880 秒の寿命が出る。<em>崩壊とは、質量のごく小さな虚部のこと</em>です。</p>
+  </div>
+
+  <h2><span class="n">03</span>サイコロでない証拠が、二つある</h2>
+
+  <p>「どちらの言い方でも同じでは?」と思うかもしれません。ところが両者は<strong>観測できる形で違います</strong>。純粋な確率過程なら生存確率はどこまでも厳密に指数関数のはずですが、量子力学の答えは指数関数から二か所でずれます。</p>
+
+  <div class="calc">
+    <span class="tag">ずれ① 短時間 ── 指数関数ではなく t²（量子ゼノン効果）</span>
+    <p style="margin:2px 0 14px;">崩壊し始めの瞬間、生存確率は $$P(t)\approx 1-\left(\frac{\Delta E\,t}{\hbar}\right)^2$$ と<strong>2 次関数</strong>で減ります（指数関数なら \(1-t/\tau\) の 1 次のはず）。2 次ということは、\(t\to0\) で減り方の傾きがゼロ ── だから<em>頻繁に測定して時計を巻き戻し続けると、崩壊が止まる</em>。これが<strong>量子ゼノン効果</strong>で、1990 年にイオントラップの実験（Itano ら）で確認されています。確率のサイコロなら、見ていようがいまいが結果は変わらないはずです。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">ずれ② 超長時間 ── 指数関数よりゆっくり（べき則の裾）</span>
+    <p style="margin:2px 0 14px;">寿命の何十倍もあとでは、生存確率は指数関数から外れて<strong>べき関数の裾</strong>に移ることが理論的に示されています（ハルフィンの定理）。理由は、エネルギーが下限を持つ（下は空っぽ）から。純粋な確率過程には、こんな理由はありません。実験で捕まえるのは非常に難しく、報告例はごく少数です。</p>
+  </div>
+
+  <p>短時間の \(t^2\) は、まさに<em>位相がずれ始めている段階</em>そのものです。まだ振幅は「どこへ行くか決めかねて」いて、揃った位相のまま少し漏れているだけ。指数関数則が現れるのは、そのあと ── 位相がバラバラになってからです。<strong>指数関数則は基本法則ではなく、粗視化の結果として出てくる</strong>。第1回と同じ構図です。</p>
+
+  <h2><span class="n">04</span>振動と崩壊を分けるもの ── 行き先が離散か、連続か</h2>
+
+  <p>ここが本題です。同じ「位相の漏れ」なのに、世界には二種類の振る舞いがあります。</p>
+
+  <table class="tbl">
+    <tr><th></th><th>振動（行って戻る）</th><th>崩壊（戻らない）</th></tr>
+    <tr><td>例</td><td>ニュートリノ振動、K中間子の混合</td><td>中性子崩壊、原子の発光</td></tr>
+    <tr><td>行き先の状態</td><td><strong>離散</strong>（数えられる個数）</td><td><strong>連続</strong>（無限に密なスペクトル）</td></tr>
+    <tr><td>エネルギー</td><td>ほぼ縮退（差がごく小さい）</td><td>大きく解放（中性子なら Q＝782 keV）</td></tr>
+    <tr><td>振る舞い</td><td>周期的・可逆</td><td>指数関数的・不可逆</td></tr>
+    <tr><td>位相は</td><td>揃ったまま回る</td><td>バラけて二度と揃わない</td></tr>
+  </table>
+
+  <p>中性子の行き先は <strong>3 体の連続スペクトル</strong>です。陽子・電子・反ニュートリノがエネルギーを好きな比率で分け合えるので、行き先の状態は連続無限にある。しかも 782 keV のエネルギーを持って<em>飛び去っていく</em>。だから位相はバラバラになり、二度と揃わない。もし行き先が離散の 1 準位しかなく、しかもエネルギーが一致していたら、中性子は <strong>p+e+ν̄ と行ったり来たりして振動したはず</strong>です。</p>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 「わからなくなる時間」は 880 秒ではない</span>
+    <p style="margin:2px 0 0;">「中性子か、p+e+ν̄ か、区別がつかなくなる時間」はいくつか。それは行き先のエネルギー幅 \(Q\) で決まります：</p>
+    $$t_{\text{区別}}\sim\frac{\hbar}{Q}=\frac{6.58\times10^{-16}\ \mathrm{eV\cdot s}}{7.82\times10^{5}\ \mathrm{eV}}\approx 8\times10^{-22}\ \mathrm{s}$$
+    <p style="margin-bottom:14px;">一方、崩壊寿命は 879 秒。比は <strong>10²⁴</strong>。つまり「重ね合わせが壊れる時間」のほうが「崩壊する時間」より <em>24 桁も短い</em>。1 周期回るはるか手前で行き先が逃げてしまうので、振動にならず指数関数的崩壊になる。<strong>この 24 桁が、振動と崩壊を分けている</strong>。</p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 行き先の数を増やすと、振動が崩壊になる</h2>
+
+  <p>下の図は、1 個の始状態（中性子）が \(M\) 個の行き先（終状態）につながっている、という最小のモデルをその場で解いたものです。<em>結合の強さは、崩壊率が同じになるように自動調整</em>してあります。動かすのは<strong>行き先の数 \(M\) だけ</strong>。</p>
+
+  <p>\(M=1\)（行き先が 1 個）から始めてください ── 生存確率はきれいに 0 と 1 を往復します。<strong>これが振動</strong>。スライダーで \(M\) を増やしていくと、往復が乱れ、やがて<em>なめらかな指数関数</em>に化けます。<strong>これが崩壊</strong>。基本方程式は最初から最後まで同じユニタリな位相回転で、サイコロは一度も振っていません。変えたのは<em>行き先の数だけ</em>です。</p>
+
+  <div class="fig">
+    <div class="cap">図：始状態の生存確率 P(t)。行き先の数 M を増やすと、振動（可逆）から指数関数的崩壊（不可逆）へ。破線は e^(−Γt)、細い曲線は短時間の 2 次近似 1−(ΔE t/ħ)²。「戻り」の山＝再帰は M とともに右へ逃げていく</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>行き先（終状態）の数 M <span class="val" id="vm">1</span>
+        <input type="range" id="sm" min="0" max="20" step="1" value="0">
+      </label>
+      <button id="lg">縦軸：線形</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#6d4aa7;"></i>生存確率 P(t)（厳密に時間発展）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>指数関数 e^(−Γt)</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>短時間の 2 次近似（ゼノン領域）</span>
+    </div>
+  </div>
+
+  <p>注目してほしいのは<strong>「戻り」の山</strong>です。\(M\) が小さいと、いったん減った生存確率がまた盛り返す（＝位相が揃い直す＝情報が戻る）。\(M\) を増やすと、この再帰の時刻はどんどん右へ逃げていきます。現実の中性子では行き先が連続無限にあるので、<em>再帰時刻は事実上無限の彼方</em>。だから戻ってこない。<strong>不可逆性とは、再帰時刻が観測時間より長いこと</strong>、それだけです。第1回でコーヒーとミルクが分離しなかったのと、まったく同じ理屈になっています。</p>
+
+  <h2><span class="n">06</span>ボトルとビームで、寿命が違う ── 中性子寿命問題</h2>
+
+  <p>この「崩壊＝振幅がどこへ漏れるか」という見方は、実験の謎をきれいに定式化してくれます。中性子の寿命は 2 通りの方法で測られていて、<em>値が合いません</em>。</p>
+
+  <table class="tbl">
+    <tr><th>手法</th><th>数えるもの</th><th>測っているのは</th><th class="num">値</th></tr>
+    <tr><td><strong>ボトル法</strong>（超低速中性子を閉じ込め、生き残りを数える）</td><td>残った中性子</td><td>全崩壊幅 Γ<sub>全</sub>＝中性子が<em>消える</em>速さ</td><td class="num">877.8 ± 0.3 秒</td></tr>
+    <tr><td><strong>ビーム法</strong>（飛行中の中性子から出る陽子を数える）</td><td>生まれた陽子</td><td>部分幅 Γ<sub>p</sub>＝陽子が<em>生まれる</em>速さ</td><td class="num">888 ± 2 秒</td></tr>
+  </table>
+
+  <p>差は約 10 秒、割合にして 1% ほど。しかも符号が意味深です ── <strong>消える中性子のほうが、生まれる陽子より多い</strong>。素直に読むと「1% ほどの中性子は、陽子を作らない何かになっている」。<em>漏れ口がもう一つある</em>、ということです。</p>
+
+  <div class="calc">
+    <span class="tag">では「環境が違うから崩壊率が変わる」のか? ── 桁が足りない</span>
+    <p style="margin:2px 0 0;">ボトル（閉じ込め・磁場あり・低速）とビーム（自由飛行）は環境が全然違います。位相の回り方が環境で変わるのでは? 基準は行き先のエネルギー幅 \(Q=782\) keV です。</p>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>効果</th><th class="num">エネルギーへの影響</th><th class="num">Q との比</th></tr>
+      <tr><td>超低速中性子の閉じ込め（〜100 neV）</td><td class="num">10⁻⁷ eV</td><td class="num">10⁻¹³</td></tr>
+      <tr><td>磁気トラップの磁場 1 T（μ<sub>n</sub>B）</td><td class="num">6×10⁻⁸ eV</td><td class="num">10⁻¹³</td></tr>
+      <tr><td>飛行による時間の遅れ（数百 m/s）</td><td class="num">—</td><td class="num">10⁻¹²</td></tr>
+      <tr><td>地表の重力赤方偏移</td><td class="num">—</td><td class="num">10⁻¹⁶</td></tr>
+    </table>
+    <p style="margin-bottom:14px;">最大でも <strong>10⁻¹³</strong>。説明したい差は <strong>10⁻²</strong> ── <em>11 桁足りません</em>。崩壊率は MeV スケールの位相空間で決まっているので、neV スケールの環境をいじってもびくともしない。実際、磁気トラップ実験では磁場・トラップの大きさ・保持時間を変えても寿命は動きませんでした。<strong>この方向は理論でも実験でも潰れています</strong>。</p>
+  </div>
+
+  <p>では何か。生き残っている説明は二系統です。</p>
+
+  <p><strong>① 未知の漏れ口（新物理）。</strong> たとえば \(n\to\chi+\gamma\) のような<em>ダーク崩壊</em>（分岐比 1% ほど）。あるいは、この回の主題そのままの説明として、中性子が鏡像世界の粒子 \(n'\) とごくわずかに<em>混合して振動する</em>（ミラー中性子）── ボトルでは「消えた」と数えられ、ビームは陽子だけ見ているので影響を受けにくい。符号も大きさも合います。ただしダーク崩壊は中性子星の観測（そんな漏れ口があると最大質量が \(0.7\,M_\odot\) 程度に落ち、実在する \(2\,M_\odot\) の中性子星と矛盾する）から強く制約され、ミラー中性子も探索でパラメータ空間の大部分が排除されています。</p>
+
+  <p><strong>② ビーム法の系統誤差。</strong> こちらが現在の大勢です。ボトル法は材質ボトル・壁のない磁気トラップなど<em>原理の違う複数方式が互いに一致</em>している一方、ビーム法は絶対中性子束の較正と陽子の捕集効率という、1% の誤差が入りうる箇所を抱えています。より高精度のビーム実験が決着をつけると期待されています。</p>
+
+  <div class="aside">
+    <span class="tag">それでも、混合は本当にある ── クォークのレベルで</span>
+    「位相と混合で崩壊率が決まる」というアイデアは、じつは<em>すでに標準理論の中で実現しています</em>。中性子崩壊の正体はクォークの転換 \(d\to u+W^-\) で、弱い相互作用が見る「d クォーク」は本物の d・s・b の<strong>混ざりもの</strong>（CKM 混合）：$$d'=V_{ud}\,d+V_{us}\,s+V_{ub}\,b,\qquad |V_{ud}|\approx0.974$$中性子の寿命は \(|V_{ud}|^{2}\) に反比例します。つまり <strong>880 秒という数字の中には、実在する混合角がすでに入っている</strong>。あなたの「位相のずれで決まっているのでは」という直感は、ここでは文字どおり当たっています。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが確立で、どこからが仮説か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>崩壊が振幅のユニタリな時間発展から出ること、ウィグナー–ワイスコップ近似で複素エネルギー \(E-i\Gamma/2\) が指数関数則を与えること、\(\Gamma=\hbar/\tau\)、短時間の 2 次的振る舞いと量子ゼノン効果（実験で確認済み）、超長時間のべき則的裾（ハルフィンの定理、実験的検証は限定的）、離散終状態ならラビ振動・連続終状態なら不可逆崩壊になること（フリードリクス模型／フェルミの黄金律）、CKM 混合 \(|V_{ud}|\approx0.974\)、中性子寿命のボトル法とビーム法の食い違い（約 4σ）、および環境効果が桁で足りないこと。</p>
+    <p style="margin-bottom:0;"><strong>仮説・未決着：</strong>寿命問題の原因は<em>決着していません</em>。ダーク崩壊・ミラー中性子振動などの新物理は魅力的ですが、中性子星の質量や直接探索から強く制約されており、現在の主流はビーム法の未同定の系統誤差だと見ています。本文の実験値は本稿執筆時点の代表値で、最新の測定・再解析で更新されうることに注意してください。また「複素質量」は厳密解ではなく近似で、崩壊が本当に厳密な指数関数だと主張しているわけではない ── むしろ<em>厳密でないこと</em>が、確率描像ではなく振幅描像が正しい証拠でした。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>寿命 \(\tau\) が 10 倍長い粒子の崩壊幅 \(\Gamma\) は何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\Gamma=\hbar/\tau\) なので 1/10 倍。長寿命＝細い幅。逆に不安定で寿命が短い粒子ほど「質量がぼやける」（共鳴の幅が広い）。</div></details>
+      </li>
+      <li>なぜ中性子崩壊は「振動」ではなく「崩壊」なのか、二つの理由を挙げよ。
+        <details><summary>答えを見る</summary><div class="ans">① 行き先が 3 体の<strong>連続</strong>スペクトルで、状態が無限に密にある（離散なら戻ってこられる）。② 782 keV のエネルギーを放出して生成物が<strong>飛び去る</strong>ので位相が揃い直さない。結果、再帰時刻が事実上無限になる。</div></details>
+      </li>
+      <li>ボトル法とビーム法が測っている量は、それぞれ何か。差が生じたら何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans">ボトル法は<strong>全崩壊幅</strong>（中性子が消える速さ）、ビーム法は<strong>陽子を作る部分幅</strong>。τ<sub>ボトル</sub> &lt; τ<sub>ビーム</sub> なら「消える速さ &gt; 陽子が生まれる速さ」＝陽子を作らない漏れ口が他にある、という意味になる（あるいはどちらかに系統誤差がある）。</div></details>
+      </li>
+      <li>「環境で位相のずれ方が変わるから寿命が変わるのだ」という説明は、なぜ成立しないか。
+        <details><summary>答えを見る</summary><div class="ans">崩壊率を決めているのは行き先のエネルギー幅 \(Q\sim\)MeV。閉じ込め（neV）や磁場（10⁻⁸ eV）はその \(10^{-13}\) しかなく、説明したい 1%＝\(10^{-2}\) に 11 桁足りない。実験でも磁場・保持時間を変えて寿命は動かなかった。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第2回まとめ</span>崩壊とは、位相が複素平面側へ回っていくこと</h2>
+    <p>質量を \(m-i\Gamma/2c^2\) と<strong>ほんの少し複素数</strong>にするだけで、指数関数的崩壊が出てくる ── サイコロは要らない。中性子なら虚部は実部の \(10^{-27}\) 倍で、それが 880 秒になる。確率描像ではなく振幅描像が正しい証拠は二つ：短時間の \(t^2\) 的振る舞い（量子ゼノン効果、実験で確認済み）と、超長時間のべき則的裾。<strong>指数関数則は基本法則ではなく、粗視化の結果</strong>です。</p>
+    <p>そして振動と崩壊を分けるのは<strong>行き先が離散か連続か</strong>。中性子の場合、「n か p+e+ν̄ か区別がつかなくなる時間」は \(\hbar/Q\approx8\times10^{-22}\) 秒で、寿命 879 秒より <em>24 桁短い</em>。だから 1 周期も回れずに崩壊になる。不可逆性の正体は「再帰時刻が観測時間より長いこと」── コーヒーとミルクとまったく同じです。ボトル法とビーム法の 1% の食い違いも、この枠組みでは「全幅 vs 部分幅」＝<strong>漏れ口がもう一つあるか</strong>という形にきれいに定式化されます（原因は未決着）。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第3回「大きいほど古典」</span>
+    今回は<strong>粒子 1 個</strong>の位相が追えなくなる話でした。次はそれを<strong>物体</strong>に拡張します。電子は重ね合わせになれるのに、なぜ猫はなれないのか。答えは「位相が消えたから」ではなく「<em>位相が環境に薄まったから</em>」── そして薄まる速さは、系が大きいほど爆発的に速い。塵一粒は空気中で \(10^{-30}\) 秒台、真空でも宇宙背景放射の光子だけで古典化します。<strong>「大きく見たら確率で計算していい」は気分ではなく、時刻が計算できる定理</strong>だ、という回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第2回、物理好きの高校生・大学生向け読み物です。不安定状態のユニタリな時間発展から指数関数則が導かれること（ウィグナー–ワイスコップ近似、複素エネルギー \(E-i\Gamma/2\)、\(\Gamma=\hbar/\tau\)）、短時間領域の 2 次的振る舞いと量子ゼノン効果（Itano ら 1990 ほかで実験的に確認）、超長時間のべき則的裾（ハルフィンの定理）、離散終状態ではラビ振動・連続終状態では不可逆崩壊となること（フリードリクス模型、フェルミの黄金律）、CKM 行列要素 \(|V_{ud}|\approx0.974\) が中性子寿命を支配すること、および中性子寿命のボトル法とビーム法の約 4σ の食い違いは、いずれも確立した物理・標準的理解です。寿命問題の原因（ダーク崩壊・ミラー中性子振動などの新物理か、ビーム法の系統誤差か）は未決着であり、掲載した実験値は本稿執筆時点の代表値であることは本文「正直な線」に明記しました。図は 1 準位が M 個の準位に結合する最小模型をブラウザ上で数値積分したもので、実際の中性子崩壊の位相空間を再現したものではありません（結合定数は崩壊率が一定になるよう規格化してあります）。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kurikomi-01-soshika.html">第1回 捨てても同じ</a>／<a href="wakaru-kurikomi-03-decoherence.html">第3回 大きいほど古典</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで行き先の数 M を変えると、振動が指数関数的崩壊に変わります。ボタンで縦軸を対数に切り替えられます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'), vm=document.getElementById('vm'),
+      rd=document.getElementById('rd'), lgBtn=document.getElementById('lg');
+  var logAxis=false;
+
+  var W=40;          // 終状態が広がるエネルギー帯域
+  var GAM=1.0;       // 目標の崩壊率（M によらず一定になるよう結合を規格化）
+  var TMAX=8.0;
+  var NT=600;        // 出力点数
+  var SUB=5;         // 出力1点あたりの内部ステップ
+
+  // M の値（対数的に）
+  var MLIST=[1,2,3,4,5,6,8,10,13,16,20,25,31,39,49,61,77,97,121,151,189];
+
+  function simulate(M){
+    // H: |0> と M 個の |k>（エネルギー等間隔）、結合 g
+    var g=Math.sqrt(GAM*W/(2*Math.PI*M));
+    var E=new Float64Array(M);
+    if(M===1){ E[0]=0; }
+    else { for(var k=0;k<M;k++) E[k]=-W/2 + W*k/(M-1); }
+
+    var ar=new Float64Array(M+1), ai=new Float64Array(M+1);
+    ar[0]=1;
+    var steps=SUB, dt=TMAX/(NT*steps);       // 内部ステップ
+    var out=new Float64Array(NT+1); out[0]=1;
+
+    // 微分： da0/dt = -i g Σ ak ,  dak/dt = -i Ek ak - i g a0
+    var kr=[new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1)];
+    var ki=[new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1),new Float64Array(M+1)];
+    var tr=new Float64Array(M+1), ti=new Float64Array(M+1);
+
+    function deriv(xr,xi,dr,di){
+      var sr=0,si=0;
+      for(var k=1;k<=M;k++){ sr+=xr[k]; si+=xi[k]; }
+      dr[0]= g*si;  di[0]= -g*sr;
+      for(var k2=1;k2<=M;k2++){
+        var e=E[k2-1];
+        dr[k2]= e*xi[k2] + g*xi[0];
+        di[k2]= -e*xr[k2] - g*xr[0];
+      }
+    }
+    var idx=1;
+    for(var n=0;n<NT*steps;n++){
+      deriv(ar,ai,kr[0],ki[0]);
+      for(var q=0;q<=M;q++){ tr[q]=ar[q]+0.5*dt*kr[0][q]; ti[q]=ai[q]+0.5*dt*ki[0][q]; }
+      deriv(tr,ti,kr[1],ki[1]);
+      for(var q1=0;q1<=M;q1++){ tr[q1]=ar[q1]+0.5*dt*kr[1][q1]; ti[q1]=ai[q1]+0.5*dt*ki[1][q1]; }
+      deriv(tr,ti,kr[2],ki[2]);
+      for(var q2=0;q2<=M;q2++){ tr[q2]=ar[q2]+dt*kr[2][q2]; ti[q2]=ai[q2]+dt*ki[2][q2]; }
+      deriv(tr,ti,kr[3],ki[3]);
+      for(var q3=0;q3<=M;q3++){
+        ar[q3]+= dt/6*(kr[0][q3]+2*kr[1][q3]+2*kr[2][q3]+kr[3][q3]);
+        ai[q3]+= dt/6*(ki[0][q3]+2*ki[1][q3]+2*ki[2][q3]+ki[3][q3]);
+      }
+      if((n+1)%steps===0){ out[idx++]= ar[0]*ar[0]+ai[0]*ai[0]; }
+    }
+    return {P:out, g:g, dE:Math.sqrt(g*g*M), Trec: (M>1? 2*Math.PI/(W/(M-1)) : Math.PI/g)};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var M=MLIST[parseInt(sm.value,10)]; vm.textContent=M;
+    var res=simulate(M);
+    ctx.clearRect(0,0,w,h);
+
+    var L=56, R=w-16, T=18, B=h-38;
+    var PMIN=1e-4;
+    function X(t){ return L+(R-L)*t/TMAX; }
+    function Y(p){
+      if(logAxis){
+        var v=Math.max(p,PMIN);
+        return B-(B-T)*(Math.log10(v)-Math.log10(PMIN))/(0-Math.log10(PMIN));
+      }
+      return B-(B-T)*p;
+    }
+
+    // 枠と目盛り
+    ctx.strokeStyle='#c5b8dc'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#6a6076'; ctx.textAlign='right';
+    if(logAxis){
+      for(var e=0;e>=-4;e--){
+        var yy=Y(Math.pow(10,e));
+        ctx.strokeStyle='#efeaf6'; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+        ctx.fillText('10^'+e, L-6, yy+4);
+      }
+    } else {
+      for(var pv=0;pv<=1.0001;pv+=0.25){
+        var yy2=Y(pv);
+        ctx.strokeStyle='#efeaf6'; ctx.beginPath(); ctx.moveTo(L,yy2); ctx.lineTo(R,yy2); ctx.stroke();
+        ctx.fillText(pv.toFixed(2), L-6, yy2+4);
+      }
+    }
+    ctx.textAlign='center';
+    for(var tt=0;tt<=TMAX+0.001;tt+=2){ ctx.fillText(tt.toFixed(0), X(tt), B+16); }
+    ctx.fillText('時間 t（寿命 1/Γ を 1 とする単位）', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(14,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('生存確率 P(t)',0,0); ctx.restore();
+
+    // 指数関数の参照
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var i=0;i<=NT;i++){ var t=TMAX*i/NT, p=Math.exp(-GAM*t); if(i===0)ctx.moveTo(X(t),Y(p)); else ctx.lineTo(X(t),Y(p)); }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // 短時間 2 次近似
+    ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=1.4; ctx.beginPath();
+    var tz=1/res.dE;                       // 2 次近似が 0 に達する時刻
+    for(var i2=0;i2<=60;i2++){
+      var t2=tz*i2/60, p2=1-Math.pow(res.dE*t2,2);
+      if(p2<0) break;
+      if(i2===0)ctx.moveTo(X(t2),Y(p2)); else ctx.lineTo(X(t2),Y(p2));
+    }
+    ctx.stroke();
+
+    // 本体
+    ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var i3=0;i3<=NT;i3++){
+      var t3=TMAX*i3/NT, p3=res.P[i3];
+      if(i3===0)ctx.moveTo(X(t3),Y(p3)); else ctx.lineTo(X(t3),Y(p3));
+    }
+    ctx.stroke();
+
+    // 再帰時刻の目印
+    if(res.Trec<TMAX){
+      ctx.strokeStyle='#b9a8d6'; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+      ctx.beginPath(); ctx.moveTo(X(res.Trec),T); ctx.lineTo(X(res.Trec),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#8a76ad'; ctx.textAlign='left'; ctx.font='11px sans-serif';
+      ctx.fillText('再帰', X(res.Trec)+4, T+12);
+    }
+
+    lgBtn.textContent = logAxis? '縦軸：対数' : '縦軸：線形';
+    var msg;
+    if(M===1) msg='行き先が 1 個だけ ── 完全な<b>振動</b>。生存確率は 0 と 1 を往復し、情報は必ず戻ってきます。これがニュートリノ振動や K 中間子混合の側。';
+    else if(M<=8) msg='行き先が少数 ── 振動が乱れ始めますが、まだ<b>戻り</b>があります（再帰）。可逆と不可逆の境目。';
+    else if(M<=40) msg='行き先が増えた ── ほぼ<b>指数関数的崩壊</b>。ただし再帰の山がまだ視界に残っています。';
+    else msg='行き先が多数 ── 見た目は完全な<b>指数関数的崩壊</b>。再帰は画面の外へ逃げ、実質的に不可逆になりました。';
+    rd.innerHTML='行き先の数 <b>M = '+M+'</b>、再帰時刻 ≈ <b>'+res.Trec.toFixed(1)+'</b>（寿命の '+res.Trec.toFixed(1)+' 倍）、ゼノン時間 ħ/ΔE ≈ '+(1/res.dE).toFixed(2)+'。<br>'+msg
+      +' 方程式は最後までユニタリな位相回転のままで、サイコロは一度も振っていません。';
+  }
+
+  sm.addEventListener('input', draw);
+  lgBtn.addEventListener('click', function(){ logAxis=!logAxis; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

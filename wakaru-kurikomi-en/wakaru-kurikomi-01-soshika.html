@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Throw it away, same answer ── Renormalization That Clicks, Episode 1</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8fafd; --paper-edge:#dde4ee;   /* Episode 1: coarse-graining = blue paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#1f4f7b; --calc-bg:#e7eef6;
+    --rule:#d3dceb; --hair:#b8c5da;
+    --acc:#26619c;    /* accent = the blue of coarse-graining */
+    --grid:#e2e9f3;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c5d9ee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdcea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e7eef6;color:#1f4f7b;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef4fa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d3f5e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e9f0f8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eef6;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d3f5e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Episode 1 / Throw it away, same answer ── what coarse-graining is</span></div>
+  <p class="eyebrow">You don't have to track 10²³ molecules in a glass of water; temperature and pressure get the boiling time right ── why are you allowed to throw the rest away?</p>
+  <h1>Throw it away, same answer
+    <span class="sub">You discard information and the answer doesn't change.<br>That isn't laziness ── it means <em>the universe is built that way</em>. And the reason fits on one line: 1/√N.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: high-school thermodynamics (temperature, pressure), square roots, a feel for logarithms</span>
+    <span>The heart of this episode: fluctuation ∝ 1/√N</span>
+  </div>
+
+  <p class="lead">Say there are 180 mL of water in the glass in front of you. That's about <strong>6×10²⁴ molecules</strong>. Write down each one's position (three numbers) and velocity (three numbers) and you have 3.6×10²⁵ numbers. Even at one byte each, that is many orders of magnitude beyond all the storage humanity owns. <em>In principle, you cannot track it.</em> And yet we can predict how many minutes it takes that glass to boil on a stove from <strong>just two numbers, temperature and pressure</strong> ── and we get it right. We threw away 10²⁴ numbers and kept 2 ── a compression ratio of 10⁻²⁴ ── and the answer didn't change. This miracle, "<em>throw it away, same answer</em>," is what this whole series is about. Episode 1 nails down, in one line, why you are allowed to throw things away.</p>
+
+  <h2><span class="n">01</span>You can't track it. And you still get it right</h2>
+
+  <p>First, let's be clear about how hopeless it is. Newtonian mechanics is a perfect recipe ── give it the initial position and velocity of every molecule and the future is determined; just solve the equations. The problem is the "give it" part: you need 10²⁵ numbers. You cannot gather them, cannot write them down, cannot solve them.</p>
+
+  <p>Thermodynamics, meanwhile, answers the same question about the same glass in <strong>three lines</strong>. Temperature, pressure, volume. Give it those three and out comes the boiling temperature, the expansion, the upper bound on the work an engine can extract. And it matches experiment. <em>Of the 10²⁵ numbers, we discarded 10²⁵ and kept 3, and the prediction did not break.</em> This operation is called <strong>coarse-graining</strong>.</p>
+
+  <p>This is not a compromise, not a "close enough." For macroscopic quantities the accuracy is in fact <em>absurdly</em> high. The reason is the next line.</p>
+
+  <h2><span class="n">02</span>Why does it work? ── one line: 1/√N</h2>
+
+  <div class="keybox">
+    <div class="lbl">The heart of this episode ── averages sharpen as the count grows</div>
+    $$\frac{\text{fluctuation}}{\text{average}}\;\sim\;\frac{1}{\sqrt{N}}$$
+    <p style="margin:8px 0 0;">Add up \(N\) scattered things and the scatter only grows like \(\sqrt{N}\), while the total grows like \(N\). So the <em>relative</em> scatter <strong>dies off</strong> as \(1/\sqrt{N}\). This is the central limit theorem in the form you'll actually use.</p>
+  </div>
+
+  <p>Roll one die and the result is anywhere from 1 to 6. Average 100 rolls and you cluster fairly tightly around 3.5; average 10,000 and you won't be off 3.5 by even 1%. <em>The individuals are wild, but the average is sharp.</em> That sharpness is what makes coarse-graining work.</p>
+
+  <div class="calc">
+    <span class="tag">Order of magnitude ── how "sharp" is the pressure in a glass of water?</span>
+    <p style="margin:2px 0 0;">With \(N\approx 6\times10^{24}\) molecules, the relative fluctuation is</p>
+    $$\frac{1}{\sqrt{N}}\approx\frac{1}{\sqrt{6\times10^{24}}}\approx 4\times10^{-13}$$
+    <p style="margin-bottom:14px;">The pressure gauge's needle doesn't move until the 13th digit. The best pressure gauges in the world manage 6 or 7 digits, so <strong>the fluctuation is unobservable in principle</strong>. "Temperature" and "pressure" behave like real, solid quantities precisely because \(N\) is huge. <em>The sharpness of macroscopic variables is underwritten by particle number.</em></p>
+  </div>
+
+  <p>Turn it around: if \(N\) is small, coarse-graining fails. A pollen grain jiggles as water molecules hit it (Brownian motion) ── that is a grain small enough that the collision count \(N\) is too low and \(1/\sqrt{N}\) <em>became visible</em>. Coarse-graining is not universal magic; it is a <strong>theorem with the condition that \(N\) be large</strong>. That condition is the subject of Episode 5.</p>
+
+  <table class="tbl">
+    <tr><th>System</th><th class="num">Number of parts N</th><th class="num">Relative fluctuation 1/√N</th><th>Coarse-graining</th></tr>
+    <tr><td>A glass of water</td><td class="num">6×10²⁴</td><td class="num">4×10⁻¹³</td><td>works perfectly</td></tr>
+    <tr><td>A given protein inside one cell</td><td class="num">~10³</td><td class="num">3%</td><td>fluctuations matter (life exploits this)</td></tr>
+    <tr><td>Collisions on a pollen grain</td><td class="num">few enough to see</td><td class="num">visible</td><td>breaks (Brownian motion)</td></tr>
+    <tr><td>A single electron</td><td class="num">1</td><td class="num">100%</td><td>doesn't work at all</td></tr>
+  </table>
+
+  <h2><span class="n">03</span>Count what you threw away ── that is entropy</h2>
+
+  <p>Here the most mysterious quantity in thermodynamics gets a straight meaning. <strong>Entropy is precisely the amount of information you threw away.</strong></p>
+
+  <p>Fix the temperature and pressure and there are still an enormous number of microscopic arrangements consistent with them (which molecule is where, moving how). Call that count \(W\):</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">Boltzmann's epitaph ── the amount you discarded</div>
+    $$S=k\log W$$
+    <p style="margin:8px 0 0;">\(W\) is "the number of microscopic arrangements that look the same macroscopically." So \(S\) is <strong>the amount of freedom left undetermined once the macrostate is fixed</strong> ── the information coarse-graining discarded. In bits it is \(S/(k\ln 2)\): roughly <strong>10²⁵ bits</strong> for a mole of gas ── the amount dumped on the floor so that two numbers, temperature and pressure, could remain.</p>
+  </div>
+
+  <p>This reading is powerful. "Entropy increases" (the second law) becomes <em>discarded information does not come back on its own</em>. Milk stirred into coffee mixes and never spontaneously un-mixes, simply because the number of separated arrangements is overwhelmingly smaller than the number of mixed ones. That's all. <strong>Coarse-graining, entropy and the arrow of time are three names for one thing.</strong> (Why was it separated to begin with? See Bonus Episode ①.)</p>
+
+  <div class="aside">
+    <span class="tag">The key point ── this is not an "approximation"</span>
+    Coarse-graining is often mistaken for an approximation. For predicting macroscopic variables it is <em>not one</em>. Those 10²⁵ discarded bits affect the value of temperature or pressure only at the \(10^{-13}\) digit ── which means <strong>what you discarded was never in the answer</strong>. An approximation omits something you actually need; coarse-graining identifies and drops what you don't. That distinction becomes decisive in Episode 4, on universality.
+  </div>
+
+  <h2><span class="n">04</span>Try it ── different micro, same macro</h2>
+
+  <p>The figure below actually throws things away. The top and bottom rows are <strong>two completely different microscopic configurations, A and B</strong> (different random draws). On the left is the raw micro; on the right is the same thing averaged over blocks.</p>
+
+  <p>Drag the slider to grow the <em>block size</em>. Two things happen at once ── (1) the right-hand images smooth out (fluctuations die as \(1/\sqrt{N}\)); and (2) <strong>the right-hand A and B become indistinguishable</strong>. Two things that look nothing alike microscopically wear the same face once coarse-grained. <em>What is being discarded is the information "which one was it?"</em> That is a preview of Episode 4's universality.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: top = micro configuration A, bottom = a different micro configuration B (different random numbers, same underlying macro distribution). Left = raw micro, right = block-averaged. Grow the block size and the right side smooths out while A and B become impossible to tell apart</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Block size (strength of coarse-graining) <span class="val" id="vb">1</span>
+        <input type="range" id="sb" min="0" max="5" step="1" value="0">
+      </label>
+      <button id="reseed">Redraw the micro</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#26619c;"></i>high value</span>
+      <span><i class="swatch" style="background:#cfdcea;"></i>low value</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>Throw things away and a new "layer" is born</h2>
+
+  <p>The strangest by-product of coarse-graining is that <strong>concepts appear on the far side that were not there before</strong>.</p>
+
+  <p>A single water molecule has no "temperature." No pressure, no viscosity, no surface tension. These are quantities that only mean something once 10²⁴ molecules are gathered <em>and</em> the individuals discarded. So coarse-graining reduces information, and yet <em>a new vocabulary is born in the reduction</em>. That is why the world is a mille-feuille of independently closed layers.</p>
+
+  <div class="calc">
+    <span class="tag">The mille-feuille ── each layer closes in its own language</span>
+    <p style="margin:2px 0 14px;">particles → nuclei → atoms → molecules and chemistry → materials and heat → biology → mind → society.<br>
+    A chemist predicts reactions without knowing about quarks; an engineer builds bridges without knowing about atoms. <strong>The laws of the floor below close without knowing the details of the floor above</strong> ── that is what it means for a layer to be a layer. The physicist Anderson called this "<em>More is Different</em>" (1972). Episode 4 makes the reason layers close exact, as the renormalization group.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the conditions under which "you may discard" holds</span>
+    <p style="margin-top:0;">That coarse-graining works, that relative fluctuations fall as \(1/\sqrt{N}\) (law of large numbers, central limit theorem), that Boltzmann's \(S=k\log W\) counts microstates, and that entropy can be read as information (Shannon, Jaynes) ── all of this is established physics and mathematics.</p>
+    <p style="margin-bottom:0;">But you may not discard <em>always</em>. Coarse-graining is justified roughly when three things hold: (1) <strong>\(N\) is large</strong> (otherwise the fluctuations show); (2) <strong>the scales separate</strong> (fast microscopic motion and slow macroscopic change differ by orders of magnitude); (3) <strong>local equilibrium</strong> applies. At critical points, in turbulence and in chaos these fail and what you discarded comes back into the answer (Episode 5). Also, "which variables to keep" is not handed to you automatically by physical law ── there is an element of human choice depending on the question, which is why entropy carries a dependence on how you coarse-grained (a point pressed by Jaynes and others). This series takes the position that the renormalization group tells us <em>even that choice</em>.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises (solvable with this episode's ideas)</div>
+    <ol>
+      <li>How do the relative fluctuations of a system with 10⁶ particles and one with 10¹² particles differ?
+        <details><summary>See the answer</summary><div class="ans">Since it goes as \(1/\sqrt{N}\), by a factor \(\sqrt{10^{12}/10^{6}}=10^3\). A million-fold increase in particle number makes fluctuations a thousand times smaller. This is why bigger things appear to obey laws more exactly.</div></details>
+      </li>
+      <li>Restate "entropy increases" in the language of information.
+        <details><summary>See the answer</summary><div class="ans">"The number of microstates left undetermined once the macrostate is fixed goes up" ── i.e. <strong>the amount of information discarded by coarse-graining grows</strong>. Mixed coffee doesn't separate on its own because separated arrangements are overwhelmingly fewer. Discarded information does not return by itself.</div></details>
+      </li>
+      <li>Why is coarse-graining not an "approximation"?
+        <details><summary>See the answer</summary><div class="ans">Because the discarded degrees of freedom affect macroscopic values only at the \(1/\sqrt{N}\) level (\(10^{-13}\) for a glass of water), many orders below measurement precision. An approximation omits what you need; coarse-graining drops what was never in the answer.</div></details>
+      </li>
+      <li>In the figure, why do A and B become indistinguishable as the blocks grow? What is this a preview of?
+        <details><summary>See the answer</summary><div class="ans">The only difference between A and B is independent random noise (their microscopic origin), and block-averaging kills that as \(1/\sqrt{N}\); the shared underlying macro distribution survives. <strong>Coarse-graining erases microscopic origin and keeps macroscopic structure.</strong> That is a preview of Episode 4, universality ── why water and a magnet share critical exponents.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 1 summary</span>You may discard it because it was never in the answer</h2>
+    <p>Crush the 10²⁴ molecules in a glass of water down to two numbers and the prediction still lands. The reason is <strong>relative fluctuation ∝ 1/√N</strong> ── averages sharpen with count, and for a glass of water nothing moves until the 13th digit. That is why macroscopic variables behave like real quantities. The amount discarded has a name: <strong>entropy, \(S=k\log W\)</strong>, and the second law is just "discarded information does not come back on its own."</p>
+    <p>As a by-product, <strong>concepts that did not exist before are born (temperature, pressure, viscosity) and the world becomes a mille-feuille of layers</strong>. But this only works while \(N\) is large and the scales separate ── Episode 5 counts the places where that fails. Next time we go to an extreme case: <em>what does "discarding" mean for a single particle?</em> We'll reread the neutron's 880-second lifetime as a story about phase, not probability.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Episode 2, "Phase, or probability?"</span>
+    Episode 1 was "you may discard because there are so many." What about <strong>a single</strong> particle? A neutron decays after 880 seconds on average. Is God rolling dice? Actually no: in quantum mechanics you get decay simply by making the neutron's mass <em>complex</em>, \(m-i\Gamma/2\) ── which means <strong>decay is the phase rotating into the complex plane</strong>. So what separates "oscillation" (there and back) from "decay" (never back)? The answer is <em>whether the destination is discrete or continuous</em>, and coarse-graining shows up there once more.
+  </div>
+
+  <div class="foot">
+    This document is Episode 1 of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. That relative fluctuations of intensive quantities decay as \(1/\sqrt{N}\) (law of large numbers, central limit theorem); that Boltzmann's relation \(S=k\log W\) is the logarithm of the number of microstates corresponding to a macrostate; that statistical-mechanical entropy shares the structure of information-theoretic entropy; that the second law is tied to coarse-graining; and that emergent macroscopic variables (temperature, pressure, viscosity) are undefined for a single constituent ── all of this is established physics and standard understanding. That the validity of coarse-graining depends on \(N\gg1\), scale separation and local equilibrium, and that a residual dependence on the choice of coarse-graining remains (the debate over observer-dependence of entropy), is spelled out in the body's "honest line." The figure is a schematic in which two micro configurations, built from a shared macro distribution plus independent noise, are block-averaged; it is not a rendering of actual molecular configurations. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Next: <a href="wakaru-kurikomi-02-isou.html">Episode 2, Phase, or probability?</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-ryoushi-en/index.html">Quantum That Clicks</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen, moving the slider grows the block size: the coarse-grained image smooths out and the distinction between A and B vanishes. "Redraw the micro" regenerates the random numbers. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sb=document.getElementById('sb'), vb=document.getElementById('vb'),
+      rd=document.getElementById('rd'), reseed=document.getElementById('reseed');
+
+  var NX=64, NY=16;          // fine cells per panel
+  var seedA=12345, seedB=98765;
+  var fieldA=null, fieldB=null;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  // the shared smooth macro distribution
+  function macro(i,j){
+    var x=i/NX, y=j/NY;
+    return 0.5 + 0.30*Math.sin(2*Math.PI*(x-0.15)) * Math.cos(Math.PI*(y-0.5));
+  }
+  function build(seed){
+    var rnd=mulberry32(seed), f=new Float64Array(NX*NY);
+    for(var j=0;j<NY;j++) for(var i=0;i<NX;i++){
+      f[j*NX+i]=macro(i,j)+(rnd()-0.5)*0.95;   // microscopic noise = the "origin"
+    }
+    return f;
+  }
+  function rebuild(){ fieldA=build(seedA); fieldB=build(seedB); }
+  rebuild();
+
+  function blockAvg(f,b){
+    var bx=Math.ceil(NX/b), by=Math.ceil(NY/b), out=new Float64Array(bx*by);
+    for(var J=0;J<by;J++) for(var I=0;I<bx;I++){
+      var s=0,c=0;
+      for(var j=J*b;j<Math.min((J+1)*b,NY);j++) for(var i=I*b;i<Math.min((I+1)*b,NX);i++){ s+=f[j*NX+i]; c++; }
+      out[J*bx+I]= c? s/c : 0;
+    }
+    return {d:out,bx:bx,by:by};
+  }
+  function col(v){
+    var t=Math.max(0,Math.min(1,v));
+    var r=Math.round(255+(38-255)*t), g=Math.round(255+(97-255)*t), bl=Math.round(255+(156-255)*t);
+    return 'rgb('+r+','+g+','+bl+')';
+  }
+  function drawPanel(ctx,x,y,w,h,d,nx,ny){
+    var cw=w/nx, ch=h/ny;
+    for(var j=0;j<ny;j++) for(var i=0;i<nx;i++){
+      ctx.fillStyle=col(d[j*nx+i]);
+      ctx.fillRect(x+i*cw, y+j*ch, Math.ceil(cw)+0.5, Math.ceil(ch)+0.5);
+    }
+    ctx.strokeStyle='#b8c5da'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,w,h);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var bi=parseInt(sb.value,10), b=Math.pow(2,bi);
+    vb.textContent=b+' × '+b;
+    ctx.clearRect(0,0,w,h);
+
+    var pw=(w-3*22)/2, ph=(h-4*30)/2;
+    var x1=22, x2=22+pw+22, y1=30, y2=30+ph+40;
+
+    ctx.font='bold 12px sans-serif'; ctx.fillStyle='#26619c'; ctx.textAlign='left';
+    ctx.fillText('micro configuration A (raw)', x1, y1-9);
+    ctx.fillText('A coarse-grained ('+b+'×'+b+' average)', x2, y1-9);
+    ctx.fillText('micro configuration B (raw, different draw)', x1, y2-9);
+    ctx.fillText('B coarse-grained ('+b+'×'+b+' average)', x2, y2-9);
+
+    drawPanel(ctx,x1,y1,pw,ph,fieldA,NX,NY);
+    drawPanel(ctx,x1,y2,pw,ph,fieldB,NX,NY);
+    var ca=blockAvg(fieldA,b), cb=blockAvg(fieldB,b);
+    drawPanel(ctx,x2,y1,pw,ph,ca.d,ca.bx,ca.by);
+    drawPanel(ctx,x2,y2,pw,ph,cb.d,cb.bx,cb.by);
+
+    var s=0;
+    for(var k=0;k<ca.d.length;k++){ var e=ca.d[k]-cb.d[k]; s+=e*e; }
+    var rms=Math.sqrt(s/ca.d.length);
+    var s0=0;
+    for(var k2=0;k2<fieldA.length;k2++){ var e0=fieldA[k2]-fieldB[k2]; s0+=e0*e0; }
+    var rms0=Math.sqrt(s0/fieldA.length);
+
+    var N=b*b;
+    rd.innerHTML='Block size '+b+' means <b>N = '+N+'</b> cells per block. '
+      +'Theoretical fluctuation 1/√N = <b>'+(1/Math.sqrt(N)*100).toFixed(1)+'%</b>. '
+      +'Cells remaining: '+(NX*NY)+' → <b>'+(ca.bx*ca.by)+'</b> (compressed to '+(100*ca.bx*ca.by/(NX*NY)).toFixed(1)+'%).<br>'
+      +'Difference between A and B: '+(rms0*100).toFixed(1)+'% raw → <b>'+(rms*100).toFixed(1)+'%</b> after coarse-graining. '
+      +'What gets discarded is the information "which one was it"; only the shared macro structure survives.';
+  }
+
+  sb.addEventListener('input', draw);
+  reseed.addEventListener('click', function(){
+    seedA=Math.floor(Math.random()*1e9); seedB=Math.floor(Math.random()*1e9);
+    rebuild(); draw();
+  });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

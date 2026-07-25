@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>なぜ低エントロピーから始まったのか ── わかる繰り込み 番外編①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbf9; --paper-edge:#d5e5dd;   /* 番外①：過去仮説＝深緑の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#2b5544; --calc-bg:#e6efe9;
+    --rule:#cde0d6; --hair:#a9c8ba;
+    --acc:#35654d;    /* アクセント＝過去仮説の深緑 */
+    --grid:#dcebe3;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bcdccb 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbdfd4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfefd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e6efe9;color:#264a3b;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f2ed;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#26463a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcfefd,#e4efe9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6efe9;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#26463a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5b6f66;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">番外編 ① ／ なぜ低エントロピーから始まったのか</span></div>
+  <p class="eyebrow">粗視化<em>できる</em>ことと、粗視化して<em>面白いことが起きる</em>ことは、別の話だ</p>
+  <h1>なぜ低エントロピーから始まったのか
+    <span class="sub">力学の法則は、過去と未来を区別しない。<br>それでも卵は割れるだけで元に戻らない ── その非対称は法則からではなく、<em>初期条件</em>から来ている。<br>そして必要な初期条件は、\(1/10^{10^{123}}\) という常軌を逸した特殊さだった。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回のエントロピー \(S=k\log W\)、時間反転、桁の感覚</span>
+    <span>この回の芯：粗視化可能性 ＋ 特殊な初期条件 ＝ 世界に階層がある</span>
+  </div>
+
+  <p class="lead">第1回で「エントロピーは増える＝捨てた情報は勝手に戻らない」と書きました。しかし、じつはあの説明には<em>穴があります</em>。ミクロの法則は時間反転に対して完全に対称 ── ビデオを逆再生しても、方程式はまったく文句を言いません。それなのに、なぜ現実には片方向にしか進まないのか。<strong>粗視化だけからは、時間の矢は出てこない</strong>のです。もう一枚、カードが要る ── それが<em>宇宙は極端に低いエントロピーで始まった</em>という仮定（過去仮説）です。そしてどれくらい極端かというと、ペンローズの見積もりで <strong>\(1/10^{10^{123}}\)</strong>。この番外編は、シリーズ本編がずっと使ってきた「捨てても同じ」の足元に、実はもう一つの巨大な仮定が置かれていることを確認する回です。</p>
+
+  <h2><span class="n">01</span>粗視化だけでは、時間の矢は出ない</h2>
+
+  <p>ボルツマンは、粗視化からエントロピー増大を導こうとしました（H 定理）。しかしすぐに、二つの強烈な反論を受けます。</p>
+
+  <table class="tbl">
+    <tr><th>反論</th><th>内容</th><th>効き目</th></tr>
+    <tr><td><strong>ロシュミットの逆転</strong></td><td>すべての粒子の速度を反転させれば、系はエントロピーが<em>減る</em>方向に走る。法則が時間対称である以上、この解も同じくらい正当</td><td>「増える」を法則から導くのは不可能</td></tr>
+    <tr><td><strong>ツェルメロの再帰</strong></td><td>有限の系は、十分待てば必ず初期状態のごく近くに戻る（ポアンカレの再帰定理）</td><td>永遠に増え続けることは、原理的にありえない</td></tr>
+  </table>
+
+  <p>どちらも正しい。ボルツマンの答えは正直なものでした ── <strong>エントロピーが増えるのは法則のせいではなく、<em>いま低いから</em>である</strong>。低い状態から出発すれば、行き先は圧倒的に高い状態しかない（数が違いすぎる）。だから増える。逆転させた解も再帰する解も存在はするが、<em>とてつもなく珍しい</em>だけ。</p>
+
+  <p>しかしこれは、問いを一段ずらしただけです。<strong>ではなぜ、いま低いのか?</strong> 昨日はもっと低かったから。ではなぜ昨日は? ── この鎖をさかのぼると、<em>宇宙の始まり</em>に突き当たります。</p>
+
+  <h2><span class="n">02</span>動かしてみる ── 法則は可逆、初期条件が特殊</h2>
+
+  <p>下の箱で、実際に確かめられます。粒子は壁で跳ね返るだけで、法則は完全に時間対称です。</p>
+
+  <ul>
+    <li><strong>「左半分から始める」</strong>：エントロピーがぐんぐん上がる ── <em>時間の矢が見える</em>。</li>
+    <li><strong>「時間を反転する」</strong>：全粒子の速度を逆にすると、エントロピーが<em>下がっていく</em>。法則が禁じていない証拠です（ロシュミット）。</li>
+    <li><strong>「平衡から始める」</strong>：最初からばらまくと、エントロピーは高いまま横ばい。<em>矢がどこにもありません</em>。</li>
+  </ul>
+
+  <p>三つ目が肝心です。<strong>同じ法則・同じ粗視化でも、初期条件が特殊でなければ時間の矢は生まれない</strong>。矢は法則の性質ではなく、<em>初期条件の性質</em>なのです。</p>
+
+  <div class="fig">
+    <div class="cap">図：箱の中の粒子（法則は完全に時間反転対称）と、粗視化エントロピー S=−Σp ln p の時間変化。左半分から始めると S は上昇し、速度を反転すると下降する。平衡から始めると横ばいで、時間の矢はどこにもない</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>粒子数 N <span class="val" id="vn">400</span>
+        <input type="range" id="sn" min="50" max="1200" step="50" value="400">
+      </label>
+      <button id="left">左半分から始める</button>
+      <button id="eq">平衡から始める</button>
+      <button id="rev">時間を反転する</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#35654d;"></i>粗視化エントロピー S</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>最大値（平衡）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">03</span>どれくらい特殊だったのか ── \(10^{10^{123}}\)</h2>
+
+  <p>では、宇宙の初期条件はどれくらい珍しかったのか。ペンローズの有名な見積もりを追ってみます。</p>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 神様が的を射抜いた確率</span>
+    <p style="margin:2px 0 0;">観測可能な宇宙にある物質を全部かき集めて、一つの巨大なブラックホールにしたときのエントロピーは（ベッケンシュタイン–ホーキングの式から）</p>
+    $$S_{\max}\sim 10^{123}\,k_B$$
+    <p style="margin:6px 0 0;">これが「この宇宙が取りうる最大のエントロピー」です。いっぽう初期宇宙の実際のエントロピーは、光子の数などから \(10^{88}\,k_B\) 程度。第1回の \(S=k\log W\) を逆に解くと、状態の数は \(W=e^{S/k}\) なので、</p>
+    $$\frac{W_{\text{初期}}}{W_{\max}}\sim\frac{e^{10^{88}}}{e^{10^{123}}}\ \approx\ \frac{1}{10^{10^{123}}}$$
+    <p style="margin-bottom:14px;">分母は「1 のあとに 0 が \(10^{123}\) 個」。<em>この数を紙に書こうとすると、宇宙のすべての素粒子に 1 桁ずつ割り当てても足りません</em>。ペンローズはこれを「創造主は位相空間の中の \(1/10^{10^{123}}\) の的を射抜かねばならなかった」と表現しました。</p>
+  </div>
+
+  <h2><span class="n">04</span>なぜ「一様」が低エントロピーなのか ── 重力のせい</h2>
+
+  <p>ここで直観に反することが起きます。初期宇宙の写真（宇宙マイクロ波背景放射）は、<strong>ほとんど完全に一様</strong>です。ふつう「一様に混ざっている」といえば<em>高</em>エントロピー ── コーヒーとミルクが混ざった状態です。なのに、なぜこれが「異常に低いエントロピー」なのか?</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この番外編の芯 ── 重力があると、話が逆さになる</div>
+    <table class="tbl" style="margin:10px 0 6px;">
+      <tr><th></th><th>低エントロピー</th><th>高エントロピー</th></tr>
+      <tr><td>気体（重力なし）</td><td>片隅に集まっている</td><td><strong>一様に広がっている</strong></td></tr>
+      <tr><td>重力のある物質</td><td><strong>一様に広がっている</strong></td><td>塊に集まっている（究極はブラックホール）</td></tr>
+    </table>
+    <p style="margin:8px 0 0;">重力は引力しかないので、集まるほど「もっともらしい」＝配置の数が多い。だから<strong>重力にとっては、一様こそが異常な状態</strong>です。初期宇宙が一様だったのは、重力の自由度が<em>まったく励起されていなかった</em>ということ ── ペンローズはこれを<strong>ワイル曲率仮説</strong>（初期宇宙ではワイル曲率＝重力そのものの自由度がゼロだった）として定式化しました。宇宙の歴史とは、この一様な状態から星や銀河やブラックホールへ向かって、重力がゆっくりエントロピーを食べていく過程です。<em>私たちが太陽から受け取っているのも、熱ではなく「低エントロピー」のほうです</em>。</p>
+  </div>
+
+  <h2><span class="n">05</span>そして、このシリーズとの関係</h2>
+
+  <p>ここが番外編①のいちばん大事な点です。<strong>粗視化ができるだけでは、世界は面白くなりません</strong>。</p>
+
+  <p>もし宇宙が最初から熱平衡で始まっていたら ── 粗視化は完璧に効きます。どこを見ても同じ温度、同じ密度。マクロ変数はたった数個で足り、予測は 100% 当たる。<em>そして、何も起きない</em>。構造も、層も、化学も、生命も、観測者もない。</p>
+
+  <div class="keybox">
+    <div class="lbl">本編とつなぐ一行</div>
+    $$\underbrace{\text{粗視化可能}}_{\text{第1〜4回}}\ +\ \underbrace{\text{特殊な初期条件}}_{\text{この番外編}}\ =\ \underbrace{\text{階層・構造・時間の矢}}_{\text{私たちの世界}}$$
+    <p style="margin:8px 0 0;">繰り込み群は「捨てても同じ」を保証してくれますが、<em>何かが起きること</em>は保証してくれません。世界に層があり、そこで面白いことが起きているのは、宇宙が \(10^{123}\) ビットぶんの余白を持って始まり、いまもそれを<strong>使い切っていない</strong>からです。私たちは、その余白の中に住んでいる。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 過去仮説は「説明」ではなく「置いた仮定」</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ミクロの力学法則が（CP 対称性の破れという小さな例外を除いて）時間反転に対して対称であること、そこからロシュミットの逆転パラドックスとツェルメロの再帰パラドックスが従うこと、したがって熱力学第二法則は力学法則のみからは導けないこと、重力多体系では一様状態が低エントロピーで集中状態が高エントロピーであること（重力系の負の比熱）、ブラックホールのエントロピーが面積に比例すること、そして観測可能宇宙の最大エントロピーの見積もりが \(\sim10^{123}k_B\) であることは、いずれも確立した物理・標準的理解です。</p>
+    <p style="margin-bottom:0;"><strong>未解決・議論中：</strong>① <strong>過去仮説そのものは説明ではなく、置いた仮定です</strong>。「なぜ初期条件がそうだったのか」には答えていません。② インフレーション理論が低エントロピー初期条件を説明するという主張がありますが、「インフレーションが始まるためにすでに低エントロピーが必要ではないか」という批判が根強くあり、決着していません。③ ワイル曲率仮説はペンローズの提案であって、確立した法則ではありません。④ ペンローズの \(10^{10^{123}}\) は特定の見積もりの取り方に依存する数字で、桁の感覚をつかむためのものと理解してください。⑤ そもそも「宇宙全体のエントロピー」を定義できるのか（重力場のエントロピーをどう数えるか、系が孤立していないのでは）という点自体、物理と哲学の両面で議論が続いています。 ── この回は「本編の足元にもう一つ巨大な仮定がある」という<em>確認</em>であって、それを解決するものではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>「エントロピーが増えるのは法則だから」が正しくないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">ミクロの法則は時間反転対称なので、エントロピーが減る解も同じだけ存在する（ロシュミット）。増えるのは「いまが低い」からで、低い状態から出れば行き先は数の多い高い状態しかない、という<strong>数の議論</strong>にすぎない。だから低い初期条件が別途必要になる。</div></details>
+      </li>
+      <li>初期宇宙が「ほとんど一様」なのに低エントロピーだと言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">重力は引力しかないので、物質は集まるほど配置の数が多い＝高エントロピー。だから重力を含む系では<strong>一様こそが低エントロピー</strong>。初期宇宙の一様さは、重力の自由度がまったく励起されていない特殊な状態だった（ワイル曲率仮説）。</div></details>
+      </li>
+      <li>宇宙が熱平衡から始まっていたら、何が起きなかったか。
+        <details><summary>答えを見る</summary><div class="ans">粗視化は完璧に効くが、構造も層も時間の矢も生まれない。星も化学も生命も観測者もない。<strong>粗視化可能性だけでは世界は面白くならず、特殊な初期条件との組み合わせが要る</strong>。</div></details>
+      </li>
+      <li>図で「時間を反転する」とエントロピーが下がるのは、第二法則の反例か。
+        <details><summary>答えを見る</summary><div class="ans">反例ではなく、第二法則が<em>法則から導けない</em>ことの実演。反転した状態は完全に合法だが、位相空間の中では途方もなく珍しい配置になっている。自然にそれを引く確率が実質ゼロなので、現実には見ない、というだけ。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編①まとめ</span>時間の矢は、法則ではなく初期条件から来ている</h2>
+    <p>ミクロの法則は時間反転対称なので、<strong>粗視化だけからは第二法則は出ません</strong>（ロシュミットの逆転、ツェルメロの再帰）。エントロピーが増えるのは「いまが低いから」であり、その鎖をさかのぼると宇宙の始まりに突き当たる ── これが<strong>過去仮説</strong>です。必要な特殊さは、ペンローズの見積もりで \(1/10^{10^{123}}\)。しかも重力があると話は逆さで、<em>一様であることこそが低エントロピー</em>（ワイル曲率仮説）。宇宙の歴史とは、その余白を重力がゆっくり食べていく過程です。</p>
+    <p>そして本編との接続。<strong>粗視化可能 ＋ 特殊な初期条件 ＝ 階層・構造・時間の矢</strong>。繰り込み群は「捨てても同じ」を保証しますが、「何かが起きること」は保証しません。熱平衡から始まった宇宙では粗視化は完璧に効き、そして何も起こらない。私たちが層のある面白い世界に住んでいるのは、宇宙が \(10^{123}\) ビットの余白を持って始まり、<em>まだ使い切っていない</em>からです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">もう一つの番外編へ</span>
+    <strong>番外編②「観測者とは粗視化装置である」</strong>── 「なぜ宇宙は粗視化できるのか」への三つ目の答えを扱います。記憶も学習も予測も、情報を捨てる操作なしには成立しません。だとすれば<em>粗視化できない宇宙には、そもそも問いを立てる者がいない</em>。循環に見えて、情報理論的には中身のある主張です。姉妹編「わかる学習論」と握手します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ番外編①、物理好きの高校生・大学生向け読み物です。ミクロの力学法則の時間反転対称性、ロシュミットの逆転パラドックスとツェルメロ／ポアンカレの再帰パラドックス、熱力学第二法則が力学法則のみからは導出できず低エントロピーの初期条件（過去仮説）を要すること、重力多体系における一様状態の低エントロピー性、ベッケンシュタイン–ホーキングのエントロピー、観測可能宇宙の最大エントロピーの見積もり \(\sim10^{123}k_B\) とペンローズによる初期条件の特殊さの評価 \(1/10^{10^{123}}\)、およびワイル曲率仮説（ペンローズの提案）は、いずれも確立した物理または広く知られた提案です。過去仮説が説明ではなく仮定であること、インフレーションによる説明の是非が決着していないこと、ワイル曲率仮説が確立した法則ではないこと、ペンローズの数値が見積もりの取り方に依存すること、および宇宙全体のエントロピーの定義自体に議論があることは、本文「正直な線」に明記しました。図は壁で反射する自由粒子と、格子への粗視化による \(S=-\sum p\ln p\) を計算した実演で、実在の気体の分子動力学ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-kurikomi-01-soshika.html">第1回 捨てても同じ</a>／<a href="wakaru-kurikomi-bangai-kansokusha.html">番外編② 観測者とは粗視化装置である</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-blackhole/index.html">わかるブラックホール</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では「左半分から始める」「時間を反転する」「平衡から始める」で、時間の矢が初期条件から来ていることが確かめられます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd'),
+      leftBtn=document.getElementById('left'), eqBtn=document.getElementById('eq'), revBtn=document.getElementById('rev');
+
+  var GX=16, GY=8;                     // 粗視化の格子
+  var N=400, px=[], py=[], vx=[], vy=[];
+  var hist=[], tick=0, mode='left';
+
+  function initLeft(){
+    N=parseInt(sn.value,10); px=[];py=[];vx=[];vy=[];
+    for(var i=0;i<N;i++){
+      px.push(Math.random()*0.5); py.push(Math.random());
+      var a=Math.random()*Math.PI*2, sp=0.004+Math.random()*0.004;
+      vx.push(Math.cos(a)*sp); vy.push(Math.sin(a)*sp);
+    }
+    hist=[]; tick=0; mode='left';
+  }
+  function initEq(){
+    N=parseInt(sn.value,10); px=[];py=[];vx=[];vy=[];
+    for(var i=0;i<N;i++){
+      px.push(Math.random()); py.push(Math.random());
+      var a=Math.random()*Math.PI*2, sp=0.004+Math.random()*0.004;
+      vx.push(Math.cos(a)*sp); vy.push(Math.sin(a)*sp);
+    }
+    hist=[]; tick=0; mode='eq';
+  }
+  function reverse(){
+    for(var i=0;i<N;i++){ vx[i]=-vx[i]; vy[i]=-vy[i]; }
+    mode='rev';
+  }
+  initLeft();
+
+  function step(){
+    for(var i=0;i<N;i++){
+      px[i]+=vx[i]; py[i]+=vy[i];
+      if(px[i]<0){ px[i]=-px[i]; vx[i]=-vx[i]; }
+      if(px[i]>1){ px[i]=2-px[i]; vx[i]=-vx[i]; }
+      if(py[i]<0){ py[i]=-py[i]; vy[i]=-vy[i]; }
+      if(py[i]>1){ py[i]=2-py[i]; vy[i]=-vy[i]; }
+    }
+  }
+  function entropy(){
+    var cnt=new Float64Array(GX*GY);
+    for(var i=0;i<N;i++){
+      var gx=Math.min(GX-1,Math.floor(px[i]*GX)), gy=Math.min(GY-1,Math.floor(py[i]*GY));
+      cnt[gy*GX+gx]++;
+    }
+    var S=0;
+    for(var k=0;k<cnt.length;k++){
+      var p=cnt[k]/N;
+      if(p>0) S-=p*Math.log(p);
+    }
+    return S;
+  }
+  var SMAX=Math.log(GX*GY);
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    vn.textContent=N;
+    ctx.clearRect(0,0,w,h);
+
+    // 箱
+    var BW=Math.min(w*0.46, h-56), BH=BW*0.62, BX=18, BY=26;
+    ctx.fillStyle='#fbfdfc'; ctx.fillRect(BX,BY,BW,BH);
+    ctx.strokeStyle='#a9c8ba'; ctx.lineWidth=1;
+    for(var g=1;g<GX;g++){ ctx.beginPath(); ctx.moveTo(BX+BW*g/GX,BY); ctx.lineTo(BX+BW*g/GX,BY+BH); ctx.strokeStyle='#eaf3ee'; ctx.stroke(); }
+    for(var g2=1;g2<GY;g2++){ ctx.beginPath(); ctx.moveTo(BX,BY+BH*g2/GY); ctx.lineTo(BX+BW,BY+BH*g2/GY); ctx.strokeStyle='#eaf3ee'; ctx.stroke(); }
+    ctx.fillStyle='#35654d';
+    for(var i=0;i<N;i++){ ctx.fillRect(BX+px[i]*BW-1.1, BY+py[i]*BH-1.1, 2.2, 2.2); }
+    ctx.strokeStyle='#35654d'; ctx.lineWidth=1.3; ctx.strokeRect(BX+.5,BY+.5,BW,BH);
+    ctx.fillStyle='#35654d'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('箱の中の粒子（法則は時間反転対称）', BX, BY-8);
+
+    // グラフ
+    var GLx=BX+BW+34, GRx=w-14, GTy=26, GBy=BY+BH;
+    ctx.strokeStyle='#a9c8ba'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(GLx,GTy); ctx.lineTo(GLx,GBy); ctx.lineTo(GRx,GBy); ctx.stroke();
+    ctx.fillStyle='#35654d'; ctx.font='bold 11px sans-serif';
+    ctx.fillText('粗視化エントロピー S', GLx, GTy-8);
+
+    var yMax=GTy+6;
+    function Y(S){ return GBy-(GBy-yMax)*Math.max(0,Math.min(1,S/SMAX)); }
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(GLx,Y(SMAX)); ctx.lineTo(GRx,Y(SMAX)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='10px sans-serif';
+    ctx.fillText('最大 ln('+(GX*GY)+') = '+SMAX.toFixed(2), GLx+4, Y(SMAX)-4);
+
+    var HN=Math.max(1,hist.length);
+    ctx.strokeStyle='#35654d'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var k=0;k<hist.length;k++){
+      var X=GLx+(GRx-GLx)*k/Math.max(HN-1,1);
+      if(k===0)ctx.moveTo(X,Y(hist[k])); else ctx.lineTo(X,Y(hist[k]));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#5b6f66'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('時間 →', (GLx+GRx)/2, GBy+15);
+
+    var S=hist.length? hist[hist.length-1] : entropy();
+    var msg;
+    if(mode==='eq') msg='<b>平衡から始めた</b>ので、S は最初から最大付近で横ばい ── <b>時間の矢がどこにもありません</b>。';
+    else if(mode==='rev') msg='<b>速度を反転した</b>ので、S が下がっていきます ── 法則はこれを禁じていない（ロシュミット）。ただし位相空間では途方もなく珍しい配置。';
+    else msg='<b>左半分から始めた</b>ので S が上昇 ── 時間の矢が見えます。矢は法則ではなく<b>初期条件</b>から来ている。';
+    rd.innerHTML='粒子数 N = <b>'+N+'</b>、粗視化格子 '+GX+'×'+GY+'、現在の S = <b>'+S.toFixed(3)+'</b> ／ 最大 '+SMAX.toFixed(3)+'。<br>'+msg;
+  }
+
+  function loop(){
+    for(var q=0;q<2;q++) step();
+    tick++;
+    if(tick%2===0){
+      hist.push(entropy());
+      if(hist.length>320) hist.shift();
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  sn.addEventListener('input', function(){ initLeft(); draw(); });
+  leftBtn.addEventListener('click', function(){ initLeft(); draw(); });
+  eqBtn.addEventListener('click', function(){ initEq(); draw(); });
+  revBtn.addEventListener('click', function(){ reverse(); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(function(){ draw(); loop(); },60);
+})();
+</script>
+</body>
+</html>

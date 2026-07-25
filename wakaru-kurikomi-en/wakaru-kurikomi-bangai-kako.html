@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why did it start from low entropy? ── Renormalization That Clicks, Bonus ①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbf9; --paper-edge:#d5e5dd;   /* Bonus ①: the past hypothesis = deep green paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#2b5544; --calc-bg:#e6efe9;
+    --rule:#cde0d6; --hair:#a9c8ba;
+    --acc:#35654d;    /* accent = the deep green of the past hypothesis */
+    --grid:#dcebe3;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bcdccb 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbdfd4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfefd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e6efe9;color:#264a3b;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f2ed;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#26463a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcfefd,#e4efe9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6efe9;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#26463a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5b6f66;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Bonus ① / Why did it start from low entropy?</span></div>
+  <p class="eyebrow">Being <em>able</em> to coarse-grain and having something <em>interesting happen</em> are two different stories</p>
+  <h1>Why did it start from low entropy?
+    <span class="sub">The laws of mechanics do not distinguish past from future.<br>Eggs break and never unbreak all the same ── and that asymmetry comes not from the laws but from the <em>initial condition</em>.<br>The initial condition required is a specialness of \(1/10^{10^{123}}\).</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's entropy \(S=k\log W\), time reversal, a feel for orders of magnitude</span>
+    <span>The heart of this one: coarse-grainability + a special initial condition = a world with layers</span>
+  </div>
+
+  <p class="lead">Episode 1 said "entropy increases = discarded information does not come back on its own." That explanation, in fact, <em>has a hole in it</em>. The microscopic laws are perfectly symmetric under time reversal ── play the video backwards and the equations do not complain at all. So why does reality only run one way? <strong>The arrow of time does not come out of coarse-graining alone.</strong> One more card is needed ── the assumption that <em>the universe began with extraordinarily low entropy</em> (the past hypothesis). And how extraordinary? By Penrose's estimate, <strong>\(1/10^{10^{123}}\)</strong>. This bonus episode confirms that underneath the "throw it away, same answer" the main series has leaned on all along, there sits another enormous assumption.</p>
+
+  <h2><span class="n">01</span>Coarse-graining alone gives you no arrow of time</h2>
+
+  <p>Boltzmann tried to derive the increase of entropy from coarse-graining (the H-theorem). He immediately met two devastating objections.</p>
+
+  <table class="tbl">
+    <tr><th>Objection</th><th>Content</th><th>Effect</th></tr>
+    <tr><td><strong>Loschmidt's reversal</strong></td><td>Reverse every particle's velocity and the system runs toward <em>decreasing</em> entropy. Given that the laws are time-symmetric, that solution is exactly as legitimate</td><td>deriving "increases" from the laws is impossible</td></tr>
+    <tr><td><strong>Zermelo's recurrence</strong></td><td>A finite system must, if you wait long enough, return arbitrarily close to its initial state (Poincaré recurrence)</td><td>increasing forever is impossible in principle</td></tr>
+  </table>
+
+  <p>Both are correct. Boltzmann's reply was an honest one ── <strong>entropy increases not because of the laws but because <em>it is low right now</em></strong>. Start from a low state and the only place to go is the overwhelmingly higher ones (the counts are too lopsided). So it increases. The reversed and recurrent solutions exist; they are just <em>fantastically rare</em>.</p>
+
+  <p>But this only shifts the question by one step. <strong>So why is it low now?</strong> Because yesterday it was lower. And why yesterday? ── Follow the chain and you run into <em>the beginning of the universe</em>.</p>
+
+  <h2><span class="n">02</span>Try it ── the laws are reversible, the initial condition is special</h2>
+
+  <p>You can check it in the box below. The particles only bounce off walls; the law is perfectly time-symmetric.</p>
+
+  <ul>
+    <li><strong>"Start from the left half"</strong>: entropy climbs steadily ── <em>an arrow of time is visible</em>.</li>
+    <li><strong>"Reverse time"</strong>: flip every velocity and entropy <em>falls</em>. Proof that the laws do not forbid it (Loschmidt).</li>
+    <li><strong>"Start at equilibrium"</strong>: scatter them from the start and entropy stays high and flat. <em>No arrow anywhere.</em></li>
+  </ul>
+
+  <p>The third is the crucial one. <strong>Same law, same coarse-graining ── no arrow of time unless the initial condition is special.</strong> The arrow is not a property of the laws but a property of <em>the initial condition</em>.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: particles in a box (the law is perfectly time-reversal symmetric) and the coarse-grained entropy S=−Σp ln p over time. Start from the left half and S climbs; reverse the velocities and it falls. Start at equilibrium and it is flat ── no arrow of time anywhere</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>Number of particles N <span class="val" id="vn">400</span>
+        <input type="range" id="sn" min="50" max="1200" step="50" value="400">
+      </label>
+      <button id="left">Start from the left half</button>
+      <button id="eq">Start at equilibrium</button>
+      <button id="rev">Reverse time</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#35654d;"></i>coarse-grained entropy S</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>maximum (equilibrium)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">03</span>How special was it? ── \(10^{10^{123}}\)</h2>
+
+  <p>How rare was the universe's initial condition? Let's follow Penrose's famous estimate.</p>
+
+  <div class="calc">
+    <span class="tag">Order of magnitude ── the probability the Creator hit the target</span>
+    <p style="margin:2px 0 0;">Gather all the matter in the observable universe into one giant black hole and its entropy (from the Bekenstein–Hawking formula) is</p>
+    $$S_{\max}\sim 10^{123}\,k_B$$
+    <p style="margin:6px 0 0;">That is the largest entropy this universe could have. The actual entropy of the early universe, from photon counts and so on, was about \(10^{88}\,k_B\). Inverting Episode 1's \(S=k\log W\) gives \(W=e^{S/k}\), so</p>
+    $$\frac{W_{\text{initial}}}{W_{\max}}\sim\frac{e^{10^{88}}}{e^{10^{123}}}\ \approx\ \frac{1}{10^{10^{123}}}$$
+    <p style="margin-bottom:14px;">The denominator is a 1 followed by \(10^{123}\) zeros. <em>Try to write it out and you will run out of elementary particles in the universe before you run out of digits.</em> Penrose put it as: the Creator had to hit a target of \(1/10^{10^{123}}\) in phase space.</p>
+  </div>
+
+  <h2><span class="n">04</span>Why is "uniform" low entropy? ── because of gravity</h2>
+
+  <p>Here something counterintuitive happens. Photographs of the early universe (the cosmic microwave background) show it was <strong>almost perfectly uniform</strong>. Normally "uniformly mixed" means <em>high</em> entropy ── coffee with milk stirred in. So why is this extraordinarily low entropy?</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The heart of this bonus ── with gravity, the story turns upside down</div>
+    <table class="tbl" style="margin:10px 0 6px;">
+      <tr><th></th><th>Low entropy</th><th>High entropy</th></tr>
+      <tr><td>a gas (no gravity)</td><td>bunched in one corner</td><td><strong>spread out uniformly</strong></td></tr>
+      <tr><td>matter with gravity</td><td><strong>spread out uniformly</strong></td><td>gathered into lumps (ultimately a black hole)</td></tr>
+    </table>
+    <p style="margin:8px 0 0;">Gravity only attracts, so gathering is "more likely" ── more configurations. Hence <strong>for gravity, uniform is the anomalous state</strong>. The early universe being uniform means the gravitational degrees of freedom were <em>entirely unexcited</em> ── which Penrose formalised as the <strong>Weyl curvature hypothesis</strong> (the Weyl curvature, i.e. the gravitational degrees of freedom themselves, vanished in the early universe). The history of the universe is the process by which gravity slowly eats that entropy budget, turning uniformity into stars, galaxies and black holes. <em>What we receive from the Sun is not heat so much as low entropy.</em></p>
+  </div>
+
+  <h2><span class="n">05</span>And how this relates to the series</h2>
+
+  <p>Here is the most important point of Bonus ①. <strong>Being able to coarse-grain is not enough to make a world interesting.</strong></p>
+
+  <p>Had the universe started in thermal equilibrium, coarse-graining would work perfectly. Same temperature everywhere, same density. A handful of macroscopic variables would suffice and predictions would be 100% right. <em>And nothing would happen.</em> No structure, no layers, no chemistry, no life, no observers.</p>
+
+  <div class="keybox">
+    <div class="lbl">One line connecting back to the main series</div>
+    $$\underbrace{\text{coarse-grainable}}_{\text{Episodes 1–4}}\ +\ \underbrace{\text{a special initial condition}}_{\text{this bonus}}\ =\ \underbrace{\text{layers, structure, an arrow of time}}_{\text{our world}}$$
+    <p style="margin:8px 0 0;">The renormalization group guarantees "throw it away, same answer," but it does not guarantee that <em>anything happens</em>. The world has layers, and interesting things happen in them, because the universe began with \(10^{123}\) bits of headroom and <strong>still has not used it up</strong>. We live inside that headroom.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── the past hypothesis is a posit, not an explanation</span>
+    <p style="margin-top:0;"><strong>Established:</strong> that the microscopic laws of mechanics are time-reversal symmetric (with the small exception of CP violation); that Loschmidt's reversal paradox and Zermelo's recurrence paradox follow; that the second law of thermodynamics therefore cannot be derived from mechanical laws alone; that in gravitating many-body systems the uniform state is low-entropy and the concentrated state high-entropy (negative heat capacity of gravitating systems); that black hole entropy is proportional to area; and that the maximum entropy of the observable universe is estimated at \(\sim10^{123}k_B\) ── all established physics and standard understanding.</p>
+    <p style="margin-bottom:0;"><strong>Unsolved / under debate:</strong> (1) <strong>The past hypothesis itself is a posit, not an explanation.</strong> It does not answer "why was the initial condition like that?" (2) It is claimed that inflation explains the low-entropy initial condition, but the persistent objection that "inflation itself needs a low-entropy state to get going" has not been settled. (3) The Weyl curvature hypothesis is Penrose's proposal, not an established law. (4) Penrose's \(10^{10^{123}}\) depends on a particular way of estimating; treat it as a device for feeling the order of magnitude. (5) Whether "the entropy of the whole universe" can even be defined (how to count the entropy of the gravitational field; the system is not isolated) is itself debated in both physics and philosophy. ── This episode is a <em>confirmation</em> that the main series rests on another enormous assumption, not a resolution of it.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>Why is "entropy increases because it's the law" wrong?
+        <details><summary>See the answer</summary><div class="ans">Microscopic laws are time-reversal symmetric, so solutions with decreasing entropy exist in equal number (Loschmidt). It increases because "right now it is low," and from a low state the only destinations are the far more numerous high states ── a <strong>counting argument</strong>. So a low initial condition has to be supplied separately.</div></details>
+      </li>
+      <li>Why can the early universe count as low entropy when it was "almost uniform"?
+        <details><summary>See the answer</summary><div class="ans">Gravity only attracts, so matter has more configurations the more it clumps = higher entropy. In a gravitating system, therefore, <strong>uniform is low entropy</strong>. The uniformity of the early universe was the special state in which the gravitational degrees of freedom were entirely unexcited (the Weyl curvature hypothesis).</div></details>
+      </li>
+      <li>What would not have happened if the universe had started at thermal equilibrium?
+        <details><summary>See the answer</summary><div class="ans">Coarse-graining would work perfectly, but no structure, no layers and no arrow of time would arise. No stars, no chemistry, no life, no observers. <strong>Coarse-grainability alone does not make a world interesting; it has to be combined with a special initial condition.</strong></div></details>
+      </li>
+      <li>In the figure, entropy falls when you "reverse time." Is that a counterexample to the second law?
+        <details><summary>See the answer</summary><div class="ans">Not a counterexample but a demonstration that the second law <em>cannot be derived from the laws</em>. The reversed state is perfectly legal but is a fantastically rare configuration in phase space. The chance of drawing it naturally is effectively zero, so we never see it ── that's all.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus ① summary</span>The arrow of time comes from the initial condition, not the laws</h2>
+    <p>Because microscopic laws are time-reversal symmetric, <strong>the second law does not follow from coarse-graining alone</strong> (Loschmidt's reversal, Zermelo's recurrence). Entropy increases because "it is low now," and following that chain backwards runs into the beginning of the universe ── the <strong>past hypothesis</strong>. The specialness required is \(1/10^{10^{123}}\) by Penrose's estimate. And with gravity the story inverts: <em>being uniform is what counts as low entropy</em> (the Weyl curvature hypothesis). The history of the universe is gravity slowly eating that headroom.</p>
+    <p>And the connection back to the main series. <strong>Coarse-grainable + a special initial condition = layers, structure, an arrow of time.</strong> The renormalization group guarantees "throw it away, same answer" but does not guarantee that anything happens. In a universe that started at equilibrium, coarse-graining works perfectly and nothing occurs. We live in a layered, interesting world because the universe began with \(10^{123}\) bits of headroom and <em>has not used it up</em>.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">On to the other bonus episode</span>
+    <strong>Bonus ② "An observer is a coarse-graining device"</strong> ── the third answer to "why is the universe coarse-grainable?" Memory, learning and prediction are all impossible without discarding information. If so, <em>a universe that cannot be coarse-grained has nobody in it to pose the question</em>. It looks circular, but in information-theoretic terms there is real content. It shakes hands with the sister series "Learning That Clicks."
+  </div>
+
+  <div class="foot">
+    This document is Bonus Episode ① of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. The time-reversal symmetry of microscopic mechanical laws; Loschmidt's reversal paradox and the Zermelo/Poincaré recurrence paradox; that the second law cannot be derived from mechanical laws alone and requires a low-entropy initial condition (the past hypothesis); the low-entropy character of the uniform state in gravitating many-body systems; Bekenstein–Hawking entropy; the estimate \(\sim10^{123}k_B\) for the maximum entropy of the observable universe together with Penrose's evaluation \(1/10^{10^{123}}\) of the specialness of the initial condition; and the Weyl curvature hypothesis (Penrose's proposal) ── all established physics or widely known proposals. That the past hypothesis is a posit rather than an explanation, that the adequacy of an inflationary explanation is unsettled, that the Weyl curvature hypothesis is not an established law, that Penrose's number depends on the manner of estimation, and that the very definition of the entropy of the whole universe is debated, is spelled out in the body's "honest line." The figure is a demonstration using free particles reflecting off walls and computing \(S=-\sum p\ln p\) on a grid; it is not a molecular-dynamics simulation of a real gas. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Related: <a href="wakaru-kurikomi-01-soshika.html">Episode 1, Throw it away, same answer</a> / <a href="wakaru-kurikomi-bangai-kansokusha.html">Bonus ②, An observer is a coarse-graining device</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-blackhole-en/index.html">Black Holes That Click</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen, "Start from the left half," "Reverse time" and "Start at equilibrium" let you confirm that the arrow of time comes from the initial condition. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd'),
+      leftBtn=document.getElementById('left'), eqBtn=document.getElementById('eq'), revBtn=document.getElementById('rev');
+
+  var GX=16, GY=8;
+  var N=400, px=[], py=[], vx=[], vy=[];
+  var hist=[], tick=0, mode='left';
+
+  function initLeft(){
+    N=parseInt(sn.value,10); px=[];py=[];vx=[];vy=[];
+    for(var i=0;i<N;i++){
+      px.push(Math.random()*0.5); py.push(Math.random());
+      var a=Math.random()*Math.PI*2, sp=0.004+Math.random()*0.004;
+      vx.push(Math.cos(a)*sp); vy.push(Math.sin(a)*sp);
+    }
+    hist=[]; tick=0; mode='left';
+  }
+  function initEq(){
+    N=parseInt(sn.value,10); px=[];py=[];vx=[];vy=[];
+    for(var i=0;i<N;i++){
+      px.push(Math.random()); py.push(Math.random());
+      var a=Math.random()*Math.PI*2, sp=0.004+Math.random()*0.004;
+      vx.push(Math.cos(a)*sp); vy.push(Math.sin(a)*sp);
+    }
+    hist=[]; tick=0; mode='eq';
+  }
+  function reverse(){
+    for(var i=0;i<N;i++){ vx[i]=-vx[i]; vy[i]=-vy[i]; }
+    mode='rev';
+  }
+  initLeft();
+
+  function step(){
+    for(var i=0;i<N;i++){
+      px[i]+=vx[i]; py[i]+=vy[i];
+      if(px[i]<0){ px[i]=-px[i]; vx[i]=-vx[i]; }
+      if(px[i]>1){ px[i]=2-px[i]; vx[i]=-vx[i]; }
+      if(py[i]<0){ py[i]=-py[i]; vy[i]=-vy[i]; }
+      if(py[i]>1){ py[i]=2-py[i]; vy[i]=-vy[i]; }
+    }
+  }
+  function entropy(){
+    var cnt=new Float64Array(GX*GY);
+    for(var i=0;i<N;i++){
+      var gx=Math.min(GX-1,Math.floor(px[i]*GX)), gy=Math.min(GY-1,Math.floor(py[i]*GY));
+      cnt[gy*GX+gx]++;
+    }
+    var S=0;
+    for(var k=0;k<cnt.length;k++){
+      var p=cnt[k]/N;
+      if(p>0) S-=p*Math.log(p);
+    }
+    return S;
+  }
+  var SMAX=Math.log(GX*GY);
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    vn.textContent=N;
+    ctx.clearRect(0,0,w,h);
+
+    var BW=Math.min(w*0.46, h-56), BH=BW*0.62, BX=18, BY=26;
+    ctx.fillStyle='#fbfdfc'; ctx.fillRect(BX,BY,BW,BH);
+    for(var g=1;g<GX;g++){ ctx.beginPath(); ctx.moveTo(BX+BW*g/GX,BY); ctx.lineTo(BX+BW*g/GX,BY+BH); ctx.strokeStyle='#eaf3ee'; ctx.stroke(); }
+    for(var g2=1;g2<GY;g2++){ ctx.beginPath(); ctx.moveTo(BX,BY+BH*g2/GY); ctx.lineTo(BX+BW,BY+BH*g2/GY); ctx.strokeStyle='#eaf3ee'; ctx.stroke(); }
+    ctx.fillStyle='#35654d';
+    for(var i=0;i<N;i++){ ctx.fillRect(BX+px[i]*BW-1.1, BY+py[i]*BH-1.1, 2.2, 2.2); }
+    ctx.strokeStyle='#35654d'; ctx.lineWidth=1.3; ctx.strokeRect(BX+.5,BY+.5,BW,BH);
+    ctx.fillStyle='#35654d'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('particles in a box (the law is time-reversal symmetric)', BX, BY-8);
+
+    var GLx=BX+BW+34, GRx=w-14, GTy=26, GBy=BY+BH;
+    ctx.strokeStyle='#a9c8ba'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(GLx,GTy); ctx.lineTo(GLx,GBy); ctx.lineTo(GRx,GBy); ctx.stroke();
+    ctx.fillStyle='#35654d'; ctx.font='bold 11px sans-serif';
+    ctx.fillText('coarse-grained entropy S', GLx, GTy-8);
+
+    var yMax=GTy+6;
+    function Y(S){ return GBy-(GBy-yMax)*Math.max(0,Math.min(1,S/SMAX)); }
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(GLx,Y(SMAX)); ctx.lineTo(GRx,Y(SMAX)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='10px sans-serif';
+    ctx.fillText('max ln('+(GX*GY)+') = '+SMAX.toFixed(2), GLx+4, Y(SMAX)-4);
+
+    var HN=Math.max(1,hist.length);
+    ctx.strokeStyle='#35654d'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var k=0;k<hist.length;k++){
+      var X=GLx+(GRx-GLx)*k/Math.max(HN-1,1);
+      if(k===0)ctx.moveTo(X,Y(hist[k])); else ctx.lineTo(X,Y(hist[k]));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#5b6f66'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('time →', (GLx+GRx)/2, GBy+15);
+
+    var S=hist.length? hist[hist.length-1] : entropy();
+    var msg;
+    if(mode==='eq') msg='<b>Started at equilibrium</b>, so S sits near its maximum and stays flat ── <b>no arrow of time anywhere</b>.';
+    else if(mode==='rev') msg='<b>Velocities reversed</b>, so S is falling ── the laws do not forbid this (Loschmidt). It is simply a fantastically rare configuration in phase space.';
+    else msg='<b>Started from the left half</b>, so S climbs ── an arrow of time is visible. The arrow comes from the <b>initial condition</b>, not the laws.';
+    rd.innerHTML='Particles N = <b>'+N+'</b>, coarse-graining grid '+GX+'×'+GY+', current S = <b>'+S.toFixed(3)+'</b> / max '+SMAX.toFixed(3)+'.<br>'+msg;
+  }
+
+  function loop(){
+    for(var q=0;q<2;q++) step();
+    tick++;
+    if(tick%2===0){
+      hist.push(entropy());
+      if(hist.length>320) hist.shift();
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  sn.addEventListener('input', function(){ initLeft(); draw(); });
+  leftBtn.addEventListener('click', function(){ initLeft(); draw(); });
+  eqBtn.addEventListener('click', function(){ initEq(); draw(); });
+  revBtn.addEventListener('click', function(){ reverse(); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(function(){ draw(); loop(); },60);
+})();
+</script>
+</body>
+</html>

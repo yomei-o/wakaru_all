@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粗視化が破れるとき ── わかる繰り込み 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf8f6; --paper-edge:#eed9d2;   /* 第5回：破れ＝赤の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8f3620; --calc-bg:#f7e8e3;
+    --rule:#e6d0c9; --hair:#d0aea3;
+    --acc:#a83a22;    /* アクセント＝破れの赤 */
+    --grid:#f0dcd6;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2cdc2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f3e6df;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd3cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f7e8e3;color:#8f3620;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faece7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7a2d17;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfc,#f5e3dd);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7e8e3;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7a2d17;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7a6560;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 5 回 ／ 粗視化が破れるとき</span></div>
+  <p class="eyebrow">「捨ててよい」が成り立たない場所を数える ── 主張の中身は、例外を数えたときにはじめて決まる</p>
+  <h1>粗視化が破れるとき
+    <span class="sub">臨界点・乱流・カオス。<br>スケールが混ざり、ミクロがマクロに増幅され、<em>捨てたものが答えに戻ってくる</em>場所。<br>そして、その最速の破れ方はブラックホールで起きている。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回の固定点とスケール、指数関数と対数</span>
+    <span>この回の芯：予測可能時間 ≈ (1/λ)·ln(1/ε)</span>
+  </div>
+
+  <p class="lead">ここまで 4 回、ずっと「捨ててよい」と言ってきました。でも、<em>いつでも捨ててよい</em>なら、それは主張ではなくただのお題目です。主張の中身は、<strong>捨ててはいけない場所を数えたときにはじめて決まります</strong>。粗視化が破れるのは大きく 3 通り ── ① 全スケールが結合してしまう（臨界点）、② エネルギーがスケール間を流れ落ちる（乱流）、③ ミクロがマクロへ増幅される（カオス）。とくに ③ は絶望的で、初期値の精度を 1000 倍にしても<em>予測できる期間は少ししか伸びません</em>。精度が指数の中に閉じ込められていて、対数でしか効かないからです。そして破れ方には<strong>速度の上限</strong>があり、その上限ぎりぎりで走っているのがブラックホールだ、という話まで行きます。</p>
+
+  <h2><span class="n">01</span>破れ方は、3 通りある</h2>
+
+  <table class="tbl">
+    <tr><th>型</th><th>何が起きるか</th><th>代表例</th><th>粗視化はどう失敗するか</th></tr>
+    <tr><td><strong>① スケールが結合する</strong></td><td>相関長が発散し、あらゆる大きさの構造が同時に効く</td><td>臨界点、相転移</td><td>「小さい方を捨てる」ができない（切り離せる小ささが存在しない）</td></tr>
+    <tr><td><strong>② エネルギーがスケール間を流れる</strong></td><td>大きな渦が小さな渦に砕け、小さな渦が熱になる（カスケード）</td><td>乱流</td><td>マクロ量の方程式が閉じない（捨てた項が本質的に効く）</td></tr>
+    <tr><td><strong>③ ミクロがマクロに増幅される</strong></td><td>初期条件の微差が指数関数的に拡大</td><td>カオス、天気、三体問題、生命</td><td>捨てた \(10^{-15}\) が、有限時間後に \(10^{0}\) になって戻ってくる</td></tr>
+  </table>
+
+  <p>共通しているのは、第1回で挙げた条件のうち「<strong>スケールが分離していること</strong>」が壊れている点です。粗視化が効くのは、ミクロとマクロが桁で離れていて<em>会話しない</em>ときだけ。会話が始まると、捨てたものが戻ってきます。</p>
+
+  <h2><span class="n">02</span>カオス ── 精度は対数でしか効かない</h2>
+
+  <p>カオスとは、近い 2 つの初期条件が指数関数的に離れていく性質です。距離を \(\delta\) とすると \(\delta(t)\approx\varepsilon\,e^{\lambda t}\)。この \(\lambda\) をリアプノフ指数といいます。</p>
+
+  <p>ここで「予測できる」の定義を、「差が実用上の許容 \(\Delta\) を超えるまで」としましょう。すると：</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 予測可能時間は、精度の対数でしか伸びない</div>
+    $$\varepsilon\,e^{\lambda t_{\text{pred}}}=\Delta\qquad\Longrightarrow\qquad t_{\text{pred}}=\frac{1}{\lambda}\ln\frac{\Delta}{\varepsilon}$$
+    <p style="margin:8px 0 0;">\(\varepsilon\) は初期条件の精度。ここに <strong>\(\ln\) が入っている</strong>のが致命的です。観測精度を 1000 倍よくしても、伸びるのは \(\ln 1000/\lambda\approx 6.9/\lambda\) だけ ── リアプノフ時間の <strong>7 倍</strong>ぶんしか伸びない。100 万倍にしても 14 倍ぶん。<em>努力が対数に潰される</em>。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 天気予報の 2 週間の壁</span>
+    <p style="margin:2px 0 0;">大気のリアプノフ時間はおよそ <strong>1〜2 日</strong>（\(\lambda\sim0.5\ \mathrm{day^{-1}}\)）。現在の初期値の誤差を、観測網を桁違いに増やして <strong>1000 分の 1</strong> にできたとしましょう。伸びる予測期間は</p>
+    $$\Delta t=\frac{\ln 1000}{\lambda}=\frac{6.9}{0.5\ \mathrm{day^{-1}}}\approx 14\ \text{日}$$
+    <p style="margin-bottom:14px;">1000 倍の観測努力に対して、たった 2 週間。これが「決定論的予測の限界は 2 週間ほど」と言われる理由です。<strong>観測衛星を 1000 倍打ち上げても、1 か月先の天気は当たらない</strong>。粗視化の失敗が、対数という形で人類の努力を吸収してしまう。</p>
+  </div>
+
+  <h2><span class="n">03</span>動かしてみる ── 精度を上げても、ほとんど伸びない</h2>
+
+  <p>下の図は、いちばん簡単なカオス系（ロジスティック写像 \(x\to 4x(1-x)\)）で、ほんの少しだけ違う 2 つの初期値を並走させたものです。縦軸は 2 本の差を<strong>対数</strong>で見ています。</p>
+
+  <p>スライダーで初期差 \(\varepsilon\) を小さくしてください。差の曲線が右へ<em>平行移動する</em>だけで、傾きは変わりません ── これが「予測可能時間は \(\ln(1/\varepsilon)\) でしか伸びない」ことの目に見える意味です。<strong>「精度を 1000 倍にする」ボタン</strong>を押すと、莫大な観測努力に見合う伸びが、たった約 10 ステップであることが実感できます。</p>
+
+  <div class="fig">
+    <div class="cap">図：ロジスティック写像 x→4x(1−x) を、初期値が ε だけ違う 2 本で走らせたときの差（縦軸は対数）。傾きはリアプノフ指数 λ＝ln2 で、ε をどれだけ小さくしても変わらない。変わるのは出発点の高さだけ ── だから予測可能時間は対数でしか伸びない</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>初期差 ε <span class="val" id="ve">1e-6</span>
+        <input type="range" id="se" min="1" max="15" step="1" value="6">
+      </label>
+      <button id="boost">精度を 1000 倍にする</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>2 本の軌道の差 |x₁−x₂|</span>
+      <span><i class="swatch" style="background:#4a4f6a;"></i>理論の傾き ε·e^(λn)（λ = ln2）</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>予測が破綻する時刻</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>乱流 ── 自由度が 10¹⁶ ある</h2>
+
+  <p>もう一つの破れ方は、スケールどうしが<em>エネルギーをやり取りする</em>場合です。乱流では、大きな渦が小さな渦に砕け、それがさらに小さな渦になり、最後は分子の熱になる（エネルギーカスケード）。<strong>すべてのスケールが同時に、しかも一方向に、つながっている</strong>。</p>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 飛行機のまわりの空気を「ちゃんと」計算するには</span>
+    <p style="margin:2px 0 0;">レイノルズ数 \(\mathrm{Re}\) の流れを直接計算するのに必要な格子点の数は、コルモゴロフのスケーリングから</p>
+    $$N\sim \mathrm{Re}^{9/4}$$
+    <p style="margin-bottom:14px;">旅客機まわりなら \(\mathrm{Re}\sim10^{7}\)。すると \(N\sim10^{15.75}\approx 6\times10^{15}\) 点。1 点あたり数個の数を持たせ、時間発展も刻むと ── <em>現代最速のスパコンでも歯が立ちません</em>。だから工学では乱流モデル（＝粗視化した近似）を使いますが、そのモデルは<strong>厳密ではなく、経験的な当てはめを含みます</strong>。粗視化が破れているところを、無理やり粗視化しているからです。ナビエ–ストークス方程式の解の存在と滑らかさが 100 万ドルのミレニアム懸賞問題として残っているのも、根はここにあります。</p>
+  </div>
+
+  <h2><span class="n">05</span>臨界点 ── 「よい破れ」もある</h2>
+
+  <p>ここで、破れが必ずしも敗北ではないことを言っておきます。第4回で主役だった<strong>臨界点</strong>も、じつは粗視化の破れです ── 相関長が発散して、小さいスケールを切り離せなくなる。</p>
+
+  <p>ところが臨界点では、失われたスケール分離の代わりに<strong>スケール不変性</strong>という別の秩序が現れます。「どの倍率でも同じ」という新しい対称性です。だから絶望せずに済み、繰り込み群という道具で扱える。<em>粗視化ができない代わりに、粗視化しても変わらない</em>。</p>
+
+  <div class="aside">
+    <span class="tag">整理 ── 3 つの破れの「その後」</span>
+    <strong>臨界点</strong>：スケール分離は失うが、スケール不変性を得る → <em>繰り込み群で解ける</em>（勝ち）。<br>
+    <strong>乱流</strong>：スケール不変性らしきもの（コルモゴロフ則）はあるが、間欠性などで完全ではない → <em>部分的にしか解けていない</em>（引き分け）。<br>
+    <strong>カオス</strong>：個々の軌道の予測は原理的に諦めるしかない。ただし<em>統計的性質</em>（アトラクタの形、長期の分布）は予測できる → <strong>粗視化のレベルを一段上げれば復活する</strong>。天気は当たらないが気候は語れる、というのはこの意味です。
+  </div>
+
+  <h2><span class="n">06</span>いちばん速い破れ方 ── ブラックホール</h2>
+
+  <p>カオスの速さ \(\lambda\) には、上限があります。2016 年に示されたこの結果は、この回でいちばん美しい定理です。</p>
+
+  <div class="keybox">
+    <div class="lbl">カオスの上限 ── 「粗視化が破れる速さ」に天井がある</div>
+    $$\lambda\ \le\ \frac{2\pi k_B T}{\hbar}$$
+    <p style="margin:8px 0 0;">温度 \(T\) の量子系では、初期条件の情報がこれより速くはかき混ぜられない（マルダセナ–シェンカー–スタンフォード限界）。そして<strong>この上限をぴったり達成しているのがブラックホール</strong>です ── だからブラックホールは「<em>自然界で最速のスクランブラー</em>」と呼ばれます。落とし込んだ情報が地平面全体に行き渡るまでの時間は $$t_*\sim\frac{\beta}{2\pi}\ln S$$ で、エントロピー \(S\)（＝ビット数）の<strong>対数</strong>でしか増えない ── 途方もなく速い。</p>
+  </div>
+
+  <p>ここで <em>\(\ln\)</em> がまた出てきたことに注目してください。カオスの予測可能時間も対数、ブラックホールのスクランブリング時間も対数。<strong>情報がかき混ざるときは、いつも指数関数と対数が対になって現れます</strong>。姉妹編「わかるブラックホール」第4回は、まさにこの話をブラックホールの側から書いたものです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 破れの分類は便宜的、乱流は未解決</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>カオス系での指数関数的な軌道分離と \(t_{\text{pred}}=\lambda^{-1}\ln(\Delta/\varepsilon)\)、大気の予測可能限界が 2 週間程度であること、コルモゴロフ理論に基づく直接数値計算の自由度が \(\mathrm{Re}^{9/4}\) で増えること、臨界点での相関長発散とスケール不変性、量子カオスの速さの上限 \(\lambda\le2\pi k_BT/\hbar\)（マルダセナ–シェンカー–スタンフォード 2016）、ブラックホールのスクランブリング時間が \(\sim(\beta/2\pi)\ln S\) でこの上限を飽和すること（速いスクランブラー予想、Sekino–Susskind）は、いずれも確立した理論的結果または標準的理解です。</p>
+    <p style="margin-bottom:0;"><strong>注意点：</strong>① 「破れ方は 3 通り」という分類は説明のための整理で、公式の分類ではありません（実際には重なり合います ── 乱流はカオスでもあり、臨界点近傍にもカオスは現れます）。② 乱流は<strong>未解決問題</strong>です。コルモゴロフ則は間欠性による補正を受け、ナビエ–ストークス方程式の解の存在と滑らかさはミレニアム問題として未解決のままです。③ ブラックホールが上限を飽和するという主張は、AdS/CFT など具体的な模型での計算と予想に基づくもので、現実のブラックホールでの直接検証はありません。④ 図はロジスティック写像という理想化された 1 次元写像で、実際の気象や乱流の再現ではありません（本質である「対数でしか伸びない」を見せるための実演です）。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>リアプノフ時間 1 日の系で、初期値の精度を 100 万倍よくすると、予測可能期間は何日伸びるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\Delta t=\ln(10^{6})\times 1\ \text{日}\approx 13.8\ \text{日}\)。100 万倍の努力に対して、たった 2 週間。これが「対数に潰される」ということ。</div></details>
+      </li>
+      <li>粗視化が破れる 3 つの型を挙げ、それぞれ何が壊れているか述べよ。
+        <details><summary>答えを見る</summary><div class="ans">① <strong>臨界点</strong>：相関長が発散してスケール分離が壊れる。② <strong>乱流</strong>：エネルギーがスケール間を流れ、マクロの方程式が閉じない。③ <strong>カオス</strong>：ミクロの差が指数関数的に増幅されてマクロに現れる。共通して壊れているのは「スケールが会話しない」という前提。</div></details>
+      </li>
+      <li>「天気は当たらないが気候は語れる」のはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">カオスで予測できないのは<strong>個々の軌道</strong>であって、統計的性質（アトラクタ上の分布、長期平均）は予測できるから。粗視化のレベルを一段上げる（日々の状態 → 30 年平均）ことで、粗視化が復活する。</div></details>
+      </li>
+      <li>ブラックホールが「最速のスクランブラー」と呼ばれるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">量子系のカオスの速さには上限 \(\lambda\le2\pi k_BT/\hbar\) があり、ブラックホールはこれを飽和すると考えられているから。地平面全体に情報が行き渡る時間は \(t_*\sim(\beta/2\pi)\ln S\) で、ビット数の対数でしか増えない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第5回まとめ</span>捨てたものが、戻ってくる場所</h2>
+    <p>粗視化が破れるのは 3 通り ── <strong>臨界点</strong>（相関長が発散して全スケールが結合）、<strong>乱流</strong>（エネルギーがスケール間を流れ、飛行機まわりの直接計算には \(\mathrm{Re}^{9/4}\approx10^{16}\) 格子点が要る）、<strong>カオス</strong>（ミクロが指数関数的にマクロへ増幅）。共通して壊れているのは「スケールが会話しない」という前提です。</p>
+    <p>とくにカオスの破れ方は容赦がなく、予測可能時間は \(t_{\text{pred}}=\lambda^{-1}\ln(\Delta/\varepsilon)\) ── <strong>精度が対数の中に閉じ込められる</strong>ので、観測を 1000 倍にしてもリアプノフ時間の 7 倍しか伸びない。天気予報の 2 週間の壁の正体です。ただし破れは敗北とは限らず、臨界点ではスケール不変性という別の秩序が現れ（第4回）、カオスでも粗視化のレベルを一段上げれば統計は語れる（天気 vs 気候）。そして<strong>破れる速さには上限 \(\lambda\le2\pi k_BT/\hbar\) があり、それを飽和しているのがブラックホール</strong>── 情報がかき混ざるときは、いつも指数関数と対数が対で現れます。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第6回「漏れている二か所」</span>
+    第5回で挙げた破れは、どれも「複雑な現象だから仕方ない」と思えるものでした。次回はもっと不気味な場所へ行きます ── <strong>いちばん基本的なはずの素粒子論に、粗視化が効かない箇所がちょうど二つある</strong>。ヒッグス粒子の質量と、宇宙定数。この二つだけは、上の階（プランクスケール）からの影響を遮断できず、\(10^{-34}\) と \(10^{-120}\) という常軌を逸した桁合わせを要求してきます。現代物理最大の二つの謎が、じつは<em>まったく同じ形</em>をしている ── 自然さ（naturalness）とは何かを、その形から読みます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第5回、物理好きの高校生・大学生向け読み物です。カオス系における指数関数的軌道分離とリアプノフ指数、予測可能時間 \(t_{\text{pred}}=\lambda^{-1}\ln(\Delta/\varepsilon)\)、大気の決定論的予測限界が 2 週間程度であること、コルモゴロフ理論に基づく乱流の直接数値計算の自由度 \(\sim\mathrm{Re}^{9/4}\)、臨界点における相関長発散とスケール不変性、量子カオスの上限 \(\lambda\le2\pi k_BT/\hbar\)（マルダセナ–シェンカー–スタンフォード 2016）、ブラックホールのスクランブリング時間 \(\sim(\beta/2\pi)\ln S\) と速いスクランブラー予想は、いずれも確立した結果または標準的理解です。破れ方の 3 分類が説明のための便宜的整理であること、乱流が未解決問題でありコルモゴロフ則が間欠性補正を受けること、ナビエ–ストークス方程式の解の存在と滑らかさがミレニアム問題として未解決であること、およびブラックホールが上限を飽和するという主張が模型計算と予想に基づくことは本文「正直な線」に明記しました。図はロジスティック写像 \(x\to4x(1-x)\)（\(\lambda=\ln2\)）による理想化された実演です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kurikomi-04-fuhensei.html">第4回 出自を忘れる</a>／<a href="wakaru-kurikomi-06-kaisou.html">第6回 漏れている二か所</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-blackhole/index.html">わかるブラックホール</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで初期差 ε を変えると、差の曲線が平行移動するだけで傾きは変わりません。「精度を 1000 倍にする」で、努力がどれだけ対数に潰されるかが見られます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), se=document.getElementById('se'), ve=document.getElementById('ve'),
+      rd=document.getElementById('rd'), boost=document.getElementById('boost');
+
+  var NSTEP=64, LAM=Math.log(2), THRESH=0.1;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function run(eps){
+    var x1=0.3141592653589793, x2=x1+eps, d=[];
+    for(var n=0;n<=NSTEP;n++){
+      d.push(Math.abs(x1-x2));
+      x1=4*x1*(1-x1); x2=4*x2*(1-x2);
+    }
+    return d;
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var p=parseInt(se.value,10), eps=Math.pow(10,-p);
+    ve.textContent='1e-'+p;
+    var d=run(eps);
+    ctx.clearRect(0,0,w,h);
+
+    var L=58, R=w-14, T=18, B=h-40;
+    var LOMIN=-16, LOMAX=0;
+    function X(n){ return L+(R-L)*n/NSTEP; }
+    function Y(v){
+      var lg=Math.log10(Math.max(v,1e-17));
+      return B-(B-T)*(lg-LOMIN)/(LOMAX-LOMIN);
+    }
+
+    ctx.strokeStyle='#d0aea3'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#7a6560'; ctx.textAlign='right';
+    for(var e=0;e>=LOMIN;e-=4){
+      var yy=Y(Math.pow(10,e));
+      ctx.strokeStyle='#f4e3de'; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillText('10^'+e, L-6, yy+4);
+    }
+    ctx.textAlign='center';
+    for(var n2=0;n2<=NSTEP;n2+=16){ ctx.fillText(n2, X(n2), B+16); }
+    ctx.fillText('ステップ数 n（リアプノフ時間 1/λ ≈ '+(1/LAM).toFixed(2)+' ステップ）', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(13,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('2 本の差 |x₁−x₂|',0,0); ctx.restore();
+
+    // 破綻しきい値
+    ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(THRESH)); ctx.lineTo(R,Y(THRESH)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2f7d6a'; ctx.textAlign='left'; ctx.font='11px sans-serif';
+    ctx.fillText('予測が破綻するライン（差 0.1）', L+6, Y(THRESH)-5);
+
+    // 理論の傾き
+    ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=1.3; ctx.setLineDash([3,3]); ctx.beginPath();
+    for(var n3=0;n3<=NSTEP;n3++){
+      var v=eps*Math.exp(LAM*n3); if(v>1) break;
+      if(n3===0)ctx.moveTo(X(n3),Y(v)); else ctx.lineTo(X(n3),Y(v));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // 実際の差
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var n4=0;n4<=NSTEP;n4++){
+      if(n4===0)ctx.moveTo(X(n4),Y(d[n4])); else ctx.lineTo(X(n4),Y(d[n4]));
+    }
+    ctx.stroke();
+
+    // 破綻時刻
+    var tp=Math.log(THRESH/eps)/LAM;
+    if(tp>0 && tp<NSTEP){
+      ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(X(tp),T); ctx.lineTo(X(tp),B); ctx.stroke();
+      ctx.fillStyle='#2f7d6a'; ctx.textAlign='left';
+      ctx.fillText('n ≈ '+tp.toFixed(1), X(tp)+5, T+12);
+    }
+
+    rd.innerHTML='初期差 ε = <b>10^−'+p+'</b> → 予測が破綻するステップ数 n ≈ <b>'+tp.toFixed(1)+'</b>'
+      +'（= ln(0.1/ε)/λ、λ = ln2）。<br>'
+      +'ε を 10 分の 1 にしても、伸びるのは <b>ln10/ln2 ≈ 3.3 ステップだけ</b>。'
+      +' 曲線は右へ平行移動するだけで、<b>傾きはまったく変わりません</b> ── これが「精度が対数に潰される」ということです。';
+  }
+
+  se.addEventListener('input', draw);
+  boost.addEventListener('click', function(){
+    var p=parseInt(se.value,10)+3;
+    se.value=Math.min(15,p); draw();
+  });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

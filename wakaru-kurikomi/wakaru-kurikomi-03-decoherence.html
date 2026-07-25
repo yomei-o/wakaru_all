@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大きいほど古典 ── わかる繰り込み 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbfa; --paper-edge:#d8e7e2;   /* 第3回：デコヒーレンス＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#26665a; --calc-bg:#e5f1ee;
+    --rule:#cfe2dc; --hair:#aecfc5;
+    --acc:#2f7d6a;    /* アクセント＝デコヒーレンスの緑青 */
+    --grid:#dcece7;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9e0d9;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e5f1ee;color:#1e5a4e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcfefe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf5f2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1e5045;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcfefe,#e4f0ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e5f1ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1e5045;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#556b65;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 3 回 ／ 大きいほど古典 ── デコヒーレンス</span></div>
+  <p class="eyebrow">電子は二つの穴を同時に通れるのに、なぜ猫は通れないのか ── 位相は消えていない。環境に薄まっただけだ</p>
+  <h1>大きいほど古典
+    <span class="sub">「大きく見たら確率で計算していい」は、気分でも哲学でもない。<br><em>いつからそうしてよいか</em>を秒で計算できる、定量的な物理だ ── その時刻をデコヒーレンス時間という。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の粗視化、第2回の位相、干渉（二重スリット）</span>
+    <span>この回の芯：デコヒーレンス率 ∝ 系のサイズ</span>
+  </div>
+
+  <p class="lead">量子力学のいちばん有名な居心地の悪さは、「電子は二つの穴を同時に通れるのに、机も猫も月もそうならない」という点です。どこかに境界があるはずですが、方程式にはそんな境界は書かれていない。答えは、境界などなく<em>連続的に効きが変わる</em>、というものです ── そして効き方は<strong>系の大きさに比例して爆発的に速くなる</strong>。重要なのは、位相が<em>消える</em>のではないこと。位相は環境の膨大な自由度のなかに<strong>薄まる</strong>だけで、原理的には保存されている。ただし薄まった位相を追いかけるコストが天文学的になるので、私たちは第1回と同じことをする ── <strong>捨てて、確率で書く</strong>。「大きく見れば確率で計算しても同じ」は、こうして<em>時刻の計算できる定理</em>になります。</p>
+
+  <h2><span class="n">01</span>二重スリットは、どこまで大きくできるか</h2>
+
+  <p>まず事実から。「量子は小さいものだけ」という常識は、実験によって毎年更新されています。</p>
+
+  <table class="tbl">
+    <tr><th>系</th><th class="num">規模</th><th>確認されたこと</th></tr>
+    <tr><td>電子・中性子</td><td class="num">1 個</td><td>干渉（教科書どおり）</td></tr>
+    <tr><td>C<sub>60</sub>（サッカーボール分子）</td><td class="num">60 原子</td><td>二重スリット干渉（1999年）</td></tr>
+    <tr><td>巨大有機分子</td><td class="num">約 2000 原子（25,000 amu）</td><td>物質波干渉（2019年）</td></tr>
+    <tr><td>超伝導リングの電流状態</td><td class="num">約 10¹⁰ 電子</td><td>時計回りと反時計回りの重ね合わせ</td></tr>
+    <tr><td>アルミ製の微小ドラム 2 枚</td><td class="num">約 10¹³ 原子</td><td>機械振動子どうしのもつれ（2021年）</td></tr>
+    <tr><td>重力波望遠鏡 LIGO の鏡</td><td class="num">40 kg（有効質量 10 kg）</td><td>運動の量子基底状態の近くまで冷却（2021年）</td></tr>
+  </table>
+
+  <p>つまり<strong>「大きいと量子でなくなる」という壁はありません</strong>。あるのは、大きいほど<em>維持が難しくなる</em>という連続的な傾向だけ。では何が難しくしているのか。</p>
+
+  <h2><span class="n">02</span>位相は消えない。環境に薄まる</h2>
+
+  <p>干渉縞が現れるのは、二つの経路の<em>位相差</em>が定まっているときだけです。位相差が経路ごとにバラバラだと、縞は足し合わされて平らになります。</p>
+
+  <p>ここで決定的な事実 ── <strong>環境が「どちらの経路を通ったか」を知ってしまうと、干渉は消えます</strong>。人間が読み取る必要はありません。空気分子が 1 個ぶつかって跳ね返り、その跳ね返り方に経路の情報が乗るだけで十分。情報が<em>外に出た</em>時点で、系だけを見ているかぎり縞は消える。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 干渉は「非対角成分」に住んでいる</div>
+    $$\rho=\begin{pmatrix}|\alpha|^2 & \alpha\beta^{*}e^{-\Lambda t}\\[2pt] \alpha^{*}\beta e^{-\Lambda t} & |\beta|^2\end{pmatrix}$$
+    <p style="margin:8px 0 0;">対角成分（「左を通った確率」「右を通った確率」）は<strong>変わりません</strong>。減るのは<em>非対角成分</em>だけ。そしてそこにしか干渉は住んでいない。非対角がゼロになると、行列は「左か右か、どちらかだった」という<strong>ただの確率表</strong>と区別がつかなくなる ── これがデコヒーレンスです。<strong>「確率として計算しても同じ」になる瞬間が、数式の上ではっきり書ける</strong>。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">大事な点 ── 位相は破壊されていない</span>
+    \(e^{-\Lambda t}\) は「位相が消えた」のではなく、「<em>系＋環境</em>の全体では位相が保存されているが、系だけを見る（＝環境を捨てる＝<strong>粗視化する</strong>）と見えなくなった」という意味です。全体はどこまでもユニタリなまま。第1回で「捨てた情報は勝手に戻らない」と言いましたが、これはその量子版 ── <strong>デコヒーレンスとは、量子力学における粗視化そのもの</strong>です。宇宙がサボったのではなく、私たちが追跡を諦めた。
+  </div>
+
+  <h2><span class="n">03</span>なぜ大きいほど速いのか ── 桁を出してみる</h2>
+
+  <p>環境からの「小突き」1 回ごとに位相情報が少しずつ漏れます。だから漏れる速さは、<strong>単位時間あたり何回小突かれるか</strong>で決まる。大きい物体は表面積が大きく、たくさん小突かれる。数を入れてみましょう。</p>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 直径 1 μm の塵は、空気中で何秒もつか</span>
+    <p style="margin:2px 0 0;">空気分子の数密度 \(n\approx2.5\times10^{25}\ \mathrm{m^{-3}}\)、平均速さ \(v\approx500\ \mathrm{m/s}\)、塵の断面積 \(\sigma=\pi r^2=\pi(0.5\times10^{-6})^2\approx8\times10^{-13}\ \mathrm{m^2}\)。衝突の回数は</p>
+    $$\text{衝突率}=n\,v\,\sigma\approx (2.5\times10^{25})(500)(8\times10^{-13})\approx 1\times10^{16}\ \text{回/秒}$$
+    <p style="margin-bottom:14px;">1 秒に <strong>1 京回</strong>。塵が 1 μm 離れた二か所の重ね合わせにいたとして、1 回の衝突で「どちらか」がほぼ判別できるので、コヒーレンスは <strong>10⁻¹⁶ 秒</strong>のオーダーで死にます。人間が観測するどころではありません。<em>だから塵は、いつでもどこかにある</em>。<br>
+    実験室の高真空（\(10^{-5}\) Pa 程度）まで引くと \(n\) が \(10^{10}\) 分の 1 になるので衝突率は \(10^{6}\) 回/秒 ── コヒーレンス時間はマイクロ秒台まで伸びる。<strong>分子干渉実験が「真空を引く」ことに命を懸ける理由</strong>がこれです。そして完全な真空にしても、宇宙背景放射の光子（数密度 \(4\times10^{8}\ \mathrm{m^{-3}}\)）が残るので、ゼロにはできません。</p>
+  </div>
+
+  <p>ここから、この回の芯が出ます。系を大きくすると ── ① 断面積が増えて小突かれる回数が増え、② 重ね合わせた二状態の「見分けやすさ」も増える。どちらも同じ向きに効くので、<strong>デコヒーレンス率は系のサイズとともに一方的に増える</strong>。第1回の \(1/\sqrt{N}\) は「大きいほどマクロ量が鋭くなる」でしたが、こちらは「<em>大きいほど量子性が速く消える</em>」。<strong>古典世界が古典に見える理由は、この二本立てです</strong>。</p>
+
+  <h2><span class="n">04</span>動かしてみる ── サイズを上げると、縞が消える</h2>
+
+  <p>下の図の左は干渉縞、右は前節の \(2\times2\) 行列 \(\rho\)（明るいほど成分が大きい）。スライダーで<strong>飛ばす物体の大きさ（原子数 \(N\)）</strong>を変えてください。</p>
+
+  <p>見てほしいのは<em>対角と非対角の運命が違う</em>ことです。\(N\) を増やしても左上と右下（＝「左を通った」「右を通った」の確率）は<strong>まったく変わりません</strong>。消えるのは右上と左下だけ。そして縞が消える。<em>確率は無傷で、干渉だけが死ぬ</em> ── これが「大きく見たら確率で計算しても同じ」の正体です。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝スクリーン上の干渉縞、右＝密度行列 ρ（明るいほど成分が大きい）。物体の原子数 N を増やすと非対角成分だけが指数関数的に消え、縞が平らになる。対角成分（確率）は不変。数値は 1 原子あたりのコヒーレンス時間 1 秒・飛行時間 1 ミリ秒とした桁合わせの模型</div>
+    <canvas id="cv" width="680" height="300"></canvas>
+    <div class="controls">
+      <label>物体の大きさ（原子数 N） <span class="val" id="vn">1</span>
+        <input type="range" id="sn" min="0" max="60" step="1" value="0">
+      </label>
+      <button id="echo">エコーで位相を戻す</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2f7d6a;"></i>スクリーンの明るさ</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>干渉を消した場合の包絡線</span>
+    </div>
+  </div>
+
+  <p>「エコーで位相を戻す」ボタンにも触れてみてください。環境に漏れた位相を<em>途中で反転させて呼び戻す</em>操作（スピンエコーや量子回路の巻き戻し）です。実際の実験でこれができるという事実が、<strong>位相は破壊されたのではなく預けられているだけ</strong>だという何よりの証拠になっています。もし宇宙が本当に情報を捨てていたら、エコーは戻ってきません。</p>
+
+  <h2><span class="n">05</span>「宇宙がサボる」を法則にしたら ── そして反証されつつある</h2>
+
+  <p>ここで、自然な疑問が湧きます ── 「デコヒーレンスなんて回りくどい説明をせずに、<em>大きくなったら重ね合わせが勝手に壊れる</em>という法則を書けばいいのでは?」。</p>
+
+  <p>実は、それを書いた人たちがいます。<strong>自発的収縮モデル</strong>と呼ばれる理論群です。</p>
+
+  <div class="calc">
+    <span class="tag">GRW / CSL ── 「大きくなったら勝手に確率に落ちる」を数式にする</span>
+    <p style="margin:2px 0 14px;">1 粒子あたり毎秒 \(\lambda\sim10^{-16}\) の確率で、波動関数が勝手に一点に収縮する。1 個なら 1 億年に 1 回で誰も気づかないが、\(10^{23}\) 個が結びついた物体では毎秒 \(10^{7}\) 回起きる ── <strong>小さいものは量子、大きいものは自動的に古典</strong>。<em>ペンローズ–ディオシ</em>のモデルはさらに踏み込み、収縮を起こすのは重力だとする（二つの異なる時空の重ね合わせは維持できず、\(\tau\sim\hbar/E_G\) で壊れる）。</p>
+  </div>
+
+  <p>この発想は魅力的で、しかも<strong>反証可能</strong>です。自発収縮は粒子を微妙に揺さぶるので、余計な熱や放射が出るはず ── そこを実験で狙い撃ちできる。そして実際に：</p>
+
+  <ul>
+    <li><strong>ペンローズ–ディオシ模型のもっとも単純な（パラメータのない）版は、2020 年に実験で排除されました</strong>。地下実験室で予言された自発的 X 線放射を探し、見つからなかったのです。</li>
+    <li>CSL のパラメータ空間も、分子干渉実験・低温の機械振動子・宇宙空間の精密測定によって、年々削られています（完全に閉じてはいません）。</li>
+  </ul>
+
+  <p>つまり「宇宙は大きいものについて計算をサボる」は、詩ではなく<em>検証可能な物理仮説</em>であり、<strong>今のところ分が悪い側</strong>です。デコヒーレンスのほうは、新しい法則を一つも足さずに同じ現象を説明します ── ただし、次の但し書きつきで。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── デコヒーレンスは「測定問題」を解いてはいない</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>環境との相互作用が密度行列の非対角成分を指数関数的に抑制すること、その率が系のサイズ・重ね合わせの空間的隔たり・環境の密度とともに増大すること、これが実験で定量的に確認されていること（分子干渉計での制御されたデコヒーレンス、空洞QEDでの猫状態の崩壊の観測など）、スピンエコー等で部分的にコヒーレンスを回復できること、そして上の実験記録（分子干渉 25,000 amu 級、機械振動子のもつれ、LIGO 鏡の基底状態近傍冷却）。桁の見積もりは標準的な散乱デコヒーレンスの評価です。</p>
+    <p style="margin-bottom:0;"><strong>解けていないこと：</strong>デコヒーレンスは「なぜ干渉が見えなくなるか」は完璧に説明しますが、「<em>なぜ結果が一つに決まるのか</em>」は説明しません。非対角が消えた密度行列は「左か右かのどちらかだった確率表」と区別がつかない、というところまでで、そこから先（実際に一つが起きること）は解釈の問題として残っています ── 多世界、ボーム、収縮理論などが競合中で、決着していません。本文の「位相は環境に預けられている」という言い方は<strong>ユニタリな時間発展が全体として続くという標準的立場</strong>に立ったもので、自発収縮が正しければ位相は本当に失われます。そちらが実験で削られつつある、というのが現状です。また図はサイズ依存性を示すための桁合わせの模型で、特定の実験を再現したものではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>デコヒーレンスが起きたとき、密度行列のどの成分が減り、どの成分が変わらないか。それは何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans">減るのは<strong>非対角成分</strong>（干渉が住んでいる場所）、変わらないのは<strong>対角成分</strong>（各経路の確率）。だから「確率として計算しても同じ」になる。逆に言えば、確率だけ見ていてもデコヒーレンスは検出できない ── 干渉を見ないとわからない。</div></details>
+      </li>
+      <li>分子干渉実験で真空度を上げると干渉が見えやすくなるのはなぜか。桁で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">衝突率＝\(n v \sigma\) が数密度 \(n\) に比例するから。大気圧（\(n\sim10^{25}\ \mathrm{m^{-3}}\)）で 1 μm の塵なら \(10^{16}\) 回/秒だが、高真空（\(10^{-5}\) Pa）なら \(n\) が \(10^{10}\) 分の 1 になって \(10^{6}\) 回/秒。コヒーレンス時間が 10 桁伸びる。</div></details>
+      </li>
+      <li>「宇宙は大きいものの計算をサボって確率にしている」という主張を、反証可能な形に書き直すとどうなるか。実験結果は?
+        <details><summary>答えを見る</summary><div class="ans">GRW／CSL のような<strong>自発的収縮モデル</strong>（1 粒子あたり毎秒 λ の収縮率、粒子数で増幅）。予言される余分な放射や加熱を探す実験が行われ、ペンローズ–ディオシ模型の最単純版は 2020 年に排除、CSL もパラメータ空間を削られている。</div></details>
+      </li>
+      <li>スピンエコーで干渉が回復することは、何の証拠になっているか。
+        <details><summary>答えを見る</summary><div class="ans">位相情報が<strong>破壊されたのではなく、環境に預けられている</strong>ことの証拠。もし本当に消えていたら、どんな操作をしても戻らない。デコヒーレンスは情報の消滅ではなく<strong>移動（＝粗視化）</strong>である、という主張の実験的な裏づけ。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第3回まとめ</span>位相は消えない。環境に薄まり、私たちが捨てる</h2>
+    <p>「電子は量子で猫は古典」の境界は存在せず、あるのは連続的な傾向だけ ── 分子 2000 原子、超伝導リング 10¹⁰ 電子、ドラム 10¹³ 原子、LIGO の鏡 40 kg と、記録は毎年更新されています。干渉が消えるのは、環境が「どちらの経路か」を知ったとき。数式では<strong>密度行列の非対角成分だけが \(e^{-\Lambda t}\) で消え、対角成分（確率）は無傷</strong>。だから「確率として計算しても同じ」になる瞬間が、はっきり書けます。</p>
+    <p>速さは桁で出せます ── 空気中の 1 μm の塵は毎秒 \(10^{16}\) 回小突かれ、コヒーレンスは \(10^{-16}\) 秒で死ぬ。系が大きいほど断面積も見分けやすさも増えるので、<strong>大きいほど速く古典になる</strong>。ただし位相は<em>破壊されて</em>いません ── エコーで呼び戻せるのが証拠です。デコヒーレンスとは、量子力学における粗視化そのもの。<strong>宇宙がサボったのではなく、私たちが追跡を諦めた</strong>。「宇宙が本当にサボる」版（GRW／CSL、ペンローズ–ディオシ）は検証可能な仮説として存在し、そして削られつつあります。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第4回「出自を忘れる」</span>
+    ここまでで「捨ててよい理由」（第1回）、「1 個でも位相を捨てる」（第2回）、「大きいほど速く捨てる」（第3回）が揃いました。次はいよいよシリーズの<strong>心臓</strong>です。捨てる操作を<em>繰り返す</em>と何が起きるか ── 水の臨界点と鉄の磁石と格子の上の矢印モデルが、まったく違うミクロを持ちながら<strong>同じ数値（臨界指数）</strong>を叩き出す。粗視化が効きすぎて、ミクロの出自が原理的に消えてしまうのです。この「<em>出自を忘れる</em>」現象を普遍性といい、それを説明する道具の名前が、このシリーズの題名 ── <strong>繰り込み群</strong>です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第3回、物理好きの高校生・大学生向け読み物です。環境との相互作用（散乱デコヒーレンス）が密度行列の非対角成分を指数関数的に抑制すること、抑制率が系のサイズ・重ね合わせの隔たり・環境の数密度に増大依存すること、衝突率 \(n v\sigma\) による桁の評価、スピンエコー等による部分的コヒーレンス回復、および本文表の実験記録（C₆₀ 干渉、25,000 amu 級分子干渉、超伝導リングの重ね合わせ、機械振動子のもつれ、LIGO 鏡の量子基底状態近傍冷却）は、いずれも確立した物理・報告済みの実験結果です。自発的収縮モデル（GRW／CSL／ペンローズ–ディオシ）が検証可能な代替理論であり、ペンローズ–ディオシのパラメータフリー版が地下での自発 X 線放射探索により 2020 年に排除され、CSL のパラメータ空間が継続的に制約されていることも報告済みの結果です。デコヒーレンスが「なぜ結果が一つに決まるか」という測定問題そのものを解いてはおらず、量子力学の解釈が未決着であることは本文「正直な線」に明記しました。図はサイズ依存性を示すための桁合わせの模型で、特定の実験の再現ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kurikomi-02-isou.html">第2回 位相か、確率か</a>／<a href="wakaru-kurikomi-04-fuhensei.html">第4回 出自を忘れる</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで物体の大きさを変えると干渉縞が消え、密度行列の非対角成分だけが暗くなります。「エコーで位相を戻す」で回復の様子が見られます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd'), echoBtn=document.getElementById('echo');
+  var echoOn=false;
+
+  var TAU1=1.0;      // 1 原子あたりのコヒーレンス時間［秒］（模型）
+  var TFLY=1e-3;     // 飛行時間［秒］（模型）
+
+  function fmtN(N){
+    if(N<10000) return String(Math.round(N));
+    var e=Math.floor(Math.log10(N)), m=N/Math.pow(10,e);
+    return m.toFixed(1)+'×10^'+e;
+  }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var s=parseInt(sn.value,10);
+    var N=Math.pow(10, s/10);              // 1 〜 10^6
+    vn.textContent=fmtN(N);
+    var tauDec=TAU1/N;                     // デコヒーレンス時間
+    var V=Math.exp(-TFLY/tauDec);          // ビジビリティ
+    if(echoOn) V=Math.min(1, V+ (1-V)*0.85);   // エコーで位相を呼び戻す
+    ctx.clearRect(0,0,w,h);
+
+    // ── 左：干渉縞 ──
+    var L=48, R=w*0.60, T=26, B=h-42;
+    ctx.font='bold 12px sans-serif'; ctx.fillStyle='#2f7d6a'; ctx.textAlign='left';
+    ctx.fillText('スクリーン上の明るさ', L, T-9);
+    ctx.strokeStyle='#aecfc5'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    var NP=260, k=9.0;
+    // 帯状の縞（濃淡）
+    for(var i=0;i<NP;i++){
+      var u=i/(NP-1), x=L+(R-L)*u;
+      var env=Math.exp(-Math.pow((u-0.5)*3.1,2));
+      var I=env*(1+V*Math.cos(k*Math.PI*(u-0.5)))/2;
+      var g=Math.round(255-190*Math.max(0,Math.min(1,I)));
+      ctx.fillStyle='rgb('+g+','+Math.min(255,g+26)+','+Math.min(255,g+18)+')';
+      ctx.fillRect(x, T, (R-L)/NP+1, 30);
+    }
+    ctx.strokeStyle='#aecfc5'; ctx.strokeRect(L+.5,T+.5,R-L,30);
+
+    // 曲線
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.3; ctx.setLineDash([4,4]); ctx.beginPath();
+    for(var i2=0;i2<NP;i2++){
+      var u2=i2/(NP-1), x2=L+(R-L)*u2;
+      var env2=Math.exp(-Math.pow((u2-0.5)*3.1,2));
+      var y2=B-(B-T-46)*env2/2*2;
+      if(i2===0)ctx.moveTo(x2,y2); else ctx.lineTo(x2,y2);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i3=0;i3<NP;i3++){
+      var u3=i3/(NP-1), x3=L+(R-L)*u3;
+      var env3=Math.exp(-Math.pow((u3-0.5)*3.1,2));
+      var I3=env3*(1+V*Math.cos(k*Math.PI*(u3-0.5)))/2;
+      var y3=B-(B-T-46)*I3*2;
+      if(i3===0)ctx.moveTo(x3,y3); else ctx.lineTo(x3,y3);
+    }
+    ctx.stroke();
+    ctx.fillStyle='#5b6a66'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('スクリーン上の位置', (L+R)/2, B+16);
+    ctx.textAlign='left';
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 12px sans-serif';
+    ctx.fillText('ビジビリティ V = '+(V<0.001? V.toExponential(1) : V.toFixed(3)), L, B+34);
+
+    // ── 右：密度行列 ──
+    var MX=w*0.70, MY=T+8, CS=Math.min(58,(h-120)/2);
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('密度行列 ρ', MX, T-9);
+    var vals=[[0.5,0.5*V],[0.5*V,0.5]];
+    var labs=[['|α|²','αβ*'],['α*β','|β|²']];
+    for(var r2=0;r2<2;r2++) for(var c2=0;c2<2;c2++){
+      var v=vals[r2][c2], t=Math.max(0,Math.min(1,v/0.5));
+      var rr=Math.round(255+(47-255)*t), gg=Math.round(255+(125-255)*t), bb=Math.round(255+(106-255)*t);
+      ctx.fillStyle='rgb('+rr+','+gg+','+bb+')';
+      ctx.fillRect(MX+c2*CS, MY+r2*CS, CS-3, CS-3);
+      ctx.strokeStyle='#aecfc5'; ctx.lineWidth=1; ctx.strokeRect(MX+c2*CS+.5, MY+r2*CS+.5, CS-3, CS-3);
+      ctx.fillStyle= t>0.45? '#fff':'#5b6a66'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(labs[r2][c2], MX+c2*CS+(CS-3)/2, MY+r2*CS+(CS-3)/2-2);
+      ctx.fillText(v.toFixed(3), MX+c2*CS+(CS-3)/2, MY+r2*CS+(CS-3)/2+13);
+    }
+    ctx.textAlign='left'; ctx.fillStyle='#5b6a66'; ctx.font='11px sans-serif';
+    ctx.fillText('対角＝確率（不変）', MX, MY+2*CS+16);
+    ctx.fillText('非対角＝干渉（消える）', MX, MY+2*CS+32);
+
+    echoBtn.textContent = echoOn? 'エコー：ON（位相を回復中）' : 'エコーで位相を戻す';
+    var judge;
+    if(V>0.6) judge='干渉がはっきり見える ── まだ<b>量子</b>。';
+    else if(V>0.05) judge='縞が薄れてきた ── 量子と古典の<b>境目</b>（実験はここを攻めている）。';
+    else judge='縞が消えた ── <b>確率で計算しても同じ</b>状態。ただし位相は環境にあるだけ。';
+    rd.innerHTML='原子数 <b>N = '+fmtN(N)+'</b> → デコヒーレンス時間 τ = '+tauDec.toExponential(1)+' 秒'
+      +'（飛行時間 '+TFLY.toExponential(0)+' 秒）→ ビジビリティ <b>V = '+(V<0.001? V.toExponential(1):V.toFixed(3))+'</b>。<br>'
+      +judge+' 対角成分は 0.500 のまま <b>まったく動いていない</b>ことに注目。';
+  }
+
+  sn.addEventListener('input', function(){ echoOn=false; draw(); });
+  echoBtn.addEventListener('click', function(){ echoOn=!echoOn; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

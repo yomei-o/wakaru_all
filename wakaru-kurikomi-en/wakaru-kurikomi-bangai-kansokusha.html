@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>An observer is a coarse-graining device ── Renormalization That Clicks, Bonus ②</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8fd; --paper-edge:#e0d8ef;   /* Bonus ②: the observer = purple paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#553187; --calc-bg:#efe8f8;
+    --rule:#ddd3ee; --hair:#c2b3dd;
+    --acc:#6a3fa0;    /* accent = the purple of the observer */
+    --grid:#e8e0f4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d8c9ee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ded2f0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#efe8f8;color:#4a2a78;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2ecfa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#42266d;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ebe3f7);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe8f8;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#42266d;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#665a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Bonus ② / An observer is a coarse-graining device</span></div>
+  <p class="eyebrow">The third answer to "why is the universe coarse-grainable?" ── because a universe that isn't has nobody in it to ask</p>
+  <h1>An observer is a coarse-graining device
+    <span class="sub">Memory, learning and prediction are all impossible <em>without discarding information</em>.<br>If so, "the universe is coarse-grainable" may be less a law of physics<br>than a <strong>precondition</strong> for writing laws of physics at all.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's coarse-graining, Episode 5's chaos, a feel for bits</span>
+    <span>The heart of this one: an observer = a machine that predicts from discarded variables</span>
+  </div>
+
+  <p class="lead">Throughout this series we have said "the universe is coarse-grainable." What remains at the end is the question <em>why</em>. There are three candidates: (1) "because the renormalization group is structured that way" (not an explanation ── it leaves open why field theory); (2) "because we sit 19 orders of magnitude below the Planck scale" (which is itself Episode 6's hierarchy problem); and the third ── <strong>because a universe that cannot be coarse-grained cannot contain observers</strong>. It looks like plain circular reasoning, but translated into information theory it has surprising content. <em>Memory is compression; prediction is getting the future right from discarded variables; learning is finding out what may be discarded.</em> All of them are coarse-graining. An observer is another name for a coarse-graining device.</p>
+
+  <h2><span class="n">01</span>Memory is discarding</h2>
+
+  <p>You do not remember this morning's walk to school pixel by pixel. What you remember is one line: "the usual." That is not a failure of memory; it is memory's <em>specification</em> ── remember everything and you could never retrieve anything.</p>
+
+  <p>And discarding information carries a <strong>physical cost</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">Landauer's principle ── forgetting takes energy</span>
+    <p style="margin:2px 0 0;">To <em>erase</em> one bit of information you must dump at least</p>
+    $$E_{\min}=k_BT\ln 2\ \approx\ 2.9\times10^{-21}\ \mathrm{J}\quad(\text{at room temperature, }300\,\mathrm{K})$$
+    <p style="margin-bottom:14px;">of energy as heat. Computation itself can in principle be free, but <strong>forgetting always costs</strong>. This was confirmed in a real experiment in 2012. In other words <em>coarse-graining is a physical process</em> ── not an abstract "way of looking" but a real action that consumes energy and dumps entropy into the environment. When Episode 1 said "the amount discarded = entropy," that was not a metaphor.</p>
+  </div>
+
+  <h2><span class="n">02</span>Only a tiny fraction of the bits are needed for prediction</h2>
+
+  <p>An observer's real job is prediction. And here there is a decisive asymmetry ── <strong>the amount of information contained in the past</strong> and <strong>the part of it useful for predicting the future</strong> are utterly different.</p>
+
+  <p>For the glass of water (Episode 1), the past microstate carries information worth \(10^{25}\) numbers, but predicting tomorrow's boiling time needs two: temperature and pressure. <em>The rest is information that pays nothing to remember.</em> The useful part is called <strong>predictive information</strong>, and a smart observer <em>keeps only that and discards the rest</em>.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">The heart of this bonus ── the optimal coarse-graining is unique</div>
+    <p style="margin:0 0 8px;">Episode 1's "honest line" said: "which variables to keep has an element of human choice depending on the question." In fact there is a clean answer.</p>
+    <p style="margin:0;"><strong>"Pasts that behave identically with respect to predicting the future may be merged."</strong> Group the past by that criterion and you get a minimal set of states necessary and sufficient for prediction ── and it is <em>unique</em> (the causal states of computational mechanics, Crutchfield). So the optimal coarse-graining is decided not by human taste but <strong>by the world</strong>. Same shape as Episode 4, where the critical exponent "belonged to the operation of coarse-graining." The only freedom left to the observer is <em>whether it finds</em> that optimal coarse-graining ── and finding it is what we call <strong>learning</strong>.</p>
+  </div>
+
+  <h2><span class="n">03</span>Try it ── how many steps does one bit buy?</h2>
+
+  <p>The figure below compares how far ahead an observer with only \(b\) bits of memory can get the world right. The button switches between <strong>two worlds</strong>.</p>
+
+  <ul>
+    <li><strong>A layered world</strong>: a slow macro component plus fast noise. The observer stores only the macro in \(b\) bits. <em>Four bits and it stays right into the infinite future</em> ── extra bits buy almost nothing (the noise was unpredictable to begin with, so discarding it is correct).</li>
+    <li><strong>A chaotic world</strong>: the logistic map. The observer remembers the initial value to \(b\) bits of precision. <em>One bit buys exactly one step of future.</em> Want 60 steps? 60 bits. 120 steps? 120 bits ── memory grows linearly and the future you get grows only linearly with it.</li>
+  </ul>
+
+  <p>That difference decides whether observers can exist at all. <strong>In a layered world, a small finite brain can speak about the infinite future.</strong> In a purely chaotic world, however big you make the brain, you see only as far as its size ── neither science nor memory means anything.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: top = the world's true behaviour (thin line) and the prediction of an observer with only b bits (thick line). Bottom = the relation between memory b and how many steps stay correct. In a layered world it saturates after a few bits; in a chaotic world it is a linear trade of 1 bit = 1 step</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>The observer's memory, b bits <span class="val" id="vb">6</span>
+        <input type="range" id="sb" min="1" max="24" step="1" value="6">
+      </label>
+      <button id="world">World: layered</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#8a8f9c;"></i>the world's true behaviour</span>
+      <span><i class="swatch" style="background:#6a3fa0;"></i>the observer's prediction (from b bits)</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>range where the prediction holds</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>Learning is finding out what may be discarded</h2>
+
+  <p>From here a bridge reaches somewhere unexpected. A <strong>deep learning</strong> network handles fine features (edges, lines) in the layers near the input and coarse concepts (faces, cats) near the output. Information is discarded at every layer and only what matters to the answer survives ── <em>the same shape as the renormalization group</em>.</p>
+
+  <p>This resemblance has in fact been debated seriously from both the physics and machine-learning sides (no rigorous equality has been shown ── see below). But at least this much is certain: <strong>learning well is coarse-graining well</strong>. Discard too much and there isn't enough information; discard too little and you overfit into rote memorisation. Only the one that finds the right coarse-graining gets unseen data right.</p>
+
+  <div class="aside">
+    <span class="tag">Shaking hands with "Learning That Clicks"</span>
+    The sister series "Learning That Clicks" reads evolution, learning and consciousness through a single gradient. Overlay this bonus episode's viewpoint and you can say: <strong>evolution and learning are both long searches for "which features of the environment may be discarded."</strong> An eye discarding the phase of light and keeping only intensity, a brain crushing \(10^{8}\) retinal signals into a few dozen concepts ── the same operation. <em>A living thing is an optimal coarse-graining of its environment, carved into a body.</em> If so, the renormalization group is both a tool of physics and a description of what life is doing.
+  </div>
+
+  <h2><span class="n">05</span>Isn't this circular?</h2>
+
+  <p>"A universe that cannot be coarse-grained has no observers" is indeed a kind of anthropic argument and does sound circular. But read it this way and content remains.</p>
+
+  <div class="keybox">
+    <div class="lbl">Rephrased ── not a law of physics but a precondition for writing them</div>
+    <p style="margin:0;">"The universe is coarse-grainable" is a <em>fact about the universe</em> and simultaneously <strong>the statement that a finite description of the universe can be written</strong>. A law is a compressed description, and being compressible is being coarse-grainable. Therefore ──</p>
+    <p style="margin:10px 0 0;text-align:center;"><strong>In a universe that cannot be coarse-grained, no law can be written.</strong><br>And in a universe where no law can be written, there is nobody to write one.</p>
+    <p style="margin:10px 0 0;">This is not an answer to "why is it so." But it does change the <em>kind</em> of question. "Coarse-grainability" is not one item on the list of physical laws; it is <strong>the precondition for the list to exist</strong>.</p>
+  </div>
+
+  <p>And here we can return to the neutron of Episode 2. "Isn't the decay time the time it takes for the phase to become untrackable?" ── that intuition was touching the fact that <em>becoming untrackable is itself built into the structure of the world</em>. The world is built so as to become untrackable. And precisely because it does, finite creatures like us can speak of the world in finite words. <strong>Incompleteness is not a bug but a specification.</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── this is the border between physics and philosophy</span>
+    <p style="margin-top:0;"><strong>Established:</strong> Landauer's principle (erasing one bit requires at least \(k_BT\ln2\) of dissipation) and its experimental confirmation (2012); that reversible computation has no energy lower bound for computation itself and only erasure costs; that predictive information is generally far smaller than the total information in the past; that the causal states of computational mechanics are uniquely determined as the minimal set of states necessary and sufficient for prediction (Crutchfield); and that in chaotic systems predictable time grows only linearly in the number of bits of memory precision (i.e. logarithmically in accuracy ── Episode 5) ── all established results.</p>
+    <p style="margin-bottom:0;"><strong>Not established:</strong> (1) <strong>The correspondence between deep learning and the renormalization group is a suggestive resemblance, not a theorem.</strong> Proposals mapping restricted Boltzmann machines onto variational RG (around 2014) exist, but the claim that general deep networks are equivalent to the renormalization group has drawn strong objections and is unsettled. The body treats it strictly as a "same shape" metaphor. (2) Anthropic explanations (position ③) carry almost no testable predictions, and researchers disagree over whether to count them as explanations at all. (3) "An observer is a coarse-graining device" is this series' framing, not an established definition. (4) The figure is an idealised model (the logistic map and an artificial macro-plus-noise signal) for feeling "how many steps one bit buys"; it does not represent the performance of any real brain or learner. ── This episode is a <em>reflection</em> that steps one pace beyond physics, and we state clearly that its level of confidence differs from the main series (Episodes 1–7).</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>Explain "memory is discarding" in terms of physical cost.
+        <details><summary>See the answer</summary><div class="ans">Computation itself is in principle reversible with no energy lower bound, but <strong>erasing information requires at least \(k_BT\ln2\)</strong> of dissipation (\(2.9\times10^{-21}\) J at room temperature; Landauer's principle, confirmed experimentally in 2012). "Discarding" is a physical process that uses energy, not an abstract way of looking.</div></details>
+      </li>
+      <li>How does this episode answer Episode 1's caveat that "which variables to keep is a human choice"?
+        <details><summary>See the answer</summary><div class="ans">By the criterion "pasts that behave identically with respect to predicting the future may be merged," the minimal necessary-and-sufficient set of states for prediction is <strong>uniquely determined</strong> (the causal states of computational mechanics). The optimal coarse-graining is set by the world; the observer's freedom is only <em>whether it finds it</em> ── and that search is learning.</div></details>
+      </li>
+      <li>How does the value of one bit of memory differ between a layered world and a chaotic one?
+        <details><summary>See the answer</summary><div class="ans">In a layered world, a few bits pin down the macro variable and you stay right into the <strong>infinite future</strong>; extra bits are nearly worthless (the rest is noise, unpredictable to begin with). In a chaotic world it is a linear trade of <strong>1 bit = 1 step</strong>, so a bigger brain buys only proportionally more. Only in the former can a finite observer have science.</div></details>
+      </li>
+      <li>Why doesn't "a universe that cannot be coarse-grained has no observers" collapse into mere circularity?
+        <details><summary>See the answer</summary><div class="ans">Because a law is a compressed description, and compressibility is the same as coarse-grainability. So "coarse-grainability" is not one item on the list of physical laws but <strong>the precondition for the list to exist</strong>. It is not an answer, but the kind of question changes.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus ② summary / Renormalization That Clicks, the end</span>Only a discardable world has anyone to speak of it</h2>
+    <p>Memory is compression, prediction is getting the future right from discarded variables, and learning is <em>finding out what may be discarded</em>. All of them are coarse-graining. And discarding has a physical price (Landauer: \(k_BT\ln2\) per bit), while the optimal coarse-graining is fixed not by human taste but <strong>uniquely by the world</strong> (causal states). Same shape as Episode 4, where the critical exponent belonged to the operation of coarse-graining.</p>
+    <p>The decisive part is that the value of one bit of memory depends on the world. <strong>In a layered world a few bits buy an infinite future; in a purely chaotic world one bit buys one step.</strong> Only in the former can a finite brain have science. So the third answer to "why is the universe coarse-grainable?" is ── <em>because a universe that isn't has nobody to ask</em>. It looks circular, but reread as "coarse-grainability is not an item on the list of laws but the precondition for the list," the kind of question changes.</p>
+    <p>The series began by rereading the neutron's 880-second lifetime as "the time it takes for the phase to become untrackable." Seven episodes and two bonuses later, here is where we have arrived ── <strong>the world is built so as to become untrackable. And precisely because it does, finite creatures like us can speak of the world in finite words.</strong> Incompleteness is not a bug but a specification.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Renormalization That Clicks, complete ── on to the sister series</span>
+    "Renormalization That Clicks" ends here. From here, try the sister series ── <strong>"Learning That Clicks"</strong> (evolution, learning and consciousness through a single gradient; directly connected to this bonus), <strong>"Black Holes That Click"</strong> (the sequel to Episode 7's holography and Episode 5's scrambling), <strong>"Quantum That Clicks"</strong> (the main treatment of the phase stories in Episodes 2 and 3), and <strong>"Relativity That Clicks"</strong> (whose finale has the same shape as ours). The map of the whole collection is <em>The Physics Cube</em>, on the three axes c, ℏ and G.
+  </div>
+
+  <div class="foot">
+    This document is Bonus Episode ② of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. Landauer's principle (at least \(k_BT\ln2\) dissipated per bit erased) and its experimental confirmation (Bérut et al. 2012); the theory of reversible computation (Bennett); that predictive information is generally far smaller than the total information in the past; that computational mechanics' causal states are uniquely determined as the minimal set of states necessary and sufficient for prediction (Crutchfield); and that predictable time in chaotic systems grows only linearly with memory bits ── all established results. That the correspondence between deep learning and the renormalization group is a suggestive resemblance rather than a theorem (with strong objections on record); that the standing of anthropic explanation divides researchers; that "an observer is a coarse-graining device" is this series' framing rather than an established definition; and that this episode is a reflection at a lower level of confidence than the main series, are all spelled out in the body's "honest line." The figure is an idealised demonstration using the logistic map and an artificial signal; it does not represent the performance of any real brain or learner. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Related: <a href="wakaru-kurikomi-bangai-kako.html">Bonus ①, Why did it start from low entropy?</a> / <a href="wakaru-kurikomi-07-kaizoudo.html">Episode 7, Resolution as a dimension</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-gakushuron-en/index.html">Learning That Clicks</a> and <a href="../wakaru-blackhole-en/index.html">Black Holes That Click</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen the slider changes the memory in bits and the button switches between the two worlds. The thing to see is how completely differently "how many steps one bit buys" behaves in each. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sb=document.getElementById('sb'), vb=document.getElementById('vb'),
+      rd=document.getElementById('rd'), worldBtn=document.getElementById('world');
+  var layered=true;
+  var NS=64;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  var noise=(function(){
+    var r=mulberry32(777), a=[];
+    for(var i=0;i<=NS;i++) a.push((r()-0.5)*0.22);
+    return a;
+  })();
+
+  function macro(n){
+    var t=n/NS;
+    return 0.5+0.26*Math.sin(2*Math.PI*1.4*t)+0.10*Math.sin(2*Math.PI*3.1*t+1.0);
+  }
+  function quant(v,b){
+    var lv=Math.pow(2,b);
+    return Math.round(v*lv)/lv;
+  }
+
+  function series(b){
+    var truth=[], pred=[], ok=NS;
+    if(layered){
+      for(var n=0;n<=NS;n++){
+        truth.push(macro(n)+noise[n]);
+        pred.push(quant(macro(n),b));
+      }
+      // if the quantisation error is within tolerance it stays right forever
+      ok = (0.5/Math.pow(2,b) <= 0.1)? NS : 0;
+    } else {
+      var x=0.3141592653589793;
+      var y=quant(x,b);
+      var diverged=-1;
+      for(var n2=0;n2<=NS;n2++){
+        truth.push(x); pred.push(y);
+        if(diverged<0 && Math.abs(x-y)>0.1) diverged=n2;
+        x=4*x*(1-x); y=4*y*(1-y);
+      }
+      ok = diverged<0? NS : diverged;
+    }
+    return {truth:truth, pred:pred, ok:ok};
+  }
+  function okSteps(b){ return series(b).ok; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var b=parseInt(sb.value,10); vb.textContent=b+' bits';
+    var S=series(b);
+    ctx.clearRect(0,0,w,h);
+
+    var L=48, R=w-14, T=26, B=h*0.52;
+    function X(n){ return L+(R-L)*n/NS; }
+    function Y(v){ return B-(B-T)*Math.max(0,Math.min(1,v)); }
+    ctx.strokeStyle='#c2b3dd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.fillStyle='#6a3fa0'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(layered? 'a layered world (slow macro + fast noise)' : 'a chaotic world (the logistic map)', L, T-8);
+
+    if(S.ok>0){
+      ctx.fillStyle='rgba(47,125,106,.10)';
+      ctx.fillRect(L, T, X(S.ok)-L, B-T);
+      ctx.strokeStyle='#2f7d6a'; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(X(S.ok),T); ctx.lineTo(X(S.ok),B); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    ctx.strokeStyle='#8a8f9c'; ctx.lineWidth=1.2; ctx.beginPath();
+    for(var n=0;n<=NS;n++){ if(n===0)ctx.moveTo(X(n),Y(S.truth[n])); else ctx.lineTo(X(n),Y(S.truth[n])); }
+    ctx.stroke();
+    ctx.strokeStyle='#6a3fa0'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var n2=0;n2<=NS;n2++){ if(n2===0)ctx.moveTo(X(n2),Y(S.pred[n2])); else ctx.lineTo(X(n2),Y(S.pred[n2])); }
+    ctx.stroke();
+    ctx.fillStyle='#7a6d8c'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('steps into the future →', (L+R)/2, B+14);
+
+    var T2=B+34, B2=h-26;
+    ctx.strokeStyle='#c2b3dd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T2); ctx.lineTo(L,B2); ctx.lineTo(R,B2); ctx.stroke();
+    ctx.fillStyle='#6a3fa0'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('memory b bits → number of steps that stay correct', L, T2-6);
+    function X2(bb){ return L+(R-L)*(bb-1)/23; }
+    function Y2(v){ return B2-(B2-T2)*Math.max(0,Math.min(1,v/NS)); }
+    ctx.fillStyle='#7a6d8c'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    for(var bb=4;bb<=24;bb+=4) ctx.fillText(bb, X2(bb), B2+13);
+    ctx.textAlign='right';
+    ctx.fillText(NS, L-5, Y2(NS)+4); ctx.fillText('0', L-5, B2+4);
+
+    ctx.strokeStyle='#6a3fa0'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var q=1;q<=24;q++){
+      var v=okSteps(q);
+      if(q===1)ctx.moveTo(X2(q),Y2(v)); else ctx.lineTo(X2(q),Y2(v));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#2f7d6a';
+    ctx.beginPath(); ctx.arc(X2(b),Y2(S.ok),4.5,0,7); ctx.fill();
+
+    worldBtn.textContent='World: '+(layered?'layered':'chaotic');
+    var msg;
+    if(layered) msg='Pin down the macro with a few bits and <b>it stays right forever</b>. The rest is noise, unpredictable to begin with, so discarding it is correct ── extra bits are nearly worthless. <b>A world where a finite brain can speak of an infinite future.</b>';
+    else msg='<b>One bit buys exactly one step</b> of future (a line of slope 1). Want 60 steps ahead? 60 bits. However much memory you add you gain only in proportion ── <b>a world where science cannot get started</b>.';
+    rd.innerHTML='Memory <b>'+b+' bits</b> → steps that stay correct: <b>'+S.ok+'</b> / '+NS+'.<br>'+msg;
+  }
+
+  sb.addEventListener('input', draw);
+  worldBtn.addEventListener('click', function(){ layered=!layered; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

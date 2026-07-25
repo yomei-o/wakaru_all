@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出自を忘れる ── わかる繰り込み 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdfaf3; --paper-edge:#ecdfc6;   /* 第4回：普遍性＝琥珀の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8a5510; --calc-bg:#f6eeda;
+    --rule:#e2d5b8; --hair:#ccbb96;
+    --acc:#b06a12;    /* アクセント＝普遍性の琥珀 */
+    --grid:#eee3cc;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0d9a6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e6d7ba;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdf7;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6eeda;color:#7a4a10;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f0e0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f3d0c;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf7,#f3e9d5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6eeda;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f3d0c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6150;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 4 回 ／ 出自を忘れる ── 普遍性と繰り込み群</span></div>
+  <p class="eyebrow">水の臨界点と、鉄の磁石の臨界点。ミクロは似ても似つかないのに、出てくる数値がぴったり一致する</p>
+  <h1>出自を忘れる
+    <span class="sub">粗視化を<em>繰り返す</em>と、理論は決まった行き先へ流れていく。<br>その途中でミクロの記憶が捨てられるから、水と磁石は同じ数字を叩き出す。<br>これがシリーズの心臓 ── 繰り込み群。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の粗視化（ブロック平均）、指数、桁の感覚</span>
+    <span>この回の芯：粗視化を繰り返す ＝ 理論が流れる</span>
+  </div>
+
+  <p class="lead">水を加熱・加圧していくと、374 ℃・218 気圧で<strong>臨界点</strong>という不思議な場所に着きます。液体と気体の区別が消え、液滴がありとあらゆる大きさで沸き立って、透明な水が乳白色に濁る（臨界タンパク光）。いっぽう鉄の磁石を加熱すると、770 ℃で磁性が消えます。こちらも臨界点です。<em>片方は分子の詰まり具合の話、もう片方は電子スピンの向きの話</em>で、ミクロには何の関係もありません。ところが臨界点の近くでの振る舞いを表す数（<strong>臨界指数</strong>）を測ると ── <em>小数点以下 3 桁まで一致します</em>。偶然ではありません。粗視化を繰り返すと、二つの理論は<strong>同じ行き先</strong>へ流れ着き、その途中で「もともと何だったか」という情報が捨てられてしまうのです。</p>
+
+  <h2><span class="n">01</span>ありえない一致</h2>
+
+  <table class="tbl">
+    <tr><th>系</th><th>ミクロの正体</th><th class="num">臨界指数 β</th><th class="num">ν</th></tr>
+    <tr><td>水（液体–気体の臨界点）</td><td>H₂O 分子の密度</td><td class="num">≈ 0.326</td><td class="num">≈ 0.630</td></tr>
+    <tr><td>一軸性の強磁性体</td><td>電子スピンの向き</td><td class="num">≈ 0.326</td><td class="num">≈ 0.630</td></tr>
+    <tr><td>二成分液体の相分離</td><td>2 種類の分子の混ざり具合</td><td class="num">≈ 0.326</td><td class="num">≈ 0.630</td></tr>
+    <tr><td>格子上の ±1 の矢印モデル（3次元 Ising 模型）</td><td>そもそも実在しない、紙の上の模型</td><td class="num">≈ 0.326</td><td class="num">≈ 0.630</td></tr>
+  </table>
+
+  <p>最後の行が効いています。<strong>紙の上ででっち上げた、実在しないおもちゃの模型が、本物の水の測定値を当ててしまう</strong>。分子の形も、力の詳細も、量子力学かどうかさえ入っていないのに。この一群を <strong>3次元 Ising 普遍クラス</strong>と呼びます。</p>
+
+  <p>粗視化が「情報を落とす」だけの操作なら、こんなことは起きません。落とすだけなら、精度が下がって差が<em>ぼやける</em>はず。実際に起きているのは逆で、<strong>粗視化すると差が消えて、答えが一致する</strong>。第1回の図で A と B の見分けがつかなくなったのと、同じことがここで起きています。</p>
+
+  <h2><span class="n">02</span>ブロックスピン ── 粗視化を「繰り返す」</h2>
+
+  <p>カダノフのアイデアはこうです。格子の上に ±1 の矢印が並んでいる。これを 2×2 のブロックにまとめ、<strong>多数決で 1 本の矢印に置き換える</strong>。すると格子は半分の細かさになり、矢印の数は 1/4 になります。第1回のブロック平均と同じ操作です。</p>
+
+  <p>ここからが新しい。<em>できあがったものは、また同じ形の模型になっている</em> ── 格子の上に並んだ ±1 の矢印。ただし<strong>矢印どうしの結びつきの強さ（結合定数）が変わっている</strong>。つまり粗視化とは、「模型 → 模型」という<em>写像</em>なのです。だから何度でも繰り返せる。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 粗視化は、理論を動かす</div>
+    $$\text{模型}(K)\ \xrightarrow{\ \text{2倍に粗視化}\ }\ \text{模型}(K')\ \xrightarrow{\ \ }\ \text{模型}(K'')\ \xrightarrow{\ \ }\cdots$$
+    <p style="margin:8px 0 0;">結合定数 \(K\) が、粗視化のたびに動いていく。この<em>動き</em>を追う数学が <strong>繰り込み群</strong>です。「群」といっても難しくはなく、「粗視化を 2 回やるのは 1 回で 4 倍にするのと同じ」という当たり前の合成則のことです。<strong>物理理論が、解像度という軸の上を流れていく</strong> ── これがこのシリーズの主題であり、第7回のオチにもつながります。</p>
+  </div>
+
+  <h2><span class="n">03</span>固定点と、忘れられる方向</h2>
+
+  <p>流れがあるところには、必ず<strong>流れが止まる点（固定点）</strong>があります。粗視化しても自分自身に戻る模型 ── つまり<em>どの倍率で見ても同じに見える</em>模型です。</p>
+
+  <p>そして固定点のまわりでは、ずれの方向が 2 種類に分かれます。これがすべての鍵です。</p>
+
+  <table class="tbl">
+    <tr><th>方向</th><th>粗視化するとどうなるか</th><th>物理的な意味</th></tr>
+    <tr><td><strong>relevant（効く方向）</strong></td><td>ずれが<em>拡大</em>して固定点から離れていく</td><td>数が少ない。温度・磁場など、実験でつまみを回す量</td></tr>
+    <tr><td><strong>irrelevant（効かない方向）</strong></td><td>ずれが<em>縮小</em>して消える</td><td>圧倒的に多い。分子の形、力の細部、格子の種類 ── <strong>ミクロの出自</strong></td></tr>
+  </table>
+
+  <p>ここで種明かしです。<strong>水と磁石の違いは、すべて irrelevant な方向に入っている</strong>。だから粗視化を繰り返すと差が縮んで消え、両者は同じ固定点に吸い寄せられる。そして臨界指数は<em>固定点のまわりで流れがどれくらいの率で拡大するか</em>だけで決まるので ── <strong>出自にいっさい依存しない</strong>。0.326 という数字は、水の数字でも鉄の数字でもなく、<em>固定点の数字</em>なのです。</p>
+
+  <div class="calc">
+    <span class="tag">場の理論での言い方 ── (E/Λ)ⁿ で死ぬ</span>
+    <p style="margin:2px 0 14px;">素粒子論では同じことをこう書きます。高いエネルギー \(\Lambda\)（ミクロ）の詳細から来る効果は、低いエネルギー \(E\)（マクロ）では $$\left(\frac{E}{\Lambda}\right)^{n}\qquad (n>0)$$ で抑えられる。たとえば原子の物理（\(E\sim\) eV）とプランクスケール（\(\Lambda\sim10^{28}\) eV）なら比は \(10^{-28}\)。<strong>だから化学をやるのに量子重力を知らなくていい</strong>。これを厳密に述べたのが<em>デカップリング定理</em>（アプルクィスト–カラッツォーネ、1975年）── <strong>重い粒子は低エネルギー物理から切り離される</strong>、という定理です。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">これが「層のミルフィーユ」の正体</span>
+    第1回で、世界が独立に閉じた層のミルフィーユになっている、と書きました。その理由がこれです ── <strong>上の階の詳細は irrelevant な方向に入るので、下の階へ流れる途中で捨てられる</strong>。化学者がクォークを知らなくていいのは、化学者が怠けているからではなく、<em>クォークの情報が原理的に化学に届いていない</em>から。層が閉じているのは経験則ではなく、繰り込み群の帰結です。逆に言えば、<strong>低エネルギーの実験からは上の階が見えにくい</strong> ── 素粒子物理が新しい物理を見つけるのに巨大加速器を要する理由も、同じ定理から出ます。
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 臨界点では、どの倍率でも同じに見える</h2>
+
+  <p>下の図は、格子の上の ±1 の矢印（Ising 模型）をブラウザ上でその場で熱平衡に近づけているものです。左端が生の配置（64×64）。右へ行くほど <strong>2×2 の多数決で粗視化</strong>した姿（32²→16²→8²）── これがまさに繰り込み群の流れです。</p>
+
+  <p>温度スライダーを 3 つの領域で試してください。</p>
+
+  <ul>
+    <li><strong>低温（\(T&lt;T_c\)）</strong>：粗視化するほど一色に染まっていく → <em>秩序固定点</em>へ流れる。</li>
+    <li><strong>高温（\(T&gt;T_c\)）</strong>：粗視化するほどただの砂嵐になる → <em>無秩序固定点</em>へ流れる。</li>
+    <li><strong>臨界点ちょうど（\(T=T_c\approx2.269\)）</strong>：ここが見どころです。<em>粗視化しても、模様の見た目がほとんど変わらない</em>。あらゆる大きさの島が入れ子になっていて、倍率を変えても統計的に同じ ── <strong>これが固定点にいる、ということの目に見える意味</strong>です。</li>
+  </ul>
+
+  <div class="fig">
+    <div class="cap">図：2次元 Ising 模型をその場でモンテカルロ計算。左端が生の配置、右へ 2×2 多数決で粗視化（繰り込み群の 1 ステップ＝1 コマ）。低温は一色へ、高温は砂嵐へ流れる。臨界温度ちょうどでは、どのコマも同じに見える（スケール不変＝固定点）</div>
+    <canvas id="cv" width="680" height="230"></canvas>
+    <div class="controls">
+      <label>温度 T（臨界温度は 2.269） <span class="val" id="vt">2.27</span>
+        <input type="range" id="st" min="1.20" max="3.60" step="0.01" value="2.27">
+      </label>
+      <button id="tc">臨界点に合わせる</button>
+      <button id="rs">配置をリセット</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#7a4a10;"></i>矢印 ＋1</span>
+      <span><i class="swatch" style="background:#f2e5c8;"></i>矢印 −1</span>
+    </div>
+  </div>
+
+  <p>臨界点で模様がスケール不変になるということは、<strong>そこには「特徴的な大きさ」がない</strong>ということです。ふつうの物質には「分子の大きさ」「相関の届く距離」といった目印のスケールがありますが、臨界点では相関長が無限大に発散して、目印が消える。目印が消えれば、ミクロの長さも意味を失う ── <em>だから出自が忘れられる</em>。普遍性の正体は、この「特徴的な長さの消失」です。</p>
+
+  <h2><span class="n">05</span>なぜこれが、シリーズの心臓なのか</h2>
+
+  <p>第1回で「捨てても同じ」と言い、第3回で「大きいほど速く捨てる」と言いました。第4回はその上を行きます ── <strong>捨てることが、答えを決めている</strong>。</p>
+
+  <p>臨界指数 0.326 は、水の性質でも鉄の性質でもなく、<em>「捨てる操作」そのものの性質</em>です。だからでっち上げの模型でも当たる。物理量が、物質ではなく<strong>粗視化という操作に属している</strong> ── これは驚くべきことで、実際ウィルソンはこの理解で 1982 年のノーベル物理学賞を受けました。</p>
+
+  <div class="calc">
+    <span class="tag">ひとことで</span>
+    <p style="margin:2px 0 14px;"><strong>粗視化できる</strong>（第1回）→ <strong>粗視化を繰り返せる</strong>（写像になっている）→ <strong>流れには固定点がある</strong> → <strong>固定点の性質だけが残る</strong> → <em>だから世界は、ミクロを知らなくても記述できる</em>。<br>この 5 行が、物理学という営みが可能である理由のほぼ全部です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが確立か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>臨界現象における普遍性（液体–気体臨界点、一軸性強磁性体、二成分流体の相分離、3次元 Ising 模型が同じ臨界指数を持つこと）、その値（\(\beta\approx0.326\)、\(\nu\approx0.630\)。近年は共形ブートストラップにより高精度で決定されています）、カダノフのブロックスピン描像、ウィルソンの繰り込み群と固定点・relevant/irrelevant 方向の分類（1982年ノーベル物理学賞）、有効場の理論における \((E/\Lambda)^n\) 抑制とデカップリング定理（アプルクィスト–カラッツォーネ 1975）は、いずれも確立した物理です。</p>
+    <p style="margin-bottom:0;"><strong>注意点：</strong>① 図は<strong>2次元</strong> Ising 模型（\(T_c=2/\ln(1+\sqrt2)\approx2.269\)、\(\beta=1/8\)）で、目で見せるための実演です。本文の表の数値は<strong>3次元</strong>の値で、両者は別の普遍クラスなので数値は一致しません。② 有限の格子（64×64）と有限の計算時間なので、臨界点の振る舞いは近似的にしか再現されません（有限サイズ効果）。③ 普遍クラスを決めるのは空間次元・秩序変数の対称性・相互作用の到達距離などで、「何でも同じになる」わけではありません ── 異なるクラスは異なる指数を持ちます。④ irrelevant な演算子も、臨界点から離れると補正として顔を出します（補正指数）。「出自が完全に消える」のは、あくまで固定点に十分近いところでの話です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>水と磁石が同じ臨界指数を持つのはなぜか。一文で。
+        <details><summary>答えを見る</summary><div class="ans">両者の違いは繰り込み群の流れの <strong>irrelevant な方向</strong>に入っていて、粗視化を繰り返すうちに縮んで消え、同じ固定点に流れ着くから。臨界指数は固定点まわりの流れの性質だけで決まる。</div></details>
+      </li>
+      <li>「化学者はクォークを知らなくてよい」を、繰り込み群の言葉で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">クォークのスケール（GeV）と化学のスケール（eV）は 9 桁離れており、高エネルギーの詳細は \((E/\Lambda)^n\) で抑えられて低エネルギーに届かない（デカップリング定理）。だから化学は自分の階だけで閉じた法則を持てる。</div></details>
+      </li>
+      <li>臨界点で「どの倍率で見ても同じに見える」のはなぜか。何が消えているのか。
+        <details><summary>答えを見る</summary><div class="ans">相関長が発散して<strong>特徴的な長さが消える</strong>から。目印になる長さがないと、倍率を変えても比較の基準がなく、統計的に同じに見える（スケール不変性）。これが「固定点にいる」ことの目に見える意味。</div></details>
+      </li>
+      <li>粗視化が「情報を落とすだけの操作」でないと言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">落とすだけなら精度が下がって答えがぼやけるはずだが、実際は粗視化するほど<strong>異なる系の答えが一致する</strong>（普遍性）。つまり粗視化は「どの情報が答えに効くか」を選り分ける操作で、落とされたものは最初から答えに入っていない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>捨てることが、答えを決めている</h2>
+    <p>水の臨界点、鉄の磁石、二成分液体、そして紙の上のおもちゃ模型 ── ミクロには何の関係もない 4 つが、<strong>同じ臨界指数 \(\beta\approx0.326,\ \nu\approx0.630\)</strong> を叩き出す。理由は、粗視化が「模型 → 模型」の<em>写像</em>になっていて、繰り返すと理論が<strong>固定点</strong>へ流れるから。固定点のまわりで、ずれは relevant（拡大して残る・数が少ない）と irrelevant（縮んで消える・圧倒的多数）に分かれ、<strong>ミクロの出自はすべて irrelevant 側に入る</strong>。だから忘れられる。</p>
+    <p>臨界点で模様がスケール不変に見えるのは、相関長が発散して<em>特徴的な長さが消えた</em>から。長さの目印が消えれば、ミクロの長さも意味を失う ── これが普遍性の正体です。素粒子論の言葉では \((E/\Lambda)^n\) 抑制とデカップリング定理になり、「化学者はクォークを知らなくていい」が定理になる。<strong>物理量が、物質ではなく〈粗視化という操作〉に属している</strong> ── これがこのシリーズの心臓です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回「粗視化が破れるとき」</span>
+    ここまで 4 回、「捨ててよい」の話をしてきました。次回は逆を数えます ── <strong>捨ててはいけない場所</strong>。臨界点では相関長が発散して全スケールが結合し、乱流ではエネルギーがスケール間を流れ落ち、カオスではミクロがマクロに増幅される。粗視化が破れる場所を並べると、この主張の中身がはっきりします。そして、その最速の破れ方は<em>ブラックホールで起きている</em> ── スクランブリング時間 \(t_*\sim\frac{\beta}{2\pi}\ln S\) という理論限界の話まで行きます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第4回、物理好きの高校生・大学生向け読み物です。臨界現象の普遍性（液体–気体臨界点・一軸性強磁性体・二成分流体・3次元 Ising 模型が同一の普遍クラスに属し臨界指数 \(\beta\approx0.326\)、\(\nu\approx0.630\) を共有すること）、カダノフのブロックスピン変換、ウィルソンの繰り込み群における固定点と relevant／irrelevant 方向の分類（1982年ノーベル物理学賞）、臨界点での相関長発散とスケール不変性、有効場の理論の \((E/\Lambda)^n\) 抑制、およびアプルクィスト–カラッツォーネのデカップリング定理（1975）は、いずれも確立した物理です。図は 2 次元 Ising 模型（臨界温度 \(2/\ln(1+\sqrt2)\approx2.269\)）の有限格子モンテカルロ計算で、可視化のための実演であり、本文表の 3 次元の数値とは別の普遍クラスであること、有限サイズ効果があること、普遍クラスは次元・対称性・相互作用の到達距離で決まり「何でも一致する」わけではないこと、および固定点から離れると irrelevant 演算子が補正として現れることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kurikomi-03-decoherence.html">第3回 大きいほど古典</a>／<a href="wakaru-kurikomi-05-hatan.html">第5回 粗視化が破れるとき</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では温度スライダーで配置が変わり、右へ行くほど粗視化された姿になります。臨界点（2.269）でどのコマも同じに見えるのが見どころです。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd'), tcBtn=document.getElementById('tc'), rsBtn=document.getElementById('rs');
+
+  var L=64, TC=2/Math.log(1+Math.SQRT2);
+  var s=new Int8Array(L*L);
+  var expTab=new Float64Array(9);
+  var running=true;
+
+  function reset(){
+    for(var i=0;i<L*L;i++) s[i]= Math.random()<0.5? -1: 1;
+  }
+  reset();
+
+  function setExp(T){
+    for(var d=0;d<=8;d++) expTab[d]=Math.exp(-d/T);   // dE = 2*s*nsum ∈ {0,4,8}
+  }
+  function sweep(T){
+    setExp(T);
+    for(var n=0;n<L*L;n++){
+      var i=(Math.random()*L)|0, j=(Math.random()*L)|0, k=j*L+i;
+      var up=s[((j-1+L)%L)*L+i], dn=s[((j+1)%L)*L+i],
+          lf=s[j*L+((i-1+L)%L)], rt=s[j*L+((i+1)%L)];
+      var dE=2*s[k]*(up+dn+lf+rt);
+      if(dE<=0 || Math.random()<expTab[dE]) s[k]=-s[k];
+    }
+  }
+  function block(src,n){
+    var m=n>>1, out=new Int8Array(m*m);
+    for(var j=0;j<m;j++) for(var i=0;i<m;i++){
+      var sum=src[(2*j)*n+2*i]+src[(2*j)*n+2*i+1]+src[(2*j+1)*n+2*i]+src[(2*j+1)*n+2*i+1];
+      out[j*m+i]= sum>0? 1 : (sum<0? -1 : (Math.random()<0.5?1:-1));
+    }
+    return out;
+  }
+  function mag(a){ var t=0; for(var i=0;i<a.length;i++) t+=a[i]; return Math.abs(t)/a.length; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function panel(ctx,x,y,size,a,n,label){
+    var cw=size/n;
+    for(var j=0;j<n;j++) for(var i=0;i<n;i++){
+      ctx.fillStyle= a[j*n+i]>0? '#7a4a10' : '#f2e5c8';
+      ctx.fillRect(x+i*cw, y+j*cw, cw+0.6, cw+0.6);
+    }
+    ctx.strokeStyle='#ccbb96'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,size,size);
+    ctx.fillStyle='#7a4a10'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label, x+size/2, y+size+15);
+  }
+
+  var lastT=2.27;
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var T=parseFloat(st.value); vt.textContent=T.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    var size=Math.min((w-5*16)/4, h-40);
+    var y=8, gap=(w-4*size)/5;
+    var a1=s, a2=block(a1,64), a3=block(a2,32), a4=block(a3,16);
+    panel(ctx, gap,            y, size, a1, 64, '生の配置 64×64');
+    panel(ctx, 2*gap+size,     y, size, a2, 32, '粗視化1回 32×32');
+    panel(ctx, 3*gap+2*size,   y, size, a3, 16, '粗視化2回 16×16');
+    panel(ctx, 4*gap+3*size,   y, size, a4,  8, '粗視化3回 8×8');
+
+    var m=mag(s), msg;
+    if(T<TC-0.25) msg='低温側 ── 粗視化するほど<b>一色</b>に染まっていく。流れの先は「秩序固定点」。';
+    else if(T>TC+0.25) msg='高温側 ── 粗視化するほど<b>ただの砂嵐</b>になる。流れの先は「無秩序固定点」。';
+    else msg='臨界点の近く ── <b>どのコマも同じに見える</b>。あらゆる大きさの島が入れ子になり、倍率を変えても統計が変わらない。これが<b>固定点にいる</b>ということ。';
+    rd.innerHTML='温度 T = <b>'+T.toFixed(2)+'</b>（T<sub>c</sub> = '+TC.toFixed(3)+'、T/T<sub>c</sub> = '+(T/TC).toFixed(3)+'）、磁化の大きさ |m| = '+m.toFixed(3)+'。<br>'+msg;
+  }
+
+  function loop(){
+    if(running){
+      var T=parseFloat(st.value);
+      if(Math.abs(T-lastT)>0.15){ lastT=T; }
+      for(var q=0;q<3;q++) sweep(T);
+      draw();
+    }
+    requestAnimationFrame(loop);
+  }
+
+  st.addEventListener('input', draw);
+  tcBtn.addEventListener('click', function(){ st.value=TC.toFixed(2); draw(); });
+  rsBtn.addEventListener('click', function(){ reset(); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(function(){ draw(); loop(); },60);
+})();
+</script>
+</body>
+</html>

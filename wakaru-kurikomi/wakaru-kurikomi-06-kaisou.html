@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漏れている二か所 ── わかる繰り込み 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9fb; --paper-edge:#dcdfe8;   /* 第6回：階層問題＝スレートの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#3d4257; --calc-bg:#e9ebf1;
+    --rule:#d5d8e2; --hair:#b9bece;
+    --acc:#4a4f6a;    /* アクセント＝階層のスレート */
+    --grid:#e4e7ee;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ccd2e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d3d7e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e9ebf1;color:#3d4257;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef0f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#343850;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,#e8eaf1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9ebf1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#343850;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6473;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">第 6 回 ／ 漏れている二か所</span></div>
+  <p class="eyebrow">現代物理最大の二つの謎は、じつはまったく同じ形をしている ── 粗視化が、ここだけ効かない</p>
+  <h1>漏れている二か所
+    <span class="sub">階層問題と、宇宙定数問題。<br>10⁻³⁴ と 10⁻¹²⁰ の桁合わせを要求してくるこの二つは、<br><em>標準模型で唯一 relevant な演算子がちょうど二つしかない</em>ことの、そのまま裏返しだ。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回の relevant / irrelevant、桁の感覚、指数</span>
+    <span>この回の芯：relevant な演算子は、上の階を遮断できない</span>
+  </div>
+
+  <p class="lead">第4回で、粗視化の魔法を見ました ── 上の階の詳細は \((E/\Lambda)^n\) で死に、下の階は自分の言葉で閉じる。おかげで化学者はクォークを知らなくていい。ところが<em>この魔法には、ちょうど二つだけ穴があります</em>。<strong>ヒッグス粒子の質量</strong>と<strong>宇宙定数</strong>。この二つだけは、プランクスケールという遥か上の階からの影響を遮断できず、まともに直撃を受ける。そして観測値は直撃の予想より \(10^{34}\) 倍、\(10^{120}\) 倍も小さい。まるで<em>裸の値と量子補正が、34 桁目まで、120 桁目まで、示し合わせたように打ち消し合っている</em>かのように見える。これが現代物理最大の二つの謎です。そして重要なのは ── <strong>二つは同じ形をしている</strong>。この回では、その形を読みます。</p>
+
+  <h2><span class="n">01</span>なぜ、たいていの量は守られているのか</h2>
+
+  <p>まず、なぜ<em>ふつうは</em>大丈夫なのかを押さえます。量子論では、どんな量にも「もっと高いエネルギーの世界からの補正」が入ります。それでも問題にならないのは、多くの場合<strong>対称性が守ってくれる</strong>からです。</p>
+
+  <table class="tbl">
+    <tr><th>量</th><th>守る対称性</th><th>補正の入り方</th><th>危険度</th></tr>
+    <tr><td>電子の質量</td><td>カイラル対称性</td><td>\(\delta m \propto m\ln(\Lambda/m)\) ── <em>掛け算</em>で入る</td><td>安全（元がゼロならゼロのまま）</td></tr>
+    <tr><td>光子・グルーオンの質量</td><td>ゲージ対称性</td><td>そもそも許されない（ゼロ）</td><td>安全</td></tr>
+    <tr><td>電荷などの結合定数</td><td>（次元 4 の演算子）</td><td>\(\ln\Lambda\) でゆっくり</td><td>安全</td></tr>
+    <tr><td><strong>ヒッグス質量²</strong></td><td><strong>ない</strong></td><td>\(\delta m_H^2 \propto \Lambda^2\) ── <em>足し算</em>で入る</td><td style="color:#a83a22;"><strong>危険</strong></td></tr>
+    <tr><td><strong>宇宙定数（真空エネルギー）</strong></td><td><strong>ない</strong></td><td>\(\delta\rho \propto \Lambda^4\)</td><td style="color:#a83a22;"><strong>最も危険</strong></td></tr>
+  </table>
+
+  <p>電子の質量の行が肝心です。補正が \(m\) に<em>比例</em>する（掛け算で入る）なら、元の値が小さければ補正も小さい ── だから小さいままでいられる。これを「小ささが<strong>技術的に自然</strong>である」といいます。一方、補正が \(\Lambda^2\) と<em>足し算</em>で入ると、元の値が小さくても補正が巨大になり、小ささが維持できません。</p>
+
+  <h2><span class="n">02</span>ヒッグスの 34 桁</h2>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── ヒッグス質量の桁合わせ</span>
+    <p style="margin:2px 0 0;">標準模型を信じるかぎり、量子補正は上限エネルギー \(\Lambda\) の 2 乗で入ります。\(\Lambda\) をプランクスケール \(1.22\times10^{19}\ \mathrm{GeV}\) とすると</p>
+    $$\delta m_H^2 \sim \Lambda^2 \approx 1.5\times10^{38}\ \mathrm{GeV^2}$$
+    <p style="margin:6px 0 0;">ところが実測されたヒッグス質量は 125 GeV、つまり</p>
+    $$m_H^2 \approx 1.6\times10^{4}\ \mathrm{GeV^2}$$
+    <p style="margin-bottom:14px;">比は \(1.6\times10^{4}/1.5\times10^{38}\approx10^{-34}\)。裸の値と補正が <strong>34 桁目まで一致して打ち消し合っている</strong>ことになります。1 兆分の 1 の 1 兆分の 1 のさらに 1 億分の 1。<em>偶然だと思うには苦しい</em>ので、これを<strong>階層問題</strong>と呼びます。</p>
+  </div>
+
+  <h2><span class="n">03</span>宇宙定数の 120 桁</h2>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── こちらは桁違いに悪い</span>
+    <p style="margin:2px 0 0;">真空にも量子ゆらぎのエネルギーがあり、素朴に見積もると \(\Lambda^4\) のオーダー：</p>
+    $$\rho_{\text{理論}}\sim \Lambda^4 \approx (1.22\times10^{19})^4 \approx 2\times10^{76}\ \mathrm{GeV^4}$$
+    <p style="margin:6px 0 0;">観測されている宇宙の加速膨張から出る値は</p>
+    $$\rho_{\text{観測}}\sim 10^{-47}\ \mathrm{GeV^4}$$
+    <p style="margin-bottom:14px;">比はおよそ <strong>\(10^{-123}\)</strong>（見積もりの取り方で \(10^{-120}\) 前後と言われます）。「物理学史上、最悪の理論的予言」と呼ばれることもあります。これが<strong>宇宙定数問題</strong>。</p>
+  </div>
+
+  <h2><span class="n">04</span>この二つが、同じ形である</h2>
+
+  <p>ここがこの回の芯です。第4回の言葉に翻訳すると、なぜこの二つ<em>だけ</em>なのかが一行でわかります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── relevant な演算子は、上の階を遮断できない</div>
+    <table class="tbl" style="margin:10px 0 6px;">
+      <tr><th>演算子の次元 d</th><th>粗視化するとどうなるか</th><th>標準模型での例</th></tr>
+      <tr><td>\(d&gt;4\)：irrelevant</td><td>\((E/\Lambda)^{d-4}\) で<strong>縮む</strong></td><td>ほとんど全部（だから世界は層になる）</td></tr>
+      <tr><td>\(d=4\)：marginal</td><td>\(\ln\) でゆっくり動く</td><td>ゲージ結合、湯川結合</td></tr>
+      <tr><td>\(d&lt;4\)：<strong>relevant</strong></td><td>低エネルギーへ向かうほど<strong>拡大する</strong></td><td style="color:#a83a22;"><strong>ちょうど 2 つだけ</strong></td></tr>
+    </table>
+    <p style="margin:8px 0 0;">その 2 つとは ── <strong>\(d=0\) の単位演算子（＝宇宙定数）</strong>と <strong>\(d=2\) の \(H^\dagger H\)（＝ヒッグス質量²）</strong>。ほかに relevant になりうる項（フェルミオン質量 \(\bar\psi\psi\) は \(d=3\)、ゲージ場の質量 \(A^2\) は \(d=2\)）は、すべて<em>対称性に禁止されて</em>いる。だから<strong>守られていない relevant 演算子は、宇宙にちょうど二つしかない ── そしてその二つが、そのまま現代物理最大の二つの謎になっている</strong>。</p>
+  </div>
+
+  <p>言い換えれば、こういうことです。<em>粗視化が効くのは irrelevant な方向だけ</em>。relevant な方向では、粗視化は情報を捨てるどころか<strong>上の階の情報を拡大して下ろしてくる</strong>。だから遮断できない。<strong>階層問題と宇宙定数問題は「新しい謎」ではなく、〈世界が層になっている〉という同じ一つの事実の、裏側です</strong>。魔法が効く理由と、二か所だけ効かない理由は、同じ定理から出ている。</p>
+
+  <h2><span class="n">05</span>動かしてみる ── 34 桁を合わせるとは、どういうことか</h2>
+
+  <p>「34 桁の一致」がどれくらい異様かは、実際に桁を並べてみるのが早いです。下の図は、<strong>裸の値</strong>と<strong>量子補正</strong>という二つの巨大な数を並べ、スライダーで「何桁目まで一致しているか」を変えるものです。</p>
+
+  <p>一致した桁は打ち消し合って消え、<em>残りカス</em>が私たちの見る物理量になります。ヒッグスなら 34 桁、宇宙定数なら 120 桁あたりまで合わせないと観測値に届かない ── ボタンで二つの問題を切り替えて、目盛りの遠さを比べてみてください。</p>
+
+  <div class="fig">
+    <div class="cap">図：裸の値と量子補正の桁を並べたもの。灰色＝打ち消し合った桁、色つき＝残った桁。スライダーで一致桁数を変えると、残差（＝観測される物理量）が変わる。観測値に届くのに必要な桁数がどれだけ異様かを見る図</div>
+    <canvas id="cv" width="680" height="270"></canvas>
+    <div class="controls">
+      <label>一致している桁数 <span class="val" id="vk">20</span>
+        <input type="range" id="sk" min="0" max="130" step="1" value="20">
+      </label>
+      <button id="mode">問題：ヒッグス質量</button>
+      <button id="fit">観測値に合わせる</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b9bece;"></i>打ち消し合った桁</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>残った桁（＝観測される量）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>では、なぜそうなっているのか</h2>
+
+  <p>答えは出ていません。有力な立場は三つあります。</p>
+
+  <table class="tbl">
+    <tr><th>立場</th><th>主張</th><th>現状</th></tr>
+    <tr><td><strong>① 新しい対称性が守っている</strong></td><td>超対称性などで、\(\Lambda^2\) の補正が別の粒子の寄与と相殺する。つまり「守る対称性がない」が間違い</td><td>もっとも美しい解だが、期待された質量域に超対称粒子が LHC で見つかっていない。楽観は減っている</td></tr>
+    <tr><td><strong>② 人間原理／マルチバース</strong></td><td>宇宙は無数にあり、値は場所ごとに違う。銀河が作れる値の宇宙にしか観測者はいない</td><td>ワインバーグは 1987 年にこの論法で宇宙定数の上限を予言し、1998 年の観測はその範囲に入った。だが検証は難しい</td></tr>
+    <tr><td><strong>③「自然さ」という基準が間違い</strong></td><td>「桁が合っているのは不自然」という直観自体、根拠のない美意識かもしれない</td><td>近年この立場を取る研究者が増えている。ただし代案の予言力は弱い</td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">この回のいちばん大事な一文</span>
+    <strong>粗視化は、二か所だけ漏れる。そしてその二か所は、粗視化が効く理由とまったく同じ定理から出ている。</strong><br>
+    「世界が層になっている」ことと「階層問題があること」は、コインの裏表です。もし relevant な演算子が一つもなければ、宇宙定数もヒッグス質量も存在せず、質量のスケールそのものが決まらない ── つまり物質も原子も生まれない。<em>私たちが困っているこの二つの穴こそ、世界に大きさを与えているもの</em>でもあります。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「桁合わせ」という言い方の射程</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ヒッグス質量の 2 乗に対する量子補正がカットオフの 2 乗で入ること（スカラーには質量を守る対称性がないこと）、フェルミオン質量がカイラル対称性、ゲージ場の質量がゲージ対称性によって守られること、演算子の次元による relevant／marginal／irrelevant の分類、標準模型で対称性に守られない relevant 演算子が単位演算子（宇宙定数）と \(H^\dagger H\) の二つであること、実測値（\(m_H\approx125\) GeV、宇宙定数のエネルギー密度）とプランクスケールからの素朴な見積もりとの比が \(10^{-34}\) と \(10^{-120}\) 程度であること、ワインバーグが 1987 年に人間原理から宇宙定数の上限を与え後の観測がその範囲に入ったことは、いずれも確立した物理・標準的理解です。</p>
+    <p style="margin-bottom:0;"><strong>注意すべきこと：</strong>① 「\(\Lambda^2\) の補正」「裸の値との打ち消し」という言い方は<strong>カットオフ正則化に依存した表現</strong>です。次元正則化のような別の処方では \(\Lambda^2\) の項は現れず、問題は「別のスケール（新粒子の質量など）との間の階層」として立ち現れます。図の「桁を合わせる」描像は直観のための可視化で、厳密な計算手順そのものではありません。② 宇宙定数の \(10^{-120}\) は見積もりの取り方（どのスケールで切るか）で \(10^{-120}\)〜\(10^{-123}\) 程度に振れます。③ そもそも「不自然だから説明が要る」という前提（naturalness）自体が、確立した物理原理ではなく<em>指針</em>であり、その妥当性が現在議論の的になっています ── 本文の立場③がそれです。④ したがってこの回は「未解決の謎を、繰り込み群の言葉で整理するとこう見える」という整理であって、解決を提示するものではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>電子の質量が小さいままでいられて、ヒッグス質量がそうでないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">電子の質量はカイラル対称性に守られていて、補正が \(\delta m\propto m\ln(\Lambda/m)\) と<strong>掛け算</strong>で入る（元が小さければ補正も小さい）。ヒッグスにはそういう対称性がなく、\(\delta m_H^2\propto\Lambda^2\) と<strong>足し算</strong>で入るので、小ささを維持できない。</div></details>
+      </li>
+      <li>「世界が層になっていること」と「階層問題があること」の関係を述べよ。
+        <details><summary>答えを見る</summary><div class="ans">同じ定理の表裏。粗視化で上の階が切り離されるのは irrelevant な方向（\(d>4\)）だけで、relevant な方向（\(d<4\)）では逆に上の階の影響が拡大して下りてくる。守られていない relevant 演算子はちょうど二つ（宇宙定数と \(H^\dagger H\)）しかなく、それがそのまま二大難問になっている。</div></details>
+      </li>
+      <li>宇宙定数問題がヒッグスの階層問題より「ひどい」のはなぜか、桁で答えよ。
+        <details><summary>答えを見る</summary><div class="ans">ヒッグスは \(\Lambda^2\) の補正に対して \(10^{-34}\)。宇宙定数は \(\Lambda^4\) の補正に対して \(10^{-120}\) 程度。次元が高いぶん補正が大きく、要求される桁合わせが 3 倍以上厳しい。</div></details>
+      </li>
+      <li>もし relevant な演算子が一つもなかったら、宇宙はどうなっていたか。
+        <details><summary>答えを見る</summary><div class="ans">質量のスケールを与える項がなくなるので、粒子の質量も真空エネルギーも決まらず、原子のような「大きさを持つ構造」が生まれない。困りものの二つの穴が、同時に世界に大きさを与えている。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第6回まとめ</span>魔法が効く理由と、二か所だけ効かない理由は、同じ定理から出ている</h2>
+    <p>量子補正はふつう対称性に守られます ── 電子の質量はカイラル対称性で、ゲージ場の質量はゲージ対称性で。守られている量は補正が<em>掛け算</em>で入るので、小さいままでいられる。ところが<strong>ヒッグス質量²と真空エネルギーには守る対称性がなく</strong>、補正が \(\Lambda^2\)、\(\Lambda^4\) と<em>足し算</em>で直撃する。結果、観測値に合わせるには <strong>34 桁</strong>と<strong>120 桁</strong>の打ち消し合いが要る。</p>
+    <p>そしてこの二つが「たまたま二つ」なのではありません。第4回の言葉で言えば、<strong>標準模型で対称性に守られていない relevant な演算子（\(d&lt;4\)）が、ちょうど二つしかない</strong>── \(d=0\) の単位演算子（宇宙定数）と \(d=2\) の \(H^\dagger H\)（ヒッグス質量²）。relevant な方向では、粗視化は上の階を遮断するどころか<em>拡大して下ろしてくる</em>。だから<strong>「世界が層になっていること」と「階層問題があること」はコインの裏表</strong>です。答えは出ていません（新しい対称性／人間原理／そもそも自然さが間違い、の三つ巴）。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第7回（最終回）「解像度という次元」</span>
+    最終回では、視点を 180 度ひっくり返します。ここまで「粗視化＝情報を捨てる手続き」として扱ってきましたが、AdS/CFT という理論では ── <strong>バルクの奥行き方向が、そのまま境界理論の繰り込みスケールに対応します</strong>。奥へ進むこと＝粗視化すること。空間の 1 次元が、じつは「解像度の軸」だったのです。すると〈宇宙は粗視化できる〉と〈宇宙はホログラフィックである〉は、<em>同じ主張の二つの記述</em>になる。姉妹編「わかる相対論」最終回の「記述は取り替え可能」と、「わかるブラックホール」第5回のホログラフィック原理が、ここで一本に合流します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ第6回、物理好きの高校生・大学生向け読み物です。スカラー場の質量 2 乗への 2 次発散補正、カイラル対称性によるフェルミオン質量の保護とゲージ対称性によるゲージ場質量の保護、't Hooft の技術的自然さ、演算子次元による relevant／marginal／irrelevant の分類、標準模型で対称性に守られない relevant 演算子が単位演算子と \(H^\dagger H\) の二つであること、ヒッグス質量 125 GeV とプランクスケールの比から来る \(10^{-34}\) 程度の微調整、真空エネルギーの理論見積もりと観測値の比 \(10^{-120}\) 程度、およびワインバーグ（1987）による人間原理からの宇宙定数上限の予言は、いずれも確立した物理・標準的理解です。ただし「\(\Lambda^2\) 補正と裸の値の打ち消し」という表現がカットオフ正則化に依存すること（次元正則化では別の形で現れること）、\(10^{-120}\) が見積もり方に依存すること、そして自然さ（naturalness）が確立した物理原理ではなく議論中の指針であることは本文「正直な線」に明記しました。図は桁合わせの異様さを直観するための可視化で、厳密な計算手順の再現ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kurikomi-05-hatan.html">第5回 粗視化が破れるとき</a>／<a href="wakaru-kurikomi-07-kaizoudo.html">第7回 解像度という次元</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで一致桁数を変えると残差が変わり、ボタンでヒッグス／宇宙定数を切り替えられます。「観測値に合わせる」で必要な桁数まで一気に動きます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'), vk=document.getElementById('vk'),
+      rd=document.getElementById('rd'), modeBtn=document.getElementById('mode'), fitBtn=document.getElementById('fit');
+  var higgs=true;
+
+  // 表示用の桁列（固定のダミー数字）
+  var DIG='31415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679';
+  while(DIG.length<140) DIG+=DIG;
+
+  function cfg(){
+    return higgs
+      ? {name:'ヒッグス質量²', unit:'GeV²', bare:38.18, obs:4.19, need:34, note:'Λ² ＝ (1.22×10¹⁹ GeV)² ≈ 1.5×10³⁸ GeV² に対し、観測は m_H² ≈ 1.6×10⁴ GeV²'}
+      : {name:'真空エネルギー密度', unit:'GeV⁴', bare:76.35, obs:-47, need:123, note:'Λ⁴ ≈ 2×10⁷⁶ GeV⁴ に対し、観測は ρ ≈ 10⁻⁴⁷ GeV⁴'};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function drawRow(ctx,x,y,cw,label,k,total,mode){
+    ctx.fillStyle='#4a4f6a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(label, x, y-6);
+    for(var i=0;i<total;i++){
+      var matched=(i<k);
+      if(mode==='res'){
+        ctx.fillStyle = matched? '#f2f3f7' : '#fbeae6';
+      } else {
+        ctx.fillStyle = matched? '#e5e7ee' : '#fbeae6';
+      }
+      ctx.fillRect(x+i*cw, y, cw-0.8, 15);
+      var ch = (mode==='res' && matched)? '0' : DIG.charAt((mode==='b'? i : i+7)%DIG.length);
+      if(mode==='res' && matched) ch='0';
+      ctx.fillStyle = matched? '#b9bece' : '#a83a22';
+      ctx.font='9px monospace'; ctx.textAlign='center';
+      if(cw>4.2) ctx.fillText(ch, x+i*cw+cw/2-0.4, y+11);
+    }
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var C=cfg();
+    var k=parseInt(sk.value,10); vk.textContent=k+' 桁';
+    ctx.clearRect(0,0,w,h);
+
+    var TOTAL=130, x=14, cw=(w-28)/TOTAL;
+    var y0=34;
+    drawRow(ctx,x,y0,cw,'裸の値（1 桁目は 10^'+C.bare.toFixed(0)+' の位）',k,TOTAL,'b');
+    drawRow(ctx,x,y0+46,cw,'量子補正（符号が逆）',k,TOTAL,'c');
+    ctx.strokeStyle='#b9bece'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,y0+70); ctx.lineTo(x+TOTAL*cw,y0+70); ctx.stroke();
+    drawRow(ctx,x,y0+82,cw,'足し合わせた残り（＝観測される物理量）',k,TOTAL,'res');
+
+    // 目盛り
+    ctx.fillStyle='#7f8496'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+    for(var t=0;t<=130;t+=10){
+      ctx.fillText(t, x+t*cw, y0+114);
+      ctx.strokeStyle='#e4e7ee'; ctx.beginPath();
+      ctx.moveTo(x+t*cw, y0+100); ctx.lineTo(x+t*cw, y0+105); ctx.stroke();
+    }
+    ctx.fillStyle='#4a4f6a'; ctx.font='10px sans-serif';
+    ctx.fillText('一致している桁数', x+TOTAL*cw/2, y0+128);
+
+    // 必要桁のマーカー
+    var xn=x+C.need*cw;
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(xn,y0-18); ctx.lineTo(xn,y0+100); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('観測値にはここ（'+C.need+' 桁）まで必要', Math.min(xn+5, w-190), y0-22);
+
+    // 現在位置
+    var xk=x+k*cw;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(xk,y0-8); ctx.lineTo(xk,y0+100); ctx.stroke();
+
+    modeBtn.textContent='問題：'+(higgs?'ヒッグス質量':'宇宙定数');
+    var resExp=C.bare-k;
+    var extra;
+    if(higgs){
+      extra='→ ヒッグス質量 ≈ <b>10^'+(resExp/2).toFixed(1)+' GeV</b>'+(k===34?'（＝ 125 GeV、正解）':'')
+        +'（観測値は 125 GeV ＝ 10^2.1 GeV）';
+    } else {
+      extra='→ 真空エネルギー密度 ≈ <b>10^'+resExp.toFixed(0)+' GeV⁴</b>（観測値は 10⁻⁴⁷ GeV⁴）';
+    }
+    var verdict;
+    if(k<C.need-3) verdict='まだ全然足りない ── 残差が観測値より <b>10^'+(C.need-k)+' 倍</b>も大きい。';
+    else if(k>C.need+3) verdict='合わせすぎ ── 今度は観測値より小さくなってしまった。';
+    else verdict='ぴったり ── <b>この桁数を「たまたま」で説明できるか?</b> それが '+(higgs?'階層問題':'宇宙定数問題')+' です。';
+    rd.innerHTML=C.note+'。<br>一致桁数 <b>'+k+'</b>／必要 <b>'+C.need+'</b> '+extra+'。<br>'+verdict;
+  }
+
+  sk.addEventListener('input', draw);
+  modeBtn.addEventListener('click', function(){ higgs=!higgs; sk.value=Math.min(130, cfg().need-14); draw(); });
+  fitBtn.addEventListener('click', function(){ sk.value=cfg().need; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
