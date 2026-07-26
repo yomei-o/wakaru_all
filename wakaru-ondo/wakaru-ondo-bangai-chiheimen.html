@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地平面までの光の飛行時間が、温度 ── わかる温度 番外編①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6fbfb; --paper-edge:#cfe3e6;   /* 番外1：地平面＝ペトロールの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#175a63; --calc-bg:#e0eff1;
+    --rule:#cbe0e3; --hair:#a3c6cb;
+    --acc:#1f6f7a;
+    --grid:#ddeef0;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b3dbe0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cde2e5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfeff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e0eff1;color:#15525a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e7f3f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#15525a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfeff,#dcedef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e0eff1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#15525a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5c757a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる温度</span><span class="ep">番外編 ① ／ 地平面までの光の飛行時間が、温度</span></div>
+  <p class="eyebrow">このシリーズで c はどこに出たか、数え直してみる ── 出た場所には、必ず地平面があった</p>
+  <h1>地平面までの光の飛行時間が、温度
+    <span class="sub">$$k_BT=\frac{\hbar}{2\pi\,t_{\rm hor}},\qquad t_{\rm hor}=\frac{L_{\rm hor}}{c}$$
+    <span style="display:block;margin-top:10px;">ウンルーもホーキングも、そして宇宙の地平面も ── <strong>この一行で全部出ます</strong>。<br>そして地上に立つあなたの地平面は、<em>約1光年先</em>にあります。</span></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第6回の虚時間の周期、第7回のウンルー／ホーキング、\(c\cdot t\)</span>
+    <span>この回の芯：βℏ = 2π ×（地平面までの光の飛行時間）</span>
+  </div>
+
+  <p class="lead">本編を書き終えてから、読者にこう聞かれました ── 「温度にもすり抜けにも光速 c が出てくる。なら \(c\cdot t=\)一定 の座標系で見ると、説明が楽になったりしないのか」。いい問いなので、まず<strong>数え直しました</strong>。すると意外なことがわかります ── <em>このシリーズで c が本当に効いているのは、第7回だけ</em>。第1〜6回には c が一度も出てきません。あの<strong>虚時間の周期 \(\beta\hbar\) にすら c は入らない</strong>のです。では \(c\cdot t\) の見方は無駄なのか ── そんなことはありません。<strong>効く場所が一箇所だけあって、そこでは劇的に効きます</strong>。地平面があるところです。そして地平面とは、そもそも<em>光円錐で定義されたもの</em>、つまり \(c\cdot t\) そのものでした。三つの温度が一行になります。</p>
+
+  <h2><span class="n">01</span>数え直す ── このシリーズで c はどこに出たか</h2>
+
+  <table class="tbl">
+    <tr><th>回</th><th>主役の式</th><th class="num">c は？</th></tr>
+    <tr><td>第1回 \(k_B\) は換算係数</td><td class="num">\(E/k_BT\)</td><td class="num">なし</td></tr>
+    <tr><td>第2回 エネルギーの配り方</td><td class="num">\(\beta=d\ln\Omega/dE\)</td><td class="num">なし</td></tr>
+    <tr><td>第3回 熱＝追跡をやめた運動</td><td class="num">\(\hbar\omega/k_BT\)</td><td class="num">なし</td></tr>
+    <tr><td>第4回 ゆらぎの定理</td><td class="num">\(\sigma/k_B\)</td><td class="num">なし</td></tr>
+    <tr><td>第5回 負の温度</td><td class="num">\(\Delta E/k_BT\)</td><td class="num">なし</td></tr>
+    <tr><td>第6回 虚時間の周期</td><td class="num">\(\beta\hbar=\hbar/k_BT\)</td><td class="num"><strong>なし</strong></td></tr>
+    <tr><td><strong>第7回 ウンルー</strong></td><td class="num">\(T=\hbar a/2\pi ck_B\)</td><td class="num"><strong>あり</strong></td></tr>
+  </table>
+
+  <p>第6回に c がないのが効いています。<strong>虚時間の周期 \(\beta\hbar\) は「時間」です。「長さ」ではありません。</strong>だから c を掛けて長さに直しても、ふつうは何も増えない ── 単位を変えただけです。</p>
+
+  <p>すり抜けシリーズでも同じでした。ガモフ因子も BCS ギャップも分かれ目の温度 \(T_0=\hbar\omega_b/2\pi k_B\) も、全部 c なし。<em>非相対論の話だから当然</em>です。</p>
+
+  <div class="keybox">
+    <div class="lbl">最初の結論</div>
+    <p style="margin:0;"><strong>「c が出てくるから \(c\cdot t\) で見よう」は、そのままでは通りません。</strong>c が出てくる場所が、両シリーズ合わせて数えるほどしかないからです。<br>
+    問うべきなのは ── <em>出てきた数箇所には、何か共通の事情があるのか</em>。あります。</p>
+  </div>
+
+  <h2><span class="n">02</span>地平面があると、長さに意味が出る</h2>
+
+  <p>c が本質的に入っている場所を並べると、全部同じ特徴を持っています。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">共通しているのは、地平面</div>
+    <p style="margin:0 0 8px;">ウンルー効果には<strong>リンドラー地平面</strong>があり、ホーキング輻射には<strong>事象の地平面</strong>があり、膨張宇宙には<strong>宇宙の地平面</strong>があります。</p>
+    <p style="margin:8px 0 0;">そして地平面とは何かというと ── <em>「そこから先の光はもう届かない」という境目</em>。定義そのものが光円錐、つまり <strong>\(c\cdot t\)</strong> です。</p>
+    <p style="margin:10px 0 0;"><strong>だから地平面があるときにかぎり、「距離」と「時間」が同じ一つの量になります。</strong>c を掛けるのが単位変換ではなくなる、唯一の場所です。</p>
+  </div>
+
+  <h2><span class="n">03</span>この回の芯 ── 一行にまとめる</h2>
+
+  <p>そこで、地平面までの<strong>光の飛行時間</strong>を \(t_{\rm hor}=L_{\rm hor}/c\) と書くことにします。すると：</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この番外編の芯</div>
+    $$\boxed{\ k_BT=\frac{\hbar}{2\pi\,t_{\rm hor}}\ }
+    \qquad\Longleftrightarrow\qquad \beta\hbar=2\pi\,t_{\rm hor}$$
+    <p style="margin:8px 0 0;">右の形が、第6回とのつながりを見せてくれます ── <strong>「虚時間の周期は、地平面までの光の飛行時間の \(2\pi\) 倍」</strong>。</p>
+    <p style="margin:10px 0 0;">第6回で「温度とは虚時間の円の周の逆数」と書きました。この番外編はその続きです ── <em>その円の周の長さを決めているのが、地平面までの光の飛行時間だった。</em></p>
+  </div>
+
+  <h2><span class="n">04</span>三つを一本にする</h2>
+
+  <div class="calc">
+    <span class="tag">検算 ── 三つとも同じ式から出る</span>
+    <table class="tbl" style="margin:10px 0 4px;">
+      <tr><th>系</th><th class="num">地平面までの距離 \(L_{\rm hor}\)</th><th class="num">\(t_{\rm hor}\)</th><th class="num">出てくる温度</th></tr>
+      <tr><td>加速する観測者</td><td class="num">\(c^2/a\)</td><td class="num">\(c/a\)</td><td class="num">\(T=\dfrac{\hbar a}{2\pi ck_B}\) ✓</td></tr>
+      <tr><td>ブラックホール</td><td class="num">\(2r_s=4GM/c^2\)</td><td class="num">\(4GM/c^3\)</td><td class="num">\(T=\dfrac{\hbar c^3}{8\pi GMk_B}\) ✓</td></tr>
+      <tr><td>膨張宇宙<br>（ド・ジッター）</td><td class="num">\(c/H\)</td><td class="num">\(1/H\)</td><td class="num">\(T=\dfrac{\hbar H}{2\pi k_B}\) ✓</td></tr>
+    </table>
+    <p style="margin:8px 0 0;">ブラックホールの行だけ確かめておきます。\(r_s=2GM/c^2\) なので \(t_{\rm hor}=2r_s/c=4GM/c^3\)。入れると</p>
+    $$k_BT=\frac{\hbar}{2\pi\cdot 4GM/c^3}=\frac{\hbar c^3}{8\pi GM}\quad\Longrightarrow\quad T=\frac{\hbar c^3}{8\pi GMk_B}\ \checkmark$$
+    <p style="margin-bottom:14px;"><strong>三つの式を覚える必要がなくなりました。</strong>覚えるのは「地平面までの光の飛行時間」の一つだけ。<br>
+    もっと言えば、三つとも「表面重力 \(\kappa\) を使って \(T=\hbar\kappa/2\pi ck_B\)」と書けて、\(t_{\rm hor}=c/\kappa\) です ── <em>加速度・表面重力・ハッブル定数は、同じ席に座っている</em>。</p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── つまみは一つ、読みは五つ</h2>
+
+  <p>下の図は、この式そのものです。横軸が \(t_{\rm hor}\)、縦軸が温度。両対数なので、<strong>傾き −1 のまっすぐな一本の線</strong>になります。</p>
+
+  <p>面白いのは、スライダーを動かすと<em>五つの読みが同時に出る</em>ことです ── 同じ \(t_{\rm hor}\) が、「この加速度」「この質量のブラックホール」「このハッブル定数」のどれとしても読める。<strong>物理的にまったく違う三つの状況が、一つの数で指定できてしまいます。</strong></p>
+
+  <div class="fig">
+    <div class="cap">図：k_BT = ℏ/(2π t_hor)。横軸＝地平面までの光の飛行時間（対数）、縦軸＝温度（対数）。両対数で傾き −1 の直線。同じ t_hor が加速度・ブラックホール質量・ハッブル定数のどれとしても読める</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>地平面までの光の飛行時間 t_hor <span class="val" id="vt">1.0 s</span>
+        <input type="range" id="st" min="0" max="1000" step="1" value="700">
+      </label>
+      <button id="b1">地上の重力</button>
+      <button id="b2">太陽質量BH</button>
+      <button id="b3">いまの宇宙</button>
+      <button id="b4">室温になる条件</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f6f7a;"></i>k_BT = ℏ/(2π t_hor)</span>
+      <span><i class="swatch" style="background:#4a4f6a;"></i>実例</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>CMB 2.7 K（地平面温度ではない）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>地上のあなたの地平面は、1光年先</h2>
+
+  <p>この式のいちばん気持ちのいい使い方です。</p>
+
+  <div class="calc">
+    <span class="tag">重力加速度 9.8 m/s² の地平面</span>
+    $$L_{\rm hor}=\frac{c^2}{a}=\frac{(3.00\times10^8)^2}{9.81}=9.2\times10^{15}\ \mathrm{m}\approx \mathbf{0.97\ 光年}$$
+    <p style="margin:6px 0 0;">つまり <strong>\(t_{\rm hor}\approx1\) 年</strong>。そのまま式に入れると：</p>
+    $$T=\frac{\hbar}{2\pi k_B\times 1\ \text{年}}\approx 4\times10^{-20}\ \mathrm{K}$$
+    <p style="margin-bottom:14px;">第7回で出した「地球の重力のウンルー温度 \(4\times10^{-20}\) K」と一致します。<em>「1年」という数字から直接出てくる。</em><br>
+    <strong>いま椅子に座っているあなたの後ろ 1 光年のところに、あなた専用の地平面があります。</strong>（正確には、その加速を無限に続けたときの話。詳しくは正直な線で。）</p>
+  </div>
+
+  <p>逆向きにも使えます。<strong>室温 300 K を感じるには、地平面が何メートル先にあればよいか。</strong></p>
+
+  <div class="calc">
+    <span class="tag">室温の地平面</span>
+    $$t_{\rm hor}=\frac{\hbar}{2\pi k_B\times300\ \mathrm{K}}=4.1\times10^{-15}\ \mathrm{s}
+    \quad\Longrightarrow\quad L_{\rm hor}=c\,t_{\rm hor}=\mathbf{1.2\ \mu m}$$
+    <p style="margin-bottom:14px;">対応する加速度は \(a=c^2/L=7.4\times10^{22}\ \mathrm{m/s^2}\) ── 第7回の表の数字そのものです。<br>
+    そしてもう一つ ── 第6回で「室温の虚時間の周期は <strong>25 フェムト秒</strong>」と書きました。ここで出た \(t_{\rm hor}=4.1\) fs を \(2\pi\) 倍すると 25 fs。<em>同じ一つの数を、別の顔で見ていただけ</em>でした。</p>
+  </div>
+
+  <h2><span class="n">07</span>なぜ効くのか ── \(c\cdot t\) は「角度」を作るための条件だった</h2>
+
+  <p>ここが本題です。<strong>なぜ地平面のあるときだけ \(c\cdot t\) が効くのか。</strong></p>
+
+  <p>第7回の \(2\pi\) を思い出してください。ユークリッド化した時空が<em>極座標になる</em>から出てきました。でも極座標が作れるためには条件があります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">角度になるには、平面が要る</div>
+    <p style="margin:0 0 8px;">相対論的な時空でウィック回転すると、計量はこう変わります：</p>
+    $$-c^2dt^2+dx^2\ \xrightarrow{\ t=-i\tau\ }\ +c^2d\tau^2+dx^2$$
+    <p style="margin:8px 0 0;">右辺は<strong>ふつうのユークリッド平面</strong>です。ただしそう読めるのは、\(c\tau\) と \(x\) が<em>同じ単位で、同じ平面に乗っている</em>から。<strong>\(c\cdot t\) を長さとして扱えること自体が、虚時間を「角度」にするための前提条件</strong>だったのです。</p>
+    <p style="margin:10px 0 0;">平面があるから極座標が作れ、角度が定義でき、1周が \(2\pi\) になり、円錐特異点を避ける条件から周期が決まる ── <em>あの導出は、\(c\cdot t\) の上に立っていました。</em></p>
+  </div>
+
+  <p>逆に、非相対論の系ではこれが使えません。ポテンシャル中の粒子にとって、虚時間 \(\tau\) と空間 \(x\) を混ぜる計量はありません。<strong>平面がないので、角度も作れない。</strong></p>
+
+  <h2><span class="n">08</span>だから、すり抜け第3回の \(2\pi\) は「第2段」だった</h2>
+
+  <p>姉妹編「わかるすり抜け」第3回で、熱とすり抜けの分かれ目 \(T_0=\hbar\omega_b/2\pi k_B\) を出しました。ウンルー温度と<em>字面がそっくり</em>です。あのときは「同じ \(2\pi\)」と書きましたが、\(c\cdot t\) の視点を入れると、もっと正確に言えます。</p>
+
+  <table class="tbl">
+    <tr><th></th><th>ウンルー \(T=\hbar(a/c)/2\pi k_B\)</th><th>すり抜け第3回 \(T_0=\hbar\omega_b/2\pi k_B\)</th></tr>
+    <tr><td>\(2\pi\) の出どころ</td><td><strong>幾何</strong>（角度の1周）</td><td><strong>力学</strong>（調和振動の1往復）</td></tr>
+    <tr><td>\(c\cdot t\) が要るか</td><td><strong>要る</strong>（平面がないと角度が作れない）</td><td>不要</td></tr>
+    <tr><td>地平面はあるか</td><td>ある</td><td>ない</td></tr>
+    <tr><td>\(2\pi/\omega\) の \(\omega\) は</td><td>\(a/c\)（＝\(1/t_{\rm hor}\)）</td><td>\(\omega_b\)（障壁頂上の振動数）</td></tr>
+    <tr><td>判定</td><td colspan="2"><strong>第2段</strong> ── 同じ枠組み（虚時間方向の周期が \(2\pi/\omega\)）の<em>別実装</em>。第3段（一方から他方が導ける）ではない</td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">三段の分類が、また役に立つ</span>
+    「わかるすり抜け」第5回で作った<strong>「似ている」の三段</strong>（第1段＝形が同じ／第2段＝同じ枠組みの別解／第3段＝一方から他方が導ける）が、ここでも使えます。<br>
+    ウンルー・ホーキング・ド・ジッターの三つは、<em>互いに第3段</em>です ── どれも「ユークリッド化した時空に円錐特異点を作らない」という同じ条件から出るので、本当に同じ現象。だからこの番外編の一行にまとまります。<br>
+    一方、すり抜け第3回の \(T_0\) は<strong>第2段どまり</strong>。同じ「虚時間の周期性」という枠組みにはいますが、地平面も計量も出てきません。<em>兄弟ではあるが、親子ではない。</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── これは「書き直し」であって新発見ではない</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ウンルー温度 \(T=\hbar a/2\pi ck_B\)、ホーキング温度 \(T=\hbar c^3/8\pi GMk_B\)、ギボンズ–ホーキング温度 \(T=\hbar H/2\pi k_B\)（1977、ド・ジッター時空の静的パッチ）；三つとも表面重力 \(\kappa\) を用いて \(T=\hbar\kappa/2\pi ck_B\) と統一的に書けること；リンドラー地平面が加速する観測者から \(c^2/a\) の距離にあること；シュヴァルツシルト半径 \(r_s=2GM/c^2\)；数値（地上の重力で \(4\times10^{-20}\) K、太陽質量で \(6.2\times10^{-8}\) K、月質量で 1.7 K、いまの宇宙で \(2.7\times10^{-30}\) K）。いずれも標準的な結果です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>この番外編は既知の三つの式の書き直しであって、新しい物理ではありません。</strong>「表面重力で書く」という統一は教科書的で、それを「光の飛行時間」に読み替えただけです。役に立つのは記憶と直感であって、内容は増えていません。② <strong>ド・ジッター地平面の温度（\(2.7\times10^{-30}\) K）は、CMB の温度（2.7 K）とはまったく別物です。</strong>桁が 30 違います。前者は地平面が出す熱、後者は膨張で薄まった放射。混ぜないでください。③ 関連して、<em>「\(c\cdot t=\)一定 だから温度が \(1/t\)」と言えるのは地平面温度のほう</em>です。放射優勢期の CMB 温度は \(a(t)\propto t^{1/2}\) なので \(T\propto t^{-1/2}\) であって \(1/t\) ではありません。④ 「地平面までの距離」には流儀があります。リンドラーの \(c^2/a\) は厳密ですが、ブラックホールで \(t_{\rm hor}=2r_s/c\) と置いたのは<em>式の形をそろえるための選び方</em>です（表面重力から一意に決まりますが、「半径」ではなく「直径の光横断時間」になる点に注意）。⑤ ギボンズ–ホーキング温度は<strong>ド・ジッター時空の静的パッチ</strong>についての結果で、一般の膨張宇宙の「地平面温度」はもっと微妙です（宇宙が加速膨張していない時期には、そもそも定常的な地平面温度が定義しにくい）。⑥ <strong>ウンルー効果もホーキング輻射も直接観測されていません</strong>（第7回の正直な線と同じ）。⑦ 「あなたの後ろ 1 光年に地平面がある」は、<em>その加速度で無限の過去から無限の未来まで加速し続けた場合</em>の理想化です。地球に立っているだけでは、その地平面は実際には形成されません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>なぜ第1〜6回では \(c\cdot t\) の視点が役に立たないのか。
+        <details><summary>答えを見る</summary><div class="ans">第6回までに出てくる量に <strong>c が入っていない</strong>から。とくに虚時間の周期 \(\beta\hbar\) は<em>時間</em>であって、c を掛けて長さにしても単位が変わるだけ。<strong>「長さ」に物理的な意味が生じるのは、地平面という距離が実在するときだけ</strong>。</div></details>
+      </li>
+      <li>ブラックホールの \(t_{\rm hor}\) を求め、ホーキング温度を導け。
+        <details><summary>答えを見る</summary><div class="ans">\(t_{\rm hor}=2r_s/c=4GM/c^3\)。これを \(k_BT=\hbar/2\pi t_{\rm hor}\) に入れると \(k_BT=\hbar c^3/8\pi GM\)、つまり <strong>\(T=\hbar c^3/8\pi GMk_B\)</strong>。第7回の式そのもの。</div></details>
+      </li>
+      <li>室温を感じるには地平面が何メートル先にあればよいか。
+        <details><summary>答えを見る</summary><div class="ans">\(t_{\rm hor}=\hbar/(2\pi k_B\times300)=4.1\times10^{-15}\) s なので \(L=ct_{\rm hor}=\) <strong>約 1.2 μm</strong>。対応する加速度は \(c^2/L=7.4\times10^{22}\) m/s²（第7回の表と一致）。<em>そして \(2\pi t_{\rm hor}=25\) fs は、第6回の「室温の虚時間の周期」そのもの。</em></div></details>
+      </li>
+      <li>すり抜け第3回の \(T_0=\hbar\omega_b/2\pi k_B\) は、なぜウンルーと「第3段」ではないのか。
+        <details><summary>答えを見る</summary><div class="ans">ウンルーの \(2\pi\) は<strong>幾何</strong>（ユークリッド平面の角度の1周）から出るが、\(T_0\) の \(2\pi\) は<strong>力学</strong>（反転した谷での調和振動の1往復）から出るから。前者には計量と地平面が要り、後者には要らない。<em>同じ「虚時間の周期性」という枠組みの別実装＝第2段</em>で、一方から他方は導けない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編①まとめ</span>c が効くのは、地平面があるときだけ</h2>
+    <p>数え直すと、このシリーズで c が本質的に効いているのは<strong>第7回だけ</strong>でした。第1〜6回にはゼロ ── 虚時間の周期 \(\beta\hbar\) にすら入りません。あれは「時間」であって「長さ」ではないからです。</p>
+    <p>ところが c が出てくる場所には、必ず<strong>地平面</strong>があります。地平面とは「そこから先の光は届かない」境目、つまり定義そのものが \(c\cdot t\)。<em>距離と時間が同じ一つの量になる、唯一の場所</em>です。そこで \(t_{\rm hor}=L_{\rm hor}/c\) と置くと ──</p>
+    <p style="text-align:center;margin:14px 0;"><strong>\(k_BT=\dfrac{\hbar}{2\pi\,t_{\rm hor}}\)　つまり　\(\beta\hbar=2\pi\,t_{\rm hor}\)</strong></p>
+    <p>ウンルー・ホーキング・ド・ジッターの三つが<strong>この一行で全部出ます</strong>。第6回の「温度＝虚時間の円の周の逆数」の続きで、<em>その円の周を決めていたのが地平面までの光の飛行時間だった</em>ということ。地上のあなたの地平面は約1光年先＝1年で、そこから \(4\times10^{-20}\) K が直接出ます。</p>
+    <p>そしてなぜ効くのか ── <strong>\(c\cdot t\) を長さとして扱えることが、虚時間を「角度」にするための前提条件だった</strong>から。相対論的な計量が \(c\tau\) と \(x\) を同じ平面に乗せてくれるので極座標が作れ、\(2\pi\) が出る。非相対論の系にはその平面がないので、すり抜け第3回の \(2\pi\) は<em>力学から出る別実装＝第2段</em>でした。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">つながる先</span>
+    この一行は、四つのシリーズを串刺しにします ── <strong>ウンルーとホーキング</strong>は本編 <a href="wakaru-ondo-07-unruh.html">第7回</a>と <a href="../wakaru-blackhole/index.html">わかるブラックホール</a>へ。<strong>虚時間の周期</strong>は <a href="wakaru-ondo-06-kyojikan.html">第6回</a>と <a href="../wakaru/index.html">わかる宇宙論</a> 第9回へ。<strong>2π の別実装</strong>は <a href="../wakaru-surinuke/index.html">わかるすり抜け</a> 第3回へ。そして<strong>「似ている」の三段</strong>は同シリーズ第5回へ。<br>
+    全集の見取り図は<em><a href="../butsuri-rittai.html">物理の立方体</a></em>にあります ── この回の式 \(k_BT=\hbar/2\pi t_{\rm hor}\) には \(\hbar\)・\(c\)・\(k_B\) が入り、ブラックホールに当てれば \(G\) も入る。<strong>4本の軸が全部そろう、数少ない式のひとつ</strong>です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる温度」シリーズ番外編①、物理好きの高校生・大学生向け読み物です。ウンルー温度、ホーキング温度、ギボンズ–ホーキング温度（1977）、および三つが表面重力 \(\kappa\) を通じて \(T=\hbar\kappa/2\pi ck_B\) と統一的に書けること、リンドラー地平面までの距離 \(c^2/a\)、シュヴァルツシルト半径、ならびに本文中の数値（地上の重力で \(4\times10^{-20}\) K、太陽質量で \(6.2\times10^{-8}\) K、月質量で 1.7 K、現在の宇宙で \(2.7\times10^{-30}\) K）は、いずれも標準的な結果です。本番外編が既知の式の<strong>書き直し</strong>であって新しい物理ではないこと、ド・ジッター地平面の温度と CMB の温度がまったく別物で桁が 30 違うこと、放射優勢期の CMB 温度が \(T\propto t^{-1/2}\) であって \(1/t\) ではないこと、ブラックホールで \(t_{\rm hor}=2r_s/c\) と置いたのが式の形をそろえるための選び方であること、ギボンズ–ホーキング温度がド・ジッター時空の静的パッチについての結果で一般の膨張宇宙ではより微妙であること、ウンルー効果とホーキング輻射がいずれも直接観測されていないこと、および「1光年先の地平面」が無限に続く一定加速度の理想化であることは、本文「正直な線」に明記しました。図は \(k_BT=\hbar/2\pi t_{\rm hor}\) をブラウザ内で計算し、同じ \(t_{\rm hor}\) を加速度・ブラックホール質量・ハッブル定数に換算して同時表示しています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。本編：<a href="wakaru-ondo-06-kyojikan.html">第6回 虚時間の周期が、温度</a>／<a href="wakaru-ondo-07-unruh.html">第7回 加速すると、熱くなる</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-surinuke/index.html">わかるすり抜け</a>・<a href="../wakaru-blackhole/index.html">わかるブラックホール</a>・<a href="../wakaru/index.html">わかる宇宙論</a>・<a href="../butsuri-rittai.html">物理の立方体</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダー一つで、地平面までの時間・距離・温度・等価な加速度・等価なブラックホール質量・等価なハッブル定数が同時に出ます。ボタンで実例に飛べます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd');
+  var b1=document.getElementById('b1'), b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'), b4=document.getElementById('b4');
+
+  var HBAR=1.054572e-34, KB=1.380649e-23, C=2.99792458e8, G=6.67430e-11;
+  var MSUN=1.98892e30, MMOON=7.342e22, LY=9.4607e15, YR=3.15576e7;
+
+  function Tof(t){ return HBAR/(2*Math.PI*KB*t); }        // K
+  function tOfT(T){ return HBAR/(2*Math.PI*KB*T); }       // s
+
+  var LT0=-44, LT1=19;                                     // t_hor の対数範囲 [s]
+  function tFrom(s){ return Math.pow(10, LT0+(LT1-LT0)*s/1000); }
+  function sFrom(t){ return Math.round((Math.log10(t)-LT0)/(LT1-LT0)*1000); }
+
+  function fmtSI(v,unit){
+    if(!isFinite(v)||v<=0) return '0 '+unit;
+    var e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+    if(e>=-2&&e<=4) return v.toPrecision(3)+' '+unit;
+    return m.toFixed(2)+'×10^'+e+' '+unit;
+  }
+  function fmtTime(t){
+    if(t>=YR) return fmtSI(t/YR,'年');
+    if(t>=1) return fmtSI(t,'s');
+    if(t>=1e-3) return (t*1e3).toPrecision(3)+' ms';
+    if(t>=1e-6) return (t*1e6).toPrecision(3)+' μs';
+    if(t>=1e-9) return (t*1e9).toPrecision(3)+' ns';
+    if(t>=1e-12) return (t*1e12).toPrecision(3)+' ps';
+    if(t>=1e-15) return (t*1e15).toPrecision(3)+' fs';
+    return fmtSI(t,'s');
+  }
+  function fmtLen(L){
+    if(L>=LY) return fmtSI(L/LY,'光年');
+    if(L>=1e3) return (L/1e3).toPrecision(3)+' km';
+    if(L>=1e-3) return fmtSI(L,'m');
+    if(L>=1e-6) return (L*1e6).toPrecision(3)+' μm';
+    if(L>=1e-9) return (L*1e9).toPrecision(3)+' nm';
+    return fmtSI(L,'m');
+  }
+  function fmtMass(M){
+    if(M>=1e28) return (M/MSUN).toPrecision(3)+' M☉';
+    if(M>=1e20) return (M/MMOON).toPrecision(3)+' M月';
+    return fmtSI(M,'kg');
+  }
+
+  var MARKS=[
+    {t:5.391e-44,  n:'プランク時間'},
+    {t:tOfT(300),  n:'室温になる条件'},
+    {t:4*G*MSUN/(C*C*C),  n:'太陽質量BH'},
+    {t:4*G*MMOON/(C*C*C), n:'月質量BH'},
+    {t:C/9.81,     n:'地上の重力（≈1年）'},
+    {t:4.578e17,   n:'いまの宇宙の地平面'}
+  ];
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var t=tFrom(parseInt(st.value,10));
+    vt.textContent=fmtTime(t);
+    var T=Tof(t), L=C*t, a=C/t, M=C*C*C*t/(4*G), H=1/t;
+    ctx.clearRect(0,0,w,h);
+
+    var L0=58, R=w-16, TT=58, B=h-42;
+    var lyLo=-33, lyHi=34;
+    function X(lt){ return L0+(R-L0)*(lt-LT0)/(LT1-LT0); }
+    function Y(ly){ return B-(B-TT)*(Math.max(Math.min(ly,lyHi),lyLo)-lyLo)/(lyHi-lyLo); }
+
+    ctx.strokeStyle='#a3c6cb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L0,TT); ctx.lineTo(L0,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#5c757a'; ctx.textAlign='right';
+    for(var ly=-30;ly<=30;ly+=15){ ctx.fillText('10^'+ly+' K', L0-5, Y(ly)+4); }
+    ctx.save(); ctx.translate(13,(TT+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('地平面温度 T',0,0); ctx.restore();
+    ctx.textAlign='center';
+    for(var lt=-40;lt<=15;lt+=10){
+      ctx.strokeStyle='#ddeef0'; ctx.beginPath(); ctx.moveTo(X(lt),TT); ctx.lineTo(X(lt),B); ctx.stroke();
+      ctx.fillStyle='#5c757a'; ctx.fillText('10^'+lt+' s', X(lt), B+15);
+    }
+    ctx.fillText('地平面までの光の飛行時間 t_hor（対数）', (L0+R)/2, B+31);
+
+    // CMB の参照線（地平面温度ではない）
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L0,Y(Math.log10(2.725))); ctx.lineTo(R,Y(Math.log10(2.725))); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('CMB 2.7 K ── これは地平面温度ではありません', L0+6, Y(Math.log10(2.725))-5);
+
+    // 本線
+    ctx.strokeStyle='#1f6f7a'; ctx.lineWidth=3; ctx.beginPath();
+    for(var i=0;i<=200;i++){
+      var lt2=LT0+(LT1-LT0)*i/200, tv=Math.pow(10,lt2);
+      var lyv=Math.log10(Tof(tv));
+      if(i===0)ctx.moveTo(X(lt2),Y(lyv)); else ctx.lineTo(X(lt2),Y(lyv));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#15525a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('k_BT = ℏ / (2π t_hor)　── 両対数で傾き −1 の直線', L0+6, TT-10);
+
+    // 実例
+    ctx.font='9.5px sans-serif';
+    for(var m=0;m<MARKS.length;m++){
+      var mk=MARKS[m], lt3=Math.log10(mk.t), ly3=Math.log10(Tof(mk.t));
+      if(lt3<LT0||lt3>LT1) continue;
+      var xx=X(lt3), yy=Y(ly3);
+      ctx.fillStyle='#4a4f6a'; ctx.beginPath(); ctx.arc(xx,yy,4,0,7); ctx.fill();
+      ctx.textAlign = xx>(L0+R)*0.6? 'right':'left';
+      ctx.fillText(mk.n, xx+(xx>(L0+R)*0.6? -7:7), yy+(m%2? 13:-7));
+    }
+
+    // カーソル
+    var ltc=Math.log10(t), lyc=Math.log10(T);
+    ctx.strokeStyle='#1f6f7a'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(X(ltc),TT); ctx.lineTo(X(ltc),B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L0,Y(lyc)); ctx.lineTo(R,Y(lyc)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#1f6f7a'; ctx.beginPath(); ctx.arc(X(ltc),Y(lyc),6.5,0,7); ctx.fill();
+
+    var cmp;
+    if(T>2.725*1.05) cmp='<b style="color:#a83a22">CMB より熱い</b>';
+    else if(T<2.725*0.95) cmp='CMB より冷たい';
+    else cmp='ちょうど CMB と同じくらい';
+
+    rd.innerHTML='<b>t_hor = '+fmtTime(t)+'</b>　→　地平面までの距離 <b>'+fmtLen(L)+'</b>、温度 <b>'+fmtSI(T,'K')+'</b>（'+cmp+'）<br>'
+      +'同じ t_hor は、こう読み替えられます ── '
+      +'加速度 <b>'+fmtSI(a,'m/s²')+'</b>　／　ブラックホール質量 <b>'+fmtMass(M)+'</b>　／　ハッブル定数 <b>'+fmtSI(H,'/s')+'</b><br>'
+      +'<b>物理的にまったく違う三つの状況が、一つの数で指定できます。</b>虚時間の周期は βℏ = 2π t_hor = <b>'+fmtTime(2*Math.PI*t)+'</b>。';
+  }
+
+  st.addEventListener('input', draw);
+  b1.addEventListener('click', function(){ st.value=sFrom(C/9.81); draw(); });
+  b2.addEventListener('click', function(){ st.value=sFrom(4*G*MSUN/(C*C*C)); draw(); });
+  b3.addEventListener('click', function(){ st.value=sFrom(4.578e17); draw(); });
+  b4.addEventListener('click', function(){ st.value=sFrom(tOfT(300)); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
