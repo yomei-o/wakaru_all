@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原子1個が見えるのは、指数だから ── わかるすり抜け 番外編③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbf8; --paper-edge:#d3e3d8;   /* 番外3：STM＝深緑の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#27503c; --calc-bg:#e3efe7;
+    --rule:#cee0d4; --hair:#a8c6b4;
+    --acc:#35654d;
+    --grid:#e0eee5;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bcdcc7 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfe2d5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e3efe7;color:#27503c;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f2ec;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#27503c;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefc,#dfeee4);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3efe7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#27503c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f7568;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるすり抜け</span><span class="ep">番外編 ③ ／ 原子1個が見えるのは、指数だから</span></div>
+  <p class="eyebrow">ここまで指数の急峻さは邪魔者だった ── この回では、それが道具になる</p>
+  <h1>原子1個が見えるのは、指数だから
+    <span class="sub">走査トンネル顕微鏡が原子を見分ける理由は、レンズでも波長でもありません。<br><em>距離が 0.1 nm 変わるだけで、電流が 1 桁変わる</em> ── <strong>指数の急峻さが、そのまま分解能</strong>。<br>おまけに探針は、自分で自分を尖らせます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の \(I\propto e^{-2\kappa d}\) だけ</span>
+    <span>この回の芯：0.1 nm で ×10</span>
+  </div>
+
+  <p class="lead">光学顕微鏡は光の波長（数百 nm）より細かいものを見られません。電子顕微鏡は波長を短くしてこれを突破しましたが、それでも巨大な装置と高電圧が要ります。ところが 1981 年、IBM チューリッヒ研究所のビーニッヒとローラーが、まったく別の原理で<strong>原子を1個ずつ見る装置</strong>を作りました。仕組みは拍子抜けするほど単純です ── <em>尖った針を表面すれすれに近づけ、すり抜けてくる電流を測る</em>。それだけ。<strong>なぜこれで原子が見えるのか</strong>が、この回の主題です。答えは第1回の一行に尽きています ── すり抜けは指数の肩に乗っている。だから距離のわずかな違いが、電流の巨大な違いになる。<em>邪魔者だった急峻さが、ここでは最高の道具に変わります。</em></p>
+
+  <h2><span class="n">01</span>数字を入れてみる</h2>
+
+  <div class="calc">
+    <span class="tag">0.1 nm で、何倍変わるか</span>
+    <p style="margin:2px 0 0;">探針と試料のあいだの障壁の高さは、金属の<em>仕事関数</em>で決まります（典型的に \(\phi\approx4\) eV）。第1回の式に入れると：</p>
+    $$\kappa=\frac{\sqrt{2m\phi}}{\hbar}=5.12\sqrt{\phi[\mathrm{eV}]}\ \mathrm{nm^{-1}}\approx10.2\ \mathrm{nm^{-1}}$$
+    $$I\propto e^{-2\kappa d}\quad\Longrightarrow\quad
+    \frac{I(d)}{I(d+0.1\,\mathrm{nm})}=e^{2\times10.2\times0.1}=e^{2.05}\approx \mathbf{7.8}$$
+    <p style="margin-bottom:14px;"><strong>0.1 nm 離れるだけで、電流が約 8 分の 1</strong>。ほぼ 1 桁です。<br>
+    原子の大きさは 0.1〜0.3 nm。つまり<em>表面の凸凹がそのまま桁の違いとして出てくる</em> ── これが原子分解能の正体です。</p>
+  </div>
+
+  <h2><span class="n">02</span>探針は、自分で自分を尖らせる</h2>
+
+  <p>ここが一番面白いところです。「原子1個を見るには、原子1個の探針が要るのでは？」── <strong>要りません。</strong>むしろ、多少ぼんやりした針でも自動的に原子1個ぶんの分解能になります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 一番前の原子が、ほぼ全部の電流を運ぶ</div>
+    <p style="margin:0 0 8px;">どんなに雑に作った針でも、先端のどこかに<em>いちばん前に出ている原子が1個</em>あります。2番目の原子がその 0.2 nm 後ろにいるとすると、その原子が運ぶ電流の割合は</p>
+    $$e^{-2\kappa\times0.2\,\mathrm{nm}}=e^{-4.1}\approx 0.017$$
+    <p style="margin:8px 0 0;"><strong>つまり一番前の1個が、電流の 98% を運びます。</strong>2番目以降はほとんど寄与しない。<em>指数が、勝手に「実効的な探針」を原子1個に絞ってくれる</em>のです。</p>
+    <p style="margin:10px 0 0;">これが、他の顕微鏡と決定的に違うところです。レンズの世界では、装置の精度がそのまま分解能の限界になります。指数の世界では、<strong>装置がいい加減でも、物理が勝手に絞る</strong>。</p>
+  </div>
+
+  <h2><span class="n">03</span>動かしてみる ── 表面の凸凹が、桁になる</h2>
+
+  <p>下の図は、原子が並んだ表面の上を探針が走査する様子です。上段が横から見た断面（探針の高さと表面の凸凹）、下段が測れる電流。<strong>縦軸が対数であることに注意してください</strong> ── わずか 0.05 nm の起伏が、電流では何倍もの山谷になります。</p>
+
+  <p>「一番前の原子の寄与」の表示も見てください。ギャップを広げるとぼやけ、狭めると鋭くなる ── <em>分解能そのものが、指数の肩の上で決まっています</em>。</p>
+
+  <div class="fig">
+    <div class="cap">図：上＝原子が並んだ表面と、その上を走る探針（横から見た断面）。下＝測れるトンネル電流（対数目盛り）。表面のわずかな起伏が、電流では桁の違いになる。右上に「一番前の原子が運ぶ電流の割合」を表示</div>
+    <canvas id="cv" width="680" height="350"></canvas>
+    <div class="controls">
+      <label>探針と表面のギャップ d <span class="val" id="vd">0.60 nm</span>
+        <input type="range" id="sd" min="30" max="120" step="1" value="60">
+      </label>
+      <label>仕事関数 φ <span class="val" id="vp">4.0 eV</span>
+        <input type="range" id="sp" min="10" max="70" step="1" value="40">
+      </label>
+      <label>表面の起伏（振幅） <span class="val" id="vh">0.050 nm</span>
+        <input type="range" id="sh" min="5" max="150" step="1" value="50">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#35654d;"></i>表面（原子の並び）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>探針の軌跡</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>トンネル電流（対数）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>実際にどう使うか ── 定電流モード</h2>
+
+  <p>実際の装置は、電流を測るのではなく<strong>電流を一定に保つように探針の高さを調節</strong>します（定電流モード）。そのときの上下動を記録すると、それが「原子の地図」になる。</p>
+
+  <p>なぜそうするかというと、電流が指数なので<em>そのまま測ると桁が飛びすぎて扱いにくい</em>から。対数を取って高さに戻す、という操作をフィードバック回路にやらせているわけです。<strong>指数の急峻さは分解能の源であり、同時に扱いにくさの源でもあります。</strong></p>
+
+  <table class="tbl">
+    <tr><th>量</th><th class="num">典型値</th></tr>
+    <tr><td>探針と試料のギャップ</td><td class="num">0.5〜1 nm</td></tr>
+    <tr><td>バイアス電圧</td><td class="num">10 mV 〜 数 V</td></tr>
+    <tr><td>トンネル電流</td><td class="num">10 pA 〜 10 nA</td></tr>
+    <tr><td>面内の分解能</td><td class="num">約 0.1 nm</td></tr>
+    <tr><td><strong>高さ方向の分解能</strong></td><td class="num"><strong>約 0.01 nm</strong>（原子の 30 分の 1）</td></tr>
+  </table>
+
+  <p>高さ方向が桁違いに良いことに注目してください。<em>指数が効くのは距離方向だから</em>です。</p>
+
+  <h2><span class="n">05</span>見るだけでなく、並べる</h2>
+
+  <div class="aside">
+    <span class="tag">1990年、35個のキセノン原子で「IBM」と書く</span>
+    アイグラーとシュヴァイツァーは、探針を原子に十分近づけると<strong>原子を引きずって動かせる</strong>ことを示しました。ニッケル表面のキセノン原子 35 個を並べて、企業ロゴを書いたのです。<em>人類が初めて、原子を1個ずつ意図した場所に置いた瞬間</em>でした。</p>
+    <p style="margin:10px 0 0;">さらに 1993年、クロミー・ルッツ・アイグラーは鉄原子 48 個を円形に並べ（<strong>量子囲い（quantum corral）</strong>）、その中に閉じこめられた表面電子の<em>定在波の模様</em>を撮影しました。教科書に出てくる「箱の中の粒子」の波動関数が、写真として撮られた ── 姉妹編「わかる量子」の絵が、そのまま実物になった例です。
+  </div>
+
+  <h2><span class="n">06</span>ただし ── 見えているのは「形」ではない</h2>
+
+  <p>重要な注意です。STM の画像は<strong>表面の凸凹（地形）ではありません</strong>。測っているのはトンネル電流で、それは<em>その場所・そのエネルギーでの電子の状態密度</em>に比例します（テルソフ–ハマンの近似）。</p>
+
+  <p>だから、こういうことが起きます ── <strong>物理的に出っ張っている原子が、暗く写ることがある</strong>。逆に、平らな場所に電子状態が集中していれば明るく写る。バイアス電圧を変えると、同じ場所の像が変わることさえあります。</p>
+
+  <p>これは欠点ではなく<em>機能</em>でもあって、電圧を掃引しながら測れば（走査トンネル分光）、原子1個ごとのエネルギー準位が読めます。<strong>STM は顕微鏡であると同時に、原子1個ぶんの分光器です。</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>トンネル電流の距離依存 \(I\propto e^{-2\kappa d}\) と \(\kappa=\sqrt{2m\phi}/\hbar\)；典型的な仕事関数（4〜5 eV）で 0.1 nm あたり約 1 桁の変化；一番前の原子が電流の大半を運ぶこと；ビーニッヒとローラーによる STM の発明（1981、1986年ノーベル物理学賞）；定電流モードの動作；面内 0.1 nm・高さ 0.01 nm 級の分解能；アイグラーとシュヴァイツァーによる原子操作（1990）とクロミーらの量子囲い（1993）；STM が測るのが局所状態密度であること（テルソフ–ハマンの理論）。いずれも確立した物理・技術です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>STM 像は地形図ではありません。</strong>局所状態密度の等高線であり、バイアス電圧に依存します。凸部が暗く写ることも実際にあります。② 単純な \(I\propto e^{-2\kappa d}\) は、探針と試料の波動関数の重なりを1次摂動で扱った近似（バーディーン／テルソフ–ハマン）です。ギャップが 0.4 nm を切ると相互作用が無視できなくなり、この描像は崩れます。③ 「一番前の原子が 98%」の見積もりは、探針が素直な形をしている場合の話です。実際には二重先端（ダブルチップ）による像の重複がよく起きます。④ 試料は<strong>導電性</strong>でなければなりません（絶縁体には使えず、そこは原子間力顕微鏡 AFM の領域）。⑤ 図は 1 次元の断面で、実際の表面は 2 次元。また表面の形をコサインで模擬した理想化です。⑥ 原子操作は、あらゆる原子・あらゆる表面でできるわけではなく、低温・超高真空という厳しい条件下の特定の組み合わせで行われています。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>ギャップを 0.3 nm 広げると、電流は何分の1になるか（\(\phi=4\) eV）。
+        <details><summary>答えを見る</summary><div class="ans">\(\kappa\approx10.2\ \mathrm{nm^{-1}}\) なので \(e^{-2\times10.2\times0.3}=e^{-6.1}\approx2\times10^{-3}\) ── <strong>約 500 分の 1</strong>。3 桁近い。原子1個ぶん離れるだけで、これだけ変わる。</div></details>
+      </li>
+      <li>なぜ「雑な針でも原子分解能が出る」のか。
+        <details><summary>答えを見る</summary><div class="ans">先端で<strong>いちばん前に出ている原子1個</strong>が電流の 98% を運ぶから。2 番目の原子が 0.2 nm 後ろなら寄与は \(e^{-4.1}\approx1.7\%\)。<em>指数が勝手に実効探針を原子1個に絞ってくれる</em>。レンズの世界と違い、装置の精度が分解能を決めない。</div></details>
+      </li>
+      <li>高さ方向の分解能（0.01 nm）が面内（0.1 nm）より1桁良いのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>指数が効くのは距離（高さ）方向だから。</strong>高さが 0.01 nm 変われば電流は約 20% 変わり、これは楽に測れる。面内の分解能は「一番前の原子がどれだけ絞られるか」で決まるので、原子サイズ程度が限界。</div></details>
+      </li>
+      <li>STM 像で「出っ張っている原子が暗く写る」ことがあるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">STM が測っているのは形ではなく<strong>局所状態密度</strong>だから。そのバイアス電圧で寄与する電子状態がその原子に乏しければ、物理的に手前にあっても電流は小さい。<em>これは欠点ではなく、走査トンネル分光として原子1個の準位を読む機能でもある。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編③まとめ</span>邪魔だった急峻さが、最高の道具になる</h2>
+    <p>走査トンネル顕微鏡の原理は、第1回の \(I\propto e^{-2\kappa d}\) だけです。仕事関数 4 eV で \(\kappa\approx10.2\ \mathrm{nm^{-1}}\)、つまり <strong>0.1 nm 離れると電流は約 8 分の 1</strong>。原子の大きさが 0.1〜0.3 nm なので、<em>表面の凸凹がそのまま桁の違いとして出てきます</em>。</p>
+    <p>しかも探針は<strong>自分で自分を尖らせます</strong> ── 先端でいちばん前に出た原子1個が電流の 98% を運び、0.2 nm 後ろの原子は 1.7% しか寄与しない。だから雑に作った針でも原子分解能が出る。<em>レンズの世界では装置の精度が限界を決めますが、指数の世界では物理が勝手に絞ってくれる。</em></p>
+    <p>そして見るだけでなく<strong>並べられます</strong>（1990年、35個のキセノンで「IBM」／1993年、量子囲いで表面電子の定在波を撮影）。ただし STM 像は地形図ではなく<em>局所状態密度</em>の地図で、バイアス電圧で変わる ── それは欠点ではなく、原子1個ぶんの分光器としての機能でもあります。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回 ── 番外編④「すり抜けるのに、何秒かかるのか」</span>
+    第1回で「これは未決着なので番外編で」と保留した問題を、いよいよ扱います。<strong>壁を厚くしても、抜けるのにかかる時間が増えない</strong>という奇妙な計算結果があります（ハートマン効果）。素朴に読めば、実効的な速さが光速を超える。もちろん相対論は破れていません ── では「かかった時間」とは何なのか。<em>定義が複数あって、それぞれ違う答えを出します。</em>アト秒レーザーによる実測も 2008 年から続いていますが、<strong>いまも決着していません</strong>。決着していないまま、丁寧に扱う回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかるすり抜け」シリーズ番外編③、物理好きの高校生・大学生向け読み物です。トンネル電流の距離依存 \(I\propto e^{-2\kappa d}\)、典型的仕事関数における 0.1 nm あたり約 1 桁の変化、先端の1原子が電流の大半を運ぶこと、ビーニッヒとローラーによる STM の発明（1981、1986年ノーベル物理学賞）、定電流モード、面内 0.1 nm・高さ 0.01 nm 級の分解能、アイグラーとシュヴァイツァーの原子操作（1990）、クロミーらの量子囲い（1993）、および STM が局所状態密度を測っていること（テルソフ–ハマン理論）は、いずれも確立した物理・技術です。STM 像が地形図ではなくバイアス依存の局所状態密度像であること、\(I\propto e^{-2\kappa d}\) が1次摂動の近似で近接時には破れること、「1原子が 98%」が素直な探針形状を仮定した見積もりであること（実際には二重先端による像の重複が起きること）、試料が導電性である必要があること、および図が1次元断面の理想化であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後：<a href="wakaru-surinuke-bangai-muon.html">番外編② 本物の常温核融合</a>／<a href="wakaru-surinuke-bangai-jikan.html">番外編④ すり抜けるのに、何秒かかるのか</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではギャップと仕事関数を動かして、電流の対数目盛りがどれだけ跳ねるかを確かめてください。起伏の振幅を 0.01 nm まで下げても、電流にははっきり出ます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sd=document.getElementById('sd'), vd=document.getElementById('vd'),
+      sp=document.getElementById('sp'), vp=document.getElementById('vp'),
+      sh=document.getElementById('sh'), vh=document.getElementById('vh'), rd=document.getElementById('rd');
+
+  var A=0.25;                    // 原子の並びの周期 [nm]
+
+  function kappaOf(phi){ return 5.1231*Math.sqrt(phi); }     // nm^-1
+  function surf(x,hh){ return hh*Math.cos(2*Math.PI*x/A); }  // 表面の高さ [nm]
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var d=parseInt(sd.value,10)/100;        // 0.30 〜 1.20 nm
+    var phi=parseInt(sp.value,10)/10;       // 1.0 〜 7.0 eV
+    var hh=parseInt(sh.value,10)/1000;      // 0.005 〜 0.150 nm
+    vd.textContent=d.toFixed(2)+' nm'; vp.textContent=phi.toFixed(1)+' eV'; vh.textContent=hh.toFixed(3)+' nm';
+    var kap=kappaOf(phi);
+    ctx.clearRect(0,0,w,h);
+
+    var L=58, R=w-16, T1=24, B1=h*0.48;
+    var XN=2.0;                              // 表示する横幅 [nm]
+    function X(x){ return L+(R-L)*x/XN; }
+
+    /* 上段：断面 */
+    var zTop=d+hh+0.25, zBot=-0.25;
+    function Z(z){ return B1-(B1-T1)*(z-zBot)/(zTop-zBot); }
+
+    ctx.strokeStyle='#a8c6b4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T1); ctx.lineTo(L,B1); ctx.lineTo(R,B1); ctx.stroke();
+
+    // 表面（原子を丸で）
+    ctx.fillStyle='rgba(53,101,77,.18)';
+    ctx.beginPath(); ctx.moveTo(L,Z(zBot));
+    for(var i=0;i<=300;i++){ var x=XN*i/300; ctx.lineTo(X(x),Z(surf(x,hh))); }
+    ctx.lineTo(R,Z(zBot)); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#35654d'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i2=0;i2<=300;i2++){ var x2=XN*i2/300; if(i2===0)ctx.moveTo(X(x2),Z(surf(x2,hh))); else ctx.lineTo(X(x2),Z(surf(x2,hh))); }
+    ctx.stroke();
+    ctx.fillStyle='#35654d';
+    for(var a=0;a<=XN/A;a++){
+      var xa=a*A; if(xa>XN) break;
+      ctx.beginPath(); ctx.arc(X(xa), Z(surf(xa,hh)), 4, 0, 7); ctx.fill();
+    }
+
+    // 探針の軌跡（一定高さモード）
+    var tipZ=d+hh;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(L,Z(tipZ)); ctx.lineTo(R,Z(tipZ)); ctx.stroke(); ctx.setLineDash([]);
+
+    // 探針の絵
+    var tx=XN*0.5;
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath();
+    ctx.moveTo(X(tx), Z(tipZ));
+    ctx.lineTo(X(tx)-11, Z(tipZ+0.22));
+    ctx.lineTo(X(tx)+11, Z(tipZ+0.22));
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#7a2a18';
+    ctx.beginPath(); ctx.arc(X(tx), Z(tipZ)+2, 3.4, 0, 7); ctx.fill();
+
+    // ギャップ矢印
+    var gz=tipZ-surf(tx,hh);
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(X(tx)+22, Z(tipZ)); ctx.lineTo(X(tx)+22, Z(surf(tx,hh))); ctx.stroke();
+    ctx.fillStyle='#3a6ea5'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('d = '+gz.toFixed(2)+' nm', X(tx)+27, (Z(tipZ)+Z(surf(tx,hh)))/2+4);
+
+    ctx.fillStyle='#27503c'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('横から見た断面（原子の周期 0.25 nm）', L, T1-8);
+
+    /* 下段：電流 */
+    var T2=h*0.60, B2=h-34;
+    var lgs=[];
+    for(var j=0;j<=400;j++){
+      var xj=XN*j/400, gj=tipZ-surf(xj,hh);
+      lgs.push(-2*kap*gj/Math.LN10);
+    }
+    var lmin=Math.min.apply(null,lgs), lmax=Math.max.apply(null,lgs);
+    var pad=(lmax-lmin)*0.25+0.05;
+    function Y2(lg){ return B2-(B2-T2)*(lg-(lmin-pad))/((lmax+pad)-(lmin-pad)); }
+
+    ctx.strokeStyle='#a8c6b4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T2); ctx.lineTo(L,B2); ctx.lineTo(R,B2); ctx.stroke();
+    ctx.fillStyle='#3a6ea5'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('測れるトンネル電流（対数目盛り）', L, T2-8);
+
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var k=0;k<=400;k++){ var xk=XN*k/400; if(k===0)ctx.moveTo(X(xk),Y2(lgs[k])); else ctx.lineTo(X(xk),Y2(lgs[k])); }
+    ctx.stroke();
+
+    ctx.fillStyle='#5f7568'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    for(var t=0;t<=4;t++){ ctx.fillText((XN*t/4).toFixed(1), X(XN*t/4), B2+15); }
+    ctx.fillText('探針の横位置（nm）', (L+R)/2, B2+29);
+
+    var swing=Math.pow(10, lmax-lmin);
+    ctx.fillStyle='#27503c'; ctx.font='bold 10.5px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('山と谷で ×'+(swing<100? swing.toPrecision(3) : swing.toExponential(2)), R-6, T2+12);
+
+    var frac=1/(1+Math.exp(-2*kap*0.2));   // 一番前の原子の寄与（2番目が 0.2 nm 後ろ）
+    var per01=Math.exp(2*kap*0.1);
+    rd.innerHTML='φ = <b>'+phi.toFixed(1)+' eV</b> → κ = <b>'+kap.toFixed(2)+' nm⁻¹</b>。'
+      +'<b>0.1 nm 近づくと電流は ×'+per01.toFixed(1)+'</b>（'+(Math.log10(per01)).toFixed(2)+' 桁）。<br>'
+      +'表面の起伏 <b>'+hh.toFixed(3)+' nm</b> が、電流では <b>×'+(swing<100? swing.toPrecision(3):swing.toExponential(2))+'</b> の山谷になります'
+      +'（起伏を 0.01 nm まで下げても、はっきり見えます）。<br>'
+      +'先端で <b>いちばん前の原子が運ぶ電流の割合：'+(frac*100).toFixed(1)+'%</b>'
+      +'（2番目の原子が 0.2 nm 後ろの場合）── <b>探針は、自分で自分を尖らせています。</b>';
+  }
+
+  sd.addEventListener('input', draw);
+  sp.addEventListener('input', draw);
+  sh.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

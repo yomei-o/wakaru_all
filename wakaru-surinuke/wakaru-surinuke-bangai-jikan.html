@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>すり抜けるのに、何秒かかるのか ── わかるすり抜け 番外編④</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf9fd; --paper-edge:#e0d6ee;   /* 番外4：トンネル時間＝紫の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#54318a; --calc-bg:#eee7f7;
+    --rule:#ddd2ee; --hair:#c0aede;
+    --acc:#6a3fa0;
+    --grid:#e9e0f5;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6c6f0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ded2f0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfcff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#eee7f7;color:#4a2b7a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfcff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1ebf9;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2b7a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfcff,#eae1f6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eee7f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2b7a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6f6480;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるすり抜け</span><span class="ep">番外編 ④ ／ すり抜けるのに、何秒かかるのか</span></div>
+  <p class="eyebrow">決着していない問題を、決着していないまま丁寧に ── 「かかった時間」が定義できないという結論のほうが、たぶん深い</p>
+  <h1>すり抜けるのに、何秒かかるのか
+    <span class="sub">壁を厚くしても、抜けるのにかかる時間が<em>増えません</em>（ハートマン効果）。<br>素朴に読めば、実効的な速さが光速を超えます。<br>もちろん相対論は破れていません ── では<strong>「かかった時間」とは何なのか</strong>。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回のすり抜け、波の位相、「わかる量子」の測定</span>
+    <span>この回の芯：問いのほうが壊れている</span>
+  </div>
+
+  <p class="lead">第1回で保留した問題です。粒子が壁をすり抜けるとき、<em>壁の中にいた時間は何秒か</em>。素朴で当然の問いに見えます。ところが計算してみると、まず奇妙なことが起きます ── <strong>壁を厚くしても、時間が増えない</strong>。1962年にハートマンが指摘したこの現象を素直に読むと、厚い壁ほど実効速度が上がり、いずれ光速を超えてしまう。相対論は破れていないので、どこかがおかしい。<em>おかしいのは、じつは問いのほうです。</em> 「壁の中にいた時間」を測る方法は複数あり、それぞれ違う答えを返します。しかも量子力学には、そもそも「時間」に対応する観測量（エルミート演算子）がありません。この回は、<strong>答えの出ない問いを、なぜ答えが出ないのかまで含めて</strong>扱います ── 「わからない」で終わる回が1本くらいあってもいいはずです。</p>
+
+  <h2><span class="n">01</span>まず、素朴に測ってみる ── 位相時間</h2>
+
+  <p>いちばん自然な定義は、<strong>波束の到着が遅れた分</strong>を測ることです。壁がある場合とない場合で、透過波のピークがいつ来るかを比べる。これは透過振幅の位相を微分すれば出ます（ウィグナーの群遅延）。</p>
+
+  <div class="calc">
+    <span class="tag">位相時間（群遅延）</span>
+    $$\tau_\varphi=\hbar\,\frac{d\,\arg t(E)}{dE}$$
+    <p style="margin:6px 0 0;">矩形障壁で計算すると、壁が厚くなるにつれてこれは<em>飽和します</em>。厚い壁の極限で</p>
+    $$\tau_\varphi\ \longrightarrow\ \frac{2m}{\hbar\kappa k}\qquad(\text{障壁の厚み }a\text{ に依らない！})$$
+    <p style="margin-bottom:14px;"><strong>これがハートマン効果です。</strong>厚みを 2 倍にしても 10 倍にしても、遅れは増えない。だから「実効速度 \(a/\tau_\varphi\)」はいくらでも大きくできて、<em>いずれ光速を超えます</em>。</p>
+  </div>
+
+  <h2><span class="n">02</span>相対論は破れていない ── なぜか</h2>
+
+  <p>結論から言うと、<strong>これで情報を光より速く送ることはできません</strong>。理由は 2 つあります。</p>
+
+  <div class="keybox">
+    <div class="lbl">超光速に見える理由と、その無害さ</div>
+    <p style="margin:0 0 8px;"><strong>① 出てくる波は「作り直された」波である。</strong><br>
+    壁は、入ってきた波束の<em>前縁だけを弱く通し、後ろを切り落とす</em>フィルタとして働きます。出てきた波束のピークは、入ってきたピークが移動したものではなく、<em>前縁の一部が整形されたもの</em>。だから「ピークが早く着いた」は「何かが速く動いた」を意味しません。</p>
+    <p style="margin:10px 0 0;"><strong>② 信号の先頭（フロント）は、必ず光速で進む。</strong><br>
+    ゾンマーフェルトとブリユアンが 1914 年に示したとおり、波形の<em>いちばん先端</em>（不連続な立ち上がり）は、媒質が何であろうと必ず \(c\) で進みます。情報を運べるのはこの先端だけ。<strong>ピークの速さは信号速度ではありません。</strong></p>
+  </div>
+
+  <p>さらに、電子の場合には<em>もっと即物的な事情</em>があります ── 超光速に見える領域に入るには壁を極端に厚くする必要があり、そこでは透過確率が \(10^{-1000}\) 級になる。<strong>指数が、超光速の領域を実質的に封鎖しています。</strong>これは図で確かめられます。</p>
+
+  <h2><span class="n">03</span>動かしてみる ── 飽和と、封鎖</h2>
+
+  <div class="fig">
+    <div class="cap">図：矩形障壁の位相時間（紫）と、同じ距離を光が飛ぶ時間 a/c（緑）。位相時間は厚みとともに飽和し、どこかで a/c を追い越す＝形式的に超光速。ただしその点での透過確率（赤、右軸）は天文学的に小さい</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>障壁の高さ V <span class="val" id="vv">1.00 eV</span>
+        <input type="range" id="sv" min="5" max="200" step="1" value="100">
+      </label>
+      <label>粒子のエネルギー E / V <span class="val" id="vr">0.50</span>
+        <input type="range" id="sr" min="5" max="95" step="1" value="50">
+      </label>
+      <button id="bcross">超光速に見える点へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#6a3fa0;"></i>位相時間 τ_φ</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>光が同じ距離を飛ぶ時間 a/c</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>透過確率（右軸）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>時計は、ひとつではない</h2>
+
+  <p>ここからが本題です。「壁の中にいた時間」を測る方法は複数あり、<strong>それぞれ違う量を測っていて、違う答えを出します</strong>。</p>
+
+  <table class="tbl">
+    <tr><th>時計</th><th>何を測るか</th><th>厚い壁で</th></tr>
+    <tr><td><strong>位相時間</strong>（ウィグナー）</td><td>透過波束のピークの遅れ</td><td><em>飽和する</em>（ハートマン）</td></tr>
+    <tr><td><strong>滞在時間</strong>（スミス）</td><td>壁の中に存在する確率 ÷ 入射流束</td><td>飽和するが、反射も含む量</td></tr>
+    <tr><td><strong>ラーモア時計</strong>（バズ、リバチェンコ）</td><td>壁の中だけに弱い磁場を置き、<em>スピンが何度回ったか</em>で時間を読む</td><td>成分が2つ出て、片方は飽和・片方は増える</td></tr>
+    <tr><td><strong>ビュティカー–ランダウアー</strong></td><td>壁を振動させ、<em>ついてこられなくなる振動数</em>から時間を推定</td><td>厚みとともに増える</td></tr>
+    <tr><td><strong>弱測定</strong>（弱値）</td><td>弱く測って乱さずに平均を取る</td><td>複素数の時間が出る</td></tr>
+  </table>
+
+  <p>「どれが正しいのか」と聞きたくなりますが、<strong>おそらく問いの立て方が間違っています</strong>。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 時間は観測量ではない</div>
+    <p style="margin:0 0 8px;">量子力学では、位置や運動量には対応する演算子があります。ところが<strong>「時間」に対応するエルミート演算子は存在しません</strong>（パウリの議論、1933）。時間は状態を並べる<em>パラメータ</em>であって、測る対象ではないのです。</p>
+    <p style="margin:10px 0 0;">だから「壁の中に何秒いたか」は、<em>それ自体では意味が定まりません</em>。意味が生じるのは、<strong>具体的な時計を系に結合したとき</strong>だけ ── スピンを回すのか、壁を振動させるのか、波束のピークを追うのか。<em>時計が違えば、測っている量が違う。</em></p>
+    <p style="margin:10px 0 0;">これは姉妹編「わかる量子」の測定の話そのものです。<strong>「粒子は壁の中で何をしていたか」は、測らないかぎり答えがない</strong> ── そして測れば、その測定が答えの一部になる。</p>
+  </div>
+
+  <h2><span class="n">05</span>実験は何を言っているか</h2>
+
+  <table class="tbl">
+    <tr><th>年</th><th>実験</th><th>結果</th></tr>
+    <tr><td>1990年代</td><td>ニムツ、キアオらのマイクロ波・光子実験</td><td>波束のピークが「超光速」で伝わることを観測。<em>ただし信号速度は \(c\) を超えていないという点で、解釈は決着</em></td></tr>
+    <tr><td>2008</td><td>エックレら「アトクロック」（<em>Science</em>）。円偏光レーザーでヘリウムを電離させ、電子が出た方向から時刻を読む</td><td>トンネル遅延は<strong>ゼロと矛盾しない</strong></td></tr>
+    <tr><td>2014</td><td>ランズマンら</td><td>ゼロでない遅延を主張</td></tr>
+    <tr><td>2019</td><td>サイナードら（<em>Nature</em>）。<strong>水素原子</strong>という理論が正確に扱える系で再測定</td><td>クーロン場を正しく扱うと遅延は<strong>ゼロと矛盾しない</strong>。以前の「ゼロでない」は解析モデル由来だった可能性</td></tr>
+    <tr><td>2020</td><td>ラモス、スピアリングス、シュタインバーグら（<em>Nature</em>）。<strong>冷却原子のボース凝縮体</strong>を光の壁に通し、<em>ラーモア時計</em>で測定</td><td>約 0.6 ミリ秒という有限の値。しかも<strong>エネルギーを上げると短くなる</strong>という予言を確認</td></tr>
+  </table>
+
+  <p>2020年の実験は重要です ── <em>「トンネル時間は測れないのか」ではなく「ラーモア時計はこの値を返す」</em>という形で、きちんと答えが出ています。<strong>時計を指定すれば、答えは出る。指定しなければ出ない。</strong>それがこの問題の現在地です。</p>
+
+  <div class="aside">
+    <span class="tag">なぜこの問題が長生きしているのか</span>
+    1932年（マッコール）から数えて 90 年以上、この問題は解けていません。しかし「難しくて解けない」のとは少し違います。<br>
+    <strong>むしろ、問いを精密にしていく過程そのものが成果でした。</strong>「トンネル時間は何秒か」という素朴な問いが、「時間とは何を測ることか」「量子力学で経路について何が言えるか」という問いに変わっていった ── <em>答えではなく、問いのほうが磨かれた</em>。物理にはそういう問題がときどきあります。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── この回はほぼ全部が「未決着」</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>矩形障壁の位相時間（群遅延）が厚みとともに飽和すること（Hartman 1962）；形式的な実効速度が \(c\) を超えうるが、<strong>信号速度は \(c\) を超えないこと</strong>（波形の先端は常に \(c\) で伝わる ── Sommerfeld–Brillouin 1914）；透過波束が入射波束の前縁の整形結果であること；複数のトンネル時間の定義（位相時間、滞在時間、ラーモア時間、ビュティカー–ランダウアー時間、弱値）が存在し互いに異なること；時間に対応するエルミート演算子が存在しないこと（Pauli）；アトクロック実験の結果（Eckle ら 2008、Sainadh ら 2019）とボース凝縮体でのラーモア時計による測定（Ramos ら 2020）。</p>
+    <p style="margin-bottom:0;"><strong>未決着・注意：</strong>① <strong>「トンネル時間」に唯一の正しい定義があるかどうか自体が、決着していません。</strong>多数派は「測定を指定しなければ意味が定まらない」という立場ですが、特定の定義を本質的とみなす研究者もいます。② アトクロック実験の解釈は<em>理論モデルに強く依存します</em>。2019年の水素原子の結果は「以前の非ゼロ主張はモデル由来だった可能性」を示しましたが、これで全部が片付いたわけではありません。③ 1990年代のマイクロ波「超光速」実験は、<strong>相対論と矛盾しません</strong>。一部の一般向け報道は誤解を招くものでした。④ 図の位相時間は矩形障壁・定常状態・非相対論での計算で、実際の実験系（原子のクーロン場、光格子など）とは対応しません。⑤ 図の「超光速に見える点」は形式的な交差であり、そこでの透過確率が天文学的に小さいことも同時に表示しています ── <em>実験できる領域ではありません</em>。⑥ Ramos ら 2020 の 0.6 ms という値は<strong>その系のラーモア時計が返した値</strong>であって、「電子が壁の中にいる時間は 0.6 ms だ」という一般命題ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>ハートマン効果とは何か。
+        <details><summary>答えを見る</summary><div class="ans">矩形障壁の<strong>位相時間（群遅延）が、障壁の厚みを増しても飽和して増えない</strong>という現象（1962）。したがって形式的な実効速度 \(a/\tau_\varphi\) は厚みとともに増え、いずれ \(c\) を超える。</div></details>
+      </li>
+      <li>それでも相対論が破れていないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">透過波束のピークは、入射ピークが移動したものではなく<strong>前縁が整形されたもの</strong>だから。情報を運ぶのは波形の先端で、それは常に \(c\) で進む（ゾンマーフェルト–ブリユアン）。<em>ピークの速さは信号速度ではない。</em>加えて電子の場合、超光速に見える領域では透過確率が \(10^{-1000}\) 級で、実質的に到達不能。</div></details>
+      </li>
+      <li>「トンネル時間」の答えが一つに決まらないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">量子力学に<strong>時間に対応するエルミート演算子が存在しない</strong>から（パウリ）。時間はパラメータであって観測量ではない。だから「何秒いたか」は、<em>具体的な時計を系に結合して初めて</em>意味を持つ。時計が違えば測る量が違い、答えも違う。</div></details>
+      </li>
+      <li>2020年のボース凝縮体の実験は、この問題に何をもたらしたか。
+        <details><summary>答えを見る</summary><div class="ans">「<strong>ラーモア時計を指定すれば、有限の答えが出て、しかも理論予言（エネルギーを上げると短くなる）と合う</strong>」ことを示した。つまり<em>問いを「どの時計で測るか」まで具体化すれば、実験できる問いになる</em>。逆に、時計を指定しない「トンネル時間」には、いまも答えがない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編④まとめ</span>答えが出ないのは、問いのほうが壊れているから</h2>
+    <p>矩形障壁の位相時間は、壁を厚くしても<strong>飽和します</strong>（ハートマン効果、1962）。だから形式的な実効速度は光速を超えうる。しかし相対論は破れていません ── 透過波束のピークは入射ピークが移動したものではなく<em>前縁の整形結果</em>であり、情報を運ぶ波形の先端は常に \(c\) で進むからです。しかも電子の場合、超光速に見える領域では透過確率が \(10^{-1000}\) 級 ── <strong>指数が超光速の領域を封鎖しています。</strong></p>
+    <p>より深い問題は、<em>「かかった時間」の定義が一つに決まらない</em>ことです。位相時間・滞在時間・ラーモア時間・ビュティカー–ランダウアー時間・弱値 ── どれも違う答えを返します。根本には、<strong>量子力学に時間の演算子が存在しない</strong>（パウリ）という事情がある。時間はパラメータであって、観測量ではない。</p>
+    <p>だから現在地はこうです ── <strong>時計を指定すれば答えは出る。指定しなければ出ない。</strong>2020年、シュタインバーグらは冷却原子とラーモア時計で約 0.6 ミリ秒という値を測り、理論予言と合わせました。<em>90年かけて磨かれたのは答えではなく、問いのほうでした。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回 ── 番外編⑤「生き物は、すり抜けを使っているか」</span>
+    次はぐっと生々しい話です。酵素の中で水素がすり抜けている証拠は、<strong>水素を重水素に置き換えると反応速度が桁で落ちる</strong>こと ── 第5回の同位体効果と、第3回の質量依存が、そのまま生化学の測定道具になります。鳥の磁気コンパスはラジカル対かもしれない。一方、大々的に報じられた光合成の「量子コヒーレンス」は、<em>その後かなり縮小されました</em>。<strong>どこまでが実証で、どこからが流行語だったのか</strong>を分ける回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかるすり抜け」シリーズ番外編④、物理好きの高校生・大学生向け読み物です。矩形障壁の位相時間が厚みとともに飽和すること（Hartman 1962）、信号速度が \(c\) を超えないこと（Sommerfeld–Brillouin 1914）、透過波束が入射波束前縁の整形結果であること、複数のトンネル時間の定義が互いに異なること、時間に対応するエルミート演算子が存在しないこと（Pauli）、およびアトクロック実験（Eckle ら 2008、Sainadh ら 2019）とボース凝縮体でのラーモア時計による測定（Ramos ら 2020）は、いずれも公表された結果です。「トンネル時間」に唯一の正しい定義があるかどうか自体が未決着であること、アトクロック実験の解釈が理論モデルに強く依存すること、1990年代のマイクロ波「超光速」実験が相対論と矛盾しないこと、図が矩形障壁・定常状態・非相対論の計算であり実験系と対応しないこと、図の「超光速に見える点」が透過確率の点で実験不可能な領域であること、および Ramos ら 2020 の値がその系のラーモア時計が返した値であって一般命題ではないことは、本文「正直な線」に明記しました。図の位相時間は透過振幅の位相をブラウザ内で数値微分して求めています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後：<a href="wakaru-surinuke-bangai-stm.html">番外編③ 原子1個が見えるのは、指数だから</a>／<a href="wakaru-surinuke-bangai-seibutsu.html">番外編⑤ 生き物は、すり抜けを使っているか</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>・<a href="../wakaru-soutai/index.html">わかる相対論</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では障壁の高さとエネルギーを動かして、位相時間が飽和する様子と、a/c と交差する点（＝形式的に超光速）を確かめてください。その点での透過確率も同時に表示されます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sv=document.getElementById('sv'), vv=document.getElementById('vv'),
+      sr=document.getElementById('sr'), vr=document.getElementById('vr'),
+      rd=document.getElementById('rd'), bcross=document.getElementById('bcross');
+
+  var HBAR=1.054572e-34, ME=9.10938e-31, EV=1.602177e-19, C=2.99792458e8;
+
+  function kOf(E){ return Math.sqrt(2*ME*E*EV)/HBAR; }            // m^-1
+  function kapOf(V,E){ return Math.sqrt(2*ME*(V-E)*EV)/HBAR; }
+
+  // 矩形障壁の透過振幅の位相：arg t = -k a + atan[ (k²-κ²) tanh(κa) / (2kκ) ]
+  function argT(V,E,a){
+    var k=kOf(E), kap=kapOf(V,E);
+    var x=kap*a;
+    var th = x>350? 1 : Math.tanh(x);
+    return -k*a + Math.atan((k*k-kap*kap)*th/(2*k*kap));
+  }
+  function tauPhase(V,E,a){
+    var dE=E*1e-5;
+    return HBAR*(argT(V,E+dE,a)-argT(V,E-dE,a))/(2*dE*EV);
+  }
+  function Texact(V,E,a){
+    var kap=kapOf(V,E), x=kap*a;
+    if(x>350) return Math.exp(2*Math.log(4*Math.sqrt(E*(V-E))/V) - 2*x);
+    var sh=Math.sinh(x);
+    return 1/(1 + V*V*sh*sh/(4*E*(V-E)));
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var V=parseInt(sv.value,10)/100;          // 0.05 〜 2.00 eV
+    var ratio=parseInt(sr.value,10)/100;      // 0.05 〜 0.95
+    var E=V*ratio;
+    vv.textContent=V.toFixed(2)+' eV'; vr.textContent=ratio.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    var L=60, R=w-58, TT=26, B=h-42;
+    var la0=-9.3, la1=-6.0;                   // 障壁の厚み 0.5 nm 〜 1 mm（対数、m）
+    var lt0=-18, lt1=-12;                     // 時間 1 as 〜 1 ps
+    function X(la){ return L+(R-L)*(la-la0)/(la1-la0); }
+    function Y(lt){ return B-(B-TT)*(Math.max(Math.min(lt,lt1),lt0)-lt0)/(lt1-lt0); }
+
+    ctx.strokeStyle='#c0aede'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,TT); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#6f6480'; ctx.textAlign='right';
+    var tl=[[-18,'1 as'],[-15,'1 fs'],[-12,'1 ps']];
+    for(var i=0;i<tl.length;i++){ if(tl[i][0]>=lt0&&tl[i][0]<=lt1) ctx.fillText(tl[i][1], L-5, Y(tl[i][0])+4); }
+    ctx.save(); ctx.translate(15,(TT+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('時間',0,0); ctx.restore();
+    ctx.textAlign='center';
+    var xl=[[-9,'1 nm'],[-8,'10 nm'],[-7,'100 nm'],[-6,'1 μm']];
+    for(var j=0;j<xl.length;j++){
+      if(xl[j][0]<la0||xl[j][0]>la1) continue;
+      ctx.strokeStyle='#e9e0f5'; ctx.beginPath(); ctx.moveTo(X(xl[j][0]),TT); ctx.lineTo(X(xl[j][0]),B); ctx.stroke();
+      ctx.fillStyle='#6f6480'; ctx.fillText(xl[j][1], X(xl[j][0]), B+15);
+    }
+    ctx.fillText('障壁の厚み a（対数）', (L+R)/2, B+31);
+
+    // a/c
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var p=0;p<=200;p++){
+      var la=la0+(la1-la0)*p/200, av=Math.pow(10,la);
+      var lg=Math.log10(av/C);
+      if(p===0)ctx.moveTo(X(la),Y(lg)); else ctx.lineTo(X(la),Y(lg));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('a / c（光が同じ距離を飛ぶ時間）', X(la0)+8, Y(Math.log10(Math.pow(10,la0+0.6)/C))-8);
+
+    // 位相時間
+    ctx.strokeStyle='#6a3fa0'; ctx.lineWidth=3; ctx.beginPath();
+    var cross=null, prev=null;
+    for(var q=0;q<=240;q++){
+      var la2=la0+(la1-la0)*q/240, av2=Math.pow(10,la2);
+      var tp=tauPhase(V,E,av2);
+      var lg2=Math.log10(Math.max(tp,1e-25));
+      if(q===0)ctx.moveTo(X(la2),Y(lg2)); else ctx.lineTo(X(la2),Y(lg2));
+      var diff=tp-av2/C;
+      if(prev!==null && prev>0 && diff<=0 && cross===null) cross=la2;
+      prev=diff;
+    }
+    ctx.stroke();
+    ctx.fillStyle='#6a3fa0'; ctx.textAlign='left';
+    ctx.fillText('位相時間 τ_φ（飽和する）', L+8, Y(Math.log10(Math.max(tauPhase(V,E,3e-9),1e-25)))-9);
+
+    // 透過確率（右軸）
+    var pr0=-40, pr1=0;
+    function Y3(lp){ return B-(B-TT)*(Math.max(lp,pr0)-pr0)/(pr1-pr0); }
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.8; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var s=0;s<=240;s++){
+      var la3=la0+(la1-la0)*s/240, av3=Math.pow(10,la3);
+      var lp=Math.log(Texact(V,E,av3))/Math.LN10;
+      if(s===0)ctx.moveTo(X(la3),Y3(lp)); else ctx.lineTo(X(la3),Y3(lp));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    for(var t2=0;t2>=pr0;t2-=20){ ctx.fillText('10^'+t2, R+4, Y3(t2)+4); }
+    ctx.save(); ctx.translate(w-10,(TT+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('透過確率',0,0); ctx.restore();
+
+    var msg;
+    if(cross!==null){
+      var ac=Math.pow(10,cross);
+      var Tc=Texact(V,E,ac);
+      ctx.strokeStyle='#8a6d1f'; ctx.lineWidth=1.6; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(cross),TT); ctx.lineTo(X(cross),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#8a6d1f'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('ここから右は形式的に「超光速」', X(cross), TT+13);
+      msg='形式的に超光速に見えるのは <b>a > '+(ac*1e9<1000? (ac*1e9).toPrecision(3)+' nm' : (ac*1e6).toPrecision(3)+' μm')+'</b> から。'
+        +'ただしそこでの透過確率は <b>'+(Tc<1e-300? '10^-300 未満' : Tc.toExponential(2))+'</b> ── '
+        +'<b style="color:#a83a22">指数が、超光速の領域を封鎖しています。</b>';
+    } else {
+      msg='この条件では、表示範囲内で位相時間が a/c を下回りません（＝形式的な超光速も現れません）。';
+    }
+
+    var tSat=tauPhase(V,E,5e-9);
+    rd.innerHTML='V = <b>'+V.toFixed(2)+' eV</b>、E = <b>'+E.toFixed(3)+' eV</b> → '
+      +'飽和した位相時間 τ_φ ≈ <b>'+(tSat*1e15).toPrecision(3)+' fs</b>（厚みを増しても、ここから増えません）<br>'
+      +msg+'<br>'
+      +'<b>そして本当の問題は、τ_φ が「壁の中にいた時間」なのかどうかが決まらないことです。</b>';
+  }
+
+  sv.addEventListener('input', draw);
+  sr.addEventListener('input', draw);
+  bcross.addEventListener('click', function(){ sv.value=20; sr.value=50; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

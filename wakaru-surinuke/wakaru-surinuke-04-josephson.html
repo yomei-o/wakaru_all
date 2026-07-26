@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>位相がそろうと、すり抜けが電流になる ── わかるすり抜け 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbfa; --paper-edge:#d4e5e0;   /* 第4回：ジョセフソン＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#22604f; --calc-bg:#e3f0ec;
+    --rule:#cfe2dc; --hair:#a8c8bf;
+    --acc:#2e7d6b;
+    --grid:#e2efeb;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b8ddd2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfe4dd;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e3f0ec;color:#1d5546;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f4f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d5546;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefd,#e2efeb);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f0ec;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d5546;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5b7770;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかるすり抜け</span><span class="ep">第 4 回 ／ 位相がそろうと、すり抜けが電流になる</span></div>
+  <p class="eyebrow">1個ずつの偶然が、そろった巨視的な流れになる ── そして「1ボルト」の定義になる</p>
+  <h1>位相がそろうと、すり抜けが電流になる
+    <span class="sub">超伝導体を薄い絶縁膜で挟むと、<em>電圧をかけていないのに電流が流れます</em>。<br>流れる量を決めるのは電圧でも温度でもなく、両側の<strong>位相差だけ</strong>。<br>$$I=I_c\sin\Delta\theta$$</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回のすり抜け、第3回の \(T_0\)、位相と三角関数</span>
+    <span>この回の芯：すり抜けの主語が「位相」に変わる</span>
+  </div>
+
+  <p class="lead">ここまで、すり抜けは<em>1個ずつの、めったに起きない偶然</em>でした。α 粒子が 45 億年に1回、陽子が 90 億年に1回。この回でそれが変わります。超伝導体を厚さ 1 nm ほどの絶縁膜で挟んで電線をつなぐと ── <strong>電圧をかけていないのに、電流が流れます</strong>。しかも流れる量を決めるのは、電圧でも温度でも絶縁膜の抵抗でもなく、<em>両側の超伝導体がもつ「位相」の差だけ</em>。1962年、ケンブリッジの大学院生ブライアン・ジョセフソンが 22 歳で予言し、翌年アンダーソンとロウエルが確認しました。すり抜けの主語が「粒子」から「<strong>位相</strong>」に変わる ── その一歩が、いまや電圧の定義と、ほとんどの量子コンピュータの土台になっています。</p>
+
+  <h2><span class="n">01</span>超伝導体には、全体でひとつの「位相」がある</h2>
+
+  <p>超伝導がなぜ起きるのかは第5回に回します。この回で必要なのは、結果だけです。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回で使う、超伝導のたったひとつの性質</div>
+    <p style="margin:0 0 8px;">超伝導体の中では、電子が2個ずつ組（クーパー対）になって、<strong>全部が同じ一つの波として振る舞います</strong>。だから超伝導体は、1 cm あろうと 1 m あろうと、<em>全体でひとつの波動関数</em>で書けます。</p>
+    $$\Psi=\sqrt{n}\;e^{i\theta}$$
+    <p style="margin:8px 0 0;">\(n\) はクーパー対の密度、そして \(\theta\) が<strong>位相</strong>。ふつうの物質では 10²³ 個の電子がてんでばらばらの位相を持っていて、平均すると意味を失います（姉妹編「わかる繰り込み」第3回のデコヒーレンス）。<em>超伝導体では、それが1個の数字になる。</em></p>
+  </div>
+
+  <p>ここで自然な疑問が出ます ── 位相って観測できるのか？ 単独では、できません。位相の<strong>絶対値</strong>には物理的な意味がなく（ゲージの自由度）、観測にかかるのは<em>2つの超伝導体の位相の差</em>だけです。だから、2つ用意してつなぐ必要がある。</p>
+
+  <h2><span class="n">02</span>つないでみる ── ジョセフソン効果</h2>
+
+  <p>薄い絶縁膜（1〜2 nm）で挟みます。クーパー対はこの膜を第1回のとおりすり抜けます。すると：</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── ジョセフソンの2つの式</div>
+    <p style="margin:0 0 6px;"><strong>直流ジョセフソン効果</strong> ── 電圧ゼロで流れる電流：</p>
+    $$I=I_c\sin\Delta\theta$$
+    <p style="margin:10px 0 6px;"><strong>交流ジョセフソン効果</strong> ── 電圧をかけると位相差が回りだす：</p>
+    $$\frac{d(\Delta\theta)}{dt}=\frac{2eV}{\hbar}$$
+    <p style="margin:8px 0 0;">2本目が特に効きます。位相差が一定の速さで回るなら、\(\sin\Delta\theta\) は<em>振動する</em> ── つまり<strong>直流電圧をかけると、交流電流が出てくる</strong>。振動数は</p>
+    $$f=\frac{2eV}{h}=483.6\ \mathrm{THz}\ \text{per volt}$$
+    <p style="margin:8px 0 0;">1 マイクロボルトで 483.6 MHz。<em>電圧が、そのまま振動数に化けます。</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">2e が出てくるところ</span>
+    式に出てくるのが \(e\) ではなく <strong>\(2e\)</strong> であることに注目してください。すり抜けているのは電子1個ではなく、<em>クーパー対</em>だからです。<br>
+    この「2」は、超伝導リングを貫く磁束が \(\Phi_0=h/2e=2.07\times10^{-15}\) Wb の整数倍に量子化されることでも確かめられていて、<strong>電子が対になっていることの直接の証拠</strong>になっています（ディーヴァー–フェアバンク、ドール–ネーバウアー、1961年）。ジョセフソン効果はその前年に予言された理論が、対の存在を電流として見せた例です。
+  </div>
+
+  <h2><span class="n">03</span>洗濯板 ── 位相が転がり落ちる絵</h2>
+
+  <p>ジョセフソン接合の振る舞いは、<strong>位相差 \(\delta\) を「粒子の位置」だと思う</strong>と一気に見通せます。エネルギーを書くと：</p>
+
+  <div class="calc">
+    <span class="tag">傾いた洗濯板ポテンシャル</span>
+    $$U(\delta)=-E_J\cos\delta-\frac{\hbar I}{2e}\,\delta,
+    \qquad E_J=\frac{\hbar I_c}{2e}$$
+    <p style="margin:6px 0 14px;">第1項はコサインの波打ち（洗濯板）、第2項は電流による<em>傾き</em>。<br>
+    ・電流を流さない（\(I=0\)）と、板は水平。位相差は谷の底でじっとしている ── <strong>電圧ゼロ</strong>。<br>
+    ・電流を増やすと板が傾く。それでも谷が残っているうちは、位相差はまだ捕まったまま ── <strong>まだ電圧ゼロ</strong>。これが「電圧をかけずに電流が流れる」の正体です。<br>
+    ・\(I\) が \(I_c\) を超えると谷が消え、位相差は転がり落ちる。\(d\delta/dt\ne0\) ということは、交流ジョセフソンの式から <strong>\(V\ne0\)</strong>。<em>超伝導が「壊れた」ように見える瞬間</em>です。</p>
+  </div>
+
+  <p>そして、ここが第3回とつながります。<strong>谷がまだ残っていても、位相差は壁をすり抜けて逃げ出せます</strong>。逃げ方は2つ ── 熱で乗り越えるか、すり抜けるか。第3回でやった話が、そっくりそのまま出てきます。</p>
+
+  <h2><span class="n">04</span>動かしてみる ── 洗濯板を傾ける</h2>
+
+  <p>下の図が、その洗濯板です。電流スライダーで板を傾けてください。谷がだんだん浅くなり、\(I/I_c\to1\) で消えます。</p>
+
+  <p>同時に、右側に<strong>第3回の \(T_0\) が表示されます</strong>。谷が浅くなるほど頂上の振動数 \(\omega_p\) が下がるので、\(T_0=\hbar\omega_p/2\pi k_B\) も下がる。<em>「どの温度まで冷やせば、逃げ出し方が熱からすり抜けに切り替わるか」がリアルタイムで出てきます</em>。典型的な接合で数十 mK ── だから 1980 年代、希釈冷凍機でようやく<strong>巨視的量子トンネル</strong>が観測されました。</p>
+
+  <div class="fig">
+    <div class="cap">図：ジョセフソン接合の洗濯板ポテンシャル U(δ) = −E_J(cos δ + sδ)、s = I/I_c。電流で板が傾き、谷が浅くなる。青玉が位相差。障壁 ΔU と頂上の振動数 ω_p から、第3回の T₀ = ℏω_p/2πk_B を計算して表示</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>流す電流 I / I_c <span class="val" id="vs">0.50</span>
+        <input type="range" id="ss" min="0" max="998" step="1" value="500">
+      </label>
+      <label>臨界電流 I_c <span class="val" id="vi">1.0 μA</span>
+        <input type="range" id="si" min="0" max="100" step="1" value="50">
+      </label>
+      <button id="bmax">臨界電流の直前へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2e7d6b;"></i>洗濯板ポテンシャル U(δ)</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>位相差（谷に捕まっている）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>逃げ出す壁 ΔU</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>桁で見る ── これが「1ボルト」を決めている</h2>
+
+  <p>交流ジョセフソン効果 \(f=2eV/h\) は、<strong>電圧を振動数に変換する装置</strong>です。振動数は人類がいちばん正確に測れる量なので（原子時計）、これは電圧の標準になります。</p>
+
+  <table class="tbl">
+    <tr><th>使われ方</th><th>中身</th></tr>
+    <tr><td><strong>電圧標準</strong></td><td>1990年からジョセフソン効果が世界の電圧標準。2019年の SI 改定で \(e\) と \(h\) が定義値になったため、\(K_J=2e/h=483597.8484\) GHz/V は<em>厳密値</em>。いまあなたが使っている電圧計の目盛りは、突きつめるとこの式で決まっています</td></tr>
+    <tr><td><strong>SQUID</strong></td><td>2つの接合をリングにすると、磁束 \(\Phi_0=h/2e\) を単位に干渉が起きる。フェムトテスラ（10⁻¹⁵ T）級の磁場が測れて、脳磁計（MEG）や地下資源探査に使われる。地磁気の 100 億分の1</td></tr>
+    <tr><td><strong>超伝導量子ビット</strong></td><td>洗濯板の谷は「調和振動子ではない」（コサインだから）。この非線形性のおかげでエネルギー準位が等間隔にならず、下2つだけを取り出して量子ビットにできる。<em>いま動いている超伝導量子計算機の心臓は、全部ジョセフソン接合</em></td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">巨視的量子トンネル ── すり抜ける「もの」が大きくなった</span>
+    第1回のすり抜けは、電子1個が壁を抜ける話でした。この回のすり抜けは、<strong>位相差という1個の変数</strong>が壁を抜ける話です。ところがその位相差は、接合の両側にいる <em>10¹⁰ 個以上のクーパー対が全員でそろって決めている量</em>。<br>
+    つまり、10¹⁰ 個の粒子がいっせいに「向こう側へ移る」ことが、1個の座標のすり抜けとして書ける。レゲットはこれを<strong>巨視的量子トンネル（MQT）</strong>と呼び、「量子力学はどこまで大きなものに効くのか」という問いの実験場にしました。1981年ヴォス–ウェッブ、1985年ドヴォレ–マルティニス–クラークが観測。<em>この延長線上に、いまの超伝導量子ビットがあります。</em>
+  </div>
+
+  <h2><span class="n">06</span>何が変わったのか</h2>
+
+  <div class="keybox">
+    <div class="lbl">第1回から、この回までの変化</div>
+    <table class="tbl" style="margin:10px 0 4px;">
+      <tr><th></th><th>第1〜3回</th><th>この回</th></tr>
+      <tr><td>すり抜けるもの</td><td>粒子1個</td><td><strong>位相差</strong>（巨視的な1変数）</td></tr>
+      <tr><td>起きる頻度</td><td>ごくまれ</td><td><strong>定常的な電流</strong></td></tr>
+      <tr><td>決めるもの</td><td>壁の高さ・幅・質量</td><td>両側の<strong>位相差</strong></td></tr>
+      <tr><td>観測</td><td>統計をとって初めて見える</td><td><em>電流計で直接読める</em></td></tr>
+    </table>
+    <p style="margin:8px 0 0;"><strong>位相がそろうと、すり抜けは統計から現象になります。</strong>「1個ずつはめったに起きない」ことが、10¹⁰ 個そろうと「いつでも起きている」に変わる ── これがこの回の一行です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが確立か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>直流・交流ジョセフソン効果（Josephson 1962 予言、Anderson–Rowell 1963 観測、1973年ノーベル賞）；\(I=I_c\sin\Delta\theta\) と \(d(\Delta\theta)/dt=2eV/\hbar\)；\(K_J=2e/h=483597.8484\) GHz/V（2019年 SI 以降は厳密値）と電圧標準としての運用；磁束量子 \(\Phi_0=h/2e\) と磁束量子化の観測（Deaver–Fairbank、Doll–Näbauer、1961）；洗濯板ポテンシャル \(U(\delta)=-E_J(\cos\delta+s\delta)\) と障壁 \(\Delta U=2E_J[\sqrt{1-s^2}-s\arccos s]\)、プラズマ振動数 \(\omega_p=\omega_{p0}(1-s^2)^{1/4}\)；ジョセフソン接合における巨視的量子トンネルの観測（Voss–Webb 1981、Devoret–Martinis–Clarke 1985）；SQUID の感度と超伝導量子ビットへの応用。いずれも確立した物理・技術です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① 「超伝導体は全体でひとつの波動関数で書ける」は<strong>平均場（ギンツブルグ–ランダウ／BCS）の描像</strong>です。厳密には位相と粒子数が共役量で、位相が確定するほど粒子数は不確定になります（この不確定性こそが電荷量子ビットの動作原理）。② 位相の<em>絶対値</em>には物理的意味がなく（ゲージ依存）、意味を持つのは位相差だけです。本文はこの点に触れましたが、正確なゲージ不変な形はベクトルポテンシャルの線積分を含みます。③ 図は<strong>散逸のない理想接合</strong>（RCSJ モデルの抵抗ゼロ極限）です。実際の接合には準粒子による減衰があり、これは \(T_0\) を下げ、逃げ出しを抑えます。④ 図の \(\omega_{p0}=\sqrt{2eI_c/\hbar C}\) は接合容量 \(C=1\) pF を仮定した値です。⑤ ジョセフソン効果自体は<em>クーパー対のトンネル</em>であって、次回述べるとおり<strong>超伝導そのものの機構ではありません</strong>。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>電圧をかけていないのに電流が流れるのは、なぜ矛盾でないのか。
+        <details><summary>答えを見る</summary><div class="ans">電流を駆動しているのが電圧ではなく<strong>位相差</strong>だから。洗濯板の絵でいえば、板が少し傾いていても<em>谷が残っていれば位相差は動かない</em>（\(d\delta/dt=0\)）。交流ジョセフソンの式より \(V\propto d\delta/dt=0\) なので電圧ゼロ。それでも \(I=I_c\sin\delta\ne0\)。</div></details>
+      </li>
+      <li>式に \(e\) ではなく \(2e\) が現れるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">すり抜けているのが電子1個ではなく<strong>クーパー対（電子2個）</strong>だから。同じ「2」は磁束量子 \(\Phi_0=h/2e\) にも現れ、両者は電子が対になっていることの独立した証拠になっている。</div></details>
+      </li>
+      <li>電流を臨界電流に近づけると、\(T_0\) はどうなるか。理由も。
+        <details><summary>答えを見る</summary><div class="ans"><strong>下がる。</strong>板が傾いて谷が浅くなると、頂上付近の曲率が小さくなり \(\omega_p=\omega_{p0}(1-s^2)^{1/4}\) が下がる。\(T_0=\hbar\omega_p/2\pi k_B\) もそれに比例して下がる。つまり臨界電流近くでは、<em>より低温まで冷やさないとすり抜けが主役にならない</em>。図で確かめられる。</div></details>
+      </li>
+      <li>1 マイクロボルトをかけたとき、ジョセフソン接合は何 Hz で振動するか。
+        <details><summary>答えを見る</summary><div class="ans">\(f=2eV/h=483.6\ \mathrm{THz/V}\times10^{-6}\ \mathrm{V}=\) <strong>483.6 MHz</strong>。逆にマイクロ波を当てて振動数を測れば電圧が決まる ── これが電圧標準の原理。振動数は人類がいちばん正確に測れる量なので、電圧の精度がそこまで引き上げられる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>すり抜けの主語が、位相になった</h2>
+    <p>超伝導体は全体でひとつの波動関数 \(\Psi=\sqrt n\,e^{i\theta}\) で書けます。2つを薄い絶縁膜でつなぐと、クーパー対がすり抜けて <strong>\(I=I_c\sin\Delta\theta\)</strong> ── 電圧なしで電流が流れる。電圧をかければ位相差が回りだし \(d(\Delta\theta)/dt=2eV/\hbar\) で、直流電圧が 483.6 THz/V の交流に化けます。</p>
+    <p>位相差を「粒子の位置」とみなすと、全体が<strong>傾いた洗濯板</strong>の絵になります。電流で板が傾き、谷が消えるところが臨界電流。谷が残っていても位相差は逃げ出せて、その逃げ方が熱かすり抜けかは<em>第3回の \(T_0=\hbar\omega_p/2\pi k_B\) がそのまま決めます</em> ── 典型的な接合で数十 mK。</p>
+    <p>大きな変化は、<strong>すり抜けの主語が「粒子1個」から「位相という巨視的な1変数」に変わった</strong>ことです。10¹⁰ 個のクーパー対が全員でそろって決める量が、まとめて壁を抜ける（巨視的量子トンネル）。めったに起きない偶然が、電流計で読める定常現象になり、いまや<em>電圧の定義と量子計算機の心臓</em>になっています。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回「超伝導は、すり抜けではない」</span>
+    ここまで来ると、こう言いたくなります ── 「トンネル効果と核融合と超伝導は、同じ現象の違う説明なのでは？」<strong>言えません。</strong>次回はこのシリーズの主張を、いったん自分で否定します。核融合とジョセフソン効果は<em>文字どおり</em>すり抜けですが、<strong>超伝導そのものは障壁通過ではなく「凝縮」</strong>で、機構がまるで違う。ギャップが開く理由も、抵抗が消える理由も、壁とは関係ありません。── それでも、BCS のギャップ \(\Delta\sim e^{-1/N(0)V}\) とすり抜けの \(e^{-S_E/\hbar}\) は、<em>そっくりな指数</em>をしています。似ているのはどの層なのか。「似ている」にも階級があることを、はっきりさせる回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかるすり抜け」シリーズ第4回、物理好きの高校生・大学生向け読み物です。直流・交流ジョセフソン効果（Josephson 1962、Anderson–Rowell 1963、1973年ノーベル賞）、\(I=I_c\sin\Delta\theta\)、\(d(\Delta\theta)/dt=2eV/\hbar\)、\(K_J=2e/h=483597.8484\) GHz/V（2019年 SI 以降は厳密値）と電圧標準、磁束量子 \(\Phi_0=h/2e\) と磁束量子化の観測（1961）、洗濯板ポテンシャルと障壁 \(\Delta U=2E_J[\sqrt{1-s^2}-s\arccos s]\)、プラズマ振動数 \(\omega_p=\omega_{p0}(1-s^2)^{1/4}\)、巨視的量子トンネルの観測（Voss–Webb 1981、Devoret–Martinis–Clarke 1985）、SQUID と超伝導量子ビットへの応用は、いずれも確立した物理・技術です。「全体でひとつの波動関数」が平均場描像であること、位相の絶対値がゲージ依存で意味を持つのは位相差だけであること、図が散逸のない理想接合（容量 1 pF 仮定）であること、および実際の接合では準粒子減衰が \(T_0\) を下げることは、本文「正直な線」に明記しました。図の障壁高さとプラズマ振動数はブラウザ内で計算しています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-surinuke-03-wakaredome.html">第3回 熱で越えるか、すり抜けるか</a>／<a href="wakaru-surinuke-05-choudendou.html">第5回 超伝導は、すり抜けではない</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では電流スライダーで洗濯板が傾き、谷が浅くなっていきます。同時に、逃げ出し方が熱からすり抜けに切り替わる温度 T₀ が表示されます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ss=document.getElementById('ss'), vs=document.getElementById('vs'),
+      si=document.getElementById('si'), vi=document.getElementById('vi'),
+      rd=document.getElementById('rd'), bmax=document.getElementById('bmax');
+
+  var HBAR=1.054572e-34, KB=1.380649e-23, E=1.602177e-19;
+  var CAP=1e-12;                     // 接合容量 1 pF
+
+  function Icfrom(s){ return Math.pow(10, -7+(-5+7)*s/100); }   // 0.1 μA 〜 10 μA
+  function fmtI(I){ return (I*1e6).toPrecision(2)+' μA'; }
+  function fmtT(T){
+    if(T>=1) return T.toPrecision(3)+' K';
+    return (T*1000).toPrecision(3)+' mK';
+  }
+  function fmtE(J){
+    var k=J/KB;
+    if(k>=1) return k.toPrecision(3)+' K 相当';
+    return (k*1000).toPrecision(3)+' mK 相当';
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var s=parseInt(ss.value,10)/1000;              // I/Ic : 0 〜 0.998
+    var Ic=Icfrom(parseInt(si.value,10));
+    vs.textContent=s.toFixed(3); vi.textContent=fmtI(Ic);
+
+    var EJ=HBAR*Ic/(2*E);                           // J
+    var wp0=Math.sqrt(2*E*Ic/(HBAR*CAP));           // rad/s
+    var wp=wp0*Math.pow(Math.max(1-s*s,1e-12),0.25);
+    var dU=2*EJ*(Math.sqrt(Math.max(1-s*s,0)) - s*Math.acos(Math.min(s,1)));
+    var T0=HBAR*wp/(2*Math.PI*KB);
+    ctx.clearRect(0,0,w,h);
+
+    // U(δ)/EJ = -(cos δ + s δ)
+    function U(d){ return -(Math.cos(d) + s*d); }
+
+    var L=54, R=w-150, T1=28, B=h-40;
+    var d0=-1.2, d1=3*Math.PI+1.0;
+    // 表示レンジ
+    var umin=1e9, umax=-1e9;
+    for(var q=0;q<=400;q++){ var dq=d0+(d1-d0)*q/400, uq=U(dq); if(uq<umin)umin=uq; if(uq>umax)umax=uq; }
+    var pad=(umax-umin)*0.12;
+    function X(d){ return L+(R-L)*(d-d0)/(d1-d0); }
+    function Y(u){ return B-(B-T1)*(u-(umin-pad))/((umax+pad)-(umin-pad)); }
+
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T1); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    // 洗濯板
+    ctx.strokeStyle='#2e7d6b'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var i=0;i<=500;i++){
+      var d=d0+(d1-d0)*i/500;
+      if(i===0)ctx.moveTo(X(d),Y(U(d))); else ctx.lineTo(X(d),Y(U(d)));
+    }
+    ctx.stroke();
+
+    // 最初の谷（δmin = arcsin s）と、次の頂上（δmax = π - arcsin s）
+    var dmin=Math.asin(Math.min(s,1)), dmax=Math.PI-dmin;
+    if(s<0.999){
+      // 障壁の高さを矢印で
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.8;
+      var xb=X(dmax);
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(dmin),Y(U(dmin))); ctx.lineTo(xb+40,Y(U(dmin))); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xb,Y(U(dmax))); ctx.lineTo(xb+40,Y(U(dmax))); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(xb+30,Y(U(dmin))); ctx.lineTo(xb+30,Y(U(dmax))); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xb+26,Y(U(dmax))+7); ctx.lineTo(xb+30,Y(U(dmax))); ctx.lineTo(xb+34,Y(U(dmax))+7); ctx.stroke();
+      ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('ΔU', xb+36, (Y(U(dmin))+Y(U(dmax)))/2+4);
+    }
+
+    // 位相差の玉
+    ctx.fillStyle='#3a6ea5';
+    ctx.beginPath(); ctx.arc(X(dmin), Y(U(dmin))-6, 7, 0, 7); ctx.fill();
+    ctx.fillStyle='#3a6ea5'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('位相差 δ', X(dmin), Y(U(dmin))-18);
+
+    ctx.fillStyle='#5b7770'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('位相差 δ →（電流が板を傾ける）', (L+R)/2, B+18);
+    ctx.textAlign='left';
+    ctx.fillText('0', X(0)-3, B+16);
+    ctx.fillText('2π', X(2*Math.PI)-8, B+16);
+    ctx.save(); ctx.translate(15,(T1+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('エネルギー U(δ)',0,0); ctx.restore();
+
+    // 右パネル：数値
+    var PX=R+16;
+    ctx.fillStyle='#2e7d6b'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('この接合', PX, T1+4);
+    ctx.font='10.5px sans-serif'; ctx.fillStyle='#3d5a53';
+    var lines=[
+      'E_J = '+(EJ/KB).toPrecision(3)+' K',
+      'ω_p0 = '+(wp0/1e10).toPrecision(3)+'×10¹⁰ /s',
+      'ω_p  = '+(wp/1e10).toPrecision(3)+'×10¹⁰ /s',
+      'ΔU = '+(dU/KB<1? (dU/KB*1000).toPrecision(3)+' mK' : (dU/KB).toPrecision(3)+' K'),
+      '',
+      'T₀ = '+fmtT(T0)
+    ];
+    for(var li=0;li<lines.length;li++){
+      if(li===lines.length-1){ ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; }
+      ctx.fillText(lines[li], PX, T1+24+li*17);
+    }
+    ctx.fillStyle='#5b7770'; ctx.font='9.5px sans-serif';
+    ctx.fillText('← これより下は', PX, T1+24+lines.length*17+6);
+    ctx.fillText('   すり抜けが主役', PX, T1+24+lines.length*17+19);
+
+    var state, esc;
+    if(s>0.995){ state='<b style="color:#a83a22">谷がほぼ消えました</b> ── 位相差は転がり落ち、電圧が現れます（超伝導が「壊れた」ように見える）。'; }
+    else if(s>0.9){ state='谷はかなり浅い。<b>わずかな熱やゆらぎでも逃げ出します。</b>'; }
+    else if(s>0.05){ state='谷に捕まったまま。<b>電流は流れているのに電圧はゼロ</b> ── これが直流ジョセフソン効果。'; }
+    else { state='板はほぼ水平。電流もほぼゼロ。'; }
+    esc = 'この状態で逃げ出すには ΔU = <b>'+fmtE(dU)+'</b> の壁を越えるか、すり抜けるか。'
+        + '分かれ目は <b>T₀ = '+fmtT(T0)+'</b>（第3回の式そのまま）。';
+
+    rd.innerHTML='I / I_c = <b>'+s.toFixed(3)+'</b>（I = '+fmtI(s*Ic)+'）、I_c = <b>'+fmtI(Ic)+'</b>。'+state+'<br>'+esc;
+  }
+
+  ss.addEventListener('input', draw);
+  si.addEventListener('input', draw);
+  bmax.addEventListener('click', function(){ ss.value=990; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
