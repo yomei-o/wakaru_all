@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>屈折率が 1 より小さいとき ── わかる屈折 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf8fa; --paper-edge:#ecd8de;   /* 第3回：位相速度＝臙脂の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#82243f; --calc-bg:#f7e6ec;
+    --rule:#e6ccd4; --hair:#d0a8b6;
+    --acc:#a03050;
+    --grid:#f2dfe5;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0c3d0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #edd2db;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffcfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f7e6ec;color:#7a2340;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffcfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8ebef;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7a2340;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffcfd,#f4e2e8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7e6ec;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7a2340;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7d6069;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 3 回 ／ 屈折率が 1 より小さいとき</span></div>
+  <p class="eyebrow">位相速度は光速を超える ── それでも相対論は無傷、そして光子は質量を持つ</p>
+  <h1>屈折率が 1 より小さいとき
+    <span class="sub">X線に対するガラスの屈折率は <em>1 より小さい</em>。プラズマもそう。<br>すると位相速度は \(c\) を超えます ── <strong>それでも情報は超えません</strong>。<br>そしてプラズマの分散関係をよく見ると、<strong>それは質量のある粒子の分散関係でした</strong>。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回の光円錐、分散関係、位相速度と群速度</span>
+    <span>この回の芯：ω² = ω_p² + c²k²</span>
+  </div>
+
+  <p class="lead">ここまで \(n>1\) を前提にしてきました。水もガラスもダイヤモンドもそうだからです。<strong>ところが \(n<1\) の物質があります。</strong>X線に対するガラスがそうで、電離層も金属もそう。すると第2回の円錐は本物より<em>広く</em>なり、<strong>位相速度が \(c\) を超えます</strong>。ぎょっとしますが、相対論はまったく無傷です ── 情報を運ぶのは位相の山ではなく<em>信号の前縁</em>で、それはどんな媒質でもきっかり \(c\)。姉妹編「わかるすり抜け」番外編④と<strong>まったく同じ議論</strong>です。そしてこの回にはもうひとつ贈り物があります。プラズマの分散関係 \(\omega^2=\omega_p^2+c^2k^2\) を、相対論の \(E^2=(mc^2)^2+(pc)^2\) と並べてみてください ── <em>同じ形</em>です。<strong>プラズマの中で、光子は質量を持ちます。</strong></p>
+
+  <h2><span class="n">01</span>\(n<1\) は珍しくない</h2>
+
+  <table class="tbl">
+    <tr><th>系</th><th class="num">屈折率</th><th>起きること</th></tr>
+    <tr><td>X線に対するガラス（10 keV）</td><td class="num">\(1-10^{-5}\)</td><td>すれすれの角度で<strong>全「外部」反射</strong>。X線望遠鏡や放射光のミラーはこれで作る</td></tr>
+    <tr><td>電離層（電波、\(f_p\approx9\) MHz）</td><td class="num">1 未満</td><td>AM 放送は跳ね返って遠くまで届き、FM は突き抜ける</td></tr>
+    <tr><td>金属（可視光）</td><td class="num">虚数になる</td><td>波が入れず<strong>反射</strong> ── 金属が鏡である理由</td></tr>
+  </table>
+
+  <div class="calc">
+    <span class="tag">プラズマの屈折率</span>
+    <p style="margin:2px 0 0;">自由な電子が密度 \(N\) で存在するとき、応答から出る屈折率は</p>
+    $$n(\omega)=\sqrt{1-\frac{\omega_p^2}{\omega^2}},\qquad
+    \omega_p=\sqrt{\frac{Ne^2}{\varepsilon_0 m_e}}$$
+    <p style="margin:6px 0 14px;">\(\omega_p\) は<strong>プラズマ振動数</strong>。\(\omega>\omega_p\) なら \(n<1\)（かつ実数）、\(\omega<\omega_p\) なら \(n\) は<em>純虚数</em>になります。<br>
+    数字：金属（\(N\sim10^{29}\ \mathrm{m^{-3}}\)）で \(\hbar\omega_p\approx12\) eV（紫外）。電離層（\(N\sim10^{12}\ \mathrm{m^{-3}}\)）で \(f_p\approx9\) MHz。</p>
+  </div>
+
+  <h2><span class="n">02</span>位相速度は超えるが、群速度は超えない</h2>
+
+  <div class="keybox">
+    <div class="lbl">きれいな関係</div>
+    <p style="margin:0 0 8px;">プラズマの分散 \(\omega^2=\omega_p^2+c^2k^2\) から、</p>
+    $$v_{\rm 位相}=\frac{\omega}{k}=\frac{c}{n}>c,\qquad
+    v_{\rm 群}=\frac{d\omega}{dk}=c\,n<c,\qquad
+    \boxed{\ v_{\rm 位相}\,v_{\rm 群}=c^2\ }$$
+    <p style="margin:8px 0 0;"><strong>位相が \(c\) を超えたぶん、群速度はきっちり同じ比だけ遅くなります。</strong>積が \(c^2\) に固定されている。</p>
+    <p style="margin:10px 0 0;">位相速度は「波の山がどこにあるか」の速さで、<em>山には印がついていません</em> ── どの山も同じなので、山の位置で情報は送れない。<strong>情報を運ぶのは波形の変化</strong>で、それはおおむね群速度で伝わり、厳密には前縁で伝わります。</p>
+  </div>
+
+  <h2><span class="n">03</span>厳密には ── 前縁の速さはいつでも \(c\)</h2>
+
+  <p>群速度でさえ、じつは \(c\) を超えることがあります（吸収線のすぐそばの<em>異常分散</em>領域では、群速度が \(c\) を超えたり、負になったりします。2000年に実測もされています）。それでも相対論は破れません。</p>
+
+  <div class="calc">
+    <span class="tag">ゾンマーフェルトとブリユアン（1914）</span>
+    <p style="margin:2px 0 14px;">波形の<strong>いちばん先端</strong>（それまで何もなかったところに信号が到達する瞬間）は、媒質が何であろうと<em>きっかり \(c\)</em> で進みます。<br>
+    理由は簡単で、無限に高い振動数の成分に対しては、どんな物質も応答できないから ── \(\omega\to\infty\) で \(n\to1\)。<strong>前縁は真空を進むのと同じ速さ</strong>です。<br>
+    <em>情報を運べるのはこの前縁だけ。</em>「位相速度が \(c\) を超えた」「群速度が負になった」は、いずれも<strong>波形が作り直された</strong>ことの表現であって、何かが速く動いたのではありません。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">「わかるすり抜け」番外編④と同じ論法</span>
+    あちらではハートマン効果（壁を厚くしても透過の遅れが増えない）を扱い、まったく同じ二点で決着させました ── <strong>①出てくる波は入射波の前縁が整形されたもの ②前縁の速度はいつでも \(c\)</strong>。<br>
+    <em>トンネル効果と屈折という、まるで別の話が、同じ一つの論法で守られています。</em>どちらも「ピークの速さは信号速度ではない」。
+  </div>
+
+  <h2><span class="n">04</span>プラズマの中で、光子は質量を持つ</h2>
+
+  <p>この回のいちばん面白いところです。分散関係を並べてみてください。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯</div>
+    $$\text{プラズマの光：}\quad \omega^2=\omega_p^2+c^2k^2$$
+    $$\text{質量 }m\text{ の粒子：}\quad E^2=(mc^2)^2+(pc)^2$$
+    <p style="margin:8px 0 0;">\(E=\hbar\omega\)、\(p=\hbar k\) と置くと、二つは<strong>同じ式</strong>です。対応するのは</p>
+    $$m_{\rm eff}=\frac{\hbar\omega_p}{c^2}$$
+    <p style="margin:8px 0 0;"><strong>プラズマの中で、光子は実効的な質量を持ちます。</strong>金属なら \(\hbar\omega_p\approx12\) eV なので、電子質量（511 keV）の 4 万分の 1 ほど。<br>
+    そして \(\omega<\omega_p\)（つまり \(E<m_{\rm eff}c^2\)）では波が伝われない ── <em>静止エネルギーより小さいエネルギーでは、その粒子は作れない</em>という、あたりまえの話になります。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">これは「わかるすり抜け」第5回のマイスナー効果と同じ機構</span>
+    すり抜け第5回で、超伝導体のマイスナー効果を<em>「超伝導体の中で光子が質量を持つ」</em>（アンダーソン–ヒッグス機構）と説明しました。磁場が中に入れないのは、質量を持った場が指数的に減衰するから。<br>
+    <strong>プラズマで起きているのは、その「弱い版」です。</strong>電子が自由に動いて電場を遮蔽する ── その遮蔽が光子に質量を与える。超伝導ではそれが凝縮によって恒久化し、質量がゼロ振動数でも残る。<em>金属が鏡であることと、超伝導体が磁場を追い出すことは、同じ家族の現象です。</em>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 分散関係のひと目</h2>
+
+  <p>下の図はプラズマの分散関係です。<strong>原点から点へ引いた直線の傾きが位相速度、曲線の接線の傾きが群速度</strong>。破線が光の線 \(\omega=ck\)。</p>
+
+  <p>\(\omega\) を \(\omega_p\) より下げると ── <strong>曲線が消えます</strong>。伝わる波がないからです。そのとき波は境界から \(e^{-z/\delta}\) で染み出すだけ（エバネッセント）で、正味は全反射。<em>これが金属が鏡である理由で、次回のエバネッセント波の予告でもあります。</em></p>
+
+  <div class="fig">
+    <div class="cap">図：プラズマの分散関係 ω² = ω_p² + c²k²（実線）と光の線 ω = ck（破線）。原点からの直線の傾き＝位相速度（c を超える）、接線の傾き＝群速度（c 未満）。ω &lt; ω_p では伝わる波がなく、境界から染み出すだけ</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>振動数 ω / ω_p <span class="val" id="vw">1.60</span>
+        <input type="range" id="sw" min="20" max="400" step="1" value="160">
+      </label>
+      <button id="p1">金属＋可視光</button>
+      <button id="p2">電離層＋AM 放送</button>
+      <button id="p3">X線＋ガラス</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a03050;"></i>プラズマの分散</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>光の線 ω = ck</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>群速度（接線）</span>
+      <span><i class="swatch" style="background:#b3541e;"></i>位相速度（原点からの直線）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>だから金属は鏡で、そして紫外線には透ける</h2>
+
+  <p>\(\omega<\omega_p\) では \(n\) が純虚数になり、波は \(e^{-z/\delta}\) で減衰します。減衰長は \(\delta=c/\sqrt{\omega_p^2-\omega^2}\) ── 金属で可視光なら<strong>約 17 nm</strong>。<em>原子 50 個ぶんも入れません。</em>入れないから、反射する。</p>
+
+  <div class="keybox">
+    <div class="lbl">逆に、\(\omega\) を上げると金属は透ける</div>
+    <p style="margin:0;">\(\omega>\omega_p\) になれば \(n\) は実数に戻り、金属は<strong>透明になります</strong>。実際、アルカリ金属は紫外線に対して透明で、これは 1933 年にウッドが観測しました。<em>「金属は光を通さない」は、可視光に限った話です。</em></p>
+    <p style="margin:8px 0 0;">同じ理由で、<strong>電離層は AM 放送（数 MHz）を跳ね返し、FM（100 MHz）を通します</strong>。跳ね返るから AM は夜に遠くまで届き、通すから衛星通信ができる。<em>境目はプラズマ振動数 \(f_p\approx9\) MHz です。</em></p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>X線に対する物質の屈折率が 1 をわずかに下回り、全外部反射が起きること（すれすれ入射ミラーの原理）；プラズマの屈折率 \(n=\sqrt{1-\omega_p^2/\omega^2}\) とプラズマ振動数 \(\omega_p=\sqrt{Ne^2/\varepsilon_0m_e}\)；\(v_{\rm 位相}v_{\rm 群}=c^2\)；波形の前縁がつねに \(c\) で伝わること（ゾンマーフェルト–ブリユアン 1914）；プラズマの分散関係が質量のある粒子の分散関係と同形であり \(m_{\rm eff}=\hbar\omega_p/c^2\) と読めること；金属の表皮深さが可視光で 10 nm 級であること；アルカリ金属の紫外透過（Wood 1933）；電離層の遮断周波数。いずれも標準的な物理です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>異常分散の領域では群速度も \(c\) を超えたり負になったりします</strong>（Wang–Kuzmich–Dogariu 2000 の実測など）。そこでも情報は \(c\) を超えません。「群速度 &lt; c」は吸収の弱い領域での話です。② プラズマの式は<strong>衝突と磁場を無視した単純なモデル</strong>（自由電子気体）です。実際の金属では束縛電子の寄与や散乱があり、\(n\) は複素数で第5回の枠組みが要ります。③ 「光子が質量を持つ」は<strong>実効的な</strong>意味です ── 真空中の光子の質量はゼロのままで、媒質という環境が分散関係を変えているだけ。ゲージ対称性は破れていません（超伝導では話が違い、そちらは自発的対称性の破れ）。④ X線の \(n<1\) は非常に 1 に近く（\(1-10^{-5}\) 級）、全外部反射の臨界角はミリラジアン級です。⑤ 図は衝突ゼロ・非磁化プラズマの理想化で、実際の電離層や金属の応答そのものではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>位相速度が \(c\) を超えても相対論が破れないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">位相速度は「波の山の位置」の速さで、<strong>山には印がないので情報を載せられない</strong>から。情報を運ぶのは波形の変化で、厳密には<em>前縁</em>。前縁はどんな媒質でもきっかり \(c\)（\(\omega\to\infty\) でどんな物質も応答できず \(n\to1\) になるため）。</div></details>
+      </li>
+      <li>プラズマで \(v_{\rm 位相}v_{\rm 群}=c^2\) を示せ。
+        <details><summary>答えを見る</summary><div class="ans">\(\omega^2=\omega_p^2+c^2k^2\) より \(v_{\rm 位相}=\omega/k\)。両辺を \(k\) で微分して \(2\omega\,d\omega/dk=2c^2k\)、つまり \(v_{\rm 群}=c^2k/\omega\)。掛けると \((\omega/k)(c^2k/\omega)=\) <strong>\(c^2\)</strong>。</div></details>
+      </li>
+      <li>プラズマの中で光子が「質量を持つ」とはどういう意味か。
+        <details><summary>答えを見る</summary><div class="ans">\(\omega^2=\omega_p^2+c^2k^2\) が \(E^2=(mc^2)^2+(pc)^2\) と同形なので、<strong>\(m_{\rm eff}=\hbar\omega_p/c^2\)</strong> と読める。ただし<em>実効的</em>な意味で、真空中の光子はゼロ質量のまま。媒質が分散関係を変えているだけ。金属なら \(\hbar\omega_p\approx12\) eV。</div></details>
+      </li>
+      <li>金属が可視光では鏡で、紫外線では透けるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">金属の \(\hbar\omega_p\approx12\) eV（紫外）が境目。<strong>可視光（2〜3 eV）は \(\omega<\omega_p\) なので \(n\) が虚数</strong>になり、波は 17 nm ほどで減衰して入れない ── だから反射。\(\omega>\omega_p\) になると \(n\) は実数に戻り透過する（アルカリ金属の紫外透過、Wood 1933）。同じ理由で電離層は AM を跳ね返し FM を通す。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第3回まとめ</span>超えるのは位相だけ、そして光子は重くなる</h2>
+    <p>X線に対するガラスも、電離層も、金属も \(n<1\)（あるいは虚数）です。\(n<1\) なら<strong>位相速度は \(c\) を超えます</strong>。それでも相対論は無傷 ── 位相の山には印がないので情報を載せられず、情報を運ぶ<em>前縁</em>はどんな媒質でもきっかり \(c\)（ゾンマーフェルト–ブリユアン）。<strong>姉妹編「わかるすり抜け」番外編④とまったく同じ論法</strong>です。プラズマでは \(v_{\rm 位相}v_{\rm 群}=c^2\) という気持ちのよい関係も成り立ちます。</p>
+    <p>そしてこの回の贈り物 ── プラズマの分散 \(\omega^2=\omega_p^2+c^2k^2\) は、<strong>質量のある粒子の \(E^2=(mc^2)^2+(pc)^2\) と同じ式</strong>です。つまり <em>プラズマの中で光子は実効質量 \(m_{\rm eff}=\hbar\omega_p/c^2\) を持つ</em>。これは「わかるすり抜け」第5回のマイスナー効果（超伝導体で光子が質量を持つ）の弱い版で、<strong>金属が鏡であることと超伝導体が磁場を追い出すことは同じ家族</strong>です。</p>
+    <p>\(\omega<\omega_p\) では波が入れず、表皮深さ 17 nm ほどで減衰して反射する ── それが金属の鏡。逆に \(\omega\) を上げれば金属は透け（アルカリ金属の紫外透過）、電離層は AM を跳ね返して FM を通す。<em>境目はいつも \(\omega_p\) です。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第4回「反射は「食い違い」から出る ── そして全反射はすり抜けになる」</span>
+    この回の最後に出た「入れずに染み出すだけの波」を、正面から扱います。反射率はインピーダンスの<strong>食い違い</strong>だけで決まり、ブリュースター角ではきれいに消える。そして<strong>全反射</strong> ── 光は入らないのに、境界の向こうに \(e^{-\kappa z}\) の<em>エバネッセント波</em>が染み出している。すぐ隣にもう一枚ガラスを置くと、<strong>光が通ります</strong>。厚みを 1 波長増やすごとに桁で落ちる。<em>これは「わかるすり抜け」第1回の \(e^{-2\kappa a}\) そのもの</em> ── 光でやるトンネル効果です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第3回、物理好きの高校生・大学生向け読み物です。X線に対する屈折率が 1 をわずかに下回り全外部反射が生じること、プラズマの屈折率とプラズマ振動数、\(v_{\rm 位相}v_{\rm 群}=c^2\)、前縁がつねに \(c\) で伝わること（ゾンマーフェルト–ブリユアン 1914）、プラズマの分散関係が質量のある粒子と同形で \(m_{\rm eff}=\hbar\omega_p/c^2\) と読めること、金属の表皮深さ、アルカリ金属の紫外透過（Wood 1933）、および電離層の遮断周波数は、いずれも標準的な物理です。異常分散領域では群速度も \(c\) を超えうること（情報は超えない）、プラズマの式が衝突と磁場を無視した自由電子気体の単純モデルであること、「光子が質量を持つ」が実効的な意味であり真空中の光子はゼロ質量のままであること、X線の \(n<1\) が非常に 1 に近く臨界角がミリラジアン級であること、および図が理想化であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kussetsu-02-enkosui.html">第2回 光の円錐が、二つある</a>／<a href="wakaru-kussetsu-04-hansha.html">第4回 反射は「食い違い」から出る</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-surinuke/index.html">わかるすり抜け</a>（第5回・番外編④）・<a href="../wakaru_shitsuryo/index.html">わかる質量</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では ω を ω_p より下げると、伝わる波が消えて反射に変わります。プリセットで金属・電離層・X線の3つの実例に飛べます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sw=document.getElementById('sw'), vw=document.getElementById('vw'),
+      rd=document.getElementById('rd');
+  var p1=document.getElementById('p1'), p2=document.getElementById('p2'), p3=document.getElementById('p3');
+  var C=2.99792458e8, HBAR=1.054572e-34, EV=1.602177e-19;
+  var mode=0;   // 0=金属, 1=電離層, 2=X線
+  var MODES=[
+    {n:'金属＋可視光', wp:1.78e16, label:'ħω_p = 11.7 eV'},
+    {n:'電離層＋AM 放送', wp:5.6e7,  label:'f_p = 8.9 MHz'},
+    {n:'X線＋ガラス',   wp:2.7e16, label:'ħω_p ≈ 18 eV（固体の価電子）'}
+  ];
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var W=parseInt(sw.value,10)/100;      // ω/ω_p
+    vw.textContent=W.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    var L=58, R=w-16, T=28, B=h-42;
+    var KMAX=3.5, WMAX=4.0;
+    function X(k){ return L+(R-L)*k/KMAX; }
+    function Y(ww){ return B-(B-T)*ww/WMAX; }
+
+    ctx.strokeStyle='#d0a8b6'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#7d6069'; ctx.textAlign='right';
+    for(var t=1;t<=4;t++){ ctx.fillText(t+' ω_p', L-5, Y(t)+4); }
+    ctx.textAlign='center';
+    for(var k=1;k<=3;k++){ ctx.fillText(k+' ω_p/c', X(k), B+15); }
+    ctx.fillText('波数 ck / ω_p', (L+R)/2, B+31);
+    ctx.save(); ctx.translate(14,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('振動数 ω / ω_p',0,0); ctx.restore();
+
+    // ω_p の水平線（遮断）
+    ctx.strokeStyle='#8a6d1f'; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(1)); ctx.lineTo(R,Y(1)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#8a6d1f'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('ω = ω_p（遮断）── これより下は伝わらない', L+6, Y(1)-6);
+    ctx.fillStyle='rgba(138,109,31,.07)'; ctx.fillRect(L,Y(1),R-L,B-Y(1));
+
+    // 光の線
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(KMAX),Y(KMAX)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#3a6ea5'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('ω = ck', R-6, Y(KMAX*0.93)+2);
+
+    // 分散
+    ctx.strokeStyle='#a03050'; ctx.lineWidth=3; ctx.beginPath();
+    for(var i=0;i<=240;i++){
+      var kk=KMAX*i/240, ww=Math.sqrt(1+kk*kk);
+      if(i===0)ctx.moveTo(X(kk),Y(ww)); else ctx.lineTo(X(kk),Y(ww));
+    }
+    ctx.stroke();
+
+    var prop = W>1.0001;
+    var nn = prop? Math.sqrt(1-1/(W*W)) : 0;
+    var kk0 = prop? Math.sqrt(W*W-1) : 0;
+
+    if(prop){
+      var px=X(kk0), py=Y(W);
+      // 位相速度（原点からの直線）
+      ctx.strokeStyle='#b3541e'; ctx.lineWidth=2; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(px+ (px-X(0))*0.15, py+(py-Y(0))*0.15); ctx.stroke();
+      ctx.setLineDash([]);
+      // 群速度（接線）
+      var slope=kk0/W;
+      ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2.4;
+      var dk=0.9;
+      ctx.beginPath();
+      ctx.moveTo(X(kk0-dk), Y(W-slope*dk));
+      ctx.lineTo(X(kk0+dk), Y(W+slope*dk));
+      ctx.stroke();
+      ctx.fillStyle='#a03050'; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
+      ctx.fillStyle='#2f7d5a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('接線＝群速度', X(kk0+dk*0.6), Y(W+slope*dk*0.6)-8);
+      ctx.fillStyle='#b3541e'; ctx.textAlign='right';
+      ctx.fillText('原点からの直線＝位相速度', px-10, py+20);
+    } else {
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(L,Y(W)); ctx.lineTo(R,Y(W)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('この振動数には、伝わる波がありません（全反射）', (L+R)/2, Y(W)-9);
+    }
+
+    var m=MODES[mode], wp=m.wp;
+    var omega=W*wp;
+    var out;
+    if(prop){
+      out='n = <b>'+nn.toFixed(4)+'</b>（1 未満）、位相速度 = c/n = <b>'+(C/nn).toPrecision(4)+' m/s</b>'
+        +'（c の '+(1/nn).toFixed(3)+' 倍 ── <b>光速超え</b>）、群速度 = cn = <b>'+(C*nn).toPrecision(4)+' m/s</b>。'
+        +'積は '+((C/nn)*(C*nn)/(C*C)).toFixed(4)+' c² ✓<br>'
+        +'<b>それでも情報は c を超えません</b> ── 運ぶのは前縁で、それはいつでもきっかり c。';
+    } else {
+      var skin=C/Math.sqrt(wp*wp-omega*omega);
+      out='<b style="color:#a83a22">ω &lt; ω_p なので n は純虚数</b>。波は入れず、境界から e^(−z/δ) で染み出すだけ ── '
+        +'表皮深さ δ = <b>'+(skin*1e9).toPrecision(3)+' nm</b>。正味は<b>全反射</b>です。<br>'
+        +'これが金属が鏡である理由で、次回のエバネッセント波の話につながります。';
+    }
+    var note='';
+    if(mode===2){
+      note='<br><b>注：</b>本物の X線はここよりはるかに右（ω/ω_p ≈ 10²〜10³）にあり、そこでは n = 1 − 10⁻⁵ 級 ── '
+        +'この図では 4 ω_p までしか描いていないので、<b>同じ曲線の「もっと右のほう」</b>だと思ってください。'
+        +'全外部反射の臨界角がミリラジアン級なのはそのためです。';
+    }
+    rd.innerHTML='系：<b>'+m.n+'</b>（'+m.label+'）　ω/ω_p = <b>'+W.toFixed(2)+'</b><br>'+out+'<br>'
+      +'実効質量 m_eff = ℏω_p/c² → 静止エネルギー <b>'+(HBAR*wp/EV).toPrecision(3)+' eV</b>'
+      +'（電子質量 511 keV の '+(HBAR*wp/EV/511000).toExponential(2)+' 倍）。'+note;
+  }
+
+  sw.addEventListener('input', draw);
+  p1.addEventListener('click', function(){ mode=0; sw.value=15; draw(); });
+  p2.addEventListener('click', function(){ mode=1; sw.value=60; draw(); });
+  p3.addEventListener('click', function(){ mode=2; sw.value=400; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

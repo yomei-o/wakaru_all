@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>反射は「食い違い」から出る ── わかる屈折 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdfaf6; --paper-edge:#ecdcc9;   /* 第4回：反射＝焦茶の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8f4114; --calc-bg:#f7ebe0;
+    --rule:#e6d5c2; --hair:#cbb49a;
+    --acc:#b3541e;
+    --grid:#f2e6d8;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0d0ae 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd9c5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f7ebe0;color:#7e3b12;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8eee3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7e3b12;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfa,#f5e6d6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7ebe0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7e3b12;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7a6450;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 4 回 ／ 反射は「食い違い」から出る</span></div>
+  <p class="eyebrow">反射率はインピーダンスの不一致だけで決まり ── そして全反射は、光でやるトンネル効果だった</p>
+  <h1>反射は「食い違い」から出る
+    <span class="sub">反射が起きるのは「物質があるから」ではなく <em>食い違いがあるから</em>。<br>ブリュースター角では消え、屈折率を合わせても消える。<br>そして<strong>全反射しているはずの向こう側に、波は染み出しています</strong> ── \(T\propto e^{-2\kappa d}\)。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の位相、第3回のエバネッセント、波動方程式</span>
+    <span>この回の芯：光でやるトンネル効果</span>
+  </div>
+
+  <p class="lead">屈折の話をしてきましたが、境界では必ずもうひとつ起きることがあります ── <strong>反射</strong>。そしてここには気持ちのよい原理がひとつだけあります。<em>反射は「物質があるから」起きるのではなく、「食い違いがあるから」起きる。</em>屈折率をぴったり合わせれば、境界があっても反射はゼロになります。反射防止コートも、ブリュースター角も、全部この一行の帰結です。<strong>そしてこの回の本命は全反射</strong> ── 光はまったく透過しないはずなのに、境界の向こうには \(e^{-\kappa z}\) という波が染み出しています。すぐ隣にもう一枚ガラスを置くと、<em>光が通ってしまう</em>。透過率は \(T\propto e^{-2\kappa d}\) ── これは姉妹編「わかるすり抜け」第1回の式と<strong>文字が違うだけの同じ式</strong>です。光でやるトンネル効果。ニュートンが 1704 年に見ています。</p>
+
+  <h2><span class="n">01</span>反射率は「食い違い」だけで決まる</h2>
+
+  <div class="calc">
+    <span class="tag">垂直入射のフレネル反射</span>
+    <p style="margin:2px 0 0;">境界で電場と磁場がつながる条件から、振幅反射率は</p>
+    $$r=\frac{n_1-n_2}{n_1+n_2},\qquad R=|r|^2=\left(\frac{n_1-n_2}{n_1+n_2}\right)^2$$
+    <p style="margin:6px 0 14px;">空気（1）→ ガラス（1.5）なら \(r=-0.2\)、\(R=4\%\)。ガラス板は表と裏で 2 回だから約 8% を失います。<br>
+    <strong>\(n_1=n_2\) なら \(r=0\)。</strong>境界は「そこにある」のに、反射しない。<em>反射を起こしているのは物質ではなく差です。</em></p>
+    <p class="lbl">符号のこと</p>
+    <p style="margin:2px 0 14px;">\(n_2>n_1\) だと \(r<0\)、つまり反射波の位相が \(\pi\) ずれます。<em>壁に固定したロープを振ると、戻ってくる波が反転している</em>のと同じこと。逆に密から疎（ガラス→空気）では反転しません。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">反射防止コート ── 差を「二段階に分ける」</span>
+    差が大きいから反射する。なら<strong>途中に一段はさめばよい</strong>。厚さが \(\lambda/4n_2\) の膜をつけると、膜の表と裏の反射が<em>ちょうど逆位相</em>で打ち消し合います。<br>
+    完全に消える条件は \(n_{\rm 膜}=\sqrt{n_{\rm 空気}n_{\rm ガラス}}=\sqrt{1.5}=1.225\)。実際に使える材料でいちばん近いのが<strong>フッ化マグネシウム \(n=1.38\)</strong> で、これで反射は 4% → 約 1.4% に落ちます。<em>眼鏡やカメラのレンズがうっすら紫や緑に見えるのは、この膜が「消しきれなかった色」です。</em>
+  </div>
+
+  <h2><span class="n">02</span>ブリュースター角 ── 双極子は自分の軸方向に放射しない</h2>
+
+  <p>斜めに入れると、偏光で話が変わります。入射面内に電場が振れる偏光（p 偏光）には、<strong>反射がぴたりとゼロになる角度</strong>があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">ブリュースター角</div>
+    $$\tan\theta_B=\frac{n_2}{n_1}\qquad\text{（空気→ガラス 1.5 なら }\theta_B=56.3^\circ\text{）}$$
+    <p style="margin:8px 0 0;"><strong>なぜ消えるのか</strong> ── 第1回を思い出してください。反射波も透過波も、<em>物質の中の双極子が振動して出す光</em>でした。\(\theta_B\) では、屈折光線と反射光線がちょうど 90° になります。すると p 偏光では、双極子の振動方向が<strong>反射光線の方向とぴたり一致する</strong>。</p>
+    <p style="margin:8px 0 0;">そして<em>双極子は、自分の振動軸の方向には放射しません</em>（放射強度は \(\sin^2\theta\)）。<strong>出す相手がいないので、反射波が存在できない。</strong></p>
+  </div>
+
+  <p>結果として、\(\theta_B\) 付近で反射した光は<strong>ほぼ完全に s 偏光</strong>になります。路面や水面の反射がまぶしいのはこのため（水平方向に偏光している）。<em>偏光サングラスは、その向きだけを切る板です。</em></p>
+
+  <h2><span class="n">03</span>全反射でも、向こう側に波はある</h2>
+
+  <p>密から疎（ガラス→空気）に入射する角度を大きくしていくと、スネルの法則 \(n_1\sin\theta_1=n_2\sin\theta_2\) は \(\sin\theta_2>1\) を要求しはじめます。<em>そんな角度は存在しません。</em>これが<strong>全反射</strong>で、境目は</p>
+
+  <div class="calc">
+    <span class="tag">臨界角と、その先</span>
+    $$\sin\theta_c=\frac{n_2}{n_1}\qquad\text{（ガラス→空気なら }\theta_c=41.8^\circ\text{）}$$
+    <p style="margin:6px 0 0;">\(\theta>\theta_c\) では、向こう側の波数の<strong>境界に垂直な成分が虚数</strong>になります：</p>
+    $$k_z=\frac{\omega}{c}\sqrt{n_2^2-n_1^2\sin^2\theta}\ \longrightarrow\ i\kappa,\qquad
+    \kappa=\frac{2\pi}{\lambda_0}\sqrt{n_1^2\sin^2\theta-n_2^2}$$
+    <p style="margin:6px 0 14px;">つまり \(e^{ik_zz}\to e^{-\kappa z}\) ── <strong>進む波ではなく、指数関数で減衰する波</strong>。これを<em>エバネッセント波</em>といいます。<br>
+    数字：\(\lambda_0=550\) nm、ガラス（1.5）→空気、\(\theta=45^\circ\) なら \(1/\kappa\approx\) <strong>248 nm</strong>。<em>波長より短い。</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">「全反射」なのにエネルギーは足りている？</span>
+    はい。定常状態では、エバネッセント波が境界に垂直な向きに運ぶ<strong>時間平均のエネルギー流はゼロ</strong>です（電場と磁場が 90° ずれるため）。行っては戻ってきている。<br>
+    だから反射率はきっちり 1。<em>場は向こうにあるのに、エネルギーは渡っていない</em> ── これが次節の伏線です。<strong>そこに何かを置くと、話が変わります。</strong>
+  </div>
+
+  <h2><span class="n">04</span>もう一枚置くと、光が通る ── 光のトンネル効果</h2>
+
+  <p>全反射しているガラスの表面に、<strong>もう一枚のガラスを数百 nm まで近づけます</strong>。すると ── 光が通ります。すきまを詰めるほど通り、離すほど<em>指数関数で</em>通らなくなる。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 文字が違うだけの同じ式</div>
+    <table class="tbl" style="margin:8px 0 4px;">
+      <tr><th></th><th>電子のトンネル（すり抜け第1回）</th><th>光の全反射（この回）</th></tr>
+      <tr><td>波</td><td>波動関数 \(\psi\)</td><td>電場 \(E\)</td></tr>
+      <tr><td>禁じられる理由</td><td>\(E<V\)（エネルギーが足りない）</td><td>\(n_1\sin\theta>n_2\)（角度が大きすぎる）</td></tr>
+      <tr><td>減衰定数</td><td>\(\kappa=\dfrac{\sqrt{2m(V-E)}}{\hbar}\)</td><td>\(\kappa=\dfrac{2\pi}{\lambda_0}\sqrt{n_1^2\sin^2\theta-n_2^2}\)</td></tr>
+      <tr><td>透過率</td><td colspan="2" style="text-align:center;">\(T=\left[1+\dfrac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d\right]^{-1}\ \xrightarrow{\ \kappa d\gg1\ }\ \propto e^{-2\kappa d}\)　<strong>まったく同じ式</strong></td></tr>
+      <tr><td>減衰長</td><td class="num">約 0.2 nm（\(V-E=1\) eV）</td><td class="num">約 248 nm（可視光、45°）</td></tr>
+    </table>
+    <p style="margin:10px 0 0;">式が似ているのではありません。<strong>同じ式です。</strong>どちらも「波動方程式で \(k^2<0\) になった領域」を扱っているだけ。<em>違うのは減衰長が 1000 倍以上あることで、だから光では手で並べたガラス板で実験できます。</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">ニュートンは 1704 年に見ている</span>
+    『光学』（Opticks）で、ニュートンは二枚のプリズムを押し当てる実験を記録しています ── <em>全反射しているはずなのに、接触に近づけると光が向こうへ抜ける</em>。<strong>量子力学より 220 年以上前です。</strong><br>
+    現代の名前は<strong>妨げられた全反射（FTIR）</strong>。使い道は多く、スマートフォンの光学式指紋センサ、ビームスプリッタ、全反射蛍光顕微鏡（TIRF、界面から 100 nm だけを照らす）、近接場光学顕微鏡（回折限界を破る）── <em>ぜんぶ「染み出した波を拾う」装置</em>です。
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── すきまを開けていく</h2>
+
+  <div class="fig">
+    <div class="cap">図：左＝全反射しているガラスの向こうに染み出すエバネッセント波 e^(−κz)。すきま d のところに二枚目のガラスを置くと、そこに残っている振幅だけが向こうへ渡る。右＝透過率 T の対数プロット（厳密式）。傾きが −2κ ── 「わかるすり抜け」第1回とまったく同じ形の図</div>
+    <canvas id="cv" width="680" height="350"></canvas>
+    <div class="controls">
+      <label>すきま d <span class="val" id="vd">300 nm</span>
+        <input type="range" id="sd" min="0" max="1500" step="5" value="300">
+      </label>
+      <label>入射角 θ <span class="val" id="vt">45°</span>
+        <input type="range" id="st" min="420" max="800" step="1" value="450">
+      </label>
+      <label>波長 λ₀ <span class="val" id="vl">550 nm</span>
+        <input type="range" id="sl" min="400" max="800" step="5" value="550">
+      </label>
+      <button id="bc">接触寸前へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b3541e;"></i>エバネッセント波 e^(−κz)</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>透過率 T</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>ガラス</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>だから「トンネル効果の量子らしさ」は、指数関数の側にはない</h2>
+
+  <div class="keybox">
+    <div class="lbl">この回がいちばん言いたいこと</div>
+    <p style="margin:0 0 8px;">電子のトンネル効果を不思議に感じる理由は、たいてい「エネルギーが足りないのに壁を越える」という言い方から来ます。でも上の表を見てください ── <strong>光でもまったく同じことが起きていて、しかも光では誰も不思議に思いません。</strong></p>
+    <p style="margin:0;">なぜなら光は<em>初めから波</em>だから。波が禁止領域で \(e^{-\kappa z}\) になるのは、ただの微分方程式の解です。<strong>指数関数の部分に、量子的なところはひとつもありません。</strong></p>
+    <p style="margin:10px 0 0;">量子的なのは、<em>電子が波であること、そのただ一点</em>です。それさえ認めれば、あとは 1704 年にニュートンが見たのと同じ古典的な波の話。<br>
+    ── このコレクションの言い方でいえば、<strong>「似ている」の第二段階</strong>（ひとつの枠組みの、違う解）です。同じ波動方程式の、\(k^2<0\) の領域。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>垂直入射のフレネル係数 \(r=(n_1-n_2)/(n_1+n_2)\) とガラスの 4% 反射；反射防止膜の条件 \(n=\sqrt{n_1n_3}\)、\(\lambda/4\) 厚、MgF₂（1.38）で 4%→約 1.4%；ブリュースター角 \(\tan\theta_B=n_2/n_1\) と、双極子が自分の軸方向に放射しないという説明；臨界角 \(\sin\theta_c=n_2/n_1\)；エバネッセント波 \(e^{-\kappa z}\)、\(\kappa=(2\pi/\lambda_0)\sqrt{n_1^2\sin^2\theta-n_2^2}\)；定常状態で境界に垂直な時間平均エネルギー流がゼロになること；妨げられた全反射（FTIR）と、対称な間隙に対する透過率が量子の矩形障壁とまったく同形になること；ニュートン『光学』（1704）の二プリズム観察；TIRF・近接場顕微鏡・光学式指紋センサ。いずれも標準的な光学です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① 表と図の透過率は<strong>s 偏光</strong>（電場が入射面に垂直）についてのものです。p 偏光では前係数が変わりますが、\(e^{-2\kappa d}\) の指数部分は同じです。② 図は非吸収・非分散・完全平坦・単色平面波の理想化で、実際の二枚のガラスでは表面粗さが数 nm あり、これが接触近傍のふるまいを支配します。③ 「同じ式」というのは<strong>数学の形が同じ</strong>という意味です。光子のトンネルと電子のトンネルは同じ現象ではなく、共通なのは「波動方程式で \(k^2<0\) の領域を通る」という構造です（本文の言い方でいう第二段階）。④ ブリュースター角で反射がゼロになるのは p 偏光だけで、s 偏光は消えません。また磁性体（\(\mu\neq1\)）では条件が変わります。⑤ エバネッセント波の「エネルギーが渡らない」は<strong>定常状態の時間平均</strong>の話で、過渡的にはエネルギーの出入りがあります。⑥ 電子の減衰長 0.2 nm は \(V-E=1\) eV での値で、障壁の高さで大きく変わります。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>境界があるのに反射がゼロになることがあるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">反射を起こすのは物質ではなく<strong>屈折率（インピーダンス）の食い違い</strong>だから。\(r=(n_1-n_2)/(n_1+n_2)\) は \(n_1=n_2\) でゼロ。屈折率整合オイルを塗ればガラスの継ぎ目は消える。反射防止コートは、大きな差を <em>逆位相で打ち消し合う二つの小さな差</em>に分ける仕掛け。</div></details>
+      </li>
+      <li>ブリュースター角で p 偏光が反射しない理由を、双極子の言葉で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(\theta_B\) では屈折光線と反射光線が 90° をなす。p 偏光ではそのとき<strong>物質中の双極子の振動軸が、反射方向とぴたり一致する</strong>。双極子は自分の軸方向には放射しない（強度 \(\propto\sin^2\theta\)）ので、<em>反射波を出す担い手がいない</em>。第1回の「屈折とは前方散乱だ」という見方の直接の帰結。</div></details>
+      </li>
+      <li>全反射のとき、向こう側に場があるのに反射率が 1 なのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">エバネッセント波が境界に垂直な向きに運ぶ<strong>時間平均のエネルギー流がゼロ</strong>だから（電場と磁場が 90° ずれる）。行っては戻っている。<em>ただし、そこに二枚目のガラスを置くとエネルギーの行き先ができて、渡りはじめる</em> ── それが FTIR。</div></details>
+      </li>
+      <li>電子のトンネル効果と全反射の「すり抜け」は、どこまで同じか。
+        <details><summary>答えを見る</summary><div class="ans">透過率の式が<strong>まったく同形</strong>：\(T=[1+\frac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d]^{-1}\to\propto e^{-2\kappa d}\)。共通しているのは「波動方程式で \(k^2<0\) になった領域を横切る」という構造 ── このコレクションの言い方で<strong>「似ている」の第二段階</strong>。<em>トンネル効果の量子的なところは、指数関数ではなく「電子が波であること」だけ</em>。減衰長は電子 0.2 nm に対し光 248 nm と 1000 倍以上違い、だから光では手で実験できる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>食い違いが反射を作り、染み出しが透過を作る</h2>
+    <p>反射率は<strong>屈折率の食い違いだけ</strong>で決まります（\(r=(n_1-n_2)/(n_1+n_2)\)、ガラスで 4%）。差がゼロなら境界があっても反射はゼロ。反射防止コートは差を二段に割って逆位相で消す仕掛けで、\(n=\sqrt{n_1n_3}\) が理想、MgF₂ で 4%→1.4%。<strong>ブリュースター角</strong>（\(\tan\theta_B=n_2/n_1\)、ガラスで 56.3°）で p 偏光が消えるのは、<em>双極子が自分の軸方向に放射しないから</em> ── 第1回の「屈折＝前方散乱」の直接の帰結です。</p>
+    <p>臨界角を超えると全反射になりますが、向こう側には \(e^{-\kappa z}\) の<strong>エバネッセント波</strong>が染み出しています（可視光・45° で減衰長 248 nm）。定常状態ではエネルギーは渡らない ── <em>そこに二枚目のガラスを置くまでは</em>。置くと光が通り、透過率は</p>
+    <p style="text-align:center;margin:6px 0;">\(T=\left[1+\frac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d\right]^{-1}\ \propto\ e^{-2\kappa d}\)</p>
+    <p><strong>これは「わかるすり抜け」第1回の式と、文字が違うだけの同じ式です。</strong>ニュートンが 1704 年に二枚のプリズムで見ています ── 量子力学より 220 年前。だから言えること：<em>トンネル効果の「量子らしさ」は指数関数の側にはありません。</em>量子的なのは電子が波であること、そのただ一点だけです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回「屈折と吸収は、同じ一つの関数だった」</span>
+    ここまで屈折率を実数として扱ってきました。<strong>本当は複素数です</strong> ── \(\tilde n=n+i\kappa\) の実部が屈折、虚部が吸収。そしてこの二つは<em>勝手に決められません</em>。「結果は原因より先に起きない」というたった一つの要請から、二つは<strong>積分でつながってしまう</strong>（クラマース–クローニッヒの関係）。帰結は強烈です ── <strong>どこかで光を曲げる物質は、どこかで必ず光を吸わなければならない。</strong>完全に透明で、しかも屈折する物質は、原理的に存在できません。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第4回、物理好きの高校生・大学生向け読み物です。フレネル反射係数、反射防止膜の条件、ブリュースター角と双極子放射による説明、臨界角、エバネッセント波と定常状態でのエネルギー流、妨げられた全反射（FTIR）とその透過率が量子の矩形障壁と同形になること、ニュートン『光学』（1704）の二プリズム観察、TIRF・近接場顕微鏡・光学式指紋センサへの応用は、いずれも標準的な光学です。透過率の式が s 偏光についてのものであること、図が理想化であり実際の面には数 nm の粗さがあること、「同じ式」が数学の形の一致を指し光子と電子のトンネルが同じ現象ではないこと、ブリュースター角でゼロになるのが p 偏光だけであること、エネルギー流ゼロが定常状態の時間平均の話であること、および電子の減衰長が障壁高さに依存することは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kussetsu-03-isousokudo.html">第3回 屈折率が 1 より小さいとき</a>／<a href="wakaru-kussetsu-05-kk.html">第5回 屈折と吸収は、同じ一つの関数だった</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-surinuke/wakaru-surinuke-01-kyojikan.html">わかるすり抜け 第1回</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ですきま d を動かすと、右の対数プロット上を点が動き、傾き −2κ の直線に乗ることが見えます。入射角を臨界角（41.8°）に近づけると κ が小さくなり、ずっと遠くまで届きます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv');
+  var sd=document.getElementById('sd'), vd=document.getElementById('vd');
+  var st=document.getElementById('st'), vt=document.getElementById('vt');
+  var sl=document.getElementById('sl'), vl=document.getElementById('vl');
+  var rd=document.getElementById('rd'), bc=document.getElementById('bc');
+  var N1=1.5, N2=1.0;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  // κ [1/m], k1z [1/m]
+  function kappaOf(lam, th){
+    var k0=2*Math.PI/(lam*1e-9);
+    var s=N1*Math.sin(th), q=s*s-N2*N2;
+    return q>0 ? k0*Math.sqrt(q) : 0;
+  }
+  function kzOf(lam, th){
+    var k0=2*Math.PI/(lam*1e-9);
+    return k0*N1*Math.cos(th);
+  }
+  function Tof(lam, th, d_nm){
+    var kap=kappaOf(lam,th); if(kap<=0) return 1;
+    var kz=kzOf(lam,th);
+    var x=kap*d_nm*1e-9;
+    var sh=Math.sinh(Math.min(x,40));
+    var pre=(kz*kz+kap*kap)*(kz*kz+kap*kap)/(4*kz*kz*kap*kap);
+    return 1/(1+pre*sh*sh);
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var d=parseInt(sd.value,10);
+    var thd=parseInt(st.value,10)/10;
+    var lam=parseInt(sl.value,10);
+    var th=thd*Math.PI/180;
+    vd.textContent=d+' nm'; vt.textContent=thd.toFixed(1)+'°'; vl.textContent=lam+' nm';
+    ctx.clearRect(0,0,w,h);
+
+    var kap=kappaOf(lam,th);
+    var decay = kap>0 ? 1/kap*1e9 : Infinity;   // nm
+    var T=Tof(lam,th,d);
+    var thc=Math.asin(N2/N1)*180/Math.PI;
+
+    /* ── 左：断面図 ── */
+    var L=14, R=w*0.44, T0=30, B=h-38;
+    var DMAX=1500;                      // nm に対応する表示幅
+    var gapPx=(R-L)*0.55;               // すきま領域に割く幅
+    var g1x=L+ (R-L)*0.16;              // ガラス1の右端
+    var g2x=g1x+gapPx*(d/DMAX);         // ガラス2の左端
+    if(g2x>R-14) g2x=R-14;
+
+    ctx.fillStyle='rgba(58,110,165,.18)';
+    ctx.fillRect(L,T0,g1x-L,B-T0);
+    ctx.fillRect(g2x,T0,R-g2x,B-T0);
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(g1x,T0); ctx.lineTo(g1x,B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(g2x,T0); ctx.lineTo(g2x,B); ctx.stroke();
+    ctx.fillStyle='#26547e'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('ガラス n=1.5', (L+g1x)/2, B+14);
+    if(R-g2x>50) ctx.fillText('ガラス', (g2x+R)/2, B+14);
+
+    // エバネッセント e^{-κz}
+    var mid=(T0+B)/2, amp=(B-T0)*0.36;
+    ctx.strokeStyle='#b3541e'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var i=0;i<=180;i++){
+      var frac=i/180, xx=g1x+gapPx*frac;
+      var znm=DMAX*frac;
+      var a=Math.exp(-znm/ (decay===Infinity?1e9:decay));
+      if(i===0)ctx.moveTo(xx,mid-amp*a); else ctx.lineTo(xx,mid-amp*a);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(179,84,30,.14)'; ctx.beginPath();
+    ctx.moveTo(g1x,mid);
+    for(var j=0;j<=180;j++){
+      var f2=j/180, x2=g1x+gapPx*f2, z2=DMAX*f2;
+      ctx.lineTo(x2, mid-amp*Math.exp(-z2/(decay===Infinity?1e9:decay)));
+    }
+    ctx.lineTo(g1x+gapPx,mid); ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle='#8f4114'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('e^(−κz)', g1x+8, mid-amp-8);
+
+    // 入射・反射・透過の矢印
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(L+6,T0+14); ctx.lineTo(g1x-2,mid); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(g1x-2,mid); ctx.lineTo(L+6,B-14); ctx.stroke();
+    if(R-g2x>26){
+      ctx.lineWidth=Math.max(0.6, 5*Math.sqrt(T));
+      ctx.strokeStyle='rgba(47,125,90,'+(0.35+0.65*Math.sqrt(T)).toFixed(2)+')';
+      ctx.beginPath(); ctx.moveTo(g2x+1,mid); ctx.lineTo(R-6,mid-(R-g2x)*0.55); ctx.stroke();
+    }
+    ctx.fillStyle='#2f7d5a'; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('入射', L+6, T0+10);
+    ctx.fillText('全反射', L+6, B-18);
+
+    // すきまの寸法線
+    ctx.strokeStyle='#7a6450'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(g1x,B-6); ctx.lineTo(g2x,B-6); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#7a6450'; ctx.textAlign='center'; ctx.font='9.5px sans-serif';
+    ctx.fillText('d = '+d+' nm', (g1x+g2x)/2, B-10);
+
+    ctx.fillStyle='#8f4114'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('全反射の向こうに染み出す波', (L+R)/2, 18);
+
+    /* ── 右：log T ── */
+    var PL=w*0.55, PR=w-16, PT=30, PB=h-38;
+    function XX(dn){ return PL+(PR-PL)*dn/DMAX; }
+    function YY(lg){ return PT+(PB-PT)*(-lg)/7; }   // log10 T : 0 .. -7
+
+    ctx.strokeStyle='#cbb49a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PB); ctx.lineTo(PR,PB); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#7a6450'; ctx.textAlign='right';
+    for(var g=0;g<=7;g++){
+      ctx.strokeStyle='#f0e4d4'; ctx.beginPath(); ctx.moveTo(PL,YY(-g)); ctx.lineTo(PR,YY(-g)); ctx.stroke();
+      ctx.fillStyle='#7a6450'; ctx.fillText(g===0?'1':('10⁻'+g), PL-5, YY(-g)+4);
+    }
+    ctx.textAlign='center';
+    for(var dm=500;dm<=1500;dm+=500){ ctx.fillText(dm+' nm', XX(dm), PB+14); }
+    ctx.fillText('すきま d', (PL+PR)/2, PB+30);
+    ctx.save(); ctx.translate(PL-40,(PT+PB)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('透過率 T',0,0); ctx.restore();
+
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=3; ctx.beginPath();
+    for(var p=0;p<=200;p++){
+      var dn=DMAX*p/200, tv=Tof(lam,th,dn);
+      var lg=Math.log(Math.max(tv,1e-9))/Math.LN10;
+      if(lg<-7) lg=-7;
+      if(p===0)ctx.moveTo(XX(dn),YY(lg)); else ctx.lineTo(XX(dn),YY(lg));
+    }
+    ctx.stroke();
+
+    var lgT=Math.log(Math.max(T,1e-9))/Math.LN10;
+    if(lgT>=-7){
+      ctx.fillStyle='#b3541e'; ctx.beginPath(); ctx.arc(XX(d),YY(lgT),6,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(179,84,30,.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(XX(d),YY(lgT)); ctx.lineTo(XX(d),PB); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.fillStyle='#8f4114'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('T ∝ e^(−2κd) ── 対数で直線', (PL+PR)/2, 18);
+
+    var elec = kap>0 ? (kap*1.0546e-34)*(kap*1.0546e-34)/(2*9.109e-31)/1.602e-19 : 0;
+    var extra='';
+    if(thd>=thc){
+      extra='<br>比較：同じ κ を電子で作るには、障壁の高さ V−E = <b>'+elec.toExponential(2)+' eV</b> ── '
+        +'つまり光のエバネッセントは、<b>とてつもなく「低い障壁」</b>に相当します。だから手で並べたガラスで実験できる。';
+    }
+    rd.innerHTML='入射角 <b>'+thd.toFixed(1)+'°</b>（臨界角 '+thc.toFixed(1)+'°）'
+      + (thd<thc ? ' ── <b style="color:#a83a22">臨界角より小さいので、そもそも普通に透過します</b>' :
+        '　κ = <b>'+(kap/1e6).toPrecision(3)+'×10⁶ m⁻¹</b>、減衰長 1/κ = <b>'+decay.toPrecision(3)+' nm</b>')
+      +'<br>すきま d = <b>'+d+' nm</b> → 透過率 T = <b>'+(T>=1e-4? (T*100).toPrecision(3)+' %' : T.toExponential(2))+'</b>'
+      +extra;
+  }
+
+  sd.addEventListener('input', draw);
+  st.addEventListener('input', draw);
+  sl.addEventListener('input', draw);
+  bc.addEventListener('click', function(){ sd.value=40; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

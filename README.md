@@ -22,6 +22,7 @@
 | **わかる繰り込み** | 世界はなぜ〈捨てても〉成り立つのか。粗視化・位相と崩壊・デコヒーレンス・普遍性と繰り込み群・破れる場所・階層問題・解像度という次元（全7話・完結＋番外5「なぜ低エントロピーから始まったのか」「観測者とは粗視化装置である」「中心極限定理は繰り込み群だった」「捨ててよい量を定理で決める」「学習とは粗視化に賭けること」「三本の背骨は同じ一本だった＝姉妹編との連結回」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-kurikomi/index.html) |
 | **わかる温度** | 温度は物質の性質ではない。k_B は両替レート。エネルギーの配り方・熱と追跡・ゆらぎの定理・負の温度・虚時間の周期・ウンルー効果（全7話・完結＋番外1「地平面までの光の飛行時間が、温度」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ondo/index.html) |
 | **わかるすり抜け** | 越えられない壁を、越えずに向こう側へ。虚時間の中を歩く・太陽が燃える理由・熱かすり抜けか・ジョセフソン効果・超伝導は違う・摂動論に見えないもの・真空崩壊（全7話・完結＋番外6「常温核融合は起きるのか」「ミュオン触媒」「原子1個が見える理由」「トンネル時間」「量子生物学の仕分け」「室温超伝導の30年」「すり抜けるものが時空に広がるとき」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-surinuke/index.html) |
+| **わかる屈折** | 屈折で光が遅くなるのに、なぜ光速不変は破れないのか。遅いのは波・光の円錐が二つある・位相速度は c を超える・反射は食い違いから・屈折と吸収は同じ関数・光を止める・屈折率の地図（全7話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu/index.html) |
 | **わかる宇宙論** | 光速・微細構造定数・ゲージから宇宙を読む | [開く](https://yomei-o.github.io/wakaru_all/wakaru/index.html) |
 | **わかる力** | 「力」の正体を、場・幾何・対称性まで剥がす | [開く](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) |
 | **わかる質量** | 質量とは何か | [開く](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) |
@@ -31,7 +32,7 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🌐 English editions（英語版）
 

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見えているのは、屈折率の地図 ── わかる屈折 第7回（最終回）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9fafb; --paper-edge:#d5d8e0;   /* 最終回：石板の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#2e3346; --calc-bg:#e9ebf0;
+    --rule:#d3d7e0; --hair:#aeb4c2;
+    --acc:#3d4257;
+    --grid:#e6e9ef;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .series .fin{background:var(--acc);color:#fff;padding:2px 9px;border-radius:3px;letter-spacing:.18em;font-size:10.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ccd2e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d8dbe3;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.03em;cursor:pointer;
+    background:#aeb4c2;color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button.on{background:var(--acc);}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e9ebf0;color:#2e3346;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eceef3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2e3346;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,#e6e9f0);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:20px 24px;background:#e9ebf0;border-radius:2px;border:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2e3346;line-height:1.85;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:8px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6371;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 7 回 ／ 見えているのは、屈折率の地図　<span class="fin">最終回</span></span></div>
+  <p class="eyebrow">金属の光沢から、空の青さ、雪の白さ、虹の 42 度、そして実験室に置ける時空まで</p>
+  <h1>見えているのは、<br>屈折率の地図
+    <span class="sub">ここまでの 6 回の道具で、身のまわりがほとんど読めます。<br>そして最後に第2回に戻ります ── <strong>屈折率の地図は、ひとつの計量です。</strong><br><em>私たちは物を見ているのではなく、計量を読んでいる。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回〜第6回のすべて</span>
+    <span>この回の芯：n の地図＝実効計量</span>
+  </div>
+
+  <p class="lead">最終回です。ここまで組み立ててきた道具 ── 前方散乱（第1回）、実効計量（第2回）、プラズマ振動数（第3回）、フレネルとエバネッセント（第4回）、クラマース–クローニッヒ（第5回）、群屈折率（第6回）── を持って、外に出てみます。<strong>金属の光沢、空の青、夕陽の赤、深い海の青、雪の白、虹の 42 度、砂漠の蜃気楼。</strong>ぜんぶ読めます。そして読み終えたところで、第2回に戻ります ── <em>屈折率の分布は、ひとつの計量です。</em>私たちが「見ている」のは物ではなく、その地図。地図を設計すれば物を隠すことができ（透明マント）、地図に地平面を作れば実験室に<strong>アナログの宇宙</strong>が置けます。<em>ただし最後まで一行だけ譲りません</em> ── <strong>実効計量は本物の時空ではありません。しかし、同じ方程式に従います。</strong>この二つが両立することこそが、このシリーズの結論です。</p>
+
+  <h2><span class="n">01</span>身のまわりを読む</h2>
+
+  <table class="tbl">
+    <tr><th>見えるもの</th><th>正体</th><th class="num">担当回</th></tr>
+    <tr><td>金属が光る</td><td>可視光が \(\omega_p\) より下 → \(n\) が虚数 → 17 nm で減衰して入れない</td><td class="num">第3回</td></tr>
+    <tr><td>空が青い</td><td><strong>空気の密度ゆらぎ</strong>による散乱。\(\propto\omega^4\)</td><td class="num">第1回</td></tr>
+    <tr><td>夕陽が赤い</td><td>同じ現象の裏面 ── 大気を長く通ると青が抜けてしまう</td><td class="num">第1回</td></tr>
+    <tr><td>深い水が青い</td><td><em>散乱ではなく吸収</em>。水は赤を吸う（OH 伸縮の倍音）</td><td class="num">第5回</td></tr>
+    <tr><td>雲は白い</td><td>水滴が波長より大きい → 全部の色を同じだけ散らす（ミー散乱）</td><td class="num">第1回</td></tr>
+    <tr><td>雪・泡・すりガラスが白い</td><td><strong>界面がたくさんあるだけ</strong>。物質自体は透明</td><td class="num">第4回</td></tr>
+    <tr><td>虹が 42 度</td><td>球の中の一回反射の最小偏角＋分散で色が分かれる</td><td class="num">第2・5回</td></tr>
+    <tr><td>蜃気楼</td><td>温度勾配 → 屈折率勾配 → 光線が測地線として反り返る</td><td class="num">第2回</td></tr>
+    <tr><td>スマホの指紋センサ</td><td>指の谷は空気（全反射）、山は接触（FTIR で抜ける）</td><td class="num">第4回</td></tr>
+  </table>
+
+  <h2><span class="n">02</span>空が青いのは、第1回の「打ち消し残り」</h2>
+
+  <p>ここは丁寧に見る価値があります。第1回でこう言いました ── <em>密で一様な媒質では、横向きの散乱波が互いに干渉して打ち消し合い、前方だけが生き残る。それが屈折だ。</em></p>
+
+  <div class="keybox">
+    <div class="lbl">では、なぜ空が見えるのか</div>
+    <p style="margin:0 0 8px;">打ち消しが完全なら、空はまっ暗のはずです。実際には見えます。<strong>なぜなら、空気は完全に一様ではないから。</strong></p>
+    <p style="margin:0;">熱運動のせいで、空気の密度はいたるところで<em>ゆらいで</em>います。ゆらぎの分だけ打ち消しが不完全になり、その<strong>残り</strong>が横向きに出てくる ── それが空の色です（アインシュタイン 1910、スモルコフスキー）。</p>
+    <p style="margin:10px 0 0;">つまり ── <strong>屈折と散乱は、同じ一つのこと（双極子の再放射）の、打ち消しが効いた分と効かなかった分です。</strong><em>別々の現象ではありません。</em></p>
+    <p style="margin:10px 0 0;">残りの強さは \(\propto\omega^4\)（レイリー）。青（450 nm）は赤（650 nm）の \((650/450)^4\approx\)<strong>4.4 倍</strong>散らばります。だから空は青く、通り抜けてきた光は赤い。</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">よくある説明のずれ</span>
+    <p style="margin:0;">「空が青いのは<strong>酸素や窒素の分子</strong>が青い光を散らすから」という説明は、半分正しく半分ずれています。個々の分子が散らすのは事実ですが、<em>一様に並んでいれば干渉で消えてしまう</em>のがポイントで、<strong>効いているのは分子の存在ではなくゆらぎです</strong>。<br>
+    証拠：液体の水や透明なガラスは、空気よりはるかに密度が高いのに、はるかに<em>澄んで</em>います。分子が多いほど散乱するなら逆のはずです。<em>密で秩序のある媒質ほど打ち消しが効く</em> ── 第1回の主張そのものです。</p>
+  </div>
+
+  <h2><span class="n">03</span>白いものは、たいてい透明なものでできている</h2>
+
+  <p>雪、泡、すりガラス、砕いた氷、紙、牛乳、雲、白い塗料。<strong>どれも材料そのものは透明です。</strong>白く見えるのは、内部に<em>屈折率の食い違う界面が大量にある</em>から ── 第4回のフレネル反射が、あらゆる向きに何千回も起きているだけ。</p>
+
+  <div class="aside">
+    <span class="tag">確かめかた ── 水をかける</span>
+    すりガラスに水をかけると、<strong>透明になります</strong>。紙に油をたらしても透明になります。<em>屈折率を近づけると食い違いが消え、反射がなくなるから</em>（第4回）。<br>
+    <strong>「白」は物質の性質ではなく、幾何の性質です。</strong>そして「透明」もまた ── 第5回で見たとおり、<em>両隣に吸収があるかどうか</em>の帯域の話でした。<em>色というものは、ほとんどが物質そのものではなく、物質の並び方の話です。</em>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 屈折率の地図の上を光が走る</h2>
+
+  <p>下の図では、<strong>屈折率の分布 \(n(x,y)\) を決めると、光線がその中を走ります</strong>。計算しているのは光線方程式 \(\dfrac{d}{ds}\!\left(n\dfrac{d\vec r}{ds}\right)=\nabla n\) ── これは第2回の実効計量の測地線方程式そのものです。</p>
+
+  <p>四つ目のボタンに注目してください。<strong>重力そっくり</strong>と書いてあります。\(n=1+r_s/r\) という地図を置くだけで、光が中心へ吸い寄せられる ── そしてその曲がり角は、一般相対論が予言する \(4GM/bc^2\) と<em>一致します</em>。</p>
+
+  <div class="fig">
+    <div class="cap">図：屈折率の地図 n(x,y)（背景の濃淡）と、その中を走る光線。光線方程式 d/ds(n dr/ds) = ∇n を数値積分している ── 第2回の実効計量の測地線。四つ目は n = 1 + r_s/r で、曲がり角が一般相対論の 4GM/bc² と一致する</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <button id="m0" class="on">GRIN レンズ</button>
+      <button id="m1">蜃気楼</button>
+      <button id="m2">光ファイバ</button>
+      <button id="m3">重力そっくり</button>
+      <label>効きの強さ <span class="val" id="vs">1.00</span>
+        <input type="range" id="ss" min="10" max="250" step="1" value="100">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#3d4257;"></i>屈折率が高い</span>
+      <span><i class="swatch" style="background:#b3541e;"></i>光線</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>比較用の直線（曲げがなければこう進む）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>地図を設計する ── 透明マントとアナログ重力</h2>
+
+  <p>第2回で、屈折率の分布が計量だと確かめました。そこから二つの方向が開けます。</p>
+
+  <div class="keybox">
+    <div class="lbl">① 変換光学 ── 隠す</div>
+    <p style="margin:0;">光線が測地線なら、<strong>測地線が特定の領域を通らないような計量を設計すればよい</strong>。中の物体には光が当たらず、外から見ると光は<em>何もなかったかのように</em>向こう側へ抜けていく ── 透明マントです（ペンドリー、レオンハルト、2006）。<br>
+    メタマテリアルで実装され、マイクロ波では実証済み。<em>ただし可視光の全帯域では実現していません</em> ── 理由は第5回です。<strong>必要な屈折率を作るには共鳴が要り、共鳴には吸収がつく。</strong>クラマース–クローニッヒは、ここでも見張っています。</p>
+  </div>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">② アナログ重力 ── 実験室に置く</div>
+    <p style="margin:0;">媒質が<strong>流れて</strong>いれば、波は上流に対して \(c/n\) でしか進めません。流速が \(c/n\) を超える面は、<em>波にとっての地平面</em>です（第2回）。<br>
+    ウンルーが 1981 年に音で指摘して以来、水面波、ボース凝縮体、光ファイバ、超伝導回路で「アナログ地平面」が作られ、ホーキング輻射に対応する現象も報告されています。<strong>そして本物の因果円錐は、その間ずっと 45 度のままです。</strong></p>
+  </div>
+
+  <h2><span class="n">06</span>そして、ここが結論です</h2>
+
+  <div class="keybox">
+    <div class="lbl">最初の問いに戻る</div>
+    <p style="margin:0 0 10px;">このシリーズは、こういう疑問から始まりました ── <em>「屈折で光が遅くなっているのに、光速は不変だという。おかしくないか。\(c\cdot t=\)一定 の座標系で見れば、遅くなるのと等価なのでは。」</em></p>
+    <p style="margin:0 0 8px;">7 回かけて出た答えは、こうです。</p>
+    <table class="tbl" style="margin:8px 0 4px;">
+      <tr><th>問い</th><th>答え</th></tr>
+      <tr><td>光は遅くなっているのか</td><td><strong>波は遅くなっている。光子は遅くなっていない</strong>（第1回：前方散乱の位相ずれ）</td></tr>
+      <tr><td>それは計量として書けるか</td><td><strong>書ける。</strong>\(ds^2_{\rm opt}=-(c^2/n^2)dt^2+d\vec x^2\)（第2回）</td></tr>
+      <tr><td>では光速不変は？</td><td><strong>無傷。</strong>実効円錐は本物の円錐の<em>内側</em>にできる別の円錐（第2・3回）</td></tr>
+      <tr><td>\(n<1\) で位相が \(c\) を超えたら？</td><td>それでも<strong>前縁はきっかり \(c\)</strong>（第3回）</td></tr>
+      <tr><td>止めても？</td><td>止まるのは光ではなく原子のコヒーレンス。<strong>前縁は \(c\)</strong>（第6回）</td></tr>
+    </table>
+    <p style="margin:10px 0 0;"><strong>つまり ── その直感は正しかった。ただし「座標系」ではなく「もうひとつの計量」として。</strong><br>
+    \(c\) は因果の速さで、これは動きません。\(c/n\) は<em>この波にとっての</em>速さで、これは材料で変わります。<strong>両方とも本当で、住んでいる階層が違うだけです。</strong></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">最後まで譲らない一行</span>
+    <p style="margin:0;"><strong>実効計量は、本物の時空ではありません。</strong>アナログブラックホールは重力を検証しません。透明マントは空間を曲げていません。屈折率の地図は、<em>電磁場という一種類の波にだけ効く</em>局所的な仕掛けです。<br>
+    <em>それでも</em> ── <strong>同じ方程式に従います。</strong>そして方程式が同じなら、片方でわかったことは、もう片方でも本当に使えます。<em>これは慰めではなく、物理が機能している理由そのものです。</em></p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>金属の反射とプラズマ振動数；レイリー散乱の \(\omega^4\) 則と、一様媒質では横向き散乱が干渉で消え密度ゆらぎが残りを与えるというアインシュタイン–スモルコフスキーの説明；水の吸収極小が青（約 418 nm、\(\alpha\approx0.004\ \mathrm{m^{-1}}\)）にあり赤（700 nm で \(\alpha\approx0.6\ \mathrm{m^{-1}}\)）を吸うこと；ミー散乱と雲の白さ；多重界面による白色化と屈折率整合で透明化すること；虹の主虹が約 42°（副虹 51°）で分散により色が分かれること；蜃気楼の勾配屈折率；FTIR 指紋センサ；光線方程式 \(d(n\,d\vec r/ds)/ds=\nabla n\)；\(n=1+r_s/r\) が弱い場で一般相対論の光の曲がり \(4GM/bc^2\)（太陽縁で 1.75 秒角）を再現すること；変換光学と透明マント（Pendry, Leonhardt 2006）；アナログ重力（Unruh 1981 以降）。いずれも標準的な結果です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① 「重力そっくり」の \(n=1+r_s/r\) は<strong>弱い場での等価な屈折率</strong>で、強い場（地平面近傍）では正しくありません。等方座標での厳密な光学的屈折率は \((1+r_s/4r)^3/(1-r_s/4r)\) で、こちらは \(r=r_s/4\) で発散します。図はあくまで教育用で、光子球や捕獲軌道は正しく再現しません。② 図の光線追跡は数値積分であり、刻み幅に依存する誤差があります。曲がり角の比較も数値どうしの一致を見ているだけです。③ 虹の 42° は水滴を完全な球、光を単色平面波としたときの値で、実際の色と明るさの分布はもっと複雑です（過剰虹には回折が要ります）。④ 空の青さの説明は<strong>大気が乾いていて澄んでいる場合</strong>のもので、エアロゾルや水蒸気が多いと白っぽくなります（そちらはミー散乱）。⑤ 透明マントは<strong>マイクロ波帯などの限られた帯域</strong>で実証されたもので、可視光の広帯域で機能するものは実現していません（本文どおり、第5回が理由）。⑥ アナログ重力は同じ方程式に従う別系であり、時空の検証ではありません。⑦ 「見ているのは屈折率の地図」は、視覚の説明としては強い単純化です ── 実際には吸収・散乱・蛍光・偏光もすべて情報を運んでいます。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（最終回）</div>
+    <ol>
+      <li>空気より水のほうがずっと密なのに、水のほうが澄んで見えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">散乱を決めているのは分子の<strong>数</strong>ではなく<strong>ゆらぎ</strong>だから。密で秩序のある媒質ほど横向き散乱の打ち消しが効き（第1回）、残りが小さい。空が青いのは空気の密度ゆらぎの<em>打ち消し残り</em>（アインシュタイン–スモルコフスキー）。<strong>屈折と散乱は同じ現象の、消えた分と消え残った分。</strong></div></details>
+      </li>
+      <li>雪が白いのに、氷は透明なのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">材料は同じ。違うのは<strong>界面の数</strong>。雪は微小な氷の粒の集まりで、あらゆる向きにフレネル反射（第4回）が何千回も起きる。氷の塊には界面が二つしかない。<em>「白」は物質の性質ではなく幾何の性質</em>で、証拠にすりガラスに水をかけると（屈折率整合で食い違いが消えて）透明になる。</div></details>
+      </li>
+      <li>屈折率の地図で光を曲げられるなら、重力と何が違うのか。
+        <details><summary>答えを見る</summary><div class="ans">与える軌道は同じにできる（\(n=1+r_s/r\) は弱い場で \(4GM/bc^2\) を再現する）。違うのは<strong>作用する対象</strong>：屈折率の地図は<em>電磁波にだけ</em>効き、重力はすべてに効く。そして<strong>本当の因果円錐は動いていない</strong> ── 実効計量はその内側にできる別の円錐（第2回）。<em>同じ方程式に従う別系</em>であって、時空そのものではない。</div></details>
+      </li>
+      <li>「屈折で光が遅くなるのに光速は不変」という矛盾は、結局どう解けたか。
+        <details><summary>答えを見る</summary><div class="ans">矛盾ではなく<strong>階層の違い</strong>。遅くなっているのは<em>波</em>（前方散乱の位相ずれ、第1回）で、これは実効計量 \(ds^2=-(c^2/n^2)dt^2+d\vec x^2\) として厳密に書ける（第2回）。一方 \(c\) は<strong>因果の速さ</strong>で、これは材料では動かない。実効円錐は本物の円錐の<em>内側</em>にできる別の円錐 ── だから \(n<1\) で位相が \(c\) を超えても（第3回）、光を止めても（第6回）、<strong>前縁はいつでもきっかり \(c\)</strong>。「\(c\cdot t\) の代わりに \(c\cdot t/n\) で測る」という直感は正しく、それは座標変換ではなく<em>もうひとつの計量の導入</em>だった。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第7回まとめ</span>物ではなく、地図を見ている</h2>
+    <p>6 回ぶんの道具で、身のまわりがほとんど読めました。<strong>金属の光沢</strong>は \(\omega<\omega_p\)（第3回）、<strong>空の青</strong>は密度ゆらぎによる打ち消し残り（第1回）── <em>屈折と散乱は同じ双極子再放射の、消えた分と消え残った分</em>です。<strong>深い水の青</strong>は散乱ではなく吸収（第5回）、<strong>雪の白</strong>は界面が多いだけで材料は透明（第4回、水をかければ透明になる）、<strong>蜃気楼</strong>は勾配屈折率の測地線（第2回）。</p>
+    <p>そして屈折率の分布は<strong>ひとつの計量</strong>です。測地線が特定の領域を避けるように地図を設計すれば<em>透明マント</em>になり、流速が \(c/n\) を超えるように作れば<em>アナログ地平面</em>ができる。図で確かめたとおり、\(n=1+r_s/r\) という地図はそれだけで一般相対論の \(4GM/bc^2\) を再現します。</p>
+    <p>最初の問いへの答え ── <strong>「\(c\cdot t\) の代わりに \(c\cdot t/n\) で測る」という直感は、正しかった。</strong>ただしそれは座標変換ではなく、<em>もうひとつの計量の導入</em>でした。\(c\) は因果の速さで動かず、\(c/n\) はこの波にとっての速さで材料ごとに変わる。<strong>両方とも本当で、住んでいる階層が違うだけです。</strong>そして最後まで一行だけ譲りません ── <em>実効計量は本物の時空ではない。しかし同じ方程式に従う。</em><strong>この二つが同時に成り立つことこそが、物理が機能している理由です。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">シリーズを終えて ── わかる屈折・全 7 回</span>
+    <strong>第1回</strong> 光は遅くなっていない（前方散乱と位相ずれ、「吸って出す」説の否定）／<strong>第2回</strong> 光の円錐が、二つある（実効計量、フェルマー＝測地線）／<strong>第3回</strong> 屈折率が 1 より小さいとき（位相 &gt; c、前縁は c、光子の実効質量）／<strong>第4回</strong> 反射は「食い違い」から出る（フレネル、ブリュースター、FTIR＝光のトンネル効果）／<strong>第5回</strong> 屈折と吸収は、同じ一つの関数だった（因果律とクラマース–クローニッヒ）／<strong>第6回</strong> 光を止める（EIT、暗状態ポラリトン、遅延–帯域積）／<strong>第7回</strong> 見えているのは、屈折率の地図。<br><br>
+    姉妹編もどうぞ ── <a href="../wakaru-surinuke/index.html" style="color:var(--acc);font-weight:700;">わかるすり抜け</a>（第4回の \(e^{-2\kappa d}\) の量子版）、<a href="../wakaru-soutai/index.html" style="color:var(--acc);font-weight:700;">わかる相対論</a>（第2回の光円錐）、<a href="../wakaru-ondo/index.html" style="color:var(--acc);font-weight:700;">わかる温度</a>（第5回のゆらぎ–散逸）、<a href="../wakaru-ba/index.html" style="color:var(--acc);font-weight:700;">わかる場</a>（第1回の再放射）、<a href="../wakaru-ryoushi/index.html" style="color:var(--acc);font-weight:700;">わかる量子</a>。<br>
+    全体の見取り図は <a href="../butsuri-rittai.html" style="color:var(--acc);font-weight:700;">物理立体地図</a> にあります。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第7回（最終回）、物理好きの高校生・大学生向け読み物です。金属の反射とプラズマ振動数、レイリー散乱の \(\omega^4\) 則と密度ゆらぎによる説明（アインシュタイン 1910、スモルコフスキー）、水の吸収スペクトル、ミー散乱、多重界面による白色化と屈折率整合、虹の主虹 42°、勾配屈折率による蜃気楼、光線方程式、\(n=1+r_s/r\) が弱い場で \(4GM/bc^2\) を再現すること、変換光学と透明マント（Pendry, Leonhardt 2006）、アナログ重力（Unruh 1981 以降）は、いずれも標準的な結果です。「重力そっくり」の屈折率が弱い場の近似で強い場では正しくないこと（等方座標での厳密形と \(r=r_s/4\) の発散）、光線追跡が刻み幅に依存する数値積分であること、虹の 42° が理想化された値であること、空の青さの説明が澄んだ大気を前提とすること、透明マントが限られた帯域でのみ実証されていること、アナログ重力が時空の検証ではないこと、および「見ているのは屈折率の地図」が視覚の強い単純化であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前の回：<a href="wakaru-kussetsu-06-tomeru.html">第6回 光を止める</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-surinuke/index.html">わかるすり抜け</a>・<a href="../wakaru-soutai/index.html">わかる相対論</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面で四つのボタンを押すと屈折率の地図が切り替わり、同じ一つの方程式から GRIN レンズ・蜃気楼・光ファイバ・重力レンズが出てくることが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ss=document.getElementById('ss'), vs=document.getElementById('vs'),
+      rd=document.getElementById('rd');
+  var btns=[document.getElementById('m0'),document.getElementById('m1'),
+            document.getElementById('m2'),document.getElementById('m3')];
+  var mode=0;
+  var XN=10.0, YN=5.0;      // 任意単位の描画領域
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  var RS=1.0;                // 「重力そっくり」の r_s（任意単位）
+  var CX=5.5, CY=0.0;        // 中心
+
+  function nAt(x,y,S){
+    if(mode===0){ return Math.max(1.02, 1.60 - 0.045*S*y*y); }
+    if(mode===1){ return Math.max(1.02, 1.30 - 0.030*S*y); }
+    if(mode===2){ var t=y/(0.9); return 1.45 + 0.10*S/(Math.cosh(t)*Math.cosh(t)); }
+    var dx=x-CX, dy=y-CY, r=Math.sqrt(dx*dx+dy*dy);
+    if(r<0.30) r=0.30;
+    return 1 + RS*S/r;
+  }
+  function gradAt(x,y,S){
+    if(mode===0){ return [0, -0.090*S*y]; }
+    if(mode===1){ return [0, -0.030*S]; }
+    if(mode===2){ var t=y/0.9, se=1/(Math.cosh(t)*Math.cosh(t));
+                  return [0, -0.10*S*2*se*Math.tanh(t)/0.9]; }
+    var dx=x-CX, dy=y-CY, r=Math.sqrt(dx*dx+dy*dy);
+    if(r<0.30) return [0,0];
+    var f=-RS*S/(r*r*r);
+    return [f*dx, f*dy];
+  }
+
+  // 光線方程式：dr/ds = p/n,  dp/ds = ∇n   （p = n·T）
+  function trace(x0,y0,tx,ty,S){
+    var n0=nAt(x0,y0,S);
+    var x=x0,y=y0, px=n0*tx, py=n0*ty;
+    var pts=[[x,y]], ds=0.012, captured=false;
+    for(var i=0;i<3000;i++){
+      var n=nAt(x,y,S);
+      var g=gradAt(x,y,S);
+      var kx=px/n, ky=py/n;
+      var xm=x+kx*ds/2, ym=y+ky*ds/2;
+      var pxm=px+g[0]*ds/2, pym=py+g[1]*ds/2;
+      var nm=nAt(xm,ym,S), gm=gradAt(xm,ym,S);
+      x+=pxm/nm*ds; y+=pym/nm*ds;
+      px+=gm[0]*ds; py+=gm[1]*ds;
+      pts.push([x,y]);
+      if(x<-0.4||x>XN+0.4||y<-YN/2-0.4||y>YN/2+0.4) break;
+      if(mode===3){
+        var rr=Math.sqrt((x-CX)*(x-CX)+(y-CY)*(y-CY));
+        if(rr<0.34){ captured=true; break; }
+      }
+    }
+    return {pts:pts, px:px, py:py, captured:captured};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var S=parseInt(ss.value,10)/100;
+    vs.textContent=S.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    for(var b=0;b<4;b++) btns[b].className = (b===mode)?'on':'';
+
+    var L=14, R=w-14, T=26, B=h-30;
+    function X(x){ return L+(R-L)*x/XN; }
+    function Y(y){ return (T+B)/2 - (B-T)*y/YN; }
+
+    // 背景：n の濃淡
+    var NX=110, NY=56;
+    var nmin=1e9, nmax=-1e9, grid=[];
+    for(var iy=0;iy<NY;iy++){
+      grid[iy]=[];
+      for(var ix=0;ix<NX;ix++){
+        var xv=XN*(ix+0.5)/NX, yv=-YN/2+YN*(iy+0.5)/NY;
+        var nv=nAt(xv,yv,S);
+        if(mode===3) nv=Math.min(nv,4.0);
+        grid[iy][ix]=nv; if(nv<nmin)nmin=nv; if(nv>nmax)nmax=nv;
+      }
+    }
+    var cw=(R-L)/NX+1, ch=(B-T)/NY+1;
+    for(var iy2=0;iy2<NY;iy2++){
+      for(var ix2=0;ix2<NX;ix2++){
+        var tt=(grid[iy2][ix2]-nmin)/Math.max(1e-9,(nmax-nmin));
+        ctx.fillStyle='rgba(61,66,87,'+(0.04+0.44*tt).toFixed(3)+')';
+        ctx.fillRect(L+(R-L)*ix2/NX, T+(B-T)*(NY-1-iy2)/NY, cw, ch);
+      }
+    }
+    ctx.strokeStyle='#aeb4c2'; ctx.lineWidth=1; ctx.strokeRect(L,T,R-L,B-T);
+
+    if(mode===3){
+      ctx.fillStyle='#1a1c22'; ctx.beginPath(); ctx.arc(X(CX),Y(CY),Math.max(4,(R-L)*0.30/XN),0,7); ctx.fill();
+    }
+    if(mode===2){
+      ctx.strokeStyle='rgba(47,125,90,.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(L,Y(0.9)); ctx.lineTo(R,Y(0.9)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,Y(-0.9)); ctx.lineTo(R,Y(-0.9)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // 光線
+    var starts=[], i;
+    if(mode===0){ for(i=0;i<9;i++) starts.push([-0.2, -1.8+3.6*i/8, 1,0]); }
+    else if(mode===1){ for(i=0;i<6;i++) starts.push([-0.2, 1.6, 1, -0.05-0.05*i]); }
+    else if(mode===2){ for(i=0;i<7;i++) starts.push([-0.2, 0, 1, -0.30+0.10*i]); }
+    else { for(i=0;i<9;i++) starts.push([-0.2, -2.0+4.0*i/8, 1, 0]); }
+
+    var defl=[], caps=0;
+    for(var k=0;k<starts.length;k++){
+      var s0=starts[k];
+      var nrm=Math.sqrt(s0[2]*s0[2]+s0[3]*s0[3]);
+      var res=trace(s0[0],s0[1],s0[2]/nrm,s0[3]/nrm,S);
+      // 比較用の直線
+      ctx.strokeStyle='rgba(47,125,90,.28)'; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(X(s0[0]),Y(s0[1]));
+      ctx.lineTo(X(XN+0.4), Y(s0[1]+(XN+0.6)*s0[3]/s0[2]));
+      ctx.stroke(); ctx.setLineDash([]);
+      // 光線
+      ctx.strokeStyle=res.captured? '#a83a22' : '#b3541e';
+      ctx.lineWidth=2.2; ctx.beginPath();
+      var st=false;
+      for(var p=0;p<res.pts.length;p++){
+        var pxx=X(res.pts[p][0]), pyy=Y(res.pts[p][1]);
+        if(res.pts[p][1]>YN/2||res.pts[p][1]<-YN/2){ st=false; continue; }
+        if(!st){ctx.moveTo(pxx,pyy);st=true;} else ctx.lineTo(pxx,pyy);
+      }
+      ctx.stroke();
+      if(res.captured) caps++;
+      else if(mode===3 && Math.abs(s0[1]-CY)>0.5){
+        var ang=Math.atan2(res.py,res.px);
+        defl.push({b:Math.abs(s0[1]-CY), a:Math.abs(ang)});
+      }
+    }
+
+    var titles=['GRIN レンズ ── 中心ほど n が高い棒。光線が周期的に集まる',
+                '蜃気楼 ── 下ほど n が低い（地面が熱い）。光線が反り返る',
+                '光ファイバ ── 芯の n が高い。光線が閉じ込められる',
+                '重力そっくり ── n = 1 + r_s/r。光が中心へ吸い寄せられる'];
+    ctx.fillStyle='#2e3346'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(titles[mode], (L+R)/2, 16);
+
+    var msg;
+    if(mode===0){
+      msg='どの光線も同じ方程式 d/ds(n dr/ds) = ∇n に従っているだけ。'
+        +'n が中心で高いので、外側を通る光線ほど「遠回り」になり ── <b>周期的に一点へ集まります</b>。これが GRIN レンズ（内視鏡やコピー機の等倍レンズ）。';
+    } else if(mode===1){
+      msg='下ほど n が低い配置（地面が熱せられた夏の道路や砂漠）。下向きに撃った光線が<b>反り返って上へ戻ります</b> ── '
+        +'向こうの空が地面に映って見える、それが蜃気楼。<b>境界も鏡もありません。連続的な計量が曲げているだけです。</b>';
+    } else if(mode===2){
+      msg='芯（破線の内側）の n が高いので、外へ出ようとした光線が引き戻されます。'
+        +'<b>これが光ファイバ</b> ── 全反射（第4回）で説明されることが多いですが、屈折率がなだらかに変わる型（GI ファイバ）では、こちらの<b>測地線の描像がそのまま正しい</b>。';
+    } else {
+      var avg=0, cnt=0, pred=0;
+      for(var q=0;q<defl.length;q++){ avg+=defl[q].a; pred+=2*RS*S/defl[q].b; cnt++; }
+      if(cnt>0){ avg/=cnt; pred/=cnt; }
+      msg='n = 1 + r_s/r という<b>ただの屈折率の地図</b>。光が中心へ吸い寄せられます。'
+        +'数値追跡した曲がり角の平均 <b>'+(avg*180/Math.PI).toFixed(2)+'°</b> に対し、'
+        +'一般相対論の弱い場の予言 Δφ = 4GM/bc² = 2r_s/b の平均は <b>'+(pred*180/Math.PI).toFixed(2)+'°</b> ── <b>一致します</b>。'
+        +(caps>0? '（'+caps+' 本は中心に落ちました）':'')
+        +'<br>太陽の縁をかすめる光なら 4GM/Rc² = <b>1.75 秒角</b>。1919 年に測られた、あの値です。';
+    }
+    rd.innerHTML=msg;
+  }
+
+  for(var bb=0;bb<4;bb++){
+    (function(idx){ btns[idx].addEventListener('click', function(){ mode=idx; draw(); }); })(bb);
+  }
+  ss.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

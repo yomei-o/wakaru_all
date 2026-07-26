@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光を止める ── わかる屈折 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fcfbf5; --paper-edge:#e3dcc2;   /* 第6回：止める＝古銅の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#6e5615; --calc-bg:#f3efe0;
+    --rule:#ded7bf; --hair:#bfb593;
+    --acc:#8a6d1f;
+    --grid:#eee9d8;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e6dcae 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e5dfcb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffefa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f3efe0;color:#5f4a10;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffefa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f5f1e2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f4a10;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffefa,#f0eada);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f3efe0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f4a10;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6d6446;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 6 回 ／ 光を止める</span></div>
+  <p class="eyebrow">秒速 17 メートル ── ただし、止まっているのは光ではありません</p>
+  <h1>光を止める
+    <span class="sub">1999 年、ボース凝縮体の中で光が<em>秒速 17 メートル</em>まで落とされました。自転車の速さです。<br>2001 年には完全に止めて、あとから取り出すことにも成功しています。<br><strong>そしてこれを可能にしているのは、前回の因果律そのものです。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第3回の群速度、第5回のクラマース–クローニッヒ</span>
+    <span>この回の芯：暗状態ポラリトン</span>
+  </div>
+
+  <p class="lead">屈折率 1.5 のガラスで光は \(c/1.5\)。ダイヤモンドで \(c/2.4\)。<strong>では、どこまで遅くできるのでしょう。</strong>答えは「いくらでも」で、実際に 1999 年、ハウらがナトリウムのボース凝縮体の中で光を<em>秒速 17 メートル</em>まで落としました。2001 年には完全に止めて、あとから取り出しています。<br>ここには落とし穴がひとつと、贈り物がひとつあります。<strong>落とし穴</strong>は ── 光を大きく遅くするには急峻な分散が要り、急峻な分散は<em>強い吸収</em>とセットのはずでした（第5回）。それをどう回避したのか。<strong>贈り物</strong>は ── 回避の仕掛けを見ると、<em>第5回のクラマース–クローニッヒが「遅い光」を禁じているのではなく、むしろ要求している</em>ことがわかること。そして最後に、正直に言わなければならないことがひとつ ── <strong>止まっているのは、光ではありません。</strong></p>
+
+  <h2><span class="n">01</span>群速度を遅くするには、傾きが要る</h2>
+
+  <div class="calc">
+    <span class="tag">群屈折率</span>
+    <p style="margin:2px 0 0;">波束が進む速さは群速度で、屈折率が周波数に依存するとこうなります：</p>
+    $$v_g=\frac{c}{n_g},\qquad n_g=n+\omega\frac{dn}{d\omega}$$
+    <p style="margin:6px 0 14px;">ガラスの \(n=1.5\) は第一項です。しかし第二項の \(\omega\,dn/d\omega\) は、<strong>屈折率が急に変われば、いくらでも大きくできます</strong>。<br>
+    17 m/s を出すのに必要な群屈折率は \(n_g=c/17\approx1.8\times10^7\)。<em>ガラスの一千万倍</em>です。もちろん \(n\) 自体を 1800 万にするのではなく、<strong>傾きを稼ぐ</strong>。</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">ところが、第5回の問題がある</span>
+    <p style="margin:0;">急峻な \(dn/d\omega\) を作るには<strong>鋭い共鳴</strong>が要ります。ところがクラマース–クローニッヒは、鋭い共鳴には<em>鋭い吸収がついてくる</em>と言っている。<br>
+    ふつうに共鳴に近づけば、光は遅くなる前に<strong>吸われて消えます</strong>。── これが 1990 年代まで「遅い光」が難しかった理由です。</p>
+  </div>
+
+  <h2><span class="n">02</span>EIT ── 吸収に穴を開けて、傾きだけ残す</h2>
+
+  <p>抜け道は 1990 年にハリスが提案し、1991 年にボラー・イマモグル・ハリスが実証しました。<strong>電磁誘起透明化（EIT）</strong>です。</p>
+
+  <div class="keybox">
+    <div class="lbl">仕掛け</div>
+    <p style="margin:0 0 8px;">原子に、下の準位が二つ、上の準位が一つある「Λ 型」の構造を用意します。そこに<strong>制御光</strong>を強く当てておく。すると、信号光が上の準位へ行く経路が<em>二通り</em>できます。</p>
+    <p style="margin:0;">この二つの経路が<strong>ぴったり逆位相で打ち消し合う</strong>ため、共鳴のど真ん中で<em>吸収がゼロになります</em>。原子は「暗状態」と呼ばれる、光と結合しない重ね合わせに落ち込む。</p>
+    <p style="margin:10px 0 0;"><strong>結果：不透明だった吸収線の真ん中に、細い透明の窓が開く。</strong></p>
+  </div>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">ここが第5回の贈り物</div>
+    <p style="margin:0 0 8px;">吸収に<strong>細い穴</strong>を開けたら、クラマース–クローニッヒは何と言うでしょうか。</p>
+    <p style="margin:0;">積分 \(n(\omega)-1=\frac{2}{\pi}\mathrm{P}\int\frac{\omega'\kappa(\omega')}{\omega'^2-\omega^2}d\omega'\) は、\(\kappa\) の<em>急な変化</em>を \(n\) の<strong>急な変化</strong>に翻訳します。穴が細ければ細いほど、その中の \(dn/d\omega\) は<strong>急峻になる</strong>。</p>
+    <p style="margin:10px 0 0;"><em>つまり、遅い光はクラマース–クローニッヒに反しているのではありません。</em><strong>クラマース–クローニッヒが作り出しているのです。</strong>吸収の窓の細さが、そのまま群屈折率の大きさになる。</p>
+    <p style="margin:10px 0 0;">簡単な見積もり ── 制御光のラビ周波数を \(\Omega_c\)、上準位の減衰を \(\Gamma\) とすると、<br>
+    　窓の幅 \(\ \sim\ \Omega_c^2/\Gamma\)、　群屈折率 \(\ n_g\ \propto\ 1/\Omega_c^2\)。<br>
+    <strong>制御光を弱くするほど、窓は狭くなり、光は遅くなる。</strong>この二つは<em>同じ一つのつまみ</em>です。</p>
+  </div>
+
+  <h2><span class="n">03</span>秒速 17 メートル</h2>
+
+  <table class="tbl">
+    <tr><th>年</th><th>系</th><th class="num">群速度</th><th>備考</th></tr>
+    <tr><td>1999</td><td>ナトリウムのボース凝縮体（435 nK）</td><td class="num">17 m/s</td><td>ハウ・ハリスら。\(n_g\approx1.8\times10^7\)</td></tr>
+    <tr><td>1999</td><td>高温ルビジウム蒸気</td><td class="num">90 m/s</td><td>カッシュら。冷却なしでも出る</td></tr>
+    <tr><td>1999</td><td>常温ルビジウム蒸気</td><td class="num">8 m/s</td><td>バドカーら</td></tr>
+    <tr><td>2001</td><td>ナトリウム凝縮体／ルビジウム蒸気</td><td class="num">0</td><td><strong>完全に止めて、あとから取り出した</strong></td></tr>
+    <tr><td>2013</td><td>Pr:YSO 結晶（固体）</td><td class="num">0</td><td>保存時間 <strong>1 分</strong></td></tr>
+  </table>
+
+  <p><em>ボース凝縮体が必要なわけではありません。</em>常温のルビジウム蒸気でも 8 m/s が出ています。凝縮体が効いたのは<strong>ドップラー広がりがないこと</strong>で、そのぶん窓を細くできた。</p>
+
+  <h2><span class="n">04</span>正直に ── 止まっているのは光ではない</h2>
+
+  <p>「光を止めた」という言い方は、正確ではありません。何が起きているかを見ます。</p>
+
+  <div class="keybox">
+    <div class="lbl">暗状態ポラリトン（フライシュハウアーとルーキン、2000）</div>
+    <p style="margin:0 0 8px;">媒質の中を進んでいるのは、光でも原子でもなく、その<strong>混ざりもの</strong>です：</p>
+    $$\Psi=\cos\theta\cdot\underbrace{E}_{\text{光}}\ -\ \sin\theta\cdot\underbrace{S}_{\text{原子のコヒーレンス}},
+    \qquad \tan^2\theta\ \propto\ \frac{1}{\Omega_c^2}$$
+    <p style="margin:8px 0 0;">そして進む速さは \(v=c\cos^2\theta\)。<strong>制御光 \(\Omega_c\) を弱めると \(\theta\to90^\circ\) に近づき、\(\Psi\) は<em>ほとんど原子だけ</em>になります。</strong></p>
+    <p style="margin:10px 0 0;">\(\Omega_c\) をゼロにすれば \(v=0\)。<em>止まる。</em>けれどそのとき \(\cos\theta=0\) ── <strong>光の成分はゼロです。</strong>そこにあるのは原子スピンの位相の並びだけ。</p>
+    <p style="margin:10px 0 0;">制御光を戻すと \(\theta\) が戻り、<strong>原子のコヒーレンスから光が書き戻されます</strong>。<em>預けて、引き出しているのです。</em></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">では「光を止めた」は嘘なのか</span>
+    <p style="margin:0;">嘘ではありませんが、<strong>主語が違います</strong>。<br>
+    ・止まっているもの：<em>原子のコヒーレンス</em>（光子ではない）<br>
+    ・保たれているもの：<strong>光の量子状態そのもの</strong> ── 振幅も位相も、単一光子の量子重ね合わせも、忠実に保存され、忠実に取り出されます。<br>
+    だから「<strong>光の情報を蓄えた</strong>」は完全に正しく、「光子がそこで静止している」は誤りです。<em>本コレクションの言い方でいえば、これは「同じもの」ではなく「忠実な写し」</em>。</p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 窓の細さが、そのまま遅さ</h2>
+
+  <p>下の図は EIT の吸収（左）と屈折率（右）です。灰色は制御光を切ったとき（ふつうの吸収線）。制御光を弱くしていくと ── <strong>窓が細くなり、その中の傾きが急になり、光が遅くなります。三つとも同じつまみです。</strong></p>
+
+  <div class="fig">
+    <div class="cap">図：左＝吸収（Im χ）。灰色は制御光なしの吸収線、色つきが EIT で穴が開いた状態。右＝屈折率（Re n − 1）。窓の中の傾きが群屈折率を決める。制御光を弱めると窓が細く・傾きが急に・光が遅くなる ── すべて同じ一つのつまみ</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>制御光の強さ Ω_c / Γ <span class="val" id="vo">0.28</span>
+        <input type="range" id="so" min="4" max="200" step="1" value="28">
+      </label>
+      <label>下準位のデコヒーレンス γ / Γ <span class="val" id="vy">0.0010</span>
+        <input type="range" id="sy" min="0" max="100" step="1" value="10">
+      </label>
+      <button id="bh">ハウ 1999（17 m/s）</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#8a6d1f;"></i>EIT ありの吸収 / 屈折率</span>
+      <span><i class="swatch" style="background:#bfb593;"></i>制御光なし（ふつうの吸収線）</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>透明の窓</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>もちろん、ただではない</h2>
+
+  <div class="keybox">
+    <div class="lbl">遅延と帯域は、掛け算で固定されている</div>
+    <p style="margin:0 0 8px;">窓を細くすれば光は遅くなる。<em>でも、窓が細いということは ──</em></p>
+    <p style="margin:0;"><strong>その窓に収まらない光は、通れません。</strong>パルスの帯域が窓より広いと、はみ出した成分が吸われたり歪んだりする。窓の幅 \(\sim\Omega_c^2/\Gamma\) が狭くなるのと、\(n_g\propto1/\Omega_c^2\) が大きくなるのは同じ速さで起きるので、</p>
+    <p style="margin:8px 0 0;text-align:center;"><strong>（遅延時間）×（使える帯域）≈ 一定</strong></p>
+    <p style="margin:8px 0 0;">これを<em>遅延–帯域積</em>といいます。上限を決めているのは媒質の<strong>光学的厚み</strong>だけ。<em>短いパルスを長く止めることは、原理的にできません。</em>言い換えると ── <strong>パルスは、自分が受ける遅延より短くなければならない</strong>（そうでないと媒質の中に収まりきらない）。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">因果律は、ここでも無傷</span>
+    第3回と同じことを確認しておきます。<strong>パルスの前縁は、EIT 媒質の中でもきっかり \(c\) で進みます。</strong>遅くなるのは波束のピークであって、信号の到達そのものではない。<br>
+    そして皮肉なことに ── <em>「遅い光」も「速い光」（\(v_g>c\) や負の群速度）も、まったく同じ理屈で許され、まったく同じ理屈で情報伝達には使えません。</em>どちらも<strong>波形の作り直し</strong>です。<br>
+    <strong>因果律は「遅い光」を禁じるどころか、それを作った当人でした</strong>（第5回）。
+  </div>
+
+  <div class="aside">
+    <span class="tag">何の役に立つのか ── 量子メモリ</span>
+    いちばん重要な応用は、古典的な遅延線ではなく<strong>量子メモリ</strong>です。単一光子の量子状態を原子に預け、必要なときに取り出す。<em>量子中継器</em>（長距離の量子通信で不可欠）の中核部品がこれです。<br>
+    保存時間の記録は伸び続けており、Pr:YSO 結晶で 1 分の光保存（2013）、Eu:YSO の核スピンコヒーレンスでは<strong>6 時間</strong>（2015）が報告されています。<em>ただし後者は「スピンのコヒーレンス時間」であって、光をそのまま 6 時間保存したという意味ではありません。</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>群屈折率 \(n_g=n+\omega\,dn/d\omega\)；EIT の提案（Harris 1990）と実証（Boller–Imamoğlu–Harris 1991）；Λ 系の暗状態と経路干渉による透明化；ハウ・ハリスらのナトリウム凝縮体での 17 m/s（Nature 397, 594, 1999）、ルビジウム蒸気での 8〜90 m/s、2001 年の光の保存と再生；暗状態ポラリトンの記述（Fleischhauer–Lukin 2000）と \(v=c\cos^2\theta\)；遅延–帯域積が光学的厚みで上限づけられること；Pr:YSO での 1 分の光保存（2013）；Eu:YSO の 6 時間スピンコヒーレンス（2015）。いずれも査読済みの結果です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>「光を止めた」の主語は光子ではありません。</strong>保存されているのは原子のコヒーレンスで、光の量子状態が忠実に写し取られ、忠実に戻される、というのが正確な言い方です。② 図で使っているのは Λ 系の<strong>弱プローブ線形感受率</strong>で、強いパルスや多準位構造、ドップラー広がり、原子の運動は入っていません。③ 図の物理定数はナトリウム D₂ 線（\(\Gamma/2\pi\approx9.8\) MHz、\(\lambda=589\) nm）と光学的厚み・媒質長を代表値として置いたもので、特定の実験の再現ではありません。「ハウ 1999」ボタンは 17 m/s 付近を再現するつまみの位置を示すもので、論文の追試ではありません。④ 群速度は<strong>信号速度ではありません</strong>。前縁はつねに \(c\) で、EIT でも変わりません。⑤ 6 時間はスピンコヒーレンス時間であって、光の保存時間ではありません（本文の注記どおり）。⑥ 遅延–帯域積の「一定」は桁の意味での見積もりで、系ごとに前係数が違います。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>光を大きく遅くするのに、屈折率そのものを大きくする必要がないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">群速度を決めるのは \(n_g=n+\omega\,dn/d\omega\) で、<strong>第二項の傾きが効く</strong>から。17 m/s には \(n_g\approx1.8\times10^7\) が要るが、\(n\) 自体は 1 の近くのままでよい。<em>稼ぐのは値ではなく傾き。</em></div></details>
+      </li>
+      <li>EIT が第5回のクラマース–クローニッヒに矛盾しないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">矛盾しないどころか、<strong>KK が遅い光を作っている</strong>。吸収線に細い穴を開けると、KK 積分がその急な変化を \(n\) の急な変化に翻訳する。<em>窓が細いほど窓の中の \(dn/d\omega\) が急峻になり、光が遅くなる。</em>窓の幅 \(\sim\Omega_c^2/\Gamma\) と \(n_g\propto1/\Omega_c^2\) は同じつまみ。</div></details>
+      </li>
+      <li>「光を止めた」の何が正確で、何が不正確か。
+        <details><summary>答えを見る</summary><div class="ans">正確：<strong>光の量子状態</strong>（振幅・位相・重ね合わせ）が忠実に保存され、忠実に取り出される。不正確：<em>光子がそこで静止しているわけではない。</em>止まっているのは原子のコヒーレンス。暗状態ポラリトン \(\Psi=\cos\theta\,E-\sin\theta\,S\) が \(v=c\cos^2\theta\) で進み、制御光を切ると \(\cos\theta\to0\) ── <strong>止まった瞬間、光の成分はゼロ</strong>。</div></details>
+      </li>
+      <li>短いパルスを長く止められないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">短いパルスは<strong>帯域が広い</strong>。透明の窓は幅 \(\sim\Omega_c^2/\Gamma\) しかなく、はみ出した成分は吸われて歪む。窓を広げれば \(n_g\propto1/\Omega_c^2\) が小さくなって遅延が減る ── <strong>遅延×帯域 ≈ 一定</strong>（上限は媒質の光学的厚み）。物理的には「パルスは自分が受ける遅延より短くないと、媒質に収まらない」。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第6回まとめ</span>止まったのは光ではなく、光の写しだった</h2>
+    <p>群速度を決めるのは \(n_g=n+\omega\,dn/d\omega\) の<strong>第二項</strong>です。17 m/s に必要な \(n_g\approx1.8\times10^7\) は、屈折率の値ではなく<em>傾き</em>で稼ぐ。ただし急な傾きは強い吸収とセットのはずでした（第5回）── そこを破ったのが<strong>EIT</strong>。制御光が作る暗状態への経路干渉で、吸収線のど真ん中に<em>細い透明の窓</em>が開きます。</p>
+    <p>そしてここが美しいところ ── <strong>窓を開けると、クラマース–クローニッヒがその中に急峻な \(dn/d\omega\) を強制します。</strong>遅い光は因果律に反しているのではなく、<em>因果律が作っている</em>。窓の幅 \(\sim\Omega_c^2/\Gamma\) と群屈折率 \(n_g\propto1/\Omega_c^2\) は同じ一つのつまみで、だから<strong>遅延×帯域は一定</strong>（短いパルスは長く止められない）。</p>
+    <p>そして正直な一行 ── <strong>止まっているのは光ではありません。</strong>進んでいるのは暗状態ポラリトン \(\Psi=\cos\theta\,E-\sin\theta\,S\) で、速さは \(v=c\cos^2\theta\)。制御光を切って止めた瞬間、\(\cos\theta=0\) ── <em>光の成分はゼロで、そこにあるのは原子のコヒーレンスだけ</em>です。保たれているのは光の<strong>量子状態</strong>で、それは忠実に取り出せる。だから「光の情報を蓄えた」は正しく、「光子が静止している」は誤りです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第7回「見えているのは、屈折率の地図」<span style="letter-spacing:.05em;">　最終回</span></span>
+    最終回です。ここまでの道具で、身のまわりが全部読めるようになります ── <strong>なぜ金属は光るのか、なぜ空は青くて夕陽は赤いのか、なぜ深い水は青いのか、なぜ蜃気楼が立つのか、なぜ虹は 42 度なのか。</strong>そして最後に、第2回の実効計量に戻ります。<em>私たちが「見ている」のは物ではなく、屈折率の地図です。</em>その地図は本物の時空ではありませんが ── <strong>同じ方程式に従う</strong>。アナログ重力という、実験室に置ける宇宙の話で締めくくります。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第6回、物理好きの高校生・大学生向け読み物です。群屈折率、EIT の提案（Harris 1990）と実証（Boller–Imamoğlu–Harris 1991）、Λ 系の暗状態と経路干渉、ハウ・ハリスらのナトリウム凝縮体での 17 m/s（Nature 397, 594, 1999）、ルビジウム蒸気での 8〜90 m/s、2001 年の光の保存と再生、暗状態ポラリトン（Fleischhauer–Lukin 2000）と \(v=c\cos^2\theta\)、遅延–帯域積、Pr:YSO での 1 分の光保存（2013）、Eu:YSO の 6 時間スピンコヒーレンス（2015）は、いずれも査読済みの結果です。「光を止めた」の主語が光子ではなく原子のコヒーレンスであること、図が Λ 系の弱プローブ線形感受率でありドップラー広がりや原子の運動を含まないこと、図の定数がナトリウム D₂ 線の代表値であって特定実験の再現ではないこと、群速度が信号速度ではなく前縁はつねに \(c\) であること、6 時間がスピンコヒーレンス時間であること、および遅延–帯域積の「一定」が桁の見積もりであることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kussetsu-05-kk.html">第5回 屈折と吸収は、同じ一つの関数だった</a>／<a href="wakaru-kussetsu-07-chizu.html">第7回 見えているのは、屈折率の地図</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ryoushi/index.html">わかる量子</a>・<a href="../wakaru-surinuke/index.html">わかるすり抜け</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面で制御光を弱めると、透明の窓が細くなると同時に屈折率の傾きが急になり、群速度が落ちます ── 三つが同じつまみで動くことを確かめてください。「ハウ 1999」ボタンで 17 m/s 付近に飛べます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), so=document.getElementById('so'), vo=document.getElementById('vo'),
+      sy=document.getElementById('sy'), vy=document.getElementById('vy'),
+      rd=document.getElementById('rd'), bh=document.getElementById('bh');
+
+  var C=2.99792458e8;
+  var LAM=589e-9;                      // ナトリウム D₂
+  var GAM=2*Math.PI*9.8e6;             // 上準位の減衰 [rad/s]
+  var OMEGA=2*Math.PI*C/LAM;           // 光の角振動数
+  var K0=2*Math.PI/LAM;
+  var LMED=229e-6;                     // 媒質長（代表値）
+  var OD=63;                           // 光学的厚み（代表値）
+  // 共鳴・制御光なしの吸収が α₀L = OD になるよう A を決める：α₀ = K0·Imχ(0) = K0·2A/Γ
+  var A = OD*GAM/(2*K0*LMED);
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  // χ(δ) = i A (γ - iδ) / [ (Γ/2 - iδ)(γ - iδ) + Ω²/4 ]
+  function chi(dl, Om, gam){
+    var nr=gam, ni=-dl;                                  // 分子 (γ - iδ)
+    var ar=GAM/2, ai=-dl, br=gam, bi=-dl;
+    var dr=ar*br-ai*bi + Om*Om/4, di=ar*bi+ai*br;        // 分母
+    var den=dr*dr+di*di;
+    var qr=(nr*dr+ni*di)/den, qi=(ni*dr-nr*di)/den;      // (γ-iδ)/分母
+    // ×(iA)
+    return { re: -A*qi, im: A*qr };
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var oR=parseInt(so.value,10)/100;                    // Ω/Γ
+    var yR=parseInt(sy.value,10)/10000;                  // γ/Γ
+    var Om=oR*GAM, gam=yR*GAM;
+    vo.textContent=oR.toFixed(2);
+    vy.textContent=yR.toFixed(4);
+    ctx.clearRect(0,0,w,h);
+
+    var DM=2.2*GAM;                                      // 表示範囲 ±
+    var absMax=2*A/GAM*1.08;                             // Ω=0 の共鳴吸収
+
+    /* ── 左：吸収 ── */
+    var L=48, R=w*0.465, T=28, B=h-40;
+    function X1(d){ return (L+R)/2 + (R-L)/2*d/DM; }
+    function Y1(v){ return B-(B-T)*v/absMax; }
+    ctx.strokeStyle='#bfb593'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#6d6446'; ctx.textAlign='center';
+    ctx.fillText('0', X1(0), B+14); ctx.fillText('+Γ', X1(GAM), B+14); ctx.fillText('−Γ', X1(-GAM), B+14);
+    ctx.fillText('離調 δ', (L+R)/2, B+30);
+
+    // 制御光なし（灰）
+    ctx.strokeStyle='#cfc7a8'; ctx.lineWidth=2; ctx.beginPath();
+    for(var i=0;i<=300;i++){
+      var d0=-DM+2*DM*i/300, c0=chi(d0,0,gam);
+      if(i===0)ctx.moveTo(X1(d0),Y1(c0.im)); else ctx.lineTo(X1(d0),Y1(c0.im));
+    }
+    ctx.stroke();
+
+    // EIT あり
+    ctx.fillStyle='rgba(138,109,31,.15)'; ctx.beginPath(); ctx.moveTo(X1(-DM),Y1(0));
+    for(var i2=0;i2<=400;i2++){
+      var d1=-DM+2*DM*i2/400, c1=chi(d1,Om,gam);
+      ctx.lineTo(X1(d1),Y1(c1.im));
+    }
+    ctx.lineTo(X1(DM),Y1(0)); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#8a6d1f'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var i3=0;i3<=400;i3++){
+      var d2=-DM+2*DM*i3/400, c2=chi(d2,Om,gam);
+      if(i3===0)ctx.moveTo(X1(d2),Y1(c2.im)); else ctx.lineTo(X1(d2),Y1(c2.im));
+    }
+    ctx.stroke();
+
+    // 窓の幅を数値で求める（Im χ が ピークの半分に達するところ）
+    var peak=0;
+    for(var s=0;s<=400;s++){ var ds=-DM+2*DM*s/400; peak=Math.max(peak, chi(ds,Om,gam).im); }
+    var half=peak/2, wHalf=DM;
+    for(var s2=0;s2<=800;s2++){
+      var ds2=DM*s2/800;
+      if(chi(ds2,Om,gam).im>=half){ wHalf=ds2; break; }
+    }
+    var winFW=2*wHalf;   // 透明窓の全幅
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X1(-wHalf),T+6); ctx.lineTo(X1(-wHalf),B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X1(wHalf),T+6); ctx.lineTo(X1(wHalf),B); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 9.5px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('透明の窓', X1(0), T+16);
+
+    ctx.fillStyle='#5f4a10'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('吸収 ── 真ん中に穴が開く', (L+R)/2, 16);
+
+    /* ── 右：屈折率 ── */
+    var PL=w*0.60, PR=w-16, PT=28, PB=h-40;
+    var nMax=0;
+    for(var s3=0;s3<=400;s3++){ var d3=-DM+2*DM*s3/400; nMax=Math.max(nMax, Math.abs(chi(d3,Om,gam).re/2)); }
+    nMax=Math.max(nMax, A/GAM*0.6)*1.15;
+    function X2(d){ return (PL+PR)/2 + (PR-PL)/2*d/DM; }
+    function Y2(v){ return (PT+PB)/2 - (PB-PT)/2*v/nMax; }
+    ctx.strokeStyle='#bfb593'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PB); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PL,Y2(0)); ctx.lineTo(PR,Y2(0)); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#6d6446'; ctx.textAlign='center';
+    ctx.fillText('0', X2(0), PB+14); ctx.fillText('+Γ', X2(GAM), PB+14); ctx.fillText('−Γ', X2(-GAM), PB+14);
+    ctx.fillText('離調 δ', (PL+PR)/2, PB+30);
+
+    ctx.strokeStyle='#cfc7a8'; ctx.lineWidth=2; ctx.beginPath();
+    for(var j=0;j<=300;j++){
+      var e0=-DM+2*DM*j/300, g0=chi(e0,0,gam).re/2;
+      var yv=Math.max(-nMax,Math.min(nMax,g0));
+      if(j===0)ctx.moveTo(X2(e0),Y2(yv)); else ctx.lineTo(X2(e0),Y2(yv));
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle='#8a6d1f'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var j2=0;j2<=500;j2++){
+      var e1=-DM+2*DM*j2/500, g1=chi(e1,Om,gam).re/2;
+      var yv2=Math.max(-nMax,Math.min(nMax,g1));
+      if(j2===0)ctx.moveTo(X2(e1),Y2(yv2)); else ctx.lineTo(X2(e1),Y2(yv2));
+    }
+    ctx.stroke();
+
+    // 窓の中の傾き（接線）
+    var hstep=Om*Om/GAM*0.05+1e3;
+    var nPlus=1+chi(hstep,Om,gam).re/2, nMinus=1+chi(-hstep,Om,gam).re/2;
+    var slope=(nPlus-nMinus)/(2*hstep);
+    var n0=1+chi(0,Om,gam).re/2;
+    var ng=n0+OMEGA*slope;
+    var vg=C/Math.max(ng,1e-9);
+
+    var tanHalf=DM*0.12;
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    var yA=Math.max(-nMax,Math.min(nMax,-slope*tanHalf));
+    var yB=Math.max(-nMax,Math.min(nMax, slope*tanHalf));
+    ctx.moveTo(X2(-tanHalf),Y2(yA)); ctx.lineTo(X2(tanHalf),Y2(yB)); ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('この傾きが群屈折率', X2(tanHalf*0.4), Y2(yB)-8);
+
+    ctx.fillStyle='#5f4a10'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('屈折率 ── 窓の中で急に立つ', (PL+PR)/2, 16);
+
+    var delay=LMED/Math.max(vg,1e-9);
+    var winHz=winFW/(2*Math.PI);
+    var minPulse=1/Math.max(winHz,1);
+    rd.innerHTML='Ω_c/Γ = <b>'+oR.toFixed(2)+'</b>　→　透明の窓の幅 <b>'+(winHz/1e6).toPrecision(3)+' MHz</b>、'
+      +'群屈折率 n_g = <b>'+(ng>1e4? ng.toExponential(2) : ng.toPrecision(4))+'</b>、'
+      +'<b style="color:#a83a22">群速度 v_g = '+(vg>1000? (vg/1000).toPrecision(3)+' km/s' : vg.toPrecision(3)+' m/s')+'</b><br>'
+      +'媒質（長さ '+(LMED*1e6).toFixed(0)+' μm、光学的厚み '+OD+'）を抜けるのにかかる時間 <b>'
+      +(delay>1e-6? (delay*1e6).toPrecision(3)+' μs' : (delay*1e9).toPrecision(3)+' ns')+'</b>。'
+      +'窓に収まるパルスの最短の長さは <b>'+(minPulse>1e-6? (minPulse*1e6).toPrecision(3)+' μs' : (minPulse*1e9).toPrecision(3)+' ns')+'</b> ── '
+      +'<b>遅延と同じ桁</b>です。これが遅延–帯域積の壁。';
+  }
+
+  so.addEventListener('input', draw);
+  sy.addEventListener('input', draw);
+  bh.addEventListener('click', function(){ so.value=28; sy.value=10; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

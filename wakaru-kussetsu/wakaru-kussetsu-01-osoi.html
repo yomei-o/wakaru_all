@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光は遅くなっていない ── わかる屈折 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbfa; --paper-edge:#d4e5e0;   /* 第1回：波＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#22604f; --calc-bg:#e3f0ec;
+    --rule:#cfe2dc; --hair:#a8c8bf;
+    --acc:#2e7d6b;
+    --grid:#e2efeb;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #b8ddd2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfe4dd;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e3f0ec;color:#1d5546;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fbfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#e9f4f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d5546;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fbfefd,#e2efeb);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3f0ec;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d5546;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5b7770;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 1 回 ／ 光は遅くなっていない</span></div>
+  <p class="eyebrow">ガラスの中で光速が c/1.5 になるのに、光速不変が破れないのはなぜか</p>
+  <h1>光は遅くなっていない
+    <span class="sub">遅くなっているのは<em>光子ではなく、波のほう</em>です。<br>原子が前方へ散乱し直した波が元の波と重なると、<strong>位相だけがずれる</strong>。<br>その積み重ねが屈折率 ── よくある「吸収して再放出」の説明は、まちがいです。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：波の位相、複素数（フェーザ）、重ね合わせ</span>
+    <span>この回の芯：n = c / v_位相 は、位相の積み重ね</span>
+  </div>
+
+  <p class="lead">水に入れたストローが折れて見えます。理由は「水の中では光が遅いから」。実際、水の屈折率は 1.33 なので、光の速さは \(c/1.33\) に落ちます。ガラスなら \(c/1.5\)、ダイヤモンドなら \(c/2.42\) ── 真空の 4 割強です。<strong>ところが相対論は「光速は不変」だと言う。</strong>これは矛盾していません。なぜなら ── <em>遅くなっているのは光子ではないから</em>。原子と原子のあいだを飛ぶ光子は、いつでもきっちり \(c\) で走っています。遅いのは、<strong>光と物質の分極が混ざった「別の波」</strong>のほう。そしてその混ざり方を追うと、屈折率という数がどこから出てくるのかがはっきりします。ついでに、教科書でもよく見る「原子が光を吸収して、少し遅れて再放出するから遅くなる」という説明が<em>なぜまちがいなのか</em>も分かります。</p>
+
+  <h2><span class="n">01</span>まず、矛盾を正確に述べる</h2>
+
+  <table class="tbl">
+    <tr><th>物質</th><th class="num">屈折率 n（可視光）</th><th class="num">光の速さ</th></tr>
+    <tr><td>真空</td><td class="num">1</td><td class="num">3.00×10⁸ m/s</td></tr>
+    <tr><td>空気</td><td class="num">1.0003</td><td class="num">ほぼ同じ</td></tr>
+    <tr><td>水</td><td class="num">1.33</td><td class="num">2.25×10⁸ m/s</td></tr>
+    <tr><td>ガラス</td><td class="num">1.5</td><td class="num">2.00×10⁸ m/s</td></tr>
+    <tr><td>ダイヤモンド</td><td class="num">2.42</td><td class="num">1.24×10⁸ m/s</td></tr>
+    <tr><td>シリコン（赤外）</td><td class="num">3.5</td><td class="num">0.86×10⁸ m/s</td></tr>
+  </table>
+
+  <p>これは実測です。ダイヤモンドの中で、光は真空の <strong>41%</strong> の速さしか出ません。では相対論の「光速不変」はどうなるのか。</p>
+
+  <div class="keybox">
+    <div class="lbl">不変なのは「因果の速さ」</div>
+    <p style="margin:0;">相対論が不変だと言っているのは、<strong>因果が伝わる最高速度 \(c\)</strong> です。光がたまたま \(c\) で進むのは、<em>光子の質量がゼロだから</em>。質量ゼロの粒子は \(c\) でしか進めません。</p>
+    <p style="margin:8px 0 0;">物質の中を進む「光」は、じつは<strong>純粋な光ではありません</strong>。だから \(c\) でなくてよい ── 何も破れていない。<em>問題はむしろ、では何が進んでいるのか</em>です。</p>
+  </div>
+
+  <h2><span class="n">02</span>よくある説明は、まちがっている</h2>
+
+  <p>先に、広く流通している誤った説明を片付けます。</p>
+
+  <div class="caveat" style="background:#f2e8e2;">
+    <span class="tag">これはまちがい</span>
+    <p style="margin:0;">「原子が光子を<strong>吸収</strong>して励起状態になり、少し遅れて<strong>再放出</strong>する。これを繰り返すので、正味では遅くなる」</p>
+  </div>
+
+  <p>魅力的ですが、少なくとも4つの理由でだめです。</p>
+
+  <table class="tbl">
+    <tr><th>問題</th><th>なぜだめか</th></tr>
+    <tr><td><strong>向きが保たれない</strong></td><td>励起された原子は<em>ほぼ等方に</em>再放出します。もしこれが起きていたら、ガラスは透明ではなく<strong>すりガラスのように真っ白</strong>になる。実際にはビームはまっすぐ抜けます</td></tr>
+    <tr><td><strong>時間が合わない</strong></td><td>原子の励起状態の寿命はナノ秒級。1 cm のガラスの中に \(10^7\) 層あるとして掛け算すると<em>何ミリ秒</em>にもなる。実際の遅れは<strong>ピコ秒</strong>です</td></tr>
+    <tr><td><strong>位相が保たれない</strong></td><td>自発放出はコヒーレンスを壊します。干渉やレンズの結像ができなくなる</td></tr>
+    <tr><td><strong>そもそも吸収しない</strong></td><td>ガラスが可視光で透明なのは、その振動数に<em>共鳴がないから</em>。吸収する準位がないのに「吸収して」は成り立たない</td></tr>
+  </table>
+
+  <p><strong>要するに、実際には光子は吸収されていません。</strong>では何が起きているのか。</p>
+
+  <h2><span class="n">03</span>正しい絵 ── コヒーレントな前方散乱</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯</div>
+    <p style="margin:0 0 8px;">入ってきた電場が原子の電子を<strong>揺らします</strong>（共鳴から離れていれば、吸収ではなく強制振動）。揺れる電荷は電磁波を出す ── これが<em>散乱波</em>。</p>
+    <p style="margin:8px 0 0;">そして、たくさんの原子が出した散乱波は、<strong>前方だけで位相がそろって強め合い、他の方向では打ち消し合います</strong>（規則正しく並んでいるか、波長より十分密なため）。だから光はまっすぐ進む。</p>
+    <p style="margin:10px 0 0;">残るのは <strong>もとの波 ＋ 前方散乱波</strong> の重ね合わせ。ここで決定的なのは ── <em>共鳴から外れた強制振動の応答は、駆動場に対して 90 度ずれる</em>こと。<strong>90 度ずれた小さなベクトルを足すと、長さはほとんど変えずに、向きだけが回ります。</strong></p>
+    <p style="margin:10px 0 0;font-size:17px;"><strong>振幅は変わらず、位相だけがずれる。それが屈折率です。</strong></p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">式にすると一行</span>
+    <p style="margin:2px 0 0;">厚さ \(dz\) の薄い層を通ると、電場に \(i\,k(n-1)\,dz\) だけの寄与が加わります（\(i\) が「90度」です）。積み上げると</p>
+    $$E(z)=E_0\,e^{ik(n-1)z}$$
+    <p style="margin:6px 0 14px;">\(n\) が実数なら、これは<strong>複素平面での純粋な回転</strong> ── 長さは変わりません。真空中の波に対して \(k(n-1)z\) だけ位相が遅れる。それを「速さが \(c/n\) になった」と読み替えているだけです。<br>
+    <em>もし \(n\) に虚部があれば、回転しながら縮む</em> ── それが吸収で、第5回の主題になります。</p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── フェーザが円を描く</h2>
+
+  <p>下の図の左は<strong>複素平面（フェーザ図）</strong>です。横向きの太い矢印が入射波。そこに原子の層が出す小さな散乱波を1枚ずつ足していきます。<em>各寄与が 90 度ずれているので、先端は円を描きます</em> ── 長さが変わらないまま、向きだけが回る。</p>
+
+  <p>右は、その結果できる波と真空中の波の比較。<strong>山の位置がずれていくだけで、高さは同じ</strong>です。これが「遅くなった」の正体。</p>
+
+  <p>吸収スライダーを上げると、フェーザが<em>内側へ巻き込みます</em> ── これが吸収。第5回の予告です。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝複素平面。入射波（太矢印）に、原子層の散乱波（90度ずれた小矢印）を1枚ずつ足す。先端は円を描き、長さは変わらず向きだけ回る。右＝できあがった波（実線）と真空中の波（破線）。山の位置だけがずれる</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>屈折率 n <span class="val" id="vn">1.50</span>
+        <input type="range" id="sn" min="100" max="250" step="1" value="150">
+      </label>
+      <label>層の枚数（＝厚み） <span class="val" id="vl">12</span>
+        <input type="range" id="sl" min="0" max="40" step="1" value="12">
+      </label>
+      <label>吸収 κ（第5回の予告） <span class="val" id="vk">0.00</span>
+        <input type="range" id="sk" min="0" max="40" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2e7d6b;"></i>合成された波</span>
+      <span><i class="swatch" style="background:#a8c8bf;"></i>真空中の波</span>
+      <span><i class="swatch" style="background:#b3541e;"></i>各層の散乱波（90度ずれ）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>進んでいるものの名前 ── ポラリトン</h2>
+
+  <p>物質の中を進んでいるものには名前があります。<strong>ポラリトン</strong> ── 電磁場と、物質の分極（揺れている電子）が混ざった<em>ひとつの波</em>です。</p>
+
+  <div class="keybox">
+    <div class="lbl">なぜ遅いのか、一行で</div>
+    <p style="margin:0;">進んでいる波の一部が<strong>物質でできている</strong>から。物質には慣性があるので、その分だけ全体の歩みが鈍る。</p>
+    <p style="margin:8px 0 0;"><em>光子そのものは、原子と原子のあいだをいつでも \(c\) で飛んでいます。</em>遅れているのは「混ざりもの」としての波の位相。<strong>光は遅くなっていない。遅いのは波のほう</strong>というのは、この意味です。</p>
+    <p style="margin:10px 0 0;">この見方は第6回で効いてきます ── <em>混ざり方を物質側に振り切ると、光は秒速 17 メートルまで落ち、さらには「止まり」ます。</em>そのとき止まっているのは、もはや光ではありません。</p>
+  </div>
+
+  <h2><span class="n">06</span>桁で見る ── ガラス1枚の遅れ</h2>
+
+  <div class="calc">
+    <span class="tag">窓ガラスを通ると、どれだけ遅れるか</span>
+    <p style="margin:2px 0 0;">厚さ \(d=1\) cm、\(n=1.5\) のガラスを通ると、真空を進んだ場合との差は</p>
+    $$\Delta t=\frac{(n-1)d}{c}=\frac{0.5\times0.01}{3.0\times10^8}=1.7\times10^{-11}\ \mathrm{s}=17\ \mathrm{ピコ秒}$$
+    <p style="margin-bottom:14px;">波の山にすると、可視光（波長 550 nm）で <strong>約 9000 波長ぶん</strong>の位相のずれ。<em>これが積み重なってレンズが像を結びます。</em><br>
+    ちなみに ── 「吸収して再放出」説だと、原子の励起寿命 ns × 層数 \(10^7\) で<strong>ミリ秒</strong>級になります。実測の 17 ps と<em>8 桁</em>違う。それだけでもあの説明は落第です。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">ではガラスは「遅い」のか「厚い」のか</span>
+    ここまでを踏まえると、<strong>「光が遅くなる」と「光路が長くなる」は同じことを別の言い方で述べている</strong>とわかります。実際、光学では<em>光路長 \(nd\)</em> という量を使います ── 屈折率 \(n\) の媒質を \(d\) だけ進むのは、真空を \(nd\) 進むのと位相の上では同じ。<br>
+    そして「距離が伸びた」と言えるなら、それは<strong>計量を変えた</strong>ということ ── <em>次回の主題です。</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが確立か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>屈折率が入射波と前方散乱波のコヒーレントな重ね合わせから生じること（ファインマン物理学 I 巻 31 章の標準的な扱い）；共鳴から外れた強制振動の応答が駆動場と 90 度ずれ、そのため振幅を変えずに位相だけをずらすこと；\(E(z)=E_0e^{ik(n-1)z}\)；物質中を伝わる励起がポラリトン（光子と分極の混成）であること；各物質の屈折率の実測値。いずれも標準的な光学・物性です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① 「吸収して再放出」説の否定は、<em>コヒーレントな透過について</em>の話です。共鳴に近い振動数では実際に共鳴吸収と自発放出が起こり、そのときは光は散乱・減衰します（不透明になる）。<strong>透明な領域での話だと限定してください。</strong>② 「散乱波が前方だけで強め合う」のは、原子間隔が波長より十分小さいときの結果です。X線のように波長が原子間隔と同程度になると、他の方向にも強め合いが生じます（ブラッグ回折）。③ 図は各層の寄与を等しい大きさの離散ベクトルとして描いた模式で、実際の連続媒質の計算そのものではありません。④ ポラリトンという言葉は文脈により指す範囲が違います（励起子ポラリトン、フォノンポラリトンなど）。ここでは「電磁場と物質の分極が混成した伝搬モード」の意味で使っています。⑤ 屈折率は振動数に依存します（分散）。表の値は可視光域の代表値です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>ガラスの中で光速が \(c/1.5\) になるのに、相対論が破れないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">相対論が不変だと言っているのは<strong>因果の伝わる最高速度 \(c\)</strong> であって、「光と名のつくものは必ず \(c\)」ではないから。物質中を進むのは光と分極が混ざった<em>ポラリトン</em>で、純粋な光ではない。原子と原子のあいだの光子は、いつでも \(c\)。</div></details>
+      </li>
+      <li>「吸収して再放出」説がまちがいである理由を2つ挙げよ。
+        <details><summary>答えを見る</summary><div class="ans">（どれでも2つ）<strong>①向きが保たれない</strong>（自発放出は等方的なのでビームが散ってしまう）<strong>②時間が8桁合わない</strong>（ns×10⁷層＝ミリ秒 vs 実測17ps）<strong>③位相が壊れる</strong>（干渉も結像もできなくなる）<strong>④透明な領域には吸収する準位がない</strong>。</div></details>
+      </li>
+      <li>なぜ「振幅は変わらず位相だけずれる」のか。
+        <details><summary>答えを見る</summary><div class="ans">共鳴から外れた強制振動の応答が、駆動場に対して<strong>90 度</strong>ずれているから。複素平面で<em>直交する小さなベクトルを足すと、長さはほとんど変わらず向きだけが回る</em>。積み上げると \(E=E_0e^{ik(n-1)z}\) ── 純粋な回転。</div></details>
+      </li>
+      <li>厚さ 1 cm、\(n=1.5\) のガラスを通ると、光は何秒遅れるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\Delta t=(n-1)d/c=0.5\times0.01/(3\times10^8)=\) <strong>約 17 ピコ秒</strong>。波長 550 nm なら約 9000 波長ぶんの位相のずれ。この積み重ねがレンズの結像を作る。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第1回まとめ</span>遅いのは光ではなく、混ざった波</h2>
+    <p>ガラスの中で光の速さは \(c/1.5\) になりますが、相対論は無傷です ── 不変なのは<strong>因果の速さ \(c\)</strong> であって、物質中を進んでいるのはそもそも純粋な光ではないから。</p>
+    <p>正しい絵は<strong>コヒーレントな前方散乱</strong>です。入射場が電子を揺らし、揺れた電荷が波を出し、それが前方だけで強め合う。共鳴から外れた応答は駆動場と <strong>90 度</strong>ずれているので、足すと<em>長さは変わらず向きだけが回る</em> ── \(E(z)=E_0e^{ik(n-1)z}\)、純粋な位相のずれ。<strong>それが屈折率です。</strong></p>
+    <p>だから「原子が吸収して再放出する」という説明はまちがい ── 向きも位相も保たれないし、時間が8桁合わないし、そもそも透明な領域には吸収する準位がありません。進んでいるものの正体は<strong>ポラリトン</strong>（光と分極の混成波）で、<em>その一部が物質でできているから遅い</em>。<strong>光は遅くなっていない。遅いのは波のほうです。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第2回「光の円錐が、二つある」</span>
+    今回の最後に触れた「遅くなる＝距離が伸びる」を、正面から扱います。媒質の中では光の円錐が \(x=ct/n\) と<strong>狭くなる</strong> ── これは実効的な<em>計量</em>そのもので、フェルマーの原理は測地線に、スネルの法則は幾何になります。<strong>「\(c\cdot t=\)一定 で見ると光が遅くなるのと等価では」という直感は、ここで正確な形になります。</strong>ただし一点だけ譲れない条件があって ── <em>本当の因果の円錐は、まったく動いていません</em>。実効計量は真の円錐の<strong>内側</strong>にできる、もうひとつの円錐です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第1回、物理好きの高校生・大学生向け読み物です。屈折率が入射波と前方散乱波のコヒーレントな重ね合わせから生じること、共鳴から外れた応答が駆動場と 90 度ずれるため振幅を変えず位相のみをずらすこと、\(E(z)=E_0e^{ik(n-1)z}\)、物質中の伝搬励起がポラリトンであること、および各物質の屈折率の実測値は、いずれも標準的な光学・物性です。「吸収して再放出」説の否定が透明領域でのコヒーレント透過についての議論であり共鳴付近では実際に吸収と再放出が起こること、前方だけで強め合うのが原子間隔が波長より十分小さい場合の結果であること（X線ではブラッグ回折が生じる）、図が離散ベクトルによる模式であること、ポラリトンという語の指す範囲が文脈により異なること、および屈折率が振動数に依存することは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。次の回：<a href="wakaru-kussetsu-02-enkosui.html">第2回 光の円錐が、二つある</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ba/index.html">わかる場</a>・<a href="../wakaru-soutai/index.html">わかる相対論</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では層を1枚ずつ足していくと、フェーザの先端が円を描くのが見えます。吸収スライダーを上げると内側に巻き込みます（第5回の予告）。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      sl=document.getElementById('sl'), vl=document.getElementById('vl'),
+      sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var n=parseInt(sn.value,10)/100;
+    var N=parseInt(sl.value,10);
+    var kap=parseInt(sk.value,10)/200;
+    vn.textContent=n.toFixed(2); vl.textContent=N; vk.textContent=kap.toFixed(2);
+
+    // 1層あたりの位相回転（見やすい大きさに規格化）
+    var dphi=(n-1)*0.22;
+    var damp=kap*0.06;
+    var phi=N*dphi, amp=Math.exp(-N*damp);
+    ctx.clearRect(0,0,w,h);
+
+    /* 左：フェーザ図 */
+    var MID=w*0.42;
+    var cx=MID*0.5+20, cy=h*0.55, R=Math.min(MID*0.32,h*0.30);
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx-R*1.35,cy); ctx.lineTo(cx+R*1.35,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy+R*1.2); ctx.lineTo(cx,cy-R*1.2); ctx.stroke();
+    ctx.fillStyle='#5b7770'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('実部', cx+R*1.15, cy+14);
+    ctx.fillText('虚部', cx+5, cy-R*1.13);
+
+    // |E0| の円（吸収がなければここから出ない）
+    ctx.strokeStyle='#cfe2dc'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke(); ctx.setLineDash([]);
+
+    // 積み上げ
+    var px=cx+R, py=cy, a=1;
+    ctx.strokeStyle='#b3541e'; ctx.lineWidth=1.6;
+    for(var i=0;i<N;i++){
+      var th=i*dphi;
+      var na=a*Math.exp(-damp);
+      var nx=cx+R*na*Math.cos(th+dphi), ny=cy-R*na*Math.sin(th+dphi);
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(nx,ny); ctx.stroke();
+      ctx.fillStyle='#b3541e'; ctx.beginPath(); ctx.arc(nx,ny,1.8,0,7); ctx.fill();
+      px=nx; py=ny; a=na;
+    }
+    // 入射
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+    // 合成
+    ctx.strokeStyle='#2e7d6b'; ctx.lineWidth=3.2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+    ctx.fillStyle='#2e7d6b'; ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();
+
+    ctx.fillStyle='#1d5546'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('フェーザ図（複素平面）', cx, 22);
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#5b7770';
+    ctx.fillText('破線の円＝振幅が変わらない証拠', cx, h-12);
+
+    /* 右：波形 */
+    var L=MID+34, Rr=w-16, ay=h*0.55, AH=h*0.30;
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,ay); ctx.lineTo(Rr,ay); ctx.stroke();
+
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var j=0;j<=300;j++){
+      var x=L+(Rr-L)*j/300, u=(j/300)*4*Math.PI;
+      var y=ay-AH*Math.cos(u);
+      if(j===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#2e7d6b'; ctx.lineWidth=3; ctx.beginPath();
+    for(var k=0;k<=300;k++){
+      var x2=L+(Rr-L)*k/300, u2=(k/300)*4*Math.PI;
+      var y2=ay-AH*amp*Math.cos(u2-phi);
+      if(k===0)ctx.moveTo(x2,y2); else ctx.lineTo(x2,y2);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#1d5546'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('できあがった波（実線）と真空中の波（破線）', (L+Rr)/2, 22);
+    ctx.fillStyle='#5b7770'; ctx.font='9.5px sans-serif';
+    ctx.fillText('山の位置だけがずれる ── 高さは同じ', (L+Rr)/2, h-12);
+
+    var deg=phi*180/Math.PI;
+    var msg = kap>0.01
+      ? '<b style="color:#a83a22">吸収を入れると、フェーザが円から内側へ巻き込みます</b> ── 振幅が落ちる。これが吸収で、第5回の主題です。'
+      : '吸収ゼロなので、フェーザの先端は<b>破線の円から離れません</b> ── 振幅は保たれ、位相だけがずれます。';
+    rd.innerHTML='n = <b>'+n.toFixed(2)+'</b>、層 <b>'+N+' 枚</b> → 位相のずれ <b>'+deg.toFixed(0)+'°</b>、振幅 <b>'+(amp*100).toFixed(1)+'%</b><br>'
+      +'厚さ 1 cm・n = '+n.toFixed(2)+' のガラスなら、真空との時間差は <b>'+(((n-1)*0.01/2.998e8)*1e12).toPrecision(3)+' ピコ秒</b>'
+      +'（波長 550 nm で約 '+Math.round((n-1)*0.01/550e-9)+' 波長ぶん）。<br>'+msg;
+  }
+
+  sn.addEventListener('input', draw);
+  sl.addEventListener('input', draw);
+  sk.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

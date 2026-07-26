@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>屈折と吸収は、同じ一つの関数だった ── わかる屈折 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf9fd; --paper-edge:#ddd3ec;   /* 第5回：因果律＝菫の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#553288; --calc-bg:#efe9f7;
+    --rule:#d9cfe8; --hair:#b4a4cf;
+    --acc:#6a3fa0;
+    --grid:#e8e0f2;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dccdf0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ded3ef;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button.off{background:#b9aecb;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#efe9f7;color:#4b2c7a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2ecfa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4b2c7a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ece4f6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe9f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4b2c7a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6a5f7d;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 5 回 ／ 屈折と吸収は、同じ一つの関数だった</span></div>
+  <p class="eyebrow">「結果は原因より先に起きない」── それだけから、屈折率の実部と虚部が積分で縛られる</p>
+  <h1>屈折と吸収は、<br>同じ一つの関数だった
+    <span class="sub">屈折率は本当は<em>複素数</em>です ── \(\tilde n=n+i\kappa\)。実部が屈折、虚部が吸収。<br>そしてこの二つは<strong>勝手に決められません</strong>。因果律だけから積分でつながる。<br>帰結：<strong>光を曲げる物質は、どこかで必ず光を吸わなければならない。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の位相子、複素数、フーリエ変換の気分</span>
+    <span>この回の芯：クラマース–クローニッヒ</span>
+  </div>
+
+  <p class="lead">第1回で位相子（フェイザー）の図を描いたとき、吸収のつまみを回すと矢印の先が<em>内側に巻き込んで</em>いきました。あれがこの回の全部です。<strong>屈折率は本当は複素数</strong>で、実部が「位相をどれだけ遅らせるか」、虚部が「どれだけ吸うか」。ここまではただの記法です。<em>本題はここから</em> ── この実部と虚部は、独立に選べません。物理にひとつだけ要請を置くと ── <strong>「結果は原因より先に起きない」</strong> ── それだけで二つは積分で縛られてしまう。クラマース–クローニッヒの関係です。そして帰結は容赦がありません。<strong>あらゆる帯域で完全に透明で、それでいて光を曲げる物質は、原理的に存在できない。</strong>ガラスが可視光で透明で、しかも \(n=1.5\) なのは ── <em>ガラスが紫外線を吸うからです。</em></p>
+
+  <h2><span class="n">01</span>屈折率を複素数にする</h2>
+
+  <div class="calc">
+    <span class="tag">実部が屈折、虚部が吸収</span>
+    <p style="margin:2px 0 0;">屈折率を \(\tilde n=n+i\kappa\) と書いて、平面波に入れます：</p>
+    $$E=E_0\,e^{i(k_0\tilde n z-\omega t)}
+    =E_0\underbrace{e^{ik_0nz}}_{\text{位相の遅れ}}\ \underbrace{e^{-k_0\kappa z}}_{\text{減衰}}\ e^{-i\omega t}$$
+    <p style="margin:6px 0 0;">強度は振幅の 2 乗なので、吸収係数は</p>
+    $$\alpha=2k_0\kappa=\frac{4\pi\kappa}{\lambda_0}$$
+    <p style="margin:6px 0 14px;"><strong>第1回の位相子で、矢印の先が円を保つか内側に巻くかの違いが、そのまま \(\kappa=0\) か \(\kappa>0\) か</strong>でした。<em>屈折と吸収は、最初から一つの複素数の二つの成分です。</em></p>
+  </div>
+
+  <h2><span class="n">02</span>因果律 ── たった一行の要請</h2>
+
+  <p>物質の応答を書きます。時刻 \(t\) の分極は、それまでにかかった電場すべてに応じて決まる：</p>
+
+  <div class="keybox">
+    <div class="lbl">要請はこれだけ</div>
+    $$P(t)=\varepsilon_0\int_{-\infty}^{\infty}\chi(t-t')\,E(t')\,dt'
+    \qquad\text{ただし}\qquad \boxed{\ \chi(\tau)=0\quad(\tau<0)\ }$$
+    <p style="margin:8px 0 0;">枠の中が<strong>因果律</strong>です ── <em>まだかかっていない電場は、いまの分極に効かない。</em>それだけ。</p>
+    <p style="margin:10px 0 0;">ところが、この「\(\tau<0\) で消える」という性質は、フーリエ変換すると強烈な意味を持ちます。\(\chi(\tau)\) が \(\tau<0\) でゼロなら、その変換 \(\chi(\omega)\) は <strong>複素 \(\omega\) 平面の上半面で解析的</strong>（極も切断もない）になります。\(e^{i\omega\tau}\) の \(\mathrm{Im}\,\omega>0\) 部分が、\(\tau>0\) 側だけを抑え込んでくれるからです。</p>
+    <p style="margin:10px 0 0;"><em>そして解析的な関数には、コーシーの積分定理が使えます。</em>あとは自動的。</p>
+  </div>
+
+  <h2><span class="n">03</span>クラマース–クローニッヒの関係</h2>
+
+  <div class="calc">
+    <span class="tag">実部と虚部を縛る積分</span>
+    $$n(\omega)-1=\frac{2}{\pi}\,\mathrm{P}\!\!\int_0^\infty\frac{\omega'\,\kappa(\omega')}{\omega'^2-\omega^2}\,d\omega'$$
+    $$\kappa(\omega)=-\frac{2\omega}{\pi}\,\mathrm{P}\!\!\int_0^\infty\frac{n(\omega')-1}{\omega'^2-\omega^2}\,d\omega'$$
+    <p style="margin:6px 0 14px;">（P は主値。1926〜27年、クローニッヒとクラマースが独立に。）<br>
+    <strong>片方が全周波数でわかれば、もう片方は計算するだけで出ます。</strong>実部と虚部は独立な情報ではありませんでした。</p>
+  </div>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 逃げ場がない</div>
+    <p style="margin:0 0 8px;">上の第一式で \(\kappa(\omega')\equiv0\)（どの周波数でもまったく吸わない）と置いてみてください。</p>
+    $$\kappa\equiv0\ \Longrightarrow\ n(\omega)-1=0\ \text{（すべての }\omega\text{ で）}\ \Longrightarrow\ n\equiv1$$
+    <p style="margin:8px 0 0;"><strong>まったく吸わない物質は、まったく曲げません。</strong>それは真空です。<br>
+    逆に言えば ── <em>光を曲げる物質はすべて、どこかの周波数で必ず光を吸っています。</em>「完全に透明なレンズ」は、原理的に存在できない。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">吸収の「総量」まで決まってしまう ── 総和則</span>
+    さらに強い制約があります。誘電関数の虚部を全周波数で足し上げると、
+    $$\int_0^\infty \omega\,\mathrm{Im}\,\varepsilon_r(\omega)\,d\omega=\frac{\pi}{2}\,\omega_p^2,
+    \qquad \omega_p^2=\frac{Ne^2}{\varepsilon_0m_e}$$
+    右辺に出てくるのは<strong>電子の数密度 \(N\) だけ</strong>です。物質の詳しい構造はいっさい入りません。<br>
+    つまり ── <em>吸収の総量は、電子を何個持っているかで決まっている。</em>materials engineering でできるのは<strong>その吸収をどの周波数に置くか</strong>だけで、<em>減らすことはできません。</em>（f 総和則。第3回の \(\omega_p\) がここでも顔を出します。）
+  </div>
+
+  <h2><span class="n">04</span>ガラスが透明なのは、ガラスが吸うからだ</h2>
+
+  <p>ここで実際の物質を見ます。ガラス（石英）は可視光に透明ですが、その両隣には巨大な吸収があります。</p>
+
+  <table class="tbl">
+    <tr><th>帯域</th><th>何が起きるか</th><th>ガラスは</th></tr>
+    <tr><td>紫外（\(\gtrsim4\) eV）</td><td>電子が励起される（バンドギャップ）</td><td><strong>強く吸う</strong></td></tr>
+    <tr><td>可視（1.6〜3.2 eV）</td><td>電子には足りず、格子には速すぎる</td><td><em>透明（窓）</em></td></tr>
+    <tr><td>赤外（\(\sim\)4 μm 以遠）</td><td>Si–O 結合の振動（フォノン）</td><td><strong>強く吸う</strong></td></tr>
+  </table>
+
+  <p><strong>可視の透明さは、二つの吸収にはさまれた「窓」です。</strong>そしてクラマース–クローニッヒが言うのは ── <em>窓の中の \(n=1.5\) という値そのものが、両隣の吸収が作っている</em>ということ。とくに紫外側の寄与が支配的です。</p>
+
+  <div class="keybox">
+    <div class="lbl">言い換えると</div>
+    <p style="margin:0;"><strong>「ガラスは透明だから、そこには何もない」ではありません。</strong>ガラスの可視光での \(n=1.5\) は、<em>見えない紫外線のところにある吸収の、遠くまで届く影</em>です。<br>
+    下の図の右側で「紫外の吸収を消す」を押してみてください ── <strong>窓の中の屈折率が、すとんと 1 に落ちます。</strong></p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 片方から片方が出る</h2>
+
+  <p>左は<strong>ローレンツ振動子</strong>（束縛電子のいちばん単純なモデル）。\(n\) と \(\kappa\) を描いてあります。そして緑の点は、<em>\(\kappa\) だけを使ってクラマース–クローニッヒの積分を数値的に実行して復元した \(n\)</em> ── 曲線にぴたりと乗るはずです。<strong>片方から片方が本当に出ます。</strong></p>
+
+  <p>右は<strong>ガラスの模型</strong>（赤外と紫外に一つずつ振動子）。横軸は対数の周波数。まん中の白い帯が可視の窓です。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝ローレンツ振動子の n（青）と κ（菫）。緑の点は κ だけからクラマース–クローニッヒ積分で復元した n。右＝赤外と紫外に吸収を持つ「ガラス」の模型。まん中の帯が可視の窓で、そこでの n は両隣の吸収が作っている</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>共鳴の幅 γ（左の図） <span class="val" id="vg">0.10</span>
+        <input type="range" id="sg" min="2" max="60" step="1" value="10">
+      </label>
+      <button id="bu">紫外の吸収を消す</button>
+      <button id="bi">赤外の吸収を消す</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#3a6ea5;"></i>屈折率 n（実部）</span>
+      <span><i class="swatch" style="background:#6a3fa0;"></i>吸収 κ（虚部）</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>κ から KK で復元した n</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">ついでに ── 虹とプリズムの向きも、これで決まる</span>
+    左の図で、共鳴（紫外）より<strong>低い側</strong>を見てください。\(n\) は周波数とともに<em>上がって</em>います（正常分散）。可視光はまさにここに居ます。<br>
+    だから<strong>青のほうが \(n\) が大きく、よく曲がる</strong> ── プリズムで青が下に出るのも、虹の内側が青いのも、これです。<em>紫外線の吸収が、虹の色の順番を決めています。</em><br>
+    逆に共鳴のすぐ内側では \(n\) が急降下します（<strong>異常分散</strong>）。第3回で「群速度が \(c\) を超えたり負になったりする」と言ったのは、この領域の話です。
+  </div>
+
+  <h2><span class="n">06</span>この論法は、物理のあちこちで同じ形で使われている</h2>
+
+  <table class="tbl">
+    <tr><th>分野</th><th>同じ構造</th></tr>
+    <tr><td>光学（この回）</td><td>因果律 → \(\tilde n(\omega)\) の解析性 → 屈折と吸収がつながる</td></tr>
+    <tr><td>統計力学（わかる温度）</td><td><strong>ゆらぎ–散逸定理</strong>：応答関数の虚部が散逸、実部が反作用。同じ因果律の帰結</td></tr>
+    <tr><td>素粒子論</td><td><strong>分散関係</strong>と<strong>光学定理</strong>：前方散乱振幅の虚部が全断面積。S 行列の解析性は因果律の反映</td></tr>
+    <tr><td>回路</td><td>受動素子のインピーダンス \(Z(\omega)\) の実部（抵抗）と虚部（リアクタンス）も同じ関係で縛られる</td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">一行でまとめると</div>
+    <p style="margin:0;"><strong>虚部は「失う」を、実部は「ずれる」を表し、因果律がその二つを接着している。</strong></p>
+    <p style="margin:8px 0 0;">この構造は、姉妹編で何度も出てきた形の親戚です ── <em>「わかるすり抜け」では時間を虚数にすると障壁が谷になり、ここでは周波数を複素数にすると吸収と屈折がつながる。</em>どちらも<strong>複素平面に出ることで、離れて見えた二つが一つになる</strong>という話です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>複素屈折率 \(\tilde n=n+i\kappa\) と \(\alpha=4\pi\kappa/\lambda_0\)；線形・時間並進不変・因果的な応答関数が複素上半面で解析的になること（ティッチマーシュの定理）と、そこから出るクラマース–クローニッヒの関係（1926–27）；\(\kappa\equiv0\Rightarrow n\equiv1\)；f 総和則 \(\int_0^\infty\omega\,\mathrm{Im}\,\varepsilon_r\,d\omega=(\pi/2)\omega_p^2\)；ローレンツ振動子模型と正常／異常分散；石英ガラスの紫外電子吸収端と赤外フォノン吸収、その間の可視の窓。いずれも標準的な物理です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① クラマース–クローニッヒが成り立つ前提は<strong>線形・時間並進不変・因果的・受動的</strong>な応答です。強い光での非線形光学や、時間変化する媒質では、この形のままでは使えません。② 導出では \(\omega\to\infty\) で \(\chi\to0\) を仮定します。導体では \(\omega\to0\) で \(\varepsilon\) が発散するため、\(\varepsilon\) ではなく \(\sigma\) を使うなど扱いに手当てが要ります。③ <strong>「透明なら屈折しない」は理想化された言い切りです。</strong>実際に言えるのは「どこかの周波数に吸収がなければ \(n\equiv1\)」であって、ある帯域で吸収が測定限界以下でも \(n\neq1\) は普通に起こります ── その \(n\) を作っているのが<em>別の帯域</em>の吸収だ、というのが本文の主張です。④ 右の図の「ガラス」は二振動子の模型で、実際の石英の光学定数の再現ではありません。共鳴位置と強度は、可視で \(n\approx1.5\) になるよう選んだ教育用の値です。⑤ 左の図の KK 復元は有限区間（\(\omega'\le40\,\omega_0\)）の数値積分なので、原理的にわずかな打ち切り誤差があります。⑥ 総和則の右辺に入る \(N\) は<strong>全電子密度</strong>（内殻を含む）で、可視域だけを見て検証できる量ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>因果律から解析性が出るのはなぜか、筋だけ述べよ。
+        <details><summary>答えを見る</summary><div class="ans">応答 \(\chi(\tau)\) が \(\tau<0\) でゼロなら、フーリエ変換 \(\int_0^\infty\chi(\tau)e^{i\omega\tau}d\tau\) は積分が \(\tau>0\) だけになる。\(\mathrm{Im}\,\omega>0\) では \(e^{i\omega\tau}\) が<strong>減衰因子</strong>になるので積分が収束し、\(\chi(\omega)\) は<em>上半面で解析的</em>。あとはコーシーの積分定理を上半面の閉路にあてれば、実部と虚部の主値積分（KK 関係）が出る。</div></details>
+      </li>
+      <li>「まったく吸収しない物質は屈折もしない」を示せ。
+        <details><summary>答えを見る</summary><div class="ans">KK の第一式 \(n(\omega)-1=\frac{2}{\pi}\mathrm{P}\int_0^\infty\frac{\omega'\kappa(\omega')}{\omega'^2-\omega^2}d\omega'\) に \(\kappa\equiv0\) を入れると右辺が恒等的に 0。よって<strong>すべての \(\omega\) で \(n=1\)</strong> ── それは真空。逆に、屈折する物質はどこかの周波数で必ず吸っている。</div></details>
+      </li>
+      <li>ガラスが可視光で \(n=1.5\) なのは、何が原因か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>紫外にある電子吸収</strong>（と、弱いが赤外のフォノン吸収）。可視の窓では吸収がほぼゼロなのに \(n\) が 1 でないのは、KK 積分が<em>他の帯域の吸収を遠くから拾っている</em>から。図で紫外の振動子を消すと、窓の中の \(n\) が 1 近くまで落ちる。<strong>ガラスは透明だから何もないのではなく、見えないところで吸っているから曲げる。</strong></div></details>
+      </li>
+      <li>プリズムで青がよく曲がる理由を、この回の言葉で言え。
+        <details><summary>答えを見る</summary><div class="ans">可視光は紫外の共鳴より<strong>低い側</strong>にあり、そこでは \(dn/d\omega>0\)（正常分散）。青は振動数が高いぶん共鳴に近く、\(n\) が大きい ── だからよく曲がる。<em>虹の色の順番は、紫外線の吸収が決めている。</em>逆に共鳴のすぐ内側は異常分散で \(n\) が急降下し、そこが第3回の「群速度が c を超える」領域。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第5回まとめ</span>実部と虚部を、因果律が接着している</h2>
+    <p>屈折率は複素数 \(\tilde n=n+i\kappa\) で、実部が位相の遅れ（屈折）、虚部が減衰（吸収、\(\alpha=4\pi\kappa/\lambda_0\)）。<strong>そしてこの二つは独立に選べません。</strong>「結果は原因より先に起きない」（\(\chi(\tau)=0\) for \(\tau<0\)）というたった一行から、\(\tilde n(\omega)\) は複素上半面で解析的になり、コーシーの定理が<strong>クラマース–クローニッヒの関係</strong>を強制します。</p>
+    <p>帰結は容赦がありません ── \(\kappa\equiv0\) を入れると \(n\equiv1\)。<em>まったく吸わない物質は、まったく曲げない。</em>さらに f 総和則 \(\int_0^\infty\omega\,\mathrm{Im}\,\varepsilon_r\,d\omega=(\pi/2)\omega_p^2\) は、<strong>吸収の総量が電子の数だけで決まる</strong>と言っています。周波数を移すことはできても、減らすことはできない。</p>
+    <p>だから ── <strong>ガラスが可視光で \(n=1.5\) なのは、ガラスが紫外線を吸うからです。</strong>可視の透明さは紫外と赤外の吸収にはさまれた窓であり、窓の中の屈折率は<em>見えないところにある吸収の影</em>。図で紫外の振動子を消せば、\(n\) はすとんと 1 に落ちます。同じ構造は、ゆらぎ–散逸定理にも、素粒子論の光学定理にも、回路のインピーダンスにも出てきます ── <strong>虚部は「失う」、実部は「ずれる」、接着剤は因果律。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第6回「光を止める」</span>
+    ここまで光を<em>遅くする</em>話をしてきました。では ── <strong>どこまで遅くできるのか。</strong>1999 年、ボース凝縮体の中で光が<strong>秒速 17 メートル</strong>まで落とされました。自転車の速さです。さらに 2001 年には、完全に止めて、あとから取り出すことに成功しています。<em>ただし正直に言わなければならないことがあります</em> ── <strong>止まっているのは光ではありません。</strong>止まっているのは原子のコヒーレンスで、光はそこに<em>預けられている</em>だけ。それでも、第5回の因果律はきちんと守られています。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第5回、物理好きの高校生・大学生向け読み物です。複素屈折率と吸収係数、因果的応答関数の上半面解析性（ティッチマーシュの定理）、クラマース–クローニッヒの関係（1926–27）、\(\kappa\equiv0\Rightarrow n\equiv1\)、f 総和則、ローレンツ振動子と正常／異常分散、石英ガラスの紫外電子吸収端と赤外フォノン吸収は、いずれも標準的な物理です。KK 関係が線形・時間並進不変・因果的・受動的な応答を前提とすること、導体では扱いに手当てが要ること、「透明なら屈折しない」が理想化された言い切りであること、図の「ガラス」が二振動子の教育用模型であって石英の光学定数の再現ではないこと、KK 復元が有限区間の数値積分であること、および総和則の \(N\) が内殻を含む全電子密度であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kussetsu-04-hansha.html">第4回 反射は「食い違い」から出る</a>／<a href="wakaru-kussetsu-06-tomeru.html">第6回 光を止める</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-ondo/index.html">わかる温度</a>・<a href="../wakaru-ba/index.html">わかる場</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では左のγを動かすと共鳴の幅が変わり、緑の点（κ から復元した n）が青い曲線に乗り続けることを確かめられます。右の「紫外の吸収を消す」を押すと、可視の窓の屈折率が 1 に落ちます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sg=document.getElementById('sg'), vg=document.getElementById('vg'),
+      rd=document.getElementById('rd'), bu=document.getElementById('bu'), bi=document.getElementById('bi');
+  var uvOn=true, irOn=true;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  /* ── ローレンツ振動子（単一、ω₀=1） ── */
+  var F=0.9;
+  function epsOne(wv,g){
+    var den=(1-wv*wv)*(1-wv*wv)+g*g*wv*wv;
+    return { re: 1+F*(1-wv*wv)/den, im: F*g*wv/den };
+  }
+  function nk(er,ei){
+    var m=Math.sqrt(er*er+ei*ei);
+    return { n: Math.sqrt(Math.max(0,(m+er)/2)), k: Math.sqrt(Math.max(0,(m-er)/2)) };
+  }
+  /* κ から n を復元：n(ω)-1 = (2/π)∫ [ω'κ(ω') - ωκ(ω)]/(ω'²-ω²) dω'  （特異点を差し引いた形） */
+  function kkRecover(wv,g){
+    var WMAX=40, M=6000, dw=WMAX/M, s=0;
+    var e0=epsOne(wv,g), k0v=nk(e0.re,e0.im).k;
+    for(var i=1;i<=M;i++){
+      var wp=(i-0.5)*dw;
+      var e=epsOne(wp,g), kp=nk(e.re,e.im).k;
+      var num=wp*kp - wv*k0v;
+      var den=wp*wp - wv*wv;
+      var term;
+      if(Math.abs(den)<1e-9){
+        term=0;   // 可除特異点：グリッドが真上に来ることは実質ないが安全側に
+      } else {
+        term=num/den;
+      }
+      s+=term*dw;
+    }
+    return 1 + (2/Math.PI)*s;
+  }
+
+  /* ── ガラス模型（二振動子） ── */
+  var OSC=[ {w0:0.02, A:0.00060, g:0.004},    // 赤外（フォノン）
+            {w0:1.00, A:1.25000, g:0.080} ];  // 紫外（電子）
+  function epsGlass(wv){
+    var re=1, im=0;
+    for(var j=0;j<OSC.length;j++){
+      if(j===0 && !irOn) continue;
+      if(j===1 && !uvOn) continue;
+      var o=OSC[j];
+      var d=(o.w0*o.w0-wv*wv), dd=d*d+o.g*o.g*wv*wv;
+      re += o.A*d/dd;
+      im += o.A*o.g*wv/dd;
+    }
+    return {re:re, im:im};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var g=parseInt(sg.value,10)/100;
+    vg.textContent=g.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    /* ── 左：単一ローレンツ + KK 復元 ── */
+    var L=46, R=w*0.46, T=30, B=h-42;
+    var WM=2.6, NMIN=0.0, NMAX=2.4;
+    function X(wv){ return L+(R-L)*wv/WM; }
+    function Y(v){ return B-(B-T)*(v-NMIN)/(NMAX-NMIN); }
+
+    ctx.strokeStyle='#b4a4cf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#6a5f7d'; ctx.textAlign='right';
+    for(var v=0;v<=2;v++){ ctx.fillText(v.toFixed(0), L-5, Y(v)+4); }
+    ctx.textAlign='center';
+    ctx.fillText('1', X(1), B+14); ctx.fillText('2', X(2), B+14);
+    ctx.fillText('ω / ω₀', (L+R)/2, B+30);
+    // n=1 の基準線
+    ctx.strokeStyle='#e4dcf0'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(L,Y(1)); ctx.lineTo(R,Y(1)); ctx.stroke(); ctx.setLineDash([]);
+    // 共鳴位置
+    ctx.strokeStyle='#d8cbe8'; ctx.beginPath(); ctx.moveTo(X(1),T); ctx.lineTo(X(1),B); ctx.stroke();
+
+    // κ（塗り）
+    ctx.fillStyle='rgba(106,63,160,.16)'; ctx.beginPath(); ctx.moveTo(X(0),Y(0));
+    for(var i=0;i<=300;i++){
+      var wv=WM*i/300, e=epsOne(Math.max(wv,1e-4),g), r2=nk(e.re,e.im);
+      ctx.lineTo(X(wv),Y(r2.k));
+    }
+    ctx.lineTo(X(WM),Y(0)); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#6a3fa0'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i2=0;i2<=300;i2++){
+      var wv2=WM*i2/300, e2=epsOne(Math.max(wv2,1e-4),g), rr=nk(e2.re,e2.im);
+      if(i2===0)ctx.moveTo(X(wv2),Y(rr.k)); else ctx.lineTo(X(wv2),Y(rr.k));
+    }
+    ctx.stroke();
+
+    // n
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var i3=0;i3<=300;i3++){
+      var wv3=WM*i3/300, e3=epsOne(Math.max(wv3,1e-4),g), r3=nk(e3.re,e3.im);
+      if(i3===0)ctx.moveTo(X(wv3),Y(r3.n)); else ctx.lineTo(X(wv3),Y(r3.n));
+    }
+    ctx.stroke();
+
+    // KK 復元（点）
+    var maxErr=0;
+    ctx.fillStyle='#2f7d5a';
+    for(var q=1;q<=17;q++){
+      var wq=WM*q/18;
+      var nrec=kkRecover(wq,g);
+      var eq=epsOne(wq,g), ntrue=nk(eq.re,eq.im).n;
+      maxErr=Math.max(maxErr, Math.abs(nrec-ntrue));
+      ctx.beginPath(); ctx.arc(X(wq),Y(nrec),3.6,0,7); ctx.fill();
+    }
+
+    ctx.fillStyle='#4b2c7a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('ローレンツ振動子：κ から n が出る', (L+R)/2, 17);
+    ctx.fillStyle='#3a6ea5'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('n', X(0.35), Y(nk(epsOne(0.35,g).re,epsOne(0.35,g).im).n)-8);
+    ctx.fillStyle='#6a3fa0';
+    ctx.fillText('κ', X(1.02), Y(nk(epsOne(1.0,g).re,epsOne(1.0,g).im).k*0.55));
+
+    /* ── 右：ガラス模型（対数軸） ── */
+    var PL=w*0.585, PR=w-16, PT=30, PB=h-42;
+    var LG0=-2.6, LG1=0.55;
+    function XG(lg){ return PL+(PR-PL)*(lg-LG0)/(LG1-LG0); }
+    function YG(v){ return PB-(PB-PT)*(v-0.6)/(2.3-0.6); }
+
+    // 可視の窓
+    ctx.fillStyle='rgba(47,125,90,.09)';
+    ctx.fillRect(XG(-1.05), PT, XG(-0.52)-XG(-1.05), PB-PT);
+    ctx.fillStyle='#2f7d5a'; ctx.font='bold 9.5px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('可視の窓', (XG(-1.05)+XG(-0.52))/2, PT+12);
+
+    ctx.strokeStyle='#b4a4cf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PB); ctx.lineTo(PR,PB); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#6a5f7d'; ctx.textAlign='right';
+    for(var nv=1.0;nv<=2.0;nv+=0.5){ ctx.fillText(nv.toFixed(1), PL-5, YG(nv)+4); }
+    ctx.textAlign='center';
+    ctx.fillText('赤外', XG(-1.7), PB+14);
+    ctx.fillText('紫外', XG(0.0), PB+14);
+    ctx.fillText('振動数（対数）→', (PL+PR)/2, PB+30);
+    ctx.strokeStyle='#e4dcf0'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(PL,YG(1)); ctx.lineTo(PR,YG(1)); ctx.stroke(); ctx.setLineDash([]);
+
+    // κ（塗り、対数軸上）
+    ctx.fillStyle='rgba(106,63,160,.20)'; ctx.beginPath(); ctx.moveTo(PL,PB);
+    for(var m=0;m<=400;m++){
+      var lg=LG0+(LG1-LG0)*m/400, wv4=Math.pow(10,lg);
+      var e4=epsGlass(wv4), r4=nk(e4.re,e4.im);
+      var kk=Math.min(r4.k,1.6);
+      ctx.lineTo(XG(lg), PB-(PB-PT)*kk/1.7*0.6);
+    }
+    ctx.lineTo(PR,PB); ctx.closePath(); ctx.fill();
+
+    // n
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2.8; ctx.beginPath();
+    var started=false;
+    for(var m2=0;m2<=400;m2++){
+      var lg2=LG0+(LG1-LG0)*m2/400, wv5=Math.pow(10,lg2);
+      var e5=epsGlass(wv5), r5=nk(e5.re,e5.im);
+      var yv=Math.max(0.6,Math.min(2.3,r5.n));
+      if(!started){ctx.moveTo(XG(lg2),YG(yv));started=true;} else ctx.lineTo(XG(lg2),YG(yv));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#4b2c7a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('「ガラス」── 窓の n を作るのは両隣の吸収', (PL+PR)/2, 17);
+
+    // 可視の窓での n（代表点 w=0.15）
+    var eW=epsGlass(0.15), nW=nk(eW.re,eW.im).n;
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(XG(Math.log(0.15)/Math.LN10), YG(Math.min(2.3,nW)),5,0,7); ctx.fill();
+
+    var stateTxt = (uvOn&&irOn) ? '両方あり（ふつうのガラス）'
+                 : (!uvOn&&irOn) ? '<b style="color:#a83a22">紫外の吸収を消した</b>'
+                 : (uvOn&&!irOn) ? '赤外の吸収を消した'
+                 : '<b style="color:#a83a22">両方消した ── もう真空です</b>';
+    rd.innerHTML='左：共鳴の幅 γ = <b>'+g.toFixed(2)+'</b>。'
+      +'κ だけから KK 積分で復元した n（緑の点）と、真の n（青い曲線）のずれは最大 <b>'+maxErr.toFixed(4)+'</b> ── '
+      +'<b>片方から片方が本当に出ます</b>（残差は有限区間の打ち切り）。<br>'
+      +'右：'+stateTxt+'　→　可視の窓での屈折率 n = <b>'+nW.toFixed(3)+'</b>'
+      +(uvOn?'':'　<b>── 紫外の吸収を消すと、可視の屈折率が消えます。</b>');
+  }
+
+  sg.addEventListener('input', draw);
+  bu.addEventListener('click', function(){ uvOn=!uvOn; bu.className=uvOn?'':'off';
+    bu.textContent=uvOn?'紫外の吸収を消す':'紫外の吸収を戻す'; draw(); });
+  bi.addEventListener('click', function(){ irOn=!irOn; bi.className=irOn?'':'off';
+    bi.textContent=irOn?'赤外の吸収を消す':'赤外の吸収を戻す'; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

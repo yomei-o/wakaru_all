@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光の円錐が、二つある ── わかる屈折 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8fafc; --paper-edge:#dbe3ec;   /* 第2回：円錐＝青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#2b5580; --calc-bg:#e8eef5;
+    --rule:#d2dbe6; --hair:#b6c2d0;
+    --acc:#3a6ea5;
+    --grid:#e3eaf2;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c4d9ee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d3dfeb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfeff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e8eef5;color:#26547e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef3f9;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#26547e;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e7eef6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e8eef5;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#26547e;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる屈折</span><span class="ep">第 2 回 ／ 光の円錐が、二つある</span></div>
+  <p class="eyebrow">「遅くなる」と「距離が伸びる」は同じこと ── そして距離が変わるとは、計量が変わるということ</p>
+  <h1>光の円錐が、二つある
+    <span class="sub">媒質の中では、光の進む円錐が \(x=ct/n\) と<em>狭くなります</em>。<br>これは<strong>実効的な計量</strong>そのもので、フェルマーの原理は測地線になり、スネルの法則が幾何から出ます。<br>ただし ── <strong>本当の因果の円錐は、まったく動いていません。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の位相の遅れ、光円錐（わかる相対論）、最小作用</span>
+    <span>この回の芯：ds² = −c²dt²/n² + dx²</span>
+  </div>
+
+  <p class="lead">第1回の最後にこう書きました ── 「遅くなる」と「光路が長くなる」は同じことを別の言い方で述べている。光学では屈折率 \(n\) の媒質を \(d\) だけ進むことを<strong>光路長 \(nd\)</strong> と呼び、真空を \(nd\) 進んだのと同じに扱います。<em>距離が伸びた、と言えるわけです。</em>そして距離の測り方が変わるということは ── <strong>計量が変わった</strong>ということ。この回はその読み替えを最後まで押します。媒質の中では光の円錐が狭くなり、光線はその計量の<em>測地線</em>になり、スネルの法則は幾何の帰結になる。「重力は力か、それとも曲率か」という姉妹編「わかる相対論」の二重性が、そっくりそのまま現れます。<strong>ただし譲れない一点がある</strong> ── 狭くなったのは<em>光の</em>円錐であって、<strong>因果の円錐は 1 ミリも動いていません</strong>。実効計量は、本物の円錐の<em>内側</em>にできるもうひとつの円錐です。</p>
+
+  <h2><span class="n">01</span>「遅い」と「遠い」は同じこと</h2>
+
+  <div class="calc">
+    <span class="tag">光路長</span>
+    <p style="margin:2px 0 0;">屈折率 \(n\) の媒質を距離 \(d\) 進んだときの位相の進みは \(k_0 n d\)（\(k_0\) は真空での波数）。真空を距離 \(L\) 進んだときは \(k_0 L\)。両者が等しいのは</p>
+    $$L=nd\qquad\text{──　これを}\textbf{光路長}\text{という}$$
+    <p style="margin-bottom:14px;">つまり「\(n=1.5\) のガラスを 1 cm 進む」は、位相の上では「真空を 1.5 cm 進む」と<em>区別できません</em>。<br>
+    <strong>速さが \(1/n\) になったと言っても、距離が \(n\) 倍に伸びたと言っても、同じことを述べています。</strong></p>
+  </div>
+
+  <h2><span class="n">02</span>だから、円錐が狭くなる</h2>
+
+  <p>時空図で描いてみます。真空では光は \(x=\pm ct\)、つまり 45 度の線を進みます。媒質の中では \(x=\pm ct/n\) ── <strong>より立った線</strong>になる。円錐が狭くなります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 実効計量</div>
+    <p style="margin:0 0 8px;">「狭い円錐」を式で書くと、それは<strong>ひとつの計量</strong>です：</p>
+    $$ds^2_{\rm opt}=-\frac{c^2}{n^2}\,dt^2+dx^2+dy^2+dz^2$$
+    <p style="margin:8px 0 0;">この計量で \(ds^2_{\rm opt}=0\)（ヌル）となる線が、まさに \(|dx/dt|=c/n\)。<strong>光線は、この実効計量の光的測地線を走ります。</strong></p>
+    <p style="margin:10px 0 0;">これは 1923 年にゴルドンが導入した<em>光学計量</em>と呼ばれるもので、いまでは「アナログ重力」や「変換光学（メタマテリアルによる透明マント）」の土台になっています。<br>
+    <strong>「\(c\cdot t=\)一定 の座標系で見ると、光が遅くなるのと等価」という直感は、ここで正確な形になります</strong> ── 等価なのは<em>座標系</em>ではなく<strong>計量</strong>で、そして \(c\cdot t\) の代わりに \(c\cdot t/n\) を使う、ということです。</p>
+  </div>
+
+  <h2><span class="n">03</span>フェルマーの原理は、測地線だった</h2>
+
+  <p>光学には昔から「フェルマーの原理」があります ── <em>光は光路長 \(\int n\,dl\) を最小（正確には停留）にする道を通る</em>。1662 年です。</p>
+
+  <p>いまの言葉で読み直すと、これは<strong>そのまま測地線の定義</strong>です。空間の距離を \(dl_{\rm F}=n\,dl\) と測り直せば、\(\int n\,dl\) は<em>その計量での長さ</em>。長さを最小にする曲線 ＝ 測地線。</p>
+
+  <div class="calc">
+    <span class="tag">スネルの法則が落ちてくる</span>
+    <p style="margin:2px 0 0;">屈折率が \(y\) だけの関数 \(n(y)\) のとき、フェルマーの原理から出る保存量はひとつです：</p>
+    $$n(y)\sin\theta=\text{一定}\qquad(\theta\ \text{は層の法線からの角度})$$
+    <p style="margin:6px 0 14px;">境界で \(n\) が \(n_1\to n_2\) と飛ぶ場合に書けば \(n_1\sin\theta_1=n_2\sin\theta_2\) ── <strong>スネルの法則</strong>そのもの。<br>
+    <em>「屈折の法則」は、実効計量の測地線が持つ保存量にすぎませんでした。</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">「わかる相対論」とまったく同じ二重性</span>
+    重力は<strong>力</strong>として書くこともできるし、<strong>時空の曲率</strong>として書くこともできます。同じ軌道が、二通りに説明できる。<br>
+    屈折もまったく同じです ── <strong>境界で向きが変わる「屈折」</strong>として書くこともできるし、<strong>実効計量の測地線</strong>として書くこともできる。<em>どちらも同じ曲線を与えます。</em><br>
+    そして両者の関係も同じ ── 力の描像は局所的で計算しやすく、幾何の描像は大域的で見通しがよい。蜃気楼や光ファイバのように屈折率が連続に変わる場合は、<strong>幾何のほうが圧倒的に楽</strong>です。
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 円錐が変わるから、曲がる</h2>
+
+  <p>下の図の左は<strong>時空図</strong>です。破線の 45 度が真の因果円錐、実線が媒質の光円錐。\(n\) を上げると内側へ倒れていきます。</p>
+
+  <p>右は<strong>屈折率が高さで変わる媒質</strong>（蜃気楼や光ファイバ）。光線をフェルマーの原理から数値的に追跡してあります。そして光線に沿って<em>その場所の光円錐</em>を小さく描いてあります ── <strong>光線が曲がるのは、場所ごとに円錐の開き方が違うから</strong>。それだけです。</p>
+
+  <div class="fig">
+    <div class="cap">図：左＝時空図。破線 45° が真の因果円錐、実線が媒質の光円錐（x = ±ct/n）。右＝屈折率が高さで変わる媒質を進む光線（フェルマーの原理を数値積分）。光線に沿って置いた小さな円錐の開きが場所ごとに違うので、光線が曲がる</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>屈折率 n（左の図） <span class="val" id="vn">1.50</span>
+        <input type="range" id="sn" min="100" max="400" step="1" value="150">
+      </label>
+      <label>屈折率の勾配（右の図） <span class="val" id="vg">+0.12</span>
+        <input type="range" id="sg" min="-30" max="30" step="1" value="12">
+      </label>
+      <label>打ち出しの角度 <span class="val" id="va">+8°</span>
+        <input type="range" id="sa" min="-25" max="25" step="1" value="8">
+      </label>
+      <button id="bm">蜃気楼の条件へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>真の因果円錐（45°）</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>媒質の光円錐</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>光線</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>ここが譲れない ── 因果の円錐は動いていない</h2>
+
+  <p>ここまでで「\(c\cdot t=\)一定 の見方」は正確な形になりました。<strong>そのうえで、絶対に外してはいけない一点があります。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">二つの円錐の関係</div>
+    <table class="tbl" style="margin:10px 0 4px;">
+      <tr><th></th><th>因果の円錐</th><th>媒質の光円錐</th></tr>
+      <tr><td>開き</td><td class="num">\(x=\pm ct\)（45°）</td><td class="num">\(x=\pm ct/n\)（狭い）</td></tr>
+      <tr><td>変えられるか</td><td><strong>変えられない</strong></td><td>物質を選べば変えられる</td></tr>
+      <tr><td>何を縛るか</td><td><strong>あらゆる因果関係</strong></td><td>この波の伝わり方だけ</td></tr>
+      <tr><td>実効計量は</td><td>──</td><td><em>因果円錐の内側にできる</em>（\(n>1\) のとき）</td></tr>
+    </table>
+    <p style="margin:8px 0 0;"><strong>実効計量は、本物の時空を書き換えたのではありません。</strong>本物の光円錐の<em>内側に、もう一本細い円錐を描いた</em>だけです。だから ──</p>
+    <p style="margin:10px 0 0;">・光速不変（因果の \(c\)）は<strong>まったく無傷</strong>。<br>
+    ・そのうえで、波にとっては実効計量が本物と同じくらい有効に働く。<br>
+    ・<em>そして「内側に狭い円錐がある」という構造こそが、次節のアナログ重力を可能にします。</em></p>
+  </div>
+
+  <h2><span class="n">06</span>内側に円錐があると、地平面が作れる</h2>
+
+  <p>ここが面白いところです。媒質が<strong>流れている</strong>場合を考えます。流速 \(v\) の媒質の中を、波は \(c/n\) で進む。もし \(v>c/n\) になったら ── <em>波は上流へ進めなくなります</em>。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">実効的な地平面</div>
+    <p style="margin:0;">流れが \(c/n\) を超える面は、波にとって<strong>越えられない境界</strong> ── 姉妹編「わかる温度」番外編①で見た<em>地平面</em>とまったく同じ構造です。</p>
+    <p style="margin:8px 0 0;">ウンルーが 1981 年に音で同じことを指摘し（<strong>音響ブラックホール</strong>）、いまでは水の流れ、ボース凝縮体、光ファイバ、そして超伝導回路で「アナログ地平面」が作られています。<em>ホーキング輻射に対応する現象も報告されています。</em></p>
+    <p style="margin:10px 0 0;"><strong>本物の因果円錐は無傷なまま、内側の円錐だけで地平面が作れる</strong> ── これがアナログ重力の全体像です。だから実験室でできる。</p>
+  </div>
+
+  <div class="caveat" style="background:#eef0f5;border-left-color:var(--acc);">
+    <span class="tag" style="color:var(--acc);">ただし、これは「模擬」です</span>
+    <p style="margin:0;">アナログ系は<strong>同じ方程式に従う別の系</strong>であって、時空そのものの検証ではありません。「音響ブラックホールでホーキング輻射が見えた」は「ホーキング輻射が実証された」を意味しません。<em>この区別は、姉妹編「わかるすり抜け」番外編①でも同じ形で出てきました。</em></p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが厳密で、どこからが読み替えか</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>光路長 \(nd\) と、位相の上で「遅くなる」と「距離が伸びる」が区別できないこと；静止した等方媒質に対する光学計量（ゴルドン計量、1923）\(ds^2_{\rm opt}=-(c^2/n^2)dt^2+d\vec x^2\) と、光線がその光的測地線になること；フェルマーの原理 \(\delta\int n\,dl=0\) が空間計量 \(n^2\delta_{ij}\) の測地線方程式と等価であること；層状媒質での保存量 \(n\sin\theta=\)一定 とスネルの法則；動く媒質で流速が \(c/n\) を超える面が波にとって地平面として働くこと（Unruh 1981 以来のアナログ重力）；変換光学の基礎。いずれも標準的な結果です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>実効計量は本物の時空計量ではありません。</strong>因果の円錐（\(x=\pm ct\)）は一切変わらず、実効計量はその内側にできる「波にとっての」円錐です。光速不変は無傷です。② ゴルドン計量が単純な形になるのは<strong>等方・非分散・非吸収</strong>の媒質についてです。分散があると \(n\) が振動数に依存するので「ひとつの計量」では書けず、振動数ごとに違う計量になります（第3回・第5回）。異方性（複屈折）があると、そもそもスカラーの \(n\) では書けません。③ フェルマーの原理は幾何光学（波長が構造より十分小さい）の近似です。回折が効く領域では成り立ちません。④ 図の光線追跡は \(y''=n n'/C^2\)（フェルマーの原理から導かれる式）の数値積分で、実際の大気や光ファイバのプロファイルを再現したものではありません。⑤ <strong>アナログ重力は「同じ方程式に従う別の系」</strong>であり、時空での検証ではありません（本文の注記どおり）。⑥ 「\(c\cdot t\) の座標系で見る」という言い方は、正確には「座標変換」ではなく「別の計量を導入する」ことです。座標変換だけでは物理は変わりません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>「光が遅くなる」と「距離が伸びる」が同じことだ、と言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">位相の進みが \(k_0nd\) で決まるから。\(n=1.5\) のガラスを 1 cm 進むのと真空を 1.5 cm 進むのは、<strong>位相の上で区別できません</strong>。この \(nd\) を光路長という。距離の測り方が変わる＝計量が変わる。</div></details>
+      </li>
+      <li>媒質中の光円錐を計量として書け。
+        <details><summary>答えを見る</summary><div class="ans">\(ds^2_{\rm opt}=-(c^2/n^2)dt^2+d\vec x^2\)。これが 0 になる線が \(|d\vec x/dt|=c/n\) ── 媒質の光円錐。ゴルドンの光学計量（1923）で、光線はこの計量の<strong>光的測地線</strong>を走る。</div></details>
+      </li>
+      <li>スネルの法則は、この見方ではどういう意味を持つか。
+        <details><summary>答えを見る</summary><div class="ans">層状媒質 \(n(y)\) での測地線が持つ<strong>保存量</strong>。\(n(y)\sin\theta=\)一定 で、境界で \(n\) が飛べば \(n_1\sin\theta_1=n_2\sin\theta_2\)。<em>「屈折の法則」は幾何の帰結にすぎない</em> ── 重力を力で書くか曲率で書くかと同じ二重性。</div></details>
+      </li>
+      <li>実効計量を導入しても光速不変が破れないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">実効計量は<strong>因果の円錐の内側</strong>に描かれた、この波のためだけの円錐だから。因果の円錐 \(x=\pm ct\) は 1 ミリも動いていない。<em>そして「内側に狭い円錐がある」という構造こそが、実験室でアナログ地平面を作れる理由</em>でもある。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第2回まとめ</span>狭いほうの円錐が、もうひとつある</h2>
+    <p>位相の上で「遅くなる」と「距離が伸びる」は区別できません（光路長 \(nd\)）。距離の測り方が変わるとは<strong>計量が変わる</strong>ということで、実際こう書けます ── <strong>\(ds^2_{\rm opt}=-(c^2/n^2)dt^2+d\vec x^2\)</strong>（ゴルドンの光学計量、1923）。光線はこの計量の光的測地線を走ります。</p>
+    <p>すると 1662 年のフェルマーの原理 \(\delta\int n\,dl=0\) は、<em>そのまま測地線の定義</em>になり、スネルの法則は測地線の<strong>保存量 \(n\sin\theta=\)一定</strong> になります。「重力は力か曲率か」と同じ二重性が、屈折にもある。</p>
+    <p>そして「\(c\cdot t=\)一定 で見ると光が遅くなるのと等価」という直感は、ここで正確な形になりました ── <strong>等価なのは座標系ではなく計量で、\(c\cdot t\) の代わりに \(c\cdot t/n\) を使う</strong>ということ。<em>ただし因果の円錐はまったく動いていません。</em>実効計量は本物の円錐の<strong>内側</strong>に描かれる、この波のためだけの円錐です ── そしてその構造こそが、実験室でアナログ地平面を作れる理由でもあります。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第3回「屈折率が 1 より小さいとき」</span>
+    ここまで \(n>1\) を前提にしてきました。<strong>ところが \(n<1\) の物質があります。</strong>X線に対するガラスがそうで、プラズマもそう。すると円錐は本物より<em>広く</em>なり、<strong>位相速度が \(c\) を超えます</strong>。それでも相対論は無傷 ── 情報を運ぶのは<em>前縁</em>で、それはいつでもきっかり \(c\)（姉妹編「わかるすり抜け」番外編④と同じ議論）。さらに、プラズマの分散関係 \(\omega^2=\omega_p^2+c^2k^2\) をよく見ると ── <strong>それは質量のある粒子の分散関係そのもの</strong>です。<em>プラズマの中で、光子は質量を持ちます。</em>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる屈折」シリーズ第2回、物理好きの高校生・大学生向け読み物です。光路長、静止等方媒質に対するゴルドンの光学計量（1923）と光線がその光的測地線になること、フェルマーの原理が空間計量 \(n^2\delta_{ij}\) の測地線と等価であること、層状媒質での保存量 \(n\sin\theta\) とスネルの法則、動く媒質における実効地平面とアナログ重力（Unruh 1981 以降）、および変換光学の基礎は、いずれも標準的な結果です。実効計量が本物の時空計量ではなく因果円錐は不変であること、ゴルドン計量が等方・非分散・非吸収の媒質に限られ分散や異方性があると単一の計量では書けないこと、フェルマーの原理が幾何光学の近似であること、図の光線追跡がフェルマーの原理から導いた式の数値積分であって実際の大気や光ファイバのプロファイルではないこと、アナログ重力が同じ方程式に従う別系であって時空での検証ではないこと、および「\(c\cdot t\) の座標系で見る」が正確には座標変換ではなく別の計量の導入であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-kussetsu-01-osoi.html">第1回 光は遅くなっていない</a>／<a href="wakaru-kussetsu-03-isousokudo.html">第3回 屈折率が 1 より小さいとき</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-soutai/index.html">わかる相対論</a>・<a href="../wakaru-ondo/wakaru-ondo-bangai-chiheimen.html">わかる温度 番外編①</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では左の n を上げると光円錐が内側に倒れ、右では屈折率の勾配と打ち出し角で光線が曲がります。光線に沿った小さな円錐の開きが場所ごとに違うことを確かめてください。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      sg=document.getElementById('sg'), vg=document.getElementById('vg'),
+      sa=document.getElementById('sa'), va=document.getElementById('va'),
+      rd=document.getElementById('rd'), bm=document.getElementById('bm');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var n=parseInt(sn.value,10)/100;
+    var grad=parseInt(sg.value,10)/100;      // Δn per unit height
+    var ang=parseInt(sa.value,10);           // degrees
+    vn.textContent=n.toFixed(2);
+    vg.textContent=(grad>=0?'+':'')+grad.toFixed(2);
+    va.textContent=(ang>=0?'+':'')+ang+'°';
+    ctx.clearRect(0,0,w,h);
+
+    /* ── 左：時空図 ── */
+    var MID=w*0.40;
+    var cx=MID*0.52, cy=h*0.62, S=Math.min(MID*0.36, h*0.34);
+    ctx.strokeStyle='#b6c2d0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx,cy+S*0.25); ctx.lineTo(cx,cy-S*1.25); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-S*1.2,cy); ctx.lineTo(cx+S*1.2,cy); ctx.stroke();
+    ctx.fillStyle='#5d6a7a'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('ct', cx-5, cy-S*1.18);
+    ctx.textAlign='left'; ctx.fillText('x', cx+S*1.1, cy+14);
+
+    // 真の因果円錐
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+S,cy-S); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx-S,cy-S); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('因果 45°', cx+S*0.72, cy-S*0.96);
+
+    // 媒質の光円錐
+    var xs=S/n;
+    ctx.fillStyle='rgba(58,110,165,.13)';
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+xs,cy-S); ctx.lineTo(cx-xs,cy-S); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+xs,cy-S); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx-xs,cy-S); ctx.stroke();
+    ctx.fillStyle='#26547e'; ctx.font='bold 9.5px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('x = ±ct/n', cx, cy-S-8);
+
+    ctx.fillStyle='#26547e'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('二つの円錐', cx, 20);
+    ctx.fillStyle='#5d6a7a'; ctx.font='9.5px sans-serif';
+    ctx.fillText('狭いほうが「媒質の光」', cx, h-12);
+
+    /* ── 右：勾配媒質の光線 ── */
+    var L=MID+30, R=w-16, T=26, B=h-34;
+    var XN=6.0, YN=2.0;                       // 表示範囲（任意単位）
+    function X(x){ return L+(R-L)*x/XN; }
+    function Y(y){ return B-(B-T)*(y+YN/2)/YN; }
+
+    function nOf(y){ return Math.max(1.02, 1.30 + grad*y); }
+
+    // 背景：屈折率の濃淡
+    for(var b=0;b<40;b++){
+      var yy=-YN/2+YN*b/40;
+      var nv=nOf(yy);
+      var t=(nv-1.0)/0.8; t=Math.max(0,Math.min(1,t));
+      ctx.fillStyle='rgba(58,110,165,'+(0.05+0.18*t).toFixed(3)+')';
+      ctx.fillRect(L, Y(yy+YN/40), R-L, (B-T)/40+1);
+    }
+    ctx.strokeStyle='#b6c2d0'; ctx.lineWidth=1;
+    ctx.strokeRect(L,T,R-L,B-T);
+
+    // 光線：フェルマーから y'' = n n' / C²
+    var y0=0.0, yp0=Math.tan(ang*Math.PI/180);
+    var C=nOf(y0)/Math.sqrt(1+yp0*yp0);
+    var pts=[], y=y0, yp=yp0, dx=XN/400;
+    for(var i=0;i<=400;i++){
+      pts.push([XN*i/400, y]);
+      var npv=nOf(y);
+      var ypp=npv*grad/(C*C);
+      // RK2
+      var y_m=y+yp*dx/2, yp_m=yp+ypp*dx/2;
+      var ypp_m=nOf(y_m)*grad/(C*C);
+      y+=yp_m*dx; yp+=ypp_m*dx;
+    }
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=3; ctx.beginPath();
+    var started=false;
+    for(var p=0;p<pts.length;p++){
+      var px=X(pts[p][0]), py=Y(pts[p][1]);
+      if(pts[p][1]>YN/2||pts[p][1]<-YN/2){ started=false; continue; }
+      if(!started){ctx.moveTo(px,py);started=true;} else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    // 光線に沿った小さな円錐
+    for(var q=40;q<pts.length;q+=80){
+      var yy2=pts[q][1]; if(yy2>YN/2||yy2<-YN/2) continue;
+      var nn=nOf(yy2), hh=16, ww=hh/nn;
+      var ox=X(pts[q][0]), oy=Y(yy2);
+      ctx.strokeStyle='rgba(58,110,165,.85)'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+ww,oy-hh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox-ww,oy-hh); ctx.stroke();
+      ctx.strokeStyle='rgba(168,58,34,.35)'; ctx.setLineDash([2,2]);
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+hh,oy-hh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox-hh,oy-hh); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.fillStyle='#26547e'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('屈折率が高さで変わる媒質を進む光線', (L+R)/2, 20);
+    ctx.fillStyle='#5d6a7a'; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('n 大', L+6, T+14); ctx.fillText('n 小', L+6, B-8);
+    if(grad<0){ ctx.fillText('n 小', L+6, T+14); ctx.fillText('n 大', L+6, B-8); }
+
+    var theta=Math.atan(1/n)*180/Math.PI;
+    var msg = grad>0.005
+      ? '上ほど屈折率が大きい ── 光線は<b>下へ</b>曲がります（レンズや光ファイバの向き）。'
+      : (grad<-0.005 ? '<b>下ほど屈折率が大きい</b> ── 地面が熱せられた夏の道路と同じ配置で、光線は<b>上へ</b>反り返る。これが<b>蜃気楼</b>です。'
+                     : '勾配ゼロ ── 光線はまっすぐ進みます。');
+    rd.innerHTML='左：n = <b>'+n.toFixed(2)+'</b> → 媒質の光円錐の半頂角 <b>'+theta.toFixed(1)+'°</b>'
+      +'（真の因果円錐は 45° のまま動きません）。位相速度 c/n = <b>'+(2.998e8/n).toPrecision(3)+' m/s</b>。<br>'
+      +'右：スネルの保存量 n sinθ = <b>'+C.toPrecision(4)+'</b>（打ち出し点で計算）。この一定値が測地線を決めています。'+msg;
+  }
+
+  sn.addEventListener('input', draw);
+  sg.addEventListener('input', draw);
+  sa.addEventListener('input', draw);
+  bm.addEventListener('click', function(){ sg.value=-18; sa.value=-6; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
