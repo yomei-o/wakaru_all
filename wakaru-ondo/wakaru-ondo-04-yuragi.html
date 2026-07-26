@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二法則は、「ほぼ」しか成り立たない ── わかる温度 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbfa; --paper-edge:#d8e7e2;   /* 第4回：ゆらぎ＝緑青の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#26665a; --calc-bg:#e5f1ee;
+    --rule:#cfe2dc; --hair:#aecfc5;
+    --acc:#2f7d6a;
+    --grid:#dcece7;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9e0d9;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:270px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e5f1ee;color:#1e5a4e;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcfefe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf5f2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1e5045;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcfefe,#e4f0ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e5f1ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1e5045;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#556b65;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる温度</span><span class="ep">第 4 回 ／ 第二法則は、「ほぼ」しか成り立たない</span></div>
+  <p class="eyebrow">小さい系では、エントロピーが減る事象が実際に起きる ── しかも起きる確率が厳密に計算できる</p>
+  <h1>第二法則は、「ほぼ」しか成り立たない
+    <span class="sub">熱力学第二法則は、絶対の掟ではなく<em>圧倒的に有利な賭け</em>です。<br>破れる確率はきっちり計算できて、\(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\)。<br>コロイド粒子や RNA の実験で確認済み ── 法則に見えるのは、ただ \(N\) が大きいから。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回のボルツマン因子、第3回の熱、指数関数、確率の気分</span>
+    <span>この回の芯：P(+σ)/P(−σ) = e^(σ/k_B)</span>
+  </div>
+
+  <p class="lead">「エントロピーは増える」── 熱力学第二法則は、物理でいちばん破れそうにない法則として教わります。ところが 1990 年代以降、<em>それが破れる瞬間を実際に観測して数える</em>ことができるようになりました。破っているのは、コロイド粒子ひとつや、ほどけかけの RNA 一本といった<strong>小さい系</strong>です。しかも重要なのは、「たまに例外がある」という曖昧な話ではないこと ── <strong>破れる確率と守る確率の比が、厳密な等式で与えられます</strong>。それが<em>ゆらぎの定理</em>：\(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\)。ここでも \(k_B\) が両替レートとして働いていて、生成エントロピーが \(k_B\) 何個ぶんかという<strong>無次元の比</strong>だけが効きます。第二法則が「法則」に見えるのは、日常の系ではこの比が \(10^{20}\) といった数になるから、それだけのことです。</p>
+
+  <h2><span class="n">01</span>ブラウン運動の頃から、答えは見えていた</h2>
+
+  <p>水に浮かぶ花粉の微粒子は、まわりの水分子に叩かれてふらふら動きます。このとき微粒子は、<em>時々まわりから熱をもらって速くなり、時々まわりに熱を返して遅くなる</em>。もらっている瞬間だけを切り取れば ── <strong>それは熱が冷たい側から熱い側へ流れている</strong>ということです。</p>
+
+  <p>姉妹編「わかる繰り込み」第1回で見たとおり、こうした逆行が見えるのは \(N\) が小さいから。相対的なゆらぎは \(1/\sqrt N\) で、粒子が \(10^{23}\) 個あれば \(10^{-12}\) となって決して見えない。<em>だからブラウン運動の逆行と、第二法則は矛盾しません</em>。</p>
+
+  <p>問題は、その先です。<strong>「たまに逆行する」を、どれくらいの頻度で、と言えるか。</strong></p>
+
+  <h2><span class="n">02</span>ゆらぎの定理 ── 逆行の確率が、等式で決まる</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯</div>
+    $$\frac{P(+\sigma)}{P(-\sigma)}=e^{\sigma/k_B}$$
+    <p style="margin:8px 0 0;">ある実験で生成エントロピーが \(+\sigma\) になる確率と、\(-\sigma\) になる（＝第二法則に逆らう）確率の<strong>比</strong>が、これだけで決まります。<br>
+    ここでも効くのは無次元の比 <strong>\(\sigma/k_B\)</strong> ── 「\(k_B\) 何個ぶんのエントロピーか」。第1回で「\(k_B\) は換算レート」と書いた意味が、ここでいちばんはっきりします。</p>
+  </div>
+
+  <p>この一行が言っていることは、二つあります。</p>
+
+  <ol>
+    <li><strong>逆行は起きる。</strong> \(P(-\sigma)\) はゼロではない。第二法則は「絶対に起きない」ではなく「起きにくい」。</li>
+    <li><strong>どれくらい起きにくいかが、指数で決まる。</strong> \(\sigma\) が \(k_B\) 数個ぶんなら日常茶飯事、\(k_B\) 100 個ぶんなら \(e^{-100}\)、\(10^{20}\) 個ぶんなら宇宙の年齢でも起きない。</li>
+  </ol>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── 第二法則はどれくらい「法則」か</span>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>系</th><th class="num">典型的な σ/k_B</th><th class="num">逆行の相対確率 e^(−σ/k_B)</th><th>実際に見えるか</th></tr>
+      <tr><td>光ピンセットで引くコロイド粒子（1 秒）</td><td class="num">数〜数十</td><td class="num">10⁻¹ 〜 10⁻⁵</td><td><strong>見える</strong>（実験で日常的に観測）</td></tr>
+      <tr><td>分子モーター 1 歩</td><td class="num">≈ 20</td><td class="num">≈ 2×10⁻⁹</td><td>ときどき逆走する（観測済み）</td></tr>
+      <tr><td>コップの水が 1 mK 冷える</td><td class="num">≈ 10¹⁸</td><td class="num">10^(−4×10¹⁷)</td><td>絶対に見えない</td></tr>
+    </table>
+    <p style="margin-bottom:14px;"><strong>第二法則が「法則」なのは、\(\sigma/k_B\) が桁違いに大きい世界にだけ住んでいるから</strong>です。ナノスケールに降りると、法則は<em>賭け</em>に戻ります。</p>
+  </div>
+
+  <h2><span class="n">03</span>動かしてみる ── 逆行を数える</h2>
+
+  <p>下の図は、水中の微小な粒子を<strong>光ピンセットで一定速度で引きずる</strong>という、実験室で実際にやられている設定を、その場で数値計算したものです（過減衰ランジュバン方程式を 3000 本の軌道について解いています）。1 本の軌道ごとに、外から加えた仕事 \(W\) を測ります。</p>
+
+  <p>左が \(W\) のヒストグラム。平均は必ず正（第二法則）ですが、<strong>赤く塗った左側の裾 ── \(W<0\) の軌道が実在します</strong>。これは「粒子が水から熱をもらって、引き手を押し返した」回。第二法則が破れた個々の実験です。</p>
+
+  <p>右が検証で、各ビンについて \(\ln\bigl[P(W)/P(-W)\bigr]\) を \(W\) に対して打ったもの。ゆらぎの定理が正しければ、これは<strong>傾き 1 の直線</strong>に乗るはずです（\(k_BT\) を単位にとっているので）。乗ります。</p>
+
+  <p>そしてスライダーで<strong>引く時間（＝系の「大きさ」）</strong>を伸ばすと ── 逆行の割合が指数関数的に消えていきます。<em>第二法則が、目の前で「法則」になっていく</em>。</p>
+
+  <div class="fig">
+    <div class="cap">図：光ピンセットで引かれる微粒子。3000 本の軌道を数値計算して仕事 W を測る。左＝W のヒストグラム（赤い部分が「第二法則を破った」軌道）、右＝ln[P(W)/P(−W)] が傾き 1 の直線に乗ることの検証。単位は k_BT。スライダーで引く時間を伸ばすと逆行が消える</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>引く時間 τ（長いほど「大きい系」に相当） <span class="val" id="vt">5.0</span>
+        <input type="range" id="st" min="2" max="200" step="1" value="50">
+      </label>
+      <button id="re">やり直す（乱数を振り直す）</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2f7d6a;"></i>W &gt; 0（第二法則どおり）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>W &lt; 0（<b>破れた</b>軌道）</span>
+      <span><i class="swatch" style="background:#4a4f6a;"></i>理論：傾き 1 の直線</span>
+    </div>
+  </div>
+
+  <h2><span class="n">04</span>ヤジンスキー等式 ── 破れる側から、平衡量を取り出す</h2>
+
+  <p>もうひとつ、同じ家族の等式があります。こちらは実用的です。</p>
+
+  <div class="keybox">
+    <div class="lbl">ヤジンスキー等式（1997）</div>
+    $$\bigl\langle e^{-W/k_BT}\bigr\rangle=e^{-\Delta F/k_BT}$$
+    <p style="margin:8px 0 0;">左辺は<strong>どんなに速く（非平衡に）引いてもよい</strong>実験の平均。右辺は<strong>平衡</strong>の量（自由エネルギー差）。<em>乱暴な実験を何度も繰り返して指数平均を取ると、平衡の値がぴったり出る</em>という驚くべき等式です。</p>
+    <p style="margin:8px 0 0;">しかも、ここから熱力学第二法則が<em>系として導けます</em> ── イェンセンの不等式より \(\langle e^{-W/k_BT}\rangle\ge e^{-\langle W\rangle/k_BT}\) なので、\(\langle W\rangle\ge\Delta F\)。<strong>第二法則は等式の系であって、独立な公理ではなかった。</strong></p>
+  </div>
+
+  <p>この等式は実験でも使われていて、RNA のヘアピンを光ピンセットで無理やり引きほどく実験から、<em>ほどくのに必要な自由エネルギー</em>（平衡量）が実測されています。ゆらぎに支配された乱暴なデータから、きれいな平衡量が出てくる ── <strong>指数平均が、まれな逆行イベントを拾い上げているから</strong>です。</p>
+
+  <div class="aside">
+    <span class="tag">「わかる繰り込み」第1回の 1/√N が、ここで牙をむく</span>
+    姉妹編第1回では「\(N\) が大きいから相対ゆらぎが \(1/\sqrt N\) で消え、マクロ量は鋭くなる」と書きました。この回はその<strong>裏側</strong>です ── <em>\(N\) が小さければ、ゆらぎは消えずに法則を破る</em>。<br>
+    そして重要なのは、破れ方が<strong>でたらめではない</strong>こと。\(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\) という、時間反転対称性から出る厳密な構造を持っています。<em>ミクロの法則が時間反転対称であること</em>（姉妹編 番外編①のロシュミット）が、マクロの非対称性の破れ方まで規定している ── これがゆらぎの定理のいちばん深いところです。
+  </div>
+
+  <h2><span class="n">05</span>では、第二法則とは何だったのか</h2>
+
+  <div class="keybox">
+    <div class="lbl">言い換え</div>
+    <p style="margin:0 0 8px;">従来：「孤立系のエントロピーは減少しない」</p>
+    <p style="margin:0;">正確には：「<strong>エントロピーが \(\sigma\) だけ減る確率は、同じだけ増える確率の \(e^{-\sigma/k_B}\) 倍である</strong>」<br>
+    ── そして \(\sigma/k_B\) が巨大な日常の系では、前者が後者の \(10^{-10^{18}}\) 倍になるので、実質的に「減らない」と言ってよい。</p>
+  </div>
+
+  <p>第1回から一貫している構図が、ここでも出ています ── <strong>効くのは無次元の比だけ</strong>。第1回は \(E/k_BT\)、第3回は \(\hbar\omega/k_BT\)、そしてこの回は \(\sigma/k_B\)。単位のある量そのものではなく、\(k_B\) で割った「何個ぶんか」だけが物理を決めています。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「破れる」の正確な意味</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ゆらぎの定理（Evans–Cohen–Morriss 1993、Gallavotti–Cohen 1995、Crooks 1999 ほか）と、その形 \(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\)；ヤジンスキー等式 \(\langle e^{-W/k_BT}\rangle=e^{-\Delta F/k_BT}\)（1997）とそこから第二法則が不等式として従うこと；コロイド粒子の光ピンセット実験（Wang ら 2002 ほか）や RNA ヘアピンのほどき実験（Liphardt ら 2002、Collin ら 2005 ほか）による実験的検証；過減衰ランジュバン系で仕事分布がガウスになりゆらぎの定理を満たすこと ── いずれも確立した物理です。</p>
+    <p style="margin-bottom:0;"><strong>誤解しないこと：</strong>① <strong>第二法則は破れていません。</strong>破れるのは「個々の試行」であって、平均は必ず \(\langle\sigma\rangle\ge0\)。むしろゆらぎの定理は第二法則を<em>精密化した</em>もので、否定するものではありません。② 永久機関は作れません ── 逆行イベントを選んで取り出すには、どちらが逆行かを<strong>測って記憶する</strong>必要があり、その情報処理のコスト（ランダウアー、姉妹編「わかる繰り込み」番外編②）が必ず上回ります（マクスウェルの悪魔の現代的決着）。③ 定理が成り立つには、初期状態が平衡である・熱浴が正準分布であるなど、いくつかの条件が要ります。形も設定によって少しずつ違う版（過渡的／定常状態／Crooks／Jarzynski）があり、本文は代表形です。④ 図は過減衰ランジュバン方程式（\(k=\gamma=k_BT=1\)、トラップを一定速度で並進）の数値解で、実験装置の再現ではありません。この設定では \(\Delta F=0\) なので、ゆらぎの定理が \(P(W)/P(-W)=e^{W/k_BT}\) の形になります。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>\(\sigma=10\,k_B\) のとき、逆行が起きる相対確率は。
+        <details><summary>答えを見る</summary><div class="ans">\(e^{-10}\approx4.5\times10^{-5}\)。2 万回に 1 回くらい。<strong>ナノスケールの実験では十分観測できる頻度</strong>。分子モーターが「ときどき逆走する」のはこの領域。</div></details>
+      </li>
+      <li>ゆらぎの定理は第二法則を否定するのか。
+        <details><summary>答えを見る</summary><div class="ans">否定しない、<strong>精密化する</strong>。破れるのは個々の試行だけで、平均は必ず \(\langle\sigma\rangle\ge0\)。むしろヤジンスキー等式＋イェンセンの不等式から第二法則が<em>導ける</em>ので、第二法則は独立な公理ではなく系だった、ということになる。</div></details>
+      </li>
+      <li>逆行イベントだけを選んで取り出せば、永久機関になるか。
+        <details><summary>答えを見る</summary><div class="ans">ならない。どれが逆行かを<strong>測って記憶する</strong>必要があり、その記憶を消すコスト \(k_BT\ln2\)（ランダウアー）が取り出せるエネルギーを必ず上回る。マクスウェルの悪魔の現代的決着そのもの。</div></details>
+      </li>
+      <li>図で引く時間 τ を伸ばすと逆行が消えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">平均の生成エントロピー \(\langle\sigma\rangle\) が τ に比例して増えるから。ゆらぎの幅は \(\sqrt{\langle\sigma\rangle}\) でしか増えないので、比 \(\langle\sigma\rangle/\sqrt{\langle\sigma\rangle}=\sqrt{\langle\sigma\rangle}\) が大きくなり、負側の裾が指数的に消える。<strong>姉妹編「わかる繰り込み」第1回の \(1/\sqrt N\) と同じ勘定</strong>。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第4回まとめ</span>法則ではなく、圧倒的に有利な賭けだった</h2>
+    <p>小さい系・短い時間では、<strong>エントロピーが減る事象が実際に起きます</strong>。しかもその頻度は厳密な等式で決まる ── <strong>\(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\)</strong>（ゆらぎの定理）。効くのは無次元の比 \(\sigma/k_B\)＝「\(k_B\) 何個ぶんのエントロピーか」だけで、ここでも \(k_B\) は両替レートとして働いています。</p>
+    <p>コロイド粒子や RNA の実験で確認済み。さらに<strong>ヤジンスキー等式</strong> \(\langle e^{-W/k_BT}\rangle=e^{-\Delta F/k_BT}\) を使うと、乱暴な非平衡実験から平衡の自由エネルギーが取り出せ、しかもそこから<em>第二法則が不等式として導けます</em> ── <strong>第二法則は独立な公理ではなく、等式の系だった</strong>。</p>
+    <p>ただし破れるのは個々の試行だけで、平均は必ず守られます。そして逆行だけを拾おうとすれば、測って記憶するコスト（ランダウアー）が必ず上回る ── 永久機関にはなりません。<em>第二法則が「法則」に見えるのは、私たちが \(\sigma/k_B\sim10^{18}\) の世界に住んでいるから、それだけです。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第5回「負の温度は、無限大より熱い」</span>
+    第2回で「本体は \(T\) ではなく \(\beta=1/k_BT\)」と書きました。次回はその配当を受け取ります ── エネルギーに<strong>上限のある系</strong>では、\(\beta\) が \(0\) を通り越して<em>負になる</em>。すると温度は負になり、しかもそれは「冷たい」のではなく<strong>無限大の温度より熱い</strong>（接触させると必ず熱を放出する側になる）。スピン系で 1951 年に、冷却原子の運動自由度で 2013 年に実現しています。\(1/T\) を主役にすると、この奇妙さが一本の連続した軸の上に並びます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる温度」シリーズ第4回、物理好きの高校生・大学生向け読み物です。ゆらぎの定理（Evans–Cohen–Morriss 1993、Gallavotti–Cohen 1995、Crooks 1999 ほか）とその形 \(P(+\sigma)/P(-\sigma)=e^{\sigma/k_B}\)、ヤジンスキー等式（1997）とそこからイェンセンの不等式を通じて熱力学第二法則が従うこと、コロイド粒子の光ピンセット実験および RNA ヘアピンのほどき実験による実験的検証、ならびに過減衰ランジュバン系での仕事分布がガウスとなりゆらぎの定理を満たすことは、いずれも確立した物理です。第二法則が破れるのは個々の試行についてであって平均については破れないこと、逆行イベントの選別には測定と記憶のコスト（ランダウアー原理）が伴い永久機関にならないこと、定理には初期平衡性など条件があり設定ごとに複数の版が存在すること、および図が過減衰ランジュバン方程式（\(k=\gamma=k_BT=1\)、トラップの等速並進、したがって \(\Delta F=0\)）の数値解であって実験装置の再現ではないことは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ondo-03-netsu.html">第3回 熱とは、追跡をやめた運動</a>／<a href="wakaru-ondo-05-funoondo.html">第5回 負の温度は、無限大より熱い</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-kurikomi/index.html">わかる繰り込み</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで引く時間を変えると、第二法則を破った軌道の割合が変わります。右のグラフが傾き 1 の直線に乗るのがゆらぎの定理の検証です。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd'), reBtn=document.getElementById('re');
+
+  var M=3000, DT=0.05, V=1.0, seed=12345;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  var rnd=mulberry32(seed), spare=null;
+  function gauss(){
+    if(spare!==null){ var s=spare; spare=null; return s; }
+    var u=Math.max(rnd(),1e-12), v=rnd();
+    var r=Math.sqrt(-2*Math.log(u));
+    spare=r*Math.sin(2*Math.PI*v);
+    return r*Math.cos(2*Math.PI*v);
+  }
+
+  var cache=null;
+  function simulate(tau){
+    rnd=mulberry32(seed); spare=null;
+    var steps=Math.max(4, Math.round(tau/DT));
+    var sq=Math.sqrt(2*DT);
+    var W=new Float64Array(M);
+    for(var m=0;m<M;m++){
+      var y=gauss();          // 初期は平衡分布 N(0,1)
+      var w=0;
+      for(var s2=0;s2<steps;s2++){
+        w += -V*y*DT;         // dW = -k v y dt （k=1）
+        y += (-y - V)*DT + sq*gauss();
+      }
+      W[m]=w;
+    }
+    var mean=0; for(var i=0;i<M;i++) mean+=W[i]; mean/=M;
+    var vr=0; for(var j=0;j<M;j++){ var d=W[j]-mean; vr+=d*d; } vr/=M;
+    var neg=0; for(var q=0;q<M;q++) if(W[q]<0) neg++;
+    cache={tau:tau, W:W, mean:mean, sd:Math.sqrt(vr), neg:neg};
+  }
+
+  function erf(x){
+    var s=x<0?-1:1; x=Math.abs(x);
+    var t=1/(1+0.3275911*x);
+    var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+    return s*y;
+  }
+  function Phi(z){ return 0.5*(1+erf(z/Math.SQRT2)); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var C=cache;
+    ctx.clearRect(0,0,w,h);
+
+    // ── 左：ヒストグラム ──
+    var L=46, R=w*0.52, T=30, B=h-46;
+    var lo=Math.min(-3*C.sd, C.mean-3.5*C.sd), hi=C.mean+3.5*C.sd;
+    var NB=42, bw=(hi-lo)/NB;
+    var hist=new Float64Array(NB);
+    for(var i=0;i<M;i++){
+      var b=Math.floor((C.W[i]-lo)/bw);
+      if(b>=0&&b<NB) hist[b]++;
+    }
+    var hmax=0; for(var k=0;k<NB;k++) hmax=Math.max(hmax,hist[k]);
+    hmax=Math.max(hmax,1);
+    function X(wv){ return L+(R-L)*(wv-lo)/(hi-lo); }
+    function Y(c){ return B-(B-T)*c/(hmax*1.12); }
+
+    ctx.strokeStyle='#aecfc5'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('仕事 W の分布（3000 本の軌道）', L, T-10);
+
+    var cwid=(R-L)/NB;
+    for(var b2=0;b2<NB;b2++){
+      if(hist[b2]<=0) continue;
+      var wc=lo+(b2+0.5)*bw;
+      ctx.fillStyle = wc<0? 'rgba(168,58,34,.80)' : 'rgba(47,125,106,.55)';
+      ctx.fillRect(X(lo+b2*bw)+0.5, Y(hist[b2]), cwid-1, B-Y(hist[b2]));
+    }
+    // W=0 と平均
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+    if(0>lo&&0<hi){ ctx.beginPath(); ctx.moveTo(X(0),T); ctx.lineTo(X(0),B); ctx.stroke(); }
+    ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X(C.mean),T); ctx.lineTo(X(C.mean),B); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#4a4f6a'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⟨W⟩', X(C.mean), T+11);
+    ctx.fillStyle='#a83a22'; if(0>lo&&0<hi) ctx.fillText('W=0', X(0), B+14);
+    ctx.fillStyle='#556b65'; ctx.fillText('W（単位：k_BT）', (L+R)/2, B+30);
+
+    // ── 右：ゆらぎの定理の検証 ──
+    var L2=w*0.62, R2=w-14;
+    var wmax=Math.min(hi, 4*C.sd);
+    ctx.strokeStyle='#aecfc5'; ctx.lineWidth=1;
+    var T2=T, B2=B;
+    function X2(wv){ return L2+(R2-L2)*wv/wmax; }
+    function Y2(v){ return B2-(B2-T2)*v/(wmax*1.05); }
+    ctx.beginPath(); ctx.moveTo(L2,T2); ctx.lineTo(L2,B2); ctx.lineTo(R2,B2); ctx.stroke();
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('ln[ P(W) / P(−W) ]', L2, T2-10);
+
+    // 理論の直線
+    ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X2(0),Y2(0)); ctx.lineTo(X2(wmax),Y2(wmax)); ctx.stroke(); ctx.setLineDash([]);
+
+    // 実測点
+    ctx.fillStyle='#2f7d6a';
+    var pts=0;
+    for(var b3=0;b3<NB;b3++){
+      var wc2=lo+(b3+0.5)*bw;
+      if(wc2<=0||wc2>wmax) continue;
+      var bm=Math.floor((-wc2-lo)/bw);
+      if(bm<0||bm>=NB) continue;
+      if(hist[b3]<3||hist[bm]<3) continue;
+      var r2=Math.log(hist[b3]/hist[bm]);
+      if(r2>wmax*1.05) continue;
+      ctx.beginPath(); ctx.arc(X2(wc2), Y2(r2), 3.6, 0, 7); ctx.fill();
+      pts++;
+    }
+    ctx.fillStyle='#556b65'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('W（単位：k_BT）', (L2+R2)/2, B2+30);
+    if(pts<2){
+      ctx.fillStyle='#a83a22'; ctx.font='11px sans-serif';
+      ctx.fillText('負側の軌道が少なすぎて、比を取れません', (L2+R2)/2, (T2+B2)/2);
+      ctx.fillText('（＝ もう第二法則が「法則」になった）', (L2+R2)/2, (T2+B2)/2+16);
+    }
+
+    vt.textContent=C.tau.toFixed(1);
+    var frac=C.neg/M, theo=Phi(-C.mean/Math.max(C.sd,1e-9));
+    rd.innerHTML='引く時間 τ = <b>'+C.tau.toFixed(1)+'</b> → 平均の仕事 ⟨W⟩ = <b>'+C.mean.toFixed(2)+' k_BT</b>'
+      +'（＝生成エントロピー σ/k_B ≈ '+C.mean.toFixed(2)+'）、ばらつき '+C.sd.toFixed(2)+'。<br>'
+      +'<b style="color:#a83a22">第二法則を破った軌道：'+C.neg+' / '+M+' ＝ '+(frac*100).toFixed(2)+'%</b>'
+      +'（理論値 '+(theo*100).toFixed(2)+'%）。<br>'
+      +(C.mean<3? 'τ が短い＝小さい系では、<b>破れが日常的に起きます</b>。'
+                : (C.mean<12? '破れが減ってきました。⟨W⟩ が増えるほど、負側の裾は指数関数的に細ります。'
+                            : '<b>もう破れはほとんど観測されません</b> ── これが「第二法則」に見えている状態です。'))
+      +' 右の点が傾き 1 の直線に乗っているのが、ゆらぎの定理そのものです。';
+  }
+
+  function refresh(){ simulate(parseInt(st.value,10)/10); draw(); }
+  st.addEventListener('input', refresh);
+  reBtn.addEventListener('click', function(){ seed=Math.floor(Math.random()*1e9); refresh(); });
+  window.addEventListener('resize', draw);
+  refresh();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

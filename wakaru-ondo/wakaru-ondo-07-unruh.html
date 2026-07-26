@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加速すると、熱くなる ── わかる温度 第7回（最終回）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9fb; --paper-edge:#dcdfe8;   /* 第7回：ウンルー＝スレートの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#3d4257; --calc-bg:#e9ebf1;
+    --rule:#d5d8e2; --hair:#b9bece;
+    --acc:#4a4f6a;
+    --grid:#e4e7ee;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ccd2e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d3d7e2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e9ebf1;color:#3d4257;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef0f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#343850;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,#e8eaf1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9ebf1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#343850;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6473;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる温度</span><span class="ep">第 7 回（最終回） ／ 加速すると、熱くなる</span></div>
+  <p class="eyebrow">等速で飛べば真空、加速すれば同じ真空が熱浴に見える ── 温度は、観測者の運動状態にも依る</p>
+  <h1>加速すると、熱くなる
+    <span class="sub">$$T=\frac{\hbar a}{2\pi c\,k_B}$$
+    <span style="display:block;margin-top:10px;">この \(2\pi\) は、第6回の「虚時間の円」の \(2\pi\) です。<br>そして同じ論法が地平面に効いて、ホーキング温度が出ます。</span></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の \(k_B\)、第6回の虚時間の周期、光速と加速度</span>
+    <span>この回の芯：T = ℏa / 2πck_B</span>
+  </div>
+
+  <p class="lead">最終回です。第1回で「温度は物質の性質ではない」と書きました。その主張を、最後まで押し切ります ── <strong>温度は、観測者の運動状態にも依る</strong>。同じ空っぽの空間を、等速で飛ぶ観測者は「真空」と呼び、<em>加速している観測者は「温度 \(T\) の熱浴」として感じます</em>（ウンルー効果、1976）。温度計を持って加速すれば、目盛りが上がる。しかもその温度は \(T=\hbar a/2\pi ck_B\) という、\(\hbar\)・\(c\)・\(k_B\) が全部そろった式で書けます ── 全集でいえば、量子（ℏ）と相対論（c）と熱（k_B）が一点で交わる場所です。そして \(2\pi\) の出所が美しい。<strong>第6回で見た「虚時間の円」が、加速する観測者にとっては文字どおり<em>角度</em>になり、角度は 1 周が \(2\pi\) だから</strong>── それだけです。同じ論法をブラックホールに当てると、ホーキング温度が落ちてきます。</p>
+
+  <h2><span class="n">01</span>真空は、誰にとっての真空か</h2>
+
+  <p>真空とは「粒子が 1 個もない状態」です。ところが量子場の理論では、<em>「粒子が何個あるか」の数え方が、観測者によって変わります</em>。等速で飛ぶ観測者にとって粒子ゼロの状態が、加速する観測者にとってはゼロではない ── これがウンルー効果の中身です。</p>
+
+  <p>ここで大事なのは、加速する観測者に見えるのが<strong>ただの雑音ではなく、きちんとした熱分布</strong>だという点です。粒子のエネルギー分布を測ると、第2回のボルツマン因子 \(e^{-E/k_BT}\) にぴったり従う。<em>温度が、ちゃんと定義できる</em>。</p>
+
+  <h2><span class="n">02</span>ウンルー温度</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯</div>
+    $$T=\frac{\hbar a}{2\pi c\,k_B}\ \approx\ 4.1\times10^{-21}\ \mathrm{K}\times\frac{a}{1\ \mathrm{m/s^2}}$$
+    <p style="margin:8px 0 0;">\(a\) は観測者の（固有）加速度。\(\hbar\)（量子）・\(c\)（相対論）・\(k_B\)（熱）が全部そろっているのが目印です ── <strong>これは三つの分野が交わるところにしかない式</strong>。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">桁で見る ── なぜ誰も気づかなかったか</span>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>加速度</th><th class="num">a [m/s²]</th><th class="num">ウンルー温度</th></tr>
+      <tr><td>地球の重力</td><td class="num">9.8</td><td class="num">4×10⁻²⁰ K</td></tr>
+      <tr><td>戦闘機の 9G</td><td class="num">88</td><td class="num">3.6×10⁻¹⁹ K</td></tr>
+      <tr><td>宇宙背景放射 2.7 K に並ぶには</td><td class="num">6.7×10²⁰</td><td class="num">2.7 K</td></tr>
+      <tr><td>室温 300 K に並ぶには</td><td class="num">7.4×10²²</td><td class="num">300 K</td></tr>
+    </table>
+    <p style="margin-bottom:14px;">地球の重力で <strong>\(10^{-20}\) K</strong>。現在の最低到達温度（\(10^{-10}\) K 台）の、さらに 10 桁下です。<em>だから日常では絶対に気づけない</em>。<br>
+    逆に言えば、この \(4\times10^{-21}\) という数字の小ささが、\(\hbar\)（小さい）と \(1/c\)（小さい）と \(1/k_B\)（大きい）の積み重ねになっていて ── <strong>ウンルー効果が見えないことこそが、量子と相対論と熱がふだん交わらない理由</strong>そのものです。</p>
+  </div>
+
+  <h2><span class="n">03</span>なぜ \(2\pi\) が出るのか ── 第6回の答え</h2>
+
+  <p>この \(2\pi\) は円周率としてなんとなく出てきたのではありません。<strong>本当に円の \(2\pi\)</strong> です。</p>
+
+  <div class="calc">
+    <span class="tag">一定加速度の観測者と、極座標</span>
+    <p style="margin:2px 0 14px;">一定の加速度 \(a\) で飛ぶ観測者の座標（リンドラー座標）で時空を書き、第6回のように<strong>時間を虚軸に回す</strong>と、時空の計量が <em>平面の極座標</em> の形になります ── 動径が空間方向、そして<strong>角度が虚時間方向</strong>。<br>
+    ここで決定的なのは、<em>角度は 1 周すると必ず元に戻る</em>ということ。1 周＝ \(2\pi\) です。そうでないと原点に<strong>円錐特異点</strong>（先の尖った不連続）ができてしまう。時空がなめらかであるためには、虚時間方向の周期が</p>
+    $$\text{（虚時間の周期）}=\frac{2\pi c}{a}\quad\text{でなければならない}$$
+    <p style="margin-bottom:14px;">第6回の結論「虚時間の周期 \(=\hbar/k_BT\)」と等号でつなぐと ── \(\hbar/k_BT=2\pi c/a\)、すなわち <strong>\(T=\hbar a/2\pi ck_B\)</strong>。<br>
+    <em>温度が、時空がなめらかであるという要求から出てきました。</em>これがこの回のいちばん美しいところです。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">第6回の一行が、そのまま効いている</span>
+    第6回の締めでこう書きました ── 「<em>時空の虚時間方向が、何らかの理由でひとりでに丸まっていたら、そこには温度がある</em>」。<br>
+    加速する観測者にとって、丸まる理由は<strong>角度だから</strong>。角度は勝手に \(2\pi\) 周期です。だから温度が発生する。温度の出所が「熱源」ではなく「幾何」になっている ── <em>誰も何も熱していないのに、温度計の目盛りが上がる</em>。
+  </div>
+
+  <h2><span class="n">04</span>同じ論法で、ホーキング温度が落ちてくる</h2>
+
+  <p>ブラックホールの地平面のすぐ外で静止していようとすると、落ちないために<strong>加速し続ける</strong>必要があります。等価原理（姉妹編「わかる相対論」第6回）により、加速と重力は区別できない ── ならば、そこにもウンルー温度があるはずです。</p>
+
+  <p>実際、遠くから見た温度に直すと：</p>
+
+  <div class="keybox">
+    <div class="lbl">ホーキング温度</div>
+    $$T_{\text{H}}=\frac{\hbar c^3}{8\pi G M k_B}\ \approx\ 6.2\times10^{-8}\ \mathrm{K}\times\frac{M_\odot}{M}$$
+    <p style="margin:8px 0 0;">形はウンルーと同じ \(T=\hbar\kappa/2\pi ck_B\) で、加速度の役を<strong>表面重力 \(\kappa\)</strong> が務めます。導出も同じ ── ユークリッド化した時空に円錐特異点ができない条件から、虚時間の周期が決まり、温度が決まる。</p>
+    <p style="margin:8px 0 0;">そして \(1/M\) に比例するので、<strong>軽いブラックホールほど熱い</strong>。太陽質量なら \(6\times10^{-8}\) K（宇宙背景放射より 8 桁冷たい）、月質量なら 1.7 K、さらに軽ければどんどん熱くなって最後は爆発的に蒸発します。</p>
+  </div>
+
+  <h2><span class="n">05</span>動かしてみる ── 温度のものさしに、全部を並べる</h2>
+
+  <p>下の図は、宇宙の温度を対数目盛りで一本に並べたものです。上のスライダーで<strong>加速度</strong>を、下のスライダーで<strong>ブラックホールの質量</strong>を動かすと、それぞれのカーソルが動きます。</p>
+
+  <p>面白いのは、二つのカーソルが同じ軸の上を動くことです ── <em>加速度とブラックホールの質量という、まったく別のものが、同じ温度目盛りの上で比べられる</em>。そして両方とも、身のまわりの温度（室温、CMB）からは何桁も離れたところにいる。</p>
+
+  <div class="fig">
+    <div class="cap">図：温度の対数目盛り（10⁻²⁵ 〜 10³⁵ K）に、身のまわりの温度・ウンルー温度・ホーキング温度を並べたもの。上のスライダーが加速度、下がブラックホール質量。両者が同じ軸で比べられる</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>加速度 a <span class="val" id="va">9.8 m/s²</span>
+        <input type="range" id="sa" min="0" max="100" step="1" value="4">
+      </label>
+      <label>ブラックホールの質量 M <span class="val" id="vm">1 M☉</span>
+        <input type="range" id="sm" min="0" max="100" step="1" value="66">
+      </label>
+      <button id="bcmb">CMB に並ぶ加速度へ</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#4a4f6a;"></i>身のまわりの温度</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>ウンルー温度（加速度）</span>
+      <span><i class="swatch" style="background:#26619c;"></i>ホーキング温度（質量）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>そして、温度とは何だったのか</h2>
+
+  <p>7 回かけて、温度は三度その顔を変えました。</p>
+
+  <table class="tbl">
+    <tr><th>回</th><th>温度とは</th><th>効く比</th></tr>
+    <tr><td>第1回</td><td>エネルギーの別の呼び名。\(k_B\) は換算係数</td><td>\(E/k_BT\)</td></tr>
+    <tr><td>第2回</td><td>場合の数の対数の傾き \(\beta=d\ln\Omega/dE\)</td><td>\(E/k_BT\)</td></tr>
+    <tr><td>第3回</td><td>どの自由度を起こせるかの目安</td><td>\(\hbar\omega/k_BT\)</td></tr>
+    <tr><td>第4回</td><td>第二法則が破れる確率を決めるもの</td><td>\(\sigma/k_B\)</td></tr>
+    <tr><td>第5回</td><td>逆数 \(1/T\) こそが本体。上限があれば負にもなる</td><td>\(\Delta E/k_BT\)</td></tr>
+    <tr><td>第6回</td><td>虚時間方向の周期の逆数</td><td>\(E\beta\hbar/\hbar\)</td></tr>
+    <tr><td>第7回</td><td><strong>観測者の運動状態にも依る、幾何の量</strong></td><td>\(\hbar a/ck_BT\)</td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">シリーズの結論</div>
+    <p style="margin:0 0 8px;"><strong>温度は、物質の性質ではありません。「熱さ」でもありません。</strong></p>
+    <p style="margin:0;">エネルギーを配るときの傾きであり、虚時間の円の周の逆数であり、そして観測者の運動状態にも依る量です。唯一ずっと変わらなかったのは ── <em>効くのは \(k_B\) で割った無次元の比だけ</em>という一点。\(k_B\) そのものは、第1回で見たとおり<strong>ただの両替レート</strong>で、温度をエネルギーで測れば消えてしまいます。</p>
+    <p style="margin:10px 0 0;">「単位のある量は舞台装置、効くのは無次元の比」── 全集を貫くこの視点が、温度でもそのまま成り立ちました。<strong>物理の立方体（\(c\)・\(\hbar\)・\(G\)）に、これで 4 本目の軸 \(k_B\) が入ります。</strong>そしてこの回の \(T=\hbar a/2\pi ck_B\) は、その 4 本のうち 3 本が同時に顔を出す、珍しい式でした。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── まだ誰も測っていない</span>
+    <p style="margin-top:0;"><strong>確立していること（理論として）：</strong>ウンルー効果 \(T=\hbar a/2\pi ck_B\)（Fulling 1973、Davies 1975、Unruh 1976）；ホーキング輻射とホーキング温度 \(T=\hbar c^3/8\pi GMk_B\)（1974）；リンドラー座標のユークリッド化が極座標となり、円錐特異点を避ける条件から虚時間の周期が \(2\pi c/a\) に決まること；ブラックホールでも同様に表面重力から温度が決まること；\(4.05\times10^{-21}\) K per (m/s²) と \(6.17\times10^{-8}\ \mathrm{K}\times M_\odot/M\) という数値。理論としてはいずれも標準的で、独立な複数の導出があります。</p>
+    <p style="margin-bottom:0;"><strong>ただし：</strong>① <strong>ウンルー効果もホーキング輻射も、直接観測されていません。</strong>必要な加速度（\(10^{20}\ \mathrm{m/s^2}\) 級）も、天体ブラックホールの温度（\(10^{-8}\) K、CMB より 8 桁冷たい）も、現在の技術の遥か外です。実験室で「類似系」（音響ブラックホール、BEC など）での対応現象は報告されていますが、それは<em>同じ数式に従う別の系</em>であって、本物の時空での検証ではありません。② 「粒子数が観測者に依る」という言明には、粒子の定義（どのモードを正振動数とみなすか）が観測者依存であるという場の理論の事情が入っています。<em>真空そのものが変わるのではなく、真空の読み方が変わる</em>という整理が正確です。③ ウンルー効果は無限に続く一定加速度の理想化で導かれます。有限時間の加速では、熱スペクトルからのずれが出ます。④ 等価原理を使って「重力＝加速」と読み替える部分は局所的にのみ成り立ちます（姉妹編「わかる相対論」第6回・第7回の但し書きと同じ）。⑤ 図は温度の桁を並べた模式で、目盛りは対数です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>ウンルー温度の式に \(\hbar\)・\(c\)・\(k_B\) が全部入っているのは、何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans">量子（\(\hbar\））・相対論（\(c\)）・熱（\(k_B\)）が<strong>同時に効かないと出てこない現象</strong>だということ。どれかひとつでも極限（\(\hbar\to0\) など）を取ると消える。だから日常でも実験室でも観測しにくい。</div></details>
+      </li>
+      <li>\(2\pi\) はどこから来たか。
+        <details><summary>答えを見る</summary><div class="ans">ユークリッド化した加速観測者の時空が<strong>極座標</strong>になり、虚時間が<em>角度</em>の役をするから。角度は 1 周が \(2\pi\) で、そうでないと円錐特異点ができる。<strong>本物の円の \(2\pi\)</strong>。</div></details>
+      </li>
+      <li>軽いブラックホールほど熱いのはなぜか。式のどこを見ればよいか。
+        <details><summary>答えを見る</summary><div class="ans">\(T=\hbar c^3/8\pi GMk_B \propto 1/M\)。軽いほど地平面が小さく表面重力 \(\kappa\) が大きいので、温度が高い。だから蒸発は加速し、最後は爆発的に終わる（姉妹編「わかるブラックホール」第3回）。</div></details>
+      </li>
+      <li>「温度は物質の性質ではない」という第1回の主張は、この回でどう完成したか。
+        <details><summary>答えを見る</summary><div class="ans">第1回は「温度はエネルギーの別名で、\(k_B\) は換算係数」だった。この回では、<strong>同じ真空が、観測者の運動状態によって温度 0 にも \(T>0\) にも見える</strong>。温度は物質にも系にも属さず、<em>記述の取り方（誰が見ているか）にまで依る</em>。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第7回まとめ ／ わかる温度・完結</span>温度は、幾何にまで届いていた</h2>
+    <p>等速で飛ぶ観測者にとっての真空は、加速する観測者にとって<strong>温度 \(T=\hbar a/2\pi ck_B\) の熱浴</strong>に見えます（ウンルー効果）。地球の重力なら \(4\times10^{-20}\) K ── 見えないほど小さく、その小ささこそが「量子と相対論と熱がふだん交わらない」ことの数値表現です。</p>
+    <p>\(2\pi\) の出所は第6回でした。加速する観測者の時空をユークリッド化すると<strong>極座標</strong>になり、虚時間が<em>角度</em>の役をする。角度は 1 周 \(2\pi\) でなければ円錐特異点ができてしまうので、虚時間の周期が \(2\pi c/a\) に固定され、第6回の「周期＝\(\hbar/k_BT\)」と等号でつないで温度が出る。<strong>温度が、時空のなめらかさという要求から落ちてきました。</strong> 同じ論法をブラックホールに当てると \(T=\hbar c^3/8\pi GMk_B\) ── 軽いほど熱い。</p>
+    <p>そしてシリーズの結論。<strong>温度は物質の性質でも「熱さ」でもなく、エネルギーの配り方の傾きであり、虚時間の円の周の逆数であり、観測者の運動状態にも依る幾何の量でした。</strong>7 回を通して変わらなかったのはただ一つ ── <em>効くのは \(k_B\) で割った無次元の比だけ</em>。\(k_B\) 自身は両替レートで、温度をエネルギーで測れば消えます。物理の立方体に、これで 4 本目の軸が入りました。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">わかる温度・完結 ── 姉妹編へ</span>
+    「わかる温度」は本編 7 話でこれにて完結です。この回の続きは <strong>「わかるブラックホール」</strong>へ ── ホーキング温度から蒸発、エントロピー \(S=A/4\)、そして情報パラドックスまで。第4回のランダウアーと第6回の虚時間は <strong>「わかる繰り込み」</strong>（第1回・番外編②）と、第6回のウィック回転は <strong>「わかる宇宙論」</strong>第9回と、第3回の量子化は <strong>「わかる量子」</strong>と地続きです。全集の見取り図は<em>物理の立方体</em>（\(c\)・\(\hbar\)・\(G\)、そしていま \(k_B\)）にあります。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる温度」シリーズ第7回（最終回）、物理好きの高校生・大学生向け読み物です。ウンルー効果 \(T=\hbar a/2\pi ck_B\)（Fulling 1973、Davies 1975、Unruh 1976）、ホーキング温度 \(T=\hbar c^3/8\pi GMk_B\)（Hawking 1974）、リンドラー座標のユークリッド化が極座標となり円錐特異点を回避する条件から虚時間周期 \(2\pi c/a\) が定まること、表面重力を通じたブラックホールへの同じ論法、および数値 \(4.05\times10^{-21}\) K per (m/s²)・\(6.17\times10^{-8}\,\mathrm{K}\times M_\odot/M\) は、いずれも理論として確立し複数の独立な導出がある標準的結果です。ただしウンルー効果もホーキング輻射も<strong>直接観測されておらず</strong>、実験室の類似系（音響ブラックホール等）での報告は同じ数式に従う別系での対応現象であって時空での検証ではないこと、粒子数の観測者依存性が「真空の読み方が変わる」という意味であること、導出が無限に続く一定加速度の理想化であり有限時間では熱スペクトルからずれること、等価原理による重力と加速の読み替えが局所的にのみ成り立つことは、本文「正直な線」に明記しました。図は温度の桁を対数目盛りに並べた模式です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前の回：<a href="wakaru-ondo-06-kyojikan.html">第6回 虚時間の周期が、温度</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-blackhole/index.html">わかるブラックホール</a>・<a href="../wakaru-kurikomi/index.html">わかる繰り込み</a>・<a href="../wakaru-soutai/index.html">わかる相対論</a>・<a href="../butsuri-rittai.html">物理の立方体</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では加速度とブラックホール質量の二つのスライダーが、同じ温度目盛りの上のカーソルを動かします。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sa=document.getElementById('sa'), va=document.getElementById('va'),
+      sm=document.getElementById('sm'), vm=document.getElementById('vm'),
+      rd=document.getElementById('rd'), bcmb=document.getElementById('bcmb');
+
+  var KU=4.0546e-21;         // ウンルー：K per (m/s²)
+  var KH=1.2266e23;          // ホーキング：T = KH / M[kg]
+  var MSUN=1.98892e30, MMOON=7.342e22;
+  var LT0=-25, LT1=35;       // 温度の対数範囲
+
+  var MARKS=[
+    {t:2.725,      n:'宇宙背景放射 2.7 K', row:0},
+    {t:300,        n:'室温', row:1},
+    {t:5800,       n:'太陽表面', row:0},
+    {t:1.5e7,      n:'太陽中心', row:1},
+    {t:1e-10,      n:'実験室の最低温度', row:0},
+    {t:KU*9.81,    n:'地球重力のウンルー温度', row:1},
+    {t:KH/MSUN,    n:'太陽質量BH', row:0},
+    {t:KH/MMOON,   n:'月質量BH', row:1},
+    {t:1.417e32,   n:'プランク温度', row:0}
+  ];
+
+  function Afrom(s){ return Math.pow(10, 0+25*s/100); }
+  function sFromA(a){ return Math.round(Math.log10(a)/25*100); }
+  function Mfrom(s){ return Math.pow(10, 10+(36.5-10)*s/100); }   // 1e10 kg 〜 3e36 kg
+  function fmtT(T){
+    if(T<=0) return '0 K';
+    var e=Math.floor(Math.log10(T)), m=T/Math.pow(10,e);
+    if(e>=-2&&e<=4) return (T>=10? T.toPrecision(3):T.toPrecision(2))+' K';
+    return m.toFixed(1)+'×10^'+e+' K';
+  }
+  function fmtA(a){
+    var e=Math.floor(Math.log10(a)), m=a/Math.pow(10,e);
+    if(a<1000) return a.toPrecision(2)+' m/s²';
+    return m.toFixed(1)+'×10^'+e+' m/s²';
+  }
+  function fmtM(M){
+    if(M>=1e28) return (M/MSUN).toPrecision(2)+' M☉';
+    if(M>=1e20) return (M/MMOON).toPrecision(2)+' M月';
+    var e=Math.floor(Math.log10(M)), m=M/Math.pow(10,e);
+    return m.toFixed(1)+'×10^'+e+' kg';
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var a=Afrom(parseInt(sa.value,10)), M=Mfrom(parseInt(sm.value,10));
+    var Tu=KU*a, Th=KH/M;
+    va.textContent=fmtA(a); vm.textContent=fmtM(M);
+    ctx.clearRect(0,0,w,h);
+
+    var L=20, R=w-20, AX=h*0.62;
+    function X(lt){ return L+(R-L)*(lt-LT0)/(LT1-LT0); }
+
+    // 軸
+    ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(L,AX); ctx.lineTo(R,AX); ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#5f6473'; ctx.textAlign='center';
+    for(var lt=LT0;lt<=LT1;lt+=5){
+      ctx.strokeStyle='#c8ccd8'; ctx.beginPath(); ctx.moveTo(X(lt),AX-4); ctx.lineTo(X(lt),AX+4); ctx.stroke();
+      ctx.fillStyle='#5f6473'; ctx.fillText('10^'+lt, X(lt), AX+17);
+    }
+    ctx.fillText('← 冷たい　　　　　温度 T [K]（対数目盛り）　　　　　熱い →', (L+R)/2, AX+34);
+
+    // 目印
+    var rowY=[AX-34, AX-70];
+    for(var i=0;i<MARKS.length;i++){
+      var mk=MARKS[i], lt2=Math.log10(mk.t);
+      if(lt2<LT0||lt2>LT1) continue;
+      var x=X(lt2), y=rowY[mk.row];
+      ctx.strokeStyle='#b9bece'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x,y+4); ctx.lineTo(x,AX-2); ctx.stroke();
+      ctx.fillStyle='#4a4f6a'; ctx.beginPath(); ctx.arc(x,y,3.4,0,7); ctx.fill();
+      ctx.font='10px sans-serif'; ctx.textAlign = x>(L+R)*0.62? 'right':'left';
+      ctx.fillText(mk.n, x + (x>(L+R)*0.62? -6:6), y-5);
+    }
+
+    // カーソル：ウンルー
+    function cursor(T,color,label,dy){
+      var lt3=Math.log10(T);
+      if(lt3<LT0||lt3>LT1) return;
+      var x=X(lt3);
+      ctx.strokeStyle=color; ctx.lineWidth=2.4;
+      ctx.beginPath(); ctx.moveTo(x,AX); ctx.lineTo(x,AX+dy); ctx.stroke();
+      ctx.fillStyle=color;
+      ctx.beginPath(); ctx.arc(x,AX,5.5,0,7); ctx.fill();
+      ctx.font='bold 11px sans-serif'; ctx.textAlign = x>(L+R)*0.6? 'right':'left';
+      ctx.fillText(label, x + (x>(L+R)*0.6? -8:8), AX+dy+4);
+    }
+    cursor(Tu, '#a83a22', 'ウンルー '+fmtT(Tu), 44);
+    cursor(Th, '#26619c', 'ホーキング '+fmtT(Th), 74);
+
+    var cmpU = Tu<2.725? 'CMB より冷たい' : (Tu<300? 'CMB より熱く、室温より冷たい' : '室温より熱い');
+    var cmpH = Th<2.725? '<b>CMB より冷たい ── 蒸発せず、むしろ CMB を吸って成長します</b>' : '<b>CMB より熱い ── 正味で蒸発します</b>';
+    rd.innerHTML='加速度 a = <b>'+fmtA(a)+'</b> → ウンルー温度 <b>'+fmtT(Tu)+'</b>（'+cmpU+'）。'
+      +' 1 K を出すには a = 2.5×10^20 m/s² が必要。<br>'
+      +'ブラックホール質量 M = <b>'+fmtM(M)+'</b> → ホーキング温度 <b>'+fmtT(Th)+'</b>。'+cmpH+'<br>'
+      +'どちらも同じ形 T = ℏ×(加速度)/2πck_B ── 片方は観測者の加速度、もう片方は地平面の表面重力です。';
+  }
+
+  sa.addEventListener('input', draw);
+  sm.addEventListener('input', draw);
+  bcmb.addEventListener('click', function(){ sa.value=sFromA(2.725/KU); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>虚時間の周期が、温度 ── わかる温度 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8fd; --paper-edge:#e2dbee;   /* 第6回：虚時間＝すみれの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#5a3a92; --calc-bg:#efe9f7;
+    --rule:#ded5ec; --hair:#c5b8dc;
+    --acc:#6d4aa7;
+    --grid:#e8e1f2;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9cbee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ddd2ee;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#efe9f7;color:#4d2f83;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3eefa;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#432a72;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ece5f6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#efe9f7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#432a72;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#665a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる温度</span><span class="ep">第 6 回 ／ 虚時間の周期が、温度</span></div>
+  <p class="eyebrow">時間を虚軸に 90 度回すと、量子力学の時間発展が統計力学の重みに化ける ── 温度は、その円の周の長さだった</p>
+  <h1>虚時間の周期が、温度
+    <span class="sub">\(e^{-iHt/\hbar}\) と \(e^{-H/k_BT}\) を見比べると、\(t=-i\hbar/k_BT\)。<br>つまり<strong>虚時間の方向は、周期 \(\hbar/k_BT\) の円になっている</strong> ──<br>室温なら、その一周は <em>25 フェムト秒</em>です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回のボルツマン因子、指数関数と複素数、姉妹編「わかる宇宙論」第9回</span>
+    <span>この回の芯：虚時間の周期 = ℏ/k_BT</span>
+  </div>
+
+  <p class="lead">ここまで温度を「エネルギーの配り方の傾き」として扱ってきました。この回では、まったく別の顔を見ます ── <strong>温度とは、時間のもう一本の軸（虚時間）が閉じている、その円周の逆数</strong>。突飛に聞こえますが、出てくるのは驚くほど単純な見比べです。量子力学の時間発展は \(e^{-iHt/\hbar}\)、統計力学の重みは \(e^{-H/k_BT}\)。<em>形がそっくりです</em>。両者が一致するには \(t=-i\hbar/k_BT\) でなければならない ── 純虚数の時間。しかもこれは形式的な遊びではなく、<strong>虚時間方向を一周するとボルツマン因子がかかる</strong>という物理的な内容（KMS 条件）を持っていて、第3回の「凍結」の別解釈になり、そして最終回のホーキング温度・ウンルー温度の<em>出所</em>そのものになります。姉妹編「わかる宇宙論」第9回で置いた宿題を、ここで回収します。</p>
+
+  <h2><span class="n">01</span>ウィック回転 ── \(i\) を 90 度回す</h2>
+
+  <p>量子力学の状態は、時間とともに位相が回ります：\(e^{-iEt/\hbar}\)。振動するだけで、大きさは変わりません。</p>
+
+  <p>ここで、時間を<em>虚軸にひねって</em>みます。\(t=-i\tau\)（\(\tau\) は実数）と置くと：</p>
+
+  $$e^{-iE t/\hbar}\ \xrightarrow{\ t=-i\tau\ }\ e^{-E\tau/\hbar}$$
+
+  <p><strong>振動が減衰に化けました。</strong> そして減衰の形 \(e^{-E\tau/\hbar}\) は ── 第2回のボルツマン因子 \(e^{-E/k_BT}\) とそっくりです。</p>
+
+  <h2><span class="n">02</span>見比べるだけで、周期が出る</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯</div>
+    $$\underbrace{e^{-E\tau/\hbar}}_{\text{虚時間 }\tau\text{ だけ進む}}\ =\ \underbrace{e^{-E/k_BT}}_{\text{温度 }T\text{ のボルツマン因子}}
+    \qquad\Longleftrightarrow\qquad \boxed{\ \tau=\frac{\hbar}{k_BT}\ }$$
+    <p style="margin:8px 0 0;">つまり ── <strong>虚時間方向に \(\hbar/k_BT\) だけ進むことが、温度 \(T\) の熱平衡をとることと同じ</strong>。この長さを \(\beta\hbar\) と書きます（\(\beta=1/k_BT\) は第2回の主役）。</p>
+    <p style="margin:10px 0 0;">さらに、量子統計の分配関数 \(Z=\mathrm{Tr}\,e^{-\beta H}\) は「始点と終点が同じ」形をしている（トレース）ので、<strong>虚時間方向は端がつながった円</strong>になります。温度がある系は、<em>時間の一方向が周期 \(\beta\hbar\) の円になっている</em>。</p>
+  </div>
+
+  <p>この言い換えの帰結が、いちばん面白いところです。</p>
+
+  <div class="calc">
+    <span class="tag">虚時間を一周すると、ボルツマン因子がかかる</span>
+    <p style="margin:2px 0 14px;">エネルギー \(E\) の状態を虚時間方向にぐるっと一周させると、係数 \(e^{-E\beta\hbar/\hbar}=e^{-E/k_BT}\) がかかって戻ってきます。<br>
+    <strong>「熱平衡である」＝「虚時間を一周するとボルツマン因子がかかる」</strong>── これを厳密に述べたものが <em>KMS 条件</em>（久保–Martin–Schwinger）で、じつは現代的には<strong>これを温度の定義に採用します</strong>。相互作用が複雑でも、粒子数が定義できなくても、「虚時間方向の周期性」だけは書ける ── 温度のいちばん一般的な定義がこれです。</p>
+  </div>
+
+  <h2><span class="n">03</span>桁で見る ── 室温は 25 フェムト秒</h2>
+
+  <div class="calc">
+    <span class="tag">室温の虚時間周期</span>
+    $$\beta\hbar=\frac{\hbar}{k_BT}=\frac{1.055\times10^{-34}}{(1.381\times10^{-23})(300)}=2.5\times10^{-14}\ \mathrm{s}=25\ \mathrm{fs}$$
+    <p style="margin-bottom:14px;">第1回で「室温 \(k_BT\approx25\) meV」と覚えました。じつはこれと <strong>25 fs</strong> は同じ一つの事実の裏表です（\(\hbar/25\,\mathrm{meV}=26\) fs）。<em>エネルギーで言えば 25 meV、時間で言えば 25 fs</em> ── 不確定性関係 \(\Delta E\,\Delta t\sim\hbar\) で結ばれた、室温という状態のたったひとつの目盛り。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>温度</th><th class="num">k_BT</th><th class="num">虚時間の周期 ℏ/k_BT</th><th></th></tr>
+    <tr><td>宇宙背景放射 2.7 K</td><td class="num">0.23 meV</td><td class="num">2.8 ps</td><td>円が長い＝冷たい</td></tr>
+    <tr><td>液体窒素 77 K</td><td class="num">6.6 meV</td><td class="num">99 fs</td><td></td></tr>
+    <tr><td><strong>室温 300 K</strong></td><td class="num"><strong>25 meV</strong></td><td class="num"><strong>25 fs</strong></td><td>基準</td></tr>
+    <tr><td>太陽表面 5800 K</td><td class="num">0.50 eV</td><td class="num">1.3 fs</td><td></td></tr>
+    <tr><td>太陽中心 1.5×10⁷ K</td><td class="num">1.3 keV</td><td class="num">0.5 as</td><td>円がとても短い＝熱い</td></tr>
+    <tr><td>絶対零度</td><td class="num">0</td><td class="num">∞</td><td>円がほどけて<strong>ただの直線</strong>に戻る</td></tr>
+  </table>
+
+  <p>最後の行が示唆的です ── <strong>絶対零度とは、虚時間の円がほどけて無限に長くなった状態</strong>。逆に言えば、<em>温度があるとは、時間の一方向が丸まっているということ</em>。第1回で「温度は物質の性質ではない」と言いましたが、ここまで来るとむしろ<strong>時空の性質</strong>のように見えてきます。この直感が、最終回で本当になります。</p>
+
+  <h2><span class="n">04</span>動かしてみる ── 円の太さが、温度</h2>
+
+  <p>下の図は複素時間平面です。横が実時間（ふつうの時間）、縦が虚時間 \(\tau\)。<strong>帯の上下の縁は同じ点</strong>で、そこで丸まって円筒になっています ── 帯の高さがそのまま周期 \(\beta\hbar\)。</p>
+
+  <p>温度スライダーを動かすと、<strong>帯の高さが変わります</strong>。冷やすと帯が高く（円が長く）なり、熱すると薄く（円が短く）なる。帯の中の濃淡は \(e^{-E\tau/\hbar}\) の減衰で、右端の数字が<em>一周でかかる因子</em>＝ボルツマン因子です。エネルギーを切り替えると、「その状態が熱で励起されるかどうか」が一周の因子として読めます。</p>
+
+  <div class="fig">
+    <div class="cap">図：複素時間平面。横＝実時間、縦＝虚時間 τ。帯の上下の縁は同一視されていて（円筒）、その高さが周期 βℏ＝ℏ/k_BT。温度を上げると帯が薄くなる。濃淡は e^(−Eτ/ℏ) で、一周ぶんがボルツマン因子</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>温度 T <span class="val" id="vt">300 K</span>
+        <input type="range" id="st" min="0" max="100" step="1" value="50">
+      </label>
+      <button id="e1">E = 25 meV</button>
+      <button id="e2">E = 100 meV</button>
+      <button id="e3">E = 1 eV</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#6d4aa7;"></i>虚時間の帯（周期 βℏ）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>上下の縁＝同じ点</span>
+      <span><i class="swatch" style="background:#2f7d6a;"></i>一周でかかるボルツマン因子</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>何が嬉しいのか ── 三つの配当</h2>
+
+  <p><strong>① 第3回の「凍結」が、円に入るかどうかの話になる。</strong><br>
+  虚時間方向が周期 \(\beta\hbar\) の円なら、その円の上に乗れる振動数は飛び飛びになります（弦の定在波と同じ）── \(\omega_n=2\pi n/\beta\hbar\)。これを<em>松原振動数</em>といいます。第 1 番目は \(\hbar\omega_1=2\pi k_BT\)、室温なら 157 meV。<strong>これより大きなエネルギー間隔を持つ自由度は、円に収まらない＝熱では起こせない</strong> ── 第3回の \(\hbar\omega/k_BT\) による凍結を、幾何で言い直したものです。</p>
+
+  <p><strong>② 統計力学の計算が、量子力学の計算に化ける。</strong><br>
+  \(d\) 次元の統計力学の問題が、\(d-1\) 次元の空間＋1 次元の（周期的な）虚時間、つまり量子力学の問題として解けます。姉妹編「わかる繰り込み」第4回で 2 次元 Ising を扱いましたが、あれは 1 次元の量子スピン鎖と等価です ── <em>次元がひとつ移し替えられる</em>。この対応（統計↔量子）は、格子ゲージ理論から物性まで、計算の道具として日常的に使われています。</p>
+
+  <p><strong>③ 「温度がある」を、幾何で言える。</strong><br>
+  これが最終回への橋です。虚時間の周期が温度なら、逆に ── <strong>時空の虚時間方向が、何らかの理由でひとりでに丸まっていたら、そこには温度がある</strong>ということになります。加速する観測者にとって、そしてブラックホールの外にいる観測者にとって、まさにそれが起きます。</p>
+
+  <div class="aside">
+    <span class="tag">「わかる宇宙論」第9回の回収</span>
+    姉妹編「わかる宇宙論」第9回「\(i\) を虚軸に回すと、温度になる」は、まさにこの話でした ── <em>虚時間の周期がそのまま温度になる</em>。あちらでは \(c\cdot t=\)一定 の膨張と重ねて、宇宙の温度が \(1/t\) で下がることを見ました。<br>
+    こちらの回はその温度側からの記述です。二つを合わせると：<strong>宇宙が膨張して冷えていくとは、虚時間の円がだんだん長くなっていくこと</strong>。だいぶ違う絵に見えますが、書いている式は同じです。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「虚時間」は道具か、実在か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ウィック回転 \(t=-i\tau\) により量子力学の時間発展演算子 \(e^{-iHt/\hbar}\) が統計重み \(e^{-\beta H}\) に写ること；量子統計の分配関数 \(Z=\mathrm{Tr}\,e^{-\beta H}\) が周期 \(\beta\hbar\) の虚時間経路積分で書けること；KMS 条件が熱平衡状態の一般的な特徴づけを与えること；松原振動数 \(\omega_n=2\pi n/\beta\hbar\)（ボソンの場合）；\(d\) 次元古典統計と \((d-1)+1\) 次元量子系の対応；室温での \(\beta\hbar\approx25\) fs。いずれも確立した物理です。</p>
+    <p style="margin-bottom:0;"><strong>注意すること：</strong>① <strong>虚時間は「実在する第二の時間」ではありません。</strong>実時間の理論を解析接続して得られる計算上の構成であり、観測されるのはあくまで実時間の量です。虚時間で計算したあと、実時間に戻す（解析接続する）手続きが要ります ── そしてこの逆向きの解析接続は、数値計算では悪条件で有名な難問です。② フェルミオンでは虚時間方向の境界条件が<em>反</em>周期的になり、松原振動数も半整数になります（本文はボソンの場合）。③ ウィック回転がいつでも許されるわけではありません。時間依存の外場がある系、非平衡系、そして一般の曲がった時空では、ユークリッド化が一意でない・そもそも定義できない場合があります。④ 図の帯の高さは温度に反比例させていますが、表示範囲に収めるため上下を打ち切っています（実際の縮尺そのままではありません）。⑤ 「温度がある＝時間が丸まっている」は、平衡状態についての言い換えです。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>\(e^{-iEt/\hbar}\) と \(e^{-E/k_BT}\) を見比べると、\(t\) は何になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(-iE t/\hbar=-E/k_BT\) より \(t=-i\hbar/k_BT=-i\beta\hbar\)。<strong>純虚数の時間</strong>。その大きさ \(\beta\hbar\) が虚時間方向の周期になる。</div></details>
+      </li>
+      <li>絶対零度は、この絵ではどういう状態か。
+        <details><summary>答えを見る</summary><div class="ans">\(\beta\hbar=\hbar/k_BT\to\infty\) なので、<strong>虚時間の円がほどけて無限に長い直線になる</strong>。つまり周期性が消え、ふつうの（熱のない）量子力学に戻る。</div></details>
+      </li>
+      <li>室温で「熱では起こせない」エネルギーの目安を、この回の言葉で出せ。
+        <details><summary>答えを見る</summary><div class="ans">虚時間の円に乗れる最小の振動数（第 1 松原振動数）は \(\hbar\omega_1=2\pi k_BT\)。室温なら \(6.28\times25\ \mathrm{meV}\approx157\) meV。<strong>これより大きな準位間隔は円に収まらない＝凍結</strong>。第3回の \(\hbar\omega/k_BT\) の幾何版。</div></details>
+      </li>
+      <li>「温度がある」を幾何の言葉で一文で。
+        <details><summary>答えを見る</summary><div class="ans"><strong>時間のもう一本の軸（虚時間）が、周期 \(\hbar/k_BT\) の円になっていること。</strong>円が短いほど熱く、無限に長ければ絶対零度。逆に、時空の側の事情で虚時間が勝手に丸まっていれば、そこには温度がある（第7回）。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第6回まとめ</span>温度とは、虚時間の円の周の逆数</h2>
+    <p>時間を虚軸に 90 度回すと（ウィック回転 \(t=-i\tau\)）、量子力学の位相回転 \(e^{-iEt/\hbar}\) が減衰 \(e^{-E\tau/\hbar}\) に化けます。これを第2回のボルツマン因子 \(e^{-E/k_BT}\) と見比べるだけで <strong>\(\tau=\hbar/k_BT=\beta\hbar\)</strong>。分配関数がトレースであることから虚時間の端はつながり、<strong>周期 \(\beta\hbar\) の円</strong>になります。</p>
+    <p>物理的な内容は「<strong>虚時間を一周するとボルツマン因子がかかる</strong>」── これを厳密化した KMS 条件は、現代的には温度の<em>定義</em>として使われます。桁で見ると室温の一周は <strong>25 フェムト秒</strong>で、第1回の「25 meV」と不確定性関係で結ばれた同じ一つの目盛りです。絶対零度は、円がほどけて直線に戻った状態。</p>
+    <p>配当は三つ ── ① 第3回の凍結が「松原振動数の円に乗るか」に翻訳される（室温の第 1 松原エネルギーは 157 meV）、② \(d\) 次元の統計が \((d-1)+1\) 次元の量子に化ける、③ そして<strong>時空の側で虚時間が丸まっていれば、そこには温度がある</strong> ── 最終回への橋です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第7回（最終回）「加速すると、熱くなる」</span>
+    等速で飛んでいれば何もない真空。ところが<strong>加速すると、同じ真空が温度 \(T=\hbar a/2\pi c k_B\) の熱浴に見えます</strong>（ウンルー効果）。なぜ \(2\pi\) が出るのか ── 第6回の答えがそのまま効きます。加速する観測者の座標では、ユークリッド化した時空が<em>極座標</em>になり、角度は自動的に \(2\pi\) 周期。だから虚時間の周期が決まり、温度が決まる。そして同じ論法がブラックホールに効いて、ホーキング温度が出ます。<strong>「温度は物質の性質ではない」（第1回）の最終形 ── 温度は、観測者の運動状態にも依る。</strong>
+  </div>
+
+  <div class="foot">
+    この文書は「わかる温度」シリーズ第6回、物理好きの高校生・大学生向け読み物です。ウィック回転による量子力学の時間発展と統計重みの対応、量子統計の分配関数が周期 \(\beta\hbar\) の虚時間経路積分で書けること、KMS 条件による熱平衡状態の特徴づけ、松原振動数 \(\omega_n=2\pi n/\beta\hbar\)、\(d\) 次元古典統計系と \((d-1)+1\) 次元量子系の対応、および室温での \(\beta\hbar\approx2.5\times10^{-14}\) s は、いずれも確立した物理です。虚時間が実在する第二の時間ではなく解析接続による計算上の構成であること（実時間への逆解析接続が数値的に悪条件であること）、フェルミオンでは反周期境界条件となり松原振動数が半整数になること、ウィック回転が非平衡系や一般の曲がった時空でつねに定義できるわけではないこと、および図の帯の高さが表示のため打ち切られていることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ondo-05-funoondo.html">第5回 負の温度は、無限大より熱い</a>／<a href="wakaru-ondo-07-unruh.html">第7回 加速すると、熱くなる</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru/index.html">わかる宇宙論</a>（第9回）・<a href="../wakaru-kurikomi/index.html">わかる繰り込み</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では温度スライダーで虚時間の帯の高さ（＝周期）が変わり、ボタンでエネルギーを切り替えると一周でかかるボルツマン因子が読めます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd');
+  var e1=document.getElementById('e1'), e2=document.getElementById('e2'), e3=document.getElementById('e3');
+
+  var HBAR=1.054572e-34, KB=1.380649e-23, EV=1.602177e-19;
+  var Eev=0.025;                 // 注目するエネルギー [eV]
+
+  function Tfrom(s){ return Math.pow(10, 1.7+(3.7-1.7)*s/100); }   // 50 K 〜 5000 K
+  function sFrom(T){ return Math.round((Math.log10(T)-1.7)/(3.7-1.7)*100); }
+  function fmtT(T){ return T>=1000? Math.round(T/10)*10+' K' : Math.round(T)+' K'; }
+  function fmtTime(t){
+    if(t>=1e-12) return (t*1e12).toFixed(2)+' ps';
+    if(t>=1e-15) return (t*1e15).toFixed(1)+' fs';
+    return (t*1e18).toFixed(1)+' as';
+  }
+  function fmtE(e){ return e>=1? e.toFixed(2)+' eV' : (e*1000).toFixed(0)+' meV'; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var T=Tfrom(parseInt(st.value,10)); vt.textContent=fmtT(T);
+    var kT=KB*T, period=HBAR/kT;                 // βℏ [s]
+    var ratio=Eev*EV/kT;                          // E/k_BT
+    ctx.clearRect(0,0,w,h);
+
+    var L=70, R=w-96, CY=h*0.52, HMAX=h*0.36;
+    // 帯の高さ：300 K を基準に 1/T でスケール、上下は打ち切り
+    var Href=HMAX*0.42, Hh=Math.min(HMAX, Href*(300/T));
+    var top=CY-Hh/2, bot=CY+Hh/2;
+    var clipped = Href*(300/T) > HMAX;
+
+    // 実時間軸
+    ctx.strokeStyle='#c5b8dc'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(L-46,CY); ctx.lineTo(R+40,CY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#665a7a'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('実時間 t →', R+6, CY-8);
+
+    // 帯（虚時間方向の濃淡 e^{-Eτ/ħ}）
+    var NS=48;
+    for(var i=0;i<NS;i++){
+      var f0=i/NS, f1=(i+1)/NS;
+      var damp=Math.exp(-ratio*f0);              // τ = f * βℏ → E τ/ħ = ratio * f
+      var a=0.10+0.62*damp;
+      ctx.fillStyle='rgba(109,74,167,'+a.toFixed(3)+')';
+      ctx.fillRect(L, top+Hh*f0, R-L, Hh*(f1-f0)+0.6);
+    }
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(L,top); ctx.lineTo(R,top); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L,bot); ctx.lineTo(R,bot); ctx.stroke();
+    ctx.strokeStyle='#c5b8dc'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,top); ctx.lineTo(L,bot); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(R,top); ctx.lineTo(R,bot); ctx.stroke();
+
+    // 同一視の印
+    ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('この縁と', L-8, top+4);
+    ctx.fillText('この縁は同じ点', L-8, bot+4);
+    for(var m=0;m<5;m++){
+      var xx=L+(R-L)*(0.12+0.19*m);
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(xx-5,top-6); ctx.lineTo(xx,top); ctx.lineTo(xx+5,top-6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xx-5,bot-6); ctx.lineTo(xx,bot); ctx.lineTo(xx+5,bot-6); ctx.stroke();
+    }
+
+    // 周期の矢印
+    ctx.strokeStyle='#6d4aa7'; ctx.lineWidth=2;
+    var ax=R+22;
+    ctx.beginPath(); ctx.moveTo(ax,top); ctx.lineTo(ax,bot); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax-4,top+6); ctx.lineTo(ax,top); ctx.lineTo(ax+4,top+6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax-4,bot-6); ctx.lineTo(ax,bot); ctx.lineTo(ax+4,bot-6); ctx.stroke();
+    ctx.save(); ctx.translate(ax+16,(top+bot)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#6d4aa7'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('周期 βℏ = '+fmtTime(period), 0, 0); ctx.restore();
+
+    ctx.save(); ctx.translate(L-52,(top+bot)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#6d4aa7'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('虚時間 τ', 0, 0); ctx.restore();
+
+    if(clipped){
+      ctx.fillStyle='#a83a22'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('（低温：帯は本当はもっと高い ── 表示のため打ち切り）', (L+R)/2, h-16);
+    }
+
+    // 一周の因子
+    var boltz=Math.exp(-ratio);
+    ctx.fillStyle='#2f7d6a'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('一周でかかる因子 e^(−E/k_BT) = '+(boltz<1e-4? boltz.toExponential(2) : boltz.toFixed(4)), L, h-18);
+
+    var judge;
+    if(ratio<1) judge='<b>この状態は熱で楽に励起されます</b>（E が k_BT より小さい）。';
+    else if(ratio<6) judge='ぎりぎり励起される領域。';
+    else judge='<b>ほぼ凍結</b> ── 虚時間の円が短すぎて、このエネルギーは乗れません。';
+    rd.innerHTML='T = <b>'+fmtT(T)+'</b> → k_BT = <b>'+fmtE(kT/EV)+'</b>、虚時間の周期 βℏ = <b>'+fmtTime(period)+'</b>。<br>'
+      +'注目エネルギー E = <b>'+fmtE(Eev)+'</b> → E/k_BT = <b>'+ratio.toFixed(2)+'</b>、'
+      +'一周でかかるボルツマン因子 = <b>'+(boltz<1e-4? boltz.toExponential(2) : boltz.toFixed(4))+'</b>。'+judge+'<br>'
+      +'第 1 松原エネルギー 2π k_BT = '+fmtE(2*Math.PI*kT/EV)+' ── これより大きな準位間隔は、この円に収まりません。';
+  }
+
+  st.addEventListener('input', draw);
+  e1.addEventListener('click', function(){ Eev=0.025; draw(); });
+  e2.addEventListener('click', function(){ Eev=0.100; draw(); });
+  e3.addEventListener('click', function(){ Eev=1.000; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

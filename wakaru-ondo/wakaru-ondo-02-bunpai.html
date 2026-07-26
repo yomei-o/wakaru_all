@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>温度とは、エネルギーの配り方 ── わかる温度 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf8f6; --paper-edge:#eed9d2;   /* 第2回：分配＝朱の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8f3620; --calc-bg:#f7e8e3;
+    --rule:#e6d0c9; --hair:#d0aea3;
+    --acc:#a83a22;
+    --grid:#f0dcd6;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f2cdc2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f3e6df;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd3cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f7e8e3;color:#8f3620;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faece7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7a2d17;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfc,#f5e3dd);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7e8e3;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#7a2d17;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7a6560;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる温度</span><span class="ep">第 2 回 ／ 温度とは、エネルギーの配り方</span></div>
+  <p class="eyebrow">箱に玉をでたらめに配るだけ ── 何のルールも入れていないのに、指数分布がひとりでに立ち上がる</p>
+  <h1>温度とは、エネルギーの配り方
+    <span class="sub">エネルギーの<em>量</em>は温度ではありません。温度は<strong>配り方の傾き</strong>です。<br>そして本体は \(T\) ではなく \(\beta=1/k_BT\) のほう ── 「エネルギーを 1 もらうと、状態数が何倍になるか」。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の \(E/k_BT\)、対数、指数関数、場合の数</span>
+    <span>この回の芯：β ≡ d(ln Ω)/dE</span>
+  </div>
+
+  <p class="lead">第1回で「温度はエネルギーだ」と言いました。でも、それだけでは足りません ── お風呂とコップの水が同じ 40 ℃ なら温度は同じですが、持っているエネルギーは全然違う。<em>温度は総量ではない</em>。では何か。答えは<strong>配り方の傾き</strong>で、しかもこれは机上の話ではなく、<em>目の前で立ち上がるところを見られます</em>。箱をたくさん並べて、玉（エネルギーの最小単位）をでたらめにやりとりさせるだけ。何のルールも、指数関数も、ボルツマンも入れていないのに ── <strong>数十秒で指数分布が現れます</strong>。その傾きが温度です。そしてこの実験を追いかけると、温度の正体が \(T\) ではなく <strong>\(\beta=1/k_BT\)</strong> のほうだということも、自然にわかります。</p>
+
+  <h2><span class="n">01</span>いちばん簡単な実験 ── 箱と玉</h2>
+
+  <p>用意するもの。</p>
+
+  <ul>
+    <li>箱を <strong>300 個</strong>ならべる（＝ 300 個の粒子、あるいは 300 個の自由度）</li>
+    <li>玉を全部で <strong>900 個</strong>ばらまく（＝エネルギーの総量。1 箱あたり平均 3 個）</li>
+    <li>ルールはひとつだけ ── <em>玉を持っている箱をランダムに選び、ランダムな別の箱へ玉を 1 個渡す</em></li>
+  </ul>
+
+  <p>それだけです。エネルギーは保存する（玉の総数は変わらない）。他には何も入れていません。<strong>「温度」も「平衡」も「エントロピー」も、まだどこにも書いていない。</strong></p>
+
+  <h2><span class="n">02</span>動かしてみる ── 指数分布が、ひとりでに立つ</h2>
+
+  <p>下の図がその実験です。上が箱の中身（棒の高さが玉の数）、下がヒストグラム（玉を \(n\) 個持つ箱が何個あるか）。</p>
+
+  <p><strong>「全部を 1 箱に集める」</strong>から始めてみてください。最初はヒストグラムがめちゃくちゃですが、玉をやりとりさせるうちに ── <em>まっすぐな指数分布に落ち着きます</em>（縦軸を対数にすると直線になる）。誰も指数関数を指定していないのに、です。そして<strong>平均エネルギーのスライダー</strong>を動かすと、その直線の<em>傾き</em>だけが変わる。</p>
+
+  <div class="fig">
+    <div class="cap">図：300 個の箱に玉をばらまき、ランダムに 1 個ずつ渡し続けるだけ。上＝各箱の玉の数、下＝ヒストグラム（点線は理論の幾何分布）。ボタンで縦軸を対数にすると、直線＝指数分布になる。スライダーで平均エネルギー（＝温度）を変えると、傾きだけが変わる</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>1 箱あたりの平均エネルギー q（＝温度に対応） <span class="val" id="vq">3.0</span>
+        <input type="range" id="sq" min="5" max="120" step="1" value="30">
+      </label>
+      <button id="lg">縦軸：線形</button>
+      <button id="one">全部を 1 箱に集める</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>実験（いま数えた分布）</span>
+      <span><i class="swatch" style="background:#4a4f6a;"></i>理論の指数分布</span>
+    </div>
+  </div>
+
+  <p>これが「温度が生まれる瞬間」です。個々の玉のやりとりはでたらめなのに、<strong>全体としては決まった形に落ち着く</strong>。しかもその形はパラメータをひとつしか持たない ── <em>傾き</em>です。</p>
+
+  <h2><span class="n">03</span>なぜ指数関数なのか ── 「場合の数が多いほう」が勝つだけ</h2>
+
+  <p>種明かしは、驚くほど単純です。<strong>玉の配り方の場合の数を数えるだけ。</strong></p>
+
+  <p>系を二つに分けます ── 注目する小さい部分（箱 1 個）と、残り全部（熱浴）。全体のエネルギーは \(E_{\text{全}}\) で一定。小さい部分がエネルギー \(E\) を持つとき、その状態が実現する確率は、<em>残りの部分の場合の数</em>に比例します：</p>
+
+  $$P(E)\ \propto\ \Omega_{\text{浴}}(E_{\text{全}}-E)$$
+
+  <p>「小さい部分がエネルギーを持てば持つほど、残りに配れる玉が減り、残りの場合の数が減る」── だから大きい \(E\) は起きにくい。ここまでは当たり前です。では、どう減るのか。</p>
+
+  <div class="calc">
+    <span class="tag">対数を取ると、一行で出る</span>
+    <p style="margin:2px 0 0;">\(E\) は熱浴に比べて小さいので、\(\ln\Omega_{\text{浴}}\) を \(E\) で 1 次まで展開します：</p>
+    $$\ln\Omega_{\text{浴}}(E_{\text{全}}-E)\approx \ln\Omega_{\text{浴}}(E_{\text{全}})-E\cdot\underbrace{\frac{d\ln\Omega_{\text{浴}}}{dE}}_{\textstyle \equiv\ \beta}$$
+    <p style="margin:6px 0 0;">指数に戻すと</p>
+    $$P(E)\ \propto\ e^{-\beta E}$$
+    <p style="margin-bottom:14px;"><strong>これだけです。</strong>指数関数が出てきた理由は「テイラー展開の 1 次で切ったから」── つまり<em>熱浴が大きいから</em>。ボルツマン因子の正体は、場合の数の対数を 1 次で近似したもの。それ以上でも以下でもありません。</p>
+  </div>
+
+  <p>そして途中で定義した \(\beta\) こそが、温度の本体です。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この回の芯 ── 温度の定義</div>
+    $$\beta\ \equiv\ \frac{d\ln\Omega}{dE}\ =\ \frac{1}{k_BT}
+    \qquad\Longleftrightarrow\qquad \frac{1}{T}=\frac{\partial S}{\partial E}\quad(S=k_B\ln\Omega)$$
+    <p style="margin:8px 0 0;">言葉にすると ── <strong>「エネルギーを 1 単位もらったとき、場合の数が何倍になるか」の対数微分</strong>。<br>
+    エネルギーをもらって場合の数が<em>激増</em>する系（＝もっとエネルギーを欲しがる系）は \(\beta\) が大きい＝<strong>冷たい</strong>。もらってもあまり増えない系は \(\beta\) が小さい＝<strong>熱い</strong>。二つの系を接触させると、\(\beta\) の大きいほう（冷たいほう）へエネルギーが流れ、<em>\(\beta\) が揃ったところで止まる</em> ── それが熱平衡です。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">「わかる繰り込み」第1回と、同じ式</span>
+    ここで出てきた \(S=k_B\ln\Omega\) は、姉妹編「わかる繰り込み」第1回の<em>「エントロピー＝捨てた情報の量」</em>そのものです。あちらは「マクロを決めても決まらないミクロ配置の数」を数えていました。こちらはその数の<strong>エネルギー微分</strong>を取っている。<br>
+    つまり ── <strong>温度とは、捨てた情報の量が、エネルギーを足すとどれだけ増えるか</strong>。第1回で「温度はエネルギーとビットの両替レート」と書いたのは、この意味です。実際、\(1/T=\partial S/\partial E\) は「エネルギー 1 ジュールあたり何ビット増えるか」を測っている。
+  </div>
+
+  <h2><span class="n">04</span>だから、本体は \(T\) ではなく \(\beta\)</h2>
+
+  <p>\(\beta=1/k_BT\) は「温度の逆数」なので、ふつうは脇役扱いされます。でも定義を見れば、<strong>先に生まれたのは \(\beta\) のほう</strong>です。\(T\) は \(\beta\) の逆数として後から定義された量にすぎません。</p>
+
+  <p>\(\beta\) を主役にすると、いろいろなことが素直になります。</p>
+
+  <table class="tbl">
+    <tr><th>状況</th><th class="num">β</th><th class="num">T</th><th>\(\beta\) で見ると</th></tr>
+    <tr><td>絶対零度に近い</td><td class="num">+∞</td><td class="num">0</td><td>端っこ。エネルギーを欲しがる度合いが無限大</td></tr>
+    <tr><td>ふつうに冷たい</td><td class="num">大きい正</td><td class="num">小さい</td><td>連続</td></tr>
+    <tr><td>ふつうに熱い</td><td class="num">小さい正</td><td class="num">大きい</td><td>連続</td></tr>
+    <tr><td>無限大の温度</td><td class="num"><strong>0</strong></td><td class="num">∞</td><td><strong>ただの 0</strong>。特別でも何でもない、通過点</td></tr>
+    <tr><td>負の温度（第5回）</td><td class="num">負</td><td class="num">負</td><td><strong>0 を通り越しただけ</strong>。連続してつながる</td></tr>
+  </table>
+
+  <p>\(T\) で書くと「無限大」という扱いにくい点が真ん中にありますが、<strong>\(\beta\) で書けばそこはただの \(0\)</strong> です。だから第5回の「負の温度」も、\(\beta\) から見れば何の不思議もない ── <em>傾きの符号が変わっただけ</em>。温度に \(\pm\infty\) の壁があるように見えるのは、逆数で書いているせいの錯覚です。</p>
+
+  <h2><span class="n">05</span>いちばん小さい応用 ── 二準位系</h2>
+
+  <div class="calc">
+    <span class="tag">エネルギー差 ΔE の 2 つの状態しかない系</span>
+    <p style="margin:2px 0 0;">下の準位と上の準位の占有数の比は、ボルツマン因子そのままです：</p>
+    $$\frac{n_{\text{上}}}{n_{\text{下}}}=e^{-\Delta E/k_BT}$$
+    <p style="margin-bottom:14px;">第1回の「効くのは \(E/k_BT\) だけ」がここに直結します ── \(\Delta E\ll k_BT\) なら比は 1（半々に埋まる）、\(\Delta E\gg k_BT\) なら比はほぼ 0（下だけ埋まる）。<br>
+    たとえば室温（25 meV）で \(\Delta E=1\) eV の系なら、\(e^{-40}\approx4\times10^{-18}\) ── 1 京個に数個。<em>だから常温の物質はほとんど基底状態にいる</em>。この比が 1 に近づくとどうなるか、そして<strong>1 を超えたらどうなるか</strong>が、第5回です。</p>
+  </div>
+
+  <h2><span class="n">06</span>温度計とは、何をする装置か</h2>
+
+  <p>ここまでくると、温度計の正体も言えます。温度計は「熱さ」を測っているのではありません ── <strong>相手と接触して、\(\beta\) が揃うまで待つ装置</strong>です。揃ったあとの自分の状態を読めば、相手の \(\beta\) がわかる。</p>
+
+  <p>だから温度計には、二つの条件が要ります。① 相手より<em>十分小さい</em>こと（測ることで相手を変えてはいけない）。② \(\beta\) が揃うまで<em>待つ</em>こと。この二つ目が満たされないとき ── たとえば急激な変化や、平衡から遠い系 ── では、「温度」という量そのものが定義できなくなります。<em>温度は、平衡のための言葉</em>です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 何を仮定したか</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ボルツマン因子 \(P(E)\propto e^{-\beta E}\) が、熱浴の状態数の対数を 1 次展開することで導かれること；\(\beta=d\ln\Omega/dE=1/k_BT\)、すなわち \(1/T=\partial S/\partial E\)（\(S=k_B\ln\Omega\)）が温度の統計力学的定義であること；接触した二系の間で \(\beta\) が等しくなるのが熱平衡であること；二準位系の占有比 \(e^{-\Delta E/k_BT}\)；そして図の模型（区別できる \(N\) 個の箱に区別できない \(Q\) 個の量子を配る）の平衡分布が幾何分布 \(p(n)\propto\bigl(q/(1+q)\bigr)^n\) になること（\(N\to\infty\)）── いずれも標準的な統計力学です。</p>
+    <p style="margin-bottom:0;"><strong>仮定していること：</strong>① 展開を 1 次で切れるのは<strong>熱浴が注目系よりずっと大きい</strong>ときだけです。小さい熱浴では高次項が効き、指数分布からずれます（これが第4回のゆらぎの主題）。② 「ランダムに配れば必ず平衡へ行く」は、この模型では成り立ちますが、一般には<strong>エルゴード性</strong>という仮定です。実際、成り立たない系（可積分系、ガラス、多体局在）が存在します。③ 図の玉のやりとりは、実在の分子衝突を模したものではなく、<em>「保存則だけがある無作為な交換」から分布が決まる</em>ことを見せるための最小模型です。④ 温度は平衡（あるいは局所平衡）でのみ定義される量で、平衡から遠い系では「その系の温度」は一般に存在しません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（この回の考え方で解けます）</div>
+    <ol>
+      <li>お風呂とコップの水が同じ温度なのに、持っているエネルギーが違うのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">温度はエネルギーの<strong>総量</strong>ではなく、<strong>配り方の傾き</strong> \(\beta=d\ln\Omega/dE\) だから。お風呂は自由度が多いぶん総エネルギーは大きいが、「エネルギーを 1 足したときの状態数の増え方」は同じ。だから接触させても熱は流れない。</div></details>
+      </li>
+      <li>ボルツマン因子 \(e^{-E/k_BT}\) の指数関数は、どこから来たのか。
+        <details><summary>答えを見る</summary><div class="ans">熱浴の状態数の対数 \(\ln\Omega\) を、注目系のエネルギー \(E\) について<strong>1 次まで展開した</strong>ことから。指数に戻すと \(e^{-\beta E}\) になる。<em>指数関数は自然界の神秘ではなく、テイラー展開の 1 次項</em>。1 次で切れるのは熱浴が大きいから。</div></details>
+      </li>
+      <li>二つの系を接触させたとき、熱はどちら向きに流れるか。\(\beta\) の言葉で。
+        <details><summary>答えを見る</summary><div class="ans">\(\beta\) の<strong>大きい</strong>系（＝エネルギーをもらうと状態数が激増する系＝冷たい系）へ流れる。全体の場合の数が増える向きだから。そして \(\beta\) が揃ったところで止まる ── それが熱平衡の定義。</div></details>
+      </li>
+      <li>「温度は \(\pm\infty\) が壁になっている」ように見えるのはなぜ錯覚か。
+        <details><summary>答えを見る</summary><div class="ans">本体が \(\beta\) で、\(T=1/k_B\beta\) は<strong>その逆数</strong>だから。\(\beta\) にとって \(0\) はただの通過点で、そこを \(T\) で見ると \(+\infty\) に見えるだけ。\(\beta\) が負に抜ければ \(T\) は負になる（第5回）。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">第2回まとめ</span>温度は、場合の数の対数の傾き</h2>
+    <p>箱に玉をでたらめに配るだけで、<strong>指数分布がひとりでに立ち上がります</strong>。誰も指数関数を指定していないのに。種明かしは場合の数の勘定で、熱浴の \(\ln\Omega\) を 1 次展開すれば \(P(E)\propto e^{-\beta E}\) が出る ── <em>ボルツマン因子はテイラー展開の 1 次項</em>です。</p>
+    <p>そこで定義された <strong>\(\beta=d\ln\Omega/dE=1/k_BT\)</strong> こそが温度の本体。言葉にすると「<strong>エネルギーを 1 もらうと、場合の数が何倍になるか</strong>」で、姉妹編「わかる繰り込み」第1回の \(S=k_B\ln\Omega\) をエネルギーで微分したものにあたります。だから第1回の「温度＝エネルギーとビットの両替レート」は文字どおりでした。</p>
+    <p>そして \(\beta\) を主役にすると、無限大の温度は<em>ただの \(\beta=0\)</em> になり、負の温度もその向こう側として自然につながります。<strong>温度に壁があるように見えるのは、逆数で書いているせいの錯覚</strong>です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第3回「熱とは、追跡をやめた運動」</span>
+    配り方がわかったので、次は「配られた先」を見ます。エネルギーは自由度に \(\frac12 k_BT\) ずつ等しく配られる（等分配則）── ところがこの法則、<strong>低温では破れます</strong>。理由は量子性で、\(\hbar\omega>k_BT\) になった自由度は<em>凍りついて受け取らなくなる</em>。その結果、二原子分子の比熱は温度とともに<strong>階段状に</strong>上がっていきます。並進が動き、回転が目覚め、最後に振動が目覚める ── <em>温度計に量子力学が映っている</em>、という回です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる温度」シリーズ第2回、物理好きの高校生・大学生向け読み物です。ボルツマン因子が熱浴の状態数の対数の 1 次展開から導かれること、統計力学的な温度の定義 \(\beta=d\ln\Omega/dE=1/k_BT\)（等価に \(1/T=\partial S/\partial E\)、\(S=k_B\ln\Omega\)）、熱平衡が \(\beta\) の一致であること、二準位系の占有比、および図の模型（区別できる箱に区別できない量子を無作為交換で配る）の平衡分布が幾何分布になることは、いずれも標準的な統計力学です。1 次展開が成り立つのは熱浴が十分大きいときに限ること（小さい熱浴でのずれは第4回の主題）、無作為交換から平衡に至ることが一般にはエルゴード性の仮定であり成り立たない系（可積分系・ガラス・多体局在）が存在すること、図が実在の分子衝突の再現ではないこと、および温度が平衡（局所平衡）でのみ定義される量であることは、本文「正直な線」に明記しました。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。前後の回：<a href="wakaru-ondo-01-kb.html">第1回 温度は、物質の性質ではない</a>／<a href="wakaru-ondo-03-netsu.html">第3回 熱とは、追跡をやめた運動</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru-kurikomi/index.html">わかる繰り込み</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では玉のやりとりが動き続け、ヒストグラムが指数分布に落ち着きます。「全部を 1 箱に集める」でリセット、縦軸を対数にすると直線になります。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sq=document.getElementById('sq'), vq=document.getElementById('vq'),
+      rd=document.getElementById('rd'), lgBtn=document.getElementById('lg'), oneBtn=document.getElementById('one');
+  var logAxis=false;
+
+  var N=300;                 // 箱の数
+  var e=new Int32Array(N);   // 各箱の玉の数
+  var Q=900;                 // 玉の総数
+  var steps=0;
+
+  function setQ(q){
+    Q=Math.round(N*q);
+    var base=Math.floor(Q/N), rest=Q-base*N;
+    for(var i=0;i<N;i++) e[i]=base;
+    for(var j=0;j<rest;j++) e[j]+=1;
+    steps=0;
+  }
+  function allInOne(){
+    for(var i=0;i<N;i++) e[i]=0;
+    e[0]=Q; steps=0;
+  }
+  setQ(3);
+
+  function exchange(n){
+    for(var k=0;k<n;k++){
+      var i=(Math.random()*N)|0;
+      if(e[i]<=0) continue;
+      var j=(Math.random()*N)|0;
+      if(j===i) continue;
+      e[i]--; e[j]++;
+      steps++;
+    }
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var q=Q/N;
+    ctx.clearRect(0,0,w,h);
+
+    // ── 上：各箱の玉 ──
+    var L=48, R=w-16, T1=26, B1=h*0.36;
+    var emax=0; for(var i=0;i<N;i++) if(e[i]>emax) emax=e[i];
+    emax=Math.max(emax, Math.ceil(q*4));
+    ctx.strokeStyle='#d0aea3'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T1); ctx.lineTo(L,B1); ctx.lineTo(R,B1); ctx.stroke();
+    ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('300 個の箱と、その中の玉（エネルギー）', L, T1-9);
+    var bw=(R-L)/N;
+    for(var b=0;b<N;b++){
+      var hh=(B1-T1)*Math.min(e[b],emax)/emax;
+      ctx.fillStyle='rgba(168,58,34,.75)';
+      ctx.fillRect(L+b*bw, B1-hh, Math.max(bw-0.4,0.8), hh);
+    }
+
+    // ── 下：ヒストグラム ──
+    var T2=h*0.46, B2=h-40;
+    var NB=Math.max(12, Math.min(40, Math.ceil(q*5)));
+    var hist=new Float64Array(NB+1);
+    for(var c2=0;c2<N;c2++){ var v=e[c2]; if(v<=NB) hist[v]++; }
+    var pmax=0; for(var m=0;m<=NB;m++) pmax=Math.max(pmax,hist[m]/N);
+    pmax=Math.max(pmax,0.05);
+    var PMIN=0.5/N;
+    function X(n){ return L+(R-L)*n/(NB+1); }
+    function Y(p){
+      if(logAxis){
+        var v2=Math.max(p,PMIN*0.6);
+        return B2-(B2-T2)*(Math.log10(v2)-Math.log10(PMIN*0.6))/(Math.log10(pmax*1.3)-Math.log10(PMIN*0.6));
+      }
+      return B2-(B2-T2)*p/(pmax*1.1);
+    }
+    ctx.strokeStyle='#d0aea3'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T2); ctx.lineTo(L,B2); ctx.lineTo(R,B2); ctx.stroke();
+    ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('玉を n 個持つ箱の割合', L, T2-9);
+
+    var cw=(R-L)/(NB+1);
+    for(var n2=0;n2<=NB;n2++){
+      var p=hist[n2]/N; if(p<=0) continue;
+      var y=Y(p);
+      ctx.fillStyle='rgba(168,58,34,.55)';
+      ctx.fillRect(X(n2)+1, y, cw-2, B2-y);
+    }
+    // 理論の幾何分布
+    ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+    var x0=q/(1+q);
+    for(var n3=0;n3<=NB;n3++){
+      var pt=(1/(1+q))*Math.pow(x0,n3);
+      var xx=X(n3)+cw/2, yy=Y(pt);
+      if(n3===0)ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.fillStyle='#7a6560'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    for(var t=0;t<=NB;t+=Math.max(1,Math.round(NB/8))){ ctx.fillText(t, X(t)+cw/2, B2+14); }
+    ctx.fillText('n（1 箱が持つ玉の数＝エネルギー）', (L+R)/2, B2+30);
+
+    lgBtn.textContent = logAxis? '縦軸：対数' : '縦軸：線形';
+    vq.textContent = q.toFixed(1);
+
+    var beta=Math.log(1+1/q);
+    var msg = steps < N*3
+      ? '<b>まだ配り始めたところ</b> ── ヒストグラムが理論線（点線）に近づいていくのを見てください。'
+      : '<b>指数分布に落ち着きました</b>。誰も指数関数を指定していないのに、場合の数がいちばん多い形へ勝手に行き着きます。';
+    rd.innerHTML='平均エネルギー q = <b>'+q.toFixed(2)+'</b>（玉 '+Q+' 個／箱 '+N+' 個）、交換回数 '+steps.toLocaleString()+' 回。<br>'
+      +'この分布の傾き（＝この模型での β）＝ ln(1+1/q) = <b>'+beta.toFixed(3)+'</b>。'
+      +' q を大きくする＝温度を上げる＝<b>傾きがゆるくなる</b>。<br>'+msg;
+  }
+
+  function loop(){
+    exchange(1200);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  sq.addEventListener('input', function(){ setQ(parseInt(sq.value,10)/10); draw(); });
+  lgBtn.addEventListener('click', function(){ logAxis=!logAxis; draw(); });
+  oneBtn.addEventListener('click', function(){ allInOne(); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(function(){ draw(); loop(); },60);
+})();
+</script>
+</body>
+</html>
