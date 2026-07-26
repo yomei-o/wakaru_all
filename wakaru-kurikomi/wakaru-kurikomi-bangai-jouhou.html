@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>捨ててよい量を、定理で決める ── わかる繰り込み 番外編④</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbfcf5; --paper-edge:#e2e6cc;   /* 番外④：情報理論＝オリーブの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#4c5a1c; --calc-bg:#eef1e0;
+    --rule:#dbe0c4; --hair:#bcc59b;
+    --acc:#5c6b21;    /* アクセント＝情報理論のオリーブ */
+    --grid:#e9edda;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d5dfa8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d8dec0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfefa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#eef1e0;color:#44511a;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2f5e6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3e4a16;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefa,#eaefd8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eef1e0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3e4a16;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6a7052;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">番外編 ④ ／ 捨ててよい量を、定理で決める</span></div>
+  <p class="eyebrow">第1回で「どの変数を残すかは人間が選ぶ面がある」と書いた宿題を、情報理論で回収する</p>
+  <h1>捨ててよい量を、定理で決める
+    <span class="sub">「粗視化すると情報は減る」は<em>定理</em>（データ処理不等式）。<br>「どこまで潰してよいか」には<em>公式</em>がある（レート歪み理論）。<br>そしてこの回の芯 ── <strong>層があるとは、レート歪み曲線に〈膝〉があることだ</strong>。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回のエントロピー、第4回の relevant/irrelevant、log₂ とビット</span>
+    <span>この回の芯：層 ＝ R–D 曲線の膝</span>
+  </div>
+
+  <p class="lead">第1回の「正直な線」で、こう書きました ──「どの変数を残すかは物理法則が自動で決めてくれるわけではなく、問いに応じて人間が選ぶ面がある」。この番外編は、その宿題の回収です。じつは情報理論には、<strong>捨てることについての定理と公式が一式そろっています</strong>。「処理しても情報は増えない」は<em>データ処理不等式</em>という定理で、これが irrelevant が二度と戻らないことの情報版。「許容誤差を決めれば必要ビット数が決まる」は<em>レート歪み理論</em>で、番外編②で描いたあの曲線の正体。そして「問いを固定すれば最適な粗視化は一意」は<em>情報ボトルネック</em>。最後に、いちばん硬い証拠を置きます ── <strong>情報理論の不等式が、繰り込み群の定理を実際に証明してしまった</strong>という話です。</p>
+
+  <h2><span class="n">01</span>情報は、処理では増えない</h2>
+
+  <p>まず土台の定理から。\(X\)（ミクロ）を粗視化して \(Y\) を作り、それをさらに粗視化して \(Z\) を作る ── この鎖を \(X\to Y\to Z\) と書きます。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">データ処理不等式</div>
+    $$I(X;Z)\ \le\ I(X;Y)$$
+    <p style="margin:8px 0 0;">\(I\) は相互情報量（共有している情報の量）。<strong>加工したあとのものから、加工前より多くを知ることは絶対にできない</strong>。当たり前に見えますが、これは定理です。そして繰り込み群は粗視化の連鎖そのものなので、<em>ミクロについての情報はステップごとに単調に減る</em>ことが保証されます。第4回で「irrelevant 方向は縮んで消える」と言いましたが、その「二度と戻らない」を保証しているのがこの不等式です。</p>
+  </div>
+
+  <p>逆に言えば、<strong>粗視化に「うまい／へた」があるのは、減り方に差があるから</strong>です。同じだけビットを捨てても、答えに効く情報をどれだけ残せるかは選び方しだい。では最適な捨て方は何か ── ここから先が本題です。</p>
+
+  <h2><span class="n">02</span>どこまで潰してよいか ── レート歪み理論</h2>
+
+  <p>シャノンは、圧縮に二つの理論を作りました。ひとつは「1 ビットも失わない圧縮」（可逆圧縮）。もうひとつが、<strong>失うことを前提にした圧縮</strong>です。</p>
+
+  <div class="keybox">
+    <div class="lbl">レート歪み関数</div>
+    $$R(D)\;=\;\text{「誤差を }D\text{ 以下に抑えるために必要な最小ビット数」}$$
+    <p style="margin:8px 0 0;">許容誤差 \(D\) を決めると、必要なビット数 \(R\) の<strong>下限が原理的に決まる</strong>。これ以下では絶対に無理、という壁です。<em>番外編②で描いた「b ビットが何ステップの未来を買えるか」の曲線は、まさにこの \(R(D)\) でした</em>。</p>
+  </div>
+
+  <p>ガウス的な源については、\(R(D)\) が手で計算できます。分散 \(\sigma^2\) の成分がたくさんあるとき、答えは驚くほど直感的な形をしています ── <strong>水位を一本引く</strong>だけ。</p>
+
+  <div class="calc">
+    <span class="tag">逆注水法（reverse water-filling）── 捨てる基準は「水位」ひとつ</span>
+    <p style="margin:2px 0 0;">独立な成分の分散を \(\sigma_1^2,\sigma_2^2,\dots\) とする。ある水位 \(\theta\) を決めて：</p>
+    $$D=\sum_i \min(\theta,\sigma_i^2),\qquad R=\sum_i \max\!\left(0,\ \tfrac12\log_2\frac{\sigma_i^2}{\theta}\right)$$
+    <p style="margin-bottom:14px;">つまり ── <strong>水位より小さい成分（\(\sigma_i^2&lt;\theta\)）は<em>まるごと捨てる</em>（ビットを 1 つも割かない）。水位より大きい成分だけを、はみ出した分だけ記録する</strong>。<br>
+    第4回の言葉に翻訳すると、これは驚くほどそのままです ── <em>水位 \(\theta\) が relevant と irrelevant を分ける閾値</em>。繰り込み群では「スケールを変えると小さい成分が勝手に消える」でしたが、情報理論では「最適に圧縮すると小さい成分は勝手に捨てられる」。<strong>同じ操作を、物理側と情報側から書いている</strong>だけです。</p>
+  </div>
+
+  <h2><span class="n">03</span>この回の芯 ── 層があるとは、曲線に膝があること</h2>
+
+  <p>ここで、シリーズ全体でずっと曖昧にしてきた言葉に、はじめて定量的な意味を与えられます。<strong>「世界に層がある」とは、いったいどういう状態か。</strong></p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この番外編の芯</div>
+    <p style="margin:0 0 8px;">レート歪み曲線 \(R(D)\) を描いたとき ──</p>
+    <table class="tbl" style="margin:10px 0 6px;">
+      <tr><th></th><th>曲線の形</th><th>意味</th></tr>
+      <tr><td><strong>層のある世界</strong></td><td>急落したあと<strong>プラトー（膝）</strong>ができる</td><td>「ここまで潰せば十分」という<em>自然な停止点</em>が存在する ＝ 記述のレベルが決まる</td></tr>
+      <tr><td><strong>層のない世界</strong></td><td>なめらかで膝がない</td><td>どこで止めても同じだけ損をする ＝ <em>自然な記述レベルが存在しない</em></td></tr>
+    </table>
+    <p style="margin:8px 0 0;"><strong>膝の位置が、その世界の「階」の高さです。</strong> 温度と圧力で止まってよいのは、そこに膝があるから。膝がなければ、どこまで粗視化しても損が比例して増えるだけで、「この階で話が閉じる」ということが起きません。</p>
+  </div>
+
+  <h2><span class="n">04</span>動かしてみる ── 水位を下げて、膝を探す</h2>
+
+  <p>下の図の左は、源を構成する 16 個の成分の分散（棒）と<strong>水位 \(\theta\)</strong>（横線）。右がそのときのレート歪み曲線と、いまいる場所です。</p>
+
+  <p>スライダーで水位を上げ下げしてください。水位より下に沈んだ成分は<em>捨てられ</em>（灰色）、上に出ている成分だけにビットが割かれます。そしてボタンで源を切り替えると ──</p>
+
+  <ul>
+    <li><strong>層のある源</strong>（大きな成分が 3 つ＋小さいのが 13 個）：3 ビット少々で誤差が急落し、<em>そこから先はビットを足しても誤差が減らない</em>。曲線に<strong>はっきりした膝</strong>ができます。この膝が「マクロ変数は 3 つでよい」という意味です。</li>
+    <li><strong>構造のない源</strong>（16 個が全部同じ）：曲線はなめらかで膝がない。<em>どこで止めても割に合う／合わないの区別がつかない</em> ── 層が生まれない世界です。</li>
+  </ul>
+
+  <div class="fig">
+    <div class="cap">図：左＝源の 16 成分の分散（棒）と水位 θ。θ より下は「まるごと捨てる」（灰色）。右＝レート歪み曲線と現在位置。層のある源では曲線に膝ができ、構造のない源ではできない</div>
+    <canvas id="cv" width="680" height="310"></canvas>
+    <div class="controls">
+      <label>水位 θ（下げるほど細かく記録する） <span class="val" id="vt">0.30</span>
+        <input type="range" id="st" min="0" max="100" step="1" value="55">
+      </label>
+      <button id="src">源：層のある源</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#5c6b21;"></i>記録する成分（水位より上）</span>
+      <span><i class="swatch" style="background:#bcc59b;"></i>捨てる成分（水位より下）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>レート歪み曲線 R(D)</span>
+    </div>
+  </div>
+
+  <p>この図で、第4回・第6回の言葉が全部つながります ── <strong>水位より上＝relevant、下＝irrelevant、膝＝層、膝がない＝粗視化が破れている</strong>（第5回のカオスや乱流は、まさに膝のない世界です）。</p>
+
+  <h2><span class="n">05</span>問いを決めれば、粗視化は一意に決まる</h2>
+
+  <p>ただし、上の話には抜けがあります。「誤差」をどう測るか、まだ人間が決めています。<em>何のために圧縮するのか</em>を指定しないと、最適な捨て方は決まらない。</p>
+
+  <p>そこで、問い自体を式に入れてしまいます。</p>
+
+  <div class="keybox">
+    <div class="lbl">情報ボトルネック</div>
+    $$\min_{p(t|x)}\ \ \underbrace{I(X;T)}_{\text{どれだけ潰したか}}\ -\ \beta\,\underbrace{I(T;Y)}_{\text{知りたい }Y\text{ をどれだけ残せたか}}$$
+    <p style="margin:8px 0 0;">\(X\) が生データ、\(T\) が粗視化した表現、\(Y\) が<strong>知りたいこと</strong>。「\(Y\) についての情報は保ったまま、\(X\) を最大限つぶせ」という要求をそのまま最適化問題にしたものです（Tishby–Pereira–Bialek 1999）。\(\beta\) が「どれだけ欲張るか」のつまみ。</p>
+    <p style="margin:8px 0 0;"><strong>第1回の宿題への答えはこうなります ── 「どの変数を残すか」は人間の趣味では決まらない。〈何を知りたいか（\(Y\)）〉さえ指定すれば、あとは一意に決まる。</strong> 番外編②で挙げた「因果状態」は、\(Y=\)「未来」と置いた特別な場合です。</p>
+  </div>
+
+  <p>そして \(Y\) を何にするかは、物理では自然に決まります ── <em>マクロに測れる量、あるいは十分あとの未来</em>。だから温度と圧力が出てくる。<strong>粗視化は恣意的ではなく、問いを固定した瞬間に世界の側が決める</strong>。</p>
+
+  <h2><span class="n">06</span>情報の不等式が、繰り込み群の定理を証明した</h2>
+
+  <p>「情報理論と繰り込み群は似ている」ではなく、<strong>片方がもう片方を証明した</strong>という事例があります。この回でいちばん硬い話です。</p>
+
+  <div class="calc">
+    <span class="tag">c 定理 ── 繰り込みの流れには「下り坂」がある</span>
+    <p style="margin:2px 0 14px;">ザモロチコフは 1986 年、2 次元の場の理論について、<strong>繰り込み群の流れに沿って単調に減少する量 \(c\) が存在する</strong>ことを示しました（c 定理）。\(c\) はおおまかに「その理論が持つ自由度の数」。つまり <em>UV（細かい）から IR（粗い）へ流れると、自由度は必ず減る</em> ── 第4回の「捨てたものは戻らない」の、場の理論版の厳密形です。</p>
+  </div>
+
+  <p>ここからが本題です。カシーニとウエルタは 2004 年、この c 定理を <strong>まったく別のところから証明しました</strong> ── <em>エンタングルメント・エントロピーの「強劣加法性」</em>という、純粋に情報理論的な不等式から。さらに 3 次元の F 定理、そして 4 次元の a 定理についても、同じ路線での証明が与えられています。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">これが「絡んでいる」の最も硬い証拠</div>
+    <p style="margin:0;text-align:center;font-size:17px;">
+      <strong>情報理論の不等式（強劣加法性）</strong><br>↓<br><strong>繰り込み群の単調性定理（c 定理・F 定理・a 定理）</strong>
+    </p>
+    <p style="margin:12px 0 0;">「似ている」「対応がつく」ではありません。<em>情報についての不等式を出発点にして、物理の定理が導かれた</em>。データ処理不等式が「粗視化で情報は減る」を言うのと、c 定理が「繰り込みで自由度は減る」を言うのは、<strong>同じ一つの単調性</strong>だった ── そういう構図です。</p>
+  </div>
+
+  <h2><span class="n">07</span>そして、法則とは圧縮である</h2>
+
+  <p>最後に、番外編②の締めの一文に形式を与えておきます。</p>
+
+  <div class="calc">
+    <span class="tag">最小記述長（MDL）</span>
+    <p style="margin:2px 0 14px;">データを説明するとき、<strong>「モデルを書き下すのに要するビット数」＋「モデルからのずれを書くのに要するビット数」</strong>の合計を最小にするモデルを選べ、という原理（リサネン）。単純すぎるモデルは第2項が膨らみ、複雑すぎるモデルは第1項が膨らむ。オッカムの剃刀が、ビットの勘定になります。<br>
+    ケプラーの法則とは、火星の観測表という膨大な数字の列を「楕円」というごく短い記述に圧縮したもの ── <em>法則とは圧縮であり、圧縮できることと粗視化できることは同じ</em>。番外編②で「粗視化できない宇宙には法則が書けない」と書いたのは、この意味です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 定理の部分と、本シリーズの言い方の部分</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>データ処理不等式；レート歪み理論と、独立ガウス源＋二乗誤差に対する逆注水法の厳密解（シャノン、バーガー）；情報ボトルネック法の定式化（Tishby–Pereira–Bialek 1999）とその最適性条件；計算力学の因果状態が予測に対する最小十分表現であること；ザモロチコフの c 定理（1986）；カシーニ–ウエルタによるエンタングルメント・エントロピーの強劣加法性からの c 定理の証明（2004）および 3 次元 F 定理の証明（2012）、さらに 4 次元 a 定理の同路線の証明；最小記述長原理（リサネン）── いずれも確立した結果です。</p>
+    <p style="margin-bottom:0;"><strong>本シリーズの言い方であって定理ではないもの：</strong>① <strong>「層があるとは R–D 曲線に膝があること」は、この連載の定式化です。</strong>示唆的で有用だと思いますが、標準的な定義ではありません（「膝」に一意な数学的定義があるわけでもありません）。② 情報ボトルネックには既知の弱点があります ── 決定的な写像に対しては退化する、\(\beta\) の選び方が残る、深層学習への適用（Tishby らの「圧縮フェーズ」説）は再現性を巡って議論が続いている、など。「問いを決めれば一意」は、\(Y\) と誤差の測り方を固定したうえでの主張です。③ カシーニ–ウエルタの証明は場の理論の標準的仮定（ローレンツ不変性、ユニタリ性など）のもとでのものです。④ コルモゴロフ複雑性は計算不可能で、MDL はその実用的な代用です。⑤ 図は独立ガウス源という理想化で、実在の物理系のスペクトルではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>データ処理不等式は、繰り込み群の何を保証しているか。
+        <details><summary>答えを見る</summary><div class="ans">粗視化の連鎖に沿って<strong>ミクロについての情報が単調に減る</strong>こと ── つまり irrelevant 方向で捨てたものが二度と戻らないこと。第4回の「流れ」に向きがあることの情報論的な裏づけ。</div></details>
+      </li>
+      <li>逆注水法で「水位より小さい成分」はどう扱われるか。第4回の言葉では何にあたるか。
+        <details><summary>答えを見る</summary><div class="ans">ビットを 1 つも割かずに<strong>まるごと捨てる</strong>。第4回の <strong>irrelevant 演算子</strong>にあたり、水位 \(\theta\) が relevant と irrelevant を分ける閾値になっている。</div></details>
+      </li>
+      <li>「世界に層がある」を、レート歪み曲線の言葉で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(R(D)\) 曲線に<strong>膝（プラトー）</strong>があること。膝より先はビットを足しても誤差がほとんど減らないので、そこが「この階で止めてよい」という自然な停止点になる。膝がなければ自然な記述レベルが存在しない。</div></details>
+      </li>
+      <li>「どの変数を残すかは人間が選ぶ」（第1回）に、この回はどう答えたか。
+        <details><summary>答えを見る</summary><div class="ans">情報ボトルネック ── <strong>「何を知りたいか（\(Y\)）」さえ指定すれば、最適な粗視化 \(T\) は一意に定まる</strong>。人間に残された自由は問いの選択だけで、そのあとは世界が決める。因果状態は \(Y=\)未来 とした特別な場合。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編④まとめ</span>捨てることには、定理と公式がある</h2>
+    <p>「粗視化すると情報は減る」は<strong>データ処理不等式</strong>という定理で、irrelevant が二度と戻らないことを保証します。「どこまで潰してよいか」には<strong>レート歪み関数 \(R(D)\)</strong> という下限があり、独立ガウス源では<strong>逆注水法</strong>で厳密に解ける ── <em>水位 \(\theta\) より小さい成分はまるごと捨て、大きい成分だけ記録する</em>。この水位が、そのまま第4回の relevant / irrelevant の閾値です。</p>
+    <p>そしてこの回の芯 ── <strong>層があるとは、レート歪み曲線に膝があること</strong>。膝の位置が「この階で止めてよい」という自然な停止点で、膝のない世界（第5回のカオスや乱流）には自然な記述レベルが生まれません。第1回の宿題「どの変数を残すかは人間が選ぶ」には、<strong>情報ボトルネック</strong>が答えます ── 何を知りたいかを指定すれば、粗視化は一意。<em>人間に残された自由は問いの選択だけ</em>。</p>
+    <p>いちばん硬い証拠はこれです。<strong>カシーニとウエルタは、エンタングルメント・エントロピーの強劣加法性という純粋な情報不等式から、繰り込み群の c 定理を証明しました。</strong>「粗視化で情報は減る」と「繰り込みで自由度は減る」は、同じ一つの単調性だったのです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 番外編⑤「学習とは、粗視化に賭けることである」</span>
+    ここまでで、統計（番外③）と情報理論（番外④）が繰り込み群と同じものを見ていることがわかりました。最後は <strong>AI</strong> です。ニューラルネットの幅を無限大に飛ばすと<em>自由場の理論</em>になり、1/幅 が相互作用、深さ方向に<strong>本物の繰り込み群フロー</strong>が走る ── これは比喩ではなく計算できる話。一方で「深層学習＝繰り込み群」の一般命題には有力な反論があります。<strong>厳密／有望／比喩の 3 段に仕分けたうえで</strong>、最後にこう言います ──〈なぜ学習が可能なのか〉と〈なぜ宇宙が粗視化可能なのか〉は、同じ問いだ。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ番外編④、物理好きの高校生・大学生向け読み物です。データ処理不等式；レート歪み理論と独立ガウス源・二乗誤差に対する逆注水法の厳密解；情報ボトルネック法（Tishby–Pereira–Bialek 1999）；計算力学の因果状態が予測に対する最小十分表現であること；ザモロチコフの c 定理（1986）；カシーニ–ウエルタによるエンタングルメント・エントロピーの強劣加法性からの c 定理（2004）および F 定理（2012）の証明、ならびに同路線による 4 次元 a 定理の証明；リサネンの最小記述長原理は、いずれも確立した結果です。「層があるとは R–D 曲線に膝があること」という定式化が本連載の言い方であって標準的定義ではないこと、情報ボトルネックの既知の弱点（決定的写像での退化、\(\beta\) の選択、深層学習への適用をめぐる論争）、カシーニ–ウエルタの証明が場の理論の標準的仮定のもとでのものであること、コルモゴロフ複雑性が計算不可能で MDL がその代用であることは、本文「正直な線」に明記しました。図は独立ガウス源という理想化で、実在の物理系のスペクトルではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-kurikomi-bangai-clt.html">番外編③ 中心極限定理は、繰り込み群だった</a>／<a href="wakaru-kurikomi-bangai-gakushu.html">番外編⑤ 学習とは、粗視化に賭けることである</a>／<a href="wakaru-kurikomi-01-soshika.html">第1回</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで水位を動かすと、捨てる成分と必要ビット数が変わります。ボタンで源を切り替えると、膝があるかないかが比べられます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), vt=document.getElementById('vt'),
+      rd=document.getElementById('rd'), srcBtn=document.getElementById('src');
+  var layered=true;
+
+  var NC=16;
+  function spectrum(){
+    var v=[];
+    if(layered){
+      v=[3.0,2.2,1.5];
+      for(var i=3;i<NC;i++) v.push(0.015);
+    } else {
+      var total=3.0+2.2+1.5+0.015*13;
+      for(var j=0;j<NC;j++) v.push(total/NC);
+    }
+    return v;
+  }
+  function rd_at(theta,v){
+    var D=0,R=0,kept=0;
+    for(var i=0;i<v.length;i++){
+      D+=Math.min(theta,v[i]);
+      if(v[i]>theta){ R+=0.5*Math.log2(v[i]/theta); kept++; }
+    }
+    return {D:D,R:R,kept:kept};
+  }
+  function thetaFromSlider(s){
+    // s:0..100 → theta: 大きい(粗い) → 小さい(細かい) を対数で
+    var hi=3.2, lo=0.004;
+    return hi*Math.pow(lo/hi, s/100);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var v=spectrum();
+    var theta=thetaFromSlider(parseInt(st.value,10));
+    vt.textContent=theta.toFixed(3);
+    var cur=rd_at(theta,v);
+    var total=0; for(var i0=0;i0<v.length;i0++) total+=v[i0];
+    ctx.clearRect(0,0,w,h);
+
+    // ── 左：スペクトルと水位 ──
+    var L=44, R1=w*0.46, T=30, B=h-46;
+    var vmax=3.4;
+    function Yb(val){ return B-(B-T)*Math.min(val,vmax)/vmax; }
+    ctx.strokeStyle='#bcc59b'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R1,B); ctx.stroke();
+    ctx.fillStyle='#5c6b21'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('源の 16 成分の分散と、水位 θ', L, T-10);
+
+    var bw=(R1-L)/NC;
+    for(var i=0;i<NC;i++){
+      var above=v[i]>theta;
+      var x=L+i*bw+1.2, bwid=bw-2.4;
+      // 捨てられる部分（水位以下）
+      ctx.fillStyle='#cdd5ae';
+      ctx.fillRect(x, Yb(Math.min(v[i],theta)), bwid, B-Yb(Math.min(v[i],theta)));
+      if(above){
+        ctx.fillStyle='#5c6b21';
+        ctx.fillRect(x, Yb(v[i]), bwid, Yb(theta)-Yb(v[i]));
+      }
+      ctx.strokeStyle='#bcc59b'; ctx.lineWidth=0.8;
+      ctx.strokeRect(x, Yb(v[i]), bwid, B-Yb(v[i]));
+    }
+    // 水位線
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(L,Yb(theta)); ctx.lineTo(R1,Yb(theta)); ctx.stroke();
+    ctx.fillStyle='#a83a22'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('θ = '+theta.toFixed(3), L+4, Yb(theta)-5);
+    ctx.fillStyle='#6a7052'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('成分（大きい順）', (L+R1)/2, B+16);
+    ctx.fillText('水位より下は「まるごと捨てる」', (L+R1)/2, B+31);
+
+    // ── 右：R–D 曲線 ──
+    var L2=w*0.56, R2=w-16;
+    ctx.strokeStyle='#bcc59b'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L2,T); ctx.lineTo(L2,B); ctx.lineTo(R2,B); ctx.stroke();
+    ctx.fillStyle='#5c6b21'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('レート歪み曲線 R(D)', L2, T-10);
+
+    var Rmax=26;
+    function Xd(D){ return L2+(R2-L2)*Math.min(D,total)/total; }
+    function Yr(Rv){ return B-(B-T)*Math.min(Rv,Rmax)/Rmax; }
+
+    ctx.fillStyle='#6a7052'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('誤差 D（大きいほど雑）→', (L2+R2)/2, B+16);
+    ctx.save(); ctx.translate(L2-26,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('必要ビット数 R', 0, 0); ctx.restore();
+    ctx.textAlign='right'; ctx.fillText('0', L2-5, B+4);
+    ctx.fillText(Rmax+' bit', L2-5, Yr(Rmax)+4);
+
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+    var first=true;
+    for(var s=100;s>=0;s--){
+      var th=thetaFromSlider(s), pt=rd_at(th,v);
+      if(pt.R>Rmax) continue;
+      if(first){ ctx.moveTo(Xd(pt.D),Yr(pt.R)); first=false; } else ctx.lineTo(Xd(pt.D),Yr(pt.R));
+    }
+    ctx.stroke();
+
+    // 現在位置
+    ctx.fillStyle='#5c6b21';
+    ctx.beginPath(); ctx.arc(Xd(cur.D), Yr(Math.min(cur.R,Rmax)), 5, 0, 7); ctx.fill();
+    ctx.strokeStyle='#5c6b21'; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(Xd(cur.D),B); ctx.lineTo(Xd(cur.D),Yr(Math.min(cur.R,Rmax))); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 膝の目印（層のある源だけ）
+    if(layered){
+      var knee=rd_at(0.9,v);   // 大きい 3 成分だけ残した付近
+      ctx.strokeStyle='#4a4f6a'; ctx.lineWidth=1.2; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(Xd(knee.D),T); ctx.lineTo(Xd(knee.D),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#4a4f6a'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+      ctx.fillText('膝＝層', Xd(knee.D)+4, T+12);
+    }
+
+    srcBtn.textContent='源：'+(layered?'層のある源':'構造のない源');
+    var msg;
+    if(layered){
+      msg = (cur.kept<=3)
+        ? '大きい <b>'+cur.kept+' 成分</b>だけを記録。誤差はほぼ下げ止まり ── <b>ここが膝</b>。「マクロ変数はこれだけでよい」という自然な停止点です。'
+        : '水位を下げすぎました ── 小さい 13 成分にもビットを配り始めています。<b>誤差はほとんど減らないのに、ビットだけ急増</b>する領域（膝の向こう側）。';
+    } else {
+      msg = '構造のない源では、水位を下げるとビットも誤差もなめらかに交換されるだけ。<b>膝がない＝自然な停止点がない＝層が生まれない世界</b>です。';
+    }
+    rd.innerHTML='水位 θ = <b>'+theta.toFixed(3)+'</b> → 記録する成分 <b>'+cur.kept+' / 16</b>、'
+      +'必要ビット数 R = <b>'+cur.R.toFixed(2)+' bit</b>、誤差 D = <b>'+cur.D.toFixed(3)+'</b>（全分散 '+total.toFixed(2)+'）。<br>'+msg;
+  }
+
+  st.addEventListener('input', draw);
+  srcBtn.addEventListener('click', function(){ layered=!layered; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

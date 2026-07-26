@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学習とは、粗視化に賭けることである ── わかる繰り込み 番外編⑤</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f9fd; --paper-edge:#d6dcee;   /* 番外⑤：学習＝濃紺の紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#1d3566; --calc-bg:#e6eaf5;
+    --rule:#ccd4e8; --hair:#a8b4d4;
+    --acc:#23407a;    /* アクセント＝学習の濃紺 */
+    --grid:#e0e6f3;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c3cfe9 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ced6ea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#e6eaf5;color:#1d3566;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaeff8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1b2f57;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdff,#e5eaf6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6eaf5;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1b2f57;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6a80;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">番外編 ⑤（最終回） ／ 学習とは、粗視化に賭けることである</span></div>
+  <p class="eyebrow">なぜ学習が可能なのか ── その答えは、なぜ宇宙が粗視化可能なのか、と同じところにある</p>
+  <h1>学習とは、粗視化に賭けることである
+    <span class="sub">前提なしには何も学べない（ノーフリーランチ）。<br>だから学習が働いている以上、世界は<em>特別な種類の世界</em>のはずだ ── それが第4回の世界。<br>そして深層学習には、比喩ではなく<strong>本物の繰り込み群</strong>が走っている部分がある。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回の relevant/irrelevant、番外編④のレート歪みと膝、指数と対数</span>
+    <span>この回の芯：学習＝何を捨ててよいかを見つけること</span>
+  </div>
+
+  <p class="lead">番外編③で統計が、④で情報理論が、繰り込み群と同じものを見ていることを確かめました。最後は <strong>AI</strong> です。ここは「似ている」という話が氾濫している領域なので、この回はまず<em>確からしさで 3 段に仕分ける</em>ことから始めます ── <strong>厳密に成り立つもの／有望だが議論中のもの／比喩どまりのもの</strong>。1 段目には本物があります：ニューラルネットの幅を無限大に飛ばすと<em>自由場の理論</em>になり、1/幅 が相互作用として効き、深さ方向に<strong>繰り込み群フローが走る</strong>。これは詩ではなく計算です。そのうえで最後に、シリーズ全体の締めとして一つの主張を置きます ── <strong>〈なぜ学習が可能なのか〉と〈なぜ宇宙が粗視化可能なのか〉は、同じ問いだ。</strong></p>
+
+  <h2><span class="n">01</span>前提なしには、何も学べない</h2>
+
+  <p>機械学習には、身も蓋もない定理があります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">ノーフリーランチ定理（Wolpert 1996）</div>
+    <p style="margin:0;"><strong>「ありうるすべての目標関数」について平均をとると、どんな学習アルゴリズムも、でたらめに答えるのと同じ成績になる。</strong></p>
+    <p style="margin:10px 0 0;">つまり ── <em>普遍的に賢い学習器は存在しない</em>。うまくいく学習器があるとしたら、それは世界の側に何らかの<strong>偏り</strong>があり、その偏りに合った前提（帰納バイアス）を持っているからにほかなりません。</p>
+  </div>
+
+  <p>では、私たちの世界の偏りとは何か。<strong>第4回の答えがそのまま使えます</strong> ── この世界は層になっていて、答えに効く方向（relevant）はごく少数、効かない方向（irrelevant）が圧倒的多数。番外編④の言葉なら、<em>レート歪み曲線に膝がある</em>。学習が可能なのは、この偏りに賭けているからです。</p>
+
+  <h2><span class="n">02</span>学習の敵は、irrelevant 方向</h2>
+
+  <p>「捨てないと死ぬ」のは、比喩ではありません。特徴が \(D\) 個ある空間でデータを集めると、点どうしの距離は次元とともに意味を失っていきます（次元の呪い）。<em>そのうち 2 個しか答えに効いていなくても、残り \(D-2\) 個を律儀に見ている学習器は、その分だけ弱くなる</em>。</p>
+
+  <p>下の図で、二人の学習器を競わせます。同じデータ、同じアルゴリズム（近傍法）で、違いは一点だけ ── <strong>irrelevant な特徴を捨てるか、捨てないか</strong>。</p>
+
+  <div class="fig">
+    <div class="cap">図：答えは 2 個の特徴だけで決まるのに、全体では D 個の特徴がある。青＝関係する 2 個だけを見る学習器（粗視化する）、赤＝D 個ぜんぶを見る学習器（粗視化しない）。灰破線＝何も学ばずに平均を答えた場合。横軸は訓練データ数（対数）</div>
+    <canvas id="cv" width="680" height="310"></canvas>
+    <div class="controls">
+      <label>特徴の総数 D（うち答えに効くのは 2 個だけ） <span class="val" id="vd">12</span>
+        <input type="range" id="sd" min="2" max="32" step="1" value="12">
+      </label>
+      <button id="re">データを取り直す</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#23407a;"></i>粗視化する学習器（relevant な 2 個だけ）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>粗視化しない学習器（D 個すべて）</span>
+      <span><i class="swatch" style="background:#8a8f9c;"></i>学習しない場合</span>
+    </div>
+  </div>
+
+  <p>\(D\) を上げていってください。<strong>青（捨てる方）はほとんど影響を受けず、赤（捨てない方）はどんどん弱くなり、やがて「学習しない場合」に近づきます</strong>。同じデータ、同じアルゴリズムなのに、です。差を作っているのは<em>何を見ないと決めたか</em>だけ。</p>
+
+  <p>これが、この回のタイトルの意味です ── <strong>学習とは、何を捨ててよいかを見つけること</strong>。第4回で「捨てることが答えを決めている」と書きましたが、機械学習では文字どおり<em>性能を決めている</em>。</p>
+
+  <h2><span class="n">03</span>1 段目：ニューラルネットは、有効場の理論として書ける</h2>
+
+  <p>ここからは仕分けです。まず、<strong>比喩ではない</strong>ものから。</p>
+
+  <div class="calc">
+    <span class="tag">無限幅 ＝ 自由場、1/幅 ＝ 相互作用、深さ ＝ 繰り込み群フロー</span>
+    <p style="margin:2px 0 14px;">ニューラルネットの各層の幅（ニューロン数）を \(n\) とします。中心極限定理（番外編③！）により、<strong>\(n\to\infty\) では出力の分布がガウスになる</strong> ── 場の理論の言葉でいえば<em>自由場（相互作用のない理論）</em>です。そして有限の \(n\) では \(1/n\) の補正が入り、これが<strong>相互作用</strong>として振る舞う。さらに層を重ねること（深さ）が、パラメータを<strong>繰り込み群のように流す</strong>。<br>
+    この見方で摂動論を組み立てたのが Roberts–Yaida–Hanin『The Principles of Deep Learning Theory』(2022) です。<strong>「深層学習は繰り込み群に似ている」ではなく、「繰り込み群の道具を使って深層学習が実際に計算できる」</strong>── 順序が逆で、こちらは本物です。</p>
+  </div>
+
+  <p>面白いのは、その出発点が<strong>中心極限定理</strong>だという点です。番外編③で「CLT は繰り込み群のいちばん簡単な例」と書きましたが、その最も簡単な例が、いま最も複雑な計算機の理論の土台になっている。</p>
+
+  <h2><span class="n">04</span>1 段目：機械学習が、繰り込み変換を見つけてしまった</h2>
+
+  <p>もう一つ、比喩でない例。Koch-Janusz と Ringel（2018）は、こういうことをしました ── <strong>ブロックの中の情報と、その外側の情報との相互情報量が最大になるように、粗視化の仕方を機械学習で探させた</strong>。</p>
+
+  <p>すると、機械は<em>誰にも教わらずに</em> Ising 模型のブロックスピン変換（第4回でやったあれ）を見つけ出しました。これは番外編④の情報ボトルネックが、実際に道具として働いた例です ── <strong>「未来／外側を予測するのに役立つ情報だけ残せ」という指令だけで、繰り込み変換が出てくる</strong>。</p>
+
+  <div class="aside">
+    <span class="tag">この二つが意味すること</span>
+    <strong>物理 → AI</strong>（繰り込み群の道具で深層学習を解く）と、<strong>AI → 物理</strong>（機械学習に繰り込み変換を発見させる）が、両方向とも実際に動いている。<em>「絡んでいそう」ではなく、すでに道具として往復している</em>ということです。
+  </div>
+
+  <h2><span class="n">05</span>2 段目と 3 段目 ── 有望なもの、比喩どまりのもの</h2>
+
+  <p>一方で、この領域には「それっぽい話」も大量にあります。正直に仕分けます。</p>
+
+  <table class="tbl">
+    <tr><th>段</th><th>内容</th><th>現状</th></tr>
+    <tr><td style="color:#2f7d5a;"><strong>厳密</strong></td><td>無限幅＝ガウス過程、1/幅＝相互作用、深さ方向の流れ（Roberts–Yaida–Hanin）</td><td>計算できる。摂動論として機能している</td></tr>
+    <tr><td style="color:#2f7d5a;"><strong>厳密</strong></td><td>相互情報量最大化による繰り込み変換の発見（Koch-Janusz–Ringel 2018）</td><td>Ising のブロックスピンを再発見。道具として成立</td></tr>
+    <tr><td style="color:#2f7d5a;"><strong>厳密</strong></td><td>ウェーブレット・スキャタリング変換（Mallat）</td><td>多重スケールで、不変性と安定性が証明つき</td></tr>
+    <tr><td style="color:#b06a12;"><strong>有望・議論中</strong></td><td>拡散モデル ≒ 繰り込み群。ノイズを段階的に足す＝粗視化、それを逆に辿る＝生成。ノイズスケジュールがスケールに対応</td><td>厳密な対応づけが試みられている段階。魅力的だが未確定</td></tr>
+    <tr><td style="color:#b06a12;"><strong>有望・議論中</strong></td><td>ニューラルスケーリング則（損失がべき則で落ちる）を、データ多様体の次元やスペクトルから説明する試み</td><td>べき則は臨界現象の匂いがするが、説明は部分的成功どまり</td></tr>
+    <tr><td style="color:#a83a22;"><strong>比喩どまり</strong></td><td>「深層学習 ＝ 繰り込み群」という一般命題（Mehta–Schwab 2014 の対応の一般化）</td><td>特定の設定での対応であり、一般化には有力な反論あり</td></tr>
+    <tr><td style="color:#a83a22;"><strong>比喩どまり</strong></td><td>情報ボトルネックによる深層学習の説明（「圧縮フェーズ」説）</td><td>再現性を巡って批判があり、決着していない</td></tr>
+  </table>
+
+  <p>番外編②で「深層学習と繰り込み群の対応は示唆的類似であって定理ではない」と書いたのは、この <em>3 段目</em>のことです。<strong>1 段目だけは、堂々と書けます。</strong></p>
+
+  <h2><span class="n">06</span>そして、シリーズの締め</h2>
+
+  <p>ここまで来ると、最初の問いに別の角度から答えが出ます。</p>
+
+  <div class="keybox">
+    <div class="lbl">この番外編の芯</div>
+    <p style="margin:0 0 10px;">ノーフリーランチ定理により、<strong>学習が可能であること自体が、世界についての強い主張</strong>です。学習器が働いているなら、世界は「少数の relevant と大量の irrelevant に分かれている」種類の世界でなければならない。</p>
+    <p style="margin:0;text-align:center;font-size:17px;">
+      <strong>なぜ学習が可能なのか</strong><br>＝<br><strong>なぜ宇宙が粗視化可能なのか</strong>
+    </p>
+    <p style="margin:12px 0 0;">同じ問いです。だから逆に ── <em>学習が現に働いているという事実は、宇宙が粗視化可能であることの経験的な証拠</em>でもある。番外編②で「粗視化できない宇宙には観測者がいない」と書きましたが、こう言い換えられます：<strong>私たちが何かを学べているという事実そのものが、この宇宙に膝があることの証明になっている。</strong></p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 3 段の仕分けを、そのまま信頼度として読んでください</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>ノーフリーランチ定理（Wolpert 1996）；次元の呪い（高次元での近傍法の劣化）；無限幅極限でニューラルネットがガウス過程になること、および \(1/n\) 展開を摂動的な有効理論として扱えること（Roberts–Yaida–Hanin 2022 ほか）；相互情報量を用いた繰り込み変換の学習（Koch-Janusz & Ringel, Nature Physics 2018）；スキャタリング変換の不変性・安定性（Mallat）。</p>
+    <p style="margin-bottom:0;"><strong>限定・未確定：</strong>① 無限幅の対応が記述するのは特定の（いわゆる遅延／摂動的な）レジームであり、<em>特徴学習そのものを完全に説明するものではありません</em>。② 拡散モデルと繰り込み群の対応、スケーリング則の説明は活発だが未確定。③ Mehta–Schwab の対応の一般化と、情報ボトルネックによる深層学習の説明は、いずれも有力な反論があり決着していません。④ 「なぜ学習が可能か＝なぜ宇宙が粗視化可能か」は<strong>本連載の主張</strong>であって定理ではありません。ノーフリーランチ定理の実務上の含意にも議論があります（「すべての目標関数について一様に平均する」という前提の妥当性）。⑤ 図は近傍法という単純なアルゴリズムでの理想化された実演で、実在の学習器の性能を表すものではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>ノーフリーランチ定理は、世界について何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans">すべての目標関数について平均すれば全学習器は互角なので、<strong>うまくいく学習器がある＝世界に偏りがある</strong>ということ。学習の成功は、アルゴリズムの手柄であると同時に<em>世界が層になっていることの証拠</em>でもある。</div></details>
+      </li>
+      <li>図で、D を増やすと赤い曲線だけが悪化するのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">答えに効かない（irrelevant な）特徴も距離計算に入れているので、次元の呪いで「近い点」が意味を失うから。青は最初から irrelevant を捨てているので影響を受けない。<strong>差を作っているのは、何を見ないと決めたかだけ。</strong></div></details>
+      </li>
+      <li>「深層学習は繰り込み群である」と「繰り込み群の道具で深層学習が計算できる」の違いは。
+        <details><summary>答えを見る</summary><div class="ans">前者は一般命題で、有力な反論があり決着していない（3 段目）。後者は無限幅＝自由場、1/幅＝相互作用、深さ＝流れ、という具体的な摂動論として実際に機能している（1 段目）。<strong>主張の向きと範囲がまるで違う。</strong></div></details>
+      </li>
+      <li>「なぜ学習が可能か」と「なぜ宇宙が粗視化可能か」が同じ問いなのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">学習とは relevant を見つけて irrelevant を捨てることであり、それが成立するには世界が「少数の relevant ＋大量の irrelevant」に分かれていなければならない ── それが粗視化可能性そのもの。だから<strong>学習が現に働いているという事実は、宇宙に膝がある（番外編④）ことの経験的証拠</strong>になる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編⑤まとめ ／ わかる繰り込み・完</span>学習とは、この世界が層になっていることへの賭けである</h2>
+    <p>ノーフリーランチ定理により、<strong>普遍的に賢い学習器は存在しません</strong>。学習が働いているなら、それは世界の偏りに賭けているから ── そしてその偏りとは、第4回の「少数の relevant と大量の irrelevant」、番外編④の「レート歪み曲線の膝」です。図で見たとおり、同じデータ・同じアルゴリズムでも、<strong>irrelevant を捨てるかどうかだけで性能が決定的に変わる</strong>。<em>学習とは、何を捨ててよいかを見つけること</em>です。</p>
+    <p>AI との接続は 3 段に分かれます。<strong>厳密</strong>：無限幅＝自由場（出発点は中心極限定理！）、1/幅＝相互作用、深さ＝繰り込み群フロー。そして機械学習に相互情報量最大化をやらせると、Ising のブロックスピン変換を<em>自力で発見</em>する。<strong>有望だが未確定</strong>：拡散モデル ≒ 繰り込み群、スケーリング則＝臨界。<strong>比喩どまり</strong>：「深層学習＝繰り込み群」の一般命題、情報ボトルネックによる説明。物理→AI と AI→物理が、すでに道具として往復しています。</p>
+    <p>そしてシリーズの締め。<strong>〈なぜ学習が可能なのか〉と〈なぜ宇宙が粗視化可能なのか〉は同じ問いです。</strong> 番外編②では「粗視化できない宇宙には問う者がいない」と書きました。ここまで来ると、もう一歩言えます ── <em>私たちが現に何かを学べているという事実そのものが、この宇宙に膝があることの証拠になっている。</em> 中性子の 880 秒から始まった話は、ここで終わります。<strong>世界は捨てられるようにできていて、だから私たちがいる。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">わかる繰り込み・完結 ── 姉妹編へ</span>
+    「わかる繰り込み」は本編 7 話＋番外 5 話でこれにて完結です。ここから先は姉妹編へどうぞ ── <strong>「わかる学習論」</strong>（進化・学習・意識をひとつの勾配で読む／この回と直結）、<strong>「わかるブラックホール」</strong>（第7回のホログラフィーと第5回のスクランブリングの続き）、<strong>「わかる量子」</strong>（第2・3回の位相の本編）、<strong>「わかる相対論」</strong>（最終回が同じ構図）。全集の見取り図は<em>物理の立方体</em>（c・ℏ・G の 3 軸）にあります。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ番外編⑤（最終回）、物理好きの高校生・大学生向け読み物です。ノーフリーランチ定理（Wolpert 1996）、高次元における近傍法の劣化（次元の呪い）、無限幅極限におけるニューラルネットのガウス過程性と \(1/n\) 展開の有効理論的取り扱い（Roberts–Yaida–Hanin『The Principles of Deep Learning Theory』2022 ほか）、相互情報量最大化による繰り込み変換の学習（Koch-Janusz & Ringel, Nature Physics 2018）、およびスキャタリング変換の不変性・安定性（Mallat）は、いずれも確立した結果です。無限幅対応が特定のレジームの記述であり特徴学習を完全には説明しないこと、拡散モデルと繰り込み群の対応およびニューラルスケーリング則の説明が未確定であること、「深層学習＝繰り込み群」の一般命題と情報ボトルネックによる深層学習の説明に有力な反論があること、そして「なぜ学習が可能か＝なぜ宇宙が粗視化可能か」が本連載の主張であって定理ではないことは、本文「正直な線」および本文中の 3 段の仕分け表に明記しました。図は k 近傍法による理想化された実演で、実在の学習器の性能を表すものではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-kurikomi-bangai-jouhou.html">番外編④ 捨ててよい量を、定理で決める</a>／<a href="wakaru-kurikomi-bangai-kansokusha.html">番外編② 観測者とは粗視化装置である</a>／<a href="wakaru-kurikomi-04-fuhensei.html">第4回 出自を忘れる</a>／<a href="index.html">目次</a>／姉妹編 <a href="../wakaru_learn/index.html">わかる学習論</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで特徴の総数 D を変えると、粗視化しない学習器だけが崩れていきます。「データを取り直す」で乱数を再生成。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sd=document.getElementById('sd'), vd=document.getElementById('vd'),
+      rd=document.getElementById('rd'), reBtn=document.getElementById('re');
+
+  var NS=[10,20,40,80,160,320], NTEST=60, K=5, seed=42;
+
+  function mulberry32(a){
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  function target(x0,x1){ return Math.sin(2*Math.PI*x0)+Math.cos(2*Math.PI*x1); }
+
+  function makeSet(n,D,rnd){
+    var X=[], y=[];
+    for(var i=0;i<n;i++){
+      var row=[];
+      for(var d=0;d<D;d++) row.push(rnd());
+      X.push(row); y.push(target(row[0],row[1]));
+    }
+    return {X:X,y:y};
+  }
+  function knn(train,X,dims){
+    // dims: 使う特徴数（先頭 dims 個）。先頭 2 個が relevant
+    var out=[];
+    for(var t=0;t<X.length;t++){
+      var q=X[t], best=[], bestD=[];
+      for(var i=0;i<train.X.length;i++){
+        var s=0, r=train.X[i];
+        for(var d=0;d<dims;d++){ var e=q[d]-r[d]; s+=e*e; }
+        // K 個の最小を保持
+        if(best.length<K){ best.push(train.y[i]); bestD.push(s); }
+        else {
+          var wi=0, wv=bestD[0];
+          for(var j=1;j<K;j++) if(bestD[j]>wv){ wv=bestD[j]; wi=j; }
+          if(s<wv){ bestD[wi]=s; best[wi]=train.y[i]; }
+        }
+      }
+      var m=0; for(var b=0;b<best.length;b++) m+=best[b];
+      out.push(best.length? m/best.length : 0);
+    }
+    return out;
+  }
+  function rmse(a,b){
+    var s=0; for(var i=0;i<a.length;i++){ var e=a[i]-b[i]; s+=e*e; }
+    return Math.sqrt(s/a.length);
+  }
+
+  var cache=null;
+  function compute(){
+    var D=parseInt(sd.value,10);
+    var rnd=mulberry32(seed);
+    var test=makeSet(NTEST,D,rnd);
+    var coarse=[], full=[];
+    for(var k=0;k<NS.length;k++){
+      var tr=makeSet(NS[k],D,rnd);
+      coarse.push(rmse(knn(tr,test.X,2), test.y));
+      full.push(rmse(knn(tr,test.X,D), test.y));
+    }
+    var mean=0; for(var i=0;i<test.y.length;i++) mean+=test.y[i]; mean/=test.y.length;
+    var base=0; for(var j=0;j<test.y.length;j++){ var e=test.y[j]-mean; base+=e*e; }
+    base=Math.sqrt(base/test.y.length);
+    cache={D:D, coarse:coarse, full:full, base:base};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    vd.textContent=cache.D+' 個';
+    ctx.clearRect(0,0,w,h);
+
+    var L=58, R=w-16, T=24, B=h-42, EMAX=1.5;
+    function X(i){ return L+(R-L)*i/(NS.length-1); }
+    function Y(e){ return B-(B-T)*Math.min(e,EMAX)/EMAX; }
+
+    ctx.strokeStyle='#a8b4d4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#5f6a80'; ctx.textAlign='right';
+    for(var e=0;e<=EMAX+0.001;e+=0.5){
+      ctx.strokeStyle='#eaeef8'; ctx.beginPath(); ctx.moveTo(L,Y(e)); ctx.lineTo(R,Y(e)); ctx.stroke();
+      ctx.fillText(e.toFixed(1), L-6, Y(e)+4);
+    }
+    ctx.textAlign='center';
+    for(var i=0;i<NS.length;i++) ctx.fillText(NS[i], X(i), B+16);
+    ctx.fillText('訓練データ数（対数目盛り）', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(15,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('テスト誤差（RMSE）',0,0); ctx.restore();
+
+    // 学習しない場合
+    ctx.strokeStyle='#8a8f9c'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(cache.base)); ctx.lineTo(R,Y(cache.base)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#8a8f9c'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('学習しない（平均を答える）', L+6, Y(cache.base)-5);
+
+    function curve(arr,color){
+      ctx.strokeStyle=color; ctx.lineWidth=2.6; ctx.beginPath();
+      for(var i=0;i<arr.length;i++){ if(i===0)ctx.moveTo(X(i),Y(arr[i])); else ctx.lineTo(X(i),Y(arr[i])); }
+      ctx.stroke();
+      ctx.fillStyle=color;
+      for(var j=0;j<arr.length;j++){ ctx.beginPath(); ctx.arc(X(j),Y(arr[j]),3.5,0,7); ctx.fill(); }
+    }
+    curve(cache.full,'#a83a22');
+    curve(cache.coarse,'#23407a');
+
+    var last=NS.length-1;
+    var gain=cache.full[last]/Math.max(cache.coarse[last],1e-6);
+    rd.innerHTML='特徴 <b>'+cache.D+' 個</b>（うち答えに効くのは 2 個）、訓練データ '+NS[last]+' 個での誤差：'
+      +'粗視化する <b>'+cache.coarse[last].toFixed(3)+'</b> ／ 粗視化しない <b>'+cache.full[last].toFixed(3)+'</b>'
+      +'（学習しない場合は '+cache.base.toFixed(3)+'）。<br>'
+      +(cache.D<=3
+        ? 'irrelevant な特徴がまだ少ないので、二人にほとんど差がありません。D を上げてみてください。'
+        : '差は <b>'+gain.toFixed(2)+' 倍</b>。同じデータ・同じアルゴリズムで、違いは「<b>何を見ないと決めたか</b>」だけです。'
+          +(cache.full[last]>0.85*cache.base? ' 粗視化しない側は、もう<b>ほとんど学習できていません</b>。':''));
+  }
+
+  function refresh(){ compute(); draw(); }
+  sd.addEventListener('input', refresh);
+  reBtn.addEventListener('click', function(){ seed=Math.floor(Math.random()*1e9); refresh(); });
+  window.addEventListener('resize', draw);
+  refresh();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

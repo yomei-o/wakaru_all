@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The central limit theorem was a renormalization group ── Renormalization That Clicks, Bonus ③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf7fa; --paper-edge:#ecd7e2;   /* Bonus ③: statistics = plum paper */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#7a2952; --calc-bg:#f6e6ee;
+    --rule:#e6cfda; --hair:#d0a8bd;
+    --acc:#8a2f5e;    /* accent = the plum of statistics */
+    --grid:#f0dde6;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #eec6da 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd0de;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button.off{background:#d7bcca;color:#5c2340;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6e6ee;color:#6b2148;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8ecf2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f2143;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfe,#f2e0e9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6e6ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f2143;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#75606c;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Renormalization That Clicks</span><span class="ep">Bonus ③ / The central limit theorem was a renormalization group</span></div>
+  <p class="eyebrow">Episode 1's 1/√N and Episode 4's universality were two faces of one theorem ── statistics has been doing renormalization for a hundred years</p>
+  <h1>The central limit theorem was a renormalization group
+    <span class="sub">Treat "add them up and divide by \(\sqrt N\)" as a <em>transformation</em> and the Gaussian becomes its <strong>fixed point</strong>.<br>The central limit theorem is the claim that this fixed point is an attractor,<br>and skewness and kurtosis are <strong>irrelevant operators</strong>, dying off as \(N^{1-k/2}\).</span>
+  </h1>
+  <div class="byline">
+    <span>Tools you'll need: Episode 1's \(1/\sqrt N\), Episode 4's fixed points and relevant/irrelevant, mean and variance</span>
+    <span>The heart of this one: the \(k\)-th cumulant shrinks as \(N^{1-k/2}\)</span>
+  </div>
+
+  <p class="lead">Something occurred to me after finishing the main series: <strong>I wrote Episode 1's \(1/\sqrt N\) and Episode 4's universality as two separate stories</strong>. They are two faces of one theorem. Take "add up \(N\) independent variables and divide by \(\sqrt N\)" and regard it as a <em>transformation from distribution to distribution</em> ── it has <strong>exactly the same structure</strong> as Episode 4's block spins. Doing it twice equals doing it once for four (the composition rule); the Gaussian maps to itself (a <strong>fixed point</strong>); and the central limit theorem is the <strong>universality</strong> claim that everything flows there. Better still, the "quirks" of the original distribution ── skewness, kurtosis ── die off cleanly as \(N^{1-k/2}\): these are <strong>irrelevant operators</strong>. The whole renormalization group appears in a form a high-schooler can compute by hand.</p>
+
+  <h2><span class="n">01</span>"Add and divide," seen as a transformation</h2>
+
+  <p>Draw two independent samples from the same distribution (mean 0, variance 1), add them, divide by \(\sqrt2\).</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">A map from distributions to distributions</div>
+    $$Z=\frac{X_1+X_2}{\sqrt2}\qquad\Longrightarrow\qquad \mathcal{T}[p](z)=\sqrt2\,(p*p)(\sqrt2\,z)$$
+    <p style="margin:8px 0 0;">Here \(*\) is convolution (the operation that corresponds to adding). This \(\mathcal{T}\) is <strong>a map on the space of probability distributions</strong>. Episode 4 said "coarse-graining is a map from model to model" ── same shape. And the composition rule matches too: <em>applying \(\mathcal{T}\) twice equals adding four and dividing by two</em>.</p>
+  </div>
+
+  <p>Why divide by \(\sqrt2\)? Variance adds, so two samples give variance 2; dividing by \(\sqrt2\) brings it back to 1. <strong>That division is the same <em>rescaling</em> as shrinking the lattice in Episode 4.</strong> Coarse-graining always comes as a pair ── squash, then re-measure. The same is true here.</p>
+
+  <h2><span class="n">02</span>The Gaussian is a fixed point</h2>
+
+  <p>Feed the standard normal \(p(x)=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}\) into \(\mathcal{T}\). A Gaussian convolved with a Gaussian is Gaussian, with variances adding to 2; divide by \(\sqrt2\) and the variance returns to 1 ── <strong>exactly the distribution you started with</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">The fixed point equation</div>
+    $$\mathcal{T}[p^*]=p^*\qquad\Longleftarrow\qquad p^*=\text{the standard normal}$$
+    <p style="margin:8px 0 0;">Episode 4 defined a fixed point as "a model that maps to itself under coarse-graining." <strong>The Gaussian is a fixed point of this transformation.</strong> And the central limit theorem can be restated: <em>this fixed point is an attractor for a wide range of starting points</em>.</p>
+  </div>
+
+  <h2><span class="n">03</span>Skewness and kurtosis are irrelevant operators</h2>
+
+  <p>Here is the computable centrepiece. There are quantities called <strong>cumulants</strong> \(\kappa_k\) that measure a distribution's quirks (\(\kappa_1\) = mean, \(\kappa_2\) = variance, \(\kappa_3\) behind skewness, \(\kappa_4\) behind kurtosis). Cumulants have exactly one lovely property ── <em>they simply add when you add independent variables</em>.</p>
+
+  <div class="calc">
+    <span class="tag">The calculation ── how fast does a quirk die?</span>
+    <p style="margin:2px 0 0;">Adding \(N\) gives \(\kappa_k \to N\kappa_k\). Dividing by \(\sqrt N\) divides the \(k\)-th cumulant by \((\sqrt N)^k\):</p>
+    $$\kappa_k^{(N)}=\frac{N\kappa_k}{N^{k/2}}=\kappa_k\,N^{\,1-k/2}$$
+    <p style="margin:6px 0 0;">Tabulate it and the renormalization-group classification falls right out.</p>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>\(k\)</th><th>quantity</th><th class="num">\(N\) dependence</th><th>in RG language</th></tr>
+      <tr><td>1</td><td>mean</td><td class="num">\(N^{+1/2}\) (grows)</td><td style="color:#a83a22;"><strong>relevant</strong> (shift it and it diverges)</td></tr>
+      <tr><td>2</td><td>variance</td><td class="num">\(N^{0}\) (fixed)</td><td><strong>marginal</strong> (it sets the scale)</td></tr>
+      <tr><td>3</td><td>skewness</td><td class="num">\(N^{-1/2}\) (decays)</td><td style="color:#2f7d5a;"><strong>irrelevant</strong></td></tr>
+      <tr><td>4</td><td>kurtosis</td><td class="num">\(N^{-1}\) (decays)</td><td style="color:#2f7d5a;"><strong>irrelevant</strong></td></tr>
+      <tr><td>\(k\ge3\)</td><td>higher quirks</td><td class="num">\(N^{1-k/2}\)</td><td style="color:#2f7d5a;">even more <strong>irrelevant</strong></td></tr>
+    </table>
+    <p style="margin-bottom:14px;">Episode 4 said "relevant directions are few, irrelevant ones overwhelmingly many." <em>Here it is literally one relevant, one marginal, and all the rest irrelevant</em> ── with the decay rates derivable by hand. <strong>This is the simplest fully computable instance of the renormalization group.</strong></p>
+  </div>
+
+  <p>The information about "what shape the original distribution had" lives in \(\kappa_3,\kappa_4,\kappa_5,\dots\), and all of it dies as \(N^{1-k/2}\) ── so <strong>the origin is forgotten</strong>. The very phenomenon of Episode 4's water and magnet is happening with dice and coins.</p>
+
+  <h2><span class="n">04</span>Are there other fixed points? ── heavy tails change everything</h2>
+
+  <p>Everything so far quietly assumed <strong>the variance is finite</strong> (you can only divide by \(\sqrt N\) if variance is defined). What if it isn't?</p>
+
+  <p>The standard example is the Cauchy distribution \(p(x)=\frac{1}{\pi(1+x^2)}\). Its tail only falls as \(1/x^2\), so the variance integral diverges. And this distribution ── <strong>returns to itself if you add two and divide by \(2\), not by \(\sqrt2\)</strong>.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">There is more than one fixed point ── the stable family</div>
+    $$Z=\frac{X_1+\cdots+X_N}{N^{1/\alpha}}\qquad(0<\alpha\le2)$$
+    <p style="margin:8px 0 0;">Distributions that return to themselves under this scaling are called <strong>stable distributions</strong>, and they form a <em>family of fixed points</em> labelled by \(\alpha\) (the tail weight). \(\alpha=2\) is the Gaussian, \(\alpha=1\) the Cauchy. And what decides which fixed point you land on is <strong>only how the tail falls</strong> ── the shape near the middle is irrelevant, in every sense. In Episode 4's words:</p>
+    <p style="margin:10px 0 0;text-align:center;"><strong>stable distribution = fixed point, domain of attraction = universality class, tail exponent \(\alpha\) = the relevant parameter</strong></p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Starting distribution</th><th>Tail</th><th>Divide by</th><th>Flows to</th></tr>
+    <tr><td>uniform, binomial, exponential, … (anything with finite variance)</td><td>light</td><td>\(\sqrt N\)</td><td><strong>Gaussian</strong> (\(\alpha=2\))</td></tr>
+    <tr><td>Cauchy</td><td>\(1/x^{2}\)</td><td>\(N\)</td><td><strong>Cauchy</strong> (\(\alpha=1\))</td></tr>
+    <tr><td>Pareto type (tail index 1.5)</td><td>\(1/x^{2.5}\)</td><td>\(N^{2/3}\)</td><td>the \(\alpha=1.5\) stable law</td></tr>
+  </table>
+
+  <p>The Gaussian looks "obvious" only because most quantities around us have finite variance. <em>In heavy-tailed worlds ── earthquake magnitudes, city populations, financial crashes ── a different fixed point rules.</em> That is why "just take the average and relax" fails there.</p>
+
+  <h2><span class="n">05</span>Try it ── watch a distribution flow to a fixed point</h2>
+
+  <p>The figure below <strong>actually convolves and rescales</strong> the distribution you pick, over and over (computed in your browser). The slider is the number added, \(N=2^k\).</p>
+
+  <p>Pick uniform, coin or exponential and within a few steps they all lie on top of the Gaussian (grey dashed) ── <em>utterly different starting points, identical destination</em>. The coin flip (±1) is especially good: watch a Gaussian rise out of two spikes. And <strong>pick Cauchy and it never becomes Gaussian</strong>. The shape doesn't change from beginning to end ── it is already sitting on a different fixed point.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the density after adding N＝2ᵏ copies of the chosen distribution and dividing by N^(1/α) (convolution iterated in the browser). Grey dashed is the standard normal. Every finite-variance distribution flows to the Gaussian; Cauchy stays put on its own fixed point</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Number added, N <span class="val" id="vn">1</span>
+        <input type="range" id="sn" min="0" max="10" step="1" value="0">
+      </label>
+      <button id="b0">uniform</button>
+      <button id="b1" class="off">coin ±1</button>
+      <button id="b2" class="off">exponential</button>
+      <button id="b3" class="off">Cauchy</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#8a2f5e;"></i>current distribution</span>
+      <span><i class="swatch" style="background:#8a8f9c;"></i>standard normal (the Gaussian fixed point)</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">The central limit theorem breaks at a critical point</span>
+    The central limit theorem assumes <strong>independence</strong>. What if there are correlations? If the correlation length is finite, anything beyond it is effectively independent, so lumping them together still gives a Gaussian. But <em>at a critical point the correlation length diverges</em> (Episode 4). Then no "effectively independent chunk" can be formed and the theorem does not apply. <strong>That is why critical fluctuations are non-Gaussian and the exponents depart from mean-field values.</strong> Episode 4's \(\beta\approx0.326\) is not a simple number precisely because the CLT is broken there. Episode 1 (a world where the CLT works) and Episode 4 (a world where it breaks) join up here.
+  </div>
+
+  <h2><span class="n">06</span>Statistics has been coarse-graining for a hundred years</h2>
+
+  <p>One more correspondence the main series failed to use.</p>
+
+  <div class="calc">
+    <span class="tag">Sufficient statistics ── the 1922 version of "keep this and discard the rest"</span>
+    <p style="margin:2px 0 14px;">In 1922 Fisher introduced <strong>sufficient statistics</strong>. A function \(T(x)\) of the data is "sufficient" if, <em>once you know \(T\), the raw data carries no further information about the parameter</em>.<br>
+    That is exactly what Episode 1 did ── <strong>temperature and pressure are sufficient statistics for the microstate</strong>. Translated into statistical language, "throw it away and the answer doesn't change" becomes "reduce to a sufficient statistic."</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">Maximum entropy ── statistical mechanics can be derived as inference</span>
+    <p style="margin:2px 0 14px;">Jaynes (1957) argued: subject to the constraint that only the mean energy is known, choose the distribution that is <em>maximally ignorant about everything else</em> ── i.e. maximise entropy ── and <strong>the Gibbs distribution \(e^{-E/kT}\) comes out automatically</strong>.<br>
+    So statistical mechanics can be derived as <strong>a procedure of inference</strong>, adding no new physical law. When Episode 1 said "entropy = the amount of information discarded," that was not a metaphor but the central claim of this lineage. Sufficient statistics, maximum entropy and exponential families are three faces of one mathematical structure.</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line ── what is identical and what is not</span>
+    <p style="margin-top:0;"><strong>Established:</strong> that the central limit theorem can be formulated as convergence to a fixed point of a transformation on distribution space (the probabilistic view of the renormalization group, Jona-Lasinio 1975 and others); the cumulant scaling \(\kappa_k^{(N)}=\kappa_k N^{1-k/2}\) (elementary and exact); that stable distributions are the fixed points of \(N^{1/\alpha}\) scaling and that domains of attraction are determined by the tail exponent (the Gnedenko–Kolmogorov classification, rigorous); Fisher's sufficient statistics and the factorisation theorem; Jaynes' derivation of the Gibbs distribution from maximum entropy; and that at a critical point the diverging correlation length breaks the CLT's premise so fluctuations become non-Gaussian ── all established mathematics and physics.</p>
+    <p style="margin-bottom:0;"><strong>But do not over-identify:</strong> (1) The fixed points here correspond, in field-theory terms, to the <strong>Gaussian (free / mean-field) fixed point</strong>. <em>Interacting</em> fixed points like the Wilson–Fisher one ── the star of Episode 4, and where anomalous dimensions come from ── do not fit inside this simple CLT frame. The order matters: "the CLT is the simplest example of RG," not "RG is a restatement of the CLT." (2) The cumulant classification assumes the distribution is smooth enough that cumulants exist. (3) "Sufficient statistic = coarse-graining" is a correspondence once you fix the question (parameter estimation); change the question and what you should keep changes too (the general theory is Bonus ④).</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>Why divide by \(\sqrt N\)? What happens if you don't?
+        <details><summary>See the answer</summary><div class="ans">Variance adds for independent sums, so \(N\) terms give \(N\) times the variance; dividing by \(\sqrt N\) restores it to 1. Without dividing, the distribution simply spreads forever and never converges. <strong>This is the same rescaling as re-expanding the lattice after squashing it in Episode 4</strong> ── coarse-graining always needs "squash + re-measure."</div></details>
+      </li>
+      <li>By what factor does skewness (\(k=3\)) shrink when \(N\) grows a hundredfold?
+        <details><summary>See the answer</summary><div class="ans">\(N^{1-3/2}=N^{-1/2}\), so by \(\sqrt{100}=10\). Kurtosis (\(k=4\)) goes as \(N^{-1}\), so by 100. <strong>Higher-order quirks die faster</strong> ── the same structure as Episode 4's \((E/\Lambda)^{d-4}\).</div></details>
+      </li>
+      <li>Why is the Cauchy distribution "another fixed point"?
+        <details><summary>See the answer</summary><div class="ans">Because adding two and dividing by 2 (not \(\sqrt2\)) returns it to itself. Its tail falls as \(1/x^2\) and its variance is infinite, so the correct scaling exponent is \(\alpha=1\). Stable distributions form a <strong>family of fixed points</strong> labelled by \(\alpha\), and which one you flow to depends only on the tail exponent (= universality class).</div></details>
+      </li>
+      <li>Why aren't fluctuations Gaussian at a critical point?
+        <details><summary>See the answer</summary><div class="ans">The CLT presumes independence (or a finite correlation distance). At a critical point <strong>the correlation length diverges, so no "effectively independent chunk" exists</strong>, the premise fails, and you don't land on the Gaussian fixed point. Hence critical exponents deviate from the simple mean-field values.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Bonus ③ summary</span>Episodes 1 and 4 were joined at the back by one theorem</h2>
+    <p>Treat "add \(N\) independent variables and divide by \(\sqrt N\)" as a transformation on distribution space and the whole renormalization group appears ── <strong>the Gaussian is a fixed point</strong>, <strong>the central limit theorem is the claim that it attracts</strong>, and since the \(k\)-th cumulant scales as \(\kappa_k N^{1-k/2}\), <strong>the mean is relevant, the variance marginal, and skewness and everything above it irrelevant</strong>. Episode 4's classification, derivable by hand.</p>
+    <p>There is more than one fixed point. With infinite variance you divide by \(N^{1/\alpha}\) and a <strong>family of stable fixed points</strong> appears (\(\alpha=2\) Gaussian, \(\alpha=1\) Cauchy). What decides where you land is <em>only the fall-off of the tail</em> ── the middle of the distribution is irrelevant. That is a universality class. And when the correlation length diverges at a critical point, the CLT's premise breaks, which is exactly why non-trivial exponents like \(\beta\approx0.326\) appear. <strong>Episode 1 (where the CLT works) and Episode 4 (where it breaks) are joined by a single line.</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next time ── Bonus ④, "Deciding what you may discard, by theorem"</span>
+    Episode 1's "honest line" said: "which variables to keep has an element of human choice depending on the question." Now we settle that debt with <strong>information theory</strong>. "Coarse-graining loses information" is a theorem called the <em>data processing inequality</em>; "how far may you squash" has an answer in <em>rate–distortion theory</em>. And the centrepiece ── <strong>having layers means having a knee in the rate–distortion curve</strong>. Plus the story of how an information-theoretic inequality actually proved a renormalization-group theorem (the c-theorem).
+  </div>
+
+  <div class="foot">
+    This document is Bonus Episode ③ of the "Renormalization That Clicks" series, a reading piece for physics-loving high-schoolers and undergraduates. That the central limit theorem can be formulated as convergence to a fixed point of a transformation on distribution space (the probabilistic view of the renormalization group, Jona-Lasinio 1975 and others); the cumulant scaling \(\kappa_k^{(N)}=\kappa_kN^{1-k/2}\); that stable distributions are the fixed points of \(N^{1/\alpha}\) scaling with domains of attraction set by the tail exponent (the Gnedenko–Kolmogorov classification); Fisher's sufficient statistics and factorisation theorem (1922); Jaynes' derivation of the Gibbs distribution from maximum entropy (1957); and that the diverging correlation length at a critical point breaks the CLT's premise and makes fluctuations non-Gaussian ── all established mathematics and physics. That the fixed points appearing here correspond to the Gaussian (free / mean-field) fixed point of field theory and that interacting fixed points such as Wilson–Fisher lie outside this simple frame, and that "sufficient statistic = coarse-graining" holds once the question is fixed, are spelled out in the body's "honest line." The figure represents densities on a grid and iterates convolution and rescaling numerically, renormalising at each step to correct truncation loss from the finite window. ── To print, use your browser's "Print" and "Save as PDF" (in the print version the slider and answers are frozen and hidden). Related: <a href="wakaru-kurikomi-01-soshika.html">Episode 1</a> / <a href="wakaru-kurikomi-04-fuhensei.html">Episode 4</a> / <a href="wakaru-kurikomi-bangai-jouhou.html">Bonus ④</a> / <a href="index.html">Contents</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / make a PDF: ⌘+P (Ctrl+P on Windows). On screen, pick a starting distribution with the buttons and raise the number added with the slider to watch it flow to a fixed point. Only Cauchy fails to reach the Gaussian. "See the answer" opens each solution.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd');
+  var btns=[document.getElementById('b0'),document.getElementById('b1'),document.getElementById('b2'),document.getElementById('b3')];
+  var which=0, LEVELS=10;
+
+  var M=769, XMIN=-8, XMAX=8, DX=(XMAX-XMIN)/(M-1);   // M odd so x=0 sits exactly on grid point (M-1)/2
+  function xg(i){ return XMIN+i*DX; }
+
+  var DISTS=[
+    {name:'uniform', alpha:2, f:function(x){ var a=Math.sqrt(3); return (x>=-a&&x<=a)? 1/(2*a) : 0; }},
+    {name:'coin flip (±1)', alpha:2, f:function(x){
+        var s=2.2*DX;
+        return 0.5*Math.exp(-0.5*Math.pow((x-1)/s,2))/(s*Math.sqrt(2*Math.PI))
+             + 0.5*Math.exp(-0.5*Math.pow((x+1)/s,2))/(s*Math.sqrt(2*Math.PI)); }},
+    {name:'exponential (shifted to standard)', alpha:2, f:function(x){ return x>-1? Math.exp(-(x+1)) : 0; }},
+    {name:'Cauchy', alpha:1, f:function(x){ return 1/(Math.PI*(1+x*x)); }}
+  ];
+
+  var flow=[];
+
+  function normalize(p){
+    var s=0; for(var i=0;i<M;i++) s+=p[i];
+    s*=DX; if(s>0) for(var j=0;j<M;j++) p[j]/=s;
+    return p;
+  }
+  function convolveSelf(p){
+    var q=new Float64Array(M);
+    for(var i=0;i<M;i++){
+      var pi=p[i]; if(pi===0) continue;
+      var off=(M-1)>>1;                // z = x_i + x_j → index k = i + j − (M−1)/2
+      for(var j=0;j<M;j++){
+        var k=i+j-off;
+        if(k<0) continue; if(k>=M) break;
+        q[k]+=pi*p[j];
+      }
+    }
+    for(var t=0;t<M;t++) q[t]*=DX;
+    return q;
+  }
+  function rescale(q,s){
+    var out=new Float64Array(M);
+    for(var i=0;i<M;i++){
+      var z=xg(i), tx=s*z;
+      if(tx<=XMIN||tx>=XMAX) continue;
+      var u=(tx-XMIN)/DX, i0=Math.floor(u), fr=u-i0;
+      if(i0<0||i0+1>=M) continue;
+      out[i]=s*(q[i0]*(1-fr)+q[i0+1]*fr);
+    }
+    return out;
+  }
+  function build(){
+    var D=DISTS[which], s=Math.pow(2,1/D.alpha);
+    var p=new Float64Array(M);
+    for(var i=0;i<M;i++) p[i]=D.f(xg(i));
+    normalize(p);
+    flow=[p];
+    for(var k=1;k<=LEVELS;k++){
+      var q=convolveSelf(flow[k-1]);
+      var r=rescale(q,s);
+      normalize(r);
+      flow.push(r);
+    }
+  }
+
+  function moments(p){
+    var m1=0,m2=0,m3=0,m4=0;
+    for(var i=0;i<M;i++){ var x=xg(i), w=p[i]*DX; m1+=x*w; }
+    for(var j=0;j<M;j++){ var x2=xg(j)-m1, w2=p[j]*DX; m2+=x2*x2*w2; m3+=x2*x2*x2*w2; m4+=x2*x2*x2*x2*w2; }
+    var sd=Math.sqrt(Math.max(m2,1e-12));
+    return {mean:m1, sd:sd, skew:m3/(sd*sd*sd), exkurt:m4/(m2*m2)-3};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var k=parseInt(sn.value,10), N=Math.pow(2,k);
+    vn.textContent=N;
+    var p=flow[k], D=DISTS[which];
+    ctx.clearRect(0,0,w,h);
+
+    var L=52, R=w-16, T=20, B=h-40, VIEW=5;
+    function X(x){ return L+(R-L)*(x+VIEW)/(2*VIEW); }
+    var pmax=0.45;
+    for(var i=0;i<M;i++){ if(Math.abs(xg(i))<=VIEW) pmax=Math.max(pmax,p[i]); }
+    pmax=Math.min(pmax,0.9);
+    function Y(v){ return B-(B-T)*Math.min(v,pmax*1.02)/(pmax*1.05); }
+
+    ctx.strokeStyle='#d0a8bd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#75606c'; ctx.textAlign='center';
+    for(var t=-4;t<=4;t+=2){ ctx.fillText(t, X(t), B+16); }
+    ctx.fillText('standardised value', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(14,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('probability density',0,0); ctx.restore();
+
+    ctx.strokeStyle='#8a8f9c'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var g=0;g<=240;g++){
+      var xx=-VIEW+2*VIEW*g/240, gv=Math.exp(-0.5*xx*xx)/Math.sqrt(2*Math.PI);
+      if(g===0)ctx.moveTo(X(xx),Y(gv)); else ctx.lineTo(X(xx),Y(gv));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#8a2f5e'; ctx.lineWidth=2.6; ctx.beginPath();
+    var started=false;
+    for(var i2=0;i2<M;i2++){
+      var x=xg(i2); if(Math.abs(x)>VIEW) continue;
+      if(!started){ ctx.moveTo(X(x),Y(p[i2])); started=true; } else ctx.lineTo(X(x),Y(p[i2]));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#8a2f5e'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('start: '+D.name+'  /  N = '+N+' added, divided by N^(1/'+D.alpha+')', L+6, T+14);
+
+    for(var b=0;b<btns.length;b++) btns[b].className = (b===which)? '' : 'off';
+
+    var msg;
+    if(D.alpha===2){
+      var mm=moments(p);
+      var thS=Math.pow(N,-0.5), thK=Math.pow(N,-1);
+      msg='skewness <b>'+mm.skew.toFixed(4)+'</b> (theory decays as N^(−1/2) = '+thS.toFixed(4)+'), '
+        +'excess kurtosis <b>'+mm.exkurt.toFixed(4)+'</b> (theory N^(−1) = '+thK.toFixed(4)+').<br>'
+        +(N>=64? '<b>Essentially on top of the Gaussian now</b> ── every trace of origin (skewness, kurtosis) has died as an irrelevant operator.'
+               : 'Raise N and the quirks (skewness, kurtosis) vanish as N^(1−k/2).');
+    } else {
+      msg='The Cauchy distribution has infinite variance, so the correct divisor is \\(N^{1/1}=N\\). '
+        +'<b>The shape does not change at all</b> ── it is already sitting on its own fixed point. '
+        +'It never approaches the Gaussian (grey dashed): <b>a different universality class</b>.';
+    }
+    rd.innerHTML=msg;
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([rd]);
+  }
+
+  function pick(i){ which=i; build(); draw(); }
+  for(var b=0;b<btns.length;b++){
+    (function(idx){ btns[idx].addEventListener('click', function(){ pick(idx); }); })(b);
+  }
+  sn.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  build();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

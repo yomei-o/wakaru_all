@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中心極限定理は、繰り込み群だった ── わかる繰り込み 番外編③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf7fa; --paper-edge:#ecd7e2;   /* 番外③：統計＝プラムの紙 */
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#7a2952; --calc-bg:#f6e6ee;
+    --rule:#e6cfda; --hair:#d0a8bd;
+    --acc:#8a2f5e;    /* アクセント＝統計のプラム */
+    --grid:#f0dde6;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #eec6da 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd0de;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button.off{background:#d7bcca;color:#5c2340;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;background:#f6e6ee;color:#6b2148;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8ecf2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5f2143;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfe,#f2e0e9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f6e6ee;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5f2143;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#75606c;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる繰り込み</span><span class="ep">番外編 ③ ／ 中心極限定理は、繰り込み群だった</span></div>
+  <p class="eyebrow">第1回の 1/√N と第4回の普遍性は、じつは同じ定理の別の顔だった ── 統計学は 100 年前から繰り込み群をやっていた</p>
+  <h1>中心極限定理は、繰り込み群だった
+    <span class="sub">「足して \(\sqrt{N}\) で割る」を<em>変換</em>とみなすと、ガウス分布はその<strong>固定点</strong>になる。<br>中心極限定理とは「その固定点がアトラクタである」という主張であり、<br>歪度も尖度も、\(N^{1-k/2}\) で死んでいく <strong>irrelevant 演算子</strong>そのものだ。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回の \(1/\sqrt{N}\)、第4回の固定点と relevant/irrelevant、平均と分散</span>
+    <span>この回の芯：第 \(k\) 累積量は \(N^{1-k/2}\) で縮む</span>
+  </div>
+
+  <p class="lead">本編を書き終えてから気づいたことがあります。<strong>第1回の \(1/\sqrt{N}\) と第4回の普遍性を、私は別々の話として書いてしまった</strong>。ところがこの二つは、同じ一つの定理の別の顔です。「独立な確率変数をたくさん足して \(\sqrt{N}\) で割る」という操作を、<em>分布から分布への変換</em>とみなしてみてください ── これは第4回のブロックスピンと<strong>まったく同じ構造</strong>を持っています。2回やるのは 1 回で 4 個ぶんやるのと同じ（合成則）、ガウス分布は自分自身に戻る（<strong>固定点</strong>）、そして中心極限定理は「どんな分布から出発してもそこへ流れ着く」という<strong>普遍性</strong>の主張。さらに、歪度や尖度といった「元の分布の癖」は \(N^{1-k/2}\) できれいに死んでいく ── これが <strong>irrelevant 演算子</strong>です。高校生でも計算できる形で、繰り込み群がまるごと出てきます。</p>
+
+  <h2><span class="n">01</span>「足して割る」を、変換とみなす</h2>
+
+  <p>平均 0・分散 1 の同じ分布から、独立に 2 個引いて足し、\(\sqrt2\) で割ります。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">分布から分布への変換</div>
+    $$Z=\frac{X_1+X_2}{\sqrt2}\qquad\Longrightarrow\qquad \mathcal{T}[p](z)=\sqrt2\,(p*p)(\sqrt2\,z)$$
+    <p style="margin:8px 0 0;">\(*\) は畳み込み（足し算に対応する演算）。この \(\mathcal{T}\) は<strong>確率分布の空間の上を動く写像</strong>です。第4回で「粗視化は模型 → 模型の写像だ」と言いましたが、まったく同じ形をしている。しかも合成則も同じ ── <em>\(\mathcal{T}\) を 2 回やるのは、4 個を足して 2 で割るのと同じ</em>。</p>
+  </div>
+
+  <p>なぜ \(\sqrt2\) で割るのか。分散は足し算で加算されるので、2 個足すと分散は 2 倍。それを \(\sqrt2\) で割ると分散が 1 に戻ります。<strong>この「割る」が、第4回で格子を縮めたのと同じ〈スケール変換〉</strong>です。粗視化するときは必ず「潰す」と「拡大し直す」がセットになる ── ここでもそうなっています。</p>
+
+  <h2><span class="n">02</span>ガウス分布は、固定点</h2>
+
+  <p>標準正規分布 \(p(x)=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}\) を \(\mathcal{T}\) に入れてみます。ガウス同士の畳み込みはガウスで、分散は足されて 2。それを \(\sqrt2\) で割ると分散 1 に戻る ── つまり<strong>元とまったく同じ分布</strong>。</p>
+
+  <div class="keybox">
+    <div class="lbl">固定点の方程式</div>
+    $$\mathcal{T}[p^*]=p^*\qquad\Longleftarrow\qquad p^*=\text{標準正規分布}$$
+    <p style="margin:8px 0 0;">第4回で「粗視化しても自分自身に戻る模型＝固定点」と書きました。<strong>ガウス分布は、この変換の固定点です</strong>。そして中心極限定理は、こう言い換えられます ── <em>この固定点は、広い範囲の出発点を吸い寄せるアトラクタである</em>。</p>
+  </div>
+
+  <h2><span class="n">03</span>歪度と尖度は、irrelevant 演算子</h2>
+
+  <p>ここが計算できる山場です。分布の「癖」を測る量として、<strong>累積量</strong> \(\kappa_k\) というものがあります（\(\kappa_1\)＝平均、\(\kappa_2\)＝分散、\(\kappa_3\)＝歪みの元、\(\kappa_4\)＝尖りの元）。累積量には、うれしい性質が一つだけあります ── <em>独立なものを足すと、そのまま足し算になる</em>。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 癖はどの速さで消えるか</span>
+    <p style="margin:2px 0 0;">\(N\) 個足すと \(\kappa_k \to N\kappa_k\)。それを \(\sqrt N\) で割ると、\(k\) 次の累積量は \((\sqrt N)^k\) で割られるので：</p>
+    $$\kappa_k^{(N)}=\frac{N\kappa_k}{N^{k/2}}=\kappa_k\,N^{\,1-k/2}$$
+    <p style="margin:6px 0 0;">これを表にすると、繰り込み群の分類がそのまま出ます。</p>
+    <table class="tbl" style="margin:12px 0 4px;">
+      <tr><th>\(k\)</th><th>量</th><th class="num">\(N\) 依存性</th><th>繰り込み群の言葉で</th></tr>
+      <tr><td>1</td><td>平均</td><td class="num">\(N^{+1/2}\)（増大）</td><td style="color:#a83a22;"><strong>relevant</strong>（ずらすと発散する）</td></tr>
+      <tr><td>2</td><td>分散</td><td class="num">\(N^{0}\)（不変）</td><td><strong>marginal</strong>（スケールを決める）</td></tr>
+      <tr><td>3</td><td>歪度</td><td class="num">\(N^{-1/2}\)（減衰）</td><td style="color:#2f7d5a;"><strong>irrelevant</strong></td></tr>
+      <tr><td>4</td><td>尖度</td><td class="num">\(N^{-1}\)（減衰）</td><td style="color:#2f7d5a;"><strong>irrelevant</strong></td></tr>
+      <tr><td>\(k\ge3\)</td><td>それ以上の癖</td><td class="num">\(N^{1-k/2}\)</td><td style="color:#2f7d5a;">より速く <strong>irrelevant</strong></td></tr>
+    </table>
+    <p style="margin-bottom:14px;">第4回では「relevant は少数、irrelevant は圧倒的多数」と書きました。<em>ここでは文字どおり、relevant が 1 個、marginal が 1 個、残り全部が irrelevant</em>。しかも減衰の速さまで手で出せる。<strong>これが繰り込み群の、いちばん簡単で完全に計算できる実例です。</strong></p>
+  </div>
+
+  <p>「元の分布がどんな形だったか」という情報は、\(\kappa_3,\kappa_4,\kappa_5,\dots\) に入っています。それが全部 \(N^{1-k/2}\) で死ぬ ── だから<strong>出自が忘れられる</strong>。第4回の水と磁石とまったく同じ現象が、サイコロと硬貨で起きています。</p>
+
+  <h2><span class="n">04</span>では、ほかの固定点は? ── 裾が重いと話が変わる</h2>
+
+  <p>ここまでの議論は、こっそり<strong>「分散が有限である」</strong>を使っていました（\(\sqrt N\) で割れるのは分散が定義できるから）。では分散が無限な分布ではどうなるか。</p>
+
+  <p>代表がコーシー分布 \(p(x)=\frac{1}{\pi(1+x^2)}\) です。裾が \(1/x^2\) でしか落ちないので、分散の積分が発散します。この分布は ── <strong>2 個足して \(\sqrt2\) ではなく \(2\) で割ると、自分自身に戻ります</strong>。</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">固定点は一つではない ── 安定分布の族</div>
+    $$Z=\frac{X_1+\cdots+X_N}{N^{1/\alpha}}\qquad(0<\alpha\le2)$$
+    <p style="margin:8px 0 0;">この割り方で自分に戻る分布を<strong>安定分布</strong>といい、\(\alpha\)（裾の重さ）でラベルされる<em>固定点の族</em>をなします。\(\alpha=2\) がガウス、\(\alpha=1\) がコーシー。そして「どの固定点に流れ着くか」を決めるのは、<strong>裾の落ち方だけ</strong> ── 分布の真ん中の形はいっさい関係ありません。第4回の言葉でいえば：</p>
+    <p style="margin:10px 0 0;text-align:center;"><strong>安定分布 ＝ 固定点、吸引域 ＝ 普遍クラス、裾指数 \(\alpha\) ＝ relevant なパラメータ</strong></p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>出発する分布</th><th>裾</th><th>割る量</th><th>流れ着く先</th></tr>
+    <tr><td>一様、二項、指数、…（分散が有限なものすべて）</td><td>軽い</td><td>\(\sqrt N\)</td><td><strong>ガウス</strong>（\(\alpha=2\)）</td></tr>
+    <tr><td>コーシー</td><td>\(1/x^{2}\)</td><td>\(N\)</td><td><strong>コーシー</strong>（\(\alpha=1\)）</td></tr>
+    <tr><td>パレート型（裾指数 1.5）</td><td>\(1/x^{2.5}\)</td><td>\(N^{2/3}\)</td><td>\(\alpha=1.5\) の安定分布</td></tr>
+  </table>
+
+  <p>ガウスが「あたりまえ」に見えるのは、私たちのまわりの量がたいてい分散有限だからにすぎません。<em>裾が重い世界（地震の規模、都市の人口、金融の暴落）では、別の固定点が支配します</em>。「平均を取れば安心」が通じないのはこのためです。</p>
+
+  <h2><span class="n">05</span>動かしてみる ── 分布が固定点へ流れる</h2>
+
+  <p>下の図は、選んだ分布を<strong>実際に何度も畳み込んで割った</strong>ものです（ブラウザ内で数値計算しています）。スライダーは足した個数 \(N=2^k\)。</p>
+
+  <p>一様・コイン・指数を選ぶと、どれも数ステップでガウス（灰色の破線）に重なります ── <em>出発点がまるで違うのに、行き先は同じ</em>。とくに「コイン投げ（±1）」は、2 本の棒からガウスが立ち上がる様子が見事です。そして<strong>コーシーを選ぶと、いつまでもガウスになりません</strong>。最初から最後まで形が変わらない ── 別の固定点にすでに座っているからです。</p>
+
+  <div class="fig">
+    <div class="cap">図：選んだ分布を N＝2ᵏ 個足して N^(1/α) で割った密度（ブラウザ内で畳み込みを反復）。灰色破線は標準正規分布。分散が有限な分布はどれもガウスへ流れ、コーシーは形を変えずに自分の固定点に留まる</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>足した個数 N <span class="val" id="vn">1</span>
+        <input type="range" id="sn" min="0" max="10" step="1" value="0">
+      </label>
+      <button id="b0">一様</button>
+      <button id="b1" class="off">コイン ±1</button>
+      <button id="b2" class="off">指数</button>
+      <button id="b3" class="off">コーシー</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#8a2f5e;"></i>いまの分布</span>
+      <span><i class="swatch" style="background:#8a8f9c;"></i>標準正規分布（ガウス固定点）</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">臨界点で中心極限定理が破れる、という話</span>
+    中心極限定理には「<strong>独立</strong>である」という前提があります。では相関があったら? ── 相関距離が有限なら、それより遠いものは実質独立なので、まとめて足せばやはりガウスに落ちます。ところが<em>臨界点では相関長が発散する</em>（第4回）。すると「実質独立なかたまり」が作れず、中心極限定理が効かない。<strong>だから臨界点のゆらぎはガウスにならず、平均場から外れた臨界指数が出る</strong>。第4回の \(\beta\approx0.326\) が単純な値にならない理由は、まさに「ここで CLT が壊れているから」です。第1回（CLT が効く世界）と第4回（CLT が壊れる世界）は、こうして一本につながります。
+  </div>
+
+  <h2><span class="n">06</span>統計学は、100 年前から粗視化をやっていた</h2>
+
+  <p>もう一つ、本編で使いそこねた対応があります。</p>
+
+  <div class="calc">
+    <span class="tag">十分統計量 ── 「これさえ残せば捨ててよい」の 1922 年版</span>
+    <p style="margin:2px 0 14px;">フィッシャーは 1922 年、<strong>十分統計量</strong>という概念を導入しました。データ \(x_1,\dots,x_n\) から作った関数 \(T(x)\) が「十分」とは、<em>\(T\) を知ったあとでは、元データはパラメータについて何も追加情報を持たない</em>こと。<br>
+    第1回でやったのは、まさにこれです ── <strong>温度と圧力は、ミクロ配置に対する十分統計量</strong>。「捨てても答えが変わらない」を統計学の言葉に翻訳すると「十分統計量に縮約した」になります。</p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">最大エントロピー ── 統計力学は推論として導出できる</span>
+    <p style="margin:2px 0 14px;">ジェインズ（1957）は、こう論じました。「エネルギーの平均だけがわかっている」という制約のもとで、<em>それ以外については最も無知な</em>分布を選ぶ ── つまりエントロピーを最大化する ── と、<strong>ギブス分布 \(e^{-E/kT}\) が自動的に出てくる</strong>。<br>
+    つまり統計力学は、新しい物理法則を足さずに<strong>推論の手続きとして導ける</strong>。第1回で「エントロピー＝捨てた情報の量」と書いたのは比喩ではなく、この系譜のど真ん中の主張です。十分統計量・最大エントロピー・指数型分布族は、数学的には同じ構造の三つの顔です。</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまでが同一で、どこからが別物か</span>
+    <p style="margin-top:0;"><strong>確立していること：</strong>中心極限定理を「分布空間上の変換の固定点への収束」として定式化できること（Jona-Lasinio 1975 ほか、確率論から見た繰り込み群）；累積量が \(\kappa_k^{(N)}=\kappa_k N^{1-k/2}\) でスケールすること（初等的に厳密）；安定分布が \(N^{1/\alpha}\) スケーリングの固定点をなし、吸引域が裾指数で決まること（Gnedenko–Kolmogorov の分類、厳密）；フィッシャーの十分統計量と分解定理；ジェインズの最大エントロピー原理によるギブス分布の導出；そして臨界点では相関長発散のため中心極限定理の前提が崩れ、ゆらぎが非ガウスになること。いずれも確立した数学・物理です。</p>
+    <p style="margin-bottom:0;"><strong>ただし同一視しすぎないこと：</strong>① ここで見た固定点は、場の理論でいえば<strong>ガウス固定点（自由場・平均場）</strong>に対応します。第4回の主役だった <em>Wilson–Fisher 固定点</em>のような<strong>相互作用のある固定点</strong>は、この単純な CLT の枠には入りません（異常次元が出るのはそちら側）。「CLT は RG の最も簡単な例」であって「RG は CLT の言い換え」ではない、という順序が大事です。② 累積量による分類は、分布がなめらかで累積量が存在する場合の話です。③ 「十分統計量＝粗視化」は、パラメータ推定という問いを固定したときの対応であり、問いを変えれば残すべき量も変わります（その一般論が番外編④）。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>なぜ \(\sqrt N\) で割るのか。割らないとどうなるか。
+        <details><summary>答えを見る</summary><div class="ans">分散は独立な和で加算されるので、\(N\) 個足すと分散は \(N\) 倍。\(\sqrt N\) で割ると分散が 1 に戻る。割らなければ分布はどこまでも広がって収束しない。<strong>これは第4回で格子を潰したあとに拡大し直したのと同じ〈スケール変換〉</strong>で、粗視化には必ず「潰す＋測り直す」がセットで要る。</div></details>
+      </li>
+      <li>歪度（\(k=3\)）は \(N\) が 100 倍になると何分の 1 になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(N^{1-3/2}=N^{-1/2}\) なので \(\sqrt{100}=10\) 分の 1。尖度（\(k=4\)）は \(N^{-1}\) なので 100 分の 1。<strong>次数が高い「癖」ほど速く死ぬ</strong> ── 第4回の \((E/\Lambda)^{d-4}\) と同じ構造。</div></details>
+      </li>
+      <li>コーシー分布が「別の固定点」だと言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">2 個足して 2 で割る（\(\sqrt2\) ではない）と自分自身に戻るから。裾が \(1/x^2\) で分散が無限なので、正しいスケーリング指数が \(\alpha=1\) になる。安定分布は \(\alpha\) でラベルされる<strong>固定点の族</strong>をなし、どれに流れるかは裾指数だけで決まる（＝普遍クラス）。</div></details>
+      </li>
+      <li>臨界点でゆらぎがガウスにならないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">中心極限定理は独立性（あるいは相関距離が有限であること）を前提にしている。臨界点では<strong>相関長が発散して「実質独立なかたまり」が作れない</strong>ので前提が崩れ、ガウス固定点に落ちない。だから臨界指数が平均場の単純な値からずれる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">番外編③まとめ</span>第1回と第4回は、後ろで同じ定理につながっていた</h2>
+    <p>「独立な変数を \(N\) 個足して \(\sqrt N\) で割る」を分布空間の変換とみなすと、繰り込み群がまるごと現れます ── <strong>ガウス分布は固定点</strong>、<strong>中心極限定理はそれがアトラクタだという主張</strong>、そして第 \(k\) 累積量は \(\kappa_k N^{1-k/2}\) でスケールするので、<strong>平均が relevant、分散が marginal、歪度以上はすべて irrelevant</strong>。第4回の分類が、高校生でも手で出せる形で出てきます。</p>
+    <p>固定点は一つではありません。分散が無限だと \(N^{1/\alpha}\) で割ることになり、<strong>安定分布という固定点の族</strong>が現れる（\(\alpha=2\) がガウス、\(\alpha=1\) がコーシー）。どれに流れ着くかを決めるのは<em>裾の落ち方だけ</em> ── 分布の真ん中の形はいっさい関係ない。これが普遍クラスです。そして臨界点で相関長が発散すると中心極限定理の前提が壊れ、だからこそ \(\beta\approx0.326\) のような非自明な指数が出る。<strong>第1回（CLT が効く世界）と第4回（CLT が壊れる世界）は、こうして一本の線でつながります。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 番外編④「捨ててよい量を、定理で決める」</span>
+    第1回の「正直な線」で、こう書きました ──「どの変数を残すかは、問いに応じて人間が選ぶ面がある」。この宿題を、今度は<strong>情報理論で片づけます</strong>。「粗視化すると情報は減る」は<em>データ処理不等式</em>という定理であり、「どこまで潰してよいか」は<em>レート歪み理論</em>が答えを持っている。そして最大の見せ場 ── <strong>層があるとは、レート歪み曲線に〈膝〉があることだ</strong>。さらに、情報理論の不等式が繰り込み群の定理（c 定理）を実際に証明してしまった話まで。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる繰り込み」シリーズ番外編③、物理好きの高校生・大学生向け読み物です。中心極限定理を分布空間上の変換の固定点への収束として定式化できること（確率論から見た繰り込み群、Jona-Lasinio 1975 ほか）、累積量のスケーリング \(\kappa_k^{(N)}=\kappa_kN^{1-k/2}\)、安定分布が \(N^{1/\alpha}\) スケーリングの固定点をなし吸引域が裾指数で決まること（Gnedenko–Kolmogorov の分類）、フィッシャーの十分統計量と分解定理（1922）、ジェインズの最大エントロピー原理によるギブス分布の導出（1957）、および臨界点における相関長発散のため中心極限定理の前提が崩れゆらぎが非ガウスになることは、いずれも確立した数学・物理です。ここで現れる固定点が場の理論のガウス（自由場・平均場）固定点に対応し、Wilson–Fisher のような相互作用固定点はこの単純な枠に含まれないこと、および「十分統計量＝粗視化」の対応が問いを固定したときのものであることは、本文「正直な線」に明記しました。図は密度をグリッド上で表現し畳み込みとスケール変換を反復した数値計算で、有限の窓による打ち切り誤差を各段で規格化して補正しています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。関連：<a href="wakaru-kurikomi-01-soshika.html">第1回 捨てても同じ</a>／<a href="wakaru-kurikomi-04-fuhensei.html">第4回 出自を忘れる</a>／<a href="wakaru-kurikomi-bangai-jouhou.html">番外編④ 捨ててよい量を、定理で決める</a>／<a href="index.html">目次</a>。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではボタンで出発点の分布を選び、スライダーで足す個数を増やすと固定点へ流れていきます。コーシーだけがガウスに落ちません。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      rd=document.getElementById('rd');
+  var btns=[document.getElementById('b0'),document.getElementById('b1'),document.getElementById('b2'),document.getElementById('b3')];
+  var which=0, LEVELS=10;
+
+  var M=769, XMIN=-8, XMAX=8, DX=(XMAX-XMIN)/(M-1);   // M は奇数：x=0 がちょうど格子点 (M-1)/2 に来る
+  function xg(i){ return XMIN+i*DX; }
+
+  var DISTS=[
+    {name:'一様分布', alpha:2, fixed:'ガウス', f:function(x){ var a=Math.sqrt(3); return (x>=-a&&x<=a)? 1/(2*a) : 0; }},
+    {name:'コイン投げ（±1）', alpha:2, fixed:'ガウス', f:function(x){
+        var s=2.2*DX;
+        return 0.5*Math.exp(-0.5*Math.pow((x-1)/s,2))/(s*Math.sqrt(2*Math.PI))
+             + 0.5*Math.exp(-0.5*Math.pow((x+1)/s,2))/(s*Math.sqrt(2*Math.PI)); }},
+    {name:'指数分布（ずらして標準化）', alpha:2, fixed:'ガウス', f:function(x){ return x>-1? Math.exp(-(x+1)) : 0; }},
+    {name:'コーシー分布', alpha:1, fixed:'コーシー', f:function(x){ return 1/(Math.PI*(1+x*x)); }}
+  ];
+
+  var flow=[];   // flow[k] = 密度配列（N=2^k）
+
+  function normalize(p){
+    var s=0; for(var i=0;i<M;i++) s+=p[i];
+    s*=DX; if(s>0) for(var j=0;j<M;j++) p[j]/=s;
+    return p;
+  }
+  function convolveSelf(p){
+    // q(z) = ∫ p(y)p(z-y) dy
+    var q=new Float64Array(M);
+    for(var i=0;i<M;i++){
+      var pi=p[i]; if(pi===0) continue;
+      var off=(M-1)>>1;                // z = x_i + x_j → 添字 k = i + j − (M−1)/2
+      for(var j=0;j<M;j++){
+        var k=i+j-off;
+        if(k<0) continue; if(k>=M) break;
+        q[k]+=pi*p[j];
+      }
+    }
+    for(var t=0;t<M;t++) q[t]*=DX;
+    return q;
+  }
+  function rescale(q,s){
+    // p'(z) = s*q(s*z)
+    var out=new Float64Array(M);
+    for(var i=0;i<M;i++){
+      var z=xg(i), tx=s*z;
+      if(tx<=XMIN||tx>=XMAX) continue;
+      var u=(tx-XMIN)/DX, i0=Math.floor(u), fr=u-i0;
+      if(i0<0||i0+1>=M) continue;
+      out[i]=s*(q[i0]*(1-fr)+q[i0+1]*fr);
+    }
+    return out;
+  }
+  function build(){
+    var D=DISTS[which], s=Math.pow(2,1/D.alpha);
+    var p=new Float64Array(M);
+    for(var i=0;i<M;i++) p[i]=D.f(xg(i));
+    normalize(p);
+    flow=[p];
+    for(var k=1;k<=LEVELS;k++){
+      var q=convolveSelf(flow[k-1]);
+      var r=rescale(q,s);
+      normalize(r);
+      flow.push(r);
+    }
+  }
+
+  function moments(p){
+    var m1=0,m2=0,m3=0,m4=0,s=0;
+    for(var i=0;i<M;i++){ var x=xg(i), w=p[i]*DX; s+=w; m1+=x*w; }
+    for(var j=0;j<M;j++){ var x2=xg(j)-m1, w2=p[j]*DX; m2+=x2*x2*w2; m3+=x2*x2*x2*w2; m4+=x2*x2*x2*x2*w2; }
+    var sd=Math.sqrt(Math.max(m2,1e-12));
+    return {mean:m1, sd:sd, skew:m3/(sd*sd*sd), exkurt:m4/(m2*m2)-3};
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var k=parseInt(sn.value,10), N=Math.pow(2,k);
+    vn.textContent=N;
+    var p=flow[k], D=DISTS[which];
+    ctx.clearRect(0,0,w,h);
+
+    var L=52, R=w-16, T=20, B=h-40, VIEW=5;
+    function X(x){ return L+(R-L)*(x+VIEW)/(2*VIEW); }
+    var pmax=0.45;
+    for(var i=0;i<M;i++){ if(Math.abs(xg(i))<=VIEW) pmax=Math.max(pmax,p[i]); }
+    pmax=Math.min(pmax,0.9);   // コイン投げの初期スパイクは頭を切って表示
+    function Y(v){ return B-(B-T)*Math.min(v,pmax*1.02)/(pmax*1.05); }
+
+    ctx.strokeStyle='#d0a8bd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#75606c'; ctx.textAlign='center';
+    for(var t=-4;t<=4;t+=2){ ctx.fillText(t, X(t), B+16); }
+    ctx.fillText('標準化した値', (L+R)/2, B+32);
+    ctx.save(); ctx.translate(14,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('確率密度',0,0); ctx.restore();
+
+    // ガウス参照
+    ctx.strokeStyle='#8a8f9c'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var g=0;g<=240;g++){
+      var xx=-VIEW+2*VIEW*g/240, gv=Math.exp(-0.5*xx*xx)/Math.sqrt(2*Math.PI);
+      if(g===0)ctx.moveTo(X(xx),Y(gv)); else ctx.lineTo(X(xx),Y(gv));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // 本体
+    ctx.strokeStyle='#8a2f5e'; ctx.lineWidth=2.6; ctx.beginPath();
+    var started=false;
+    for(var i2=0;i2<M;i2++){
+      var x=xg(i2); if(Math.abs(x)>VIEW) continue;
+      if(!started){ ctx.moveTo(X(x),Y(p[i2])); started=true; } else ctx.lineTo(X(x),Y(p[i2]));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#8a2f5e'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('出発点：'+D.name+'　／　N = '+N+' 個を足して N^(1/'+D.alpha+') で割った', L+6, T+14);
+
+    for(var b=0;b<btns.length;b++) btns[b].className = (b===which)? '' : 'off';
+
+    var msg;
+    if(D.alpha===2){
+      var mm=moments(p);
+      var thS=Math.pow(N,-0.5), thK=Math.pow(N,-1);
+      msg='歪度 <b>'+mm.skew.toFixed(4)+'</b>（理論の減衰 N^(−1/2) = '+thS.toFixed(4)+'）、'
+        +'超過尖度 <b>'+mm.exkurt.toFixed(4)+'</b>（理論 N^(−1) = '+thK.toFixed(4)+'）。<br>'
+        +(N>=64? '<b>ほぼガウスに重なりました</b> ── 出自の情報（歪度・尖度）はすべて irrelevant として死にました。'
+               : 'N を増やすと、癖（歪度・尖度）が N^(1−k/2) で消えていきます。');
+    } else {
+      msg='コーシー分布は分散が無限なので、正しい割り方は \\(N^{1/1}=N\\)。'
+        +'<b>形がまったく変わりません</b> ── すでに自分の固定点に座っているからです。'
+        +' ガウス（灰色破線）には決して近づかない：これが<b>別の普遍クラス</b>。';
+    }
+    rd.innerHTML=msg;
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([rd]);
+  }
+
+  function pick(i){ which=i; build(); draw(); }
+  for(var b=0;b<btns.length;b++){
+    (function(idx){ btns[idx].addEventListener('click', function(){ pick(idx); }); })(b);
+  }
+  sn.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  build();
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
