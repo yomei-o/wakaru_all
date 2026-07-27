@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light Does Not Slow Down — Refraction That Clicks, Episode 1</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7fbfa; --paper-edge:#cfe2dc;
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#1d5546; --calc-bg:#e6f1ed;
+    --rule:#cadfd8; --hair:#a8c8bf;
+    --acc:#2e7d6b;
+    --grid:#e0eee9;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;line-height:1.78;font-size:17px;}
+  .sheet{max-width:790px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;text-transform:uppercase;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;letter-spacing:.1em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:40px;line-height:1.18;margin:0 0 8px;font-weight:600;letter-spacing:-.01em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;line-height:1.6;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.03em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:24px;font-weight:600;margin:54px 0 4px;line-height:1.3;letter-spacing:-.01em;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:700;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.72;}
+  em{font-style:italic;}
+  strong{font-weight:700;}
+  .hl{background:linear-gradient(transparent 62%, #b8ddd2 62%);padding:0 .05em;font-style:normal;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.7;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.16em;font-weight:700;
+    margin-bottom:7px;text-transform:uppercase;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.7;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d2e6df;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:210px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e6f1ed;color:#1d5546;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12px;letter-spacing:.06em;
+    border-bottom:2px solid var(--acc);text-transform:uppercase;}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefe;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.16em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;text-transform:uppercase;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf4f0;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.16em;color:var(--acc);font-weight:700;margin-bottom:10px;text-transform:uppercase;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d5546;line-height:1.65;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefe,#e4f0ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6f1ed;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d5546;line-height:1.7;}
+  .next .lbl{font-size:11px;letter-spacing:.16em;color:var(--acc);font-weight:700;margin-bottom:6px;
+    display:block;text-transform:uppercase;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:var(--ink-soft);line-height:1.65;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:10.5pt;line-height:1.62;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.5pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:28px;} body{font-size:16px;} }
+  .hint{max-width:790px;margin:18px auto 0;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5b7770;text-align:center;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Refraction That Clicks</span><span class="ep">Episode 1 / Light Does Not Slow Down</span></div>
+  <p class="eyebrow">Light travels at c/1.5 inside glass. Why does that not break the invariance of the speed of light?</p>
+  <h1>Light Does Not Slow Down
+    <span class="sub">What slows down is <em>not the photon — it is the wave</em>.<br>Light re-scattered forward by atoms interferes with the original wave, and <strong>only the phase shifts</strong>.<br>Stack that up and you get the refractive index. The familiar "absorb and re-emit" story is <em>wrong</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: wave phase, complex numbers (phasors), superposition</span>
+    <span>Core of this episode: n = c/v<sub>phase</sub> is accumulated phase</span>
+  </div>
+
+  <p class="lead">A straw in a glass of water looks bent. The reason given is "light is slower in water." And indeed water's refractive index is 1.33, so light travels at \(c/1.33\); glass gives \(c/1.5\), diamond \(c/2.42\) — barely 40% of the vacuum value. <strong>Yet relativity insists the speed of light is invariant.</strong> There is no contradiction, because <em>the thing that slows down is not the photon</em>. Photons flying between atoms travel at exactly \(c\), always. What is slow is <strong>a different wave — light mixed with the material's polarization</strong>. Follow that mixing and you see exactly where the number \(n\) comes from. You will also see <em>why</em> the textbook story — "atoms absorb the photon and re-emit it a moment later, so it takes longer" — is wrong.</p>
+
+  <h2><span class="n">01</span>First, state the paradox precisely</h2>
+
+  <table class="tbl">
+    <tr><th>Material</th><th class="num">n (visible)</th><th class="num">Speed of light</th></tr>
+    <tr><td>Vacuum</td><td class="num">1</td><td class="num">3.00×10⁸ m/s</td></tr>
+    <tr><td>Air</td><td class="num">1.0003</td><td class="num">essentially the same</td></tr>
+    <tr><td>Water</td><td class="num">1.33</td><td class="num">2.25×10⁸ m/s</td></tr>
+    <tr><td>Glass</td><td class="num">1.5</td><td class="num">2.00×10⁸ m/s</td></tr>
+    <tr><td>Diamond</td><td class="num">2.42</td><td class="num">1.24×10⁸ m/s</td></tr>
+    <tr><td>Silicon (infrared)</td><td class="num">3.5</td><td class="num">0.86×10⁸ m/s</td></tr>
+  </table>
+
+  <p>These are measurements. Inside diamond, light manages only <strong>41%</strong> of its vacuum speed. So what happens to "the speed of light is invariant"?</p>
+
+  <div class="keybox">
+    <div class="lbl">What is invariant is the speed of causality</div>
+    <p style="margin:0;">Relativity says that the maximum speed at which <strong>causal influence</strong> propagates is \(c\). Light happens to travel at \(c\) because <em>the photon is massless</em>, and a massless particle has no other option.</p>
+    <p style="margin:8px 0 0;">What travels through matter is <strong>not pure light</strong>. So it need not travel at \(c\) — nothing is broken. <em>The real question is what is travelling instead.</em></p>
+  </div>
+
+  <h2><span class="n">02</span>The popular explanation is wrong</h2>
+
+  <p>Let us clear away the widely circulated bad story first.</p>
+
+  <div class="caveat" style="background:#f2e8e2;">
+    <span class="tag">This is wrong</span>
+    <p style="margin:0;">"An atom <strong>absorbs</strong> the photon and is excited; a little later it <strong>re-emits</strong>. Repeat this, and on the whole the light is delayed."</p>
+  </div>
+
+  <p>Appealing, but it fails for at least four reasons.</p>
+
+  <table class="tbl">
+    <tr><th>Problem</th><th>Why it fails</th></tr>
+    <tr><td><strong>Direction is not preserved</strong></td><td>An excited atom re-emits <em>nearly isotropically</em>. If this were happening, glass would not be transparent — it would be <strong>white like ground glass</strong>. In reality the beam goes straight through</td></tr>
+    <tr><td><strong>The timing is off</strong></td><td>Atomic excited-state lifetimes are nanoseconds. With \(10^7\) layers in 1 cm of glass, the product is <em>milliseconds</em>. The measured delay is <strong>picoseconds</strong></td></tr>
+    <tr><td><strong>Phase is destroyed</strong></td><td>Spontaneous emission destroys coherence. Interference and image formation would both become impossible</td></tr>
+    <tr><td><strong>There is nothing to absorb with</strong></td><td>Glass is transparent in the visible precisely because it has <em>no resonance</em> there. With no level to absorb into, "absorbs" is a non-starter</td></tr>
+  </table>
+
+  <p><strong>In short, the photons are not actually being absorbed.</strong> So what is happening?</p>
+
+  <h2><span class="n">03</span>The right picture — coherent forward scattering</h2>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl">Core of this episode</div>
+    <p style="margin:0 0 8px;">The incoming field <strong>shakes</strong> the electrons in each atom. Far from resonance this is not absorption but a driven oscillation. An oscillating charge radiates — that is the <em>scattered wave</em>.</p>
+    <p style="margin:8px 0 0;">The waves scattered by an enormous number of atoms <strong>add up in phase only in the forward direction and cancel in every other direction</strong> (because the atoms are packed far more densely than a wavelength). That is why light goes straight.</p>
+    <p style="margin:10px 0 0;">What survives is <strong>original wave + forward-scattered wave</strong>. And here is the decisive fact: <em>off resonance, a driven oscillator responds 90° out of phase with the drive</em>. <strong>Adding a small vector at right angles barely changes the length — it only rotates the direction.</strong></p>
+    <p style="margin:10px 0 0;font-size:17px;"><strong>Amplitude unchanged, phase shifted. That is the refractive index.</strong></p>
+  </div>
+
+  <div class="calc">
+    <span class="tag">One line of algebra</span>
+    <p style="margin:2px 0 0;">Crossing a thin slab of thickness \(dz\) adds \(i\,k(n-1)\,dz\) to the field (the \(i\) is the "90°"). Stacking slabs gives</p>
+    $$E(z)=E_0\,e^{ik(n-1)z}$$
+    <p style="margin:6px 0 14px;">If \(n\) is real this is a <strong>pure rotation in the complex plane</strong> — the length never changes. The phase lags the vacuum wave by \(k(n-1)z\), and we <em>rephrase</em> that as "the speed became \(c/n\)."<br>
+    <em>If \(n\) had an imaginary part, the phasor would rotate and shrink</em> — that is absorption, the subject of Episode 5.</p>
+  </div>
+
+  <h2><span class="n">04</span>Play with it — the phasor traces a circle</h2>
+
+  <p>On the left below is the <strong>complex plane</strong>. The thick horizontal arrow is the incident wave; we add the small scattered contribution of one atomic layer at a time. <em>Because each contribution is at 90°, the tip traces a circle</em> — the length stays fixed while the direction turns.</p>
+
+  <p>On the right is the resulting wave compared with the vacuum wave. <strong>Only the crests are displaced; the height is identical.</strong> That is all "slowing down" ever was.</p>
+
+  <p>Turn up the absorption slider and the phasor <em>spirals inward</em> — that is absorption, a preview of Episode 5.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: left — the complex plane. Small 90°-offset arrows (one per atomic layer) are added to the incident wave (thick arrow). The tip traces a circle: length fixed, direction turning. Right — the resulting wave (solid) against the vacuum wave (dashed). Only the crest positions move</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Refractive index n <span class="val" id="vn">1.50</span>
+        <input type="range" id="sn" min="100" max="250" step="1" value="150">
+      </label>
+      <label>Number of layers (= thickness) <span class="val" id="vl">12</span>
+        <input type="range" id="sl" min="0" max="40" step="1" value="12">
+      </label>
+      <label>Absorption κ (preview of Ep. 5) <span class="val" id="vk">0.00</span>
+        <input type="range" id="sk" min="0" max="40" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2e7d6b;"></i>resulting wave</span>
+      <span><i class="swatch" style="background:#a8c8bf;"></i>vacuum wave</span>
+      <span><i class="swatch" style="background:#b3541e;"></i>per-layer scattered wave (90° offset)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">05</span>The thing that travels has a name — polariton</h2>
+
+  <p>What propagates inside matter has a name: a <strong>polariton</strong> — a <em>single wave</em> that is a mixture of the electromagnetic field and the material's polarization (the shaking electrons).</p>
+
+  <div class="keybox">
+    <div class="lbl">Why it is slow, in one line</div>
+    <p style="margin:0;">Because <strong>part of the travelling wave is made of matter</strong>. Matter has inertia, and that inertia drags the whole thing.</p>
+    <p style="margin:8px 0 0;"><em>The photons themselves always fly between atoms at \(c\).</em> What lags is the phase of the mixed wave. That is precisely what <strong>"light does not slow down; the wave does"</strong> means.</p>
+    <p style="margin:10px 0 0;">This picture pays off in Episode 6 — <em>push the mixture all the way over to the material side, and light drops to 17 metres per second, and then "stops."</em> At which point what has stopped is no longer light.</p>
+  </div>
+
+  <h2><span class="n">06</span>Orders of magnitude — one pane of glass</h2>
+
+  <div class="calc">
+    <span class="tag">How much does a window delay light?</span>
+    <p style="margin:2px 0 0;">For \(d=1\) cm of glass with \(n=1.5\), the difference from vacuum is</p>
+    $$\Delta t=\frac{(n-1)d}{c}=\frac{0.5\times0.01}{3.0\times10^8}=1.7\times10^{-11}\ \mathrm{s}=17\ \text{picoseconds}$$
+    <p style="margin-bottom:14px;">In crests, that is about <strong>9000 wavelengths</strong> of phase shift at 550 nm. <em>Accumulate this across a curved surface and you have a lens forming an image.</em><br>
+    For contrast — the "absorb and re-emit" story predicts ns × \(10^7\) layers, i.e. <strong>milliseconds</strong>. That is <em>eight orders of magnitude</em> away from the measured 17 ps. On that alone the story fails.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">So is glass "slow" or is it "thick"?</span>
+    Given all of the above, <strong>"light slows down" and "the optical path gets longer" say the same thing twice</strong>. Optics in fact uses the quantity <em>optical path length \(nd\)</em>: travelling \(d\) through index \(n\) is, as far as phase is concerned, indistinguishable from travelling \(nd\) in vacuum.<br>
+    And if you can say "the distance grew," then you have said <strong>the metric changed</strong> — <em>which is the subject of the next episode.</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line — what is established here</span>
+    <p style="margin-top:0;"><strong>Established:</strong> that the refractive index arises from coherent superposition of the incident and forward-scattered waves (the standard treatment, e.g. Feynman Lectures vol. I ch. 31); that an off-resonant driven oscillator responds 90° out of phase with the drive, so it shifts phase without changing amplitude; \(E(z)=E_0e^{ik(n-1)z}\); that the propagating excitation in matter is a polariton (a photon–polarization hybrid); the measured refractive indices quoted. All standard optics and condensed-matter physics.</p>
+    <p style="margin-bottom:0;"><strong>Caveats:</strong> (1) The rejection of "absorb and re-emit" applies to <em>coherent transmission</em>. Near resonance, genuine resonant absorption and spontaneous emission do occur, and light is then scattered and attenuated (the medium goes opaque). <strong>Restrict the claim to the transparent region.</strong> (2) "Scattered waves add only in the forward direction" holds when the atomic spacing is much smaller than the wavelength. When the wavelength becomes comparable to the spacing, as for X-rays, constructive interference appears in other directions too (Bragg diffraction). (3) The figure draws each layer's contribution as an equal discrete vector; it is a schematic, not a calculation for a real continuous medium. (4) "Polariton" covers different things in different contexts (exciton polariton, phonon polariton, and so on); here it means "a propagating mode mixing the electromagnetic field with material polarization." (5) The refractive index depends on frequency (dispersion); the tabulated values are representative visible-light figures.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises (all solvable with this episode)</div>
+    <ol>
+      <li>Light travels at \(c/1.5\) in glass. Why does relativity survive?
+        <details><summary>Show answer</summary><div class="ans">What relativity holds invariant is <strong>the maximum speed of causal influence, \(c\)</strong> — not "everything called light must travel at \(c\)." What moves through matter is a <em>polariton</em>, a mixture of light and polarization, not pure light. The photons between atoms always travel at \(c\).</div></details>
+      </li>
+      <li>Give two reasons the "absorb and re-emit" story is wrong.
+        <details><summary>Show answer</summary><div class="ans">(any two) <strong>(1) direction is not preserved</strong> — spontaneous emission is isotropic, so the beam would scatter; <strong>(2) the timing is off by eight orders</strong> — ns × 10⁷ layers = milliseconds vs. the measured 17 ps; <strong>(3) phase is destroyed</strong>, killing interference and imaging; <strong>(4) in the transparent region there is no level to absorb into.</strong></div></details>
+      </li>
+      <li>Why is the amplitude unchanged while the phase shifts?
+        <details><summary>Show answer</summary><div class="ans">Because an off-resonant driven oscillator responds <strong>90°</strong> out of phase with the drive. In the complex plane, <em>adding a small perpendicular vector barely changes the length and only rotates the direction</em>. Stacking gives \(E=E_0e^{ik(n-1)z}\) — a pure rotation.</div></details>
+      </li>
+      <li>By how much is light delayed by 1 cm of glass with \(n=1.5\)?
+        <details><summary>Show answer</summary><div class="ans">\(\Delta t=(n-1)d/c=0.5\times0.01/(3\times10^8)=\) <strong>about 17 picoseconds</strong>. At 550 nm that is roughly 9000 wavelengths of phase. Accumulating this is what makes a lens form an image.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 1 summary</span>What is slow is not light but the mixed wave</h2>
+    <p>Light travels at \(c/1.5\) in glass, and relativity is untouched — what is invariant is <strong>the speed of causality \(c\)</strong>, and what moves through matter was never pure light in the first place.</p>
+    <p>The correct picture is <strong>coherent forward scattering</strong>. The incident field shakes electrons, the shaking charges radiate, and those waves add constructively only forward. Off-resonance the response is <strong>90°</strong> out of phase with the drive, so adding it <em>rotates without lengthening</em> — \(E(z)=E_0e^{ik(n-1)z}\), pure phase shift. <strong>That is the refractive index.</strong></p>
+    <p>So "atoms absorb and re-emit" is wrong — direction and phase would not survive, the timing is off by eight orders of magnitude, and in the transparent region there is no level to absorb into. What actually travels is a <strong>polariton</strong>, a hybrid of light and polarization, and it is slow <em>because part of it is made of matter</em>. <strong>Light does not slow down; the wave does.</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next — Episode 2: "There Are Two Light Cones"</span>
+    We take up head-on the remark this episode ended on: "slower" and "farther" are the same statement. Inside a medium the light cone <strong>narrows</strong> to \(x=ct/n\) — and that is an effective <em>metric</em>, under which Fermat's principle becomes the geodesic equation and Snell's law becomes geometry. <strong>The intuition "isn't this equivalent to light slowing down if you look at it in a \(c\cdot t=\)const frame?" acquires its exact form here.</strong> With one condition that will not be negotiated — <em>the true causal cone has not moved at all</em>. The effective metric is a second cone built <strong>inside</strong> the real one.
+  </div>
+
+  <div class="foot">
+    This document is Episode 1 of the "Refraction That Clicks" series, a reading for physics-loving high-schoolers and undergraduates. That the refractive index arises from coherent superposition of incident and forward-scattered waves, that an off-resonant response is 90° out of phase and therefore shifts phase without changing amplitude, \(E(z)=E_0e^{ik(n-1)z}\), that the propagating excitation in matter is a polariton, and the quoted refractive indices are all standard optics and condensed-matter physics. That the rejection of "absorb and re-emit" concerns coherent transmission in the transparent region while genuine absorption and re-emission do occur near resonance, that forward-only constructive interference requires atomic spacing well below the wavelength (Bragg diffraction appears for X-rays), that the figure is a discrete-vector schematic, that "polariton" is context-dependent, and that the refractive index is frequency-dependent are all stated in "The honest line" above. — To print, use your browser's Print and "Save as PDF" (sliders freeze and answers are hidden in the print version). Next: <a href="wakaru-kussetsu-02-enkosui.html">Episode 2, There Are Two Light Cones</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-ba-en/index.html">Fields That Click</a> · <a href="../wakaru-soutai-en/index.html">Relativity That Clicks</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, add layers one at a time and watch the phasor tip trace a circle; raise the absorption slider and it spirals inward (a preview of Episode 5). "Show answer" reveals the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), vn=document.getElementById('vn'),
+      sl=document.getElementById('sl'), vl=document.getElementById('vl'),
+      sk=document.getElementById('sk'), vk=document.getElementById('vk'), rd=document.getElementById('rd');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var n=parseInt(sn.value,10)/100;
+    var N=parseInt(sl.value,10);
+    var kap=parseInt(sk.value,10)/200;
+    vn.textContent=n.toFixed(2); vl.textContent=N; vk.textContent=kap.toFixed(2);
+
+    var dphi=(n-1)*0.22;
+    var damp=kap*0.06;
+    var phi=N*dphi, amp=Math.exp(-N*damp);
+    ctx.clearRect(0,0,w,h);
+
+    /* left: phasor diagram */
+    var MID=w*0.42;
+    var cx=MID*0.5+20, cy=h*0.55, R=Math.min(MID*0.32,h*0.30);
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx-R*1.35,cy); ctx.lineTo(cx+R*1.35,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy+R*1.2); ctx.lineTo(cx,cy-R*1.2); ctx.stroke();
+    ctx.fillStyle='#5b7770'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('Re', cx+R*1.15, cy+14);
+    ctx.fillText('Im', cx+5, cy-R*1.13);
+
+    ctx.strokeStyle='#cfe2dc'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke(); ctx.setLineDash([]);
+
+    var px=cx+R, py=cy, a=1;
+    ctx.strokeStyle='#b3541e'; ctx.lineWidth=1.6;
+    for(var i=0;i<N;i++){
+      var th=i*dphi;
+      var na=a*Math.exp(-damp);
+      var nx=cx+R*na*Math.cos(th+dphi), ny=cy-R*na*Math.sin(th+dphi);
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(nx,ny); ctx.stroke();
+      ctx.fillStyle='#b3541e'; ctx.beginPath(); ctx.arc(nx,ny,1.8,0,7); ctx.fill();
+      px=nx; py=ny; a=na;
+    }
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+    ctx.strokeStyle='#2e7d6b'; ctx.lineWidth=3.2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+    ctx.fillStyle='#2e7d6b'; ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();
+
+    ctx.fillStyle='#1d5546'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Phasor diagram (complex plane)', cx, 22);
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#5b7770';
+    ctx.fillText('the dashed circle is the proof the amplitude is fixed', cx, h-12);
+
+    /* right: waveform */
+    var L=MID+34, Rr=w-16, ay=h*0.55, AH=h*0.30;
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,ay); ctx.lineTo(Rr,ay); ctx.stroke();
+
+    ctx.strokeStyle='#a8c8bf'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+    for(var j=0;j<=300;j++){
+      var x=L+(Rr-L)*j/300, u=(j/300)*4*Math.PI;
+      var y=ay-AH*Math.cos(u);
+      if(j===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#2e7d6b'; ctx.lineWidth=3; ctx.beginPath();
+    for(var k=0;k<=300;k++){
+      var x2=L+(Rr-L)*k/300, u2=(k/300)*4*Math.PI;
+      var y2=ay-AH*amp*Math.cos(u2-phi);
+      if(k===0)ctx.moveTo(x2,y2); else ctx.lineTo(x2,y2);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#1d5546'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('resulting wave (solid) vs. vacuum wave (dashed)', (L+Rr)/2, 22);
+    ctx.fillStyle='#5b7770'; ctx.font='9.5px sans-serif';
+    ctx.fillText('only the crests move — the height is the same', (L+Rr)/2, h-12);
+
+    var deg=phi*180/Math.PI;
+    var msg = kap>0.01
+      ? '<b style="color:#a83a22">With absorption on, the phasor spirals inside the circle</b> — the amplitude drops. That is absorption, the subject of Episode 5.'
+      : 'With zero absorption the phasor tip <b>never leaves the dashed circle</b> — amplitude preserved, phase shifted.';
+    rd.innerHTML='n = <b>'+n.toFixed(2)+'</b>, <b>'+N+'</b> layers &rarr; phase shift <b>'+deg.toFixed(0)+'&deg;</b>, amplitude <b>'+(amp*100).toFixed(1)+'%</b><br>'
+      +'For 1 cm of glass at n = '+n.toFixed(2)+', the delay against vacuum is <b>'+(((n-1)*0.01/2.998e8)*1e12).toPrecision(3)+' picoseconds</b>'
+      +' (about '+Math.round((n-1)*0.01/550e-9)+' wavelengths at 550 nm).<br>'+msg;
+  }
+
+  sn.addEventListener('input', draw);
+  sl.addEventListener('input', draw);
+  sk.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

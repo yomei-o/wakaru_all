@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflection Comes from Mismatch — Refraction That Clicks, Episode 4</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdfaf6; --paper-edge:#ecdcc9;
+    --side:#3a5a6a; --side-bg:#eaf0f3;
+    --warn:#7a3b2a;
+    --calc:#8f4114; --calc-bg:#f7ebe0;
+    --rule:#e6d5c2; --hair:#cbb49a;
+    --acc:#b3541e;
+    --grid:#f2e6d8;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;line-height:1.78;font-size:17px;}
+  .sheet{max-width:790px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;text-transform:uppercase;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;letter-spacing:.1em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:40px;line-height:1.18;margin:0 0 8px;font-weight:600;letter-spacing:-.01em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;line-height:1.6;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.03em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:24px;font-weight:600;margin:54px 0 4px;line-height:1.3;letter-spacing:-.01em;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:700;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.72;}
+  em{font-style:italic;} strong{font-weight:700;}
+  .hl{background:linear-gradient(transparent 62%, #f0d0ae 62%);padding:0 .05em;font-style:normal;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.7;color:#22343a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.16em;font-weight:700;
+    margin-bottom:7px;text-transform:uppercase;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.7;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ecd9c5;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12.5px;color:var(--calc);
+    font-weight:700;margin:12px 0 -6px;text-transform:uppercase;letter-spacing:.1em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdfa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:190px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13.5px;margin-top:10px;padding:9px 13px;
+    border-radius:3px;font-weight:600;line-height:1.6;background:#f7ebe0;color:#7e3b12;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12px;letter-spacing:.06em;
+    border-bottom:2px solid var(--acc);text-transform:uppercase;}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfa;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;letter-spacing:.16em;
+    color:var(--ink-soft);font-weight:700;margin-bottom:4px;text-transform:uppercase;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8eee3;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;letter-spacing:.16em;
+    color:var(--acc);font-weight:700;margin-bottom:10px;text-transform:uppercase;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#7e3b12;line-height:1.65;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfa,#f5e6d6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7ebe0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#7e3b12;line-height:1.7;}
+  .next .lbl{font-size:11px;letter-spacing:.16em;color:var(--acc);font-weight:700;margin-bottom:6px;
+    display:block;text-transform:uppercase;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:var(--ink-soft);line-height:1.65;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:10.5pt;line-height:1.62;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.5pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:28px;} body{font-size:16px;} }
+  .hint{max-width:790px;margin:18px auto 0;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#7a6450;text-align:center;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>Refraction That Clicks</span><span class="ep">Episode 4 / Reflection Comes from Mismatch</span></div>
+  <p class="eyebrow">Reflectance is pure impedance mismatch — and total internal reflection is tunnelling, done with light</p>
+  <h1>Reflection Comes<br>from Mismatch
+    <span class="sub">Reflection happens not because <em>matter is there</em> but because <span class="hl">there is a mismatch</span>.<br>It vanishes at Brewster's angle, and it vanishes if you match the index.<br>And <strong>beyond a surface that is totally reflecting, the wave is still there</strong> — \(T\propto e^{-2\kappa d}\).</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 1's phase, Episode 3's evanescent wave, the wave equation</span>
+    <span>Core of this episode: tunnelling, done with light</span>
+  </div>
+
+  <p class="lead">We have been talking about refraction, but something else always happens at a boundary: <strong>reflection</strong>. And there is exactly one satisfying principle here. <em>Reflection happens not because matter is present, but because there is a mismatch.</em> Match the indices exactly and the boundary reflects nothing at all, even though it is still there. Anti-reflection coatings and Brewster's angle are both corollaries of that single line. <strong>But the real business of this episode is total internal reflection</strong> — light is supposed to transmit nothing, and yet an \(e^{-\kappa z}\) wave is seeping beyond the boundary. Put a second piece of glass right next to it, and <em>light gets through</em>. The transmission is \(T\propto e^{-2\kappa d}\) — <strong>the same equation as Episode 1 of the sister series <em>Tunneling That Clicks</em>, with different letters</strong>. Tunnelling, done with light. Newton saw it in 1704.</p>
+
+  <h2><span class="n">01</span>Reflectance is fixed by mismatch alone</h2>
+
+  <div class="calc">
+    <span class="tag">Fresnel reflection at normal incidence</span>
+    <p style="margin:2px 0 0;">Matching electric and magnetic fields across the boundary gives the amplitude reflection coefficient</p>
+    $$r=\frac{n_1-n_2}{n_1+n_2},\qquad R=|r|^2=\left(\frac{n_1-n_2}{n_1+n_2}\right)^2$$
+    <p style="margin:6px 0 14px;">Air (1) to glass (1.5) gives \(r=-0.2\) and \(R=4\%\). A pane of glass has two surfaces, so it loses about 8%.<br>
+    <strong>If \(n_1=n_2\), then \(r=0\).</strong> The boundary is there, and it does not reflect. <em>What causes reflection is not matter but a difference.</em></p>
+    <p class="lbl">About the sign</p>
+    <p style="margin:2px 0 14px;">For \(n_2>n_1\), \(r<0\): the reflected wave is shifted by \(\pi\). <em>The same thing as shaking a rope tied to a wall</em> — the returning pulse is inverted. Going dense to rare (glass to air), it is not.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Anti-reflection coating — split the difference in two</span>
+    A large difference reflects, so <strong>insert a step in the middle</strong>. With a film of thickness \(\lambda/4n_2\), the reflections off its front and back come back <em>exactly out of phase</em> and cancel.<br>
+    The perfect-cancellation condition is \(n_{\rm film}=\sqrt{n_{\rm air}n_{\rm glass}}=\sqrt{1.5}=1.225\). The closest usable material is <strong>magnesium fluoride, \(n=1.38\)</strong>, which takes the reflection from 4% down to about 1.4%. <em>The faint purple or green sheen on spectacles and camera lenses is the colour the coating failed to cancel.</em>
+  </div>
+
+  <h2><span class="n">02</span>Brewster's angle — a dipole does not radiate along its own axis</h2>
+
+  <p>Come in at an angle and polarization matters. For light polarized in the plane of incidence (p-polarization), there is an angle at which <strong>the reflection drops exactly to zero</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">Brewster's angle</div>
+    $$\tan\theta_B=\frac{n_2}{n_1}\qquad\text{(air to glass at 1.5 gives }\theta_B=56.3^\circ\text{)}$$
+    <p style="margin:8px 0 0;"><strong>Why it vanishes</strong> — recall Episode 1. Both the reflected and the transmitted wave are <em>light emitted by oscillating dipoles inside the material</em>. At \(\theta_B\) the refracted and reflected rays are exactly 90° apart, so for p-polarization the dipole's oscillation direction <strong>coincides exactly with the reflected ray direction</strong>.</p>
+    <p style="margin:8px 0 0;">And <em>a dipole does not radiate along its own axis</em> (the intensity goes as \(\sin^2\theta\)). <strong>There is nobody to emit toward, so the reflected wave cannot exist.</strong></p>
+  </div>
+
+  <p>The upshot is that light reflected near \(\theta_B\) is <strong>almost purely s-polarized</strong>. Glare off a road or a water surface is horizontally polarized for this reason. <em>Polarizing sunglasses are a sheet that cuts exactly that direction.</em></p>
+
+  <h2><span class="n">03</span>Even in total reflection, the wave is on the other side</h2>
+
+  <p>Going from dense to rare (glass to air) at increasing angle, Snell's law \(n_1\sin\theta_1=n_2\sin\theta_2\) begins to demand \(\sin\theta_2>1\). <em>No such angle exists.</em> That is <strong>total internal reflection</strong>, with the boundary at</p>
+
+  <div class="calc">
+    <span class="tag">The critical angle, and beyond</span>
+    $$\sin\theta_c=\frac{n_2}{n_1}\qquad\text{(glass to air gives }\theta_c=41.8^\circ\text{)}$$
+    <p style="margin:6px 0 0;">Beyond \(\theta_c\), the component of the wavevector <strong>normal to the boundary becomes imaginary</strong>:</p>
+    $$k_z=\frac{\omega}{c}\sqrt{n_2^2-n_1^2\sin^2\theta}\ \longrightarrow\ i\kappa,\qquad
+    \kappa=\frac{2\pi}{\lambda_0}\sqrt{n_1^2\sin^2\theta-n_2^2}$$
+    <p style="margin:6px 0 14px;">So \(e^{ik_zz}\to e^{-\kappa z}\): <strong>not a travelling wave but an exponentially decaying one</strong>, called an <em>evanescent wave</em>.<br>
+    Numbers: at \(\lambda_0=550\) nm, glass (1.5) to air, \(\theta=45^\circ\), the decay length \(1/\kappa\approx\) <strong>248 nm</strong>. <em>Less than a wavelength.</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">"Total" reflection — but is the energy accounted for?</span>
+    Yes. In steady state the evanescent wave carries <strong>zero time-averaged energy flux</strong> normal to the boundary (the electric and magnetic fields are 90° out of phase). Energy goes and comes back.<br>
+    So the reflectance is exactly 1. <em>The field is over there, but no energy has crossed</em> — which sets up the next section. <strong>Put something there and the story changes.</strong>
+  </div>
+
+  <h2><span class="n">04</span>Add a second piece of glass and light gets through — optical tunnelling</h2>
+
+  <p>Bring <strong>a second piece of glass within a few hundred nanometres</strong> of a totally reflecting surface. Light gets through. Close the gap and more gets through; open it and the transmission falls <em>exponentially</em>.</p>
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl">Core of this episode — the same equation, different letters</div>
+    <table class="tbl" style="margin:8px 0 4px;">
+      <tr><th></th><th>Electron tunnelling (Tunneling Ep. 1)</th><th>Total reflection (here)</th></tr>
+      <tr><td>The wave</td><td>wavefunction \(\psi\)</td><td>electric field \(E\)</td></tr>
+      <tr><td>Why it is forbidden</td><td>\(E<V\) (not enough energy)</td><td>\(n_1\sin\theta>n_2\) (too steep an angle)</td></tr>
+      <tr><td>Decay constant</td><td>\(\kappa=\dfrac{\sqrt{2m(V-E)}}{\hbar}\)</td><td>\(\kappa=\dfrac{2\pi}{\lambda_0}\sqrt{n_1^2\sin^2\theta-n_2^2}\)</td></tr>
+      <tr><td>Transmission</td><td colspan="2" style="text-align:center;">\(T=\left[1+\dfrac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d\right]^{-1}\ \xrightarrow{\ \kappa d\gg1\ }\ \propto e^{-2\kappa d}\)&nbsp; <strong>identical</strong></td></tr>
+      <tr><td>Decay length</td><td class="num">~0.2 nm (\(V-E=1\) eV)</td><td class="num">~248 nm (visible, 45°)</td></tr>
+    </table>
+    <p style="margin:10px 0 0;">These are not merely similar equations. <strong>They are the same equation.</strong> Both describe a region where the wave equation has \(k^2<0\). <em>The difference is that the decay length is over a thousand times larger for light, which is why you can do the experiment with two slabs of glass held by hand.</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">Newton saw this in 1704</span>
+    In <em>Opticks</em>, Newton records pressing two prisms together — <em>light passes through to the far side as they approach contact, even though the surface should be totally reflecting</em>. <strong>That is more than 220 years before quantum mechanics.</strong><br>
+    The modern name is <strong>frustrated total internal reflection (FTIR)</strong>. It has many uses: the optical fingerprint sensor in a smartphone, beam splitters, total-internal-reflection fluorescence microscopy (TIRF, which illuminates only the first 100 nm above an interface), and near-field scanning optical microscopy, which beats the diffraction limit. <em>All of them are instruments for picking up the seeping wave.</em>
+  </div>
+
+  <h2><span class="n">05</span>Play with it — opening the gap</h2>
+
+  <div class="fig">
+    <div class="cap">Figure: left — the evanescent wave e^(−κz) seeping past a totally reflecting glass surface. Place a second slab at gap d and only the amplitude surviving there crosses. Right — transmission T on a log scale (exact formula). The slope is −2κ — the same shape of plot as Episode 1 of "Tunneling That Clicks"</div>
+    <canvas id="cv" width="680" height="350"></canvas>
+    <div class="controls">
+      <label>Gap d <span class="val" id="vd">300 nm</span>
+        <input type="range" id="sd" min="0" max="1500" step="5" value="300">
+      </label>
+      <label>Incidence angle θ <span class="val" id="vt">45°</span>
+        <input type="range" id="st" min="420" max="800" step="1" value="450">
+      </label>
+      <label>Wavelength λ₀ <span class="val" id="vl">550 nm</span>
+        <input type="range" id="sl" min="400" max="800" step="5" value="550">
+      </label>
+      <button id="bc">almost touching</button>
+    </div>
+    <div class="readout" id="rd"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b3541e;"></i>evanescent wave e^(−κz)</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>transmission T</span>
+      <span><i class="swatch" style="background:#3a6ea5;"></i>glass</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>So the "quantumness" of tunnelling is not in the exponential</h2>
+
+  <div class="keybox">
+    <div class="lbl">The main point of this episode</div>
+    <p style="margin:0 0 8px;">Electron tunnelling feels strange mostly because of the phrasing "it gets over the wall without enough energy." But look at the table above — <strong>exactly the same thing happens with light, and nobody finds that strange.</strong></p>
+    <p style="margin:0;">Because light is <em>a wave to begin with</em>. That a wave goes as \(e^{-\kappa z}\) in a forbidden region is just the solution of a differential equation. <strong>There is nothing quantum in the exponential at all.</strong></p>
+    <p style="margin:10px 0 0;">What is quantum is <em>that the electron is a wave — that one point alone</em>. Grant that, and the rest is the same classical wave physics Newton saw in 1704.<br>
+    — In this collection's vocabulary, this is <strong>the second grade of "similar"</strong>: different solutions of one framework. The same wave equation, in the region where \(k^2<0\).</p>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <div class="caveat">
+    <span class="tag">The honest line</span>
+    <p style="margin-top:0;"><strong>Established:</strong> the normal-incidence Fresnel coefficient \(r=(n_1-n_2)/(n_1+n_2)\) and glass's 4% reflection; the anti-reflection condition \(n=\sqrt{n_1n_3}\) at \(\lambda/4\) thickness, and MgF₂ (1.38) taking 4% to about 1.4%; Brewster's angle \(\tan\theta_B=n_2/n_1\) and the dipole-axis explanation; the critical angle \(\sin\theta_c=n_2/n_1\); the evanescent wave \(e^{-\kappa z}\) with \(\kappa=(2\pi/\lambda_0)\sqrt{n_1^2\sin^2\theta-n_2^2}\); zero time-averaged normal energy flux in steady state; frustrated total internal reflection and the fact that the transmission through a symmetric gap has exactly the form of the quantum rectangular barrier; Newton's two-prism observation in <em>Opticks</em> (1704); TIRF, near-field microscopy and optical fingerprint sensors. All standard optics.</p>
+    <p style="margin-bottom:0;"><strong>Caveats:</strong> (1) The transmission in the table and figure is for <strong>s-polarization</strong> (field perpendicular to the plane of incidence). For p-polarization the prefactor changes, but the \(e^{-2\kappa d}\) exponent is the same. (2) The figure idealises to non-absorbing, non-dispersive, perfectly flat surfaces and a monochromatic plane wave; real glass has surface roughness of a few nanometres, which dominates the near-contact behaviour. (3) "The same equation" means <strong>the same mathematical form</strong>. Photon tunnelling and electron tunnelling are not the same phenomenon; what is shared is the structure of crossing a region where the wave equation has \(k^2<0\) (the second grade, in the text's phrasing). (4) Brewster's angle gives zero reflection only for p-polarization; s-polarization does not vanish, and magnetic materials (\(\mu\neq1\)) change the condition. (5) "No energy crosses" for the evanescent wave is a statement about the <strong>steady-state time average</strong>; transiently, energy does flow both ways. (6) The 0.2 nm electron decay length is for \(V-E=1\) eV and varies strongly with barrier height.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>How can a boundary exist and reflect nothing?
+        <details><summary>Show answer</summary><div class="ans">Because what causes reflection is not matter but a <strong>mismatch in refractive index (impedance)</strong>. \(r=(n_1-n_2)/(n_1+n_2)\) is zero when \(n_1=n_2\); index-matching oil makes a joint in glass disappear. An anti-reflection coating splits one large difference into <em>two small ones that cancel out of phase</em>.</div></details>
+      </li>
+      <li>Explain in terms of dipoles why p-polarization does not reflect at Brewster's angle.
+        <details><summary>Show answer</summary><div class="ans">At \(\theta_B\) the refracted and reflected rays are 90° apart, so for p-polarization <strong>the dipole's oscillation axis coincides with the reflected direction</strong>. A dipole does not radiate along its own axis (intensity \(\propto\sin^2\theta\)), so <em>there is nothing to produce the reflected wave</em>. A direct consequence of Episode 1's "refraction is forward scattering."</div></details>
+      </li>
+      <li>In total reflection, why is the reflectance 1 even though there is a field on the far side?
+        <details><summary>Show answer</summary><div class="ans">Because the evanescent wave carries <strong>zero time-averaged energy flux</strong> normal to the boundary (fields 90° out of phase): energy goes and comes back. <em>Until you put a second slab there, giving the energy somewhere to go</em> — that is FTIR.</div></details>
+      </li>
+      <li>How far does the analogy between electron tunnelling and total reflection go?
+        <details><summary>Show answer</summary><div class="ans">The transmission formula is <strong>literally identical</strong>: \(T=[1+\frac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d]^{-1}\to\propto e^{-2\kappa d}\). What is shared is the structure of crossing a region where the wave equation has \(k^2<0\) — <strong>the second grade of "similar"</strong> in this collection's vocabulary. <em>The quantum part of tunnelling is not the exponential; it is only that the electron is a wave.</em> The decay lengths differ by over a thousand (0.2 nm vs 248 nm), which is why light lets you do it by hand.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">Episode 4 summary</span>Mismatch makes reflection; seepage makes transmission</h2>
+    <p>Reflectance is fixed by <strong>index mismatch alone</strong> (\(r=(n_1-n_2)/(n_1+n_2)\); 4% for glass). Zero difference, zero reflection, boundary or not. Anti-reflection coatings split the difference in two and cancel out of phase — \(n=\sqrt{n_1n_3}\) is ideal, MgF₂ gets 4% down to 1.4%. At <strong>Brewster's angle</strong> (\(\tan\theta_B=n_2/n_1\), 56.3° for glass) p-polarization vanishes because <em>a dipole does not radiate along its own axis</em> — a direct consequence of Episode 1's "refraction is forward scattering."</p>
+    <p>Past the critical angle you get total internal reflection, but an <strong>evanescent wave</strong> \(e^{-\kappa z}\) still seeps beyond the boundary (decay length 248 nm for visible light at 45°). In steady state no energy crosses — <em>until you put a second slab there</em>. Then light does get through, with transmission</p>
+    <p style="text-align:center;margin:6px 0;">\(T=\left[1+\frac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2\kappa d\right]^{-1}\ \propto\ e^{-2\kappa d}\)</p>
+    <p><strong>That is Episode 1 of Tunneling That Clicks with different letters.</strong> Newton saw it with two prisms in 1704 — 220 years before quantum mechanics. Which licenses the conclusion: <em>the "quantumness" of tunnelling is not in the exponential.</em> What is quantum is only that the electron is a wave.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">Next — Episode 5: "Refraction and Absorption Are One and the Same Function"</span>
+    So far we have treated the refractive index as real. <strong>It is actually complex</strong> — \(\tilde n=n+i\kappa\), real part refraction, imaginary part absorption. And the two <em>cannot be chosen independently</em>. From one single requirement — "an effect does not precede its cause" — the two are <strong>tied together by an integral</strong> (the Kramers–Kronig relations). The consequence is brutal: <strong>any material that bends light must absorb light somewhere.</strong> A material that is perfectly transparent everywhere and still refracts cannot exist, in principle.
+  </div>
+
+  <div class="foot">
+    This document is Episode 4 of the "Refraction That Clicks" series, a reading for physics-loving high-schoolers and undergraduates. The Fresnel coefficients, the anti-reflection condition, Brewster's angle and the dipole-radiation explanation, the critical angle, the evanescent wave and steady-state energy flux, frustrated total internal reflection and the identity of its transmission with the quantum rectangular barrier, Newton's two-prism observation in <em>Opticks</em> (1704), and applications to TIRF, near-field microscopy and fingerprint sensors are all standard optics. That the transmission formula is for s-polarization, that the figure idealises away the few-nanometre surface roughness of real glass, that "the same equation" refers to mathematical form and that photon and electron tunnelling are not the same phenomenon, that only p-polarization vanishes at Brewster's angle, that "no energy crosses" is a steady-state time average, and that the electron decay length depends on barrier height, are all stated in "The honest line" above. — To print, use your browser's Print and "Save as PDF" (sliders freeze and answers are hidden in the print version). Neighbours: <a href="wakaru-kussetsu-03-isousokudo.html">Episode 3, When the Refractive Index Is Less Than One</a> / <a href="wakaru-kussetsu-05-kk.html">Episode 5, Refraction and Absorption Are One Function</a> / <a href="index.html">Contents</a> / sister series <a href="../wakaru-surinuke-en/wakaru-surinuke-01-kyojikan.html">Tunneling That Clicks, Episode 1</a>.
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, move the gap d and watch the marker travel along the log plot, landing on a straight line of slope −2κ. Bring the incidence angle toward the critical angle (41.8°) and κ shrinks, so the wave reaches much further. "Show answer" reveals the solutions.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv');
+  var sd=document.getElementById('sd'), vd=document.getElementById('vd');
+  var st=document.getElementById('st'), vt=document.getElementById('vt');
+  var sl=document.getElementById('sl'), vl=document.getElementById('vl');
+  var rd=document.getElementById('rd'), bc=document.getElementById('bc');
+  var N1=1.5, N2=1.0;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function kappaOf(lam, th){
+    var k0=2*Math.PI/(lam*1e-9);
+    var s=N1*Math.sin(th), q=s*s-N2*N2;
+    return q>0 ? k0*Math.sqrt(q) : 0;
+  }
+  function kzOf(lam, th){
+    var k0=2*Math.PI/(lam*1e-9);
+    return k0*N1*Math.cos(th);
+  }
+  function Tof(lam, th, d_nm){
+    var kap=kappaOf(lam,th); if(kap<=0) return 1;
+    var kz=kzOf(lam,th);
+    var x=kap*d_nm*1e-9;
+    var sh=Math.sinh(Math.min(x,40));
+    var pre=(kz*kz+kap*kap)*(kz*kz+kap*kap)/(4*kz*kz*kap*kap);
+    return 1/(1+pre*sh*sh);
+  }
+
+  function draw(){
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    var d=parseInt(sd.value,10);
+    var thd=parseInt(st.value,10)/10;
+    var lam=parseInt(sl.value,10);
+    var th=thd*Math.PI/180;
+    vd.textContent=d+' nm'; vt.textContent=thd.toFixed(1)+'°'; vl.textContent=lam+' nm';
+    ctx.clearRect(0,0,w,h);
+
+    var kap=kappaOf(lam,th);
+    var decay = kap>0 ? 1/kap*1e9 : Infinity;
+    var T=Tof(lam,th,d);
+    var thc=Math.asin(N2/N1)*180/Math.PI;
+
+    /* left: cross-section */
+    var L=14, R=w*0.44, T0=30, B=h-38;
+    var DMAX=1500;
+    var gapPx=(R-L)*0.55;
+    var g1x=L+(R-L)*0.16;
+    var g2x=g1x+gapPx*(d/DMAX);
+    if(g2x>R-14) g2x=R-14;
+
+    ctx.fillStyle='rgba(58,110,165,.18)';
+    ctx.fillRect(L,T0,g1x-L,B-T0);
+    ctx.fillRect(g2x,T0,R-g2x,B-T0);
+    ctx.strokeStyle='#3a6ea5'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(g1x,T0); ctx.lineTo(g1x,B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(g2x,T0); ctx.lineTo(g2x,B); ctx.stroke();
+    ctx.fillStyle='#26547e'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('glass n=1.5', (L+g1x)/2, B+14);
+    if(R-g2x>50) ctx.fillText('glass', (g2x+R)/2, B+14);
+
+    var mid=(T0+B)/2, amp=(B-T0)*0.36;
+    var dl = (decay===Infinity?1e9:decay);
+    ctx.strokeStyle='#b3541e'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var i=0;i<=180;i++){
+      var frac=i/180, xx=g1x+gapPx*frac;
+      var znm=DMAX*frac;
+      var a=Math.exp(-znm/dl);
+      if(i===0)ctx.moveTo(xx,mid-amp*a); else ctx.lineTo(xx,mid-amp*a);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(179,84,30,.14)'; ctx.beginPath();
+    ctx.moveTo(g1x,mid);
+    for(var j=0;j<=180;j++){
+      var f2=j/180, x2=g1x+gapPx*f2, z2=DMAX*f2;
+      ctx.lineTo(x2, mid-amp*Math.exp(-z2/dl));
+    }
+    ctx.lineTo(g1x+gapPx,mid); ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle='#8f4114'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('e^(-kz)', g1x+8, mid-amp-8);
+
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(L+6,T0+14); ctx.lineTo(g1x-2,mid); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(g1x-2,mid); ctx.lineTo(L+6,B-14); ctx.stroke();
+    if(R-g2x>26){
+      ctx.lineWidth=Math.max(0.6, 5*Math.sqrt(T));
+      ctx.strokeStyle='rgba(47,125,90,'+(0.35+0.65*Math.sqrt(T)).toFixed(2)+')';
+      ctx.beginPath(); ctx.moveTo(g2x+1,mid); ctx.lineTo(R-6,mid-(R-g2x)*0.55); ctx.stroke();
+    }
+    ctx.fillStyle='#2f7d5a'; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('incident', L+6, T0+10);
+    ctx.fillText('totally reflected', L+6, B-18);
+
+    ctx.strokeStyle='#7a6450'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(g1x,B-6); ctx.lineTo(g2x,B-6); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#7a6450'; ctx.textAlign='center'; ctx.font='9.5px sans-serif';
+    ctx.fillText('d = '+d+' nm', (g1x+g2x)/2, B-10);
+
+    ctx.fillStyle='#8f4114'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('the wave seeping past total reflection', (L+R)/2, 18);
+
+    /* right: log T */
+    var PL=w*0.55, PR=w-16, PT=30, PB=h-38;
+    function XX(dn){ return PL+(PR-PL)*dn/DMAX; }
+    function YY(lg){ return PT+(PB-PT)*(-lg)/7; }
+
+    ctx.strokeStyle='#cbb49a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PB); ctx.lineTo(PR,PB); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.textAlign='right';
+    for(var g=0;g<=7;g++){
+      ctx.strokeStyle='#f0e4d4'; ctx.beginPath(); ctx.moveTo(PL,YY(-g)); ctx.lineTo(PR,YY(-g)); ctx.stroke();
+      ctx.fillStyle='#7a6450'; ctx.fillText(g===0?'1':('1e-'+g), PL-5, YY(-g)+4);
+    }
+    ctx.textAlign='center';
+    for(var dm=500;dm<=1500;dm+=500){ ctx.fillText(dm+' nm', XX(dm), PB+14); }
+    ctx.fillText('gap d', (PL+PR)/2, PB+30);
+    ctx.save(); ctx.translate(PL-40,(PT+PB)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('transmission T',0,0); ctx.restore();
+
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=3; ctx.beginPath();
+    for(var p=0;p<=200;p++){
+      var dn=DMAX*p/200, tv=Tof(lam,th,dn);
+      var lg=Math.log(Math.max(tv,1e-9))/Math.LN10;
+      if(lg<-7) lg=-7;
+      if(p===0)ctx.moveTo(XX(dn),YY(lg)); else ctx.lineTo(XX(dn),YY(lg));
+    }
+    ctx.stroke();
+
+    var lgT=Math.log(Math.max(T,1e-9))/Math.LN10;
+    if(lgT>=-7){
+      ctx.fillStyle='#b3541e'; ctx.beginPath(); ctx.arc(XX(d),YY(lgT),6,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(179,84,30,.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(XX(d),YY(lgT)); ctx.lineTo(XX(d),PB); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.fillStyle='#8f4114'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('T proportional to e^(-2kd) — a straight line in log', (PL+PR)/2, 18);
+
+    var elec = kap>0 ? (kap*1.0546e-34)*(kap*1.0546e-34)/(2*9.109e-31)/1.602e-19 : 0;
+    var extra='';
+    if(thd>=thc){
+      extra='<br>For comparison: producing the same &kappa; with an electron would need a barrier of V&minus;E = <b>'+elec.toExponential(2)+' eV</b> — '
+        +'the optical evanescent wave corresponds to an <b>extraordinarily low barrier</b>, which is why two slabs of glass suffice.';
+    }
+    rd.innerHTML='Incidence <b>'+thd.toFixed(1)+'&deg;</b> (critical angle '+thc.toFixed(1)+'&deg;)'
+      + (thd<thc ? ' — <b style="color:#a83a22">below the critical angle, so light simply transmits normally</b>' :
+        ' &nbsp; &kappa; = <b>'+(kap/1e6).toPrecision(3)+'&times;10&#8310; m&#8315;&sup1;</b>, decay length 1/&kappa; = <b>'+decay.toPrecision(3)+' nm</b>')
+      +'<br>Gap d = <b>'+d+' nm</b> &rarr; transmission T = <b>'+(T>=1e-4? (T*100).toPrecision(3)+' %' : T.toExponential(2))+'</b>'
+      +extra;
+  }
+
+  sd.addEventListener('input', draw);
+  st.addEventListener('input', draw);
+  sl.addEventListener('input', draw);
+  bc.addEventListener('click', function(){ sd.value=40; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
