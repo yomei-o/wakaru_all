@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>まだ誰も取っていない比を、機械に探させる ── 物理を作る 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;   /* 作業台の色 */
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag,.lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  /* このシリーズ固有：作業ログ（コードと出力） */
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:9px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 1 回 ／ まだ誰も取っていない比を、機械に探させる</span></div>
+  <p class="eyebrow">姉妹編「わかる」は読む側だった。ここからは作る側に回る ── 結論ではなく、作業を見せる</p>
+  <h1>まだ誰も取っていない比を、機械に探させる
+    <span class="sub">「効くのは無次元の比」を機械にやらせると、<em>次元行列の整数核</em>を求める線形代数の問題になります。<br>基本定数から作れる無次元量を <strong>162,931 本</strong>すべて列挙し、値が 1 に落ちるものを拾い、<br>それを<em>でたらめな宇宙</em>と比べました ── 結果は、偶然と区別がつきませんでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：連立方程式の掃き出し法、対数目盛り、平均と標準偏差</span>
+    <span>この回の芯：p = 0.67（偶然と区別できない）</span>
+  </div>
+
+  <p class="lead">姉妹編「わかる」シリーズは、ずっと同じことを言ってきました ── <em>単位のある量は舞台装置、効くのは無次元の比</em>。\(\beta=v/c\)、\(S/\hbar\)、\(E/k_BT\)、\(T/T_c\)。どれも「割ったら単位が消える量」で、物理はそこにしか宿らない。<br>では、こう考えるのが自然です。<strong>比を取るのが物理なら、取れる比を全部取ってしまえばいいのではないか。</strong> 人間が思いつかなかった組み合わせの中に、誰も気づいていない一致が眠っているかもしれない。<br>この回は、それを実際にやります。プログラムを書き、16万本の無次元量を列挙し、結果を読みます。先に言っておくと、<em>探し物は見つかりませんでした</em>。でも見つからなかったこと自体が、はっきりした形の答えになりました。物理を作るというのは、たいていこういう作業です。</p>
+
+  <h2><span class="n">01</span>作りたい機械</h2>
+
+  <p>仕様はひとことで書けます。</p>
+
+  <div class="keybox">
+    <div class="lbl">仕様</div>
+    <p style="margin:6px 0 0">物理量の表を渡すと、それらを掛け合わせて<strong>単位が消える組み合わせ</strong>を全部列挙し、値が \(1\) の近くに落ちるものを報告する機械。</p>
+  </div>
+
+  <p>「値が 1 の近く」を探すのは、そこが<em>説明を要求する場所</em>だからです。まったく無関係な二つの量の比が、たまたま 1 前後になる理由はありません。宇宙定数と物質の密度が今ちょうど同じくらいだとか、そういう「なぜか揃っている」に人は引っかかってきました。だから機械にも同じものを探させます。</p>
+
+  <p>素材には注意が要ります。<strong>無次元の量（\(\alpha\) など）は入れません</strong> ── 材料ではなく的だからです。プランク長やプランク質量も入れません。あれは \(c,\hbar,G\) の組み合わせそのものなので、入れれば「プランク長を \(c,\hbar,G\) で割ると 1 になりました」という、意味のない当たりを量産するだけです。</p>
+
+  <h2><span class="n">02</span>無次元とは、行列の核である</h2>
+
+  <p>ここが、この回でいちばん気持ちのいいところです。「単位が消える組み合わせを探す」という<em>物理の言葉</em>が、そっくりそのまま<em>線形代数の言葉</em>に化けます。</p>
+
+  <p>まず小さい例で。\(e,\ \varepsilon_0,\ \hbar,\ c\) の四つを掛け合わせて、単位を消してみます。それぞれの次元を、kg・m・s・A の指数として縦に書きます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 次元を数のならびにする</span>
+    <p style="margin:8px 0 0">\(e=\) C \(=\) A·s なので \((\mathrm{kg},\mathrm{m},\mathrm{s},\mathrm{A})=(0,0,1,1)\)。同じように \(\varepsilon_0=(-1,-3,4,2)\)、\(\hbar=(1,2,-1,0)\)、\(c=(0,1,-1,0)\)。<br>積 \(e^{a}\varepsilon_0^{b}\hbar^{d}c^{f}\) の次元は、この四本のベクトルを \(a,b,d,f\) 倍して足したもの。</p>
+    <p class="lbl">つまり「無次元になれ」は、こう書ける</p>
+    $$\begin{pmatrix}0&-1&1&0\\0&-3&2&1\\1&4&-1&-1\\1&2&0&0\end{pmatrix}\begin{pmatrix}a\\b\\d\\f\end{pmatrix}=\begin{pmatrix}0\\0\\0\\0\end{pmatrix}$$
+    <p style="margin:10px 0 8px">（行が kg, m, s, A、列が \(e,\varepsilon_0,\hbar,c\)。）これはただの<strong>連立一次方程式</strong>です。掃き出すと \((a,b,d,f)=(2,-1,-1,-1)\) が出ます。</p>
+    <p class="lbl">機械が吐いた無次元量</p>
+    $$\frac{e^2}{\varepsilon_0\hbar c}=0.0917$$
+  </div>
+
+  <p>見覚えのある数でしょうか。\(0.0917=4\pi/137.036\) ── <em>微細構造定数 \(\alpha\) が \(4\pi\) をかぶって出てきました</em>。機械は「電磁気」も「結合定数」も知りません。次元の数ならびを掃き出しただけで、物理でいちばん有名な無次元量に行き当たった。この \(4\pi\) が後で効いてきます（08 節）。</p>
+
+  <div class="aside">
+    <span class="tag">裏返すと ── プランク単位が一意に決まる理由</span>
+    逆に \(c,\hbar,G\) の三つだけを入れると、核は<strong>空</strong>になります。この三つからは無次元量が作れない ── つまり次元的に完全に独立。だからこそ、長さ・質量・時間それぞれを作る組み合わせが<em>ちょうど一通りに決まる</em>。プランク単位が一意なのは、核が空だからです。
+  </div>
+
+  <p>一般化しましょう。量を \(m\) 個選ぶと、その次元指数は \(5\times m\) の整数行列 \(D\) になります（SI の基本次元は kg, m, s, A, K の 5 つ）。積 \(\prod q_i^{a_i}\) が無次元である条件は、</p>
+
+  $$D\,\mathbf{a}=\mathbf{0}$$
+
+  <p>これだけです。つまり ──</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の道具</div>
+    <p style="margin:6px 0 0"><strong>無次元量の全体＝次元行列の核（カーネル）。</strong> しかも指数は整数で欲しいので、<em>整数核</em>を求める。</p>
+  </div>
+
+  <p>これは物理では Buckingham の \(\pi\) 定理と呼ばれてきたものですが、名前を知らなくても構いません。<em>掃き出し法で解ける</em>、それが全部です。行列を有理数で階段化して、ピボットでない列（自由変数）ごとに核ベクトルを一本ずつ取り出し、分母を払って整数にし、最大公約数で割る。高校で習う手順そのままで、機械は「無次元とは何か」を一切知らないまま、無次元量を吐き出します。</p>
+
+  <div class="aside">
+    <span class="tag">設計判断 ── ゼロを含む核ベクトルは捨てる</span>
+    指数のどれかが \(0\) なら、その量は実は使われていません。つまり<strong>もっと小さい部分集合が、同じ関係を既に出している</strong>。だから「全部の成分が非ゼロ」のものだけを採用します。こうすると重複が消え、一本一本が「これ以上材料を減らせない関係」になります。
+  </div>
+
+  <h2><span class="n">03</span>機械にする</h2>
+
+  <p>あとは、量の表からすべての部分集合を作り、それぞれで核を求めるだけです。中核はこれだけで動きます。</p>
+
+  <div class="lab">
+    <span class="tag">kuuhaku.cpp ── 中核</span>
+<pre><span class="cm">// 部分集合 idx（m 個の量）の次元行列 (5 × m) の整数核を返す。</span>
+<span class="cm">// 核ベクトル v は「∏ q_i^{v_i} が無次元」を意味する。</span>
+std::vector&lt;std::vector&lt;int&gt;&gt; <span class="hi">integerKernel</span>(const std::vector&lt;int&gt;&amp; idx) {
+  <span class="cm">// (1) 次元指数を有理数行列に並べる</span>
+  <span class="cm">// (2) 行簡約（RREF）── ただの掃き出し法</span>
+  <span class="cm">// (3) 自由変数ごとに核ベクトルを取り出し、</span>
+  <span class="cm">//     分母を払って整数化 → gcd で割って原始ベクトルに</span>
+}</pre>
+  </div>
+
+  <p>素材は独立な物理量 21 個 ── 基本定数（\(c,\hbar,G,k_B,e,\varepsilon_0\)）、粒子の質量 9 種、QCD と電弱のスケール、宇宙論の量（\(H_0,\Lambda,T_{\rm cmb}\)）。材料は 6 個まで、指数は \(\pm4\) まで。走らせます。</p>
+
+  <div class="lab">
+    <span class="tag">出力</span>
+<pre>無次元の組み合わせ： <span class="hi">162931</span> 個
+そのうち |log10 V| &lt; 0.050 に落ちたもの： <span class="hi">279</span> 個</pre>
+  </div>
+
+  <p>16万本。そのうち 279 本が、値 1 の \(\pm12\%\) に入りました。<strong>279 個も一致が見つかった</strong> ── そう言いたくなります。ここが分かれ道です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>最初の罠 ── 複雑な式は、何にでも当たる</h2>
+
+  <p>指数を大きくしていいなら、どんな数でも作れます。\(m_p^{4}m_e^{-3}m_\mu^{-1}\cdots\) と並べれば、値はいくらでも動く。<em>当たって当然のものが当たっても、情報はゼロ</em>です。</p>
+
+  <p>だから複雑さの軸を入れます。指数の絶対値の和 \(\Sigma|a_i|\) ── オッカムの剃刀を数にしたものです。式の本数を帯ごとに数えると、こうなっています。</p>
+
+  <table class="tbl">
+    <tr><th>複雑さ \(\Sigma|a|\)</th><th class="num">式の本数</th><th>意味</th></tr>
+    <tr><td class="mono">2–3</td><td class="num">41</td><td>ほぼ単純な比。ここで当たったら事件</td></tr>
+    <tr><td class="mono">4–5</td><td class="num">1,190</td><td>まだ読める式</td></tr>
+    <tr><td class="mono">6–7</td><td class="num">14,998</td><td>そろそろ怪しい</td></tr>
+    <tr><td class="mono">8–9</td><td class="num">43,444</td><td>当たって当たり前</td></tr>
+    <tr><td class="mono">10+</td><td class="num">103,258</td><td>数えるだけ無駄</td></tr>
+  </table>
+
+  <p>本数が指数的に増えます。だから<strong>全体のヒット数を見ても意味がありません</strong>。帯ごとに、その帯の本数に対して当たりすぎているかを見る必要がある。</p>
+
+  <h2><span class="n">05</span>でたらめな宇宙を作る</h2>
+
+  <p>「当たりすぎ」を測るには、比べる相手が要ります。理屈で期待値を計算してもいいのですが、もっと素朴で、もっと信用できるやり方があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の芯</div>
+    <p style="margin:6px 0 0">同じ手続きを、<em>でたらめな宇宙</em>に対して何百回も回してみる。<br><strong>本物の宇宙のほうがヒットが多くなければ、それは偶然だ。</strong></p>
+  </div>
+
+  <p>実装は拍子抜けするほど簡単です。列挙した 16 万本の式は<em>そのまま固定</em>して、各物理量の<strong>値だけ</strong>をランダムにずらす。\(10^{-1.5}\) 倍から \(10^{+1.5}\) 倍の範囲で、対数一様に。次元も、組み合わせの構造も、式の本数も、まったく同じ。<em>数字だけが違う宇宙</em>です。それを 200 個作って、それぞれでヒット数を数えます。</p>
+
+  <p>これは素粒子物理で <strong>look-elsewhere 効果</strong>と呼ばれるものへの対処です。「どこか一箇所で 3σ の山が出た」は、探した場所が十分多ければ必ず起きる。姉妹編「わかる質量」番外③で Koide 公式を診断したときの注意 ── <em>無次元の組み合わせを十分たくさん作れば、いくつかは単純な値の近くに必ず落ちる</em> ── を、今度は<strong>実測する</strong>わけです。</p>
+
+  <h2><span class="n">06</span>先に、検出力を示す</h2>
+
+  <p>p 値を出す前にやることがあります。<strong>この機械は、本物の関係があったら本当に見つけられるのか。</strong> 見つけられない機械が「何も見つかりませんでした」と言っても、何の情報もありません。</p>
+
+  <p>そこで陽性対照を取ります。<em>定義で互いに結ばれていることが分かっている</em>量だけを入れる ── 原子物理の \(\hbar, c, e, \varepsilon_0, m_e\) と、そこから定義される \(a_0\)（ボーア半径）、\(E_h\)（ハートリーエネルギー）、\(\sigma_T\)（トムソン断面積）。ここには<strong>本物の関係が確実に存在します</strong>。</p>
+
+  <div class="lab">
+    <span class="tag">陽性対照</span>
+<pre>帯     式の数   本物  偶然なら    超過
+6-7        10      1  0.0±0.2  <span class="hi">4.9 σ</span>
+
+[Σ|a|=6] <span class="st">hbar^2 m_e^-1 a0^-2 E_h^-1  = 1.0000</span></pre>
+  </div>
+
+  <p>掘り当てました。\(E_h=\hbar^2/(m_e a_0^2)\) ── ハートリーエネルギーの定義そのものです。機械は「ボーア半径」も「エネルギー」も知りません。次元の数ならびと、値だけから、これを見つけた。<em>検出力はある。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 全体で見ると、これは埋もれる</span>
+    同じ計算の全体の p 値は <strong>0.26</strong>。まったく有意ではありません。4.9σ は「複雑さ 6–7 の帯」に絞って初めて出てきた数字です。<em>帯に分けなければ、本物の関係すら偶然に飲まれる。</em> これが 04 節の主張の実演になっています。<br>もうひとつ ── この 4.9σ は、偶然側のばらつきがほぼゼロ（\(0.0\pm0.2\)）なので割り算で膨らんでいます。<strong>σ ではなく p 値で読んでください。</strong>
+  </div>
+
+  <h2><span class="n">07</span>結果</h2>
+
+  <p>準備が済みました。本番です。</p>
+
+  <div class="lab">
+    <span class="tag">本番 ── 独立な物理量 21 個、材料 6 個まで、指数 ±4 まで</span>
+<pre>無次元の組み合わせ： 162931 個
+そのうち |log10 V| &lt; 0.050 に落ちたもの： 279 個
+
+  偶然のヒット数 : 平均 <span class="hi">294.5 ± 31.7</span>
+  本物の宇宙     : <span class="hi">279</span> 個
+  経験 p 値      : <span class="hi">0.6667</span>
+
+帯     式の数    本物   偶然なら    超過
+2-3        41       1   0.4±0.6    1.0 σ
+4-5      1190       1   4.5±2.3   -1.5 σ
+6-7     14998      32  35.3±6.4   -0.5 σ
+8-9     43444      85  97.4±12.5  -1.0 σ
+10+    103258     160 156.9±20.7   0.1 σ</pre>
+  </div>
+
+  <p><strong>どの帯にも、超過はありません。</strong> それどころか本物の宇宙は、でたらめな宇宙の期待値をわずかに<em>下回って</em>います。279 対 294.5。p 値は 0.67 ── 「偶然だとしたら、こんなことは滅多に起きない」の正反対で、<em>偶然そのもの</em>です。</p>
+
+  <p>閾値（どこまでを「1 の近く」と呼ぶか）と、ずらし幅（でたらめさの強さ）を振っても、結論は動きません。9 通り試して p は 0.23 から 0.64 の間。</p>
+
+  <div class="fig">
+    <div class="cap">図：自分で回してみる ── 21 個の量から無次元の組を列挙し、でたらめな宇宙 200 個と比べます（あなたのブラウザが今その場で計算しています）</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>ヒットの厳しさ &nbsp;|log₁₀V| &lt; <span class="val" id="vt">0.050</span>
+        <input type="range" id="st" min="10" max="200" value="50">
+      </label>
+      <label>でたらめさ &nbsp;10<sup>±</sup><span class="val" id="vs">1.5</span>
+        <input type="range" id="ss" min="5" max="40" value="15">
+      </label>
+      <button id="bre">でたらめな宇宙を引き直す</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#9fb8bc"></span>でたらめな宇宙のヒット数の分布</span>
+      <span><span class="swatch" style="background:#a83a22"></span>本物の宇宙</span>
+    </div>
+    <div class="readout" id="ro">計算中…</div>
+  </div>
+
+  <p>赤い線（本物の宇宙）が、灰色の山（でたらめな宇宙たち）の<em>真ん中あたりに刺さっている</em>のが見えるはずです。厳しさを変えても、でたらめさを変えても、赤い線は山から出ていかない。それがこの回の結果です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">08</span>壁 ── 次元解析は、係数を出せない</h2>
+
+  <p>ここで、この機械の<em>届かない範囲</em>をはっきりさせておきます。実は、有名な「一致」のいくつかは、この探索で拾えていません。拾えないことに理由があります。</p>
+
+  <p>宇宙定数と物質の密度が今ちょうど同じくらいだ、という有名な話（coincidence problem）を、機械の言葉で書いてみます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 拾えない理由</span>
+    <p style="margin:8px 0 0">次元解析が書ける、いちばん素直な無次元量：</p>
+    $$\frac{\Lambda c^2}{G\rho_c}=17.3$$
+    <p class="lbl">1 からは、ずいぶん遠い</p>
+    <p style="margin:8px 0 0">ところが物理の側の正しい定義は \(\rho_\Lambda=\Lambda c^2/(8\pi G)\)。<em>\(8\pi=25.1\)</em> が入っています。それで割れば \(\rho_\Lambda/\rho_c=0.69\) ── これが「ちょうど同じくらい」の正体。</p>
+  </div>
+
+  <p>つまり一致は \(8\pi\) の中に隠れていました。そして<strong>次元解析は \(8\pi\) を出せません</strong>。出せるのは式の<em>形</em>までで、前に付く \(O(1)\) の数は原理的に決まらない。\(2\pi\) も \(1/4\) も \(3/5\) も、全部この壁の向こう側です。</p>
+
+  <p>02 節で機械が最初に吐いた式も、実は同じ壁でした。\(e^2/(\varepsilon_0\hbar c)=0.0917\) ── 有名な \(1/137\) はここに<em>直接は現れません</em>。\(4\pi\) をはがして初めて \(\alpha=1/137.036\) になる。<strong>機械は \(\alpha\) を見つけたのに、\(\alpha\) を見せてくれなかった。</strong></p>
+
+  <p>これは残念な制約ではなく、<em>この回でいちばん重要な発見</em>です。「人間が解けていない」の多くは、実は<strong>この \(O(1)\) の壁の向こうにあります</strong>。ブラックホールのエントロピーで言えば、\(S\propto A\) までは次元で出るのに、\(1/4\) だけが出ない。そこを埋めるには、数える対象そのもの ── 状態、機構、対称性 ── が要る。<em>機械が壁の手前で止まったことで、壁の位置が測れた。</em></p>
+
+  <h2><span class="n">09</span>いちばん怖かったもの</h2>
+
+  <p>実験にはもう一つ、予定になかった収穫がありました。最初に、定義で決まる量（\(a_0, E_h, \rho_c, \sigma_T\)）も混ぜて走らせたときのことです。上位のヒットに、こんな式が並びました。</p>
+
+  <div class="lab">
+    <span class="tag">上位ヒット（定義で決まる量を含めた場合）</span>
+<pre>[Σ|a|= 6] <span class="st">hbar^2 m_e^-1 a0^-2 E_h^-1      = 1.0000</span>
+[Σ|a|= 6] <span class="hi">G^1 m_mu^-1 m_p^1 H0^-2 rho_c^1 = 1.0601</span></pre>
+  </div>
+
+  <p>上は本物 ── ハートリーエネルギーの定義です。では下は？ 分解するとこうなります。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 下の式をほどく</span>
+    $$\underbrace{\frac{G\rho_c}{H_0^2}}_{=\,3/8\pi\,=\,0.1194}\times\underbrace{\frac{m_p}{m_\mu}}_{=\,8.88}=1.0601$$
+    <p style="margin:10px 0 8px">左は臨界密度の<strong>定義</strong> \(\rho_c=3H_0^2/(8\pi G)\)。右は<strong>まったく無関係な質量比</strong>。掛けたら、たまたま 1 に近づいた。</p>
+  </div>
+
+  <p>宇宙論の定義に、素粒子の質量比という飾りが乗っただけの式です。物理的な意味はありません。<strong>けれど出力の見た目では、上の本物とまったく区別がつきません。</strong> どちらも「6 個の材料、指数の和 6、値がほぼ 1」。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── これは自動探索の本質的な弱点</span>
+    「本物の関係」と「本物の関係に無意味な飾りを掛けたもの」は、<em>値と複雑さだけでは分離できません</em>。分離するには、式が何を言っているかを理解する必要がある ── つまり、機械の外に出る必要がある。<br>姉妹編「わかる質量」番外③は、Koide 公式について「美しさは仮説の入口であって、証拠ではない」と書きました。その罠が、今度は自分の書いたプログラムの出力の中に、そのままの形で現れたわけです。
+  </div>
+
+  <h2><span class="n">10</span>何が言えて、何が言えないか</h2>
+
+  <p>結果を、言えることと言えないことに分けます。ここを混ぜると、途端にトンデモになります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:50%">言える</th><th>言えない</th></tr>
+    <tr>
+      <td>基本定数を組み合わせて \(O(1)\) になる式を機械的に探しても、<strong>偶然以上のものは出てこない</strong>（p = 0.67）。</td>
+      <td>「一致は存在しない」。この手続きが見られるのは \(O(1)\) の値だけで、\(4\pi\) の向こうは見ていない。</td>
+    </tr>
+    <tr>
+      <td>総当たりで出てくる「美しい一致」は、<strong>数を数えれば全部説明がつく</strong>。数秘術が尽きない理由が、そのまま数字になった。</td>
+      <td>「この量の表が正しい」。素材を変えれば結果は変わりうる。表は人間が選んでいる。</td>
+    </tr>
+    <tr>
+      <td>機械は本物の関係（定義）を<strong>実際に掘り当てた</strong>。検出力は確認済み。</td>
+      <td>「機械が見つけたものは全部意味がある」。定義に飾りを掛けただけの式が同じ顔で並ぶ。</td>
+    </tr>
+  </table>
+
+  <p>負の結果です。でも、はっきりした形の負の結果です。<em>「基本定数の間に、まだ誰も気づいていない単純な数値的一致が眠っている」という期待は、この範囲では否定された。</em> 空白は、比の取り方が足りないから残っているのではない。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>量を \(m\) 個選び、基本次元が 5 つのとき、無次元の組み合わせは何次元分できるか。行列 \(D\) の階数を \(r\) として答えよ。また \(m=6,\ r=5\) のとき、その部分集合に固有の関係は本質的に何本か。
+        <details><summary>答えを見る</summary><div class="ans">核の次元は \(m-r\)。\(m=6,\ r=5\) なら \(1\) 次元 ── つまり定数倍を除いて<strong>ただ一本</strong>。だから 6 個組を選ぶたびに、関係が自動的に一本ずつ決まる。プログラムが速い理由でもある。</div></details>
+      </li>
+      <li>ヒットの条件を \(|\log_{10}V|&lt;0.05\) と書いた。これは \(V\) がどの範囲にあることか。なぜ \(V\) そのものではなく対数で測るのか。
+        <details><summary>答えを見る</summary><div class="ans">\(10^{-0.05}&lt;V&lt;10^{0.05}\)、つまり \(0.89&lt;V&lt;1.12\)（約 \(\pm12\%\)）。対数で測るのは、\(V\) と \(1/V\) が<strong>同じ関係</strong>だから。指数の符号を反転しただけの式を二重に数えないため、\(1\) からの距離は対数で対称に測る必要がある。</div></details>
+      </li>
+      <li>「でたらめな宇宙」を作るとき、式の集合は固定して値だけをずらした。式のほうをランダムにしなかったのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">知りたいのは「この宇宙の<em>数字</em>が特別か」であって、「この列挙アルゴリズムが特別か」ではない。式の集合を固定すれば、探索の網の目・本数・複雑さの分布がすべて同一になり、<strong>違いは値だけ</strong>に絞られる。比べたいもの以外を揃えるのが対照実験の作法。</div></details>
+      </li>
+      <li>陽性対照で \(4.9\sigma\) が出たのに、同じ計算の全体の p 値は \(0.26\) だった。矛盾していないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">本物の関係は「複雑さ 6–7」の帯にある一本だけ。全体で見ると、他の帯の偶然のヒットに薄められて消える。<strong>信号がどこにあるか分かっているなら、そこだけを見るほうが強い</strong> ── ただし「見る場所を後から決める」と look-elsewhere そのものになる。陽性対照が正当なのは、帯を<em>結果を見る前に</em>決めていたから。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で作ったもの</h2>
+    <p><strong>機械。</strong> 物理量の表から、単位が消える組み合わせを全部列挙する。原理は「無次元＝次元行列の整数核」で、実装は掃き出し法。純 C++、依存ライブラリなし、16 万本の列挙に 2.6 秒。</p>
+    <p><strong>採点法。</strong> 列挙した式を固定したまま、値だけをでたらめにした宇宙を数百個作り、ヒット数を比べる。look-elsewhere 効果を、理屈ではなく<em>実測</em>する。</p>
+    <p><strong>結果。</strong> 162,931 本を探して、偶然を超える一致は<strong>ゼロ</strong>（p = 0.67）。どの複雑さの帯を見ても超過なし。閾値とでたらめさを振っても動かない。</p>
+    <p><strong>そして、壁の位置。</strong> 有名な一致が拾えなかった理由は、それらが \(8\pi\) や \(1/4\) という \(O(1)\) 係数の中に隠れているから。次元解析は形までしか出せない。<em>人間が解けていない問題の多くは、この壁の向こうにある</em> ── 機械が手前で止まったことで、壁がどこにあるかが測れました。</p>
+    <div class="next">
+      <span class="lbl">次回予告</span>
+      第2回「係数を、作りにいく」── \(O(1)\) の壁を正面から殴ります。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。対称性・極限・数え上げという三つの道具で、係数がどこまで手で出せるかを試します。今回とは逆に、こちらは<em>人間の側が強い</em>領域です。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第1回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは<strong>作業そのもの</strong>を見せます ── 道具を作り、走らせ、出た結果を（それが負の結果でも）そのまま読む。</p>
+    <p>本文中の数値は実際の探索プログラムの出力です。無次元量の全体が次元行列の核をなすこと（Buckingham の \(\pi\) 定理）、および look-elsewhere 効果は、いずれも確立した内容です。いっぽう「量の表」は筆者が選んだものであり、素材の選び方によって結論は変わりえます ── この探索は「基本定数の間に単純な数値的一致は無い」を証明したのではなく、<em>この表・この複雑さの範囲・この一致の定義のもとで、偶然を超える超過は検出されなかった</em>と述べているだけです。また \(\sigma\) の値は偶然側の分散が小さいとき過大に見えるため、p 値で読んでください。図はあなたのブラウザ上で同じ手続きを縮小して再実行しており、数値が本文と厳密に一致しないのは乱数と探索範囲（材料 5 個まで）の違いによります。</p>
+    <p>探索プログラム（純 C++・依存なし）：<a href="https://github.com/yomei-o/kuuhaku_cpp">kuuhaku_cpp</a> ／ 姉妹編：<a href="../README.md">「わかる」シリーズ全集</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーで、あなた自身の手で「偶然の山」を動かせます。</p>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── 物理量（独立なものだけ）。dim = [kg, m, s, A, K]
+  var Q = [
+    ["c",     2.99792458e8,      [ 0, 1,-1, 0, 0]],
+    ["hbar",  1.054571817e-34,   [ 1, 2,-1, 0, 0]],
+    ["G",     6.67430e-11,       [-1, 3,-2, 0, 0]],
+    ["kB",    1.380649e-23,      [ 1, 2,-2, 0,-1]],
+    ["e",     1.602176634e-19,   [ 0, 0, 1, 1, 0]],
+    ["eps0",  8.8541878128e-12,  [-1,-3, 4, 2, 0]],
+    ["m_e",   9.1093837015e-31,  [ 1, 0, 0, 0, 0]],
+    ["m_mu",  1.883531627e-28,   [ 1, 0, 0, 0, 0]],
+    ["m_tau", 3.16754e-27,       [ 1, 0, 0, 0, 0]],
+    ["m_p",   1.67262192369e-27, [ 1, 0, 0, 0, 0]],
+    ["m_n",   1.67492749804e-27, [ 1, 0, 0, 0, 0]],
+    ["m_W",   1.4335e-25,        [ 1, 0, 0, 0, 0]],
+    ["m_Z",   1.6256e-25,        [ 1, 0, 0, 0, 0]],
+    ["m_H",   2.2325e-25,        [ 1, 0, 0, 0, 0]],
+    ["m_nu",  2.14e-37,          [ 1, 0, 0, 0, 0]],
+    ["L_QCD", 3.4770e-11,        [ 1, 2,-2, 0, 0]],
+    ["v_EW",  3.9420e-8,         [ 1, 2,-2, 0, 0]],
+    ["G_F",   2.2258e-62,        [-1,-5, 4, 0, 0]],
+    ["H0",    2.1927e-18,        [ 0, 0,-1, 0, 0]],
+    ["Lam",   1.1056e-52,        [ 0,-2, 0, 0, 0]],
+    ["T_cmb", 2.72548,           [ 0, 0, 0, 0, 1]]
+  ];
+  var NQ = Q.length, NDIM = 5, MAXM = 5, MAXEXP = 3, NNULL = 200;
+  var LG = Q.map(function(q){ return Math.log10(q[1]); });
+
+  // ── 有理数（小さい整数で足りる）
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a; }
+  function fr(n,d){ if(d<0){n=-n;d=-d;} var g=gcd(n,d)||1; n/=g; d/=g; if(n===0)d=1; return [n,d]; }
+  function fsub(a,b){ return fr(a[0]*b[1]-b[0]*a[1], a[1]*b[1]); }
+  function fmul(a,b){ return fr(a[0]*b[0], a[1]*b[1]); }
+  function fdiv(a,b){ return fr(a[0]*b[1], a[1]*b[0]); }
+
+  // ── 次元行列 (5 × m) の整数核
+  function integerKernel(idx){
+    var m = idx.length, A = [], r, c;
+    for(r=0;r<NDIM;r++){ A[r]=[]; for(c=0;c<m;c++) A[r][c]=fr(Q[idx[c]][2][r],1); }
+    var pivot=[], row=0;
+    for(c=0;c<m && row<NDIM;c++){
+      var p=-1;
+      for(r=row;r<NDIM;r++) if(A[r][c][0]!==0){ p=r; break; }
+      if(p<0) continue;
+      var tmp=A[row]; A[row]=A[p]; A[p]=tmp;
+      var inv=A[row][c], j;
+      for(j=0;j<m;j++) A[row][j]=fdiv(A[row][j],inv);
+      for(r=0;r<NDIM;r++){
+        if(r===row||A[r][c][0]===0) continue;
+        var f=A[r][c];
+        for(j=0;j<m;j++) A[r][j]=fsub(A[r][j], fmul(f,A[row][j]));
+      }
+      pivot.push(c); row++;
+    }
+    var isP=new Array(m).fill(false); pivot.forEach(function(x){ isP[x]=true; });
+    var basis=[];
+    for(var f2=0; f2<m; f2++){
+      if(isP[f2]) continue;
+      var v=[]; for(var i=0;i<m;i++) v[i]=fr(0,1);
+      v[f2]=fr(1,1);
+      for(var i2=0;i2<pivot.length;i2++) v[pivot[i2]]=fr(-A[i2][f2][0], A[i2][f2][1]);
+      var L=1; v.forEach(function(x){ L = L/gcd(L,x[1])*x[1]; });
+      var iv=[], g=0;
+      for(var k=0;k<m;k++){ iv[k]=v[k][0]*(L/v[k][1]); g=gcd(g,iv[k]); }
+      if(g>1) for(var k2=0;k2<m;k2++) iv[k2]/=g;
+      basis.push(iv);
+    }
+    return basis;
+  }
+
+  // ── 列挙（材料 2..MAXM 個）
+  var REL_Q=[], REL_A=[], REL_CX=[];
+  (function enumerate(){
+    var seen = Object.create(null);
+    var idx = [];
+    function push(gi, a){
+      var s='', i;
+      for(i=0;i<gi.length;i++) s += gi[i]+'^'+a[i]+';';
+      if(seen[s]) return; seen[s]=1;
+      var cx=0; for(i=0;i<a.length;i++) cx += Math.abs(a[i]);
+      REL_Q.push(gi.slice()); REL_A.push(a.slice()); REL_CX.push(cx);
+    }
+    function rec(start, depth, m){
+      if(depth===m){
+        var basis = integerKernel(idx);
+        if(!basis.length) return;
+        var K=basis.length, R=(K===1)?1:2;
+        var coef=new Array(K).fill(-R);
+        for(;;){
+          var nz=false, i;
+          for(i=0;i<K;i++) if(coef[i]){ nz=true; break; }
+          if(nz){
+            var a=new Array(m).fill(0);
+            for(var k=0;k<K;k++) for(var j=0;j<m;j++) a[j]+=coef[k]*basis[k][j];
+            var g=0; for(i=0;i<m;i++) g=gcd(g,a[i]);
+            var ok=(g>0);
+            if(ok){ for(i=0;i<m;i++) a[i]/=g; for(i=0;i<m;i++) if(a[i]===0){ ok=false; break; } }
+            if(ok) for(i=0;i<m;i++) if(Math.abs(a[i])>MAXEXP){ ok=false; break; }
+            if(ok){
+              for(i=0;i<m;i++){ if(a[i]>0) break; if(a[i]<0){ for(var y=0;y<m;y++) a[y]=-a[y]; break; } }
+              push(idx, a);
+            }
+          }
+          var kk=0;
+          for(;kk<K;kk++){ if(++coef[kk]<=R) break; coef[kk]=-R; }
+          if(kk===K) break;
+        }
+        return;
+      }
+      for(var i3=start; i3<=NQ-(m-depth); i3++){ idx[depth]=i3; rec(i3+1, depth+1, m); }
+    }
+    for(var m=2;m<=MAXM;m++){ idx.length=m; rec(0,0,m); }
+  })();
+
+  var NREL = REL_Q.length;
+
+  // ── ヒット数を数える
+  function countHits(L, tol){
+    var h=0;
+    for(var i=0;i<NREL;i++){
+      var q=REL_Q[i], a=REL_A[i], v=0;
+      for(var j=0;j<q.length;j++) v += a[j]*L[q[j]];
+      if(v<tol && v>-tol) h++;
+    }
+    return h;
+  }
+
+  // ── 描画
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), ss=document.getElementById('ss'),
+      vt=document.getElementById('vt'), vs=document.getElementById('vs'), ro=document.getElementById('ro'),
+      bre=document.getElementById('bre');
+  var seed = 20260727;
+  function rnd(){ seed = (seed*1103515245 + 12345) & 0x7fffffff; return seed/0x7fffffff; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var tol = parseInt(st.value,10)/1000, spread = parseInt(ss.value,10)/10;
+    vt.textContent = tol.toFixed(3); vs.textContent = spread.toFixed(1);
+
+    var real = countHits(LG, tol);
+    var nulls = [], L = new Array(NQ), t, i;
+    for(t=0;t<NNULL;t++){
+      for(i=0;i<NQ;i++) L[i] = LG[i] + (rnd()*2-1)*spread;
+      nulls.push(countHits(L, tol));
+    }
+    var mean=0; nulls.forEach(function(x){ mean+=x; }); mean/=NNULL;
+    var sd=0; nulls.forEach(function(x){ sd+=(x-mean)*(x-mean); }); sd=Math.sqrt(sd/NNULL);
+    var ge=0; nulls.forEach(function(x){ if(x>=real) ge++; });
+    var p=(ge+1)/(NNULL+1);
+
+    // ヒストグラム
+    var lo=Math.min(real, Math.min.apply(null,nulls)), hi=Math.max(real, Math.max.apply(null,nulls));
+    var pad=Math.max(2,Math.round((hi-lo)*0.12)); lo=Math.max(0,lo-pad); hi=hi+pad;
+    var NB=34, bin=new Array(NB).fill(0);
+    function bi(x){ return Math.max(0,Math.min(NB-1, Math.floor((x-lo)/(hi-lo+1e-9)*NB))); }
+    nulls.forEach(function(x){ bin[bi(x)]++; });
+    var mx=Math.max.apply(null,bin)||1;
+
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+    var Lx=46, Rx=w-16, Ty=22, By=h-42;
+    function X(x){ return Lx+(Rx-Lx)*(x-lo)/(hi-lo+1e-9); }
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(i=0;i<=4;i++){ var y=Ty+(By-Ty)*i/4; ctx.beginPath(); ctx.moveTo(Lx,y); ctx.lineTo(Rx,y); ctx.stroke(); }
+
+    var bw=(Rx-Lx)/NB;
+    ctx.fillStyle='#9fb8bc';
+    for(i=0;i<NB;i++){
+      if(!bin[i]) continue;
+      var bh=(By-Ty)*bin[i]/mx;
+      ctx.fillRect(Lx+i*bw+0.7, By-bh, Math.max(1,bw-1.4), bh);
+    }
+
+    // 平均 ±1σ
+    ctx.strokeStyle='#4c545c'; ctx.setLineDash([4,3]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(X(mean),Ty); ctx.lineTo(X(mean),By); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(76,84,92,.09)';
+    ctx.fillRect(X(mean-sd), Ty, Math.max(1,X(mean+sd)-X(mean-sd)), By-Ty);
+
+    // 本物
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(X(real),Ty-6); ctx.lineTo(X(real),By); ctx.stroke();
+    ctx.fillStyle='#a83a22';
+    ctx.font='600 12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('本物の宇宙 '+real, X(real), Ty-10);
+
+    // 軸
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(Lx,By); ctx.lineTo(Rx,By); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center';
+    for(i=0;i<=5;i++){
+      var vv=lo+(hi-lo)*i/5, xx=Lx+(Rx-Lx)*i/5;
+      ctx.beginPath(); ctx.moveTo(xx,By); ctx.lineTo(xx,By+4); ctx.stroke();
+      ctx.fillText(Math.round(vv), xx, By+17);
+    }
+    ctx.fillText('ヒット数（'+NREL.toLocaleString()+' 本中）', (Lx+Rx)/2, By+34);
+    ctx.save(); ctx.translate(13,(Ty+By)/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillText('でたらめな宇宙の個数', 0, 0); ctx.restore();
+
+    var verdict = (p>0.05 && p<0.95) ? '<span style="color:#1d4c52">偶然と区別がつかない</span>'
+                                     : '<span style="color:#a83a22">偶然からずれている</span>';
+    ro.innerHTML = '無次元の組み合わせ <b>'+NREL.toLocaleString()+'</b> 本 ｜ '
+      + '本物の宇宙 <b>'+real+'</b> ヒット ｜ でたらめな宇宙 <b>'+mean.toFixed(1)+' ± '+sd.toFixed(1)+'</b> ｜ '
+      + '経験 p 値 <b>'+p.toFixed(3)+'</b> → '+verdict;
+  }
+
+  st.addEventListener('input', draw);
+  ss.addEventListener('input', draw);
+  bre.addEventListener('click', function(){ seed = (seed*7919+104729)&0x7fffffff; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

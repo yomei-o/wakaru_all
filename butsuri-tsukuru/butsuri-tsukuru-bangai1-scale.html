@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理は、もっと簡単に書けないのか ── 物理を作る 番外編①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button.off{background:#9fb0ae;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  #termbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:0;}
+  #termbar button{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;font-weight:700;
+    letter-spacing:0;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:5px;
+    padding:9px 12px;white-space:nowrap;}
+  #termbar button.off{background:#9fb0ae;}
+  #termbar button:active{transform:translateY(1px);}
+  .tpanel{display:none;margin-top:12px;padding:15px 20px 6px;background:#fff;
+    border:1px solid var(--grid);border-left:3px solid var(--acc);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.8;}
+  .tpanel.on{display:block;}
+  .tpanel .th{font-size:11px;letter-spacing:.2em;font-weight:700;color:var(--acc);margin-bottom:6px;}
+  .tpanel .kill{margin-top:10px;padding:9px 13px;background:#f4e9e2;border-radius:3px;color:#3d271d;font-size:13.5px;}
+  .tpanel .kill b{color:#8a3a20;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.fig,.verdict,.tpanel,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} #termbar{display:none;} .no-print{display:none;}
+    .tpanel{display:block !important;margin-top:10px;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">番外編 ① ／ 物理は、もっと簡単に書けないのか</span></div>
+  <p class="eyebrow">既知の物理はぜんぶ6項で書ける ── その6項を1つずつ開き、複雑さがどこに置いてあるのかを特定する</p>
+  <h1>物理は、もっと簡単に書けないのか
+    <span class="sub">結論から言うと、<em>もう簡単に書けています</em>。Tシャツに印刷できる長さです。<br>この回はまず<strong>その式を1項ずつ開いて読み</strong>、それから複雑さが実際にどこに置いてあるのかを、場所ごとに特定します。<br>そして最後に ── <strong>次元を持つ項は、たった2つしかありません。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：作用と最小作用の原理、次元解析、対数目盛りの気分</span>
+    <span>この回の芯：次元を持つ項は、たった2つ</span>
+  </div>
+
+  <p class="lead">物理を勉強していると、いつまでも式が増えていきます。マクスウェル方程式が4本、シュレディンガー方程式、アインシュタイン方程式、ディラック方程式、標準模型の粒子表……。<em>本当はもっと簡単に書けるはずなのに</em>、と思ったことのある人は多いはずです。<br>その直観は、実は<strong>当たっています</strong>。既知の物理はすべて、たった6項に収まります。というより、6項ですらなく<em>4行の手続き</em>から生成されます。<br>この回は、まずその6項を<strong>1つずつ開いて読みます</strong>（それぞれ「何をしているか」と「消すと世界から何が消えるか」）。そのうえで、では<em>なぜ複雑に見えるのか</em>を、複雑さの置き場所ごとに特定します。最後に、法則そのものがこれ以上短くならないのかを確かめます。</p>
+
+  <h2><span class="n">01</span>既知の物理、全部</h2>
+
+  <p>まず全部書きます。これで終わりです。</p>
+
+  <div class="keybox">
+    <div class="lbl">既知の物理のすべて</div>
+    $$Z=\int\mathcal{D}\phi\;e^{iS[\phi]/\hbar},\qquad S=\int d^4x\,\sqrt{-g}\,\mathcal{L}$$
+    $$\mathcal{L}=\underbrace{\frac{R}{16\pi G}}_{\text{重力}}\;-\;\underbrace{\tfrac14 F_{\mu\nu}F^{\mu\nu}}_{\text{力}}\;+\;\underbrace{i\bar\psi\,{\not}D\,\psi}_{\text{物質}}\;+\;\underbrace{|D\phi|^2-V(\phi)}_{\text{ヒッグス}}\;+\;\underbrace{\bar\psi_i\,y_{ij}\,\psi_j\,\phi+\text{h.c.}}_{\text{質量}}$$
+  </div>
+
+  <p>重力、電磁気、強い力、弱い力、すべての物質。6項です。上の式は「すべての履歴を \(e^{iS/\hbar}\) で重み付けて足せ」と言っているだけで、あとは \(\mathcal{L}\) を眺めるだけ。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── Tシャツはちょっとズルい</span>
+    \(\not D\) という記号の中に、ゲージ群の構造がまるごと畳み込まれています。展開すれば \(SU(3)\times SU(2)\times U(1)\) の全部が出てきて、当然もっと長くなる。<strong>「短く書ける」は、圧縮した表記が存在するという意味であって、中身が小さいという意味ではありません。</strong>ただし、あとで見るように、<em>圧縮のもとになっている規則</em>のほうは本当に短いです。
+  </div>
+
+  <h2><span class="n">02</span>6項を、1つずつ開く</h2>
+
+  <p>眺めるだけでは面白くないので、開きます。<strong>順番に意味があります</strong> ── 外側の殻が2つ（足し算の仕方と、どこで足すか）、そのあとに中身の5項。</p>
+
+  <h3>外殻① \(Z=\int\mathcal{D}\phi\,e^{iS/\hbar}\) ── 足し算の仕方</h3>
+
+  <p>「起こりうる<strong>すべての履歴</strong>に \(e^{iS/\hbar}\) という重みを付けて、足せ」。これだけです。粒子が A から B へ行くとき、あらゆる経路を同時に通る ── その和が答え。</p>
+
+  <div class="calc">
+    <span class="tag">なぜ指数関数で、なぜ \(i\) なのか</span>
+    <p style="margin:2px 0 0;"><strong>指数関数である理由：</strong>独立な2つの部分系があると、確率は<em>掛け算</em>になってほしい。いっぽう作用 \(S\) は時空の積分なので<em>足し算</em>になる。<strong>足し算を掛け算に変える関数は、指数関数しかありません。</strong></p>
+    <p style="margin:8px 0 0;"><strong>\(i\) が付いている理由：</strong>\(|e^{iS/\hbar}|=1\) です。つまり <em>どの履歴も、あらかじめ「起きやすい」ということがない</em>。全部が同じ重み。選別しているのは大小ではなく<strong>干渉</strong>だけです。</p>
+    <p class="lbl">古典力学は、ここから落ちてくる</p>
+    <p style="margin:2px 0 14px;">\(S\gg\hbar\) だと、経路を少し変えただけで位相 \(S/\hbar\) が何回転もして、隣どうしが打ち消し合います。生き残るのは位相が止まる場所 ── <strong>\(\delta S=0\)</strong>、つまり最小作用の原理。<em>この1行に、ニュートン力学が全部入っています。</em><br>
+    \(\hbar\) の役目は「大きい」を判定する物差しで、効いているのは無次元比 \(S/\hbar\) だけ（姉妹編「わかる量子」）。</p>
+  </div>
+
+  <h3>外殻② \(S=\int d^4x\,\sqrt{-g}\,\mathcal{L}\) ── どこで足すか</h3>
+
+  <p>2つの主張が入っています。</p>
+
+  <ul style="margin:15px 0;line-height:1.85;">
+    <li><strong>\(\int d^4x\) ＝ 局所性。</strong>作用は<em>各点の寄与の足し算</em>で書ける。離れた場所どうしが直接影響し合う項は無い。力が伝わるには、場が間をつなぐしかない（姉妹編「わかる場」）。</li>
+    <li><strong>\(\sqrt{-g}\) ＝ 座標を気にしない。</strong>これは不変体積要素です。この因子が無いと「時空で積分する」が<em>座標の取り方に依存してしまう</em>。<strong>この記号ひとつが「物理は座標系を選ばない」の全内容です。</strong>（\(g=\det g_{\mu\nu}\)。ローレンツ符号だと負なので、根号の中を \(-g\) にする。）</li>
+  </ul>
+
+  <p>そして \(\mathcal{L}\) はスカラー。だから作用全体が、誰がどんな座標で見ても同じ値になります。</p>
+
+  <h3>1項目 \(\dfrac{R}{16\pi G}\) ── 重力</h3>
+
+  <p>\(R\) はリッチスカラー、<em>計量の2階微分から作れるいちばん簡単なスカラー</em>です。これを変分すると<strong>アインシュタイン方程式</strong>が出てきます。この1項が一般相対論の全部。</p>
+
+  <div class="aside">
+    <span class="tag">アインシュタイン重力は「選択」ではありません</span>
+    微分を含まないスカラーは定数（＝宇宙定数）。微分1個ではスカラーが作れない。<strong>微分2個で作れるスカラーは、全微分を除いて \(R\) ただ1つ</strong>です。<br>
+    つまりアインシュタイン重力は、誰かが選んだ方程式ではなく<em>微分展開の最初の非自明な項</em>。<strong>「なぜこの形か」の答えは「他に書けないから」</strong>で、これは 03 節の生成規則の先取りになっています。
+  </div>
+
+  <h3>2項目 \(-\tfrac14 F_{\mu\nu}F^{\mu\nu}\) ── 力</h3>
+
+  <p>\(F_{\mu\nu}=\partial_\mu A_\nu-\partial_\nu A_\mu\)（非可換なら \(+\,ig[A_\mu,A_\nu]\) が付きます）。<strong>この1項から、マクスウェル方程式が4本とも出ます。</strong>うち2本（\(\nabla\!\cdot\!\vec B=0\) とファラデーの法則）は \(F\) を \(A\) から作った時点で自動的に成立し（ビアンキ恒等式）、残り2本が変分から出る。</p>
+
+  <div class="keybox">
+    <div class="lbl">電磁気・弱い力・強い力は、ぜんぶこの同じ1項です</div>
+    <p style="margin:0;">違うのは<strong>ゲージ群だけ</strong> ── \(U(1)\) なら光、\(SU(2)\) なら W と Z、\(SU(3)\) ならグルーオン。</p>
+    <p style="margin:8px 0 0;">非可換だと \(F\) に \([A_\mu,A_\nu]\) が入るので、\(F^2\) を展開すると \(A^3\) と \(A^4\) の項が出ます。<strong>グルーオンどうしが直接相互作用して、光子どうしがしないのは、この違い1つが理由です。</strong>（そしてそれが閉じ込めの入口になります。）</p>
+  </div>
+
+  <h3>3項目 \(i\bar\psi\,{\not}D\,\psi\) ── 物質</h3>
+
+  <p>\(\psi\) がクォークとレプトン。\({\not}D=\gamma^\mu D_\mu\)（ファインマンのスラッシュ記法）。<strong>ゲージ群が畳み込まれているのは、ここです。</strong></p>
+
+  $$D_\mu=\partial_\mu-ig_3G^a_\mu T^a-ig_2W^i_\mu\tau^i-ig_1YB_\mu$$
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">この式でいちばん深い一行</div>
+    <p style="margin:0;"><strong>ゲージ場は、手で入れたのではありません。強制されたのです。</strong></p>
+    <p style="margin:8px 0 0;">\(\psi\) の位相を<em>各点で勝手に選んでよい</em>（局所ゲージ対称性）と要求してみてください。すると \(\partial_\mu\psi\) の変換にずれが出ます。それを打ち消すには、同じずれを逆向きに持つ場を足すしかない ── それが \(A_\mu\)。</p>
+    <p style="margin:10px 0 0;"><strong>力が存在するのは、位相を場所ごとに選ぶ自由を許したからです。</strong><em>力は、対称性の請求書。</em></p>
+  </div>
+
+  <p>なお、ここに質量項 \(m\bar\psi\psi\) が<strong>無い</strong>ことに注意してください。書きたくても書けないからで、その理由は 5 項目に出てきます。</p>
+
+  <h3>4項目 \(|D\phi|^2-V(\phi)\) ── ヒッグス</h3>
+
+  <p>\(\phi\) は複素スカラーの2重項。運動項が<strong>同じ \(D\)</strong> で書かれている ── つまりヒッグスもゲージ場を感じます。そして</p>
+
+  $$V(\phi)=\mu^2|\phi|^2+\lambda|\phi|^4$$
+
+  <p>\(\mu^2<0\) だと、この形は原点が<em>山</em>になり、谷が円環になります（メキシカンハット）。すると最低エネルギー状態が \(\phi=0\) ではなく \(|\phi|=v\neq0\) になる ── <strong>真空そのものが場の値を持つ。</strong>方程式にはまだ対称性があるのに、基底状態には無い。これが自発的対称性の破れです。</p>
+
+  <div class="calc">
+    <span class="tag">W と Z の質量は、質量項からは来ていません</span>
+    <p style="margin:2px 0 0;">\(|D\phi|^2\) を展開して \(\phi\to v\) を入れると、\(D_\mu\) の中のゲージ場から</p>
+    $$|D_\mu\phi|^2\ \supset\ g^2v^2\,A_\mu A^\mu$$
+    <p style="margin:6px 0 14px;">が出ます。これは<strong>ゲージ場の質量項</strong>です。<em>ヒッグスの運動項から、W と Z の質量が湧いた。</em>質量を「与える」ための項は、どこにも書かれていません。</p>
+  </div>
+
+  <h3>5項目 \(\bar\psi_i\,y_{ij}\,\psi_j\,\phi+\text{h.c.}\) ── 質量</h3>
+
+  <p>湯川結合。<strong>フェルミオンが質量を持てる唯一の経路です。</strong></p>
+
+  <p>なぜ唯一か。\(\bar\psi\psi=\bar\psi_L\psi_R+\bar\psi_R\psi_L\) は左巻きと右巻きを掛け合わせますが、標準模型では左巻きが \(SU(2)\) の2重項、右巻きが1重項 ── <em>ゲージ電荷が違うので、掛けた瞬間にゲージ不変性が壊れます</em>。書けるのは \(\phi\) を1個はさんだ形だけ。そして \(\phi\to v\) を入れると \(y v\,\bar\psi\psi\)、つまり <strong>\(m=yv\)</strong>。</p>
+
+  <div class="aside">
+    <span class="tag">25個の定数は、ほとんどここに住んでいます</span>
+    \(y_{ij}\) は世代空間の \(3\times3\) 行列です。対角化すると<strong>質量</strong>が、対角化しきれない部分が<strong>混合角と CP 位相</strong>（CKM 行列）になる。04 節①で「config ファイル」と呼ぶものの大半が、この行列の中身です。<br>
+    末尾の <strong>h.c.</strong>（エルミート共役）は飾りではありません。これが無いと \(\mathcal{L}\) が実にならず、<em>確率が保存しなくなります</em>。
+  </div>
+
+  <h3>動かしてみる ── 1項ずつ消してみる</h3>
+
+  <p>いちばん手っ取り早い理解の仕方は、<strong>消してみること</strong>です。下のボタンで、その項が世界の何を支えているかが見えます。</p>
+
+  <div class="fig">
+    <div class="cap">図：6項を1つずつ開く。「この項は何をしているか」と、「消すと世界から何が消えるか」。印刷版では全項が展開されます</div>
+    <div id="termbar">
+      <button data-k="Z">Z = ∫Dφ e^(iS/h)</button>
+      <button data-k="S" class="off">S = ∫d⁴x √−g L</button>
+      <button data-k="R" class="off">R / 16πG</button>
+      <button data-k="F" class="off">−¼ F²</button>
+      <button data-k="P" class="off">i ψ̄ D ψ</button>
+      <button data-k="H" class="off">|Dφ|² − V(φ)</button>
+      <button data-k="Y" class="off">y ψ̄ψφ</button>
+      <button data-k="X" class="off">D を展開する</button>
+    </div>
+
+    <div class="tpanel on" data-k="Z">
+      <div class="th">外殻① 経路積分</div>
+      <p style="margin:0;">すべての履歴に同じ大きさの重み \(e^{iS/\hbar}\) を付けて足す。選別するのは大小ではなく<strong>干渉</strong>。\(S\gg\hbar\) で位相が打ち消し合い、\(\delta S=0\) の近傍だけが残る ── それが古典力学。</p>
+      <div class="kill"><b>消すと（\(\hbar\to0\)）：</b>量子力学が消え、履歴が古典解1本になります。電子は原子核に落ち、原子が安定でなくなる。化学が無く、物質に硬さが無い。<em>そもそも「物がある」が成り立ちません。</em></div>
+    </div>
+
+    <div class="tpanel" data-k="S">
+      <div class="th">外殻② 局所性と座標非依存</div>
+      <p style="margin:0;">\(\int d^4x\) が<strong>局所性</strong>（作用は各点の寄与の和）、\(\sqrt{-g}\) が<strong>座標非依存</strong>（不変体積要素）。\(\mathcal{L}\) がスカラーなので、誰がどの座標で見ても \(S\) は同じ値。</p>
+      <div class="kill"><b>\(\sqrt{-g}\) を消すと：</b>積分値が座標の選び方で変わってしまい、<em>物理が「誰が見たか」に依存します</em>。理論として成立しません。<br><b>\(\int d^4x\) をやめると：</b>遠隔作用が許され、場という概念が要らなくなる代わりに、因果律を保証するものが無くなります。</div>
+    </div>
+
+    <div class="tpanel" data-k="R">
+      <div class="th">1項目 重力</div>
+      <p style="margin:0;">\(R\) は計量の2階微分から作れる唯一のスカラー（全微分を除く）。変分すればアインシュタイン方程式。<strong>選ばれたのではなく、他に書けなかった項</strong>です。</p>
+      <div class="kill"><b>消すと：</b>時空が曲がりません。惑星が回らず、星が自分の重さで潰れて点火することもなく、銀河も、ブラックホールも、宇宙膨張も無い。<em>特殊相対論だけの、平坦で退屈な世界</em>が残ります。</div>
+    </div>
+
+    <div class="tpanel" data-k="F">
+      <div class="th">2項目 力</div>
+      <p style="margin:0;">この1項からマクスウェル方程式4本。うち2本は \(F=dA\) の時点で自動（ビアンキ恒等式）。<strong>電磁気・弱い力・強い力は全部これ</strong>で、違うのはゲージ群だけ。非可換だと \(A^3,A^4\) 項が出て、グルーオンどうしが相互作用します。</p>
+      <div class="kill"><b>消すと：</b>ゲージ場が伝播しません。<em>光が存在しない。</em>電磁波も、グルーオン交換も無く、力がどこにも伝わらない。電荷を持つ粒子がすれ違っても、何も起きません。</div>
+    </div>
+
+    <div class="tpanel" data-k="P">
+      <div class="th">3項目 物質</div>
+      <p style="margin:0;">クォークとレプトンの運動項。\(D_\mu\) の中にゲージ群が畳み込まれています。<strong>ゲージ場は手で入れたのではなく、位相を各点で選ぶ自由を許した代償として強制されたもの。</strong>ここに \(m\bar\psi\psi\) が無いのは、書けないからです。</p>
+      <div class="kill"><b>消すと：</b>物質が存在しません。場だけがあって、それを担う粒子がいない世界。<em>誰も見に来ない。</em></div>
+    </div>
+
+    <div class="tpanel" data-k="H">
+      <div class="th">4項目 ヒッグス</div>
+      <p style="margin:0;">\(\mu^2<0\) で真空が \(|\phi|=v\neq0\) を選び、対称性が基底状態でだけ破れる。\(|D\phi|^2\) に \(\phi\to v\) を入れると \(g^2v^2A_\mu A^\mu\) ── <strong>W と Z の質量が、運動項から湧きます。</strong></p>
+      <div class="kill"><b>消すと：</b>電弱対称性が破れず、<em>W と Z が質量ゼロ</em>に。弱い力が長距離力になり、ベータ崩壊が桁違いに速くなります。太陽の核融合の速度は弱い相互作用が律速なので、<b>星が現在のようなペースで燃えません。</b>そしてフェルミオンの質量も全部消えます（5項目は \(\phi\) に依存しているため）。</div>
+    </div>
+
+    <div class="tpanel" data-k="Y">
+      <div class="th">5項目 質量</div>
+      <p style="margin:0;">湯川結合。キラルなゲージ対称性が \(m\bar\psi\psi\) を禁じるので、<strong>これがフェルミオン質量の唯一の経路</strong>です。\(m=yv\)。\(y_{ij}\) は \(3\times3\) 行列で、対角化の残りが混合角と CP 位相になります。</p>
+      <div class="kill"><b>消すと：</b>クォークとレプトンが全部質量ゼロになり、光速で走ります。電子が質量を失うのでボーア半径 \(a_0=\hbar/(m_ec\alpha)\) が発散 ── <em>原子が作れません。</em><br><b>ただし面白い例外があります：</b>陽子と中性子の質量の約99%は QCD のグルーオン場のエネルギー（\(\Lambda_{\rm QCD}\)）から来ているので、<b>核子はそのまま残ります。</b>核はできて、原子ができない世界。</div>
+    </div>
+
+    <div class="tpanel" data-k="X">
+      <div class="th">圧縮を解く ── \(\not D\) の中身</div>
+      <p style="margin:0;">$$D_\mu=\partial_\mu-ig_3G^a_\mu T^a-ig_2W^i_\mu\tau^i-ig_1YB_\mu$$</p>
+      <p style="margin:6px 0 0;">この1文字を開くと、ゲージ場が <strong>8（グルーオン）＋3（W）＋1（B）＝12本</strong>、そこに3世代ぶんのクォークとレプトンが載ります。</p>
+      <p style="margin:8px 0 0;"><strong>自由パラメータの数：</strong>3（ゲージ結合）＋2（ヒッグス）＋9（荷電フェルミオン質量）＋4（CKM）＋1（\(\theta_{\rm QCD}\)）＝ <b>19 個</b>。ニュートリノ質量を入れると 26〜28 個。これに重力側の \(G\) と \(\Lambda\)。<em>本文ではまとめて「およそ25個」と呼びます。</em></p>
+      <div class="kill"><b>つまり：</b>「Tシャツに収まる」は<em>圧縮した表記が存在する</em>という意味であって、中身が小さいという意味ではありません。<b>短いのは構造で、長いのは設定ファイルです。</b></div>
+    </div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── この式が書いていないもの</span>
+    <p style="margin:0;">「既知の物理のすべて」と書きましたが、標準的な表記の都合で落ちているものが4つあります。</p>
+    <p style="margin:8px 0 0;"><strong>① \(\theta\) 項。</strong>\(\theta\,\frac{g^2}{32\pi^2}F\tilde F\) は対称性が許すのに書かれていません。実験では \(|\bar\theta|<10^{-10}\) ── <em>書けるのに、なぜかほぼゼロ</em>。これが強い CP 問題です。<br>
+    <strong>② ニュートリノ質量。</strong>右巻きニュートリノを足すか、次元5の演算子 \((LH)(LH)/\Lambda\) を使うかで、いずれも上の6項には収まりません。<em>次元4を超える最初の徴候</em>で、標準模型を超える物理の入口。<br>
+    <strong>③ 宇宙定数。</strong>\(V(\phi)\) の定数部分として隠せますが、<em>独立なパラメータです</em>。05 節で「次元を持つ項は2つ」と数えるとき、これは勘定に入れていません。<br>
+    <strong>④ ゲージ固定項とゴースト。</strong>経路積分を実際に定義するには必要ですが、物理的自由度ではないので慣習的に省略されます。</p>
+  </div>
+
+  <h2><span class="n">03</span>式ですらなく、手続き</h2>
+
+  <p>もっと縮みます。上の \(\mathcal{L}\) は、実は<strong>誰も選んでいません</strong>。次の4行から自動的に生成されるものです。</p>
+
+  <div class="calc">
+    <span class="tag">物理の生成規則</span>
+    <p style="margin:8px 0 0">
+      <strong>1.</strong> 対称性群を決める（ローレンツ \(\times\ SU(3)\times SU(2)\times U(1)\)）<br>
+      <strong>2.</strong> その対称性が許す項を、<em>全部</em>書く<br>
+      <strong>3.</strong> すべての履歴を \(e^{iS/\hbar}\) で重み付けて足す<br>
+      <strong>4.</strong> 低エネルギーで生き残った項が、あなたの見る物理
+    </p>
+  </div>
+
+  <p>プログラムを書く人向けに言い換えると ── <strong>標準模型はプログラムではなく、コードジェネレータの出力</strong>です。入力は対称性群ひとつ。ジェネレータは4行。出力が長いだけ。</p>
+
+  <p>特に効いているのが 4 です（姉妹編「わかる繰り込み」の話です）。2 で書いた項のほとんどは、低エネルギーで消えます。<em>残ったものが標準模型</em>であって、誰も選んでいない。だから「なぜこの形なのか」への答えは、<strong>「他が消えたから」</strong>です。</p>
+
+  <div class="aside">
+    <span class="tag">02 節の答え合わせ</span>
+    1項ずつ読んだとき、同じ台詞が何度も出てきました ── <em>「他に書けなかった」</em>。微分2個のスカラーは \(R\) しかない。ゲージ不変な2次の項は \(F^2\) しかない。フェルミオン質量は \(\phi\) 経由しか書けない。<br>
+    <strong>あれは偶然ではなく、生成規則のステップ 2 の結果です。</strong>「対称性が許す、次元4以下の項」を全部並べると、<em>リストが短い</em>。式が Tシャツに収まるのは、著者が有能だったからではなく、<strong>候補がもともと数えるほどしか無いから</strong>です。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>では、複雑さはどこにあるのか</h2>
+
+  <p>3箇所です。そして<em>どれも法則の複雑さではありません</em>。ここを分けないと、「物理は複雑だ」という感想が行き場を失います。</p>
+
+  <h3>① データ ── 約25個の数</h3>
+  <p>\(y_{ij}\) の中身、混合角、質量比。これは構造ではなく<strong>設定ファイル</strong>です。ソースは短いが config が長い。<br>本編第1回で、この config を圧縮できないか 16 万本の無次元量を総当たりして探しました。結果は \(p=0.67\)、<em>偶然と区別がつかない</em>。config は、少なくとも掛け算の世界では圧縮できません。</p>
+
+  <h3>② 実行時間 ── 式が短いことと、解が単純なことは無関係</h3>
+  <p>\(F=ma\) は3文字ですが、三体問題はカオスです。ナビエ・ストークス方程式は1行ですが、乱流は未解決。5行のセルオートマトンが無限の複雑さを吐くのと、まったく同じ構造です。<br><strong>法則の短さは、そこから出てくるものの短さを一切保証しません。</strong></p>
+
+  <h3>③ 階層のコンパイル ── 教科書の厚さの正体</h3>
+  <p>物理の勉強のほとんどは、新しい法則を覚えることではありません。各スケールでの<em>有効な記述</em>を覚えることです。QCD → 核子 → 原子 → 化学 → 物性。各段が、下の段の非可逆な圧縮になっている。<br>複雑なのは<strong>ビルドパイプライン</strong>であって、ソースではない。</p>
+
+  <table class="tbl">
+    <tr><th style="width:36%">物理</th><th>プログラム</th></tr>
+    <tr><td>ラグランジアン \(\mathcal{L}\)</td><td>ソースコード（短い）</td></tr>
+    <tr><td>25個の定数</td><td>config ファイル（導出できない）</td></tr>
+    <tr><td>宇宙</td><td>ランタイム（ショートカットなし）</td></tr>
+    <tr><td>有効場の理論</td><td>各最適化レベルのビルド成果物</td></tr>
+    <tr><td>繰り込み群</td><td>ビルドパイプライン</td></tr>
+    <tr><td>対称性</td><td>ジェネレータへの入力</td></tr>
+  </table>
+
+  <p>複雑さの置き場所は、これで片付きました。<strong>では、法則そのものは、これ以上短くならないのでしょうか。</strong>最後にもう一度 \(\mathcal{L}\) を見ます ── 今度は「次元を持つ量」だけを探しながら。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>次元を持つ項は、たった2つ</h2>
+
+  <p>もう一度並べます。今度は「次元を持つ量」を探しながら見てください。</p>
+
+  $$\mathcal{L}=\frac{R}{16\pi G}-\tfrac14 F^2+i\bar\psi\,{\not}D\,\psi+|D\phi|^2-V(\phi)+\bar\psi_i y_{ij}\psi_j\phi$$
+
+  <p><strong>ゲージ結合 \(g\) も、湯川結合 \(y\) も、ヒッグスの自己結合 \(\lambda\) も、すべて無次元です。</strong> \(F^2\) 項も \(\bar\psi\not D\psi\) 項も、4次元では共形不変。つまりこれらの項は、長さの単位を持ち込みません。</p>
+
+  <p>次元を持つ量は、理論全体で<em>2つしかありません</em>。</p>
+
+  <div class="keybox">
+    <div class="lbl">物理に「大きさ」を持ち込んでいるもの、全部</div>
+    $$\underbrace{\mu^2|\phi|^2}_{\text{ヒッグス質量項}}\qquad\text{と}\qquad\underbrace{\frac{1}{16\pi G}}_{\text{ニュートン定数}}$$
+  </div>
+
+  <p>この2項を消せば、理論全体がスケール不変になります。長さの単位そのものが意味を失う。<em>あなたが求めている「もっと簡単な式」は、この2項を消した形です。</em></p>
+
+  <p>そしてこれは妄想ではなく、生きている研究プログラムです（Weyl 不変な定式化、agravity など）。立場は一貫していて ── <strong>基本理論にスケールは無く、すべてのスケールは量子異常と自発的破れから生成される</strong>。</p>
+
+  <div class="aside">
+    <span class="tag">姉妹編との接続 ── 漸近安全性の固定点</span>
+    量子重力の候補のひとつ「漸近安全性」の UV 固定点とは、<strong>まさに理論がスケール不変になる点</strong>のことです。固定点では結合が純粋な数になり、カットオフ \(k\) が消える。次元を持つ量が意味を失う。<br>
+    つまり「この2項を消せば簡単になるのでは」という方向は、筋としては通っています ── <em>高エネルギーで実際に起きていることの、素朴だが正しい言い方</em>になっている。<br>
+    <strong>ただし、消したら何が起きるのか。</strong>次の節で正直に確かめます。
+  </div>
+
+  <h2><span class="n">06</span>それでも、式は短くならない</h2>
+
+  <p>ここで正直な線を引きます。</p>
+
+  <p>\(\mu^2\) と \(G\) を消すと、<strong>質量がゼロの宇宙</strong>になります。電子に質量がなく、陽子が束縛せず、原子も星もあなたも存在しない。<em>この2項は「余計な複雑さ」ではなく、世界が存在するための代金です。</em></p>
+
+  <p>さらに、消したつもりでも戻ってきます。量子効果がスケール不変性を破るからです（共形異常 ＝ 結合定数の走り）。\(\Lambda_{\rm QCD}\) が生まれるのもこの機構で ──</p>
+
+  <div class="calc">
+    <span class="tag">スケールの無い理論から、スケールが自分で湧く</span>
+    $$\Lambda_{\rm QCD}=\mu\,\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(\mu)}\right)$$
+    <p class="lbl">無次元の結合ひとつから、次元を持つ質量が出てくる</p>
+    <p style="margin:8px 0 8px">これを<strong>次元的移行</strong>といいます。陽子の質量のほとんどは、ここから来ています ── クォークの質量からではなく、<em>無次元数の走りから</em>。<br>02 節で「湯川結合を消しても核子は残る」と書いたのは、まさにこれが理由です。</p>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回のまとめ</h2>
+    <p><strong>物理はもう簡単に書けている。</strong> 6項、あるいは生成規則4行。あなたの直観は当たっています。</p>
+    <p><strong>その6項は、開けば読めます。</strong> 外殻の \(e^{iS/\hbar}\) が「全履歴を干渉させて足す」（古典力学はその \(\hbar\to0\)）、\(\sqrt{-g}\,d^4x\) が「局所的に、座標に依らず」。中身は \(R\)（他に書けないスカラー）、\(F^2\)（3つの力が同じ1項）、\(\bar\psi\not D\psi\)（<em>位相を各点で選ぶ自由の代償としてゲージ場が強制される</em>）、\(|D\phi|^2-V\)（真空が値を持ち、運動項から W と Z の質量が湧く）、湯川（フェルミオン質量の唯一の経路）。</p>
+    <p><strong>短いのは、著者が有能だったからではない。</strong> 「対称性が許す、次元4以下の項」を全部並べても、<em>リストがもともと短い</em>から。何度も出てきた「他に書けなかった」が、その正体です。</p>
+    <p><strong>複雑さは3箇所にあり、どれも法則ではない。</strong> ① 25個の定数（config）、② 解く手間（ランタイム）、③ 階層の翻訳（ビルドパイプライン）。</p>
+    <p><strong>そして芯はこうです ── 次元を持つ項は2つしかない。</strong> ヒッグス質量とニュートン定数。物理に「大きさ」という概念があるのは、この2項のせいです。「なぜ世界に大きさがあるのか」という問いの、いちばん短い形がこれ。</p>
+    <p style="margin-bottom:0">複雑なのは物理ではありません。<em>宇宙のほうです。</em></p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ番外編①、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>本文の \(\mathcal{L}\) は標準模型＋一般相対論の通常の表記を圧縮したもので、\(\not D\) の中にゲージ構造が畳み込まれています。経路積分の重み \(e^{iS/\hbar}\) と \(\hbar\to0\) での最小作用の原理、\(\sqrt{-g}\,d^4x\) が不変体積要素であること、微分2個から作れるスカラーが全微分を除いて \(R\) のみであること、\(F^2\) 一項からマクスウェル方程式が出ること（うち2本はビアンキ恒等式）、局所ゲージ対称性がゲージ場を要求すること、\(|D\phi|^2\) から W・Z の質量が生じること、キラルなゲージ対称性が \(m\bar\psi\psi\) を禁じ湯川結合が唯一の経路であること、標準模型の自由パラメータが19個（ニュートリノ質量を含めると26〜28個）であること、核子質量の大部分が \(\Lambda_{\rm QCD}\) 由来であること、「4次元でマクスウェル方程式は共形不変」「標準模型で次元を持つパラメータはヒッグス質量項だけ」は、いずれも確立した内容です。</p>
+    <p>いっぽう「スケールの無い基本理論からすべてのスケールが生成される」という描像は<strong>研究中の立場であり、確立した結論ではありません</strong>。また共形異常による対称性の破れは避けられないため、完全なスケール不変性が量子論として成立するかは未解決です。「1項を消すと世界がこうなる」という記述は、他の項をそのままにして1項だけ落とした場合の素朴な帰結であり、整合的な代替宇宙の構成ではありません。\(\theta\) 項・ニュートリノ質量・宇宙定数・ゲージ固定項が上の6項に含まれていないことは、本文 02 節「正直な線」に明記しました。</p>
+    <p>姉妹編：<a href="../README.md">「わかる」シリーズ全集</a> ／ 本編第1回：<a href="butsuri-tsukuru-01-hi.html">まだ誰も取っていない比を、機械に探させる</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版では全項が展開されます）。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のボタンで6項を1つずつ開けます。「消すと何が消えるか」を先に読むと、その項が何を支えているかが早くわかります。</p>
+
+<script>
+(function(){
+  "use strict";
+  var bar=document.getElementById('termbar');
+  if(!bar) return;
+  var btns=[], pans=[], i;
+  var nb=bar.getElementsByTagName('button');
+  for(i=0;i<nb.length;i++) btns.push(nb[i]);
+  var np=document.getElementsByClassName('tpanel');
+  for(i=0;i<np.length;i++) pans.push(np[i]);
+
+  function show(k){
+    for(var a=0;a<pans.length;a++){
+      pans[a].className = 'tpanel' + (pans[a].getAttribute('data-k')===k ? ' on' : '');
+    }
+    for(var b=0;b<btns.length;b++){
+      btns[b].className = (btns[b].getAttribute('data-k')===k ? '' : 'off');
+    }
+  }
+  for(i=0;i<btns.length;i++){
+    (function(el){
+      el.addEventListener('click', function(){ show(el.getAttribute('data-k')); });
+    })(btns[i]);
+  }
+  show('Z');
+})();
+</script>
+</body>
+</html>
