@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自由度は、数えなくてよかった ── 物理を作る 第14回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 14 回 ／ 自由度は、数えなくてよかった</span></div>
+  <p class="eyebrow">ルートBを進めたら、第12回の問いに答えが出た ── ただし答えは「その問いは要らない」</p>
+  <h1>自由度は、数えなくてよかった
+    <span class="sub">前回、中心電荷が無いと分かって、残ったのはルートB ── <em>中心電荷を経由しない</em>次元還元型の Cardy でした。<br>進めてみると、これも4次元では素直に効きません。<strong>先頭の係数が普遍量ではない</strong>からです。<br>ところが、そこで詰まったおかげで問いの形がおかしいことに気づきました。<br><em>自由度の数は、そもそも決まらなくてよかった。</em>決まるのは、それと \(G\) の<strong>比</strong>だけです。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第12回（面積則と係数）、対数、熱力学</span>
+    <span>この回の芯：\(S_{EE}\) の発散は \(1/G\) のくりこみと厳密に一致する</span>
+  </div>
+
+  <p class="lead">第12回で、面積則そのものは Carrollian の構造から出るのに<strong>係数だけが出ない</strong>と書きました。そして「係数は理論自身の自由度密度で決まるはず」と結んで、第11回の中心電荷の問いに戻った ── <em>一周した</em>回です。<br>その一周を、今度は別の側から切ります。ルートBは自由エネルギーを局所的な有効作用から出す道なので、<strong>まさに「自由度密度」を計算する道具</strong>です。使えるなら、第12回の宿題がそのまま片づく。<br>結論から書きます。<em>ルートBは4次元では効きませんでした。</em>でも効かない理由を詰めると、第12回の問いの立て方そのものが間違っていたと分かります。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>ルートBとは何か</h2>
+
+  <p>2次元の Cardy はモジュラー不変性から来ていました（第10回 03 節）。トーラスの二つのサイクルを入れ替えると高温と低温が交換される ── その対称性が状態数を縛る。</p>
+
+  <p>ルートBは、その対称性を使いません。かわりにこうします ──</p>
+
+  <div class="keybox">
+    <div class="lbl">ルートB（次元還元型）</div>
+    <p style="margin:6px 0 0">温度 \(1/\beta\) の系を、周長 \(\beta\) の<strong>熱的な円周</strong>を持つ空間の上に置く。\(\beta\to0\) でその円周が潰れるので、<em>一次元低い理論に還元される</em>。還元後の局所有効作用の係数を読めば、高温での \(\log Z\) が出る。</p>
+  </div>
+
+  <p>モジュラー不変性が要らないので、次元を選びません。Di Pietro–Komargodski が \(d=4,6\) の超対称理論でやったのがこの路線です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>陽性対照 ── 2次元では、AもBも同じもの</h2>
+
+  <p>また先に道具を確かめます。<strong>2次元でルートBを走らせて、Cardy と同じ答えが出るか。</strong></p>
+
+  <p>ルートB側は、ただの熱力学です。2次元 CFT の高温自由エネルギーは \(F=-\pi cL/(6\beta^2)\) なので ──</p>
+
+  $$S=-\frac{\partial F}{\partial T}=\frac{\pi cL}{3\beta}$$
+
+  <p>ルートA側は Cardy。エネルギーから \(L_0\) を出して入れます。</p>
+
+  <div class="lab">
+    <span class="tag">陽性対照 ── 2次元で A と B を突き合わせる</span>
+<pre><span class="cm"># B: 熱的     S = pi c L / (3 beta)</span>
+<span class="cm"># A: Cardy    S = 2pi sqrt(c L0/6) + 2pi sqrt(c L0bar/6),  L0 = L0bar = E L/(4pi)</span>
+
+      c        L     beta |  S_thermal        S_Cardy          比
+ <span class="hi">--------------------------------------------------------------------</span>
+      1       10      0.3 |  34.90658504      34.90658504      1.000000000000000
+     24      100      0.5 |  5026.54824574    5026.54824574    1.000000000000000
+    0.5        7     0.05 |  73.30382858      73.30382858      1.000000000000000
+    3.7     1000      2.1 |  1845.06235211    1845.06235211    1.000000000000000
+
+ 最大偏差 <span class="st">2.2e-16</span>   <span class="st">→ 陽性対照 通過</span></pre>
+  </div>
+
+  <p>ぴったり一致します。ただし<em>一致しすぎ</em>で、そこが要点です。</p>
+
+  <div class="keybox">
+    <div class="lbl">2次元で起きていること</div>
+    <p style="margin:6px 0 0">熱的自由エネルギーの<strong>先頭項の係数が、そのまま中心電荷 \(c\)</strong> になっている。</p>
+    <p style="margin:8px 0 0">つまり2次元では「自由度の数」と「中心電荷」が同じ数です。だから Cardy が効く ── <em>数えるべき量が、たまたま普遍量だった。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>4次元では、その先頭項が普遍でない</h2>
+
+  <p>ここが壁です。4次元で同じことをすると、先頭項は</p>
+
+  $$\log Z\;\sim\;\frac{V}{\beta^{3}}\times(\text{自由エネルギー密度の係数})$$
+
+  <p>となります。そしてこの係数は、<strong>結合定数で変わります。</strong>いちばん有名な例で確かめます ── \(\mathcal{N}=4\) 超対称ヤン・ミルズ理論。</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    <div class="lbl">自由場（弱結合）</div>
+    <p style="margin:4px 0">自由場の自由エネルギー密度は \(f=-\dfrac{\pi^2T^4}{90}\left(n_b+\tfrac78 n_f\right)\)。\(\mathcal{N}=4\) は \(n_b=n_f=8N^2\) なので</p>
+    $$f_{\text{free}}=-\frac{\pi^2T^4}{90}\left(8+\tfrac78\cdot8\right)N^2=-\frac{\pi^2N^2T^4}{6}$$
+    <div class="lbl">強結合（Gubser–Klebanov–Peet、AdS₅ ブラックブレーンから）</div>
+    $$f_{\text{strong}}=-\frac{\pi^2N^2T^4}{8}$$
+    <div class="lbl">比</div>
+    $$\frac{f_{\text{strong}}}{f_{\text{free}}}=\frac{1/8}{1/6}=\boxed{\frac34}$$
+  </div>
+
+  <p><strong>同じ理論なのに、結合を変えると係数が \(3/4\) 倍になります。</strong>「自由度の数」が結合定数の関数なのです。</p>
+
+  <p>これは致命的です。私たちが欲しいのは \(A/4G\) ── <em>物質の中身によらない普遍的な数</em>。非普遍な量から普遍な量は出ません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>Di Pietro–Komargodski の救出と、その死角</h2>
+
+  <p>ではルートBは無意味かというと、そうではありません。<strong>超対称な指数（index）を使うと、この非普遍な先頭項が消えます。</strong></p>
+
+  <p>\((-1)^F\) の重みをつけると長い表現が打ち消し合い、BPS 状態しか残らない。すると \(\beta^{-3}\) の体積項が丸ごと落ちる ── 論文の言い方では「超対称理論は宇宙定数を生成しない」の一言です。</p>
+
+  <p>落ちた後に顔を出す<strong>次の項が、普遍量</strong>でした。</p>
+
+  <div class="keybox">
+    <div class="lbl">Di Pietro–Komargodski（\(d=4\)、\(S^3\times S^1\)、\(S^3\) の半径 1）</div>
+    $$\beta\to0:\qquad \log Z\;\sim\;-\frac{16\pi^2}{3\beta}\,(a-c)$$
+    <p style="margin:8px 0 0">\(a,c\) はトレース・アノマリー係数。\(\mathrm{Tr}\,R=16(a-c)\)。</p>
+  </div>
+
+  <p>アノマリー係数は、結合定数で動きません（'t Hooft のアノマリー整合）。<em>だからこれは本物の普遍量です。</em>自由カイラル多重項で確かめます。</p>
+
+  <div class="lab">
+    <span class="tag">検算 ── アノマリー係数</span>
+<pre><span class="cm"># a = (3/32)(3 TrR^3 - TrR),  c = (1/32)(9 TrR^3 - 5 TrR)</span>
+
+<span class="hi">恒等式 a - c = TrR/16</span>
+  TrR^3=1       TrR=0     -> a=9/32    c=9/32    a-c=0      TrR/16=0      <span class="st">OK</span>
+  TrR^3=0       TrR=1     -> a=-3/32   c=-5/32   a-c=1/16   TrR/16=1/16   <span class="st">OK</span>
+  TrR^3=-1/27   TrR=-1/3  -> a=1/48    c=1/24    a-c=-1/48  TrR/16=-1/48  <span class="st">OK</span>
+
+<span class="hi">自由カイラル多重項（R=2/3、フェルミオンは R=-1/3）</span>
+  a = 1/48    既知の値 1/48 : <span class="st">OK</span>
+  c = 1/24    既知の値 1/24 : <span class="st">OK</span>
+  DP-K:  log Z = -16 pi^2 (a-c)/(3 beta) = <span class="st">pi^2/(9 beta)</span>
+
+<span class="hi">N=4 SYM SU(N)（1ベクトル + 3カイラル、すべて随伴）</span>
+  N=2   TrR=0   a=3/4    c=3/4    a==c  既知 (N^2-1)/4 = 3/4    <span class="st">OK</span>
+  N=3   TrR=0   a=2      c=2      a==c  既知 (N^2-1)/4 = 2      <span class="st">OK</span>
+  N=10  TrR=0   a=99/4   c=99/4   a==c  既知 (N^2-1)/4 = 99/4   <span class="st">OK</span>
+
+  <span class="bd">=> N=4 SYM では a=c。DP-K の普遍項は、ちょうどゼロになる。</span></pre>
+  </div>
+
+  <p>式は正しく、自由カイラルでも既知の \(a=1/48,\;c=1/24\) を再現します。ところが ──</p>
+
+  <div class="caveat">
+    <span class="tag">死角</span>
+    <strong>ブラックホール双対を持つまさにその理論で、公式が退化します。</strong>\(\mathcal{N}=4\) SYM は \(a=c\) なので \(a-c=0\)。DP-K の普遍項はゼロで、何も言えません。<br>これは知られた問題で、AdS₅ ブラックホールのエントロピーを指数から出すには、2019 年の別の極限（複素の化学ポテンシャル）が要りました。<em>つまり「うまくいったルートB」は、超対称性と指数と複素ポテンシャルの三点セットを必要としています。</em>地平面の Carrollian 理論には、そのどれも用意されていません。
+  </div>
+
+  <p>ここで素直に止まると「ルートBも駄目でした」で終わります。<strong>止まる前に、一つ気になることがあります。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>普遍な量と、非普遍な量が、釣り合ってしまう</h2>
+
+  <p>03 節で見た事実を、もう一度置きます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:50%">量</th><th>物質の中身に依るか</th></tr>
+    <tr><td>場の理論の自由エネルギー係数（＝自由度の数）</td><td class="bad">依る（\(\mathcal{N}=4\) で \(3/4\) 倍）</td></tr>
+    <tr><td>エンタングルメント・エントロピー \(S\sim A/\epsilon^2\) の係数</td><td class="bad">依る（場の種類の数だけ増える）</td></tr>
+    <tr class="mark"><td><strong>ブラックホールのエントロピー \(A/4G\)</strong></td><td class="ok"><strong>依らない</strong></td></tr>
+  </table>
+
+  <p>普通に読めば矛盾です。<em>場を1種類足せば、地平面の外側と内側のもつれは確実に増える。</em>なのに \(A/4G\) は動かない。増えた分はどこへ行ったのか。</p>
+
+  <p>これは<strong>種の問題（species problem）</strong>と呼ばれる、古くからの困りごとです。第12回で「\(N=A/a^2\) はカットオフを手で入れている」と正直に書いた、あの発散と同じものです。</p>
+
+  <p>そして答えは、1994 年に出ていました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>発散は、\(G\) のくりこみに吸われる</h2>
+
+  <p>Susskind–Uglum の提案はこうです ── <em>エンタングルメント・エントロピーの発散と、ニュートン定数のくりこみは、同じ発散である。</em></p>
+
+  <p>言い分としては分かりますが、係数まで合うのかどうかが問題です。<strong>両側を独立に計算して、突き合わせます。</strong></p>
+
+  <h3>右側：エンタングルメント・エントロピーの発散</h3>
+
+  <p>Solodukhin のレビュー 式(28) に、面積 \(A\) の面を横切る自由スカラー1個の値があります ──</p>
+
+  $$S_{EE}=\frac{A}{6(d-2)(4\pi)^{(d-2)/2}\epsilon^{\,d-2}}
+  \;\xrightarrow{\;d=4\;}\;\frac{A}{6\cdot2\cdot4\pi\,\epsilon^2}=\frac{A}{48\pi\epsilon^2}$$
+
+  <h3>左側：ニュートン定数のくりこみ</h3>
+
+  <p>こちらは<em>エントロピーを一切見ずに</em>、熱核から出します。スカラー1個の1ループ有効作用の発散部は、Seeley–DeWitt 展開で</p>
+
+  $$\Gamma_{\text{div}}=-\frac12\int_{\epsilon^2}^{\infty}\frac{ds}{s}\,\frac{1}{(4\pi s)^2}\int d^4x\sqrt{g}\;\bigl(a_0+a_1 s+\cdots\bigr),
+  \qquad a_0=1,\;\; a_1=\Bigl(\tfrac16-\xi\Bigr)R$$
+
+  <p>この \(\tfrac16\) は教科書の係数で、エントロピーとは何の関係もありません。\(R\) の項だけ拾うと</p>
+
+  $$\Gamma_{\text{div}}\supset-\frac{1}{32\pi^2}\Bigl(\tfrac16-\xi\Bigr)\frac{1}{\epsilon^2}\int d^4x\sqrt{g}\,R$$
+
+  <p>Euclid の Einstein–Hilbert 作用 \(-\frac{1}{16\pi G}\int\sqrt{g}\,R\) と比べて ──</p>
+
+  $$\frac{1}{G_{\text{ren}}}=\frac{1}{G_0}+\frac{1}{2\pi\epsilon^2}\Bigl(\tfrac16-\xi\Bigr)
+  \qquad\xrightarrow{\;\xi=0\;}\qquad \frac{1}{G_{\text{ren}}}=\frac{1}{G_0}+\frac{1}{12\pi\epsilon^2}$$
+
+  <h3>突き合わせる</h3>
+
+  <div class="lab">
+    <span class="tag">二つの独立な計算が、同じ数になるか</span>
+<pre><span class="cm"># 右: エンタングルメント・エントロピー（Solodukhin 式28 から）</span>
+  S_EE                     = A / (48 pi eps^2)
+
+<span class="cm"># 左: G のくりこみ（熱核の a1 = (1/6 - xi)R から。エントロピーを見ずに導出）</span>
+  delta(1/G) |_{xi=0}      = 1 / (12 pi eps^2)
+  A/4 * delta(1/G)         = A / (48 pi eps^2)
+
+<span class="hi">  ------------------------------------------------</span>
+  <span class="st">一致。しかも「4」の因子までぴったり。</span>
+
+<span class="cm"># xi を一般にしても連動するか</span>
+  xi = 0     delta(1/G) = (1/12)/(pi eps^2)   要求される S_EE = A/(48 pi eps^2)
+  xi = 1/12  delta(1/G) = (1/24)/(pi eps^2)   要求される S_EE = A/(96 pi eps^2)
+  xi = 1/6   delta(1/G) = <span class="st">0</span>                  要求される S_EE = <span class="st">0</span>
+  xi = 1/4   delta(1/G) = -(1/24)/(pi eps^2)  要求される S_EE = 負
+
+  <span class="cm">共形結合 xi=1/6 で、両側が同時にゼロを横切る。</span></pre>
+  </div>
+
+  <p><strong>合いました。</strong>しかも \(A/4\) という因子ごと。片方は「面を横切るもつれ」、もう片方は「重力の有効作用の \(R\) 項の係数」で、まったく別の計算です。それが同じ数になる。</p>
+
+  <div class="verdict">
+    <div class="lbl">第12回の問いへの答え</div>
+    <p style="font-size:19px"><strong>自由度密度 \(\sigma\) は、決まらなくてよかった。</strong></p>
+    <p>物質を足せば \(S_{EE}\) は増えます。<em>そして同じ物質が \(1/G\) も同じだけ増やします。</em>だから</p>
+    $$S=\underbrace{\frac{A}{4G_0}}_{\text{裸}}+\underbrace{\frac{N_s A}{48\pi\epsilon^2}}_{\text{物質のもつれ}}=\frac{A}{4G_{\text{ren}}}$$
+    <p style="margin-bottom:0">形は変わりません。<strong>決まるのは \(\sigma\) 単体ではなく、\(\sigma\) と \(G\) の比だけ。</strong>第12回で「セルの一辺 \(a\) と1セルの状態数 \(q\) は個別には決まらず、\(\log q/a^2\) だけが決まる」と書いたのは ── <em>そのまま、これのことでした。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>足しても動かない、を見る</h2>
+
+  <div class="fig">
+    <div class="cap">図：物質の種類 \(N_s\) を増やすと、もつれの分（緑）は増える。しかし \(1/G\) も同じだけ増えるので、<b>合計は常に \(A/4G_{\text{ren}}\) のまま</b>。単位は \(A=1,\ \epsilon=1\)</div>
+    <canvas id="cv" width="1120" height="380"></canvas>
+    <div class="controls">
+      <label>物質の種類の数 \(N_s\) = <span class="val" id="vn">12</span>
+        <input type="range" id="sn" min="0" max="80" step="1" value="12"></label>
+      <label>裸の \(1/G_0\) = <span class="val" id="vg">1.00</span>
+        <input type="range" id="sg" min="0" max="300" step="1" value="100"></label>
+      <button id="bs">Sakharov（1/G₀ = 0）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#4c545c"></span>裸の項 \(A/4G_0\)</span>
+      <span><span class="swatch" style="background:#2f7d5a"></span>物質のもつれ \(N_sA/48\pi\epsilon^2\)</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>独立に計算した \(A/4G_{\text{ren}}\)</span>
+    </div>
+  </div>
+
+  <p>スライダーで種類を増やすと、内訳は動きますが<strong>合計と右端の棒は常にぴったり同じ高さ</strong>です。「どこまでが幾何で、どこからが物質か」という切り分けは<em>意味を持たない</em> ── 動かせてしまうので。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>それでも残るもの ── 裸の \(1/G_0\)</h2>
+
+  <p>正直に書きます。<strong>これは \(1/4\) を導いたわけではありません。</strong>「物質を足しても \(1/4\) が動かない理由」を説明しただけで、\(G\) そのものは依然として外から与える数です。</p>
+
+  <p>ただし、面白い極限があります。図の「Sakharov」ボタンです。<em>裸の \(1/G_0\) をゼロにする</em> ── 重力は基本的な力ではなく、物質のループから丸ごと湧いてくるという考え方（Sakharov 1967、誘導重力）。</p>
+
+  <p>このとき \(A/4G\) は<strong>全部が物質のもつれ</strong>になります。そして必要な種類の数が決まります ──</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    <p style="margin:4px 0">\(1/G_0=0\) とし、カットオフをプランク長 \(\epsilon=\ell_P\) に取る。\(\hbar=c=1\) では \(\ell_P^2=G\) なので</p>
+    $$\frac{1}{G}=\frac{N_s}{12\pi\epsilon^2}=\frac{N_s}{12\pi G}\qquad\Longrightarrow\qquad N_s=12\pi\simeq37.7$$
+  </div>
+
+  <p>スカラー約 38 個ぶん。標準模型の自由度の数（ざっと100程度）と、<em>桁は合っています</em>。</p>
+
+  <div class="caveat">
+    <span class="tag">これは結果ではありません</span>
+    フェルミオンやゲージ場は熱核の係数が違うので、この \(37.7\) をそのまま標準模型と比べることはできません。カットオフの定義にも依ります。<strong>「桁が合う」以上のことは、この計算からは言えません。</strong>ここに意味を読み込むと、番外編③の look-elsewhere に逆戻りします。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">09</span>ルートBは、どうなったか</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>結果</th></tr>
+    <tr><td><strong>ルートB そのもの</strong></td><td class="bad">4次元では効かない。先頭項が非普遍で、DP-K の普遍項は超対称指数を要求し、しかも \(\mathcal{N}=4\) では退化する</td></tr>
+    <tr><td><strong>第12回の宿題</strong></td><td class="ok">解けた。ただし「自由度密度を計算する」のではなく<strong>「計算しなくてよい」</strong>という形で</td></tr>
+    <tr><td><strong>\(1/4\) 本体</strong></td><td class="bad">依然として出ていない。裸の \(1/G_0\) が外部入力のまま</td></tr>
+  </table>
+
+  <p>第1回の壁は、<strong>四度目</strong>もそこにありました。ただし今回は、壁の性質が少し変わっています ── これまでは「係数を出す道具が無い」でしたが、今回分かったのは<em>「係数は物質の自由度からは決して出ない」</em>。</p>
+
+  <p>数える方向は、閉じました。第13回で扉が一枚閉まり、今回もう一枚閉まった。<strong>残っているのは、\(G\) そのものをどこから持ってくるかという問いだけです。</strong></p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(\mathcal{N}=4\) SYM の自由場の自由エネルギー密度を、\(n_b=n_f=8N^2\) から計算せよ。
+        <details><summary>答えを見る</summary><div class="ans">\(f=-\frac{\pi^2T^4}{90}(n_b+\frac78n_f)=-\frac{\pi^2T^4}{90}\left(8+7\right)N^2=-\frac{\pi^2T^4}{90}\cdot15N^2=-\frac{\pi^2N^2T^4}{6}\)。強結合の \(-\frac{\pi^2N^2T^4}{8}\) と比べて \(3/4\)。<strong>同じ理論でも結合を変えると自由度の数が変わる</strong>という、この回の出発点です。</div></details>
+      </li>
+      <li>\(a=\frac{3}{32}(3\,\mathrm{Tr}R^3-\mathrm{Tr}R)\)、\(c=\frac{1}{32}(9\,\mathrm{Tr}R^3-5\,\mathrm{Tr}R)\) から \(a-c\) を求め、\(\mathrm{Tr}R^3\) が消えることを確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">\(a-c=\frac{1}{32}\left[(9X-3Y)-(9X-5Y)\right]=\frac{2Y}{32}=\frac{\mathrm{Tr}R}{16}\)（\(X=\mathrm{Tr}R^3,\,Y=\mathrm{Tr}R\)）。<strong>\(\mathrm{Tr}R^3\) がきれいに落ちる</strong>ので、DP-K の答えは \(\mathrm{Tr}R\) という一つの量だけで書けます。\(\mathcal{N}=4\) で \(\mathrm{Tr}R=0\) になるのは、ゲージーノの \(+1\) と3つのカイラルの \(3\times(-\frac13)\) がちょうど打ち消すからです。</div></details>
+      </li>
+      <li>共形結合 \(\xi=1/6\) のスカラーでは \(\delta(1/G)=0\)。このとき \(S_{EE}\) の主発散はどうなっていなければならないか。
+        <details><summary>答えを見る</summary><div class="ans">Susskind–Uglum が成り立つなら、\(S_{EE}\) の \(A/\epsilon^2\) 発散も<strong>同時にゼロ</strong>でなければならない。片方だけ残ると \(A/4G_{\text{ren}}\) の形が壊れるからです。この連動は、二つの独立な計算の間の非自明な整合条件になっています ── <em>そして \(\bigl(\frac16-\xi\bigr)\) という同じ因子が両側に出ることで満たされます。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>陽性対照：2次元では、ルートAとルートBは同じものだった。</strong> 熱的自由エネルギーから出した \(S=\pi cL/3\beta\) と Cardy が偏差 \(2.2\times10^{-16}\) で一致。<em>2次元では「自由度の数」がそのまま中心電荷</em>で、だから Cardy が効く。</p>
+    <p><strong>4次元では、その先頭項が普遍でない。</strong> \(\mathcal{N}=4\) SYM の自由エネルギー係数は弱結合 \(-\pi^2N^2T^4/6\)、強結合 \(-\pi^2N^2T^4/8\) で <strong>\(3/4\) 倍</strong>。同じ理論でも結合で「自由度の数」が動く。普遍な \(A/4G\) は、ここからは出ない。</p>
+    <p><strong>DP-K の救出には死角がある。</strong> 超対称指数なら \(\beta^{-3}\) が消えて \(\log Z\sim-\frac{16\pi^2}{3\beta}(a-c)\) という普遍項が出る（自由カイラルで \(a=1/48,\,c=1/24\) を再現、\(a-c=\mathrm{Tr}R/16\) も確認）。しかし <strong>\(\mathcal{N}=4\) では \(a=c\) で退化</strong> ── ブラックホール双対を持つまさにその理論で何も言えない。</p>
+    <p><strong>そして、問いの立て方が間違っていた。</strong> 物質を足せば \(S_{EE}\) は増える。だが同じ物質が \(1/G\) も増やす。エンタングルメント側 \(A/48\pi\epsilon^2\)（Solodukhin 式28）と、熱核から<em>独立に</em>出した \(\delta(1/G)=1/12\pi\epsilon^2\)（\(a_1=(\frac16-\xi)R\) 由来）が、<strong>\(A/4\) の因子ごとぴったり一致する</strong>。\(\xi=1/6\) では両側が同時にゼロを横切る。</p>
+    <p><strong>第12回の宿題は、解けた形が逆だった。</strong> 自由度密度 \(\sigma\) は決まらなくてよい ── 決まるのは \(\sigma\) と \(G\) の比だけ。第12回の「\(a\) と \(q\) は個別に決まらず \(\log q/a^2\) だけが決まる」は、まさにこれだった。<em>一周ではなく、閉じました。</em></p>
+    <p style="margin-bottom:0"><strong>それでも \(1/4\) は出ていない。</strong> 裸の \(1/G_0\) が外部入力のまま。Sakharov 誘導重力で \(1/G_0=0\) とすれば全部が物質のもつれになり、\(\epsilon=\ell_P\) では \(N_s=12\pi\simeq37.7\) 種類 ── 標準模型と桁は合うが、<em>係数の違うフェルミオンやゲージ場を混ぜていないので、それ以上のことは言えない</em>。第1回の壁は、四度目。ただし性質が変わった ── <strong>「係数を出す道具が無い」から「係数は物質の自由度からは決して出ない」へ。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む</span>
+    <a href="butsuri-tsukuru-12-menseki.html">面積則は、ただで出てくる</a> ── この回が答えた宿題の出どころです。「セルの一辺 \(a\) と1セルの状態数 \(q\) は個別に決まらない」と書いた 05 節を、いま読み返すと意味が変わります。<em>あれは欠陥ではなく、\(G\) のくりこみそのものでした。</em>閉まった扉の一覧は <a href="butsuri-tsukuru-13-omomi.html">第13回</a> の末尾に。
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第14回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます ── 効かなかった道具と、そこで分かったことを含めて。</p>
+    <p>確立した内容：2次元 CFT の高温自由エネルギーと Cardy 公式の一致、自由場の自由エネルギー密度 \(f=-\frac{\pi^2T^4}{90}(n_b+\frac78n_f)\)、\(\mathcal{N}=4\) SYM の強結合自由エネルギーが自由場の \(3/4\) 倍であること（Gubser–Klebanov–Peet）、\(\mathcal{N}=1\) の \(a,c\) とアノマリー係数の関係および \(\mathcal{N}=4\) で \(a=c=(N^2-1)/4\) となること、Di Pietro–Komargodski の \(d=4\) Cardy 型公式（arXiv:1407.6061）、\(\mathcal{N}=4\) 指数の Cardy 極限が AdS₅ ブラックホールを再現するのに複素化学ポテンシャルを要すること、Seeley–DeWitt 係数 \(a_1=(\frac16-\xi)R\)、エンタングルメント・エントロピーの主発散（Solodukhin, Living Rev. Relativity 14 (2011) 8、式28）、Susskind–Uglum のくりこみ提案、Sakharov の誘導重力。<br>本稿の計算部分（2次元の A/B 一致、アノマリー係数の検算、熱核からの \(\delta(1/G)\) と \(S_{EE}\) の突き合わせ、\(N_s=12\pi\)）は、上記から著者が実行・検算したものです。<strong>いっぽう「だから第12回の自由度密度の問いは立て方が間違っていた」という読みは、本シリーズの著者による整理です。</strong>Susskind–Uglum 提案そのものは広く受け入れられていますが、一般の場の内容に対して発散が厳密に相殺することの証明は本稿では扱っていません（非最小結合や高階項の寄与は別途の議論を要します）。08 節の \(N_s\simeq37.7\) は<em>桁の一致以上の主張ではなく</em>、フェルミオン・ゲージ場の係数差を無視しています。地平面の Carrollian 理論そのものが未構成であることは、第8回・第11回・第12回のとおりです。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a>｜<a href="butsuri-tsukuru-13-omomi.html">第13回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、物質を足しても合計が動かないことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), sg=document.getElementById('sg'),
+      vn=document.getElementById('vn'), vg=document.getElementById('vg'), ro=document.getElementById('ro');
+
+  // A = 1, eps = 1 の単位で:
+  //   S_bare   = A/(4 G0)              = invG0/4
+  //   S_matter = Ns A/(48 pi eps^2)    = Ns/(48 pi)
+  //   1/G_ren  = 1/G0 + Ns/(12 pi eps^2)
+  //   S_total  = A/(4 G_ren)           = invGren/4      <- 独立に計算して一致するはず
+  function parts(Ns,invG0){
+    var bare   = invG0/4;
+    var matter = Ns/(48*Math.PI);
+    var invGren= invG0 + Ns/(12*Math.PI);
+    return { bare:bare, matter:matter, sum:bare+matter, total:invGren/4, invGren:invGren };
+  }
+
+  function draw(){
+    var Ns=parseInt(sn.value,10), invG0=parseInt(sg.value,10)/100;
+    vn.textContent=String(Ns); vg.textContent=invG0.toFixed(2);
+    var p=parts(Ns,invG0);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=70,R=W-30,T=30,B=H-56;
+    // 目盛りの上限は、スライダー最大での値に固定して跳ねないようにする
+    var maxV=Math.max(parts(80,3).total, 0.001);
+    function Y(v){ return B-(v/maxV)*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var k=0;k<=5;k++){
+      var v=maxV*k/5;
+      ctx.beginPath(); ctx.moveTo(L,Y(v)); ctx.lineTo(R,Y(v)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(v.toFixed(2),L-9,Y(v)+5);
+    }
+
+    var bw=150, x1=L+140, x2=L+430;
+
+    // 左：内訳を積む
+    ctx.fillStyle='#4c545c';
+    ctx.fillRect(x1, Y(p.bare), bw, B-Y(p.bare));
+    ctx.fillStyle='#2f7d5a';
+    ctx.fillRect(x1, Y(p.sum), bw, Y(p.bare)-Y(p.sum));
+    // 右：独立計算
+    ctx.fillStyle='#1f6f74';
+    ctx.fillRect(x2, Y(p.total), bw, B-Y(p.total));
+
+    ctx.strokeStyle='#a83a22'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1-24,Y(p.sum)); ctx.lineTo(x2+bw+24,Y(p.sum)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    ctx.fillText('内訳を積む',x1+bw/2,B+22);
+    ctx.fillText('A / 4G_ren を直接',x2+bw/2,B+22);
+    ctx.fillText('（裸 + もつれ）',x1+bw/2,B+40);
+    ctx.fillText('（くりこんだ G から）',x2+bw/2,B+40);
+    ctx.textAlign='left'; ctx.fillStyle='#a83a22';
+    ctx.fillText('同じ高さ',x2+bw+30,Y(p.sum)+4);
+
+    var diff=Math.abs(p.sum-p.total);
+    ro.innerHTML='物質 <b>'+Ns+' 種</b>、裸の <b>1/G₀ = '+invG0.toFixed(2)+'</b> ｜ '
+      + '裸 <b>'+p.bare.toFixed(4)+'</b> ＋ もつれ <b>'+p.matter.toFixed(4)+'</b> ＝ <b>'+p.sum.toFixed(6)+'</b><br>'
+      + '独立に計算した A/4G_ren（1/G_ren = '+p.invGren.toFixed(4)+'）＝ <b>'+p.total.toFixed(6)+'</b> ｜ '
+      + '差 <b>'+diff.toExponential(1)+'</b>'
+      + (invG0===0
+          ? '<br><span style="color:#1d5236">Sakharov：裸がゼロ。面積則の<b>全部</b>が物質のもつれになる。'
+            + 'ε=ℓ_P で必要な種類は N=12π≈37.7</span>'
+          : '');
+  }
+
+  sn.addEventListener('input',draw); sg.addEventListener('input',draw);
+  document.getElementById('bs').addEventListener('click',function(){ sg.value=0; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
