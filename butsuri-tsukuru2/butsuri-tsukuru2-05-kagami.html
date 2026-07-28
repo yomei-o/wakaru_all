@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>45度は、鏡だった ── 物理を作る 第2部 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 5 回 ／ 45度は、鏡だった</span></div>
+  <p class="eyebrow">導出に挑んだ回 ── 届かなかったが、標的の形が変わった</p>
+  <h1>45度は、鏡だった
+    <span class="sub">第4回で Koide 編を一区切りにしたあと、標的を変えずにもう一段入りました。<br><strong>\(Q=2/3\) を、導けるか。</strong>43年間だれも導いていない式です。<br>結果：<strong>導けませんでした。</strong>ただし \(2/3\) が<em>5つの同じ条件の別名</em>であることが分かり、そのうち一つは<br>「なぜ 45 度という<em>連続な角</em>なのか」ではなく<strong>「なぜフレーバー空間の形式が<em>鏡</em>なのか」</strong>という、離散的な問いでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：3×3 の行列と、乱数40万個</span>
+    <span>この回の芯：問いの種類が「角度」から「鏡映」に変わった</span>
+  </div>
+
+  <p class="lead">第1回で私はこう書きました ── <strong>「Koide 関係は 45 度の主張だった」</strong>。<br>今回そこを掘ります。<em>45 度という言い方には、まだ余分なものが混ざっていた。</em><br>そして掘った先で、この式が<strong>截断（カットオフ）からは絶対に出てこない</strong>ことが分かります。「宇宙が有限リソースの計算機だから質量が出る」という筋の話は、ここで閉まります。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>導く前に、標的を書き直す</h2>
+
+  <p>導出に挑むとき最初にやることは、<strong>標的を一番扱いやすい形に書き直す</strong>ことです。\(2/3\) という数字のままでは手がかりが少なすぎます。</p>
+
+  <p>質量の平方根を並べたベクトルを \(v_i=\sqrt{m_i}\) と書きます。第1回で見たとおり、Koide 関係は \(v\) と対角線 \((1,1,1)\) のなす角が \(45^\circ\) だという主張でした。これを<strong>二次形式</strong>に書き換えます。</p>
+
+  <div class="calc">
+    <p>\(J\) を全成分 1 の 3×3 行列、\(I\) を単位行列として</p>
+    $$F(v)=\tfrac{2}{3}\Bigl(\sum_i v_i\Bigr)^2-\sum_i v_i^2 \;=\; v^{T}\eta\,v,\qquad \eta=\tfrac{2}{3}J-I$$
+    <p>とおくと、\(Q=\dfrac{\sum m}{(\sum\sqrt m)^2}=\dfrac{2}{3}\) は \(F(v)=0\) と<b>完全に同値</b>です。</p>
+  </div>
+
+  <p>ここで \(\eta\) の固有値を見ます。\(J\) の固有値は \((3,0,0)\) なので、\(\eta\) の固有値は</p>
+
+  $$3\cdot\tfrac{2}{3}-1=+1,\qquad -1,\qquad -1$$
+
+  <p><strong>符号数が \((+,-,-)\)。</strong>つまりフレーバー空間には 1+2 次元の<em>ミンコフスキー計量</em>が乗っていて、Koide 関係が言っているのは一言でこうなります。</p>
+
+  <div class="keybox">
+    <p style="margin:0;font-size:19px;text-align:center;"><strong>質量の平方根ベクトルは、光的（lightlike）である。</strong></p>
+  </div>
+
+  <p>数え合わせが合っているか確かめます。1+2 次元の光円錐は<strong>2次元の面</strong>です。だから光的な \(v\) は2つの自由度しか持たず、それが3つの質量を決める ── これは Koide の2パラメータ表示そのものです。</p>
+
+  <div class="calc">
+    <p>\(\sqrt{m_i}=A\bigl(1+\sqrt2\cos(\theta+2\pi(i-1)/3)\bigr)\) と書くと、\(\sum\cos=0\) と \(\sum\cos^2=3/2\) から</p>
+    $$\sum\sqrt m=3A,\qquad \sum m=A^2\Bigl(3+\tfrac{3}{2}\cdot 2\Bigr)=6A^2 \;\Longrightarrow\; Q=\frac{6A^2}{9A^2}=\frac{2}{3}$$
+    <p>となり、\(\theta\) が何であっても \(Q=2/3\) が<b>恒等的に</b>成り立ちます。<br>つまり <em>\(Q=2/3\) は追加の仮定ではなく、「3つの質量が2パラメータの形に収まる」という主張そのもの</em>です。</p>
+  </div>
+
+  <p>ここまでで、同じ一つの条件に5つの名前がついたことになります。実測値を全部入れておきます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">言い方</th><th>実測</th><th class="c">2/3 からのずれ</th></tr>
+    <tr><td>\(Q=\sum m/(\sum\sqrt m)^2=2/3\)</td><td class="num">0.666664463415</td><td class="num">\(-2.20\times10^{-6}\)</td></tr>
+    <tr><td>\(\sqrt m\) と \((1,1,1)\) の角が \(45^\circ\)</td><td class="num">44.999905°</td><td class="num">\(9.5\times10^{-5}\) 度</td></tr>
+    <tr><td>\(v^{T}(2P-I)v=0\)（光的）</td><td class="num">\(F/{\rm norm}\)</td><td class="num">\(+3.30\times10^{-6}\)</td></tr>
+    <tr><td>\(|\)一重項部分\(|=|\)八重項部分\(|\)</td><td class="num">30.684732 / 30.684631</td><td class="num">\(-3.31\times10^{-6}\)</td></tr>
+    <tr class="mark"><td>\(\langle P\rangle=1/2\)（50:50 の重ね合わせ）</td><td class="num">0.500001652</td><td class="num">\(+1.65\times10^{-6}\)</td></tr>
+  </table>
+
+  <p>\(P=J/3\) は対角線方向 \((1,1,1)/\sqrt3\) への射影で、\(\langle P\rangle\) は \(v\) を規格化した状態でその射影の期待値です。最後の行が一番きれいなので、言い直しておきます。</p>
+
+  <div class="aside">
+    <span class="tag">言い換えの利得</span>
+    <p><strong>\(\sqrt m\) という状態を「対角線方向か、そうでないか」で測ると、ちょうど 50:50 になる。</strong></p>
+    <p>これは素粒子物理でいう<em>最大混合</em>です。有名な最大混合はニュートリノの \(\theta_{23}\) で、\(\sin^2\theta_{23}=0.55\pm0.02\) ── 精度 4%。いっぽうこちらは \(\sigma_{\langle P\rangle}=4.1\times10^{-6}\)、精度 0.0004%。<br><strong>Koide 関係は、素粒子物理でいちばん精密に検証された「最大混合」です。</strong>そして何がそれを起こしているのか、誰も知りません。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>なぜ \(2/3\) なのか ── 鏡だけが残る</h2>
+
+  <p>ここが今回の芯です。\(2/3\) を一般化して \(\eta_Q=QJ-I\) と書いてみます。固有値は \((3Q-1,\,-1,\,-1)\)。</p>
+
+  <p>この形式に「<strong>鏡映であれ</strong>」という条件、つまり \(\eta^2=I\) を課します。二回かけると元に戻る ── 反転（involution）です。</p>
+
+  <div class="calc">
+    $$(3Q-1)^2=1 \;\Longrightarrow\; 3Q-1=\pm1 \;\Longrightarrow\; Q=\frac{2}{3}\ \ \text{または}\ \ Q=0$$
+    <p>非零解は \(2/3\) <b>だけ</b>。そして実際に</p>
+    $$\eta=\tfrac{2}{3}J-I=2P-I,\qquad P=J/3$$
+    <p>これは<b>対角線軸まわりの鏡映</b>そのものです。数値で確認：</p>
+  </div>
+
+  <div class="lab">
+    <span class="tag">derive.py の出力</span>
+<pre>  eta^2 =
+      [<span class="bd">+1.000000</span>  -0.000000  -0.000000]
+      [-0.000000  <span class="bd">+1.000000</span>  -0.000000]
+      [-0.000000  -0.000000  <span class="bd">+1.000000</span>]
+
+  |singlet part| = 30.684732   |octet part| = 30.684631
+  ratio          = <span class="bd">0.999996695</span>      (Koide &lt;=&gt; exactly 1)</pre>
+  </div>
+
+  <p>\(v^{T}(2P-I)v=0\) を言葉にすると、<strong>「\(\sqrt m\) を対角線軸で鏡に映すと、元のベクトルと直交する」</strong>。45 度で入って 45 度で出るから合わせて 90 度 ── 当たり前の言い換えです。<em>当たり前なのに、こちらの方が導出しやすい形になっています。</em>理由はこうです。</p>
+
+  <div class="verdict">
+    <p><strong>問いの種類が変わりました。</strong></p>
+    <p>「なぜ \(45^\circ\) なのか」は<em>連続量の一致</em>を問う質問です。連続量がぴったりある値をとることを対称性で強制するのは難しい。<br>「なぜ形式が鏡映なのか」は<strong>離散的な代数条件</strong>（\(\eta^2=I\)）を問う質問です。<em>離散条件は、対称性が強制できる種類のものです。</em></p>
+    <p>導出の難易度が下がったとは言いません。<strong>難易度の種類が変わりました。</strong></p>
+  </div>
+
+  <p>そして \(n\) 世代に一般化すると \(\eta=2P-I\)、\(P=J/n\) から \(Q_n=2/n\) が出ます。\(n=3\) で \(2/3\)。<em>この一般化は後で刺さります</em>（06 節）。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>\(2/3\) は真ん中だが、真ん中に溜まらない</h2>
+
+  <p>ここで自分を疑います。\(Q\) の値域は \(1/3\le Q\le1\) で、\((1/3+1)/2=2/3\) ── <strong>\(2/3\) はちょうど値域の中点です</strong>。第1回でもそう書きました。</p>
+
+  <p>だとすると、こういう可能性があります。<em>ランダムな質量を入れても \(Q\) は真ん中あたりに溜まるので、\(2/3\) という値そのものには意味がなく、\(10^{-5}\) という精度だけが不思議なのではないか。</em></p>
+
+  <p>これは確かめられます。乱数で質量の三つ組を40万個作って、\(Q\) の分布を見ます。測度の取り方を変えて5通り。</p>
+
+  <table class="tbl">
+    <tr><th style="width:42%">質量の作り方（測度）</th><th class="c">\(Q\) の中央値</th><th class="c">\(P(|Q-2/3|&lt;10^{-2})\)</th></tr>
+    <tr><td>\(\sqrt m\) を正八分体上で一様</td><td class="num">0.4353</td><td class="num">1.06%</td></tr>
+    <tr><td>\(m\) を単体上で一様</td><td class="num">0.3795</td><td class="num">0.12%</td></tr>
+    <tr class="mark"><td>\(m\) を対数一様（3桁の広がり）</td><td class="num">0.4607</td><td class="num">1.88%</td></tr>
+    <tr><td>\(m\) を対数一様（6桁）</td><td class="num">0.6295</td><td class="num">2.53%</td></tr>
+    <tr><td>\(m\) を対数一様（12桁）</td><td class="num">0.8834</td><td class="num">1.74%</td></tr>
+  </table>
+
+  <p>実際の荷電レプトンの広がりは \(m_\tau/m_e=3477\)、つまり<strong>3.5桁</strong>です。そこでの中央値は <strong>0.46</strong>。\(2/3\) ではありません。</p>
+
+  <div class="verdict">
+    <p><strong>\(2/3\) は測度の引力点ではない。</strong>中点だという事実は説明になっていません ── 中点に溜まるかどうかは測度で決まり、実際のレプトンの広がりに合う測度では溜まりません。<em>\(2/3\) は本物の標的です。</em></p>
+  </div>
+
+  <p>これは第1回の統計の柱を、少しだけ Koide 側に戻します。第1回では族49本・的194個で「乱数でも 51% で何かが当たる」と出しました。今回のは別の問い ── <em>値そのものが自明かどうか</em>で、答えは「自明でない」。<strong>どちらも測度・族の設計に依存する数字なので、どちらも決定打ではありません。</strong>これは注意として最後まで残ります。</p>
+
+  <div class="fig">
+    <div class="cap">図：左は<b>質量比の平面</b>。横軸 \(\log_{10}(m_2/m_1)\)、縦軸 \(\log_{10}(m_3/m_2)\)。Koide 条件 \(Q=2/3\) は1本の<b>曲線</b>になり、荷電レプトンはその上に乗ります。灰色の点は乱数の三つ組。右は同じ乱数の \(Q\) 分布。<b>スライダーで乱数の広がり（桁数）を変えられます</b> ── \(2/3\) の縦線に山が来ないことを見てください。<em>図は 4000 個なので、上の表（40万個）と中央値が 0.003 ほどずれます</em></div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <label>乱数の広がり = <span class="val" id="slv">3 桁</span>
+        <input type="range" id="sl" min="1" max="12" step="1" value="3"></label>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#8a3a4a"></span>\(Q=2/3\) の曲線</span>
+      <span><span class="swatch" style="background:#7a4a8a"></span>荷電レプトン（実測）</span>
+      <span><span class="swatch" style="background:#aab4b2"></span>乱数の三つ組</span>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="tag">曲線は閉じた式で描けます</span>
+    <p>\(m_1=1\)、\(r=m_2/m_1\)、\(u=\sqrt{m_3}\) とおき、\(s=1+\sqrt r\)、\(S=1+r\) とすると \(Q=2/3\) は \(u^2-4su+(3S-2s^2)=0\)、すなわち</p>
+    $$u=2s+\sqrt{6s^2-3S}$$
+    <p>（重い側の分枝）。\(r=m_\mu/m_e=206.7683\) を入れると \(m_3=\)<strong>1776.9690 MeV</strong> ── 第1回の予言値と、小数第4位まで同じです。<em>図の曲線と第1回の予言は同じものでした。</em>曲線上のどの点でも \(Q\) は機械精度で \(2/3\) になります（\(x=1,2,3,4\) で確認）。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>数合わせは、全部外れた</h2>
+
+  <p>2パラメータ表示の \(\theta\) に意味があるなら、\(\theta\) が何かきれいな数であってほしい。探しました。</p>
+
+  <div class="lab">
+    <span class="tag">derive.py ── \(\theta\) の当てはめと、数合わせの試み</span>
+<pre>  best theta = 3.966565460 rad = 227.267460 deg
+
+    theta vs        2/9 = 0.222222  ->  ratio <span class="bd">17.849545</span>
+    theta vs      pi/14 = 0.224399  ->  ratio <span class="bd">17.676358</span>
+    theta vs    1/(2pi) = 0.159155  ->  ratio <span class="bd">24.922666</span>
+    theta vs  sqrt(2)/9 = 0.157135  ->  ratio <span class="bd">25.243068</span></pre>
+  </div>
+
+  <p><strong>4本とも外れです。</strong>比が 1 になるものが一つもありません（17.7〜25.2）。\(\theta\) の値は位相の規約に依存するので、そもそも「きれいな数」を期待する筋が弱かった、というのが正直な感想です。</p>
+
+  <div class="caveat">
+    <span class="tag">これを載せる理由</span>
+    <p>外れた試みを消すと、<em>当たった試みだけが並んだ記事</em>ができます。第1回で自分の族に重複があったのを見つけたときと同じで、<strong>試した回数を書かないと当たりの意味が読めません。</strong>この回で数合わせは4回試して0勝です。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>截断からは、出ない</h2>
+
+  <p>ここで別方向から攻めます。<strong>「時空に最小単位がある」「宇宙は有限リソースの計算機である」から質量が出る</strong>、という筋です。第1部第2回で格子を扱ったので、続きとして自然な方向です。</p>
+
+  <p>結論を先に書きます。<strong>この筋で \(Q=2/3\) は出ません。</strong>理由は一行です。</p>
+
+  <div class="keybox">
+    <p style="margin:0;"><strong>\(Q\) は質量の 0 次同次関数です。</strong>つまり質量を全部同じ倍率でスケールしても \(Q\) は微動もしません：\(\sum_i \partial Q/\partial\ln m_i=0\)（厳密に 0）。</p>
+  </div>
+
+  <div class="lab">
+    <span class="tag">koide_rg.py ── 0次同次の確認</span>
+<pre>  Q(lambda*m), lambda=  1e-06 : 0.666664463414500
+  Q(lambda*m), lambda=  1e+00 : 0.666664463414500
+  Q(lambda*m), lambda=  1e+06 : 0.666664463414500
+
+  sum_i dQ/dln m_i = <span class="bd">+0.000e+00</span>
+  dQ/dln m_e = -0.008786   dQ/dln m_mu = -0.091531   dQ/dln m_tau = +0.100317</pre>
+  </div>
+
+  <p>質量比は<em>無次元量</em>です。無次元量に截断 \(\Lambda\) が入るには \(\ln(\Lambda/\mu)\) のような無次元の組合せを通るしかありません。そして QED・QCD の1ループ質量異常次元は<strong>フレーバーに依らない</strong>ので、走り（くりこみ群の流れ）は \(Q\) から丸ごと消えます。</p>
+
+  <p>残るのはフレーバー依存する項だけ。荷電レプトンではそれは湯川の自己項 \((3/2)y_i^2\) だけで、\(y_\tau^2=1.04\times10^{-4}\) と小さい。実際に走らせると：</p>
+
+  <table class="tbl">
+    <tr><th style="width:40%">\(M_Z\) からの e-fold</th><th class="c">\(m_\tau/m_\mu\)</th><th class="c">相対変化</th></tr>
+    <tr><td>0</td><td class="num">16.817692</td><td class="num">0</td></tr>
+    <tr><td>10</td><td class="num">16.817858</td><td class="num">\(+9.9\times10^{-6}\)</td></tr>
+    <tr class="mark"><td>39.4（\(M_Z\to M_{\rm Pl}\)）</td><td class="num">16.818345</td><td class="num">\(+3.9\times10^{-5}\)</td></tr>
+  </table>
+
+  <p>電弱スケールからプランクスケールまで 39 e-fold 走らせて、質量比は <strong>\(4\times10^{-5}\)</strong> しか動きません。<em>比は理論の定数であって、截断の関数ではない。</em></p>
+
+  <div class="verdict">
+    <p><strong>だから問題は二つに分かれます。</strong></p>
+    <p>問題1（スケール）：<em>そもそも質量があるのはなぜか。</em>── これは解けています。純ヤンミルズは質量パラメータを一つも持たないのに \(\Lambda=\mu\,e^{-2\pi/\beta_0\alpha_s}\) で質量を作り、格子で測ると最軽グルーボールは 1.73 GeV。<strong>「截断から質量が出る」は 1973 年に本当に成功しています。</strong></p>
+    <p>問題2（比）：<em>なぜこの数値なのか。</em>── これは開いていて、<strong>截断の話が原理的に届きません。</strong></p>
+    <p>この二つを混ぜると「宇宙が有限の計算機だから質量公式ができる」という文になりますが、<em>混ざりません。</em></p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">有限リソースの側にも、当たりが一つあります</span>
+    <p>公平に書いておきます。「有限の情報量」から出る量で、実際に当たっているものがあります ── <strong>真空エネルギー</strong>です。<br>Cohen–Kaplan–Nelson (1999) は「大きさ \(L\) の箱の有効理論に、すでにブラックホールになっている状態を入れてはいけない」という<em>まさに有限リソースの要求</em>から \(\rho_{\rm vac}\sim M_{\rm Pl}^2H_0^2\) を導きます。数を入れると</p>
+    <div class="lab" style="margin:10px 0 6px;">
+<pre>  observed   rho_Lambda^(1/4)  = 2.2404e-03 eV
+  predicted  sqrt(M_Pl,red*H0) = 1.8712e-03 eV   ratio = <span class="bd">0.84</span></pre>
+    </div>
+    <p>素朴な場の理論が \(10^{120}\) 外す量を、数え上げだけで<strong>係数 1.2 以内</strong>。有限リソースという発想の一番強い成果はこれで、質量公式ではありません。<br>ついでに ── 有限リソースが与える<em>最小エネルギー</em>は地平面から \(\hbar H_0=1.44\times10^{-33}\) eV です。ニュートリノ質量 0.05 eV より<strong>31桁下</strong>なので、「ニュートリノが最小のビット」という読み方は成り立ちません。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>そして式は、極質量に固定されている</h2>
+
+  <p>導出を難しくしている事情がもう一つあります。<strong>この式が、どの質量の定義について成り立っているか</strong>という問題です。</p>
+
+  <p>PDG が与えるのは<em>極質量</em>（on-shell 質量）です。いっぽう高いスケールの模型が自然に与えるのは<em>くりこみ質量</em>（\(\overline{\rm MS}\)）。両者は1ループ QED でつながります。</p>
+
+  <div class="calc">
+    $$\bar m_i(\mu)=M_i\Bigl[1-\frac{\alpha}{4\pi}\Bigl(4+3\ln\frac{\mu^2}{M_i^2}\Bigr)\Bigr]$$
+    <p>\(\ln\mu^2\) の項はフレーバーに依らないので \(Q\) から消えます。<b>消えないのは \(3\ln M_i^2\) の項</b>で、これは質量を \(m\to C\,m^{1+b}\)、\(b=3\alpha/2\pi=3.48\times10^{-3}\) と<em>べきで傾ける</em>操作です。\(Q\) はべき傾けには不変ではありません。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:38%">質量の定義</th><th class="c">\(Q\)</th><th class="c">\(Q-2/3\)</th><th class="c">極質量比</th></tr>
+    <tr class="mark"><td>極質量（PDG）</td><td class="num ok">0.666664463</td><td class="num">\(-2.20\times10^{-6}\)</td><td class="c">1</td></tr>
+    <tr><td>\(\overline{\rm MS}\)、\(\mu=2\) GeV</td><td class="num bad">0.667824</td><td class="num">\(+1.16\times10^{-3}\)</td><td class="num">525</td></tr>
+    <tr><td>\(\overline{\rm MS}\)、\(\mu=M_Z\)</td><td class="num bad">0.667925</td><td class="num">\(+1.26\times10^{-3}\)</td><td class="num">571</td></tr>
+    <tr><td>\(\overline{\rm MS}\)、\(\mu=M_{\rm Pl}\)</td><td class="num bad">0.668149</td><td class="num">\(+1.48\times10^{-3}\)</td><td class="num">673</td></tr>
+  </table>
+
+  <p><strong>571倍悪化し、どのスケールでも戻ってきません</strong>（\(b\) は \(\alpha\) とともに増えるだけ）。\(\overline{\rm MS}\) で \(Q=2/3\) を要求すると極質量は \(m_\tau=1754.8\) MeV になり、実測から <strong>246σ</strong> 離れます。</p>
+
+  <div class="verdict">
+    <p><strong>Koide 関係は、極質量についての主張です。</strong>つまり赤外（IR）の主張であって、高スケールの湯川関係としてそのまま書けません。書きたければ QED の log を打ち消す仕掛けが必要になります。</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">既知です。そして私の計算は文献を再現しました</span>
+    <p>この2点はどちらも先に見つかっています ── ①「走りが \(Q\) に効かない」は <b>Li &amp; Ma, PRD 73, 013009 (2006)</b>、②「極質量と \(\overline{\rm MS}\) で 0.1% ずれる」は <b>Sumino, Phys.Lett.B671:477 (2009)</b>。<br>Li &amp; Ma の \(k_l=1.0019\) は上表の 0.667925 と同じ数字で、Sumino の「0.1%、当時の実験誤差の120倍」は私の \(1.26\times10^{-3}\) と一致します。<strong>道具は正しく動いたが、洞察は先に取られていました。</strong></p>
+  </div>
+
+  <p>そして 02 節の一般化が刺さるのはここです。\(\eta=2P-I\) は \(n=3\) なら<strong>クォークにも \(2/3\)</strong> を要求します。共通スケールに揃えて測ると：</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">三つ組</th><th class="c">\(Q\)</th><th class="c">\(2/3\) からのずれ</th></tr>
+    <tr class="mark"><td>\((e,\mu,\tau)\)</td><td class="num ok">0.666664</td><td class="num ok">\(-3\times10^{-6}\)</td></tr>
+    <tr><td>\((d,s,b)\)</td><td class="num bad">0.742</td><td class="num bad">+11.3%</td></tr>
+    <tr><td>\((u,c,t)\)</td><td class="num bad">0.877</td><td class="num bad">+31.5%</td></tr>
+  </table>
+
+  <p>第4回で私は「クォークはスケールが揃っていないので比較に意味がない」と書きました。<strong>それは弁解しすぎでした。</strong>\(Q\) は 0 次同次なので、スケールを揃えてもほとんど動きません（1ループでは厳密に不変）。比較は有効で、外れ方は本物です。</p>
+
+  <p>しかも <em>時間が経つほど悪くなっています</em>。Li &amp; Ma が使った 1998 年の値は \(m_s(2\,{\rm GeV})\simeq125\) MeV でしたが、PDG は今 93.4 MeV。入れ替えると \(k_d\) は \(1.0793\to1.1131\)。</p>
+
+  <div class="keybox">
+    <p style="margin:0;"><strong>荷電レプトンではデータが式に寄っていき、ダウン型クォークではデータが式から離れていった。</strong>どちらも同じ「年表」という道具の読みです。</p>
+  </div>
+
+  <p>ニュートリノも試せます。第1回・第4回で私は「絶対質量が未知なので試せない」と書きましたが、<strong>これも間違いでした。</strong>\(Q\) は比だけで決まるので、振動データだけで試せます。\(Q\) は最大階層のとき最大なので、上限が出ます。</p>
+
+  <div class="lab">
+    <span class="tag">koide_rg.py ── ニュートリノの天井</span>
+<pre>  max possible Q_nu (NO) = <span class="bd">0.5853</span>   at m_1 = 0
+  max possible Q_nu (IO) = <span class="bd">0.5000</span>   at m_3 = 0
+  2/3 = 0.6667 is above <span class="bd">BOTH</span> ceilings.</pre>
+  </div>
+
+  <p><strong>素の Koide 式は、ニュートリノについて振動データだけで排除されます。</strong>宇宙論も KATRIN も要りません。文献の逃げ道（平方根1個の符号を反転する）は解を持ちますが、\(m_1=3.6\times10^{-4}\) eV ── \(m_1=0\) と区別できないので、検証できる予言ではありません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>残った二つの問いと、唯一の検証可能な道</h2>
+
+  <p>43年間の問い「なぜ \(2/3\) か」は、この回で二つの具体的な問いに置き換わりました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:50%">問い</th><th>状態</th></tr>
+    <tr><td>なぜフレーバー形式が<b>鏡映</b>なのか<br>（＝なぜ対角線方向に対して 50:50 なのか）</td><td>空白。ただし<em>離散条件</em>なので、対称性で強制する筋がある</td></tr>
+    <tr><td>なぜ<b>クォークは免除</b>されるのか</td><td>空白。<em>既存のどの試みも埋めていない</em></td></tr>
+  </table>
+
+  <p>導出の候補を採点します。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">ルート</th><th class="c">\(2/3\) を出すか</th><th>検証可能か</th></tr>
+    <tr><td>Koide 1982（SU(3) 族対称性、\(m_i\propto v_i^2\)）</td><td class="c bad">出さない</td><td>\(|1|=|8|\) はポテンシャルの結合定数の条件として手で置くことになる</td></tr>
+    <tr><td>鏡映 / involution（02 節）</td><td class="c ok">出す</td><td>「なぜ鏡映か」が空白。<em>いまは書き換えであって導出ではない</em></td></tr>
+    <tr class="mark"><td>Sumino 2009（family gauge boson）</td><td class="c bad">出さない</td><td class="ok">できる ── 下記</td></tr>
+  </table>
+
+  <p>Sumino は 06 節の問題（極質量にロックされている）を正面から扱い、<strong>QED の log を打ち消す族ゲージ相互作用</strong>を導入します。族対称性の破れの vev が \(m_i\propto v_i^2\) を満たすため log の重みが半分になり、打ち消しの条件は</p>
+
+  $$\frac{3\alpha_F}{8\pi}=\frac{3\alpha}{2\pi}\quad\Longrightarrow\quad \alpha_F=4\alpha=0.0292$$
+
+  <p><strong>自由パラメータではなく、調整済みの等式です。</strong>だから試せます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">制限</th><th>現在</th><th>将来</th></tr>
+    <tr><td>\(\mu\to eee\)</td><td>SINDRUM \(&lt;10^{-12}\) → \(M_F&gt;89\) TeV</td><td class="ok"><strong>Mu3e \(&lt;10^{-16}\) → \(M_F&gt;887\) TeV</strong></td></tr>
+    <tr><td>\(K^0\)–\(\bar K^0\) 混合</td><td>\(\Delta m_K\) → \(M_F&gt;606\) TeV</td><td>─</td></tr>
+    <tr><td>\(\epsilon_K\)</td><td>→ \(M_F&gt;6060\) TeV</td><td>─</td></tr>
+  </table>
+
+  <p>Sumino 自身の見積もりは \(10^2\)–\(10^3\) TeV。<strong>Mu3e はその窓を丸ごと踏み越えます</strong>（フレーバー構造が揃っていない場合。揃える議論が現在も続いています）。</p>
+
+  <div class="verdict">
+    <p><strong>だから決着の道は二本です。</strong></p>
+    <p>①\(m_\tau\) を <strong>7.8 keV</strong> の精度で測る（現在 90 keV、5σ で \(2/3\) と区別するため）。誰も計画していません。<br>②\(\mu\to eee\) を <strong>\(10^{-16}\)</strong> まで測る。<em>建設中です。</em></p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>「\(\eta^2=I\) を課すと \(Q=2/3\)」は導出か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>いいえ、まだ書き換えです。</strong>\(\eta^2=I\) を課す理由がないので、「\(2/3\) を仮定する」を「鏡映を仮定する」に取り替えただけです。<br>ただし取り替えには利得があります ── <em>仮定の形が連続量の一致から離散的な代数条件に変わった</em>ので、対称性が強制できる種類になりました。<strong>導出の第一歩ではあるが、導出ではありません。</strong>ここを混ぜると自分で騙されます。</div></details>
+      </li>
+      <li>\(Q\) が 0 次同次であることは、Koide 関係にとって有利か不利か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>両方です。</strong>有利：走りが効かないので、式が \(10^{-5}\) で成り立っていることが「たまたまこのスケールで」ではなくなる（39 e-fold で \(4\times10^{-5}\)）。<br>不利：<em>截断や離散性から導く道が全部閉まります。</em>比は無次元なので、最小長さの話は届きません。<strong>安定しているものは、説明もされにくい。</strong></div></details>
+      </li>
+      <li>クォークが \(2/3\) から 11%・31% 外れることは、\(\eta=2P-I\) を殺すか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>殺しませんが、値段を上げます。</strong>鏡映が荷電レプトンだけに効く理由（カラーを持たないこと、など）を別に用意しなければならず、<em>それを用意した瞬間に「なぜ 2/3 か」の答えは鏡映ではなくその理由の方に移ります。</em><br>そして 04 節と同じ問題が出ます ── 免除の理由を後から足すと、パラメータが増えて予言力が落ちます。<strong>3つの質量を説明する式に、自由パラメータは2個までしか使えません。</strong></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>訂正の台帳 ── 4件追加</h2>
+
+  <p>今回で台帳が 11 件になりました。追加分だけ載せます。</p>
+
+  <table class="tbl">
+    <tr><th class="c" style="width:8%">#</th><th>内容</th><th class="c" style="width:14%">向き</th><th class="c" style="width:10%">元の回</th></tr>
+    <tr><td class="c"><strong>⑧</strong></td><td>「ニュートリノは絶対質量が未知で試せない」→ <strong>比だけで試せる。素の式は排除される</strong></td><td class="c bad"><strong>不利</strong></td><td class="c">1, 4</td></tr>
+    <tr><td class="c"><strong>⑨</strong></td><td>「クォーク比較はスケール不揃いで無意味」→ 0 次同次なのでほぼ有効。<strong>外れ方は本物</strong></td><td class="c ok">保守</td><td class="c">4</td></tr>
+    <tr><td class="c"><strong>⑩</strong></td><td>式が<strong>極質量に固定されている</strong>こと（\(\overline{\rm MS}\) では 571倍悪化）を書いていなかった</td><td class="c bad"><strong>不利</strong></td><td class="c">1–4</td></tr>
+    <tr><td class="c"><strong>⑪</strong></td><td>「データが寄っていった」は<strong>単調ではない</strong>。pdgLive の個別測定で累積平均の pull を追うと 1996 年に予言を横切り、以後 \(\pm1.3\sigma\) で振動している（2023年の2本は Belle II \(+0.89\sigma\)、KEDR \(-1.19\sigma\) と反対向き）</td><td class="c bad"><strong>不利</strong></td><td class="c">1</td></tr>
+  </table>
+
+  <p><strong>11件。保守3、中立3、不利5。</strong>第2回で「全部保守側」と書いたときは4件でした。<em>回を重ねるほど不利側が増えています</em> ── これは「向きは事前に分からない」より少し強い事実で、<strong>最初に書いた話がいちばん自分に都合よくできていた</strong>という意味です。</p>
+
+  <div class="record">
+    <h2>この回で分かったこと</h2>
+
+    <p><strong>\(2/3\) は、5つの同じ条件の別名だった。</strong>\(Q=2/3\)／45 度／フレーバー空間で光的／一重項と八重項のノルムが等しい／対角線方向に対して \(\langle P\rangle=1/2\)。とくに最後の形は<em>素粒子物理でいちばん精密に検証された最大混合</em>で、精度 \(4.1\times10^{-6}\) ── ニュートリノの \(\theta_{23}\) の 4% より 4 桁良い。</p>
+
+    <p><strong>そして \(2/3\) は「形式が鏡映である」ことと同値だった。</strong>\(\eta_Q=QJ-I\) に \(\eta^2=I\) を課すと \(Q=2/3\) が<em>一意に</em>出ます（もう一つの解は \(Q=0\)）。問いが「なぜ 45 度という連続な角か」から<strong>「なぜ形式が鏡映か」という離散条件</strong>に変わりました。導出ではありませんが、<em>仮定の種類が対称性で強制できるものに変わりました。</em></p>
+
+    <p><strong>中点だから、ではなかった。</strong>\(2/3\) は値域 \([1/3,1]\) の中点ですが、乱数40万個で確かめると、実際のレプトンの広がり（3.5桁）に合う測度での中央値は <strong>0.46</strong>。\(2/3\) は測度の引力点ではありません。第1回の 51% とは別の問いで、こちらは Koide 側に有利に出ました。</p>
+
+    <p><strong>数合わせは4回試して0勝。</strong>\(\theta=3.9666\) rad を \(2/9\)、\(\pi/14\)、\(1/2\pi\)、\(\sqrt2/9\) と比べて、比が 1 になるものはありませんでした（17.7〜25.2）。</p>
+
+    <p><strong>截断からは出ない。</strong>\(Q\) は 0 次同次（\(\sum_i\partial Q/\partial\ln m_i=0\) は厳密に 0）なので、フレーバーに依らない走りは丸ごと消え、\(M_Z\to M_{\rm Pl}\) の 39 e-fold で質量比は \(4\times10^{-5}\) しか動きません。<em>「最小長さがあるから質量が出る」は、質量スケールには効いて（純ヤンミルズは 1.73 GeV を作る）、質量比には原理的に届きません。</em>問題は最初から二つに分かれていました。</p>
+
+    <p><strong>そして式は極質量に固定されている。</strong>\(\overline{\rm MS}\) 質量で書くと \(2/3\) からのずれは \(1.26\times10^{-3}\)、極質量の 571倍。どのスケールでも戻りません。これは高スケールの湯川関係として書けないという意味で、打ち消しの仕掛け（Sumino）が要ります。そちらは \(\alpha_F=4\alpha\) と \(10^2\)–\(10^3\) TeV の族ゲージ粒子を要求し、<strong>Mu3e が \(\mu\to eee\) を \(10^{-16}\) まで測ればその窓は閉じます。</strong></p>
+
+    <p><strong>残った穴は、クォークです。</strong>\(\eta=2P-I\) は \(n=3\) ならクォークにも \(2/3\) を要求しますが、共通スケールで \(Q_{dsb}=0.742\)、\(Q_{uct}=0.877\)。しかも \(m_s\) の更新でダウン型は<em>離れる方向に</em>動きました。免除の理由を後から足すとパラメータが増え、3つの質量に対して 2 個までという予算を超えます。<strong>導出には届きませんでした。標的の形が変わっただけです。</strong>そしてこの回の 02 節は、既知の 45 度の幾何読み（Foot 1994 ほか）と数学的に同じ一つの条件の書き換えであって、新しい物理ではありません。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>次は 07 節の②を掘ります。</strong>\(\mu\to eee\) と \(K^0\)–\(\bar K^0\) 混合が族ゲージ粒子をどこまで追い込んでいるのか ── 私の見積もりはオーダー計算で、フレーバー構造を揃える議論を読んでいません。<em>「原典を先に確認する」を今回もまだ半分しか守れていないので、そこからです。</em><br>第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a> ｜ 第2回：<a href="butsuri-tsukuru2-02-genten.html">原典を開いたら、私が間違っていた</a> ｜ 第3回：<a href="butsuri-tsukuru2-03-yogen.html">本人が、予言と書いていた</a> ｜ 第4回：<a href="butsuri-tsukuru2-04-todokanai.html">届かない原典と、消えた補正項</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第5回、物理好きの高校生・大学生向け読み物です。</p>
+    <p><strong>確立した内容：</strong>Koide 関係 \(Q=\sum m/(\sum\sqrt m)^2\) と \(1/3\le Q\le1\) という範囲、\(Q=2/3\) が \(\sqrt m\) と \((1,1,1)\) のなす角 \(45^\circ\) と同値であること（Foot 1994 ほか）、Koide 関係が走りにほぼ依らないこと（Li &amp; Ma, PRD 73, 013009 (2006)）、極質量と \(\overline{\rm MS}\) 質量で関係が \(10^{-3}\) 程度ずれること および族ゲージ相互作用による打ち消し機構（Sumino, Phys.Lett.B671:477 (2009)）、荷電レプトンの PDG 質量、純 SU(3) ヤンミルズの最軽グルーボール質量（格子、Morningstar–Peardon 1999）、ニュートリノ振動の質量二乗差（PDG）、\(\mu\to eee\) の SINDRUM 上限、Cohen–Kaplan–Nelson (1999) の境界、そして Koide 関係が現在まで導出されていないこと。</p>
+    <p><strong>著者の整理／未確認：</strong>本稿の数値（\(\eta^2=I\) から \(Q=2/3\) が一意に出るという書き換え、一重項・八重項ノルムの比 0.999996695、\(\langle P\rangle=0.500001652\)、乱数40万個による \(Q\) の分布、\(\theta\) の当てはめと数合わせ4件の失敗、\(\overline{\rm MS}\) での \(Q\) と 571 という比、共通スケールでのクォークの \(Q\)、ニュートリノの \(Q\) の天井、族ゲージ粒子の質量下限）は、著者が書いた純 Python コードの出力です。<br><strong>「鏡映だから \(2/3\)」は導出ではありません。</strong>\(\eta^2=I\) を課す物理的理由は本稿にありません。02 節は既知の 45 度の幾何読みと数学的に同値な書き換えです。<br>族ゲージ粒子の質量下限は<strong>オーダー計算</strong>で、フレーバー構造が非対角結合を抑える可能性を考慮していません（この点は追い込み方が甘く、文献を読んでいません）。1ループのクォーク質量の走りは \(m_b(M_Z)\) を 4 ループ値より 9% 高く出します ── 共通倍率の誤差は 0 次同次で消えるため \(Q\) はより頑健ですが、11%・31% という数字に数 % の不定性は残ります。真空エネルギーの \(\sqrt{M_{\rm Pl}H_0}\) は既知の関係の再計算で、著者の発見ではありません。数合わせの4候補は事前に固定しておらず、外れたのでそのまま載せています。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a> ｜ 姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a> ／ <a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）→「PDF に保存」。図は最後の状態で印刷されます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var sl=document.getElementById('sl'), slv=document.getElementById('slv'), ro=document.getElementById('ro');
+  var W=1120,H=440;
+
+  var ME=0.51099895000, MMU=105.6583755, MTAU=1776.93;
+  var LX=Math.log(MMU/ME)/Math.LN10, LY=Math.log(MTAU/MMU)/Math.LN10;
+
+  function Qof(m){
+    var s=m[0]+m[1]+m[2];
+    var t=Math.sqrt(m[0])+Math.sqrt(m[1])+Math.sqrt(m[2]);
+    return s/(t*t);
+  }
+  /* Q=2/3 curve: given r=m2/m1, u=sqrt(m3/m1)=2s+sqrt(6s^2-3S) */
+  function curveY(x){
+    var r=Math.pow(10,x), s=1+Math.sqrt(r), S=1+r;
+    var d=6*s*s-3*S; if(d<0) return null;
+    var u=2*s+Math.sqrt(d);
+    return Math.log(u*u/r)/Math.LN10;
+  }
+  function mk32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296; }; }
+
+  var PA={l:66,r:520,t:34,b:392}, PB={l:604,r:1074,t:34,b:392};
+
+  function draw(){
+    var dec=parseInt(sl.value,10);
+    slv.textContent=dec+' 桁';
+    var rnd=mk32(20260728), N=4000, pts=[], qs=[];
+    for(var i=0;i<N;i++){
+      var m=[Math.pow(10,rnd()*dec),Math.pow(10,rnd()*dec),Math.pow(10,rnd()*dec)];
+      m.sort(function(a,b){return a-b;});
+      qs.push(Qof(m));
+      pts.push([Math.log(m[1]/m[0])/Math.LN10, Math.log(m[2]/m[1])/Math.LN10]);
+    }
+    var sorted=qs.slice().sort(function(a,b){return a-b;});
+    var med=sorted[N>>1];
+    var near=0; for(i=0;i<N;i++) if(Math.abs(qs[i]-2/3)<1e-2) near++;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    /* ---------------- panel A : ratio plane ---------------- */
+    var xmin=0,xmax=5,ymin=0,ymax=5;
+    function AX(x){ return PA.l+(x-xmin)/(xmax-xmin)*(PA.r-PA.l); }
+    function AY(y){ return PA.b-(y-ymin)/(ymax-ymin)*(PA.b-PA.t); }
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=0;g<=5;g++){
+      ctx.beginPath(); ctx.moveTo(AX(g),PA.t); ctx.lineTo(AX(g),PA.b); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PA.l,AY(g)); ctx.lineTo(PA.r,AY(g)); ctx.stroke();
+    }
+    ctx.fillStyle='#aab4b2';
+    for(i=0;i<pts.length;i++){
+      var px=pts[i][0], py=pts[i][1];
+      if(px<xmin||px>xmax||py<ymin||py>ymax) continue;
+      ctx.fillRect(AX(px)-1.1,AY(py)-1.1,2.2,2.2);
+    }
+    ctx.strokeStyle='#8a3a4a'; ctx.lineWidth=2.6; ctx.beginPath();
+    var started=false;
+    for(var k=0;k<=560;k++){
+      var xx=xmin+(xmax-xmin)*k/560, yy=curveY(xx);
+      if(yy===null||yy<ymin||yy>ymax){ started=false; continue; }
+      if(!started){ ctx.moveTo(AX(xx),AY(yy)); started=true; } else ctx.lineTo(AX(xx),AY(yy));
+    }
+    ctx.stroke();
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(PA.l,PA.b); ctx.lineTo(PA.r,PA.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PA.l,PA.t); ctx.lineTo(PA.l,PA.b); ctx.stroke();
+    ctx.fillStyle='#7a4a8a';
+    ctx.beginPath(); ctx.arc(AX(LX),AY(LY),6.5,0,6.284); ctx.fill();
+    ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.arc(AX(LX),AY(LY),12,0,6.284); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    for(g=0;g<=5;g++) ctx.fillText(String(g),AX(g),PA.b+18);
+    ctx.textAlign='right';
+    for(g=1;g<=5;g++) ctx.fillText(String(g),PA.l-8,AY(g)+4);
+    ctx.textAlign='left'; ctx.fillStyle='#191d22';
+    ctx.fillText('log10(m2/m1)',PA.r-96,PA.b+18);
+    ctx.fillText('log10(m3/m2)',PA.l+4,PA.t-10);
+    ctx.fillStyle='#7a4a8a';
+    ctx.fillText('(e, mu, tau)',AX(LX)+16,AY(LY)-8);
+    ctx.fillStyle='#8a3a4a';
+    ctx.fillText('Q = 2/3',AX(3.4)+6,AY(curveY(3.4))-10);
+
+    /* ---------------- panel B : Q histogram ---------------- */
+    var NB=70, lo=1/3, hi=1, hst=new Array(NB);
+    for(i=0;i<NB;i++) hst[i]=0;
+    for(i=0;i<N;i++){
+      var b=Math.floor((qs[i]-lo)/(hi-lo)*NB);
+      if(b<0) b=0; if(b>=NB) b=NB-1; hst[b]++;
+    }
+    var mx=0; for(i=0;i<NB;i++) if(hst[i]>mx) mx=hst[i];
+    function BX(q){ return PB.l+(q-lo)/(hi-lo)*(PB.r-PB.l); }
+    function BY(v){ return PB.b-(v/mx)*(PB.b-PB.t); }
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(g=0;g<=6;g++){
+      var qg=lo+(hi-lo)*g/6;
+      ctx.beginPath(); ctx.moveTo(BX(qg),PB.t); ctx.lineTo(BX(qg),PB.b); ctx.stroke();
+    }
+    ctx.fillStyle='#c3ccca';
+    var bw=(PB.r-PB.l)/NB;
+    for(i=0;i<NB;i++){
+      if(!hst[i]) continue;
+      ctx.fillRect(PB.l+i*bw+0.6,BY(hst[i]),bw-1.2,PB.b-BY(hst[i]));
+    }
+    ctx.strokeStyle='#8a3a4a'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(BX(2/3),PB.t-6); ctx.lineTo(BX(2/3),PB.b); ctx.stroke();
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(BX(med),PB.t); ctx.lineTo(BX(med),PB.b); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(PB.l,PB.b); ctx.lineTo(PB.r,PB.b); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    for(g=0;g<=6;g++){
+      var qv=lo+(hi-lo)*g/6;
+      ctx.fillText(qv.toFixed(2),BX(qv),PB.b+18);
+    }
+    ctx.fillStyle='#8a3a4a'; ctx.textAlign='left';
+    ctx.fillText('2/3',BX(2/3)+6,PB.t+4);
+    ctx.fillStyle='#2f7d5a';
+    ctx.fillText('中央値 '+med.toFixed(3),BX(med)+6,PB.t+22);
+    ctx.fillStyle='#191d22';
+    ctx.fillText('Q の分布（乱数の三つ組 4000 個）',PB.l,PB.t-10);
+    ctx.textAlign='center'; ctx.fillStyle='#4c545c';
+    ctx.fillText('Q',(PB.l+PB.r)/2,H-14);
+
+    var hit=Math.abs(med-2/3)<0.02;
+    ro.className=hit?'readout hit':'readout';
+    ro.innerHTML='乱数の広がり <b>'+dec+' 桁</b>｜Q の中央値 <b>'+med.toFixed(4)
+      +'</b>｜P(|Q-2/3|&lt;0.01) = <b>'+(near/N*100).toFixed(2)+'%</b><br>'
+      +'荷電レプトンは <b>Q = 0.6666645</b>、左の曲線の上に乗っています。'
+      +'<span style="color:'+(hit?'#8a2f18':'#1d5236')+'">'
+      +(hit?' → この広がりでは中央値が 2/3 に近い。実際のレプトンは 3.5 桁です'
+           :' → 中央値は 2/3 ではない。中点だから当たる、ではありません')+'</span>';
+  }
+  sl.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
