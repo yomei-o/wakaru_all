@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原典を開いたら、私が間違っていた ── 物理を作る 第2部 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 2 回 ／ 原典を開いたら、私が間違っていた</span></div>
+  <p class="eyebrow">第1回の年表を PDG の一次編纂で照合する ── 4箇所ずれていて、直すと結果が良くなった</p>
+  <h1>原典を開いたら、私が間違っていた
+    <span class="sub">第1回の最後に、いちばん弱いところを自分で書きました ── <em>「年表の各行は二次情報です」</em>。<br>解説記事から拾った値で表を作り、PDG を直接見ていませんでした。<br>今回開きました。<strong>4箇所ずれていました。</strong><br>そして訂正すると、Koide の予言との一致は <em>0.91σ から 0.43σ へ、良くなります。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：PDG の一次編纂（pdgLive）と、引き算</span>
+    <span>この回の芯：間違いは4件、全部が保守側だった</span>
+  </div>
+
+  <p class="lead">第1部の第16回で、私は検索要約の数値を信用して <em>「プランクの21倍の余裕」</em> と書き、原典を当たったら <em>1000倍</em> でした。桁が2つ違った。<br>第2部の第1回で、同じ穴を踏みました ── 歴史的な \(m_\tau\) の値を解説記事から拾い、PDG のデータブロックを開かないまま公開した。<br><strong>今回は開きます。</strong>そして出てきたものを、そのまま並べます。差分は4件、方向は全部同じでした。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>PDG の一次編纂</h2>
+
+  <p>PDG の \(\tau\) 質量データブロックには、採用されている測定が全部並んでいます。値、統計誤差、系統誤差、年、実験、手法。<strong>これが一次情報です</strong> ── 解説記事はここから引いている。</p>
+
+  <table class="tbl">
+    <tr><th style="width:14%">年</th><th style="width:16%">実験</th><th style="width:30%">値 [MeV]</th><th>予言 1776.969 から</th></tr>
+    <tr><td>1978</td><td>DELCO</td><td class="num">1783 \(^{+3}_{-4}\)</td><td class="num bad">\(-1.72\sigma\)</td></tr>
+    <tr><td>1992</td><td>ARGUS</td><td class="num">1776.3 ± 2.4 ± 1.4</td><td class="num">\(+0.24\sigma\)</td></tr>
+    <tr class="mark"><td>1996</td><td><strong>BES</strong></td><td class="num">1776.96 \(^{+0.18}_{-0.21}\) \(^{+0.25}_{-0.17}\)</td><td class="num ok"><strong>\(+0.03\sigma\)</strong></td></tr>
+    <tr><td>1997</td><td>CLEO</td><td class="num">1778.2 ± 0.8 ± 1.2</td><td class="num">\(-0.85\sigma\)</td></tr>
+    <tr><td>2000</td><td>OPAL</td><td class="num">1775.1 ± 1.6 ± 1.0</td><td class="num">\(+0.99\sigma\)</td></tr>
+    <tr><td>2007</td><td>Belle</td><td class="num">1776.61 ± 0.13 ± 0.35</td><td class="num">\(+0.96\sigma\)</td></tr>
+    <tr><td>2009</td><td>BaBar</td><td class="num">1776.68 ± 0.12 ± 0.41</td><td class="num">\(+0.68\sigma\)</td></tr>
+    <tr><td>2014</td><td>BES3</td><td class="num">1776.91 ± 0.12 \(^{+0.10}_{-0.13}\)</td><td class="num ok">\(+0.35\sigma\)</td></tr>
+    <tr><td>2023</td><td>KEDR</td><td class="num">1776.69 \(^{+0.17}_{-0.19}\) ± 0.15</td><td class="num">\(+1.19\sigma\)</td></tr>
+    <tr><td>2023</td><td>Belle II</td><td class="num">1777.09 ± 0.08 ± 0.11</td><td class="num">\(-0.89\sigma\)</td></tr>
+    <tr class="mark"><td colspan="2"><strong>PDG 平均</strong></td><td class="num"><strong>1776.93 ± 0.09</strong></td><td class="num ok"><strong>\(+0.43\sigma\)</strong></td></tr>
+  </table>
+
+  <p>10 本の測定と、平均。<strong>10 本のうち 8 本が予言から \(1\sigma\) 以内</strong>にあります。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>4箇所、ずれていました</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%">項目</th><th style="width:26%">第1回で書いた値</th><th>原典</th></tr>
+    <tr><td><strong>PDG 平均</strong></td><td class="num bad">1776.86 ± 0.12</td><td class="num ok">1776.93 ± 0.09</td></tr>
+    <tr><td><strong>Belle の年</strong></td><td class="num bad">2014</td><td class="num ok">2007</td></tr>
+    <tr><td><strong>落としていた測定</strong></td><td class="bad">なし</td><td class="ok">BES3 (2014)、OPAL (2000)、CLEO (1997)、KEDR (2023) の<strong>4本</strong></td></tr>
+    <tr><td><strong>\(1\sigma\) と \(2/3\) の関係</strong></td><td class="bad">「\(+1\sigma\) で \(2/3\) を跨ぐ」</td><td class="ok">跨がない（\(+1\sigma\) で \(+2.88\times10^{-6}\)）</td></tr>
+  </table>
+
+  <p>1件目がいちばん大きい。<strong>1776.86 は「古い平均」でした</strong> ── 2023年の Belle II と KEDR が入る前の値です。私はそれを「現在の PDG」として使っていました。</p>
+
+  <div class="caveat">
+    <span class="tag">この種の間違いの厄介さ</span>
+    1776.86 は<em>間違った数字ではありません。</em>ある時点では正しい PDG 平均でした。だから検索で出てくるし、解説記事にも書いてある。<br><strong>「正しかった値」と「いまの値」の区別は、原典を開くまで付きません。</strong>桁が違うわけでもないので、目で見ても気づかない ── 第1部第11回の \(\sqrt{12}\) と同じ性質です。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>直すと、全部が良くなりました</h2>
+
+  <div class="lab">
+    <span class="tag">訂正の前後</span>
+<pre>                          第1回（誤）        原典（正）
+ <span class="hi">------------------------------------------------------------</span>
+  m_tau [MeV]             1776.86 +- 0.12   <span class="st">1776.93 +- 0.09</span>
+  Q                       0.666660511477    <span class="st">0.666664463415</span>
+  Q - 2/3                 -6.16e-06         <span class="st">-2.20e-06</span>
+  theta [度]               44.999735         <span class="st">44.999905</span>
+  45 度からのずれ            -2.65e-04         <span class="st">-9.47e-05</span>
+  予言とのずれ              0.91 sigma        <span class="st">0.43 sigma</span>
+
+  帰無分布（観測の |Q-2/3| 以下に入る割合）
+    (a) m_tau のみ [3,300]  3e-05             <span class="st">1e-05</span>
+    (b) m_tau のみ [5, 50]  7e-05             <span class="st">3e-05</span>
+    (c) 3つとも             2e-05             <span class="st">1e-05</span>
+    (d) 階層の比を振る        6e-05             <span class="st">3e-05</span>
+
+  <span class="st">=&gt; 6項目すべてが、Koide 側に有利な方向へ動いた。</span></pre>
+  </div>
+
+  <div class="verdict">
+    <div class="lbl">訂正の向き</div>
+    <p style="font-size:19px"><strong>私の間違いは、全部が保守側でした。</strong></p>
+    <p>\(45^\circ\) からのずれは \(2.65\times10^{-4}\) 度と書きましたが、正しくは <strong>\(9.47\times10^{-5}\) 度</strong> ── <em>2.8 倍きれい</em>でした。</p>
+    <p style="margin-bottom:0">帰無分布の \(p\) も 4通りすべてで小さくなりました。<em>つまり第1回の結論（偶然ではない）は、訂正によって弱まるどころか強まります。</em></p>
+  </div>
+
+  <p>これは運です。<strong>逆向きだった可能性は同じだけありました。</strong>だから「良くなったから良かった」ではなく、<em>「向きは事前に分からないから開くしかない」</em>という話です。</p>
+
+  <div class="fig">
+    <div class="cap">図：ボタンで <b>第1回に載せた表</b>と <b>PDG の原典</b>を切り替えます。紫の横線が Koide の予言（動きません）。原典に切り替えると点が4つ増え、平均が予言に近づきます</div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <button id="b1">第1回（誤）の表</button>
+      <button id="b2">PDG の原典</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#7a4a8a"></span>Koide の予言 1776.969</span>
+      <span><span class="swatch" style="background:#2f5d6b"></span>個々の測定</span>
+      <span><span class="swatch" style="background:#a83a22"></span>平均</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>歴史を動かした測定</h2>
+
+  <p>PDG の表には別の年で載っている値が、この話の中心にあります ── <strong>BES の閾値スキャン</strong>です（1992年に最初の結果が出て、1996年の論文が最終版として採録されています）。</p>
+
+  <div class="calc">
+    <span class="tag">1992年に起きたこと</span>
+    <p style="margin:4px 0">それまでの世界平均は <strong>1784 MeV 級</strong>（誤差 3〜4）。1978年の DELCO 測定が支配していました。</p>
+    <p style="margin:4px 0">BES が \(\tau\) 対生成の閾値をエネルギー走査して得た値：</p>
+    $$m_\tau=1776.9\,^{+0.4}_{-0.5}\pm0.2\ \text{MeV}$$
+    <p style="margin:4px 0">当時の世界平均から <strong>7.2 MeV 下</strong>、約 \(2\sigma\) の下方修正。そして ──</p>
+    $$\text{Koide の予言 }1776.969\text{ からのずれ}=+0.069\ \text{MeV}=+0.14\sigma$$
+  </div>
+
+  <p><strong>世界平均を動かした測定そのものが、11年前の予言に \(0.14\sigma\) で着地しました。</strong></p>
+
+  <p>これが第1回の結論の芯です。<em>Koide は 1981年に、当時のデータと \(2.26\sigma\) 食い違う値を書いた。</em>そして 1992年に、その値が測定になった。</p>
+
+  <div class="aside">
+    <span class="tag">なぜ閾値スキャンが強いのか</span>
+    それまでの測定は \(\tau\) の崩壊生成物から質量を組み立てる方式で、系統誤差が大きかった。<strong>閾値スキャンは違います</strong> ── \(e^+e^-\to\tau^+\tau^-\) が始まるエネルギーを直接測るので、\(2m_\tau\) がビームエネルギーで決まる。<em>加速器のエネルギー校正の精度が、そのまま質量の精度になります。</em><br>だから 1990年代に誤差が 3〜4 MeV から 0.5 MeV 級へ、一気に一桁縮みました。<strong>手法が変わると、値も動きます。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>まだ二次情報のところ</h2>
+
+  <p>正直に線を引きます。<strong>今回一次情報になったのは、個々の測定値と現在の平均だけです。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:44%"></th><th>いまの状態</th></tr>
+    <tr><td>個々の測定値（10本）</td><td class="ok">一次情報（PDG データブロック）</td></tr>
+    <tr><td>現在の PDG 平均 1776.93 ± 0.09</td><td class="ok">一次情報</td></tr>
+    <tr><td>Koide の予言 1776.9690</td><td class="ok">自分で計算（\(m_e,m_\mu\) は PDG）</td></tr>
+    <tr><td><strong>1980年代の「世界平均」1784 級</strong></td><td class="bad"><strong>二次情報。</strong>PDG の年次アーカイブを開いていない</td></tr>
+    <tr><td><strong>BES 1992 の値 \(1776.9^{+0.4}_{-0.5}\)</strong></td><td class="bad"><strong>二次情報。</strong>原論文を見ていない</td></tr>
+    <tr><td>Koide の 1981/82 論文そのもの</td><td class="bad"><strong>読んでいない。</strong>予言値は引用から</td></tr>
+  </table>
+
+  <p>下の3行が残りました。とくに最後が重要です ── <strong>私は Koide の原論文を読んでいません。</strong>予言値 1776.97 が引用どおりかどうか、そして 1981年の論文が本当に \(m_\tau\) を予言する形で書かれていたのか（後から予言として読み直されたのではないか）を、確認していません。</p>
+
+  <div class="caveat">
+    <span class="tag">ここが第1回の結論の急所です</span>
+    第1回は「<strong>予言だったから look-elsewhere が効かない</strong>」で結論を出しました。だとすると、<em>「本当に予言だったのか」が結論の全体重を支えています。</em><br>そして私はそこを、まだ引用で済ませています。<strong>次にやることは、これです。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>決算</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>結果</th></tr>
+    <tr><td>年表は照合できたか</td><td class="ok">個々の測定と平均は照合できた。10本のうち8本が \(1\sigma\) 以内</td></tr>
+    <tr><td>間違いはあったか</td><td class="bad">4件。PDG 平均、Belle の年、落とした測定4本、\(1\sigma\) の記述</td></tr>
+    <tr><td>結論は変わったか</td><td class="ok">変わらない。<em>むしろ強まった</em>（0.91σ→0.43σ、\(p\) も4通りとも小さく）</td></tr>
+    <tr><td>まだ弱いところ</td><td class="bad">1980年代の世界平均、BES 1992 の原値、そして<strong>Koide の原論文</strong></td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">この回の一行</div>
+    <p style="margin:6px 0 0"><strong>原典を開くまで、間違いの向きは分かりません。</strong></p>
+    <p style="margin:8px 0 0">今回は運よく全部が保守側でした。第1部第16回では逆で、桁が2つ動きました。<em>向きが読めないからこそ、開く価値があります。</em></p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>PDG 平均 1776.93 ± 0.09 と予言 1776.9690 から、ずれを \(\sigma\) で出せ。
+        <details><summary>答えを見る</summary><div class="ans">\((1776.9690-1776.93)/0.09=0.039/0.09=\mathbf{0.43\sigma}\)。第1回は \(1776.86\pm0.12\) を使って \((1776.9690-1776.86)/0.12=0.91\sigma\) と書いていました。<strong>分子も分母も両方ずれていた</strong>ので、二重に保守的でした。</div></details>
+      </li>
+      <li>表の10本のうち、予言から \(1\sigma\) を超えるのはどれか。
+        <details><summary>答えを見る</summary><div class="ans">1978 DELCO（\(-1.72\sigma\)）と 2023 KEDR（\(+1.19\sigma\)）の<strong>2本だけ</strong>。残る8本は \(1\sigma\) 以内。<em>DELCO は 1992年以前の古い手法（崩壊生成物から組み立て）で、KEDR は最新の閾値スキャン</em> ── 外れている2本が両端にあるのは、偶然かもしれないし、系統誤差の性質かもしれません。<strong>10本で判断するには少なすぎます。</strong></div></details>
+      </li>
+      <li>「訂正して結果が良くなったのだから、原典を開いた甲斐があった」── この言い方のどこが危ないか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>向きは事前に分からない</strong>から、「良くなったこと」を開く理由にはできません。もし悪くなっていたら（0.91σ → 2.5σ など）、そのときも同じ手続きで公開する必要があります。<br><em>「良くなったから開いてよかった」は、結果で手続きを正当化しています。</em>正しい言い方は「向きが読めないから開く」── 第1部第16回では実際に悪い方向（自分の記述が桁で誤り）に出ました。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>PDG の一次編纂を開いた。</strong> \(\tau\) 質量データブロックに採用測定が10本、平均が <strong>1776.93 ± 0.09</strong>。予言 1776.969 からのずれは <strong>\(+0.43\sigma\)</strong>。<em>10本のうち8本が \(1\sigma\) 以内。</em></p>
+    <p><strong>第1回は4箇所ずれていた。</strong> ①PDG 平均を 1776.86 ± 0.12 と書いた（Belle II と KEDR が入る前の古い平均）②Belle を 2014年と書いた（正しくは 2007年）③BES3 2014・OPAL 2000・CLEO 1997・KEDR 2023 の4本を落としていた ④「\(+1\sigma\) で \(Q\) が \(2/3\) を跨ぐ」と書いた（跨がない）。</p>
+    <p><strong>そして直すと、6項目すべてが Koide 側に有利になった。</strong> \(Q-2/3\) は \(-6.16\times10^{-6}\to-2.20\times10^{-6}\)、\(45^\circ\) からのずれは \(2.65\times10^{-4}\to9.47\times10^{-5}\) 度（<em>2.8倍きれい</em>）、予言とのずれは \(0.91\sigma\to0.43\sigma\)、帰無分布の \(p\) は4通りとも小さく。<strong>私の間違いは全部が保守側だった。</strong></p>
+    <p><strong>ただしそれは運。</strong> 逆向きだった可能性は同じだけあった ── 第1部第16回では実際に逆で、桁が2つ動いた。<em>だから「良くなったから開いてよかった」ではなく「向きが読めないから開く」が正しい言い方。</em></p>
+    <p><strong>歴史を動かした測定が、予言に \(0.14\sigma\) で着地していた。</strong> BES の閾値スキャン \(1776.9^{+0.4}_{-0.5}\pm0.2\) は、当時の世界平均 1784 級から <strong>7.2 MeV（約 \(2\sigma\)）の下方修正</strong>。誤差が 3〜4 MeV から 0.5 MeV 級へ一桁縮んだのは、<em>崩壊生成物から組み立てる方式から、ビームエネルギー校正で決まる閾値スキャンに変わったから。</em></p>
+    <p style="margin-bottom:0"><strong>まだ二次情報が3つ残っている。</strong> 1980年代の世界平均、BES 1992 の原値、そして <strong>Koide の 1981/82 原論文</strong>。最後が急所です ── 第1回は「予言だったから look-elsewhere が効かない」で結論を出したので、<em>「本当に予言だったのか」が結論の全体重を支えています。</em>そこをまだ引用で済ませています。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>Koide の原論文を読む</strong> ── この回で残った急所です。1981/82年の論文に、\(m_\tau\) の予言値が実際に書かれているか。書かれているとして、<em>それは予言として提示されていたのか、それとも当時の質量に合う関係として提示され、後から予言と読み直されたのか。</em>第1回の結論は、この一点に全部かかっています。<br>第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第2回です。第1回で自分が書いた「ここが弱い」を、実際に埋めに行った回になります。</p>
+    <p>確立した内容：PDG の \(\tau\) 質量データブロックに採録されている10本の測定値・誤差・年・実験・手法、および PDG 平均 \(1776.93\pm0.09\) MeV。\(\tau\) 対生成閾値のエネルギー走査という手法と、それによって 1990年代に誤差が一桁縮んだこと。<br>本稿の \(\sigma\) 距離、\(Q\)・\(\theta\) の再計算、帰無分布の再実行はいずれも著者の計算です。<strong>PDG 平均に対する \(\sigma\) は、平均の誤差 0.09 をそのまま用いた単純な比であり、PDG のスケール因子や測定間の相関を考慮していません。</strong><br><strong>1980年代の世界平均が 1784 MeV 級であったこと、および BES 1992 の値 \(1776.9^{+0.4}_{-0.5}\pm0.2\) は、いまも二次情報です</strong>（PDG の年次アーカイブおよび BES の原論文を直接参照していません）。<strong>Koide の 1981/82 原論文も読んでいません</strong> ── 予言値 1776.97 は引用によります。次回の課題です。<br>「間違いが全部保守側だった」は今回の事実ですが、<em>そこから何かを一般化することはできません</em>（第1部第16回では逆方向でした）。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a></p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、第1回の表と原典を切り替えられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var PRED=1776.9690, MODE=1;
+
+  // 第1回に載せた（誤りを含む）表
+  var OLD=[[1978,'DELCO',1783.0,4.0],[1982,'世界平均',1784.2,3.2],[1992,'ARGUS',1776.3,2.78],
+           [1996,'BES',1776.96,0.29],[2009,'BaBar',1776.68,0.43],[2014,'Belle',1776.61,0.37],
+           [2023,'Belle II',1777.09,0.14]];
+  var OLD_AVG=[1776.86,0.12];
+  // PDG の原典
+  var NEW=[[1978,'DELCO',1783.0,3.5],[1992,'ARGUS',1776.3,2.778],
+           [1996,'BES',1776.96,0.287],[1997,'CLEO',1778.2,1.442],[2000,'OPAL',1775.1,1.887],
+           [2007,'Belle',1776.61,0.373],[2009,'BaBar',1776.68,0.427],[2014,'BES3',1776.91,0.166],
+           [2023,'KEDR',1776.69,0.234],[2023,'Belle II',1777.09,0.136]];
+  var NEW_AVG=[1776.93,0.09];
+
+  function draw(){
+    var D = MODE===1 ? NEW : OLD, A = MODE===1 ? NEW_AVG : OLD_AVG;
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=86,R=W-30,T=30,B=H-60;
+    var X0=1976, X1=2030, Y0=1770, Y1=1790;
+    function X(x){ return L+(x-X0)/(X1-X0)*(R-L); }
+    function Y(y){ return B-(y-Y0)/(Y1-Y0)*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=Y0;y<=Y1;y+=2){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(String(y),L-9,Y(y)+5);
+    }
+    for(var x=1980;x<=2025;x+=5){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText(String(x),X(x),B+20);
+    }
+    ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(L,Y(PRED)); ctx.lineTo(R,Y(PRED)); ctx.stroke();
+    ctx.fillStyle='#7a4a8a'; ctx.textAlign='left';
+    ctx.fillText('Koide 1981 の予言  1776.969 MeV',L+8,Y(PRED)-9);
+    for(var i=0;i<D.length;i++){
+      var d=D[i];
+      ctx.strokeStyle='#2f5d6b'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(X(d[0]),Y(d[2]-d[3])); ctx.lineTo(X(d[0]),Y(d[2]+d[3])); ctx.stroke();
+      ctx.fillStyle='#2f5d6b';
+      ctx.beginPath(); ctx.arc(X(d[0]),Y(d[2]),4.5,0,6.284); ctx.fill();
+      ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center'; ctx.fillText(d[1],X(d[0]),Y(d[2])-13);
+      ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(X(2028),Y(A[0]-A[1])); ctx.lineTo(X(2028),Y(A[0]+A[1])); ctx.stroke();
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(X(2028),Y(A[0]),6,0,6.284); ctx.fill();
+    ctx.textAlign='right'; ctx.fillText('平均',X(2028)-9,Y(A[0])+4);
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('m_tau [MeV]',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('年',(L+R)/2,H-14);
+
+    var sg=(PRED-A[0])/A[1];
+    ro.className = MODE===1 ? 'readout hit' : 'readout';
+    ro.innerHTML=(MODE===1?'<b>PDG の原典</b>':'<b>第1回（誤）の表</b>')
+      +' ｜ 測定 <b>'+D.length+' 本</b>、平均 <b>'+A[0].toFixed(2)+' ± '+A[1].toFixed(2)+' MeV</b><br>'
+      +'予言 1776.969 からのずれ = <b>'+(PRED-A[0]>=0?'+':'')+(PRED-A[0]).toFixed(3)+' MeV = '
+      +(sg>=0?'+':'')+sg.toFixed(2)+'σ</b>'
+      +(MODE===1?' <span style="color:#1d5236">← 原典。第1回より一致が良い</span>'
+                :' <span style="color:#8a2f18">← 平均が古く、測定4本が抜けている</span>');
+  }
+  document.getElementById('b1').addEventListener('click',function(){ MODE=0; draw(); });
+  document.getElementById('b2').addEventListener('click',function(){ MODE=1; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
