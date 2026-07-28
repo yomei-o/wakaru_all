@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>時空は、格子にできない ── 物理を作る 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 2 回 ／ 時空は、格子にできない</span></div>
+  <p class="eyebrow">計算道具としての格子は完璧に動く ── でも「時空そのものが格子」と言った瞬間、18桁が発生する</p>
+  <h1>時空は、格子にできない
+    <span class="sub">宇宙をシミュレートしたいなら、空間を格子に切るのが自然です。実際、格子QCD はそれで動いている。<br>ところが「<em>時空そのものが格子でできている</em>」と主張した途端、まったく別の病気が出ます ──<br>輻射補正が抑制を食い破り、<strong>実験より18桁大きいローレンツ破れ</strong>を低エネルギーに降ろしてくる。<br>そして最後に残る三択が、計算機で宇宙を書くという発想に、正面から刃を向けます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：次元解析、繰り込みの気分、ローレンツ変換</span>
+    <span>この回の芯：予言 \(10^{-2}\) ／ 観測 \(6\times10^{-20}\)</span>
+  </div>
+
+  <p class="lead">プログラムを書く人にとって、宇宙を離散化するのはごく自然な発想です。空間をセルに切り、各セルの状態を持ち、局所的な規則で更新する。セルオートマトンそのもの。実際、素粒子物理の最前線である<em>格子QCD</em> は、まさにそれをやって成功しています。<br>だから「時空も本当は格子なんじゃないか」と思いたくなる。プランク長という自然な刻み幅まで用意されている。<br>この回は、その道が<strong>どこまで正しくて、どこで壊れるか</strong>を追いかけます。結論を先に言うと ── 計算道具としては完璧に正しく、時空の基本構造としては<em>致命的に壊れます</em>。しかも壊れ方が面白い。壊しているのは離散性そのものではありません。</p>
+
+  <h2><span class="n">01</span>まず、三つの別問題を分ける</h2>
+
+  <p>この話題は、混ぜると必ず空回りします。<strong>結論が正反対の3つの問題</strong>が同じ言葉で語られているからです。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">格子の役割</th><th style="width:34%">格子間隔 \(a\) は</th><th>ローレンツ不変性は</th></tr>
+    <tr><td><strong>(a) 計算道具</strong><br>格子QCD</td><td>人工的な正則化。\(a\to0\) を取る</td><td class="ok">戻る（証明つき）</td></tr>
+    <tr><td><strong>(b) 時空の基本構造</strong></td><td>物理的。プランク長</td><td class="bad">壊れる（致命的）</td></tr>
+    <tr><td><strong>(c) カイラル対称性</strong></td><td>―（ローレンツとは別問題）</td><td>← ここに no-go 定理がある</td></tr>
+  </table>
+
+  <p>(a) と (b) は答えが逆です。区別せずに議論すると矛盾して見える。そして (c) は、実は格子屋が本当に苦労してきた場所で、<em>ローレンツ不変性ではありません</em>。順に見ていきます。</p>
+
+  <h2><span class="n">02</span>何が壊れているのか ── 実はローレンツではない</h2>
+
+  <p>用語から正確にしておきます。<strong>標準的な格子QCD はユークリッド署名</strong>です。ウィック回転して計算し、あとで解析接続して戻す。ですから格子の上で壊れているのは、ブーストを含むローレンツ群ではなく ──</p>
+
+  <div class="keybox">
+    <div class="lbl">格子が壊すもの</div>
+    <p style="margin:6px 0 0">4次元ユークリッド空間の連続回転群 \(SO(4)\) が、<strong>超立方群 \(H(4)\)</strong>（384元の有限群）に落ちる。</p>
+  </div>
+
+  <p>連続群が有限群になる。これは近似ではなく、<em>明白な（explicit）破れ</em>です。格子の軸方向と対角方向は、はっきり別物になる。</p>
+
+  <h2><span class="n">03</span>道具としては、勝手に戻ってくる</h2>
+
+  <p>ここが (a) の核心で、しかも「たぶん大丈夫だろう」という期待ではなく<strong>構成的に示せます</strong>。</p>
+
+  <p>Symanzik の有効作用の考え方です。格子間隔 \(a\) の理論を、長距離で連続理論として書き直す:</p>
+
+  $$\mathcal{L}_{\rm Sym}=\frac{1}{a}\mathcal{L}^{(3)}+\mathcal{L}^{(4)}+a\,\mathcal{L}^{(5)}+a^2\mathcal{L}^{(6)}+\cdots$$
+
+  <p>\(\mathcal{L}^{(n)}\) は次元 \(n\) の演算子。<strong>回転対称性を破る項は、すべて正のべきの \(a\) を伴います</strong>。だから \(a\to0\) で死ぬ。</p>
+
+  <p>効いているのは、次の群論的な事実です。</p>
+
+  <div class="calc">
+    <span class="tag">なぜ \(O(a^2)\) なのか</span>
+    <p style="margin:8px 0 0">\(H(4)\) 不変だが \(O(4)\) 非不変な演算子の、<strong>最低次元は 6</strong>。</p>
+    <p class="lbl">理由</p>
+    <p style="margin:8px 0 0">\(H(4)\) 不変な2階テンソルは、自動的に \(\delta_{\mu\nu}\) に比例してしまいます。つまり<em>破れを書きようがない</em>。破れを書くには4階の不変テンソル \(\sum_\mu \delta_{\mu\alpha}\delta_{\mu\beta}\delta_{\mu\gamma}\delta_{\mu\delta}\) が要り、それが次元6に対応する。</p>
+    <p class="lbl">結論</p>
+    <p style="margin:8px 0 8px">破れは \(a^2\mathcal{L}^{(6)}\) から始まる ── <strong>\(O(a^2)\) 抑制。しかも微調整は不要。</strong></p>
+  </div>
+
+  <p>言い換えると、<em>\(H(4)\) は「十分に大きい」有限群なので、次元5以下では回転対称性を破りようがない</em>。連続対称性を捨てたのに、低次元では違いが表現できない。</p>
+
+  <div class="aside">
+    <span class="tag">しかも実測されています</span>
+    静的クォークポテンシャル \(V(r)\) を、格子の<strong>軸方向</strong>と<strong>対角方向</strong>で測って一致するか。ハドロンの分散関係 \(E^2=m^2+p^2\) が成り立つか（＝格子上の「光速」が 1 になるか）。<br>現代の格子間隔では、これらは<strong>サブパーセント</strong>で合います。回転対称性の回復は、理論的な期待ではなく<em>測定された事実</em>です。
+  </div>
+
+  <h2><span class="n">04</span>本当に難しいのは、カイラル対称性のほう</h2>
+
+  <p>対比として、これは知っておく価値があります。格子上で本当に人を苦しめてきたのは、ローレンツ不変性ではありません。</p>
+
+  <div class="keybox">
+    <div class="lbl">Nielsen–Ninomiya の定理</div>
+    <p style="margin:6px 0 0">格子フェルミオン作用について、次の4つを<strong>同時に満たすことはできない</strong>。</p>
+    <p style="margin:8px 0 0">① 局所性 ② カイラル対称性 ③ ダブラーが無い ④ 並進不変性</p>
+  </div>
+
+  <p>これは<strong>本物の no-go 定理</strong>です。回避策（Ginsparg–Wilson 関係式、overlap／domain-wall フェルミオン）はありますが、それは「格子上の変形されたカイラル対称性を厳密に持たせる」という、かなり深い構成になります。</p>
+
+  <p>ここに<em>決定的な非対称性</em>があります。</p>
+
+  <table class="tbl">
+    <tr><th>対称性</th><th>格子上での扱い</th></tr>
+    <tr><td>カイラル対称性</td><td class="bad">no-go 定理がある。深い構成が必要</td></tr>
+    <tr><td>ローレンツ（回転）不変性</td><td class="ok">no-go 定理は無い。明白に破れるが、勝手に戻る</td></tr>
+  </table>
+
+  <p>だから「格子はローレンツ不変性を保てない」という言い方は、道具としての格子については<strong>正しくありません</strong>。保てないのはカイラル対称性のほうです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>ところが「格子が基本」だと、話が180度変わる</h2>
+
+  <p>ここからが (b)、そしてこの回の本題です。</p>
+
+  <p>素朴に考えるとこう思えます ── 基本スケールが \(a\sim\ell_P\) なら、破れは次元6以上でしか入らず、低エネルギーでは \((E/M_P)^2\) で抑制される。\(E\) が TeV でも \(10^{-32}\)。絶対に見えない。</p>
+
+  <p><strong>これが間違っています。</strong> 壊すのは<em>ループ積分のカットオフ</em>です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── \(M_P\) が約分で消える</span>
+    <p style="margin:8px 0 0">次元6の破れ演算子（係数 \(1/M_P^2\)）を自己エネルギーに挿入する。ループ運動量は \(\Lambda\sim M_P\) まで走る:</p>
+    $$\delta c\;\sim\;\frac{g^2}{16\pi^2}\cdot\frac{\Lambda^2}{M_P^2}\;\sim\;\frac{g^2}{16\pi^2}\;\sim\;10^{-2}\text{–}10^{-3}$$
+    <p class="lbl">プランク質量が消えた</p>
+    <p style="margin:8px 0 8px">残ったのは結合定数のループ因子だけ。<strong>抑制がまるごと失われます。</strong></p>
+  </div>
+
+  <p>つまり、出発点で次元5・6の破れしか入れなくても、<em>繰り込みが次元3・4の破れを生成して低エネルギーに降ろしてくる</em>。次元4の破れとは、たとえば「電子の最高速度と光子の最高速度が違う」（\(c_e\ne c_\gamma\)）という、いちばん直接的な形です。</p>
+
+  <h2><span class="n">06</span>18桁</h2>
+
+  <p>では実験はどこまで締め付けているか。かに星雲のシンクロトロン放射です。ローレンツ因子 \(\gamma\sim3\times10^9\) の電子が出す放射のスペクトルから ──</p>
+
+  <div class="lab">
+    <span class="tag">予言と観測</span>
+<pre>輻射補正が予言する破れ   <span class="hi">~ 10^-2</span>     （α/π 程度）
+かに星雲が許す上限       <span class="st">~ 6 × 10^-20</span>  （SME の c 係数）
+                       ──────────────
+食い違い                <span class="hi">18 桁</span></pre>
+  </div>
+
+  <p>これを消すには、裸のパラメータを18桁 fine-tune するしかない。<strong>これが「量子重力の、もう一つのファインチューニング問題」</strong>です。ヒッグス質量の階層問題と同じ種類の病気で、深刻さは同程度かそれ以上。</p>
+
+  <h2><span class="n">07</span>本質 ── 守る対称性が無い</h2>
+
+  <p>なぜこんなことが起きるのか。物理には「小さいまま安定でいられる量」と「そうでない量」があります。</p>
+
+  <table class="tbl">
+    <tr><th>小さい量</th><th>守っている対称性</th><th>安定か</th></tr>
+    <tr><td>電子の質量</td><td>カイラル対称性</td><td class="ok">安定</td></tr>
+    <tr><td>光子の質量</td><td>ゲージ対称性</td><td class="ok">厳密にゼロ</td></tr>
+    <tr><td>ヒッグス質量</td><td><em>なし</em></td><td class="bad">不安定（階層問題）</td></tr>
+    <tr><td>ローレンツ破れ</td><td><em>なし</em></td><td class="bad">不安定（18桁）</td></tr>
+  </table>
+
+  <p>\(m_e\) が小さいままでいられるのは、ゼロにするとカイラル対称性が回復するからです。対称性が「戻ってくるな」と押さえている。<strong>ローレンツ破れには、これに相当する押さえがありません。</strong></p>
+
+  <p>だから問いは、こう言い換わります。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の芯</div>
+    <p style="margin:6px 0 0">問うべきは「<span style="text-decoration:line-through">時空は格子か</span>」ではない。<br><strong>「低エネルギーのローレンツ不変性を、何が守っているのか」</strong>である。</p>
+  </div>
+
+  <h2><span class="n">08</span>逃げ道は、4つ</h2>
+
+  <div class="verdict ok">
+    <div class="hd">逃げ道① ── 超対称性／ これは実際に効きます</div>
+    <div class="bd">
+      <p style="margin-top:6px"><strong>厳密な超対称性は、次元3・4のローレンツ破れ演算子を禁止します</strong>（Groot Nibbelink–Pospelov 2005）。超対称標準模型で許される最低次元は <strong>5</strong>。必ず少なくとも1つの UV スケールで抑制される。</p>
+      <p>さらに、次元5が次元3に降りてくる混合を制御しているのは \(M_P\) ではなく<em>ソフト SUSY 破れのスケール \(m_{\rm soft}\)</em>。抑制が桁違いに強くなります。結果として、<strong>プランクスケールで抑制された次元6の破れは、観測データと矛盾しません</strong>。</p>
+      <p>代償：SUSY が要る。まだ見つかっていない。</p>
+    </div>
+  </div>
+
+  <div class="verdict no">
+    <div class="hd">逃げ道② ── ローレンツ不変性が RG の赤外固定点／ 単独では足りない</div>
+    <div class="bd">
+      <p style="margin-top:6px">「破れは高エネルギーにあるが、繰り込み群の流れが低エネルギーでゼロに引っ張る」という筋。1970年代からある古い発想です。</p>
+      <p>ですがゲージ理論での流れは<strong>対数的</strong>で、\(1/\log\) 程度の抑制しか出ません。<em>18桁は覆えない。</em> 強結合や大きなアノマラス次元があれば話は変わりますが、仮定が増えます。</p>
+    </div>
+  </div>
+
+  <div class="verdict deep">
+    <div class="hd">逃げ道③ ── 離散なのに優先系が無い（コーゼット）／ 構造的に一番美しい</div>
+    <div class="bd">
+      <p style="margin-top:6px"><strong>規則格子がダメなのは、離散だからではありません。優先系を作るからです。</strong></p>
+      <p>格子をブーストすると、別の（縮んだ）格子になる。だから「格子が静止している座標系」が特別になってしまう。</p>
+      <p>ポアソン散布は違います。ローレンツ変換の行列式は 1 なので<em>体積測度を保ちます</em>。したがってポアソン過程はブーストの下で統計的に不変。散布から優先方向を取り出す不変な方法が存在しない（Bombelli–Henson–Sorkin）。<strong>離散でありながら、優先系が無い。</strong></p>
+      <p>だから 05〜07 の問題が、そもそも発生しません。破れる元が無いので。代償は<strong>非局所性</strong>です。</p>
+    </div>
+  </div>
+
+  <div class="verdict ok">
+    <div class="hd">逃げ道④ ── ループ量子重力の微妙な立場</div>
+    <div class="bd">
+      <p style="margin-top:6px">面積演算子のスペクトルが離散なので、素朴には「プランク面積の格子」に見えて、ローレンツ収縮でおかしくなりそうに思えます。</p>
+      <p>Rovelli–Speziale の反論：<strong>面積は観測者に依存する量</strong>であって、離散なのは<em>演算子のスペクトル</em>。ブーストした観測者は別の面を測っているのだから、「最小面積が収縮する」という描像自体が成立しない。論争はありますが、「離散性 ≠ 優先系」という点でコーゼットと同じ方向を向いています。</p>
+    </div>
+  </div>
+
+  <h2><span class="n">09</span>三択 ── これは幾何学から出ます</h2>
+
+  <p>逃げ道③ が示しているものを、一般的な形にします。理由は幾何学的で、しかも単純です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 双曲面の体積</span>
+    <p style="margin:8px 0 0">ミンコフスキー時空で、原点から<em>固有距離が一定</em>の点の集合は何か。ユークリッドなら球面ですが、ミンコフスキーでは <strong>双曲面</strong>です。</p>
+    <p class="lbl">そして双曲面の体積は</p>
+    <p style="margin:8px 0 8px"><strong>無限。</strong> コンパクトではありません。だから「最近接点」はローレンツ不変な概念になりえない ── ローレンツ不変な離散構造を作ると、<em>任意の固有距離に無限個の点がある</em>ことになります。</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">三択</div>
+    <p style="margin:6px 0 0;font-size:19px;text-align:center"><strong>離散性 ／ 局所性 ／ ローレンツ不変性<br>── この3つは同時に成り立たない。</strong></p>
+  </div>
+
+  <p>構造が Nielsen–Ninomiya とそっくりなのが面白いところです。そして各アプローチは、どれを捨てたかで分類できます。</p>
+
+  <table class="tbl">
+    <tr><th>アプローチ</th><th>離散</th><th>局所</th><th>ローレンツ不変</th></tr>
+    <tr><td>規則格子・セルオートマトン</td><td class="ok">○</td><td class="ok">○</td><td class="bad">×（優先系）</td></tr>
+    <tr><td>コーゼット（ポアソン散布）</td><td class="ok">○</td><td class="bad">×</td><td class="ok">○</td></tr>
+    <tr><td>通常の場の理論</td><td class="bad">×</td><td class="ok">○</td><td class="ok">○</td></tr>
+  </table>
+
+  <p>下の図で、なぜ規則格子だけが優先系を作るのかを、直接見てください。</p>
+
+  <div class="fig">
+    <div class="cap">図：同じ時空を、速度の違う観測者から見る。左＝規則格子、右＝ポアソン散布。スライダーでブーストしてください</div>
+    <canvas id="cv" width="720" height="360"></canvas>
+    <div class="controls">
+      <label>観測者の速度 &nbsp;β = v/c = <span class="val" id="vb">0.00</span>
+        <input type="range" id="sb" min="0" max="88" value="0">
+      </label>
+      <button id="bz">静止</button>
+      <button id="bh">β = 0.6</button>
+      <button id="brs">散布を引き直す</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>左の格子は、ブーストすると<em>目に見えて歪みます</em>。斜めに潰れ、軸の向きが変わる。つまり「格子が真っ直ぐに見える速度」が存在する ── <strong>それが優先系です。</strong></p>
+
+  <p>右の散布は、ブーストしても<em>見た目が変わりません</em>。個々の点は動いていますが、統計的な性質は同一。ローレンツ変換が面積を保つ（行列式 1）ので、点の密度が変わらないからです。<strong>「散布が真っ直ぐに見える速度」というものが無い。</strong></p>
+
+  <div class="aside">
+    <span class="tag">ここが分かれ目</span>
+    離散性そのものは、ローレンツ不変性と衝突しません。衝突するのは<strong>規則性</strong>です。規則的に並べた瞬間に優先系が生まれ、そこから 05〜07 の18桁が流れ出す。<br>コーゼットが払っている代償を、図の右側で確認できます ── 点が<em>光円錐に沿って引き伸ばされて</em>います。ある点の「近く」が、光円錐に沿って無限に広がっていく。これが非局所性の正体です。
+  </div>
+
+  <h2><span class="n">10</span>で、計算可能性に格子は要るのか</h2>
+
+  <p>この三択は、「宇宙は計算できる」という立場に正面から刃を向けます。<strong>セルオートマトンは定義上、離散かつ局所</strong>だからです。表の一行目そのもの。't Hooft が本気で追求しているセルオートマトン解釈も、最大の攻撃点はここです。</p>
+
+  <p>でも、ここで一段だけ丁寧に考える価値があります。<em>「宇宙は計算できる」に本当に必要なのは何か。</em></p>
+
+  <div class="keybox">
+    <div class="lbl">分けて考える</div>
+    <p style="margin:6px 0 0">必要なのは <strong>有限の情報量</strong> です。<br>必要でないのは <strong>空間の刻み</strong> です。<br>この2つは、まったく別の主張です。</p>
+  </div>
+
+  <p>そして有限性なら、格子を使わずに手に入ります。ホログラフィック境界です。</p>
+
+  $$S\le\frac{A}{4G}$$
+
+  <p>有限の領域に入る情報は有限。<em>でもこれは空間を格子に切っていません。</em> 有限性が住んでいるのは<strong>共変エントロピー境界</strong>であって、空間の刻みではない。共変に定式化されているので、<strong>優先系を作りません</strong>。</p>
+
+  <p>つまり ── <strong>有限の情報量を、格子なしで、優先系なしで実現する方法が存在します。</strong> 有限状態機械であることと、その状態が格子の上に並んでいることは、別の主張だった。前者だけを取れば、\(6\times10^{-20}\) の制限にも18桁の問題にも、まったく触れずに済みます。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>格子QCD で回転対称性の破れが \(O(a^2)\) に抑えられる理由を、群論の言葉で一行で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(H(4)\) 不変な2階テンソルは \(\delta_{\mu\nu}\) に比例するしかないため、\(O(4)\) を破る演算子は4階の不変テンソルを必要とし、その最低次元が 6 だから。したがって \(a^2\mathcal{L}^{(6)}\) が最低次。</div></details>
+      </li>
+      <li>次元6の破れ（係数 \(1/M_P^2\)）が、なぜ低エネルギーで \(O(1)\) の効果を持ちうるのか。
+        <details><summary>答えを見る</summary><div class="ans">ループ積分のカットオフが \(\Lambda\sim M_P\) だから。\(\Lambda^2/M_P^2\sim1\) となって \(M_P\) が約分で消え、残るのは結合定数のループ因子 \(g^2/16\pi^2\sim10^{-2}\) だけになる。<strong>抑制はカットオフに食われる。</strong></div></details>
+      </li>
+      <li>格子QCD はこの問題で死なない。なぜか。
+        <details><summary>答えを見る</summary><div class="ans">格子QCD では \(a\) が<strong>物理的でない</strong>から。\(a\to0\) を取って繰り込むので、そもそも \(a\) が残らない。ファインチューニング問題は「\(a\) を有限のまま基本スケールとして残す」と主張した瞬間に発生する。</div></details>
+      </li>
+      <li>なぜポアソン散布はローレンツ不変で、規則格子はそうでないのか。
+        <details><summary>答えを見る</summary><div class="ans">ローレンツ変換の行列式は 1 なので<strong>体積測度を保つ</strong>。ポアソン過程は密度（＝測度）だけで決まるので、変換後も同じ統計になる。いっぽう規則格子は測度以上の情報（周期構造・軸の向き）を持ち、それはブーストで変わってしまう。<em>不変なのは測度であって、構造ではない。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>道具としての格子は、完璧に正しい。</strong> \(SO(4)\to H(4)\) の破れは本物だが、群論的な理由で \(O(a^2)\) に抑えられ、微調整も不要。しかも実測されている。格子上で本当に難しいのは<em>カイラル対称性</em>のほうで、そちらには no-go 定理がある。</p>
+    <p><strong>「時空が格子」と言った瞬間、致命的になる。</strong> 輻射補正がループのカットオフを通じて \(M_P\) を約分し、\(10^{-2}\) のローレンツ破れを低エネルギーに降ろす。観測上限は \(6\times10^{-20}\)。18桁のファインチューニング。</p>
+    <p><strong>本質は「守る対称性が無い」こと。</strong> 電子質量はカイラル対称性が、光子質量はゲージ対称性が守っている。ローレンツ破れには押さえが無い。だから問いは「時空は格子か」ではなく<em>「低エネルギーのローレンツ不変性を何が守っているのか」</em>になる。</p>
+    <p><strong>そして三択。</strong> 離散性・局所性・ローレンツ不変性は同時に成り立たない。犯人は離散性ではなく<em>規則性</em>である ── ポアソン散布は離散なのにローレンツ不変で、代わりに局所性を失う。</p>
+    <p style="margin-bottom:0"><strong>計算可能性に、格子は要らない。</strong> 必要なのは有限の情報量であって、空間の刻みではない。ホログラフィック境界は、格子なしで・優先系なしで、それを供給します。</p>
+    <div class="next">
+      <span class="lbl">次回予告</span>
+      第3回「舞台は、平坦でいい」── 刻みが要らないなら、<em>歪みは要るのか</em>。「平坦時空＋スカラーの可変光速」はワイルテンソルで詰みますが、足りなかったのは一語だけだった、という話をします。平坦な舞台の上で、曲率を使わずにどこまで行けるか。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第2回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>本文の主張のうち、Symanzik 有効作用による \(O(a^2)\) 抑制、Nielsen–Ninomiya の定理、Collins らの輻射補正によるファインチューニング問題（PRL 93, 191301, 2004）、かに星雲シンクロトロンによる \(6\times10^{-20}\) の制限、超対称性による次元3・4の破れの禁止（PRL 94, 081601, 2005）は、いずれも査読済みの確立した結果です。いっぽう<strong>ループ量子重力における面積スペクトルとローレンツ不変性の両立（Rovelli–Speziale）には論争があり、決着していません</strong>。また「三択」は上記の各結果と双曲面の非コンパクト性から従う構造的な言明であり、この形で名前のついた単一の定理があるわけではありません。数値はいずれも桁の議論であり、係数や符号の詳細は文献にあたってください。</p>
+    <p>姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a>／<a href="../wakaru-soutai/index.html">わかる相対論</a> ｜ 本編第1回：<a href="butsuri-tsukuru-01-hi.html">まだ誰も取っていない比を、機械に探させる</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①物理は、もっと簡単に書けないのか</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②「ct = 一定」は、どこまで通用するか</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーで、格子だけが歪むことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sb=document.getElementById('sb'),
+      vb=document.getElementById('vb'), ro=document.getElementById('ro');
+
+  // ── ポアソン散布（決定論的な擬似乱数で、引き直しボタンだけで変わるように）
+  var seed=20260728;
+  function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  // 撒く範囲。β=0.88 まで視野の隅が埋まるように、視野より十分広く取る
+  // （視野の隅 ±1.55 を逆ブーストすると γ(1+β)·1.55 ≈ 6.2 まで届くため）
+  var RANGE=8.0, LAT_D=0.28;
+  var DENSITY=1/(LAT_D*LAT_D);                       // 格子の点密度
+  var NSPRINKLE=Math.round(DENSITY*(2*RANGE)*(2*RANGE));  // 散布も同じ密度に揃える
+
+  var SPRINKLE=[];
+  function resprinkle(){
+    SPRINKLE=[];
+    for(var i=0;i<NSPRINKLE;i++) SPRINKLE.push([ (rnd()*2-1)*RANGE, (rnd()*2-1)*RANGE ]);
+  }
+  resprinkle();
+
+  // ── 規則格子（散布とまったく同じ密度・同じ範囲）
+  var LATTICE=[];
+  (function(){
+    var M=Math.round(RANGE/LAT_D);
+    for(var i=-M;i<=M;i++) for(var j=-M;j<=M;j++) LATTICE.push([i*LAT_D, j*LAT_D]);
+  })();
+
+  // ローレンツ変換（1+1 次元、c=1）： t' = γ(t-βx), x' = γ(x-βt)
+  function boost(p,b){
+    var g=1/Math.sqrt(1-b*b);
+    return [ g*(p[0]-b*p[1]), g*(p[1]-b*p[0]) ];   // p = [t, x]
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var b=parseInt(sb.value,10)/100; vb.textContent=b.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=24, pw=(w-gap)/2, top=26, bot=h-34, ph=bot-top;
+    var VIEW=1.55;   // 表示する座標範囲（±VIEW）
+
+    function panel(x0,title,pts,isLattice){
+      var cx=x0+pw/2, cy=(top+bot)/2, S=Math.min(pw,ph)/(2*VIEW);
+
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x0+6,top,pw-12,ph); ctx.clip();
+      ctx.fillStyle='#fff'; ctx.fillRect(x0+6,top,pw-12,ph);
+
+      // 光円錐（45°）── ブーストで不変な唯一の構造
+      ctx.strokeStyle='rgba(31,111,116,.30)'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(cx-ph,cy-ph); ctx.lineTo(cx+ph,cy+ph);
+      ctx.moveTo(cx-ph,cy+ph); ctx.lineTo(cx+ph,cy-ph); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 点
+      ctx.fillStyle = isLattice ? '#a83a22' : '#2f5d6b';
+      for(var i=0;i<pts.length;i++){
+        var q=boost(pts[i],b);
+        var px=cx+q[1]*S, py=cy-q[0]*S;
+        if(px<x0+2||px>x0+pw-2||py<top-2||py>bot+2) continue;
+        ctx.beginPath(); ctx.arc(px,py,1.7,0,6.2832); ctx.fill();
+      }
+      ctx.restore();
+
+      ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1;
+      ctx.strokeRect(x0+6,top,pw-12,ph);
+      ctx.fillStyle=isLattice?'#a83a22':'#1f6f74';
+      ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='left'; ctx.fillText(title, x0+8, top-9);
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(isLattice?'規則格子 ── 歪む':'ポアソン散布 ── 変わらない', cx, bot+20);
+    }
+
+    panel(0, '① 規則格子', LATTICE, true);
+    panel(pw+gap, '② ランダム散布', SPRINKLE, false);
+
+    ro.innerHTML = (b<0.01)
+      ? '静止した観測者。どちらも「普通」に見えます。<b>ここから速度を上げてください。</b>'
+      : 'β = <b>'+b.toFixed(2)+'</b>（γ = '+(1/Math.sqrt(1-b*b)).toFixed(2)+'）｜ '
+        +'左の格子は<b>斜めに潰れ、軸の向きが変わりました</b> ── つまり「格子が真っ直ぐに見える速度」が特別な意味を持つ＝<b>優先系がある</b>。'
+        +'右の散布は<b>見た目が変わりません</b> ── ローレンツ変換が面積を保つので、密度も統計も同じ。<b>特別な速度が存在しない。</b>';
+  }
+
+  sb.addEventListener('input', draw);
+  document.getElementById('bz').addEventListener('click', function(){ sb.value=0; draw(); });
+  document.getElementById('bh').addEventListener('click', function(){ sb.value=60; draw(); });
+  document.getElementById('brs').addEventListener('click', function(){ resprinkle(); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

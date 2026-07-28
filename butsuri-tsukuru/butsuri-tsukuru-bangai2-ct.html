@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「ct = 一定」は、どこまで通用するか ── 物理を作る 番外編②</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">番外編 ② ／ 「ct = 一定」は、どこまで通用するか</span></div>
+  <p class="eyebrow">3通りに読める ── 1つは死んでいて、1つは正しくて、1つは深い</p>
+  <h1>「ct = 一定」は、どこまで通用するか
+    <span class="sub">光速×時間を一定に固定すれば、空間は歪まなくて済むのではないか。<br>素朴でいい問いですが、これは<strong>3通りに読めます</strong>。そして答えが読み方ごとにまったく違う。<br>「\(c\) が変わる」と読むと<em>死に</em>、「座標の取り方」と読むと<em>本当に簡単になり</em>、<br>「対称性」と読むと<em>理論の芯</em>に届きます。順に、行けるところまで連れていきます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：次元解析、対数目盛り、光円錐の気分</span>
+    <span>この回の芯：座標は自由。曲率は不変量</span>
+  </div>
+
+  <p class="lead">相対論を勉強していると、必ず一度は思います ── <em>「光速が一定だから時空が歪むことになるんだろう。じゃあ光速のほうが変わることにすれば、空間は平らなままでいいのでは？」</em><br>とくに \(ct=\) 一定、つまり光が一定の距離を走るように時間を測れば、話が単純になりそうに見える。<br>この直観は、<strong>捨てるには惜しいものを含んでいます</strong>。実際、読み方の一つは完全に正しく、宇宙論の計算を劇的に簡単にします。でも別の読み方は、姉妹編がすでに潰した死んだ道です。<em>どれがどれなのかを、はっきり分けます。</em></p>
+
+  <h2><span class="n">01</span>まず、3通りに分ける</h2>
+
+  <p>「\(ct=\) 一定」という一言は、少なくとも次の3つの主張のどれかを意味しえます。混ぜると必ず議論が空回りします。</p>
+
+  <table class="tbl">
+    <tr><th style="width:28%">読み方</th><th style="width:34%">主張の中身</th><th>結果</th></tr>
+    <tr><td><strong>① 可変光速</strong></td><td>\(c\) が時間とともに変わる（\(c\propto1/t\)）</td><td class="bad">死んでいる</td></tr>
+    <tr><td><strong>② 座標の取り方</strong></td><td>光が \(45^\circ\) を走る座標を選ぶ</td><td class="ok">正しい。実際に簡単になる</td></tr>
+    <tr><td><strong>③ スケール不変性</strong></td><td>宇宙に固有の長さなど無い、と要求する</td><td class="ok">深い。理論の芯に届く</td></tr>
+  </table>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>読み方① ── これは死にます</h2>
+
+  <p>\(ct=\) 一定で \(t\) が増えるなら \(c\propto1/t\)。光速がだんだん遅くなる、という主張です。可変光速（VSL）と呼ばれます。</p>
+
+  <p>ですが、これは<strong>物理的な主張になっていません</strong>。理由は姉妹編の背骨そのままです。</p>
+
+  <div class="keybox">
+    <div class="lbl">なぜ死ぬのか</div>
+    <p style="margin:6px 0 0">\(c\) は<strong>次元を持つ</strong>ので、「変わった」に観測者によらない意味がない。</p>
+    <p style="margin:8px 0 0">「\(c\) が半分になった」と「メートルの定義が2倍になった」を区別する実験は、<em>原理的に存在しません</em>。</p>
+  </div>
+
+  <p>\(c\) は物理定数ではなく<strong>単位換算係数</strong>です。姉妹編「わかる温度」が \(k_B\) について言ったのと、まったく同じ構造 ── 温度をエネルギーで測れば \(k_B\) が消えるように、時間を長さで測れば \(c\) は消える。消せる量は、変わりようがない。</p>
+
+  <p>変われるのは無次元量だけです。だから VSL を物理的な主張にするには、</p>
+
+  $$\alpha=\frac{e^2}{4\pi\varepsilon_0\hbar c}$$
+
+  <p>が変わったと言うしかありません。そしてそう言った瞬間、話は「\(c\) が」ではなく<em>「\(\alpha\) が」</em>になります。式は一行も簡単になりません。</p>
+
+  <div class="aside">
+    <span class="tag">姉妹編との接続</span>
+    この論点は「わかる相対論」第7回（可変 \(c\) ≡ 曲率）と番外編（無次元なら一行、単位を入れると悪夢）で扱われています。結論は同じ ── <strong>「重力＝可変光速」ではなく、「両者は同じ幾何の別座標記述」</strong>が正確な言い方です。
+  </div>
+
+  <h2><span class="n">03</span>読み方② ── これは正しく、実際に簡単になります</h2>
+
+  <p>今度は \(ct=\) 一定を、<em>光が \(45^\circ\) を走るように座標を選ぶ</em>という意味に取ります。これは<strong>共形時間</strong>と呼ばれる、標準的で強力な道具です。</p>
+
+  <p>膨張宇宙の計量を、この座標で書くと ──</p>
+
+  $$ds^2=a(\eta)^2\left(-d\eta^2+d\vec x^{\,2}\right)$$
+
+  <p>括弧の中は<em>ただの平坦な計量</em>です。膨張の情報は、全体にかかるスケール因子 \(a(\eta)\) だけに押し込まれた。</p>
+
+  <p>そして4次元では、<strong>マクスウェル方程式は共形不変</strong>です。つまり全体にかかるスケール因子を、電磁場は感じない。ということは ──</p>
+
+  <div class="keybox">
+    <div class="lbl">この節の芯</div>
+    <p style="margin:6px 0 0">この座標では、<strong>光にとって宇宙の膨張が方程式から消えます。</strong><br>光子は平坦時空を走るのと同じ。膨張は \(a(\eta)\) の中に隔離され、電磁場の運動方程式には現れない。</p>
+  </div>
+
+  <p>下の図で、同じ光の軌跡を2つの座標で見てください。</p>
+
+  <div class="fig">
+    <div class="cap">図：同じ光の軌跡を、2つの座標で描く。左＝宇宙時間 \(t\)、右＝共形時間 \(\eta\)。スライダーで膨張の強さを変えてください</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>膨張の強さ &nbsp;\(a\propto t^{p}\)、&nbsp;p = <span class="val" id="vp">0.67</span>
+        <input type="range" id="sp" min="0" max="90" value="67">
+      </label>
+      <button id="b0">膨張なし</button>
+      <button id="br">輻射 p=1/2</button>
+      <button id="bm">物質 p=2/3</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>左では、光の軌跡が曲がります。膨張しているぶん、同じ時間で進める共動距離がどんどん減っていくからです。右に移すと ── <em>まっすぐな \(45^\circ\) の直線</em>になる。膨張が座標の側に吸収されて、光の運動から消えました。</p>
+
+  <div class="aside">
+    <span class="tag">なぜぴったり \(45^\circ\) なのか</span>
+    光にとって \(ds^2=0\)、つまり \(d\eta=dx\)。積分すれば \(x=\eta+\)定数 ── <strong>共動距離と共形時間が、同じ量になります</strong>。だから傾き 1 の直線に必ずなる。\(a(\eta)\) がどんな関数でも関係ありません。<br>「\(ct=\) 一定」という直観の、技術的に正しい版がこれです。
+  </div>
+
+  <h2><span class="n">04</span>では、どこまで通用するのか ── 壁に名前があります</h2>
+
+  <p>ここまでは良い話でした。「平坦な計量 × スカラー1個」で宇宙が書けてしまった。では、これはどこまで行けるのか。</p>
+
+  <p>「平坦時空 × スカラー」という形を<strong>共形平坦</strong>といい、厳密な判定条件があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">判定条件</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">計量が共形平坦 \(\iff\) <strong>ワイルテンソルがゼロ</strong></p>
+  </div>
+
+  <p>これで境界線がはっきり引けます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">時空</th><th style="width:22%">ワイルテンソル</th><th>スカラーだけで書けるか</th></tr>
+    <tr><td><strong>FRW（膨張宇宙）</strong></td><td>\(=0\)</td><td class="ok">書ける。しかも厳密に</td></tr>
+    <tr><td><strong>シュワルツシルト（星）</strong></td><td>\(\ne0\)</td><td class="bad">原理的に書けない</td></tr>
+  </table>
+
+  <p>03 節がうまくいったのは、偶然ではありませんでした。<strong>FRW は本当に共形平坦だから</strong>です。宇宙論に関する限り、「空間は歪んでいない」は<em>定理として正しい</em>。</p>
+
+  <p>ところが星は違います。真空解なので \(R_{\mu\nu}=0\)、つまり曲率が全部ワイル曲率です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 消えない曲率</span>
+    $$R_{abcd}R^{abcd}=\frac{48G^2M^2}{c^4r^6}\neq 0$$
+    <p class="lbl">これは潮汐力そのもの</p>
+    <p style="margin:8px 0 8px">リッチがゼロなのに曲率不変量がゼロでない。残っているのは全部ワイル。だから<strong>共形平坦にできない</strong> ── スカラー \(\Omega(x)\) をどう選んでも、星ひとつ書けません。</p>
+  </div>
+
+  <h3>なのに、なぜ「光だけ」は合ってしまうのか</h3>
+
+  <p>屈折率描像 \(n(x)\approx1-2\Phi/c^2\) を置くと、光の曲がりも重力赤方偏移もシャピロ遅延も正しく出ます。書けないはずなのに、なぜ？</p>
+
+  <p>答えは一行です。<strong>ヌル測地線は共形不変だから。</strong></p>
+
+  <p>光の経路は計量の<em>共形類</em>だけで決まり、\(\Omega^2\) を掛けても変わりません。だから共形因子を調整するだけで、光には<strong>構造的に必ず当たる</strong>ようにできている。そして光<em>以外</em> ── ワイル曲率、時計の進み方、物質の軌道 ── には当たらない。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 当たったのは偶然ではなく、必然でもない</span>
+    「光の曲がりが再現できた」は、屈折率描像が正しいことの証拠に<em>なりません</em>。ヌル測地線が共形不変である以上、共形因子をいじる描像は光には必ず当たるからです。<br><strong>当たって当然のものが当たっても、情報はゼロ</strong> ── 本編第1回で、複雑な式が何にでも当たることを扱ったのと、まったく同じ構造です。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>読み方③ ── ここが深い</h2>
+
+  <p>3つめの読み方は、\(ct=\) 一定を<em>制約として課す</em>のではなく、\(x^\mu\to\lambda x^\mu\) を自由にやっていい<strong>対称性</strong>として読むものです。つまり「宇宙に固有のスケールなど無い」と要求する。</p>
+
+  <p>この方向を最後まで追うと、驚くことが分かります ── 既知の物理の全ラグランジアンのうち、<strong>次元を持つ項は2つしかありません</strong>。ヒッグス質量項とニュートン定数です。この2つを消せば、理論全体がスケール不変になる。</p>
+
+  <p>詳しくは<a href="butsuri-tsukuru-bangai1-scale.html">番外編①</a>の 05・06 節に譲ります。ここでは、その先で何が起きるかだけ書いておきます。</p>
+
+  <div class="aside">
+    <span class="tag">高エネルギーでは、実際に起きている</span>
+    量子重力の候補のひとつ「漸近安全性」の UV 固定点とは、<strong>まさに理論がスケール不変になる点</strong>のことです。固定点では結合が純粋な数になり、カットオフが消え、次元を持つ量が意味を失う。<br>つまり「\(ct=\) 一定を入れたら簡単になるのでは」という直観は、<em>高エネルギーで実際に起きていること</em>の、素朴だが方向として正しい言い方になっています。
+  </div>
+
+  <h2><span class="n">06</span>ただし、座標では曲率は消せません</h2>
+
+  <p>最後に、いちばん大事な一線を引いておきます。</p>
+
+  <p>\(ct=\) 一定は<strong>座標の取り方</strong>です。そして<em>曲率はテンソル</em>なので、ある座標系でゼロでなければ、どの座標系でもゼロになりません。「空間が歪まない座標を選ぶ」ということは、原理的にできない。</p>
+
+  <p>03 節の図が、まさにこれを見せています。共形時間に移すと光は厳密に 45° になりました ── 座標上の記述は最高に単純になった。<strong>でも \(a(\eta)\) はそこに残ったままです。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">この回の結論</div>
+    <p style="margin:6px 0 0">曲率は<em>消えた</em>のではなく、<strong>共形因子に引っ越した</strong>だけ。<br>座標は自由に選べる。でも不変量は、選び方に依らない。</p>
+  </div>
+
+  <p>では「空間は歪んでいない」という立場は、完全に間違いなのか。<em>そうではありません。</em> スカラーでは足りなかっただけで、足りないものを補えば、平坦な舞台の上に一般相対論をまるごと建てられます。それが本編第3回です。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>「光速が半分になった宇宙」を、実験で検出できるか。できないとすれば、代わりに何を測ればよいか。
+        <details><summary>答えを見る</summary><div class="ans">検出できない。\(c\) は次元を持つので、値の変化は単位の再定義と区別がつかない。測るべきは無次元量 ── たとえば \(\alpha=e^2/4\pi\varepsilon_0\hbar c\)。実際、遠方クェーサーの吸収線から \(\alpha\) の時間変化が精密に制限されている。</div></details>
+      </li>
+      <li>共形時間で光の軌跡が厳密に \(45^\circ\) になるのはなぜか。\(a(\eta)\) の形に依らないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">光は \(ds^2=0\)。共形座標では \(ds^2=a^2(-d\eta^2+dx^2)\) なので、\(a\ne0\) である限り \(a^2\) は割り落とせて \(d\eta=dx\)。積分して \(x=\eta+\)定数。<strong>スケール因子が方程式から完全に落ちる</strong>ので、その形に依らない。</div></details>
+      </li>
+      <li>屈折率描像で光の曲がりが正しく出るのに、それが「重力＝可変光速」の証拠にならないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">ヌル測地線が共形不変だから。共形因子をいじる描像は、光の経路については<strong>必ず</strong>当たるようにできている。当たって当然のものが当たっても情報は無い。区別がつくのは光以外（時計・物質の軌道・潮汐力）の側。</div></details>
+      </li>
+      <li>FRW は共形平坦なのに、シュワルツシルトはそうでない。この違いを一つの量で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">ワイルテンソル。FRW は \(C_{abcd}=0\)、シュワルツシルトは \(C_{abcd}\ne0\)（\(R_{\mu\nu}=0\) なので \(R_{abcd}R^{abcd}=48G^2M^2/c^4r^6\) は全部ワイル）。共形平坦性の条件がワイル消失そのもの。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回のまとめ</h2>
+    <p><strong>① \(c\) が変わる、と読むと死ぬ。</strong> \(c\) は次元を持つので「変わった」に観測者によらない意味がない。単位換算係数であって、物理定数ではない。変われるのは \(\alpha\) のような無次元量だけ。</p>
+    <p><strong>② 座標と読むと、本当に簡単になる。</strong> 共形時間では膨張宇宙の計量が「平坦 × スケール因子」になり、マクスウェル方程式が共形不変なので<em>光にとって膨張が消える</em>。光が厳密に \(45^\circ\) を走るのは \(ds^2=0\) から出る帰結で、\(a(\eta)\) の形に依らない。</p>
+    <p><strong>③ 壁には名前がある ── ワイルテンソル。</strong> FRW は \(C=0\) なので厳密に書けるが、星は \(C\ne0\) なので原理的に書けない。それでも光だけ合ってしまうのは、<em>ヌル測地線が共形不変</em>だから。当たって当然のものが当たっても、情報はゼロ。</p>
+    <p><strong>④ 対称性と読むと、理論の芯に届く。</strong> 次元を持つ項はヒッグス質量とニュートン定数の2つだけ。そして高エネルギーの固定点では、実際にスケールが意味を失う。</p>
+    <p style="margin-bottom:0"><strong>そして、座標では曲率は消せない。</strong> 曲率はテンソルだから。共形時間で光を \(45^\circ\) にしても、\(a(\eta)\) は残る ── 曲率は消えたのではなく、引っ越しただけです。</p>
+    <div class="next">
+      <span class="lbl">続きは本編第3回</span>
+      <a href="butsuri-tsukuru-03-heitan.html">舞台は、平坦でいい</a> ── スカラーで足りなかったのは、実は<em>一語だけ</em>でした。それを補うと、平坦な舞台の上に一般相対論がまるごと建ち、しかも<strong>等価原理が結論として出てきます</strong>。さらに、格子が歪まないので<em>差分で解ける</em> ── 数値相対論はまさにそれをやっています。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ番外編②、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：次元を持つ定数の変化に観測者非依存な意味がないこと、FRW 計量の共形平坦性、4次元におけるマクスウェル方程式の共形不変性、ヌル測地線の共形不変性、共形平坦性とワイルテンソル消失の同値性、シュワルツシルトのクレッチマン不変量。<strong>いっぽう 05 節のスケール不変性に基づく描像（すべてのスケールが量子異常と自発的破れから生成される）は研究中の立場であり、確立した結論ではありません</strong>。また共形異常により完全なスケール不変性は量子論として一般に破れます。図は模式で、実際の宇宙は単一のべき \(a\propto t^p\) では記述されません（輻射優勢・物質優勢・暗黒エネルギー優勢で \(p\) が移り変わります）。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a> ｜ 番外編①：<a href="butsuri-tsukuru-bangai1-scale.html">物理は、もっと簡単に書けないのか</a> ｜ 姉妹編：<a href="../wakaru-soutai/index.html">わかる相対論</a>／<a href="../wakaru-ondo/index.html">わかる温度</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーで、膨張が座標に吸収される様子を動かせます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sp=document.getElementById('sp'),
+      vp=document.getElementById('vp'), ro=document.getElementById('ro');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  // a(t) = (t/t0)^p、t0 = 1。光の共動距離 x(t) = ∫dt/a = t^(1-p)/(1-p)
+  // 共形時間 η(t) も同じ積分なので、(η, x) では厳密に x = η（傾き 1）。
+  function xOf(t,p){ return (1-p<1e-6) ? Math.log(Math.max(t,1e-9)) : Math.pow(t,1-p)/(1-p); }
+
+  function draw(){
+    var p=parseInt(sp.value,10)/100; vp.textContent=p.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=26, pw=(w-gap)/2, T0=24, B=h-40;
+    var xmax=xOf(1,p)*1.06 || 1;
+
+    function panel(x0,title,mode){
+      var L=x0+42, R=x0+pw-12;
+      ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+      for(var i=0;i<=4;i++){ var y=T0+(B-T0)*i/4; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke(); }
+      ctx.strokeStyle='#7a8785';
+      ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,T0); ctx.lineTo(L,B); ctx.stroke();
+
+      ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+      ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(title, L, T0-8);
+
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+      var N=260;
+      for(var k=0;k<=N;k++){
+        var t=1e-4+(1-1e-4)*k/N;
+        var xx=xOf(t,p);
+        var hh = (mode===0) ? t : xx/xmax;
+        var px=L+(R-L)*hh, py=B-(B-T0)*(xx/xmax);
+        if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+
+      if(mode===1){
+        ctx.strokeStyle='rgba(31,111,116,.35)'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+        ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,T0); ctx.stroke(); ctx.setLineDash([]);
+      }
+
+      ctx.fillStyle='#4c545c'; ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(mode===0?'宇宙時間 t':'共形時間 η', (L+R)/2, B+22);
+      ctx.save(); ctx.translate(x0+13,(T0+B)/2); ctx.rotate(-Math.PI/2);
+      ctx.fillText('共動距離 x', 0, 0); ctx.restore();
+    }
+
+    panel(0, '① 宇宙時間で見る ── 曲がる', 0);
+    panel(pw+gap, '② 共形時間で見る ── 45°の直線', 1);
+
+    ro.innerHTML = (p<0.01)
+      ? '膨張なし（<b>p = 0</b>）。この場合はどちらの座標も同じで、光はもともと直線です。'
+      : '膨張あり（<b>p = '+p.toFixed(2)+'</b>）。左では光の軌跡が<b>曲がって</b>いますが、'
+        +'右では厳密に<b>45°の直線</b>です ── 膨張が座標に吸収され、光の運動方程式から消えました。'
+        +'ただし <b>a(η) はまだそこにあります</b>。';
+  }
+
+  sp.addEventListener('input', draw);
+  document.getElementById('b0').addEventListener('click', function(){ sp.value=0; draw(); });
+  document.getElementById('br').addEventListener('click', function(){ sp.value=50; draw(); });
+  document.getElementById('bm').addEventListener('click', function(){ sp.value=67; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

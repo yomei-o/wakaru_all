@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>舞台は、平坦でいい ── 物理を作る 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 3 回 ／ 舞台は、平坦でいい</span></div>
+  <p class="eyebrow">曲率は帳簿の付け方であって、物理の中身ではない ── 平坦な舞台の上で、どこまで行けるか</p>
+  <h1>舞台は、平坦でいい
+    <span class="sub">第2回で、時空に<em>刻み</em>は要らないと分かりました。では <em>歪み</em> は要るのか。<br>重力を「平坦時空の上で光速が場所ごとに変わること」として書く描像は、<em>ワイルテンソル</em>に阻まれて詰みます。<br>でも足りなかったのは <strong>一語だけ</strong>です。それを補うと、平坦な舞台の上で一般相対論が<em>まるごと</em>建ちます。<br>そしてその先に、曲率を基本要素として持たない記述 ── ホログラフィーがあります。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：テンソルの気分、共形変換、第2回</span>
+    <span>この回の芯：曲率は場であって、舞台ではない</span>
+  </div>
+
+  <p class="lead">「空間が曲がる」というのは、相対論でいちばん有名で、いちばん飲み込みにくい主張です。ゴム膜に重りを置いた絵を見せられて、なんとなく納得したことにして先へ進む ── そういう人は多いはずです。<br>ここで、素直な疑問を最後まで押してみます。<em>本当に曲がっている必要があるのか。</em> 舞台は平坦なまま、その上で何かが起きている、では駄目なのか。<br>結論を先に言うと ── <strong>駄目ではありません。厳密に成立します。</strong> ただしそこに至るには、素朴なやり方がどこで詰むのかを正確に診断し、足りなかったものを一つだけ補う必要があります。そして補った先で、もっと強い立場が待っています。</p>
+
+  <h2><span class="n">01</span>まず、どこで詰むのかを正確に</h2>
+
+  <p>「重力とは、平坦時空の上で光速が場所ごとに変わることだ」── まず、この描像から始めます（この読み替えを最後まで追ったものが<a href="butsuri-tsukuru-bangai2-ct.html" style="color:#1f6f74">番外編②</a>です）。屈折率 \(n(x)\approx1-2\Phi/c^2\) を置くやり方です。光の曲がりも重力赤方偏移もシャピロ遅延も、これで正しく出ます。</p>
+
+  <p>この描像を式で書くと、こういう計量を仮定していることになります。</p>
+
+  $$ds^2=\Omega^2(x)\,\eta_{\mu\nu}dx^\mu dx^\nu$$
+
+  <p>平坦な計量に、場所ごとの<strong>スカラー</strong>倍がかかっただけ。これを<em>共形平坦</em>といいます。そして厳密な判定条件があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">判定条件</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">計量が共形平坦 \(\iff\) <strong>ワイルテンソルがゼロ</strong></p>
+  </div>
+
+  <p>これで境界線が引けます。そして結果は、きれいに分かれます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">時空</th><th style="width:22%">ワイルテンソル</th><th>スカラーだけで書けるか</th></tr>
+    <tr><td><strong>FRW（膨張宇宙）</strong></td><td>\(=0\)</td><td class="ok">書ける。しかも厳密に</td></tr>
+    <tr><td><strong>シュワルツシルト（星）</strong></td><td>\(\ne0\)</td><td class="bad">原理的に書けない</td></tr>
+  </table>
+
+  <p>膨張宇宙は<em>本当に共形平坦</em>です。共形時間に座標を移すと、光は厳密に 45° の直線を走ります。偶然ではありません ── 膨張宇宙は文字どおり「平坦時空 × スケール因子」であって、この意味で<strong>曲がっていない</strong>。あなたの直観は、宇宙論に関しては定理として正しい。</p>
+
+  <p>ところがシュワルツシルトは違います。真空解なので \(R_{\mu\nu}=0\)、つまり<em>曲率が全部ワイル曲率</em>です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 消えない曲率</span>
+    $$R_{abcd}R^{abcd}=\frac{48G^2M^2}{c^4r^6}\neq 0$$
+    <p class="lbl">これは潮汐力そのもの</p>
+    <p style="margin:8px 0 8px">リッチがゼロなのに曲率不変量がゼロでない ── 残っているのは全部ワイル。だから<strong>共形平坦にできない</strong>。スカラー \(\Omega(x)\) をどう選んでも、星ひとつ書けません。</p>
+  </div>
+
+  <h3>なぜ「光だけ」は合ってしまったのか</h3>
+
+  <p>ここが面白いところです。屈折率描像が「静的弱場の<em>光</em>」にしか使えない理由に、機構的な説明がつきます。</p>
+
+  <p><strong>ヌル測地線は共形不変です。</strong> 光の経路は \(\Omega^2\) を掛けても変わらない。だから計量の共形類さえ合っていれば、<em>光の曲がりは構造的に必ず再現できてしまう</em>。</p>
+
+  <p>つまり屈折率描像は、光については当たるようにできている。でも共形因子で潰れない部分 ── ワイル曲率、時計の進み方、物質の軌道 ── には、スカラー1個では触れられない。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>足りなかったのは、一語だけ</h2>
+
+  <p>では何が足りないのか。具体例で見ると一瞬で分かります。</p>
+
+  <p><strong>フレームドラッグ</strong>を考えてください。回転する天体のまわりを、光が右回りに一周する時間と、左回りに一周する時間が<em>違います</em>（実測されています）。</p>
+
+  <p>スカラー \(c(x)\) には、これが書けません。その点での値が<strong>1つしかない</strong>ので、向きによって違う答えを返せない。</p>
+
+  <p>書くには \(c(x,\hat n)\) ── <em>方向に依存する光速</em>が要ります。重力波も同じです。TT 偏極は一方向を伸ばし、直交方向を縮める。スカラーには異方的な伸縮が書けない。</p>
+
+  <div class="keybox">
+    <div class="lbl">足りなかった一語</div>
+    <p style="margin:6px 0 0">各点で <strong>方向ごとに</strong> 速さを与えるもの。<br>それを数学ではテンソル場と呼び、物理では <strong>計量 \(g_{\mu\nu}\)</strong> と呼びます。</p>
+  </div>
+
+  <p>ここで「なんだ、結局計量か。曲率に戻っただけじゃないか」と思うかもしれません。<strong>それが違うんです。</strong> ここからが本題です。</p>
+
+  <h2><span class="n">03</span>平坦時空の上に、テンソル場を置く</h2>
+
+  <p>一般相対論は、<em>平坦なミンコフスキー時空の上に住む、自己相互作用する質量ゼロのスピン2場</em> \(h_{\mu\nu}\) の理論として構成できます。Gupta (1954)、Feynman、Deser (1970)。</p>
+
+  <p>Deser の議論が一番きれいです。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 級数が閉じる</span>
+    <p style="margin:8px 0 0"><strong>手順1.</strong> 平坦時空 \(\eta_{\mu\nu}\) の上に、質量ゼロのスピン2場 \(h_{\mu\nu}\) を書く（自由場）。</p>
+    <p style="margin:8px 0 0"><strong>手順2.</strong> この場は物質のエネルギー運動量に結合する。ところが<em>場そのものもエネルギーを持つ</em>。だから自分自身にも結合しなければならない。</p>
+    <p style="margin:8px 0 0"><strong>手順3.</strong> 補正項を足す。するとその補正項もエネルギーを持つので、また足す。反復する。</p>
+    <p class="lbl">結果</p>
+    <p style="margin:8px 0 8px"><strong>級数が閉じて、アインシュタイン方程式そのものになります。</strong>そして</p>
+    $$g_{\mu\nu}=\eta_{\mu\nu}+h_{\mu\nu}$$
+    <p style="margin:8px 0 8px">が「実効的な計量」として<em>結果的に</em>現れる。最初から仮定したのではなく、出てきた。</p>
+  </div>
+
+  <p>Weinberg はさらに強いことを示しました。<strong>ローレンツ不変な質量ゼロのスピン2粒子が保存源に結合する理論は、低エネルギーで必ず一般相対論になる</strong>。つまり ──</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の芯</div>
+    <p style="margin:6px 0 0"><strong>等価原理は、仮定ではなく結論です。</strong><br>「重力質量＝慣性質量」を手で置く必要はない。平坦時空上のスピン2場という設定から、<em>導出されます</em>。</p>
+  </div>
+
+  <p>ですから「空間は歪んでいない。平坦な舞台の上で、場がそう振る舞っているだけ」は、詩的な言い換えではなく<strong>厳密な定式化</strong>です。曲率は<em>舞台の性質</em>ではなく、舞台の上に乗った<em>場</em>になります。</p>
+
+  <div class="fig">
+    <div class="cap">図：同じ光の曲がりを、二通りに記帳する。左＝「空間が曲がっている」、右＝「空間は平坦で、場がある」。スライダーで質量を変えてください</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>天体の質量 &nbsp;μ = GM/c² = <span class="val" id="vm">0.018</span>
+        <input type="range" id="sm" min="0" max="30" value="18">
+      </label>
+      <button id="b0">質量ゼロ</button>
+      <button id="b1">強くする</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#a83a22"></span>光の軌跡（両側でまったく同一）</span>
+      <span><span class="swatch" style="background:#b3c0bd"></span>質量が無ければ通ったはずの直線</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>赤い軌跡は、左右で<em>1ピクセルも違いません</em>。同じ配列を二度描いています。違うのは背景の描き方だけ ── 左は格子を歪ませ、右は格子を正方形のまま置いて場を影で示した。</p>
+
+  <p><strong>観測されるのは赤い線だけです。</strong> 背景の格子は、どちらもあなたが紙の上に引いた線であって、自然の中にはありません。</p>
+
+  <h2><span class="n">04</span>代償① ── 平坦背景は、観測できない</h2>
+
+  <p>正直な線を引きます。この定式化には、奇妙な代償があります。</p>
+
+  <p>何も \(\eta_{\mu\nu}\) だけには結合しません。物差しも時計も光も、すべて \(g=\eta+h\) で測る。ですから<strong>「本当は平坦だ」と言うことはできるけれど、その平坦さを検出する実験は原理的に存在しません</strong>。</p>
+
+  <p>微妙な立場です。優先系のようでいて、完全に見えない優先系。</p>
+
+  <div class="aside">
+    <span class="tag">ただし ── だからこそ第2回の病気にかかりません</span>
+    第2回で見た18桁のファインチューニングは、<strong>物理的な優先系</strong>が輻射補正で増幅されることから起きました。<br>平坦背景 \(\eta_{\mu\nu}\) は、それとは違います。<em>何にも結合しないので、繰り込みにも効きません。</em>見えないものは増幅されない。<br>「安全だが、同時に空虚でもある」── この二面性が、この定式化の性格を言い当てています。物理的な内容がゼロだからこそ、害もゼロ。
+  </div>
+
+  <h2><span class="n">05</span>代償② ── 大域構造が苦手</h2>
+
+  <p>もう一つ、こちらは実質的な限界です。</p>
+
+  <p>平坦背景まわりの展開は、<strong>地平面の内側、自明でないトポロジー、閉じた宇宙</strong>をうまく覆えません。摂動級数が届く範囲が限られる。</p>
+
+  <p>「局所的には完全に正しく、大域的には不十分」という形です。ブラックホールの内部を \(\eta+h\) で書こうとすると、\(h\) が小さいという前提が崩れる。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 「基本的でない」は「実在しない」ではない</span>
+    どの定式化を選んでも、潮汐力は測れます。\(R_{\mu\nu\rho\sigma}\) には観測可能な帰結がある。<br>あなたが選んでいるのは<strong>帳簿の付け方</strong>であって、物理を削っているわけではありません。「曲がっていない」と言うのは自由ですが、それで消える現象は一つもない。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>そして、差分で解ける</h2>
+
+  <p>ここまでは「そう記帳してもよい」という話でした。でもこの立場には、<em>実用上の見返り</em>があります。しかもそれは思考実験ではなく、<strong>いま現実に動いている</strong>ものです。</p>
+
+  <p>格子が歪まないなら、空間に正方形のセルを並べて、微分を差分で置き換えられます。プログラムを書く人にとって、これは決定的に嬉しい。</p>
+
+  $$\frac{\partial f}{\partial x}\;\longrightarrow\;\frac{f_{i+1}-f_{i-1}}{2\Delta x}$$
+
+  <p>そして ── <strong>数値相対論は、まさにこれをやっています。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">実際にやられていること</div>
+    <p style="margin:6px 0 0">平坦な直交格子をメモリ上に並べる。その各点に \(g_{\mu\nu}\)（実際には BSSN や Z4c と呼ばれる変数）を<strong>場の値として</strong>置く。有限差分で時間発展させる。</p>
+    <p style="margin:8px 0 0"><strong>格子は絶対に歪みません。</strong> 曲率は格子ではなく、<em>格子点に載っている数値の中に</em>あります。</p>
+  </div>
+
+  <p>LIGO がブラックホール合体を検出したとき、観測データと突き合わせた波形テンプレートは、この方法で作られました。<strong>曲がった時空を、歪まない格子の上で計算している。</strong></p>
+
+  <p>そして構造的に、これは 03 節の Deser の定式化そのものです。舞台は平坦、曲率は舞台の上の場 \(h_{\mu\nu}\)。<em>定式化と実装が、同じ形をしている。</em></p>
+
+  <h3>ただし、難所は格子ではありません</h3>
+
+  <p>正直に、何が難しいかを並べます。<strong>どれも「格子が歪まないこと」が原因ではない</strong>のが要点です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">難所</th><th>中身</th></tr>
+    <tr><td><strong>① 葉層化（ゲージ）</strong></td><td>差分をするには時空を「空間 × 時間」に切る必要がある。どう切るかは自由だが、<em>切り方を間違えると格子点がブラックホールに落ちて計算が破綻する</em>。1+log slicing、gamma-driver shift、moving puncture といった手法が要る。</td></tr>
+    <tr><td><strong>② 拘束条件の破れ</strong></td><td>アインシュタイン方程式は「発展方程式」と「拘束条件」に分かれる。差分は必ず拘束をわずかに破り、その誤差が<em>指数的に増大</em>する。BSSN・Z4c・一般調和形式といった拘束減衰つきの定式化でようやく解決した。</td></tr>
+    <tr><td><strong>③ 特異点</strong></td><td>ブラックホールの中心は数値が発散する。切り取る（excision）か、座標を工夫して回避する（puncture）。</td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">40年止まっていた理由</span>
+    数値相対論は 1960 年代に始まりましたが、<strong>ブラックホール連星を最後まで計算できるようになったのは 2005 年</strong>です。約40年かかった。<br>止めていたのは ② の拘束条件の破れであって、<em>格子でも差分でもありませんでした</em>。平坦な格子に場を乗せるという発想自体は、最初から正しかった。
+  </div>
+
+  <h3>なぜこれは安全なのか ── 第2回の区別が効く</h3>
+
+  <p>ここで第2回の表を思い出してください。格子には <strong>(a) 計算道具</strong> と <strong>(b) 時空の基本構造</strong> という別々の役割がありました。</p>
+
+  <p>数値相対論の格子は、完全に <strong>(a)</strong> です。格子間隔 \(\Delta x\) は人工的で、細かくして収束を確かめる。<em>「時空が格子でできている」とは一言も主張していない。</em></p>
+
+  <p>だから第2回の18桁のファインチューニング問題は、まったく発生しません。優先系を物理として導入していないからです。</p>
+
+  <div class="keybox">
+    <div class="lbl">この節の芯</div>
+    <p style="margin:6px 0 0"><strong>「空間が歪まない」から差分で解ける ── これは正しく、しかも実際にそうしている。</strong><br>歪んでいないのは<em>計算格子</em>であって、時空が離散だと主張しているわけではない。だから安全。</p>
+  </div>
+
+  <h2><span class="n">07</span>もっと強い版 ── ホログラフィー</h2>
+
+  <p>ここまでは「曲率を場として書き直す」話でした。平坦背景は残っていて、ただ見えないだけ。</p>
+
+  <p>もっと徹底した立場があります。<strong>曲率も、曲がった時空も、そもそも基本的な要素として存在しない</strong>という立場です。</p>
+
+  <p>AdS/CFT において、<em>境界の理論には重力がありません。曲率もありません。</em> 普通の場の理論が、固定された平坦な背景の上に乗っているだけです。そして ──</p>
+
+  <div class="keybox">
+    <div class="lbl">創発する時空</div>
+    <p style="margin:6px 0 0"><strong>バルクの曲がった時空は、境界のエンタングルメント構造から創発する。</strong><br>曲率は基本的な存在ではなく、平坦な場の理論の記述の一形態である。</p>
+  </div>
+
+  <p>「空間の歪みは必要ない」の、いちばん強い版がこれです。第03節では舞台が平坦なまま残っていましたが、ここでは<em>曲がった舞台という概念そのもの</em>が、基本の記述から消えます。</p>
+
+  <p>そして揃うものが多い。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">欲しかったもの</th><th>境界理論では</th></tr>
+    <tr><td>空間の歪みが無い</td><td class="ok">○ 平坦な固定背景</td></tr>
+    <tr><td>空間の刻みが無い（第2回）</td><td class="ok">○ 連続的な場の理論</td></tr>
+    <tr><td>厳密なローレンツ不変性</td><td class="ok">○ 共形不変ですらある</td></tr>
+    <tr><td>有限の情報量</td><td class="ok">○ ホログラフィック境界</td></tr>
+    <tr><td>計算可能</td><td class="ok">○ 普通の場の理論</td></tr>
+  </table>
+
+  <p>第2回の \(6\times10^{-20}\) にも、18桁のファインチューニングにも、この立場は<strong>まったく触れません</strong>。優先系を作らず、刻みも入れないからです。</p>
+
+  <h2><span class="n">08</span>正直な線</h2>
+
+  <p>最後に、この立場が支払っているものを並べます。</p>
+
+  <p><strong>制御できている実例は AdS だけです。</strong> \(\Lambda<0\)。ところが我々の宇宙は \(\Lambda>0\)。de Sitter におけるホログラフィーは未解決で、そこがこの路線の最大の弱点です。</p>
+
+  <p><strong>「境界が平坦」も、ある意味で選択です。</strong> 境界理論が乗る背景は固定されていますが、それを「平坦」と呼べるのは共形不変性のおかげで、実際には共形類が決まっているだけ。ここも帳簿の話に戻ります。</p>
+
+  <p><strong>そして \(1/4\) やページ曲線の導出は、特殊な設定でのものです。</strong> 3次元重力、JT 重力、超対称・極限ブラックホール。一般のシュワルツシルト・ブラックホールで同じことができているわけではありません。壁を一箇所だけ抜いた段階です。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>「平坦時空＋スカラー可変光速」がシュワルツシルトを書けない理由を、一行で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">スカラー倍は共形変換であり、共形平坦な計量しか作れない。共形平坦の条件はワイルテンソル \(=0\) だが、シュワルツシルトは真空解（\(R_{\mu\nu}=0\)）でありながら \(R_{abcd}R^{abcd}=48G^2M^2/c^4r^6\ne0\)、つまり曲率が全部ワイルなので不可能。</div></details>
+      </li>
+      <li>にもかかわらず、屈折率描像で光の曲がりが正しく出るのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>ヌル測地線が共形不変</strong>だから。光の経路は計量の共形類だけで決まり、\(\Omega^2\) を掛けても変わらない。だから共形因子を調整するだけで光には必ず当たる ── そして光<em>以外</em>には当たらない。</div></details>
+      </li>
+      <li>Deser の構成で、なぜ「平坦背景の上のスピン2場」から等価原理が出てくるのか、筋だけ述べよ。
+        <details><summary>答えを見る</summary><div class="ans">スピン2場は保存するエネルギー運動量テンソルに結合する。そして場自身もエネルギーを持つので、自分自身にも同じ強さで結合せざるを得ない。「すべてのエネルギーに同じように結合する」がまさに等価原理であり、それが反復の構造から強制される。仮定ではなく整合性の帰結。</div></details>
+      </li>
+      <li>平坦背景 \(\eta_{\mu\nu}\) は優先系のように見えるのに、第2回のファインチューニング問題を起こさない。なぜか。
+        <details><summary>答えを見る</summary><div class="ans">第2回の問題は、<strong>物理的に検出できる</strong>優先系がループ補正で増幅されることだった。\(\eta_{\mu\nu}\) には何も単独で結合せず、あらゆる観測量は \(g=\eta+h\) を通る。検出できない構造は繰り込みにも現れないので、増幅されるものが無い。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>スカラーでは詰む。判定条件はワイルテンソル。</strong> 膨張宇宙はワイル \(=0\) なので「平坦時空 × スケール因子」で厳密に書けるが、星はワイル \(\ne0\) なので原理的に書けない。光だけが合ってしまうのは、ヌル測地線が共形不変だから。</p>
+    <p><strong>足りなかったのは「方向依存」の一語だけだった。</strong> 各点で方向ごとに速さを与えるもの ── それがテンソル場。フレームドラッグも重力波も、これで書ける。</p>
+    <p><strong>平坦な舞台の上に、テンソル場を置けば一般相対論が建つ。</strong> 質量ゼロのスピン2場の自己相互作用を反復すると、級数が閉じてアインシュタイン方程式になる（Gupta–Feynman–Deser）。\(g=\eta+h\) は仮定ではなく結果。そして<em>等価原理が結論として出てくる</em>（Weinberg）。</p>
+    <p><strong>代償は2つ。</strong> 平坦背景は原理的に観測できない（＝だからこそ第2回の18桁問題も起こさない）。そして大域構造 ── 地平面やトポロジー ── には届かない。</p>
+    <p style="margin-bottom:0"><strong>そして極限がホログラフィー。</strong> 境界理論には重力も曲率も無く、曲がった時空はエンタングルメントから創発する。歪みも刻みも優先系も無しに、有限の情報量と計算可能性が手に入る。ただし制御できている実例は \(\Lambda<0\) だけで、我々の宇宙は \(\Lambda>0\) です。</p>
+    <div class="next">
+      <span class="lbl">次回予告</span>
+      第4回「係数を、作りにいく」── 第1回で位置を測った \(O(1)\) の壁へ、正面から。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。対称性・極限・数え上げの三つで、係数がどこまで手で出せるかを試します。総当たりが2回とも空振りした理由 ── <em>係数を当てにいったから</em> ── の、裏返しの回です。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第3回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：共形平坦性とワイルテンソル消失の同値性、FRW の共形平坦性、シュワルツシルトのクレッチマン不変量、ヌル測地線の共形不変性、平坦時空上のスピン2場からの一般相対論の再構成（Gupta 1954、Deser 1970）、質量ゼロスピン2粒子から等価原理が従うこと（Weinberg）。<strong>いっぽう「曲率は創発的である」というホログラフィーの読みは、研究中の立場であって確立した結論ではありません</strong>。制御された双対性の実例は漸近的 AdS に限られ、\(\Lambda>0\) の場合は未解決です。図は模式で、背景格子の歪ませ方は定量的な計量の描画ではなく、光の軌跡のみが弱場の屈折率 \(n=1+2\mu/r\) による数値積分です。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①物理は、もっと簡単に書けないのか</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②「ct = 一定」は、どこまで通用するか</a> ｜ 姉妹編：<a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーで、同じ軌跡が二通りに記帳できることを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'),
+      vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  var B=0.55;          // 衝突径数
+  var X0=-2.6, X1=2.6; // 光の走る範囲
+
+  // 弱場の屈折率 n(r) = 1 + 2μ/r における光線方程式
+  //   dv/ds = ∇⊥ ln n ≈ (∇n)⊥      （n ≈ 1）
+  //   ∇n = -(2μ/r²) r̂
+  function rayPath(mu){
+    var p=[X0,B], v=[1,0], ds=0.012, pts=[[p[0],p[1]]];
+    for(var k=0;k<900 && p[0]<X1;k++){
+      var r=Math.hypot(p[0],p[1]); if(r<0.18) r=0.18;
+      var gx=-(2*mu/(r*r))*(p[0]/r), gy=-(2*mu/(r*r))*(p[1]/r);
+      var dot=gx*v[0]+gy*v[1];
+      v[0]+=(gx-dot*v[0])*ds; v[1]+=(gy-dot*v[1])*ds;
+      var nv=Math.hypot(v[0],v[1]); v[0]/=nv; v[1]/=nv;
+      p[0]+=v[0]*ds; p[1]+=v[1]*ds;
+      pts.push([p[0],p[1]]);
+    }
+    return pts;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var mu=parseInt(sm.value,10)/1000; vm.textContent=mu.toFixed(3);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, pw=(w-gap)/2, top=26, bot=h-34, ph=bot-top;
+    var path=rayPath(mu);
+
+    function panel(x0,title,warped){
+      var cx=x0+pw/2, cy=(top+bot)/2, S=Math.min(pw/(2*2.7), ph/(2*1.25));
+      function PX(x){ return cx+x*S; }
+      function PY(y){ return cy-y*S; }
+
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x0+6,top,pw-12,ph); ctx.clip();
+      ctx.fillStyle='#fff'; ctx.fillRect(x0+6,top,pw-12,ph);
+
+      // 右パネル：屈折率の濃淡（場があることを示す）
+      if(!warped){
+        for(var k=16;k>=1;k--){
+          var rr=k*0.09;
+          ctx.beginPath(); ctx.arc(PX(0),PY(0), rr*S, 0, 6.2832);
+          ctx.fillStyle='rgba(47,93,107,'+(0.055*mu/0.03*(1-k/17)).toFixed(4)+')';
+          ctx.fill();
+        }
+      }
+
+      // 格子
+      ctx.strokeStyle = warped ? '#c4d2cf' : '#dde6e4';
+      ctx.lineWidth=1;
+      var GS=0.32, NG=11;
+      // 曲率描像：格子点を動径方向にずらす（模式）
+      function warp(x,y){
+        if(!warped) return [x,y];
+        var r=Math.hypot(x,y); if(r<0.12) r=0.12;
+        var f=1+(3.2*mu)/(r+0.22);
+        return [x*f, y*f];
+      }
+      for(var i=-NG;i<=NG;i++){
+        ctx.beginPath();
+        for(var j=-NG*2;j<=NG*2;j++){
+          var q=warp(i*GS, j*GS*0.5);
+          if(j===-NG*2) ctx.moveTo(PX(q[0]),PY(q[1])); else ctx.lineTo(PX(q[0]),PY(q[1]));
+        }
+        ctx.stroke();
+        ctx.beginPath();
+        for(var j2=-NG*2;j2<=NG*2;j2++){
+          var q2=warp(j2*GS*0.5, i*GS);
+          if(j2===-NG*2) ctx.moveTo(PX(q2[0]),PY(q2[1])); else ctx.lineTo(PX(q2[0]),PY(q2[1]));
+        }
+        ctx.stroke();
+      }
+
+      // 天体
+      ctx.fillStyle='#3c4a4e';
+      ctx.beginPath(); ctx.arc(PX(0),PY(0), Math.max(3, 60*mu), 0, 6.2832); ctx.fill();
+
+      // 質量が無ければ通ったはずの直線
+      ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(PX(X0),PY(B)); ctx.lineTo(PX(X1),PY(B)); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 光の軌跡（左右でまったく同じ配列）
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+      for(var t=0;t<path.length;t++){
+        var px=PX(path[t][0]), py=PY(path[t][1]);
+        if(t===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1; ctx.strokeRect(x0+6,top,pw-12,ph);
+      ctx.fillStyle='#1f6f74';
+      ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='left'; ctx.fillText(title, x0+8, top-9);
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(warped?'格子そのものが歪んでいる':'格子は正方形のまま。場（影）がある', cx, bot+20);
+    }
+
+    panel(0, '① 曲率として記帳する', true);
+    panel(pw+gap, '② 平坦時空＋場として記帳する', false);
+
+    // 偏向角
+    var n=path.length-1;
+    var vx=path[n][0]-path[n-1][0], vy=path[n][1]-path[n-1][1];
+    var defl=Math.atan2(vy,vx)*180/Math.PI;
+    ro.innerHTML = (mu<0.001)
+      ? '質量ゼロ。光はまっすぐ進み、左右の絵は同一です。<b>質量を上げてください。</b>'
+      : 'μ = <b>'+mu.toFixed(3)+'</b> ｜ 偏向角 <b>'+Math.abs(defl).toFixed(1)+'°</b>'
+        +'（弱場の一次近似 4μ/b = '+(4*mu/B*180/Math.PI).toFixed(1)+'°。数値積分は高次も含むので少し大きく出ます）｜ '
+        +'<b>赤い軌跡は左右で完全に同一の配列です。</b>違うのは背景の描き方だけ ── そして観測できるのは赤い線だけ。';
+  }
+
+  sm.addEventListener('input', draw);
+  document.getElementById('b0').addEventListener('click', function(){ sm.value=0; draw(); });
+  document.getElementById('b1').addEventListener('click', function(){ sm.value=55; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
