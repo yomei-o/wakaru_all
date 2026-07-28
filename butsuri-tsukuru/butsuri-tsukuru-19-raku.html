@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>こっちのほうが、計算が楽だ ── 物理を作る 最終回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button.bug{background:#a83a22;}
+  .controls button:active{transform:translateY(1px);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e4f0e8;color:#1d5236;}
+  .readout.bad{background:#fbf0ec;color:#8a2f18;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ink);border-radius:3px;background:#f2f5f3;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .fin{margin:34px 0 0;padding:26px 30px;border:2px solid var(--ink);border-radius:3px;background:#fdfefc;text-align:center;}
+  .fin .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.24em;color:var(--ink-soft);font-weight:700;margin-bottom:10px;}
+  .fin p{margin:8px 0;} .fin a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fin,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">最終回（第 19 回）／ こっちのほうが、計算が楽だ</span></div>
+  <p class="eyebrow">18回ぶんの棚卸し ── 新しい物理は出なかった。出たのは、間違え方の台帳と、道具が3つ</p>
+  <h1>こっちのほうが、計算が楽だ
+    <span class="sub">このシリーズは「未解決の物理を作りにいく」という建前で始まりました。<br><strong>新しい物理は、一つも出ていません。</strong>そこは最初に書いておきます。<br>出たのは、閉まった扉が4枚、通った計算が1つ、反証可能な数字が1つ。<br>そしてもう一つ ── <em>どういう書き方をすると間違えにくいか</em>の記録が残りました。それが最後の話です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：これまでの回。とくに第1回・第11回・第17回</span>
+    <span>この回の芯：不変量が付く表現は、壊れた瞬間が分かる</span>
+  </div>
+
+  <p class="lead">最終回なので、成果を数えます。<strong>新しい物理：0。</strong>18回やって、人類が知らない式は一つも出ませんでした。<br>ただし空手でもありません。<em>否定を4つ確定させ、既知の結果を1つ自分で再導出し、反証可能な数字を1つ作った。</em>そして最も再利用できるものは、たぶんそこではありません ── <strong>自分がどこで間違えたかの台帳</strong>です。<br>台帳を並べると、はっきりした偏りが出ました。<em>間違いは物理の難しさに比例していませんでした。</em>比例していたのは、<strong>表現に規約がいくつあるか</strong>でした。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>18回の棚卸し</h2>
+
+  <table class="tbl">
+    <tr><th style="width:22%">種類</th><th style="width:10%">数</th><th>中身</th></tr>
+    <tr><td><strong>閉まった扉</strong></td><td class="c ok">4</td><td>
+      <a href="butsuri-tsukuru-13-omomi.html">第13回</a> BMS₄ に中心電荷は入らない（\(\dim H^2=0\)）／
+      <a href="butsuri-tsukuru-14-kazoenai.html">第14回</a> 係数は物質の自由度からは出ない／
+      <a href="butsuri-tsukuru-15-kabe.html">第15回</a> 壁は第1回の定理だった／
+      <a href="butsuri-tsukuru-16-moreru.html">第16回</a> 創発は重力で漏れる</td></tr>
+    <tr><td><strong>通った計算</strong></td><td class="c ok">1</td><td>
+      <a href="butsuri-tsukuru-17-suisei.html">第17回</a> 平坦格子で水星 42.9807 秒角/世紀、GR 比 1.0000</td></tr>
+    <tr><td><strong>反証可能な数字</strong></td><td class="c ok">1</td><td>
+      <a href="butsuri-tsukuru-18-kesshaku.html">第18回</a> 112 PeV（ただし表の一マスぶん）</td></tr>
+    <tr class="mark"><td><strong>新しい物理</strong></td><td class="c bad">0</td><td>ゼロです。ごまかしません</td></tr>
+  </table>
+
+  <p>第1回の総当たりが \(p=0.67\) で終わったのと、同じ結末です。<em>あのとき「否定は情報だ」と書いたので、その約束は守ります</em> ── 4枚の扉は成果に数えます。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>間違え方の台帳</h2>
+
+  <p>ここが本題です。<strong>18回で出したバグを、全部並べます。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:16%">回</th><th style="width:20%">表現の重さ</th><th style="width:30%">バグ</th><th>誰が捕まえたか</th></tr>
+    <tr><td>第1回</td><td>中（次元行列）</td><td>\(c,\hbar,G\) の核が自明だった</td><td class="ok">自力（例を差し替え）</td></tr>
+    <tr><td>第3回</td><td>軽</td><td>弱場の外挿を強場に伸ばした</td><td class="ok">自力（範囲を制限）</td></tr>
+    <tr><td>第8回</td><td>軽</td><td>閾値幅と FWHM の混同</td><td class="ok">自力</td></tr>
+    <tr><td>第9回</td><td>軽</td><td>\(10^{-122}\) の出典を取り違え</td><td class="bad">読者（GitHub 上で指摘）</td></tr>
+    <tr><td>第12回</td><td>軽</td><td>格子の丸めが数値に混入</td><td class="ok">自力</td></tr>
+    <tr class="mark"><td><strong>第11回</strong></td><td class="bad"><strong>重（BMS 中心電荷）</strong></td><td class="bad"><strong>規約の混在。\(\sqrt{12}\) 倍</strong></td><td class="bad"><strong>陽性対照</strong></td></tr>
+    <tr><td>第16回 前段</td><td>中（文献依存）</td><td>検索要約の数値を信用（21倍 → 実は1000倍）</td><td class="bad">原典</td></tr>
+    <tr><td>第17回</td><td>軽（ODE 4本）</td><td>\(2\pi\) の巻き戻し漏れ</td><td class="ok">陽性対照（即座に切り分け）</td></tr>
+    <tr><td>第17回</td><td>軽</td><td>桁落ちで差分が壊れる</td><td class="ok">見積りで説明</td></tr>
+    <tr><td>第18回</td><td>軽</td><td>タイトルが内容より広い</td><td class="bad">読者</td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">台帳から読めること</div>
+    <p style="margin:6px 0 0">自力で気づけなかったバグは、<strong>形式論が重い回か、文献に依存した回に集中しています。</strong></p>
+    <p style="margin:8px 0 0">いっぽう常微分方程式4本の回で出たのは、<em>帳簿</em>と<em>丸め</em>だけ ── <strong>物理のバグは1件も出ていません。</strong>出る余地が無いからです。</p>
+  </div>
+
+  <p>\(\sqrt{12}\) の件がいちばん分かりやすい例です。BMS₃ の中心電荷を扱った回で、<em>代数を \(c/12\) 規約で書きながら公式を別規約で使う</em>という混在をやりました。エントロピーが 3.46 倍過大になっていたのに、式を眺めても分かりません。</p>
+
+  <p>対して第17回のバグは、近日点の方位角を \(\pi\) 以内に畳んで \(2\pi\) を落としただけ。<strong>物理はどこも間違っていませんでした。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>効いた道具は、3つだけ</h2>
+
+  <table class="tbl">
+    <tr><th style="width:26%">道具</th><th>何を捕まえたか</th></tr>
+    <tr><td><strong>陽性対照</strong><br><span style="font-size:12px">答えが分かっている場合で先に試す</span></td><td>\(\sqrt{12}\)（第11回）。\(2\pi\)（第17回 ── 光の曲がりが先に 1.75119 に合っていたので、積分器ではなく記録側だと絞れた）。第13回の \(\dim H^2=0\) も、bms₃ で \(m^3-m\) が出ることを先に確かめたから信用できた</td></tr>
+    <tr><td><strong>原典を読む</strong><br><span style="font-size:12px">要約で済ませない</span></td><td>21倍 → 1000倍（第16回 前段）。Solodukhin の式を自分で評価して \(48\pi\)（要約は \(12\pi\) と書いていた）。BMS-Cardy の規約（第11回）</td></tr>
+    <tr><td><strong>主張を数字に変える</strong><br><span style="font-size:12px">「矛盾しない」で止めない</span></td><td>第2回の「矛盾しません」→ \(n=2\) で3桁の余裕。第12回の「係数が出ない」→ 1ビットあたり 2.773 プランク面積。第17回の「一語が足りない」→ 1/3。そして 112 PeV</td></tr>
+  </table>
+
+  <p>物理の知識が増えて改善したのではありません。<em>3つとも作法です。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>なぜ平坦座標が楽なのか ── 不変量が付く</h2>
+
+  <p>第17回で使った形をもう一度。\(F=g^{00}\) の絶対値、\(G=g^{ij}\) の係数として</p>
+
+  $$H=\tfrac12\bigl(-E^2F+|\vec p\,|^2G\bigr)=-\tfrac12$$
+
+  <p>右辺が定数です。<strong>正しく積分していれば、\(H\) は動きません。</strong>だから積分中ずっと自己検査ができます。</p>
+
+  <div class="lab">
+    <span class="tag">組み込みの検算（第17回のコードで確認）</span>
+<pre>  出発時の H            = -0.4999999999999999
+  6周（60000 ステップ）後の H のずれ最大 = <span class="st">2.220e-16</span>
+
+  <span class="cm"># つまり倍精度の限界まで動かない。壊れた瞬間が分かる。</span></pre>
+  </div>
+
+  <p>クリストッフェル記号で測地線を積分すると、この不変量が<em>自動では付きません</em>。別に \(g_{\mu\nu}\dot x^\mu\dot x^\nu\) を作って監視する必要があります。</p>
+
+  <div class="fig">
+    <div class="cap">図：\(|H+1/2|\) をステップごとに見る。正しい式なら \(10^{-16}\) に張り付いたまま。<b>ボタンで式にわざと間違いを入れると、即座に立ち上がります</b> ── これが「壊れた瞬間が分かる」の意味です</div>
+    <canvas id="cv" width="1120" height="380"></canvas>
+    <div class="controls">
+      <button id="b0">正しい式</button>
+      <button id="b1" class="bug">\(F'\) の符号を反転</button>
+      <button id="b2" class="bug">\(G'\) を 1% ずらす</button>
+      <button id="b3" class="bug">\(\dot x\) の \(G\) を落とす</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#2f7d5a"></span>正しい式</span>
+      <span><span class="swatch" style="background:#a83a22"></span>間違いを入れた式</span>
+    </div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">ただし、不変量が拾えないバグもあります</span>
+    第17回の \(2\pi\) のバグは、<strong>\(H\) をまったく破りません。</strong>積分は完璧に正しく、記録の側が壊れていたからです。<br>だから道具は2つ要ります ── <em>不変量は「式」のバグを捕まえ、陽性対照は「帳簿」のバグを捕まえる。</em>今日の2件は、ちょうど1件ずつでした。<strong>片方だけでは足りません。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>だから、楽な方を取っていい</h2>
+
+  <p>ここが最終回の結論です。そして根拠は好みではなく、<strong>定理</strong>です。</p>
+
+  <div class="keybox">
+    <div class="lbl">座標は自由</div>
+    <p style="margin:6px 0 0">\(c=\) 一定の座標系と、\(c\cdot t=\) 一定（平坦背景＋可変な進み方）の座標系は、<strong>同じ物理</strong>です。微分同相不変性なので、永久に破れません。</p>
+    <p style="margin:8px 0 0">第17回でそれを数値で踏みました ── 平坦格子で 42.9807 秒角/世紀。標準の一般相対論と同じ。</p>
+    <p style="margin:8px 0 0"><em>同じなら、間違えにくい方を使えばいい。</em></p>
+  </div>
+
+  <p>そして「間違えにくい」には中身があります ── <strong>三添字の縮約をしない。規約の選択肢が少ない。不変量が自動で付く。</strong>この3つです。</p>
+
+  <p>じっさい第17回で必要だったのは、スカラー関数2つとその一階微分、常微分方程式4本だけでした。<em>クリストッフェル記号（4次元で 40 成分）も、共変微分も、座標近傍も出てきません。</em></p>
+
+  <div class="aside">
+    <span class="tag">これは新しい主張ではありません</span>
+    <a href="https://link.aps.org/doi/10.1103/RevModPhys.29.363">Dicke（Rev. Mod. Phys. 29, 363, 1957）</a>が「Gravitation without a Principle of Equivalence」で、<strong>平坦な絶対空間に屈折率を置く</strong>形式を作り、光の曲がりが観測と合うことを示しています。分類名も付いていて、conservative VSL。<br>そして数値相対論は毎日、直交格子で解いています。<em>格子は歪みません。歪むのは格子の上の場です。</em><br>この回が言えるのは「その表現は、規約が少ないぶん壊れにくい」という<strong>作業上の性質</strong>だけです。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>決めなくていいことは、決めない</h2>
+
+  <p>もう一つ、このシリーズが最後に受け取った整理があります。<em>離散か連続かを決める必要はない。</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:32%"></th><th style="width:24%">成立の強さ</th><th>いつまで</th></tr>
+    <tr><td>座標系の同等性<br><span style="font-size:12px">\(c=\)一定 と \(c\cdot t=\)一定 は同じ</span></td><td class="ok">定理</td><td>永久</td></tr>
+    <tr><td>離散と連続の区別不能<br><span style="font-size:12px">CD とレコード</span></td><td>いまのところ</td><td class="bad">\(\sim10^{-3}M_{\rm Pl}\) まで。動く</td></tr>
+  </table>
+
+  <p>ここは正確にしておきます。<strong>信号処理の Nyquist は厳密ですが、時空の格子は厳密ではありません。</strong>カットオフ以下でも \((E/E_{\rm LV})^2\) の残差が出る ── <em>だから 112 PeV という数字が存在します。</em>厳密な区別不能なら、そんな数字は無い。</p>
+
+  <p>つまり ── <strong>「決めなくていい」は正しく、そしていつまでも正しいわけではない。</strong>期限が付いています。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>残っているもの</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>状態</th></tr>
+    <tr><td>\(1/4\) の由来</td><td class="bad">出ていない。第1回の定理により、\(G\) が次元を持つ以上そのままでは出ない（<a href="butsuri-tsukuru-15-kabe.html">第15回</a>）</td></tr>
+    <tr><td>地平面の Carrollian 理論</td><td class="bad">未構成（<a href="butsuri-tsukuru-08-naimono.html">第8回</a>・<a href="butsuri-tsukuru-11-basho.html">第11回</a>・<a href="butsuri-tsukuru-12-menseki.html">第12回</a>）</td></tr>
+    <tr><td>4次元の Cardy 型公式</td><td class="bad">中心電荷経由は閉じた。次元還元型は単独では効かない</td></tr>
+    <tr><td>刻みは物理的か</td><td>保留。境界は \(\sim10^{-3}M_{\rm Pl}\)、決着の一つは <strong>112 PeV</strong></td></tr>
+    <tr><td>Kerr を同じ形で書けるか</td><td class="bad">たぶん書けるが<em>未検証</em>。非対角項が要る</td></tr>
+    <tr><td>場そのものの発展</td><td class="bad">やっていない。数値相対論の難所は測地線ではなく拘束条件と安定性</td></tr>
+  </table>
+
+  <p>最後の2行は、このシリーズが手を付けていない場所です。<strong>「与えられた場の中の運動」は通りましたが、「場を作る側」は触っていません。</strong>そこは正直に空欄で残します。</p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす（最後の3問）</div>
+    <ol>
+      <li>\(H=\frac12(-E^2F+|p|^2G)\) が保存することを、運動方程式 \(\dot x_i=p_iG\)、\(\dot p_i=-\frac12(-E^2F'+|p|^2G')x_i/\rho\) から確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">\(\dot H=\frac12\left[-E^2F'\dot\rho+|p|^2G'\dot\rho\right]+G\,\vec p\cdot\dot{\vec p}\)。ここで \(\dot\rho=\frac{\vec x\cdot\dot{\vec x}}{\rho}=\frac{G\,\vec x\cdot\vec p}{\rho}\)、\(\vec p\cdot\dot{\vec p}=-\frac12(-E^2F'+|p|^2G')\frac{\vec x\cdot\vec p}{\rho}\)。代入すると第1項と第2項が<strong>ちょうど打ち消します</strong>。<em>この打ち消しが「組み込みの検算」の正体です。</em></div></details>
+      </li>
+      <li>4次元でクリストッフェル記号は何成分あるか。\(\Gamma^\mu_{\nu\rho}\) は下2つの添字について対称。
+        <details><summary>答えを見る</summary><div class="ans">\(4\times\frac{4\cdot5}{2}=\mathbf{40}\) 成分。各々が計量微分3項の和。<strong>ただし \(\partial_\lambda g^{\mu\nu}\) も同じ 40 成分</strong>なので、数だけなら得をしていません。得をするのは<em>三添字の縮約を書かずに済む</em>ことと、<em>不変量が付く</em>ことの2点です。</div></details>
+      </li>
+      <li>このシリーズで自力で気づけなかったバグは何回に出たか。共通点は何か。
+        <details><summary>答えを見る</summary><div class="ans">第9回（\(10^{-122}\) の出典）、第11回（\(\sqrt{12}\)）、第16回前段（21倍）、第18回（タイトル）。<strong>共通点：形式論が重いか、文献に依存しているか、文章の側。</strong>常微分方程式を回した回で出たのは帳簿と丸めだけで、しかも陽性対照で即座に捕まりました。<em>間違いは物理の難しさではなく、規約の数に比例していました。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">シリーズ全体で分かったこと</h2>
+    <p><strong>新しい物理は0。</strong> 18回やって、人類が知らない式は出ませんでした。出たのは閉まった扉4枚（\(\dim H^2=0\)、係数は自由度から出ない、壁は第1回の定理、創発は重力で漏れる）、通った計算1つ（42.9807 秒角/世紀）、反証可能な数字1つ（112 PeV、ただし表の一マス）。<em>第1回で「否定は情報だ」と書いたので、4枚は成果に数えます。</em></p>
+    <p><strong>間違いは、物理の難しさに比例しなかった。</strong> 自力で気づけなかったバグは、形式論が重い回（第11回の \(\sqrt{12}\)）と文献に依存した回（第16回前段の 21倍）と文章の側（第9回・第18回）に集中。<em>常微分方程式4本の回で出たのは帳簿（\(2\pi\)）と丸め（桁落ち）だけで、物理のバグは1件も出ていません。</em>比例していたのは<strong>表現に規約がいくつあるか</strong>でした。</p>
+    <p><strong>効いた道具は3つ、すべて作法。</strong> ①<em>陽性対照</em>（答えの分かっている場合で先に試す）── \(\sqrt{12}\) と \(2\pi\) を両方これで捕まえた。②<em>原典を読む</em> ── 検索要約の 21倍、Solodukhin の \(48\pi\)。③<em>主張を数字に変える</em> ──「矛盾しない」を3桁の余裕に、「係数が出ない」を 2.773 プランク面積に。<strong>物理の知識が増えて改善したのではありません。</strong></p>
+    <p><strong>不変量が付く表現は、壊れた瞬間が分かる。</strong> \(H=\frac12(-E^2F+|p|^2G)=-\frac12\) が積分中ずっと \(2.2\times10^{-16}\) 以内。クリストッフェル経由にはこれが自動で付かない。<em>ただし \(2\pi\) のバグは \(H\) を破りません</em> ── 不変量は「式」のバグを、陽性対照は「帳簿」のバグを捕まえる。<strong>道具は2つ必要でした。</strong></p>
+    <p><strong>だから、楽な方を取っていい。</strong> \(c=\)一定 と \(c\cdot t=\)一定 は同じ物理（微分同相不変性、永久に破れない定理）。同じなら、三添字の縮約が無く、規約が少なく、不変量が付く方を使えばいい。<em>これは新しい主張ではありません</em> ── Dicke が 1957 年に平坦背景＋屈折率で光の曲がりを合わせており、数値相対論は毎日直交格子で解いています。この回が言えるのは<strong>作業上の性質</strong>だけです。</p>
+    <p><strong>決めなくていいことは、決めない。ただし期限が付く。</strong> 座標系の同等性は定理で永久。離散と連続の区別不能は<em>いまのところ</em>で、境界は \(\sim10^{-3}M_{\rm Pl}\)。信号処理の Nyquist は厳密だが時空の格子は厳密でなく、\((E/E_{\rm LV})^2\) の残差が出る ── <strong>だから 112 PeV という数字が存在します。</strong>厳密に区別不能なら、そんな数字は無い。</p>
+    <p style="margin-bottom:0"><strong>そして空欄。</strong> \(1/4\) の由来、地平面の Carrollian 理論、4次元の Cardy、Kerr を同じ形で書けるか、そして<em>場そのものの発展</em>。最後のが一番大きい ── このシリーズは「与えられた場の中の運動」は通しましたが、「場を作る側」には触っていません。<strong>数値相対論の難所は測地線ではなく、拘束条件と安定性のほうです。</strong></p>
+  </div>
+
+  <div class="fin">
+    <div class="lbl">物理を作る ── 完</div>
+    <p>本編 19 話＋番外編 3 話。<strong>新しい物理は出ませんでしたが、間違え方の台帳は残りました。</strong></p>
+    <p>姉妹編「わかる」が<em>既知の物理を解説する</em>のに対し、こちらは<em>作業そのものを見せる</em>という建前でした。見せるものが失敗と訂正ばかりになったのは、<strong>予定どおりです。</strong></p>
+    <p style="margin-bottom:0"><a href="index.html">目次に戻る</a> ｜ 最初から読む：<a href="butsuri-tsukuru-01-hi.html">第1回 まだ誰も取っていない比を、機械に探させる</a></p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ最終回（第19回）、物理好きの高校生・大学生向け読み物です。</p>
+    <p>確立した内容：測地線のハミルトニアン形式 \(H=\frac12g^{\mu\nu}p_\mu p_\nu\) とその保存、クリストッフェル記号の成分数、等方座標のシュワルツシルト解、微分同相不変性、Dicke の平坦背景＋屈折率による形式（Rev. Mod. Phys. 29, 363, 1957）、数値相対論が直交格子を用いること、Nyquist の標本化定理、および本シリーズ各回で引用した文献。<br>本稿の数値（\(H\) のずれ \(2.2\times10^{-16}\)、クリストッフェル 40 成分）は著者が計算・検算したものです。<strong>バグの台帳は本シリーズの実際の作業記録であり、各回の記事および訂正コミットに対応します。</strong><br><strong>「間違いは表現の規約の数に比例する」という読みは、本シリーズの著者による整理であり、統計的な主張ではありません</strong> ── 標本は十数件で、回ごとに主題も難易度も違います。示せるのは「今回はそういう偏りが出た」までです。<br>「平坦座標＋ハミルトニアン形式が楽である」という性質も、<em>与えられた計量の中で粒子や光の運動を解く場合</em>に限った話です。場の方程式そのものを発展させる問題（拘束条件、ゲージ、安定性、特異点や地平面の扱い）には、この回の議論は及びません。Kerr など非対角項を持つ計量での検証も行っていません。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a>｜<a href="butsuri-tsukuru-13-omomi.html">第13回</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>｜<a href="butsuri-tsukuru-15-kabe.html">第15回</a>｜<a href="butsuri-tsukuru-16-moreru.html">第16回</a>｜<a href="butsuri-tsukuru-17-suisei.html">第17回</a>｜<a href="butsuri-tsukuru-18-kesshaku.html">第18回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、式を壊すと検算が即座に反応することを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;   // 0 正しい, 1 F' 反転, 2 G' 1%, 3 xdot の G 落とし
+
+  // PPN の弱場（m/a を誇張しない。水星に近い設定で十分）
+  var MM=0.004, ECC=0.35, BETA=1.0, GAM=1.0, ASEMI=1.0;
+
+  function FG(rho){
+    var U=MM/rho, dU=-MM/(rho*rho);
+    var g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;
+    var dF=-(-2+4*BETA*U)*dU/(g00*g00);
+    var dG=-(2*GAM)*dU/(gij*gij);
+    if(MODE===1) dF=-dF;            // 符号を反転
+    if(MODE===2) dG=dG*1.01;        // 1% ずらす
+    return {F:1/g00, G:1/gij, dF:dF, dG:dG};
+  }
+  function rhs(x,y,px,py,E){
+    var rho=Math.sqrt(x*x+y*y), q=FG(rho), p2=px*px+py*py;
+    var k=-0.5*(-E*E*q.dF+p2*q.dG)/rho;
+    var g = (MODE===3) ? 1.0 : q.G;   // xdot の G を落とす
+    return [px*g, py*g, k*x, k*y];
+  }
+  function step(s,h,E){
+    var k1=rhs(s[0],s[1],s[2],s[3],E);
+    var k2=rhs(s[0]+0.5*h*k1[0],s[1]+0.5*h*k1[1],s[2]+0.5*h*k1[2],s[3]+0.5*h*k1[3],E);
+    var k3=rhs(s[0]+0.5*h*k2[0],s[1]+0.5*h*k2[1],s[2]+0.5*h*k2[2],s[3]+0.5*h*k2[3],E);
+    var k4=rhs(s[0]+h*k3[0],s[1]+h*k3[1],s[2]+h*k3[2],s[3]+h*k3[3],E);
+    var o=[]; for(var i=0;i<4;i++) o.push(s[i]+h*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+    return o;
+  }
+  function Hval(s,E){
+    var rho=Math.sqrt(s[0]*s[0]+s[1]*s[1]);
+    var U=MM/rho, g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;   // 検算は常に正しい式で
+    return 0.5*(-E*E/g00 + (s[2]*s[2]+s[3]*s[3])/gij);
+  }
+
+  function run(){
+    var rp=ASEMI*(1-ECC), vp=Math.sqrt(MM*(1+ECC)/(ASEMI*(1-ECC)));
+    var U=MM/rp, g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;
+    var A2=g00, B4=gij;
+    var E=A2/Math.sqrt(A2-vp*vp*B4);
+    var py=vp*B4*E/A2;
+    var s=[rp,0,0,py];
+    var T=2*Math.PI*Math.sqrt(ASEMI*ASEMI*ASEMI/MM), N=4000, h=T/N;
+    var dev=[];
+    for(var i=0;i<N*2;i++){
+      s=step(s,h,E);
+      if(i%8===0) dev.push(Math.abs(Hval(s,E)+0.5));
+    }
+    return dev;
+  }
+
+  function draw(){
+    var dev=run();
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=76,R=W-26,T=28,B=H-56;
+    var YMIN=-17, YMAX=1;
+    function X(i){ return L+i/(dev.length-1)*(R-L); }
+    function Y(v){ var l=Math.max(YMIN,Math.min(YMAX,Math.log10(Math.max(v,1e-18))));
+                   return B-(l-YMIN)/(YMAX-YMIN)*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=YMIN;y<=YMAX;y+=3){
+      ctx.beginPath(); ctx.moveTo(L,Y(Math.pow(10,y))); ctx.lineTo(R,Y(Math.pow(10,y))); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText('10^'+y,L-9,Y(Math.pow(10,y))+5);
+    }
+    // 倍精度の床
+    ctx.strokeStyle='#c3ceca'; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(2.2e-16)); ctx.lineTo(R,Y(2.2e-16)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#8a9694'; ctx.textAlign='left'; ctx.fillText('倍精度の床 2.2e-16',L+6,Y(2.2e-16)-7);
+
+    ctx.strokeStyle = MODE===0 ? '#2f7d5a' : '#a83a22';
+    ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i=0;i<dev.length;i++){
+      if(i===0) ctx.moveTo(X(i),Y(dev[i])); else ctx.lineTo(X(i),Y(dev[i]));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left'; ctx.fillText('|H + 1/2|',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('積分ステップ（2周ぶん）',(L+R)/2,H-14);
+
+    var mx=0; for(var k=0;k<dev.length;k++) mx=Math.max(mx,dev[k]);
+    var names=['正しい式',"F' の符号を反転","G' を 1% ずらす","xdot の G を落とす"];
+    ro.className = MODE===0 ? 'readout' : 'readout bad';
+    ro.innerHTML='<b>'+names[MODE]+'</b> ｜ \\(|H+1/2|\\) の最大 = <b>'+mx.toExponential(2)+'</b><br>'
+      + (MODE===0
+        ? '<span style="color:#1d5236">→ 床の数倍にとどまる（8000ステップぶんの累積）。式は正しい</span>'
+        : '<span style="color:#8a2f18">→ 床から <b>'+(mx/2.2e-16).toExponential(1)+'</b> 倍立ち上がった。'
+          + '物理を知らなくても、式が壊れていると分かる</span>');
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+
+  [['b0',0],['b1',1],['b2',2],['b3',3]].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('click',function(){ MODE=p[1]; draw(); });
+  });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
