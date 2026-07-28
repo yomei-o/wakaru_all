@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>壁は、第1回が証明していた ── 物理を作る 第15回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ink);border-radius:3px;background:#f2f5f3;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 15 回 ／ 壁は、第1回が証明していた</span></div>
+  <p class="eyebrow">「\(G\) はどこから来るのか」── この問いは、そもそも答えを持てない形をしていた</p>
+  <h1>壁は、第1回が証明していた
+    <span class="sub">前回で、残ったのは「\(G\) そのものをどこから持ってくるか」だけになりました。<br>そこを掘ろうとして、手が止まります ── <em>この問いは well-posed ではありません。</em><br>第1回で確かめたことを、自分の問いに当ててみればよかった。<strong>次元を持つ量は、予言できない。</strong><br>直すと \(\alpha_G=5.906\times10^{-39}\)。そしてこちらには、<em>ちゃんと機構があります。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第1回（次元と無次元量）、対数、指数</span>
+    <span>この回の芯：19桁は \(1/57\) から出る</span>
+  </div>
+
+  <p class="lead">第13回で扉が閉まり、第14回でもう一枚閉まりました。残ったのは \(G\) そのものです。<br>掘りに行って、すぐ壁に当たりました。しかもその壁は<em>今回作られたものではありません</em> ── <strong>第1回でこちらが自分で証明していたもの</strong>でした。次元を持つ量は、単位を変えれば値が変わる。だから「\(G\) の値がなぜこれか」には答えがありません。<br>問いを直すと、話が動きます。そして直した形には、驚くほど素直な機構があります ── <em>19桁の小ささが、\(1/57\) という平凡な数から出てくる。</em><br>この回は、第1回への五度目の帰還です。ただし今回は、壁にぶつかったのではなく、<strong>壁の正体が分かった</strong>回です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>自分の問いを、第1回にかける</h2>
+
+  <p>第1回でやったのは、次元解析の総当たりでした。25個の物理量から作れる無次元の比を全部（162,931個）列挙して、意味のありそうな値になるものを探した ── 結果は \(p=0.67\) で、ほぼ全部が偶然でした。</p>
+
+  <p>あの回で確かめたことのうち、いま効くのはこちらです。</p>
+
+  <div class="keybox">
+    <div class="lbl">第1回で確かめたこと</div>
+    <p style="margin:6px 0 0"><strong>次元を持つ量の「値」は、物理の情報を持たない。</strong>単位を変えれば変わってしまうので。<em>物理が言えるのは、無次元量についてだけ。</em></p>
+  </div>
+
+  <p>これを自分の問いに当てます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">問い</th><th>well-posed か</th></tr>
+    <tr><td>\(G=6.674\times10^{-11}\) はなぜこの値か</td><td class="bad">ならない。単位を変えれば 1 にできる</td></tr>
+    <tr><td>プランク長はなぜ \(1.6\times10^{-35}\) m か</td><td class="bad">ならない。同じ理由</td></tr>
+    <tr class="mark"><td>\(Gm_p^2/\hbar c\) はなぜ \(5.9\times10^{-39}\) か</td><td class="ok"><strong>なる</strong></td></tr>
+  </table>
+
+  <p>第14回の末尾で「残っているのは \(G\) そのものをどこから持ってくるかだけ」と書きましたが、<em>その書き方自体が間に合っていませんでした。</em>持ってくるものは \(G\) ではありません。</p>
+
+  <div class="aside">
+    <span class="tag">同じ罠を、第12回でも踏んでいた</span>
+    第12回で「セルの一辺 \(a\) と1セルの状態数 \(q\) は個別には決まらず、\(\log q/a^2\) だけが決まる」と書きました。あれは<em>まさにこの構造</em>です。\(a\) は次元を持つので決まらない。決まるのは無次元の組み合わせだけ。<br>第14回では「\(\sigma\) と \(G\) の比だけが決まる」と書きました。それも同じ。<strong>三回続けて同じ形に出会っていたのに、問いのほうを直していませんでした。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>直した形 ── 重力の微細構造定数</h2>
+
+  <p>電磁気には \(\alpha=e^2/4\pi\varepsilon_0\hbar c\simeq1/137\) があります。重力で同じことをすると ──</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    $$\alpha_G=\frac{Gm_p^2}{\hbar c}$$
+    <div class="lbl">数値（CODATA）</div>
+    <p style="margin:4px 0">\(G=6.67430\times10^{-11}\), \(m_p=1.67262192369\times10^{-27}\,\mathrm{kg}\), \(\hbar=1.054571817\times10^{-34}\), \(c=2.99792458\times10^8\)</p>
+    $$\alpha_G=5.9061\times10^{-39}$$
+    <div class="lbl">同じものを、質量の比で書く</div>
+    $$m_{\rm Pl}=\sqrt{\frac{\hbar c}{G}}=2.176434\times10^{-8}\,\mathrm{kg}=1.2209\times10^{19}\,\mathrm{GeV}$$
+    $$\frac{m_p}{m_{\rm Pl}}=7.6851\times10^{-20},\qquad \left(\frac{m_p}{m_{\rm Pl}}\right)^2=5.9061\times10^{-39}\;\checkmark$$
+  </div>
+
+  <p>つまり「重力はなぜこんなに弱いのか」は、<strong>「陽子はなぜプランク質量より 19 桁も軽いのか」</strong>と同じ問いです。\(G\) の話ではなく、<em>質量の階層の話</em>でした。</p>
+
+  <p>そしてこちらの形には、機構があります。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>19 桁は、どこから来るのか ── 次元転換</h2>
+
+  <p>陽子の質量は、クォークの質量からは来ません。ほとんど全部が<strong>強い相互作用のエネルギー</strong>です。そしてそのスケール \(\Lambda_{\rm QCD}\) は、<em>もともと理論に入っていない数</em>です。</p>
+
+  <p>QCD のラグランジアンには質量スケールがありません。あるのは無次元の結合定数 \(\alpha_s\) だけ。ところが \(\alpha_s\) はエネルギーで走り、<strong>ある低いエネルギーで発散します</strong>。その発散する場所が \(\Lambda_{\rm QCD}\) ── <em>無次元の数から、次元を持つ数が生まれる</em>。これを次元転換と呼びます。</p>
+
+  <div class="keybox">
+    <div class="lbl">1ループのランニング</div>
+    $$\frac{1}{\alpha_s(\mu)}=\frac{b_0}{2\pi}\ln\frac{\mu}{\Lambda},\qquad b_0=11-\frac23n_f$$
+    <p style="margin:8px 0 0">これを \(\Lambda\) について解くと ──</p>
+    $$\boxed{\;\Lambda=\mu\,\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(\mu)}\right)}$$
+  </div>
+
+  <p><strong>指数の中に \(1/\alpha_s\) が入っています。</strong>だから \(\alpha_s\) が \(1/50\) 程度の平凡な数でも、\(\Lambda/\mu\) は途方もなく小さくなれる。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>やってみる</h2>
+
+  <p>入力はひとつだけです ── 測定された \(\alpha_s(M_Z)=0.1179\)。ここから \(\Lambda\) を出し、プランクスケールまで走らせます。</p>
+
+  <div class="lab">
+    <span class="tag">計算 ── 測定値ひとつから、19 桁まで</span>
+<pre><span class="cm"># 入力: alpha_s(M_Z) = 0.1179, M_Z = 91.1876 GeV, n_f = 5, 1ループ</span>
+  b0 = 11 - 2*5/3 = <span class="hi">7.6667</span>
+
+<span class="cm"># 下向き: Lambda を出す</span>
+  Lambda = M_Z exp(-2pi/(b0 * 0.1179)) = <span class="st">0.0873 GeV = 87.3 MeV</span>
+
+<span class="cm"># 上向き: 同じ直線をプランクスケールまで伸ばす</span>
+  ln(M_Pl/Lambda) = ln(1.2209e19 / 0.0873) = <span class="hi">46.39</span>
+  alpha_s(M_Pl)   = 2pi/(b0 * 46.39) = 0.01767 = <span class="st">1/56.6</span>
+
+<span class="cm"># 階層を読む</span>
+  Lambda / M_Pl = exp(-46.39) = <span class="st">7.15e-21</span>
+  観測の m_p/M_Pl              = <span class="st">7.685e-20</span>
+  ずれ = <span class="hi">10.7</span>  ←  m_p/Lambda = 938 MeV / 87.3 MeV = <span class="hi">10.7</span>
+
+  <span class="st">=> 20桁の階層が、1/56.6 という数から出た。</span>
+  <span class="cm">   残るずれは「陽子の質量が Lambda の何倍か」だけ。O(10) のハドロン物理。</span></pre>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">これは予言ではありません</span>
+    ずれが \(m_p/\Lambda\) に一致するのは<strong>恒等式</strong>で、独立な検証ではありません。この計算がやったのは<em>予言ではなく翻訳</em>です ── 「なぜ \(10^{-20}\) か」という問いを、「なぜ \(1/\alpha_s(M_{\rm Pl})\simeq57\) か」に書き換えた。<br>ただし、これは意味のある書き換えです。<strong>20桁の謎が、\(O(50)\) の数ひとつになった。</strong>説明すべき量の大きさが、指数から線形に落ちています。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>指数のてこ</h2>
+
+  <p>指数に入れる、ということは<strong>感度も指数になる</strong>ということです。図で動かしてみてください。</p>
+
+  <div class="fig">
+    <div class="cap">図：\(1/\alpha_s\) は \(\ln\mu\) の直線。ゼロを切るところが \(\Lambda_{\rm QCD}\)。プランクスケールでの傾き（＝結合の値）をわずかに変えると、<b>交点が何桁も動きます</b>。赤い点は測定値 \(\alpha_s(M_Z)=0.1179\)</div>
+    <canvas id="cv" width="1120" height="400"></canvas>
+    <div class="controls">
+      <label>\(1/\alpha_s(M_{\rm Pl})\) = <span class="val" id="vi">56.6</span>
+        <input type="range" id="si" min="400" max="700" step="1" value="566"></label>
+      <button id="bf">測定値に合わせる（56.6）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#1f6f74"></span>\(1/\alpha_s(\mu)\)</span>
+      <span><span class="swatch" style="background:#a83a22"></span>測定値 \(\alpha_s(M_Z)=0.1179\)</span>
+      <span><span class="swatch" style="background:#8a9694"></span>\(\Lambda\)（直線がゼロを切る点）</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:24%">\(1/\alpha_s(M_{\rm Pl})\)</th><th style="width:24%">\(\ln(M_{\rm Pl}/\Lambda)\)</th><th style="width:26%">\(\Lambda\)</th><th>陽子質量なら</th></tr>
+    <tr><td>45</td><td>36.88</td><td class="bad">1180 GeV</td><td>陽子が \(10^4\) GeV 級</td></tr>
+    <tr><td>50</td><td>40.98</td><td class="bad">19.5 GeV</td><td>200 GeV 級</td></tr>
+    <tr class="mark"><td><strong>56.6</strong></td><td>46.39</td><td class="ok"><strong>87.3 MeV</strong></td><td><strong>938 MeV ✓</strong></td></tr>
+    <tr><td>60</td><td>49.17</td><td class="bad">5.39 MeV</td><td>58 MeV 級</td></tr>
+    <tr><td>65</td><td>53.27</td><td class="bad">0.0895 MeV</td><td>1 MeV 級</td></tr>
+  </table>
+
+  <p><strong>\(1/50\) から \(1/60\) ── 20% の変化で、\(\Lambda\) が 4 桁動きます。</strong></p>
+
+  <p>これは機構の長所と短所が同じところから出ている、という話です。<em>小ささを作れるのは指数だから。値が敏感なのも指数だから。</em>片方だけ取ることはできません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>では、何が説明されていないのか</h2>
+
+  <p>正直に線を引きます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:38%">量</th><th>機構はあるか</th></tr>
+    <tr><td>陽子質量 / プランク質量（\(10^{-20}\)）</td><td class="ok">ある。次元転換。ただし \(1/\alpha_s\simeq57\) が入力</td></tr>
+    <tr><td>\(\alpha_s(M_{\rm Pl})\simeq1/57\) 自体</td><td class="bad">無い。統一理論の話になる</td></tr>
+    <tr><td><strong>ヒッグス質量 / プランク質量</strong></td><td class="bad"><strong>無い ── これが本物の階層問題</strong></td></tr>
+    <tr><td>宇宙定数（\(10^{-122}\)）</td><td class="bad">無い。もっと悪い</td></tr>
+  </table>
+
+  <p>三行目が重要です。<strong>陽子は守られているが、ヒッグスは守られていません。</strong></p>
+
+  <p>陽子質量が小さいのは、QCD の結合が対数的にしか走らないおかげで<em>自動的に</em>指数的な小ささが出るからです。何も調整していません。いっぽうヒッグスの質量二乗はカットオフの二乗で補正を受けるので、<em>小さく保つには打ち消しが要ります</em>。「なぜ軽いのか」に自動的な答えがない ── これが階層問題です。</p>
+
+  <div class="aside">
+    <span class="tag">第2回とつながる</span>
+    第2回のアノマリー相殺と同じ構図です。<strong>守られている量と、守られていない量がある。</strong>守られている量（アノマリー係数、\(\Lambda_{\rm QCD}\)）は勝手に決まる。守られていない量（ヒッグス質量、宇宙定数）は、調整か機構が要る。<br>このシリーズが繰り返してきた「二値の的だけが情報を持つ」は、ここでは<em>「くりこみで守られているか、いないか」</em>という顔をしています。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>漸近安全性は、\(G\) をくれるのか</h2>
+
+  <p>くれません。ただし「くれない仕方」が示唆的です。</p>
+
+  <p>漸近安全性は、無次元にした結合 \(g=Gk^2\) が高エネルギーで固定点に行くという話です。Einstein–Hilbert 打ち切りでの値は ──</p>
+
+  <div class="calc">
+    <span class="tag">Reuter 固定点（Einstein–Hilbert 打ち切り）</span>
+    $$g_*=0.911,\qquad \lambda_*=0.160,\qquad g_*\lambda_*=0.146$$
+    <p style="margin:8px 0 0">\(g_*=Gk^2\) なので \(G(k)=g_*/k^2\)。\(k\to\infty\) で \(G\to0\)。</p>
+  </div>
+
+  <p>固定するのは \(G\) ではなく <strong>\(Gk^2\)</strong> です。無次元量。低エネルギーの \(G\) の値は「固定点からどこで抜けるか」で決まり、それは IR の入力です。</p>
+
+  <div class="keybox">
+    <div class="lbl">結局こうなっている</div>
+    <p style="margin:6px 0 0">漸近安全性が減らしてくれるのは<strong>自由パラメータの個数</strong>です。無限個の反項が有限個（関連方向の数）に落ちる。<em>けれど全体のスケールを与える1個は、必ず残ります。</em></p>
+    <p style="margin:8px 0 0">これは欠陥ではなく、第1回の結論そのものです ── <strong>スケールは予言できない。比だけが予言できる。</strong></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">固定点の数値について</span>
+    \(g_*=0.911,\ \lambda_*=0.160\) は打ち切りに依ります。別のスキームでは \(\lambda_*=1.85,\ g_*=58.73\) といった、桁の違う値も報告されています。<em>個別の値はスキーム依存で、比較的安定と言われるのは積 \(g_*\lambda_*\) のほうです。</em>ここでも安定なのは無次元の組み合わせで、単体の数ではありません。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>第1回に、五度目</h2>
+
+  <p>数えます。第1回 08 節の「\(S\propto A\) までは出るのに \(1/4\) だけが出ない」に、このシリーズは何度戻ったか ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:14%">回</th><th style="width:40%">戻り方</th><th>そのときの読み</th></tr>
+    <tr><td>第9回</td><td>予想を立てるとき</td><td>係数を埋めるには数える対象が要る</td></tr>
+    <tr><td>第11回</td><td>中心電荷を探して</td><td>探す場所が違うのかもしれない</td></tr>
+    <tr><td>第12回</td><td>面積則が自動で出たのに</td><td>次元解析ですらないのに、壁は同じ高さ</td></tr>
+    <tr><td>第14回</td><td>自由度を数えようとして</td><td>係数は物質の自由度からは決して出ない</td></tr>
+    <tr class="mark"><td><strong>第15回</strong></td><td><strong>\(G\) を掘ろうとして</strong></td><td><strong>この壁は、第1回が証明していた壁だった</strong></td></tr>
+  </table>
+
+  <div class="verdict">
+    <div class="lbl">五度目に分かったこと</div>
+    <p style="font-size:19px">\(1/4\) が出なかったのは、道具が足りなかったからではありません。<strong>\(1/4\) は \(G\) と組んで初めて意味を持つ数で、\(G\) は次元を持つからです。</strong></p>
+    <p>第1回で総当たりが失敗したのと、同じ理由でした。<em>あのとき自分で証明したことを、14 回かけて自分の問いに当て直したことになります。</em></p>
+    <p style="margin-bottom:0">壁は動きませんが、正体は分かりました ── <strong>これは越える壁ではなく、地図の縁です。</strong>縁の向こうに何かがあるとしたら、それは「\(1/4\) を計算する方法」ではなく、<em>「無次元量の一覧を、もっと短くする理論」</em>のほうです。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(\alpha_G=Gm_p^2/\hbar c\) が無次元であることを、次元を追って確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">\([G]=\mathrm{m^3kg^{-1}s^{-2}}\)、\([m_p^2]=\mathrm{kg^2}\)、\([\hbar]=\mathrm{J\,s}=\mathrm{m^2kg\,s^{-1}}\)、\([c]=\mathrm{m\,s^{-1}}\)。分子は \(\mathrm{m^3kg\,s^{-2}}\)、分母は \(\mathrm{m^3kg\,s^{-2}}\)。<strong>一致して無次元。</strong>第1回の \(D\mathbf a=0\) を1本解いたのと同じことです。</div></details>
+      </li>
+      <li>\(1/\alpha_s(M_{\rm Pl})\) が \(57\) から \(60\) に増えると \(\Lambda\) は何倍になるか。\(b_0=7.667\) を使え。
+        <details><summary>答えを見る</summary><div class="ans">\(\ln(M_{\rm Pl}/\Lambda)=\frac{2\pi}{b_0}\cdot\frac{1}{\alpha_s}\) なので、\(57\to60\) で指数は \(\frac{6.283}{7.667}\times3=2.46\) 増える。よって \(\Lambda\) は \(e^{-2.46}=0.086\) 倍 ── <strong>約 12 分の 1</strong>。5% の変化で1桁以上。<em>これが指数のてこです。</em></div></details>
+      </li>
+      <li>「\(G\) を 1 と置く単位系を使えば \(G\) の謎は消える」── どこが間違っているか。
+        <details><summary>答えを見る</summary><div class="ans">消えるのは<strong>謎ではなく、置き場所</strong>です。\(G=1\)（プランク単位）にすると、こんどは陽子質量が \(7.7\times10^{-20}\) という奇妙な値になる。<em>無次元量 \(\alpha_G\) は単位を変えても変わりません。</em>だから単位の取り替えは何も解決しない ── そして同時に、<strong>解くべきものは \(\alpha_G\) のほうだと教えてくれます。</strong>この回でやったのは、まさにその置き換えでした。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>「\(G\) はどこから来るのか」は well-posed ではない。</strong> 次元を持つ量の値は単位で変わるので、物理の情報を持たない ── <em>第1回で自分で確かめたこと</em>。第12回の「\(\log q/a^2\) だけが決まる」、第14回の「\(\sigma\) と \(G\) の比だけが決まる」も、三度同じ形に出会っていた。</p>
+    <p><strong>直した形は \(\alpha_G=Gm_p^2/\hbar c=5.9061\times10^{-39}\)。</strong> これは \((m_p/m_{\rm Pl})^2\) に等しい（数値で確認）。つまり「重力はなぜ弱いか」＝「陽子はなぜプランク質量より 19 桁軽いか」。<em>\(G\) の話ではなく、質量の階層の話だった。</em></p>
+    <p><strong>そして 19 桁には機構がある ── 次元転換。</strong> \(\Lambda=\mu\exp(-2\pi/b_0\alpha_s)\) の指数に \(1/\alpha_s\) が入るので、\(O(1/50)\) の平凡な結合から途方もない小ささが出る。測定値 \(\alpha_s(M_Z)=0.1179\) ひとつから \(\Lambda=87.3\) MeV、そこから \(\alpha_s(M_{\rm Pl})=1/56.6\)、\(\Lambda/M_{\rm Pl}=e^{-46.39}=7.15\times10^{-21}\)。観測の \(m_p/M_{\rm Pl}=7.685\times10^{-20}\) とのずれ 10.7 は、\(m_p/\Lambda=10.7\) にちょうど尽きる。</p>
+    <p><strong>ただしこれは予言ではなく翻訳。</strong> ずれが \(m_p/\Lambda\) と一致するのは恒等式で、独立な検証ではない。<em>やったのは「なぜ \(10^{-20}\) か」を「なぜ \(1/\alpha_s\simeq57\) か」に書き換えたこと。</em>それでも意味はある ── 説明すべき量が指数から線形に落ちた。</p>
+    <p><strong>指数のてこ。</strong> \(1/\alpha_s(M_{\rm Pl})\) を \(50\to60\) と 20% 動かすと \(\Lambda\) は 4 桁動く。<em>小ささを作れるのも、値が敏感なのも、同じ指数から来ている。</em>片方だけは取れない。</p>
+    <p><strong>守られている量と、守られていない量。</strong> 陽子質量は対数的ランニングのおかげで自動的に軽い。ヒッグス質量はカットオフ二乗で補正を受けるので<em>打ち消しが要る</em> ── これが本物の階層問題。第2回のアノマリー相殺と同じ構図で、シリーズの「二値の的」が今回は<strong>「くりこみで守られているか否か」</strong>の顔で出た。</p>
+    <p><strong>漸近安全性も \(G\) はくれない。</strong> 固定するのは \(g_*=Gk^2\)（\(=0.911\)、ただし打ち切り依存。別スキームでは \(58.73\) との報告もある）。<em>無次元量だけが固定され、全体のスケールを与える 1 個は必ず残る。</em>減るのはパラメータの個数で、スケールではない。</p>
+    <p style="margin-bottom:0"><strong>第1回に、五度目 ── そして今回は壁の正体だった。</strong> \(1/4\) が出なかったのは道具不足ではなく、\(1/4\) が \(G\) と組んで初めて意味を持つ数で、\(G\) が次元を持つから。<em>越える壁ではなく、地図の縁でした。</em>縁の向こうにあるのは「\(1/4\) を計算する方法」ではなく、<strong>無次元量の一覧をもっと短くする理論</strong>のほうです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む</span>
+    <a href="butsuri-tsukuru-01-hi.html">比を、総当たりする</a> ── 五度戻ってきた場所です。当時は「意味のある比が見つからなかった」という否定的な回として読めましたが、いま読むと<em>この弧の全部が、あの回の結論の系だった</em>と分かります。08 節の \(4\pi\) の壁を、もう一度。<br>閉まった扉の一覧は <a href="butsuri-tsukuru-13-omomi.html">第13回</a>、係数が自由度から出ない話は <a href="butsuri-tsukuru-14-kazoenai.html">第14回</a> に。
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第15回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます ── 問いの立て方を間違えていた、という気づきを含めて。</p>
+    <p>確立した内容：次元解析と無次元量に関する一般的事実、\(\alpha_G=Gm_p^2/\hbar c\) とプランク質量の数値（CODATA 2018 の \(G,m_p,\hbar,c\) から計算）、QCD の1ループ・ベータ関数と \(b_0=11-\frac23n_f\)、次元転換による \(\Lambda_{\rm QCD}\) の生成、\(\alpha_s(M_Z)=0.1179\)（PDG）、ヒッグス質量の二次発散と階層問題、漸近安全性の Reuter 固定点および Einstein–Hilbert 打ち切りでの \(g_*,\lambda_*\) の値とその打ち切り依存性。<br>本稿の計算（\(\alpha_G\)、1ループでの \(\Lambda\) と \(\alpha_s(M_{\rm Pl})\)、\(e^{-46.39}\) と観測値の比較、感度の表）は上記から著者が実行・検算したものです。<strong>1ループ近似を使っているため \(\Lambda\) の値は2ループ以上の標準値（\(\Lambda^{(5)}_{\overline{\rm MS}}\simeq210\) MeV）とは異なります</strong>。本稿では測定値 \(\alpha_s(M_Z)\) と1ループ式のみで首尾一貫させることを優先しました。<br><strong>「重力が弱いのは次元転換のおかげである」という筋自体は既知の議論（Wilczek らが繰り返し述べているもの）で、本稿の独自の主張ではありません。</strong>いっぽう「\(1/4\) が出なかったのは第1回の結論の系である」という読みは、本シリーズの著者による整理です。地平面の Carrollian 理論そのものが未構成であることは、第8回・第11回・第12回のとおりです。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a>｜<a href="butsuri-tsukuru-13-omomi.html">第13回</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">第14回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、結合定数を少し動かすと階層が何桁も動くことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), si=document.getElementById('si'),
+      vi=document.getElementById('vi'), ro=document.getElementById('ro');
+
+  var b0=11-2*5/3, MZ=91.1876, MPl=1.2209e19, mp=0.938272;
+  var SLOPE=b0/(2*Math.PI);              // 1/alpha_s = SLOPE * ln(mu/Lambda)
+  var aSmeas=0.1179;
+
+  function lambdaFrom(invAtPl){
+    // 1/alpha_s(M_Pl) = SLOPE * ln(M_Pl/Lambda)
+    return MPl*Math.exp(-invAtPl/SLOPE);
+  }
+
+  function draw(){
+    var invPl=parseInt(si.value,10)/10;
+    vi.textContent=invPl.toFixed(1);
+    var Lam=lambdaFrom(invPl);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=64,R=W-26,T=26,B=H-58;
+    var XMIN=-4, XMAX=19.5, YMAX=70;          // x = log10(mu/GeV)
+    function X(x){ return L+(x-XMIN)/(XMAX-XMIN)*(R-L); }
+    function Y(y){ return B-y/YMAX*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=0;y<=YMAX;y+=10){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(String(y),L-9,Y(y)+5);
+    }
+    for(var x=XMIN;x<=XMAX;x+=4){
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText('10^'+x,X(x),B+20);
+    }
+    // 軸
+    ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(R,Y(0)); ctx.stroke();
+
+    // 1/alpha_s の直線
+    var xL=Math.log10(Lam);
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    var started=false;
+    for(var xx=XMIN;xx<=XMAX;xx+=0.05){
+      var v=SLOPE*Math.LN10*(xx-xL);
+      if(v<0||v>YMAX){ started=false; continue; }
+      if(!started){ ctx.moveTo(X(xx),Y(v)); started=true; } else ctx.lineTo(X(xx),Y(v));
+    }
+    ctx.stroke();
+
+    // Lambda の位置
+    if(xL>XMIN&&xL<XMAX){
+      ctx.strokeStyle='#8a9694'; ctx.setLineDash([4,4]); ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(X(xL),Y(0)); ctx.lineTo(X(xL),Y(YMAX*0.35)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#5d6a68'; ctx.textAlign='center';
+      ctx.fillText('Λ', X(xL), Y(YMAX*0.35)-6);
+    }
+    // M_Z の測定値
+    var xZ=Math.log10(MZ), yZ=1/aSmeas;
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(X(xZ),Y(yZ),6,0,6.284); ctx.fill();
+    ctx.textAlign='left'; ctx.fillText('M_Z 測定値',X(xZ)+10,Y(yZ)+4);
+    // M_Pl
+    var xP=Math.log10(MPl);
+    ctx.strokeStyle='#cdd6d4'; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(X(xP),T); ctx.lineTo(X(xP),B); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText('M_Pl',X(xP)-6,T+14);
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('1/α_s',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('エネルギー  μ  [GeV]',(L+R)/2,H-14);
+
+    // 読み出し
+    var yAtZ=SLOPE*Math.log(MZ/Lam);
+    var hier=Lam/MPl, LamMeV=Lam*1000;
+    var ok=Math.abs(yAtZ-yZ)<0.15;
+    ro.className = ok ? 'readout hit' : 'readout';
+    ro.innerHTML='1/α_s(M_Pl) = <b>'+invPl.toFixed(1)+'</b> ｜ Λ = <b>'
+      + (LamMeV<1000 ? LamMeV.toPrecision(3)+' MeV' : Lam.toPrecision(3)+' GeV')
+      + '</b> ｜ Λ/M_Pl = <b>'+hier.toExponential(2)+'</b><br>'
+      + 'この直線が M_Z で与える 1/α_s = <b>'+yAtZ.toFixed(2)+'</b>（測定値 '+yZ.toFixed(2)+'）'
+      + (ok ? ' <span style="color:#1d5236">← 一致</span>'
+            : ' <span style="color:#a83a22">← ずれている</span>')
+      + '<br>陽子質量に相当するのは <b>'+(10.7*LamMeV).toPrecision(3)+' MeV</b>（実際 938 MeV）';
+  }
+
+  si.addEventListener('input',draw);
+  document.getElementById('bf').addEventListener('click',function(){ si.value=566; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
