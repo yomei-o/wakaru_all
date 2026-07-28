@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>データが、式に寄っていった ── 物理を作る 第2部 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 1 回 ／ データが、式に寄っていった</span></div>
+  <p class="eyebrow">Koide 関係は偶然か ── 統計では決まらず、年表で決まりました</p>
+  <h1>データが、式に寄っていった
+    <span class="sub">第1部は「空白に道具を作って走らせる」シリーズで、新しい物理は0でした。<br>第2部は標的を変えます ── <em>すでに世の中にある「怪しい数」を、偶然かどうか裁く。</em><br>1本目は Koide 関係。荷電レプトンの質量が満たす、45年間導出されていない式です。<br><strong>結論から書きます ── 偶然ではありません。ただし決め手は $p$ 値ではありませんでした。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：平方根、角度、乱数、そして年表</span>
+    <span>この回の芯：\(-2.26\sigma\) から \(+0.91\sigma\) へ、データ側が動いた</span>
+  </div>
+
+  <p class="lead">第2部の建前はこうです。<strong>世の中には「妙にきれいな数」がいくつも転がっています。</strong>そのほとんどは偶然です ── 第1部の第1回で、162,931 個の比を総当たりして \(p=0.67\) を得たのがその証拠。<br>ですが全部が偶然とは限りません。<em>そこを一つずつ裁いていく</em>のが第2部です。裁き方は第1部と同じ ── 帰無モデルを作り、陽性対照を回し、原典を読む。<br>1本目の標的は <strong>Koide 関係</strong>。1981年に提案され、いまも導出されていない式です。そして今回は、<em>私の道具が間違った問いを解いていた</em>という展開になりました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>標的 ── 45度</h2>
+
+  <p>荷電レプトンの質量 \(m_e,m_\mu,m_\tau\) について、こういう量を作ります。</p>
+
+  <div class="keybox">
+    <div class="lbl">Koide 関係（1981）</div>
+    $$Q=\frac{m_e+m_\mu+m_\tau}{\bigl(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\bigr)^2}\;\stackrel{?}{=}\;\frac23$$
+  </div>
+
+  <p>これを幾何で読むと、意味がはっきりします。\(x_i=\sqrt{m_i}\) とベクトルを組むと</p>
+
+  $$Q=\frac{|\vec x|^2}{(\vec x\cdot\vec 1)^2}=\frac{1}{3\cos^2\theta}$$
+
+  <p>\(\theta\) は質量ベクトル \(\vec x\) と対角線 \((1,1,1)\) のあいだの角です。3つの質量が等しければ \(\theta=0\) で \(Q=1/3\)、1つが支配的なら \(Q=1\)。<strong>だから必ず \(1/3\le Q\le1\) で、\(2/3\) はその範囲のちょうど中央です。</strong></p>
+
+  <p>そして \(Q=2/3\) は \(\cos^2\theta=1/2\)、つまり ──</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    <div class="lbl">PDG の質量を入れる</div>
+    <p style="margin:4px 0">\(m_e=0.51099895000\), \(m_\mu=105.6583755\), \(m_\tau=1776.86\) MeV</p>
+    $$\theta=44.999735^\circ,\qquad 45^\circ\text{ からのずれ}=-2.65\times10^{-4}\ \text{度}$$
+    $$Q=0.666660511477,\qquad Q-\tfrac23=-6.16\times10^{-6}$$
+  </div>
+
+  <p><strong>質量ベクトルが、対角線に対してミリ度の精度で 45 度を向いています。</strong>これがこの回の標的です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>予言として読む</h2>
+
+  <p>Koide 関係は \(m_e,m_\mu\) を与えると \(m_\tau\) を決めます。\(z=\sqrt{m_\tau}\) について解くと二次方程式になり ──</p>
+
+  $$z=2(x+y)\pm\sqrt{3}\sqrt{x^2+y^2+4xy},\qquad x=\sqrt{m_e},\;y=\sqrt{m_\mu}$$
+
+  <div class="lab">
+    <span class="tag">m_tau の予言</span>
+<pre>  + 根 :  m_tau = <span class="hi">1776.9690 MeV</span>
+  - 根 :  m_tau =    3.3174 MeV      <span class="cm">（観測されていない）</span>
+
+  実測（PDG）  m_tau = 1776.86 +- 0.12 MeV
+  差                   +0.1090 MeV = <span class="st">0.91 sigma</span>
+  相対                 6.14e-05</pre>
+  </div>
+
+  <p><strong>1σ 以内です。</strong>しかも \(m_\tau\) を実験誤差の範囲で振ると \(Q\) は \(2/3\) を跨ぎます ── \(-1\sigma\) で \(-1.29\times10^{-5}\)、\(+1\sigma\) で \(+6.19\times10^{-7}\)。<em>現在の精度では、\(Q\) と \(2/3\) を区別できません。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>帰無モデル ── 4通り作る</h2>
+
+  <p>第1部の作法です。<strong>「近い」だけでは何も言えないので、偶然に起きる確率を測ります。</strong>ただし乱数の作り方で答えが変わるので、複数用意して並べます。</p>
+
+  <div class="lab">
+    <span class="tag">帰無分布（各 40 万回）</span>
+<pre>  観測の |Q - 2/3| = 6.155e-06。これ以下に入る割合を数える
+
+  (a) m_tau のみ 対数一様 [3, 300] x m_mu        p = <span class="st">3e-05</span>
+  (b) m_tau のみ 対数一様 [5,  50] x m_mu        p = <span class="st">7e-05</span>
+  (c) 3つとも  対数一様 [m_e/3, 3 m_tau]         p = <span class="st">2e-05</span>
+  (d) 階層の比を +-0.5 桁で振る                    p = <span class="st">6e-05</span></pre>
+  </div>
+
+  <p><strong>4通りとも \(10^{-5}\) 台で揃いました。</strong>乱数の作り方に依らない ── 第1部第1回が \(p=0.67\) だったのとは、別世界の数字です。</p>
+
+  <p>ここで止めれば「有意」で終わります。<em>ですが、これは間違った問いを解いていました。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>自分の道具が、間違っていた</h2>
+
+  <p>第1部の第1回でいちばん効いた教訓は <strong>look-elsewhere</strong> でした ── <em>たくさん探せば、何かは当たる。</em>それを自分の計算に当てていませんでした。</p>
+
+  <p>上の \(p=10^{-5}\) は「\(Q_{1/2}\) が \(2/3\) に当たる確率」です。ところが実際には ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">多重度</th><th>中身</th></tr>
+    <tr><td><strong>的の多重度</strong></td><td>\(Q\) は \([1/3,1]\) に閉じ込められていて、その区間に分母 12 以下の分数は約 30 個。<em>\(2/3\) はその一つ</em></td></tr>
+    <tr><td><strong>式の多重度</strong></td><td>\(Q_p=\sum m^{2p}/(\sum m^p)^2\) の \(p\) は選べる。対称式の比も、冪積も作れる</td></tr>
+  </table>
+
+  <p>そこで<strong>族と的と許容誤差を先に固定して</strong>数え直しました ── 一般化 Koide（単純な \(p\) が 18 個）、比の冪積、対称式の比、和と平方根の混合。合計 <strong>49 本の独立な式</strong>、的 <strong>194 個</strong>、許容 <strong>相対 \(10^{-5}\)</strong>。</p>
+
+  <div class="lab">
+    <span class="tag">look-elsewhere を数える</span>
+<pre><span class="cm"># 観測の3質量に族を全部当てる</span>
+  当たり = <span class="hi">1 本</span>   ( Q_1/2 -> 2/3 )
+  <span class="cm"># 最初は3本に見えたが、Q_1/2 と s1/sq^2 は同一式、sq^2/s1 はその逆数だった。</span>
+  <span class="cm"># 自分の族に重複があった ── 数え直して1本。</span>
+
+<span class="cm"># 同じ族を、乱数の質量三つ組 20000 個に当てる</span>
+  当たり本数の平均                 = 0.587 本
+  <span class="bd">「どこか1本でも当たる」割合        = 51%</span>
+  「Q_1/2 が当たる」割合            = 0.00095</pre>
+  </div>
+
+  <div class="verdict warn">
+    <div class="lbl">道具の判定</div>
+    <p style="font-size:19px"><strong>乱数の質量でも、51% の確率で「何か」が当たります。</strong></p>
+    <p style="margin-bottom:0">つまり<em>いま探しに行けば、コイン投げの確率でゴミが見つかる。</em>これは Koide についての結論ではなく、<strong>私の手法についての警告</strong>です。第1部第1回の \(p=0.67\) と、同じ場所に着きました。</p>
+  </div>
+
+  <p>では Koide も偶然なのか。<strong>違います。</strong>look-elsewhere は<em>事後の探索</em>に効く道具で、Koide は探索していないからです。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>年表が決める</h2>
+
+  <p>Koide がこの式を出したのは <strong>1981年</strong>、\(\tau\) 粒子の発見から6年後です。当時の \(m_\tau\) の実測値を見てください。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">年・実験</th><th style="width:26%">\(m_\tau\) [MeV]</th><th>予言 1776.969 からの差</th></tr>
+    <tr><td>1978 DELCO</td><td class="num">1783.0 ± 4.0</td><td class="num bad">\(-1.51\sigma\)</td></tr>
+    <tr class="mark"><td><strong>1982 当時の世界平均</strong></td><td class="num">1784.2 ± 3.2</td><td class="num bad"><strong>\(-2.26\sigma\)</strong></td></tr>
+    <tr><td>1992 ARGUS</td><td class="num">1776.3 ± 2.8</td><td class="num">\(+0.24\sigma\)</td></tr>
+    <tr><td>1996 BES</td><td class="num">1776.96 ± 0.29</td><td class="num ok">\(+0.03\sigma\)</td></tr>
+    <tr><td>2009 BaBar</td><td class="num">1776.68 ± 0.43</td><td class="num">\(+0.68\sigma\)</td></tr>
+    <tr><td>2014 Belle</td><td class="num">1776.61 ± 0.37</td><td class="num">\(+0.96\sigma\)</td></tr>
+    <tr><td>2023 Belle II</td><td class="num">1777.09 ± 0.14</td><td class="num">\(-0.89\sigma\)</td></tr>
+    <tr class="mark"><td><strong>現在 PDG</strong></td><td class="num">1776.86 ± 0.12</td><td class="num ok"><strong>\(+0.91\sigma\)</strong></td></tr>
+  </table>
+
+  <div class="verdict">
+    <div class="lbl">これが決め手です</div>
+    <p style="font-size:19px"><strong>予言は、データが 7.3 MeV 動いて迎えに来ました。</strong></p>
+    <p>1981年の時点で、Koide の式は当時の実測値と <em>2.26σ 食い違っていました</em>。式のほうが外れていたのです。</p>
+    <p style="margin-bottom:0">そこから 15 年かけて、\(\tau\) の質量測定が改善し、中心値が <strong>1784.2 → 1776.86</strong> と下がって予言に一致しました。<em>事後に選べません。</em>だから look-elsewhere では説明できない。</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：\(m_\tau\) の測定値の変遷。<b>紫の横線が Koide の予言 1776.969 MeV</b>。スライダーで年を進めると、その時点で知られていた値が現れます ── <em>線は動きません。点が寄っていきます</em></div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <label>年 = <span class="val" id="vy">2024</span>
+        <input type="range" id="sy" min="1977" max="2026" step="1" value="2024"></label>
+      <button id="b82">1982（予言した頃）</button>
+      <button id="b96">1996（BES）</button>
+      <button id="bn">現在</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#7a4a8a"></span>Koide の予言（動かない）</span>
+      <span><span class="swatch" style="background:#2f5d6b"></span>その年までの測定</span>
+      <span><span class="swatch" style="background:#a83a22"></span>その年の最良値</span>
+    </div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">この年表について、正直に</span>
+    上の歴史的な値は、解説記事や論文の引用から取ったもので、<strong>PDG のアーカイブを直接当たっていません。</strong>1982年の世界平均が 1784.2 ± 3.2 だったこと、1990年代に BES の閾値スキャンで大きく下がったことは複数の情報源が一致していますが、<em>個々の値と誤差は照合が必要です。</em><br>第1部の第16回で「検索要約の数値を信用して 21倍と 1000倍を間違えた」ので、ここは弱点として明記します ── <strong>趨勢は確かですが、各行の数値は二次情報です。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>では、なぜ \(2/3\) なのか</h2>
+
+  <p>これが 45 年間、開いたままの問いです。</p>
+
+  <table class="tbl">
+    <tr><th style="width:40%"></th><th>状態</th></tr>
+    <tr><td>関係が成り立っているか</td><td class="ok">成り立っている。\(10^{-5}\) の精度で</td></tr>
+    <tr><td>予言として当たったか</td><td class="ok">当たった。\(-2.26\sigma\to+0.91\sigma\)、<em>データ側が動いて</em></td></tr>
+    <tr><td>導出されているか</td><td class="bad"><strong>されていない。</strong>45年</td></tr>
+    <tr><td>クォークでも成り立つか</td><td class="bad">アップ型 0.849、ダウン型 0.731。合わない。<em>ただしスケールがそろっていないので公平な試験ではない</em></td></tr>
+    <tr><td>ニュートリノで試せるか</td><td class="bad">絶対質量が未知（差の二乗しか分かっていない）ので、試せない</td></tr>
+  </table>
+
+  <p>つまり Koide 関係は<strong>「説明のない、成功した予言」</strong>という分類に入っています。物理でいちばん面白い場所です ── <em>そして、いちばん危ない場所でもあります。</em>導出が無いまま45年ということは、無い理由があるのかもしれない。</p>
+
+  <div class="aside">
+    <span class="tag">第1部との対比</span>
+    第1部の第15回で「機構があるものは面白い、閾値だけのものは面白くない」と書きました。Koide は逆の形をしています ── <strong>数は当たっているのに、機構が無い。</strong><br>そして第15回の表では、電子質量は<em>くりこみに守られていない</em>側でした（湯川結合 \(y_e=2.94\times10^{-6}\) が手入力）。<strong>Koide 関係は、その手入力の3つのあいだに関係があると主張しています。</strong>もし本当なら、湯川結合が独立なパラメータではないことになります。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>何が言えて、何が言えないか</h2>
+
+  <div class="keybox">
+    <div class="lbl">この回の判定</div>
+    <p style="margin:6px 0 0"><strong>Koide 関係は偶然ではない。</strong>ただし根拠は「\(p\) 値が小さいから」ではなく、<em>「1981年に外れていた予言に、データが寄っていったから」</em>。</p>
+    <p style="margin:8px 0 0">統計だけでは決まりませんでした ── 同じ族を乱数に当てると 51% で何かが当たるので。<strong>決めたのは年表です。</strong></p>
+  </div>
+
+  <p>言えないことも並べます。</p>
+
+  <ul style="margin:15px 0;padding-left:1.4em">
+    <li><strong>「成功した予言が1本」だけです。</strong>\(m_e,m_\mu\) は入力なので、独立な予言は \(m_\tau\) の1個。1本の当たりは強い証拠ではありません</li>
+    <li><strong>なぜ \(2/3\) なのかは分かりません。</strong>45 年、導出なし</li>
+    <li><strong>他のセクターでは試せていません。</strong>クォークはスケールがそろわず、ニュートリノは絶対質量が未知</li>
+    <li><strong>年表の各行は二次情報です。</strong>PDG のアーカイブで照合していません</li>
+  </ul>
+
+  <p>最後の項目が、次にやることです。</p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(Q=\dfrac{|\vec x|^2}{(\vec x\cdot\vec 1)^2}\) が \(\dfrac{1}{3\cos^2\theta}\) になることを示せ。
+        <details><summary>答えを見る</summary><div class="ans">\(\vec x\cdot\vec 1=|\vec x|\,|\vec 1|\cos\theta=|\vec x|\sqrt3\cos\theta\)。よって \((\vec x\cdot\vec 1)^2=3|\vec x|^2\cos^2\theta\) で、\(Q=|\vec x|^2/(3|\vec x|^2\cos^2\theta)=1/(3\cos^2\theta)\)。<strong>\(Q\) は長さに依らず、向きだけで決まります</strong> ── だから \(Q\) は質量の全体スケールに無関係で、<em>比だけの量</em>です。第1部第15回の「予言できるのは無次元量だけ」に合っています。</div></details>
+      </li>
+      <li>\(1/3\le Q\le1\) を示せ。
+        <details><summary>答えを見る</summary><div class="ans">\(\cos\theta\) の範囲から。\(\vec x\) の成分は全て正（質量の平方根）なので \(\vec x\) は第一象限にあり、対角線とのなす角は最大で \(\theta\to90^\circ\) ではなく、1成分だけ残る極限で \(\cos^2\theta\to1/3\)。よって \(1/3\le\cos^2\theta\le1\) から \(1/3\le Q\le1\)。<strong>\(2/3\) は \(\cos^2\theta=1/2\)、ちょうど 45 度。</strong></div></details>
+      </li>
+      <li>「\(p=10^{-5}\) なのだから有意だ」── どこが足りないか。
+        <details><summary>答えを見る</summary><div class="ans">その \(p\) は<strong>「この式でこの的に当たる確率」</strong>です。しかし式は他にも書けて、的も他にもある。本文のとおり、族 49 本と的 194 個を許すと、<em>乱数の質量でも 51% で何かが当たります</em>。<br>だから \(p=10^{-5}\) を主張に使うには「その式と的を<strong>先に</strong>指定していた」ことが必要です ── そして Koide の場合、<em>それが実際に成り立っています</em>（1981年に指定し、当時のデータは 2.26σ 反していた）。<strong>統計の数字ではなく、その事実が効いています。</strong></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>Koide 関係は 45 度の主張だった。</strong> \(x_i=\sqrt{m_i}\) と組むと \(Q=1/(3\cos^2\theta)\) で、\(Q=2/3\) は \(\theta=45^\circ\)。PDG の質量では \(\theta=44.999735^\circ\) ── <em>45 度からのずれは \(2.7\times10^{-4}\) 度。</em>そして \(1/3\le Q\le1\) なので \(2/3\) は範囲の中央にある。</p>
+    <p><strong>予言として 0.91σ。</strong> \(m_e,m_\mu\) から \(m_\tau=1776.9690\) MeV。実測 \(1776.86\pm0.12\)。\(m_\tau\) を \(+1\sigma\) 振ると \(Q\) は \(2/3\) を跨ぐので、<em>現在の精度では \(Q\) と \(2/3\) が区別できない。</em></p>
+    <p><strong>帰無モデル4通りとも \(10^{-5}\) 台。</strong> \(m_\tau\) のみ振る／3つとも振る／階層の比を振る ── 乱数の作り方に依らず \(2\times10^{-5}\)〜\(7\times10^{-5}\)。第1部第1回の \(p=0.67\) とは別世界。</p>
+    <p><strong>ところが、その \(p\) は間違った問いの答えだった。</strong> 族と的と許容誤差を固定して数え直すと、<em>乱数の質量でも 51% の確率で「何か」が当たる</em>（独立な式 49 本、的 194 個、許容 \(10^{-5}\)）。しかも最初は当たり3本と数えていたが、\(Q_{1/2}\) と \(s_1/sq^2\) が同一式で残りがその逆数 ── <strong>自分の族に重複があった。</strong>数え直して1本。</p>
+    <p><strong>決めたのは年表だった。</strong> Koide は 1981年に \(m_\tau=1776.969\) MeV を出した。当時の世界平均は <strong>1784.2 ± 3.2</strong> で、予言は <em>2.26σ 外れていた</em>。そこから 1992 ARGUS（\(+0.24\sigma\)）、1996 BES（\(+0.03\sigma\)）と測定が改善し、中心値が <strong>7.3 MeV 下がって</strong>予言に一致した。<em>事後に選べないので look-elsewhere では説明できない。</em></p>
+    <p><strong>だから偶然ではない。ただし根拠は \(p\) 値ではない。</strong> 統計だけでは決まらず（51%）、決めたのは「外れていた予言にデータが寄った」という事実。<em>第2部の1本目で、統計と歴史のどちらが効くかがはっきりした。</em></p>
+    <p style="margin-bottom:0"><strong>そして言えないこと。</strong> 成功した予言は \(m_\tau\) の1本だけ（\(m_e,m_\mu\) は入力）。なぜ \(2/3\) なのかは 45 年不明。クォークは合わないがスケールがそろっておらず公平な試験でない。ニュートリノは絶対質量が未知で試せない。<strong>そして年表の各行は二次情報で、PDG のアーカイブと照合していない</strong> ── 第1部第16回で同じ種類の踏み外しをしているので、ここは弱点として残します。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>年表を、原典で確かめる</strong> ── この回のいちばん弱いところです。PDG のアーカイブで各年の世界平均を拾い直し、<em>Koide の予言がいつ、どの測定で追い抜かれたのか</em>を年ごとに確定させます。第1部の教訓（要約ではなく原典）を、今度は歴史に当てます。<br>第1部を読む：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第1回、物理好きの高校生・大学生向け読み物です。第1部が「空白に道具を作って走らせる」シリーズだったのに対し、第2部は<strong>すでにある「怪しい数」を偶然かどうか裁く</strong>シリーズです。</p>
+    <p>確立した内容：Koide 関係 \(Q=\sum m/(\sum\sqrt m)^2\) とその \(1/3\le Q\le1\) という範囲、幾何的読み \(Q=1/(3\cos^2\theta)\)、Koide による 1981/82 年の \(m_\tau\) 予言、荷電レプトン質量の PDG 値、および Koide 関係が現在まで導出されていないこと。<br>本稿の数値（\(\theta=44.999735^\circ\)、予言 1776.9690 MeV、0.91σ、帰無分布の \(p\) 値、族 49 本・的 194 個での 51%）は、著者が書いた Python コードの出力です。<strong>帰無モデルと式の族・的の集合・許容誤差は計算前に固定し、後から変更していません。</strong>ただし族の設計そのものは著者の判断であり、別の族を選べば 51% という数字は動きます ── <em>その数字は「この族なら」という条件付きです。</em><br><strong>05 節の歴史的な \(m_\tau\) 値は二次情報（解説記事・論文の引用）から取ったもので、PDG のアーカイブを直接参照していません。</strong>1982年の世界平均が 1784.2 ± 3.2 であったこと、1990年代に大きく下方修正されたことは複数の情報源が一致していますが、各行の値と誤差は照合を要します。次回の課題です。<br><strong>「統計ではなく年表が決めた」という整理は、本シリーズの著者によるものです。</strong>Koide 関係を偶然と見る立場も存在し、決着したわけではありません。とくに「1本の成功した予言」がどれだけの証拠になるかは、立場に依ります。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a> ｜ 姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a>／<a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、線が動かないまま点が寄っていくのを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sy=document.getElementById('sy'),
+      vy=document.getElementById('vy'), ro=document.getElementById('ro');
+
+  var PRED=1776.9690;
+  // 年, 実験, 値, 合成誤差
+  var D=[[1978,'DELCO',1783.0,4.0],
+         [1982,'世界平均',1784.2,3.2],
+         [1992,'ARGUS',1776.3,2.78],
+         [1996,'BES',1776.96,0.29],
+         [2009,'BaBar',1776.68,0.43],
+         [2014,'Belle',1776.61,0.37],
+         [2023,'Belle II',1777.09,0.14],
+         [2024,'PDG',1776.86,0.12]];
+
+  function draw(){
+    var yr=parseInt(sy.value,10);
+    vy.textContent=String(yr);
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=86,R=W-30,T=30,B=H-60;
+    var X0=1976, X1=2027, Y0=1770, Y1=1790;
+    function X(x){ return L+(x-X0)/(X1-X0)*(R-L); }
+    function Y(y){ return B-(y-Y0)/(Y1-Y0)*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=Y0;y<=Y1;y+=2){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(String(y),L-9,Y(y)+5);
+    }
+    for(var x=1980;x<=2025;x+=5){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText(String(x),X(x),B+20);
+    }
+
+    // 予言（動かない線）
+    ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(L,Y(PRED)); ctx.lineTo(R,Y(PRED)); ctx.stroke();
+    ctx.fillStyle='#7a4a8a'; ctx.textAlign='left';
+    ctx.fillText('Koide 1981 の予言  1776.969 MeV',L+8,Y(PRED)-9);
+
+    // 測定点
+    var last=null;
+    for(var i=0;i<D.length;i++){
+      var d=D[i]; if(d[0]>yr) continue;
+      last=d;
+      var col = (i===D.length-1||D[i+1]===undefined||D[i+1][0]>yr) ? '#a83a22' : '#2f5d6b';
+      ctx.strokeStyle=col; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(X(d[0]),Y(d[2]-d[3])); ctx.lineTo(X(d[0]),Y(d[2]+d[3])); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(d[0])-5,Y(d[2]-d[3])); ctx.lineTo(X(d[0])+5,Y(d[2]-d[3])); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(d[0])-5,Y(d[2]+d[3])); ctx.lineTo(X(d[0])+5,Y(d[2]+d[3])); ctx.stroke();
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(X(d[0]),Y(d[2]),5,0,6.284); ctx.fill();
+      ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center'; ctx.fillText(d[1],X(d[0]),Y(d[2])-14);
+      ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('m_tau [MeV]',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('年',(L+R)/2,H-14);
+
+    if(last){
+      var sig=(PRED-last[2])/last[3];
+      var ok=Math.abs(sig)<1.5;
+      ro.className = ok ? 'readout hit' : 'readout';
+      ro.innerHTML=yr+' 年時点の最新 ── <b>'+last[1]+'</b>：m_tau = <b>'+last[2].toFixed(2)
+        +' ± '+last[3].toFixed(2)+' MeV</b><br>'
+        +'Koide の予言 1776.969 からの差 = <b>'+(PRED-last[2]>=0?'+':'')+(PRED-last[2]).toFixed(2)
+        +' MeV = '+(sig>=0?'+':'')+sig.toFixed(2)+'σ</b> '
+        + (Math.abs(sig)>2 ? '<span style="color:#8a2f18">← 予言はデータに反していた</span>'
+          : ok ? '<span style="color:#1d5236">← 一致</span>' : '');
+    } else {
+      ro.className='readout';
+      ro.innerHTML='この年にはまだ測定がありません（τ の発見は 1975 年）';
+    }
+  }
+
+  sy.addEventListener('input',draw);
+  document.getElementById('b82').addEventListener('click',function(){ sy.value=1982; draw(); });
+  document.getElementById('b96').addEventListener('click',function(){ sy.value=1996; draw(); });
+  document.getElementById('bn').addEventListener('click',function(){ sy.value=2024; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
