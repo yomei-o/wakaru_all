@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物質は守れた。重力が漏れる ── 物理を作る 第16回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f4e9e2;color:#6b3526;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--bad);border-radius:3px;background:#fbf0ec;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--bad);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.good{border-color:var(--ok);background:#eef6f1;}
+  .verdict.good .lbl{color:var(--ok);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 16 回 ／ 物質は守れた。重力が漏れる</span></div>
+  <p class="eyebrow">強結合からの創発的ローレンツ不変性 ── 物質には効く。そして重力で、第2回に戻される</p>
+  <h1>物質は守れた。重力が漏れる
+    <span class="sub"><a href="butsuri-tsukuru-02-koushi.html">第2回</a>の逃げ道②を、最後まで掘ります。<br>強結合なら破れが<em>冪で</em>抑えられる ── これは本物で、しかも美しい。<br><strong>カイラルフェルミオンが、ローレンツ不変でない UV から出てきます。</strong>SO(3) スピノルの成分数が、たまたま Weyl スピノルと同じだから。<br>ところが著者たちは全員、重力を<em>固定した背景</em>に置いています。そして重力の破れは、輻射補正で物質に漏れます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回（18桁、逃げ道の一覧）、冪と対数</span>
+    <span>この回の芯：\(\Lambda_{\rm conf}\) の窓は 10 TeV 〜 \(3\times10^9\) GeV</span>
+  </div>
+
+  <p class="lead">第2回は逃げ道②（ローレンツ不変性が RG の赤外固定点）を「対数だから足りない」と退けていました。あれは<em>弱結合の話</em>で、強結合では冪になる ── そこを直したのが前回の作業です。<br>この回はその中身を見に行きます。結論は二つに割れます。<br><strong>物質セクターについては、本当に効きます。</strong>しかも仕掛けが気持ちいい。<em>ところが重力については、誰もやっていません。</em>やっていないのではなく、やると壊れる ── そして壊れ方が、第2回 06 節とまったく同じでした。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>なぜ冪になるのか</h2>
+
+  <p>弱結合のとき、ローレンツ破れの結合は RG で<em>対数的に</em>流れます。だから何桁走らせても足りない ── 20桁で \(1/\log(10^{20})=1/46\) 倍。</p>
+
+  <p>強結合だと事情が変わります。演算子に<strong>アノマラス次元</strong>が付くので、流れが冪になる。Bednik–Pujolàs–Sibiryakov がホログラフィーで具体例を作りました。</p>
+
+  <div class="keybox">
+    <div class="lbl">強結合での抑制（BPS, JHEP 11 (2013) 064）</div>
+    $$\delta\;\sim\;\left(\frac{\Lambda_{\rm conf}}{\Lambda_*}\right)^{\epsilon},
+    \qquad \epsilon=2(1-\nu),\qquad \nu=\sqrt{\frac{d^2}{4}+(\mu L)^2}$$
+    <p style="margin:8px 0 0">相関的な場合 \(0\le\nu&lt;1\) で \(\epsilon\in(0,2]\)。周辺的な場合 \(\nu=1\) では \(\epsilon=0\) となって<em>対数に戻ります</em>。</p>
+  </div>
+
+  <p>危ないのは特定の演算子だけです。BPS は<strong>次元が \(d-1\le\dim\mathcal{O}_\mu\le d\) のベクトル演算子</strong>を「危険」と特定しています ── 周辺的か、わずかに非相関的なもの。これらが最もゆっくりゼロに流れる。<em>最も非相関でないローレンツ破れ演算子（LILVO）</em>が、抑制の速さを決めます。</p>
+
+  <p>Kharuk–Sibiryakov は同じ抑制を \((l/L)^{1-2Ml}\) の形で出し、<strong>達成できる最大の抑制が \((l/L)^2\)</strong> だと述べています。二つの論文で上限が一致します ── <em>\(\epsilon\) は 2 を超えられない。</em>この 2 が、あとで効きます。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>いちばん気持ちのいいところ ── カイラルフェルミオン</h2>
+
+  <p>ここは本筋から少し外れますが、書いておきたい。</p>
+
+  <p>標準模型は<strong>カイラルフェルミオン</strong>でできています。ところが「カイラル」の定義そのものが、ローレンツ群の Weyl 表現に依っている。<em>ローレンツ不変でない UV から、どうやってカイラルフェルミオンが出てくるのか。</em>これは素朴には不可能に見えます。</p>
+
+  <p>Kharuk–Sibiryakov の答えは、数を数えるだけでした。</p>
+
+  <div class="keybox">
+    <div class="lbl">成分の数を数える</div>
+    <p style="margin:6px 0 0">UV の理論はローレンツ不変でないので、持っているのは空間回転 <strong>SO(3)</strong> だけ。その<strong>スピノルは独立成分が2つ</strong>。</p>
+    <p style="margin:8px 0 0">いっぽう4次元の <strong>Weyl スピノルの成分数も、2つ</strong>。</p>
+    <p style="margin:8px 0 0"><em>ちょうど一致します。</em>だから SO(3) スピノルが、赤外で Weyl スピノルとして振る舞える。</p>
+  </div>
+
+  <p>第2回で Nielsen–Ninomiya の no-go（格子上でカイラル対称性が保てない）を扱いました。あれは<em>正則な格子</em>の話です。強結合からの創発では、そもそもカイラリティが赤外で<strong>生成される</strong>ので、no-go の前提から外れます。</p>
+
+  <p>このシリーズが繰り返してきた「二値の的だけが情報を持つ」が、ここでは<em>成分数の一致</em>という顔で出ています。2 と 2。ずれていたら成立しません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>窓を測る</h2>
+
+  <p>効くと分かったので、<strong>どれくらいの範囲で効くのか</strong>を出します。条件は二つです。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">条件</th><th>中身</th></tr>
+    <tr><td><strong>上から</strong></td><td>機構の上限 \(\epsilon\le2\)（BPS と KS で一致）</td></tr>
+    <tr><td><strong>下から</strong></td><td>残る破れが観測を通ること：\((\Lambda_{\rm conf}/M_P)^{\epsilon}\le6\times10^{-20}\)（かに星雲）</td></tr>
+    <tr><td><strong>横から</strong></td><td>この機構では標準模型の場が強結合から出てくるので、\(\Lambda_{\rm conf}\) は<em>電子などの複合性スケールでもある</em>。LHC の複合性下限から \(\Lambda_{\rm conf}\gtrsim10\) TeV</td></tr>
+  </table>
+
+  <div class="lab">
+    <span class="tag">計算 ── 必要な冪</span>
+<pre><span class="cm"># (Lambda_conf/M_P)^eps &lt;= 6e-20 を解く。M_P = 1.2209e19 GeV</span>
+
+  Lambda_conf     log10(比)     必要な eps    対応する nu
+ <span class="hi">--------------------------------------------------------</span>
+  1 TeV           -16.09        1.19          0.40
+  10 TeV          -15.09        <span class="st">1.27</span>          0.36
+  100 TeV         -14.09        1.36          0.32
+  1e9 GeV         -10.09        1.91          0.05
+  <span class="hi">3e9 GeV          -9.61        2.00          0.00  &lt;- 上限に到達</span>
+  1e10 GeV         -9.09        2.11          <span class="bd">負 ── 不可能</span>
+
+  <span class="cm"># 逆に eps を下げると</span>
+  eps = 1.0  ->  Lambda_conf &lt;= 0.73 GeV   <span class="bd">サブ GeV。複合性で排除</span>
+  eps = 0.5  ->  Lambda_conf &lt;= 4.4e-20 GeV <span class="bd">論外</span>
+
+  <span class="st">=> 使える窓：  10 TeV &lt;= Lambda_conf &lt;= 3e9 GeV
+                 1.27 &lt;= eps &lt;= 2       （全域 (0,2] の上から 36%）</span></pre>
+  </div>
+
+  <p><strong>窓はあります。ただし狭い。</strong>前回、第2回に「\(\epsilon\simeq1\) で足りる」と書きましたが、複合性の下限を入れると <em>\(\epsilon\gtrsim1.27\)</em> まで押し上げられます。冪をほぼ最大まで使わないといけない。</p>
+
+  <div class="fig">
+    <div class="cap">図：横軸が強結合のスケール、縦軸が冪 \(\epsilon\)。<b>緑の領域だけが使えます</b> ── 曲線より上（観測を通る）、\(\epsilon=2\) より下（機構の上限）、\(10\) TeV より右（複合性）。右端 \(3\times10^9\) GeV で閉じます</div>
+    <canvas id="cv" width="1120" height="420"></canvas>
+    <div class="controls">
+      <label>\(\log_{10}(\Lambda_{\rm conf}/\mathrm{GeV})\) = <span class="val" id="vl">6.0</span>
+        <input type="range" id="sl" min="20" max="180" step="1" value="60"></label>
+      <label>冪 \(\epsilon\) = <span class="val" id="ve">1.60</span>
+        <input type="range" id="se" min="0" max="220" step="2" value="160"></label>
+      <button id="bw">窓の中に置く</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#cfe3d6"></span>使える領域</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>観測が要求する下限（曲線）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>機構の上限 \(\epsilon=2\)</span>
+    </div>
+  </div>
+
+  <p>スライダーを動かすと、緑から出るのが意外に簡単なことが分かります。<em>それでも窓は空いている</em> ── ここまでは、逃げ道②の勝ちです。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>ところが、重力が入っていない</h2>
+
+  <p>ここで話が変わります。<strong>論文を読み直すと、著者たちは全員、重力を対象外にしています。</strong>しかも隠していません。</p>
+
+  <div class="keybox">
+    <div class="lbl">著者自身の言葉</div>
+    <p style="margin:6px 0 0"><strong>BPS</strong>：両方の模型（Randall–Sundrum、Lifshitz 流）で重力は<em>固定した背景</em>。動的な重力に拡張するには<strong>「優先系を定義する追加の自由度」が必要になる</strong>と述べて、追っていません。</p>
+    <p style="margin:8px 0 0"><strong>Kharuk–Sibiryakov</strong>：「このシナリオでは<em>強結合が物質セクターだけで起きれば十分</em>である……<strong>重力はすべてのエネルギーで弱結合のままでよい</strong>」</p>
+  </div>
+
+  <p>これは弱点の告白ではなく、<em>設計</em>です。強結合を物質だけに閉じ込めれば、重力の面倒を避けられる ── 賢い。</p>
+
+  <p><strong>ただし、その代償があります。</strong>重力が弱結合のままなら、<em>重力自身のローレンツ破れには冪抑制がかかりません</em>。対数だけ。つまり第2回 06 節の 18 桁が、重力セクターにそのまま残ります。</p>
+
+  <p>「重力の破れなら上限がゆるいのでは」と思いたくなります。実際ゆるい ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:48%">何と何の速さを比べるか</th><th>上限</th></tr>
+    <tr><td>光子 vs 電子（かに星雲シンクロトロン）</td><td class="num">\(6\times10^{-20}\)</td></tr>
+    <tr class="mark"><td>重力波 vs 光（GW170817 + GRB 170817A）</td><td class="num">\(-3\times10^{-15}\) 〜 \(+7\times10^{-16}\)</td></tr>
+  </table>
+
+  <p>重力のほうが約5桁ゆるい。<em>それでも足りません。</em>対数抑制では 20 桁走らせて \(1/46\) 倍しか稼げないので、5桁ゆるかろうと届かない。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>そして、漏れる</h2>
+
+  <p>ここが決め手です。「重力に破れが残っても、物質は守られているのだからいいじゃないか」── <strong>それが成り立ちません。</strong></p>
+
+  <div class="verdict">
+    <div class="lbl">漏れる</div>
+    <p style="font-size:19px"><strong>物質セクターを、重力セクターの対称性破れから守ることはできない。</strong></p>
+    <p>量子重力の輻射補正が、アーベル・ゲージ場にローレンツ破れの結合を生成します（arXiv:1911.10066）。<em>量子重力のローレンツ破れは、必ず物質セクターに浸透する。</em></p>
+    <p style="margin-bottom:0">機構が守ったのは「物質が<strong>自分の</strong> UV に持っている破れ」でした。<em>「重力が持っている破れ」からは守れていません。</em>そして漏れ込む経路は、第2回 06 節とまったく同じ輻射補正です。</p>
+  </div>
+
+  <p>さらに悪い知らせがあります。Hořava 重力を精査した仕事（arXiv:1805.10299）が、<strong>種のあいだの微調整</strong>を指摘しています ── U(1) ゲージ場とスカラー場の音速二乗の微調整の度合いは、次元が上がるほどきつくなる。そして結論として、<em>重力セクターだけでなく物質セクターも、あるスケールより上で Lifshitz スケーリングに移行しなければならず、しかも二つの移行スケールを大きく離すことができない</em>。</p>
+
+  <p>つまり「物質は低いスケールで強結合、重力は高いスケールでずっと弱結合」という都合のいい分離が、<strong>構造的に許されません。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>逃げ場を潰しているもう一つの定理</h2>
+
+  <p>では重力そのものを Lorentz 破れにして、そこにも強結合の創発を仕込めばいいのか。ここに一般的な障害があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">明示的な破れは、リーマン幾何と両立しない</div>
+    <p style="margin:6px 0 0"><strong>明示的な</strong>ローレンツ破れは、一般のリーマン幾何と両立しません（したがって一般相対論と両立しない）。</p>
+    <p style="margin:8px 0 0">だから ── ローレンツ対称性が破れているなら、それは<strong>自発的に</strong>破れているか、<em>重力に新しい幾何学の枠組みが必要</em>です。</p>
+  </div>
+
+  <p>自発的な破れを選ぶと、破る主体が要ります。真空期待値を持って優先系を決める場 ── <strong>エーテル場</strong>です。それはまさに BPS が「動的な重力に行くには優先系を定義する追加の自由度が必要になる」と書いたものです。</p>
+
+  <p>ここで円が閉じます。<em>優先系を作らないために創発を使ったのに、重力まで持っていくと優先系を持ち込むことになる。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>決算</h2>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>結果</th></tr>
+    <tr><td><strong>物質セクター</strong></td><td class="ok">効く。冪抑制。窓は \(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV、\(1.27\le\epsilon\le2\)</td></tr>
+    <tr><td><strong>カイラルフェルミオン</strong></td><td class="ok">出る。SO(3) スピノルの成分数 2 が Weyl と一致</td></tr>
+    <tr><td><strong>重力セクター</strong></td><td class="bad">手つかず。著者自身が「弱結合のまま」と明言して外している</td></tr>
+    <tr><td><strong>重力から物質への漏れ</strong></td><td class="bad">止まらない。輻射補正で必ず浸透する</td></tr>
+    <tr><td><strong>スケールの分離</strong></td><td class="bad">できない。二つの移行スケールを大きく離せない</td></tr>
+    <tr><td><strong>重力を破ると</strong></td><td class="bad">明示的な破れはリーマン幾何と非両立。自発的にするとエーテル＝優先系が要る</td></tr>
+  </table>
+
+  <p>「時空そのものが格子か」という第2回の問いにとって、本番は重力です。<strong>そこは埋まっていません。</strong></p>
+
+  <div class="verdict good">
+    <div class="lbl">それでも、値札がはっきりした</div>
+    <p>逃げ道②は「足りない」から「<strong>物質には効く。重力が残る</strong>」に上がりました。前回の改訂は正しかった ── ただし効く範囲は、思ったより狭い。</p>
+    <p>そして<em>局所的に計算できる宇宙</em>という立場にとっては、選択肢がまた減りました：</p>
+    <p style="margin-bottom:0">
+      <strong>①（高スケール SUSY）</strong>── 重力セクターも含めて次元3・4を禁じる。局所性が残る。代金は SUSY。<br>
+      <strong>②（強結合からの創発）</strong>── 物質は守れるが重力が漏れる。<em>単独では足りない</em>。<br>
+      <strong>③（コーゼット）</strong>── 優先系が構造的に無い。代金は非局所性 ── 差分にならない。
+    </p>
+  </div>
+
+  <p>②が単独で足りないなら、残るのは<strong>①か、①＋②</strong>です。第2回の時点で①が本命だったのは、結果として正しかった。</p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\((\Lambda_{\rm conf}/M_P)^{\epsilon}\le6\times10^{-20}\) を \(\epsilon=2\) について解き、\(\Lambda_{\rm conf}\) の上限を出せ。\(M_P=1.22\times10^{19}\) GeV。
+        <details><summary>答えを見る</summary><div class="ans">\(\Lambda_{\rm conf}/M_P\le\sqrt{6\times10^{-20}}=2.45\times10^{-10}\)。よって \(\Lambda_{\rm conf}\le2.45\times10^{-10}\times1.22\times10^{19}=\mathbf{3.0\times10^{9}}\) GeV。<strong>これが窓の右端です。</strong>\(\epsilon\) は 2 を超えられないので、これより上の強結合スケールはどうやっても通りません。</div></details>
+      </li>
+      <li>同じ式を \(\epsilon=1\) について解くと何が起きるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\Lambda_{\rm conf}\le6\times10^{-20}\times1.22\times10^{19}=\mathbf{0.73}\) GeV。<em>サブ GeV です。</em>電子が 1 GeV で複合になっているという話になり、複合性の下限（TeV 級）に真っ向から反します。<strong>だから \(\epsilon=1\) では実質だめで、冪をほぼ最大まで使う必要がある</strong> ── これが前回「\(\epsilon\simeq1\) で足りる」と書いたところの訂正です。</div></details>
+      </li>
+      <li>「重力の破れの上限は物質より5桁ゆるいのだから、重力だけ弱結合でも間に合うのでは」── どこが違うか。
+        <details><summary>答えを見る</summary><div class="ans">二点あります。<strong>(1) 対数抑制では5桁では済まない</strong> ── 20桁走らせて \(1/46=0.022\) 倍、必要なのは \(10^{-15}\) 級なので13桁足りない。<strong>(2) そもそも独立ではない</strong> ── 重力の破れは輻射補正で物質に漏れるので、重力に \(10^{-15}\) 残すと物質側の \(6\times10^{-20}\) を壊しにいきます。<em>「ゆるい側に逃がす」ができない構造になっています。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>強結合なら、破れは冪で消える。</strong> \(\delta\sim(\Lambda_{\rm conf}/\Lambda_*)^{\epsilon}\)、\(\epsilon=2(1-\nu)\)。周辺的な \(\nu=1\) では対数に戻るが、相関的な \(0\le\nu&lt;1\) なら \(\epsilon\) が 0 から 2 まで取れる。危ないのは次元 \(d-1\le\dim\mathcal{O}_\mu\le d\) のベクトル演算子（LILVO）。<em>二つの論文が独立に \(\epsilon\le2\) という同じ上限を出している。</em></p>
+    <p><strong>カイラルフェルミオンが出る。</strong> ローレンツ不変でない UV が持つのは SO(3) だけで、その<em>スピノルの独立成分は2つ</em>。4次元 Weyl スピノルの成分数も2つ。<strong>数がちょうど一致する</strong>ので、赤外で Weyl として振る舞える。第2回の Nielsen–Ninomiya は正則格子の定理なので、ここには効かない。</p>
+    <p><strong>窓を測った ── あるが狭い。</strong> 上から機構の \(\epsilon\le2\)、下からかに星雲の \(6\times10^{-20}\)、横から複合性の \(\Lambda_{\rm conf}\gtrsim10\) TeV。結果は <strong>\(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV、\(1.27\le\epsilon\le2\)</strong> ── 全域 \((0,2]\) の上から 36%。<em>前回「\(\epsilon\simeq1\) で足りる」と書いたのは甘く、複合性を入れると \(1.27\) まで押し上げられる。</em></p>
+    <p><strong>重力は入っていない。しかも意図的に。</strong> BPS は重力を固定背景に置き、動的にするには「優先系を定義する追加の自由度」が要ると述べて追っていない。Kharuk–Sibiryakov は「重力はすべてのエネルギーで弱結合のままでよい」と明言。<em>設計としては賢いが、重力自身の破れには冪抑制がかからない。</em></p>
+    <p><strong>そして漏れる。</strong> 「物質セクターを重力セクターの対称性破れから守ることはできない」── 量子重力の輻射補正がゲージ場にローレンツ破れの結合を生成する（arXiv:1911.10066）。守れたのは<em>物質が自分の UV に持っている破れ</em>だけで、重力の破れは第2回06節と同じ経路で入ってくる。加えて、二つの移行スケールを大きく離すこともできない（arXiv:1805.10299）。</p>
+    <p><strong>重力を破る側に回っても、no-go がある。</strong> 明示的なローレンツ破れは一般のリーマン幾何と両立しない。だから自発的破れにするしかなく、それはエーテル場＝優先系を持ち込むこと。<em>優先系を作らないために創発を使ったのに、重力まで行くと優先系が戻ってくる。</em></p>
+    <p style="margin-bottom:0"><strong>決算：②は単独では足りない。</strong> ただし前回の改訂（「足りない」→「物質には効く」）は正しかった。<em>局所的に計算できる宇宙という立場にとって、残るのは①（高スケール SUSY）か ①＋② です。</em>第2回の時点で①を本命に置いていたのは、結果として当たっていました。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む</span>
+    <a href="butsuri-tsukuru-02-koushi.html">時空は、格子にできない</a> ── 逃げ道の一覧がある回です。08 節の①〜④を、この回を読んだ目で見直すと値札が全部付いています。<em>③（コーゼット）が「構造的に一番美しい」と書かれている理由も、いま読むとはっきりします</em> ── 優先系を作らない唯一の道だから。<br>カットオフが観測に出ない話は <a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>、次元を持つ量が予言できない話は <a href="butsuri-tsukuru-15-kabe.html">第15回</a> に。
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第16回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます ── 前の回の見積もりが甘かった、という訂正を含めて。</p>
+    <p>確立した内容：強結合における \((\Lambda_{\rm conf}/\Lambda_*)^{2(1-\nu)}\) の冪抑制、\(\nu=1\) で対数に戻ること、危険な演算子が \(d-1\le\dim\mathcal{O}_\mu\le d\) のベクトル演算子であること、および重力が固定背景として扱われ動的な重力には優先系を定義する追加自由度が要ると著者が述べていること（Bednik–Pujolàs–Sibiryakov, JHEP 11 (2013) 064, arXiv:1305.0011）。SO(3) スピノルの独立成分数が4次元 Weyl スピノルと一致すること、最大抑制が \((l/L)^2\) であること、重力が弱結合のままでよいという記述（Kharuk–Sibiryakov, TMP 189 (2016) 1755, arXiv:1505.04130）。重力セクターの破れから物質セクターを守れないこと（arXiv:1911.10066）。種のあいだの音速の微調整と移行スケールを離せないこと（arXiv:1805.10299）。明示的ローレンツ破れとリーマン幾何の非両立（Kostelecký の no-go）。かに星雲による \(6\times10^{-20}\)、GW170817 + GRB 170817A による \(-3\times10^{-15}\) 〜 \(+7\times10^{-16}\)。<br>本稿の窓の計算（必要な \(\epsilon\)、\(\Lambda_{\rm conf}\) の上限 \(3\times10^9\) GeV、下限を複合性から \(10\) TeV と置いたときの \(\epsilon\ge1.27\)）は、上記の抑制形と観測上限から著者が計算したものです。<strong>複合性下限を \(10\) TeV と置いたのは目安であり、模型に依ります。</strong>また「窓の 36%」という言い方は \(\epsilon\) の区間比であって、確率的な意味はありません。<br><strong>「②は単独では足りず、局所性を取るなら①か①＋②が残る」という決算は、本シリーズの著者による整理です。</strong>重力セクターに強結合の創発を仕込む試みが原理的に不可能であることは示されていません ── 現時点で誰も成功していない、というのが正確な状況です。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a>｜<a href="butsuri-tsukuru-13-omomi.html">第13回</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>｜<a href="butsuri-tsukuru-15-kabe.html">第15回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、使える窓がどれくらい狭いか確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sl=document.getElementById('sl'), se=document.getElementById('se'),
+      vl=document.getElementById('vl'), ve=document.getElementById('ve'), ro=document.getElementById('ro');
+
+  var MP=1.2209e19, LOGMP=Math.log10(MP), CRAB=6e-20, LOGCRAB=Math.log10(CRAB);
+  var EPS_MAX=2.0, LOG_COMP=4.0;              // 複合性の下限 10 TeV = 1e4 GeV
+
+  // 観測を通すのに必要な eps： (L/MP)^eps <= CRAB  ->  eps >= logCRAB / log10(L/MP)
+  function epsReq(logL){ return LOGCRAB/(logL-LOGMP); }
+
+  function draw(){
+    var logL=parseInt(sl.value,10)/10, eps=parseInt(se.value,10)/100;
+    vl.textContent=logL.toFixed(1); ve.textContent=eps.toFixed(2);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=70,R=W-28,T=28,B=H-60;
+    var XMIN=2, XMAX=18, YMAX=2.3;
+    function X(x){ return L+(x-XMIN)/(XMAX-XMIN)*(R-L); }
+    function Y(y){ return B-y/YMAX*(B-T); }
+
+    // 使える領域を塗る：x >= LOG_COMP、epsReq(x) <= y <= EPS_MAX
+    ctx.fillStyle='#cfe3d6';
+    ctx.beginPath();
+    var first=true, xx;
+    for(xx=LOG_COMP; xx<=XMAX; xx+=0.02){
+      var r=epsReq(xx);
+      if(r>EPS_MAX) break;
+      if(first){ ctx.moveTo(X(xx),Y(r)); first=false; } else ctx.lineTo(X(xx),Y(r));
+    }
+    var xEnd=xx;
+    ctx.lineTo(X(Math.min(xEnd,XMAX)),Y(EPS_MAX));
+    ctx.lineTo(X(LOG_COMP),Y(EPS_MAX));
+    ctx.closePath(); ctx.fill();
+
+    // 目盛り
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=0;y<=YMAX;y+=0.5){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(y.toFixed(1),L-9,Y(y)+5);
+    }
+    for(var x=XMIN;x<=XMAX;x+=2){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText('10^'+x,X(x),B+20);
+    }
+
+    // 観測が要求する曲線
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.5;
+    ctx.beginPath(); first=true;
+    for(xx=XMIN; xx<=XMAX; xx+=0.02){
+      var v=epsReq(xx);
+      if(v<0||v>YMAX){ first=true; continue; }
+      if(first){ ctx.moveTo(X(xx),Y(v)); first=false; } else ctx.lineTo(X(xx),Y(v));
+    }
+    ctx.stroke();
+
+    // 機構の上限
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([7,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(EPS_MAX)); ctx.lineTo(R,Y(EPS_MAX)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.textAlign='left';
+    ctx.fillText('機構の上限 ε = 2',L+6,Y(EPS_MAX)-7);
+
+    // 複合性の下限
+    ctx.strokeStyle='#8a9694'; ctx.setLineDash([3,3]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(X(LOG_COMP),T); ctx.lineTo(X(LOG_COMP),B); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#5d6a68'; ctx.textAlign='left';
+    ctx.fillText('複合性 10 TeV',X(LOG_COMP)+6,T+14);
+
+    // 右端
+    if(xEnd<XMAX){
+      ctx.strokeStyle='#8a9694'; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(xEnd),T); ctx.lineTo(X(xEnd),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='right'; ctx.fillStyle='#5d6a68';
+      ctx.fillText('3×10⁹ GeV',X(xEnd)-6,T+14);
+    }
+
+    // 選択点
+    var inWin = (logL>=LOG_COMP) && (eps<=EPS_MAX) && (eps>=epsReq(logL)) && (epsReq(logL)>0);
+    ctx.fillStyle = inWin ? '#2f7d5a' : '#a83a22';
+    ctx.beginPath(); ctx.arc(X(logL),Y(Math.min(eps,YMAX)),7,0,6.284); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('冪 ε',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('強結合のスケール Λ_conf [GeV]',(L+R)/2,H-14);
+
+    var need=epsReq(logL);
+    var supp=Math.pow(Math.pow(10,logL-LOGMP),eps);
+    ro.className = inWin ? 'readout hit' : 'readout';
+    ro.innerHTML='Λ_conf = <b>10<sup>'+logL.toFixed(1)+'</sup> GeV</b>、ε = <b>'+eps.toFixed(2)+'</b> ｜ '
+      + '残る破れ ≈ <b>'+supp.toExponential(2)+'</b>（上限 6×10⁻²⁰）<br>'
+      + 'この Λ_conf で必要な ε は <b>'+(need>0?need.toFixed(2):'—')+'</b>'
+      + (inWin
+          ? ' <span style="color:#1d5236">← 窓の中。物質セクターは守れる（重力は別）</span>'
+          : ' <span style="color:#a83a22">← 窓の外：'
+            + (logL<LOG_COMP ? '複合性の下限より低い'
+              : need>EPS_MAX ? '必要な ε が機構の上限 2 を超える'
+              : 'ε が足りず観測に反する') + '</span>');
+  }
+
+  sl.addEventListener('input',draw); se.addEventListener('input',draw);
+  document.getElementById('bw').addEventListener('click',function(){ sl.value=60; se.value=160; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
