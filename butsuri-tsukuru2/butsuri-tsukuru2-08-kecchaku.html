@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>決着は、1.7倍 ── 物理を作る 第2部 第8回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 8 回 ／ 決着は、1.7倍</span></div>
+  <p class="eyebrow">実験側の原典を開いた ── 上限は正しく、背景で決まっていて、そのモードは探されていなかった</p>
+  <h1>決着は、1.7倍
+    <span class="sub">前回いちばん鋭い数字は \(K^+\to\pi^+\mu^+e^-\) の分岐比でした ── <strong>予言 \(0.97\times10^{-11}\)、上限 \(1.3\times10^{-11}\)</strong>。<br>ところが私が開いたのは<em>予言側の論文だけ</em>で、上限の出どころを見ていませんでした。<br>今回開きました。上限は正しく、そして<strong>統計ではなく背景で決まっていました</strong> ── 8事象観測、背景の期待値 8.2。<br>だから改善は \(1/\sqrt f\)。<strong>排除には 1.69倍、発見には 27倍。</strong>そして<em>そのモードは、21年間だれも測り直していません。</em></span>
+  </h1>
+  <div class="caveat" style="margin-top:24px">
+    <span class="tag">訂正あり（⑭・第7回の外挿の方法が甘かった）</span>
+    第7回で「NA62 が姉妹モードで達成した8倍の改善を \(\mu^+e^-\) 側に当てれば上限は \(1.6\times10^{-12}\)」と書きました。<strong>方法が違います。</strong>\(1.3\times10^{-11}/8\) は上限が露光量に反比例することを前提にしていますが、この探索は<em>背景制限</em>なので上限は \(1/\sqrt{f}\) でしか良くなりません。<br>露光量を8倍にしたときの期待上限は <strong>\(4.0\times10^{-12}\)</strong>（本文 03 節）── 私の見積もりは<strong>2.5倍だけ楽観的</strong>でした。姉妹モードの \(5.2\times10^{-10}\) が背景制限ではなかったのに、その改善率を背景制限のモードに移したのが誤りです。<em>結論の向きは変わりません（それでも予言は排除できる）が、数字は直します。</em>
+  </div>
+  <div class="byline">
+    <span>必要な道具：ポアソン上限と、\(1/\sqrt f\)</span>
+    <span>この回の芯：決定的な測定は安く、そして誰もしていない</span>
+  </div>
+
+  <p class="lead">第2部はここまで7話、<strong>「新しい物理は0」</strong>を毎回書いてきました。今回もそれは変わりません。<br>変わったのは、<em>いちばん安く決着する場所が特定できた</em>ことです。<br>そして特定したら、<strong>その場所が 21年間空いていた</strong>ことが分かりました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>上限の出どころ</h2>
+
+  <p>\(1.3\times10^{-11}\) はどこから来た数字か。追いました。</p>
+
+  <div class="keybox">
+    <p style="margin:0;">A. Sher <em>et al.</em>（E865）, <em>"An improved upper limit on the decay \(K^+\to\pi^+\mu^+e^-\)"</em>, Phys. Rev. D <strong>72</strong>, 012005 (2005)　＝　arXiv:hep-ex/0502020</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:44%">内容</th><th>値</th></tr>
+    <tr><td>1998年のラン単独</td><td class="num">\(\mathrm{BR}&lt;2.1\times10^{-11}\)（90% CL）</td></tr>
+    <tr class="mark"><td>E865（1995, 1996, 1998）＋ E777 の合成</td><td class="num"><strong>\(\mathrm{BR}&lt;1.3\times10^{-11}\)（90% CL）</strong></td></tr>
+    <tr><td>1事象感度（SES）</td><td class="num">\(\sim10^{-12}\)</td></tr>
+    <tr><td>信号領域の観測事象</td><td class="num bad">8</td></tr>
+    <tr><td>背景の期待値</td><td class="num bad">\(8.2\pm1.9\)</td></tr>
+  </table>
+
+  <p><strong>第7回の \(1.3\times10^{-11}\) は正しかった</strong>ということです。ただし出どころは私が漠然と思っていた「2000年の Appel」ではなく<em>2005年の Sher</em>で、しかも<strong>単独のランではなく3つのランと前身実験の合成</strong>でした。</p>
+
+  <div class="aside">
+    <span class="tag">途中で 1.2 を拾いました</span>
+    <p>検索の途中で「合成の最終値は \(1.2\times10^{-11}\)」という記述に当たり、<em>公開した数字が違うかもしれない</em>と思いました。原典を開いたら \(1.3\times10^{-11}\) でした。<strong>二次情報を疑って原典で確かめる、が今回は正しく働きました</strong> ── 第2回で同じ手順を踏んで PDG 平均が 4箇所ずれていたときとは逆に、今回は自分の数字が生き残りました。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>その上限は、カオンが足りなくて止まったのではない</h2>
+
+  <p>表のいちばん下の2行が今回の芯です。<strong>8事象観測、背景の期待値 8.2 ± 1.9。</strong></p>
+
+  <p>これは「信号が見えなかった」のではなく「<em>背景と見分けがつかなかった</em>」という状態です。数字にします。</p>
+
+  <div class="calc">
+    <p>背景 \(b\) が既知で \(n\) 事象を観測したときの信号数の 90% CL 上限は</p>
+    $$\frac{\sum_{k\le n}\mathrm{Pois}(k\,|\,s+b)}{\sum_{k\le n}\mathrm{Pois}(k\,|\,b)}=0.10$$
+    <p>を解いて得られます。\(n=8\)、\(b=8.2\) で</p>
+    $$s_{\rm UL}=5.99\ \text{事象}$$
+    <p>1998年のランの上限 \(2.1\times10^{-11}\) をこれで割ると、1事象感度は \(3.5\times10^{-12}\)。<em>論文の「\(\sim10^{-12}\)」と同じ桁です。</em></p>
+  </div>
+
+  <div class="verdict">
+    <p><strong>彼らはカオンを使い切ったのではなく、背景8事象に当たって止まりました。</strong></p>
+    <p>しかもその背景の <strong>98% は偶発事象</strong>（三本の飛跡が<em>別々のカオン崩壊</em>から来て、たまたま一点で交わって見える）です。名前のついた物理背景は \(K^+\to\pi^+\pi^+\pi^-\)（\(\pi^-\) が \(e^-\) に誤認）と Dalitz 崩壊 \(\pi^0\to e^+e^-\gamma\)（\(e^+\) が \(\pi^+\) に誤認）の二つ。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>だから改善は \(1/\sqrt f\) ── 排除に 1.69倍</h2>
+
+  <p>背景制限だと、露光量を \(f\) 倍しても上限は \(f\) 倍良くならない。信号は \(f\) に比例して増えますが背景も \(f\) 倍になるので、上限は \(\sqrt f\) しか良くなりません。</p>
+
+  <p>計算しました。すべてが \(f\) 倍（\(n\) と \(b\) が \(f\) 倍、1事象感度が \(1/f\)）になる場合の期待上限です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:14%">露光 \(f\)</th><th class="c">\(b=8.2f\)</th><th class="c">\(s_{\rm UL}\)</th><th class="c">期待上限</th><th class="c">予言との比</th></tr>
+    <tr><td>1（現状）</td><td class="num">8.2</td><td class="num">6.16</td><td class="num">\(1.34\times10^{-11}\)</td><td class="num">1.38</td></tr>
+    <tr><td>1.5</td><td class="num">12.3</td><td class="num">7.19</td><td class="num">\(1.04\times10^{-11}\)</td><td class="num">1.07</td></tr>
+    <tr class="mark"><td><strong>1.8</strong></td><td class="num">14.8</td><td class="num">7.73</td><td class="num ok"><strong>\(9.3\times10^{-12}\)</strong></td><td class="num ok"><strong>0.96</strong></td></tr>
+    <tr><td>3</td><td class="num">24.6</td><td class="num">9.55</td><td class="num">\(6.9\times10^{-12}\)</td><td class="num">0.71</td></tr>
+    <tr><td>8</td><td class="num">65.6</td><td class="num">14.68</td><td class="num">\(4.0\times10^{-12}\)</td><td class="num">0.41</td></tr>
+    <tr><td>50</td><td class="num">410</td><td class="num">34.6</td><td class="num">\(1.5\times10^{-12}\)</td><td class="num">0.16</td></tr>
+  </table>
+
+  <div class="keybox">
+    <p style="margin:0;text-align:center;font-size:19px;">期待上限が予言を下回るのは 露光量 <strong>1.69倍</strong> から。</p>
+    <p style="margin:8px 0 0;font-size:15px;">上の表は刻んだ行なので \(f=1.5\) と \(f=1.8\) の間に交差があります。二分法で解くと <strong>\(f=1.685\)</strong>、そこでの期待上限は \(9.70\times10^{-12}\)。</p>
+  </div>
+
+  <p>そして「見る」ほうも計算できます。予言が正しければ信号は現在の露光でも <strong>2.8事象</strong>（背景 8.2 の上）── 有意度 \(S/\sqrt B=0.97\sigma\)。埋もれています。</p>
+
+  <table class="tbl">
+    <tr><th style="width:16%">露光 \(f\)</th><th class="c">信号 \(S\)</th><th class="c">背景 \(B\)</th><th class="c">\(S/\sqrt B\)</th></tr>
+    <tr><td>1</td><td class="num">2.8</td><td class="num">8.2</td><td class="num">0.97σ</td></tr>
+    <tr><td>10</td><td class="num">27.7</td><td class="num">82</td><td class="num">3.06σ</td></tr>
+    <tr><td>20</td><td class="num">55.3</td><td class="num">164</td><td class="num">4.32σ</td></tr>
+    <tr class="mark"><td><strong>26.8</strong></td><td class="num">74.1</td><td class="num">220</td><td class="num ok"><strong>5.00σ</strong></td></tr>
+    <tr><td>30</td><td class="num">83.0</td><td class="num">246</td><td class="num">5.29σ</td></tr>
+  </table>
+
+  <div class="verdict">
+    <p><strong>排除に 1.69倍、発見に 26.8倍。</strong>これが「決着の値段」です。</p>
+    <p>比べてください ── 第6回で見た \(m_\tau\) の道は、系統誤差を <strong>14倍</strong>削らなければならず、その道筋を誰も示していませんでした。こちらは<em>露光量を 1.69倍</em>です。</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">この計算の弱点</span>
+    <p>「背景が露光量に比例する」を仮定しています。<strong>偶発事象はそうなりません</strong> ── 三本の飛跡が別々の崩壊から来るので、瞬間強度の2乗以上で増えます。だから<em>高強度ビームにすれば単純に勝てるわけではない</em>。<br>この計算が本当に言っているのは「<strong>同じ背景率のまま露光を増やせれば</strong> 1.69倍で足りる」ということで、その前提が成り立つかは装置しだいです。<br>もうひとつ ── 表の \(f=1\) の行が \(1.34\times10^{-11}\) と出るのは補間のぶんで、公表値 \(1.3\times10^{-11}\) との差 3% です。</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：決着の値段。<b>横軸は露光量の倍率 \(f\)</b>（対数）、縦軸は分岐比（対数）。<b>赤の曲線が期待される 90% CL 上限</b>で、\(1/\sqrt f\) でしか下がりません。<b>紫の水平線が予言 \(0.97\times10^{-11}\)</b>、灰色が現在の上限。曲線が紫線を切るところ（\(f=1.685\)）が「排除できる露光量」です。<b>スライダーで \(f\) を動かせます</b> ── 右下に有意度も出ます</div>
+    <canvas id="cv" width="1120" height="420"></canvas>
+    <div class="controls">
+      <label>露光量の倍率 \(f\) = <span class="val" id="vf">1.70</span>
+        <input type="range" id="sf" min="0" max="200" step="1" value="20"></label>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#a83a22"></span>期待される 90% CL 上限</span>
+      <span><span class="swatch" style="background:#7a4a8a"></span>予言 \(0.97\times10^{-11}\)</span>
+      <span><span class="swatch" style="background:#aab4b2"></span>現在の上限 \(1.3\times10^{-11}\)</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>ところが、そのモードは探されていない</h2>
+
+  <p>ここで NA62 の原典を開きました。<em>"Search for lepton number and flavour violation in \(K^+\) and \(\pi^0\) decays"</em>, Phys. Rev. Lett. <strong>127</strong>, 131802 (2021)＝arXiv:2105.06759。</p>
+
+  <p>探された channel は3つでした。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">モード</th><th class="c">NA62 の上限</th><th class="c">それまでの上限</th><th class="c">改善</th></tr>
+    <tr><td>\(K^+\to\pi^-\mu^+e^+\)（レプトン数）</td><td class="num">\(4.2\times10^{-11}\)</td><td class="num">\(5.0\times10^{-10}\)</td><td class="num">12倍</td></tr>
+    <tr><td>\(K^+\to\pi^+\mu^-e^+\)（レプトン族）</td><td class="num">\(6.6\times10^{-11}\)</td><td class="num">\(5.2\times10^{-10}\)</td><td class="num">8倍</td></tr>
+    <tr><td>\(\pi^0\to\mu^-e^+\)</td><td class="num">\(3.2\times10^{-10}\)</td><td class="c">─</td><td class="c">─</td></tr>
+    <tr class="mark"><td><strong>\(K^+\to\pi^+\mu^+e^-\)</strong>（模型が予言するモード）</td><td class="c bad"><strong>探索なし</strong></td><td class="num">\(1.3\times10^{-11}\)</td><td class="c">─</td></tr>
+  </table>
+
+  <div class="verdict warn">
+    <p><strong>模型が予言しているモードだけが、リストに入っていません。</strong></p>
+    <p>上限は 2005年の論文で、その中の最新のデータは <strong>1998年</strong>のものです。2016年から走っているカオン実験は、この channel を見ていません。</p>
+    <p>上限の公表から <strong>21年</strong>。データの取得から <strong>28年</strong>。</p>
+  </div>
+
+  <p>そして 03 節と合わせると、こうなります ── <em>いちばん安く決着する測定が、いちばん長く放置されている。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>なぜ飛ばされたのか（ここは推測です）</h2>
+
+  <p>理由を探しました。<strong>どちらの論文にも書いてありません。</strong>分かったのは事実だけです。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">分かっている事実</th><th>出どころ</th></tr>
+    <tr><td>E865 の背景の 98% は偶発事象</td><td>hep-ex/0502020</td></tr>
+    <tr><td>物理背景は \(K^+\to\pi^+\pi^+\pi^-\)（\(\pi^-\to e^-\) 誤認）と \(\pi^0\to e^+e^-\gamma\)（\(e^+\to\pi^+\) 誤認）</td><td>同</td></tr>
+    <tr><td>共役モード \(\pi^+\mu^-e^+\) は同じ \(\pi^+\pi^+\pi^-\) の形から<em>別の誤認</em>で来る</td><td>著者の整理</td></tr>
+    <tr><td>NA62 は \(\pi^+\mu^-e^+\) を出して \(\pi^+\mu^+e^-\) を出していない</td><td>2105.06759</td></tr>
+  </table>
+
+  <p>二つのモードは背景について<strong>対称ではありません</strong>。だから片方だけ出るのは不自然ではない ── ただし<em>なぜそうしたのかは、私が読んだ範囲には書かれていません。</em></p>
+
+  <div class="caveat">
+    <span class="tag">できないことは、できないと書く</span>
+    <p>これを埋めるには NA62 の解析ノートか、検討して落とした channel を列挙した講演資料が必要です。<strong>読んでいません。</strong>第4回で 1982年の原論文に手が届かなかったのと同じ種類の穴で、今回は「有料の壁」ではなく「そもそも公表されていないかもしれない」という壁です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>「1.69倍で排除できる」は、模型にとって有利か不利か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>模型にとっては危険で、シリーズにとっては良い知らせです。</strong>第2部は「妙にきれいな数を裁く」シリーズなので、<em>安く裁ける標的</em>が見つかったのは前進です。<br>模型側から見ると、\(0.97\times10^{-11}\) は現在の上限の 75% ── <strong>すでに半分死んでいる</strong>ような位置です。ふつう模型は上限の何桁も下に予言を置くので、こんなに上限にくっついた予言は珍しい。<em>そしてくっついている理由は、上限が 21年動いていないからです。</em></div></details>
+      </li>
+      <li>背景が \(f\) に比例しないなら、この計算は無意味ではないか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>無意味ではないが、上限としてしか使えません。</strong>偶発背景は瞬間強度の2乗以上で増えるので、同じ装置で強度を上げると 03 節の表より<em>悪く</em>なります。逆に、時間分解能や飛跡の分離が良い装置なら<em>良く</em>なります。<br>だから 03 節が言っているのは「<strong>背景率を保てるなら 1.69倍で足りる</strong>」という条件つきの話です。<em>そして「保てるか」は装置の問題で、物理の問題ではありません</em> ── だから答えられるのは実験家だけです。この記事で言えるのはここまでです。</div></details>
+      </li>
+      <li>21年空いていることから、何か結論できるか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>物理については何も結論できません。</strong>測っていないことは、測ったら何も無いことの証拠でも、有ることの証拠でもありません。<br>結論できるのは<em>手続き</em>についてです ── <strong>「この模型は反証可能である」と言うためには、反証する装置が実際にその channel を見ていなければならない。</strong>第5回で私は「Mu3e が窓を閉じる」と書き（訂正⑬で間違いだった）、第7回で「上限の 75%」と書き（正しかった）、今回「その上限は 21年前で、誰も測り直していない」と分かった。<em>反証可能性は、論文の中ではなく実験の計画表の中にあります。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>この回で分かったこと</h2>
+
+    <p><strong>上限は正しく、出どころも確定しました。</strong>\(\mathrm{BR}(K^+\to\pi^+\mu^+e^-)&lt;1.3\times10^{-11}\)（90% CL）は Sher <em>et al.</em>, Phys. Rev. D <strong>72</strong>, 012005 (2005) ＝ arXiv:hep-ex/0502020 で、E865 の 1995・1996・1998年ランと前身実験 E777 の合成です。1998年ラン単独では \(2.1\times10^{-11}\)。<em>検索の途中で「\(1.2\times10^{-11}\)」という記述を拾って自分の数字を疑いましたが、原典では \(1.3\times10^{-11}\) でした。</em></p>
+
+    <p><strong>その上限は背景で決まっています。</strong>信号領域に 8事象、背景の期待値 \(8.2\pm1.9\)。信号数の 90% CL 上限は \(s_{\rm UL}=5.99\) 事象で、1事象感度は \(3.5\times10^{-12}\)（論文の「\(\sim10^{-12}\)」と同じ桁）。<em>カオンを使い切って止まったのではなく、背景8事象に当たって止まった。</em>しかもその背景の 98% は偶発事象です。</p>
+
+    <p><strong>だから改善は \(1/\sqrt f\) で、排除には露光量 1.69倍で足ります。</strong>二分法で解いた交差点は \(f=1.685\)、そこでの期待上限は \(9.70\times10^{-12}\) で予言とちょうど一致します。見るほうは \(f=26.8\) で \(5.0\sigma\)（現在の露光では信号 2.8事象・背景 8.2 で \(0.97\sigma\) に埋もれている）。<em>第6回で見た \(m_\tau\) の道が「系統を14倍削る、道筋なし」だったのと比べてください。</em></p>
+
+    <p><strong>そして第7回の外挿は方法が甘かった（訂正⑭）。</strong>「NA62 の8倍を当てれば \(1.6\times10^{-12}\)」は上限が \(1/f\) で下がることを前提にしていましたが、背景制限なので \(1/\sqrt f\) です。露光8倍の期待上限は \(4.0\times10^{-12}\) ── <em>2.5倍だけ楽観的でした。</em>姉妹モードの \(5.2\times10^{-10}\) が背景制限ではなかったのに、その改善率を背景制限のモードに移したのが誤りです。</p>
+
+    <p><strong>ところが、そのモードは探されていません。</strong>NA62（Phys. Rev. Lett. <strong>127</strong>, 131802 (2021) ＝ arXiv:2105.06759）が探したのは \(K^+\to\pi^-\mu^+e^+\)（\(&lt;4.2\times10^{-11}\)、12倍改善）、\(K^+\to\pi^+\mu^-e^+\)（\(&lt;6.6\times10^{-11}\)、8倍改善）、\(\pi^0\to\mu^-e^+\)（\(&lt;3.2\times10^{-10}\)）の3つ。<strong>模型が予言する \(\pi^+\mu^+e^-\) だけがリストに入っていません。</strong>上限の公表から 21年、データから 28年。<em>いちばん安く決着する測定が、いちばん長く放置されています。</em></p>
+
+    <p><strong>理由は、私が読んだ範囲には書かれていません。</strong>二つのモードは背景について対称ではない（同じ \(K^+\to\pi^+\pi^+\pi^-\) の形から別の誤認で来る）ので片方だけ出るのは不自然ではありませんが、<em>なぜそうしたのかは分かりません。</em>NA62 の解析ノートも、検討して落とした channel の一覧も読んでいません。第4回の「届かない原典」と同じ穴で、今回は有料の壁ではなく<strong>そもそも公表されていないかもしれない壁</strong>です。</p>
+
+    <p><strong>そして 03 節の計算には前提があります。</strong>「背景が露光量に比例する」を仮定していますが、偶発事象は瞬間強度の2乗以上で増えるので、同じ装置で強度だけ上げれば表より悪くなります。だから言えるのは<em>「背景率を保てるなら 1.69倍で足りる」</em>という条件つきの話で、保てるかどうかは装置の問題です ── <strong>この記事から先は、実験家しか答えられません。</strong>新しい物理は、この回でも出ていません。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>Koide 編は、ここで一区切りにできる形になりました。</strong>8話かけて残ったのは <em>①偶然ではない（ただし理由は \(p\) 値でない） ②対称性では導けない ③力学の値段は \(2.7\times10^5\) に1 ④唯一の機構は六個の新粒子を要求し、その一本が上限の 75% ⑤その測定は 1.69倍で決着し、21年空いている</em> の五つです。<br>残った宿題は二つ ── <strong>1982年の原論文</strong>（有料の壁、第4回）と <strong>NA62 がその channel を落とした理由</strong>（公表されていないかもしれない）。どちらもいまの道具では埋まりません。<em>埋まらないことを書いておくのが、この回の役目でした。</em><br>第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a> ｜ 第2回：<a href="butsuri-tsukuru2-02-genten.html">原典を開いたら、私が間違っていた</a> ｜ 第3回：<a href="butsuri-tsukuru2-03-yogen.html">本人が、予言と書いていた</a> ｜ 第4回：<a href="butsuri-tsukuru2-04-todokanai.html">届かない原典と、消えた補正項</a> ｜ 第5回：<a href="butsuri-tsukuru2-05-kagami.html">45度は、鏡だった</a> ｜ 第6回：<a href="butsuri-tsukuru2-06-tsukurenai.html">その鏡は、対称性では作れない</a> ｜ 第7回：<a href="butsuri-tsukuru2-07-muttsu.html">粒子は六個で、比は決まっていた</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第8回、物理好きの高校生・大学生向け読み物です。第7回でいちばん鋭かった数字について、実験側の原典を開いた回です。</p>
+    <p><strong>確立した内容：</strong>\(\mathrm{BR}(K^+\to\pi^+\mu^+e^-)&lt;1.3\times10^{-11}\)（90% CL、E865 1995/1996/1998 ＋ E777 の合成）、1998年ラン単独の \(2.1\times10^{-11}\)、1事象感度 \(\sim10^{-12}\)、信号領域の 8事象と背景期待値 \(8.2\pm1.9\)、背景の 98% が偶発事象であること、および物理背景が \(K^+\to\pi^+\pi^+\pi^-\) と \(\pi^0\to e^+e^-\gamma\) であること（A. Sher <em>et al.</em>, Phys. Rev. D <strong>72</strong>, 012005 (2005) ＝ arXiv:hep-ex/0502020）。NA62 の3モードの上限 \(4.2\times10^{-11}\)／\(6.6\times10^{-11}\)／\(3.2\times10^{-10}\) と、それぞれ12倍・8倍の改善（Phys. Rev. Lett. <strong>127</strong>, 131802 (2021) ＝ arXiv:2105.06759）。予言 \(0.97\times10^{-11}\)（Model C, \(n=2\)、arXiv:1608.04514）。</p>
+    <p><strong>著者の整理／未確認：</strong>本稿の数値（\(s_{\rm UL}=5.99\) 事象、1事象感度 \(3.5\times10^{-12}\)、露光倍率ごとの期待上限と有意度、排除に 1.69倍・発見に 26.8倍）は、著者が書いた純 Python コードの出力です。ポアソン上限はフラット事前分布のベイズ流（Helene 型）で、実験の公表手続きと同一ではありません ── 表の \(f=1\) の行が \(1.34\times10^{-11}\) と出るのは補間のぶんで、公表値との差 3% です。<br><strong>「背景が露光量に比例する」は本稿の仮定で、偶発背景については成り立ちません。</strong>偶発事象は瞬間強度の2乗以上で増えるため、同じ装置で強度を上げれば表より悪くなります。したがって「1.69倍で排除できる」は<em>背景率を保てる場合の条件つきの主張</em>です。<br><strong>訂正⑭</strong>：第7回の「NA62 の8倍を当てれば \(1.6\times10^{-12}\)」は上限が \(1/f\) で下がることを前提にした誤りで、正しくは \(1/\sqrt f\)、露光8倍で \(4.0\times10^{-12}\) です。<br><strong>NA62 が \(\pi^+\mu^+e^-\) を探索しなかった理由は、著者が読んだ範囲には書かれていません。</strong>05 節の背景の非対称性についての整理は著者のもので、NA62 の判断を説明したものではありません。解析ノートや落とした channel の一覧は読んでいません。第2部を通じて「新しい物理は出ていない」状態は、この回でも変わっていません。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a> ｜ 姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a> ／ <a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）→「PDF に保存」。図は最後の状態で印刷されます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var sf=document.getElementById('sf'), vf=document.getElementById('vf'), ro=document.getElementById('ro');
+  var W=1120,H=420;
+
+  var B0=8.2, N0=8, LIM98=2.1e-11, LIMC=1.3e-11, PRED=0.97e-11, CL=0.90;
+
+  function logCdf(n,mu){
+    if(mu<=0) return 0;
+    var acc=null;
+    for(var k=0;k<=n;k++){
+      var t=k*Math.log(mu)-lgamma(k+1)-mu;
+      acc = (acc===null) ? t : (Math.max(acc,t)+Math.log1p(Math.exp(-Math.abs(acc-t))));
+    }
+    return acc;
+  }
+  /* Lanczos log-gamma */
+  function lgamma(z){
+    var g=[676.5203681218851,-1259.1392167224028,771.32342877765313,
+           -176.61502916214059,12.507343278686905,-0.13857109526572012,
+           9.9843695780195716e-6,1.5056327351493116e-7];
+    if(z<0.5) return Math.log(Math.PI/Math.sin(Math.PI*z))-lgamma(1-z);
+    z-=1; var x=0.99999999999980993;
+    for(var i=0;i<8;i++) x+=g[i]/(z+i+1);
+    var t=z+7.5;
+    return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
+  }
+  function poissonUL(n,b){
+    var den=logCdf(n,b), target=Math.log(1-CL)+den;
+    var lo=0, hi=10+20*Math.sqrt(Math.max(b,1));
+    for(var i=0;i<200;i++){
+      var mid=0.5*(lo+hi);
+      if(logCdf(n,mid+b)>target) lo=mid; else hi=mid;
+    }
+    return 0.5*(lo+hi);
+  }
+  var SES = LIM98/poissonUL(N0,B0);
+  var SCALE = LIMC/LIM98;
+
+  function ulSmooth(b){
+    var loN=Math.floor(b), hiN=Math.ceil(b);
+    if(loN===hiN) return poissonUL(loN,b);
+    var w=b-loN;
+    return (1-w)*poissonUL(loN,b)+w*poissonUL(hiN,b);
+  }
+  function expLimit(f){ return ulSmooth(B0*f)*SES/f*SCALE; }
+  function signif(f){ return (PRED/SES*f)/Math.sqrt(B0*f); }
+  function fOf(idx){ return Math.pow(10, idx/200*2.3010); }   /* 1 .. ~200 */
+
+  var L=78,R=1060,T=40,Bm=352;
+  var FX0=1, FX1=200, Y0=8e-13, Y1=4e-11;
+  function X(f){ return L+(Math.log(f/FX0)/Math.log(FX1/FX0))*(R-L); }
+  function Y(v){ return Bm-(Math.log(v/Y0)/Math.log(Y1/Y0))*(Bm-T); }
+
+  function draw(){
+    var f=fOf(parseInt(sf.value,10));
+    vf.textContent=(f<10?f.toFixed(2):f.toFixed(1));
+    ctx.clearRect(0,0,W,H);
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    /* grid */
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    var fg=[1,2,5,10,20,50,100,200];
+    for(var i=0;i<fg.length;i++){
+      var xx=X(fg[i]);
+      ctx.beginPath(); ctx.moveTo(xx,T); ctx.lineTo(xx,Bm); ctx.stroke();
+      ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+      ctx.fillText(String(fg[i]),xx,Bm+18);
+    }
+    var yg=[1e-12,2e-12,5e-12,1e-11,2e-11];
+    for(i=0;i<yg.length;i++){
+      var yy=Y(yg[i]);
+      ctx.strokeStyle='#dde6e4';
+      ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillStyle='#4c545c'; ctx.textAlign='right';
+      ctx.fillText((yg[i]*1e12).toFixed(0)+'e-12',L-8,yy+4);
+    }
+
+    /* shaded region below the prediction line = excluded */
+    var yp=Y(PRED);
+    ctx.fillStyle='rgba(122,74,138,0.07)';
+    ctx.fillRect(L,yp,R-L,Bm-yp);
+
+    /* current limit */
+    ctx.strokeStyle='#aab4b2'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(LIMC)); ctx.lineTo(R,Y(LIMC)); ctx.stroke();
+    ctx.setLineDash([]);
+    /* prediction */
+    ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(L,yp); ctx.lineTo(R,yp); ctx.stroke();
+
+    /* expected limit curve */
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=3; ctx.beginPath();
+    for(i=0;i<=300;i++){
+      var ff=FX0*Math.pow(FX1/FX0,i/300);
+      var v=expLimit(ff);
+      if(i===0) ctx.moveTo(X(ff),Y(v)); else ctx.lineTo(X(ff),Y(v));
+    }
+    ctx.stroke();
+
+    /* crossing point */
+    var fc=null, loF=1, hiF=200;
+    for(i=0;i<80;i++){
+      var m=Math.sqrt(loF*hiF);
+      if(expLimit(m)>PRED) loF=m; else hiF=m;
+    }
+    fc=Math.sqrt(loF*hiF);
+    ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X(fc),yp); ctx.lineTo(X(fc),Bm); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#2f7d5a'; ctx.textAlign='left';
+    ctx.fillText('f = '+fc.toFixed(2)+' で交差',X(fc)+6,yp-8);
+
+    /* current marker */
+    var vv=expLimit(f);
+    ctx.fillStyle='#ffffff'; ctx.strokeStyle='#191d22'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(X(f),Y(vv),7,0,6.284); ctx.fill(); ctx.stroke();
+
+    /* frame + labels */
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.moveTo(L,Bm); ctx.lineTo(R,Bm); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,Bm); ctx.stroke();
+    ctx.fillStyle='#191d22'; ctx.textAlign='left';
+    ctx.fillText('BR',L+4,T-10);
+    ctx.textAlign='center'; ctx.fillStyle='#4c545c';
+    ctx.fillText('露光量の倍率 f（1 = 2005年の合成データ）',(L+R)/2,H-10);
+    ctx.textAlign='left'; ctx.fillStyle='#7a4a8a';
+    ctx.fillText('予言 0.97e-11',R-120,yp-8);
+    ctx.fillStyle='#aab4b2';
+    ctx.fillText('現在の上限 1.3e-11',R-140,Y(LIMC)-8);
+
+    var z=signif(f), ex=(vv<PRED);
+    ro.className = ex ? 'readout hit' : 'readout';
+    ro.innerHTML = '露光量 <b>'+(f<10?f.toFixed(2):f.toFixed(1))+' 倍</b>'
+      + '｜背景 B = <b>'+(B0*f).toFixed(1)+'</b>'
+      + '｜期待 90% CL 上限 = <b>'+vv.toExponential(2)+'</b>'
+      + '｜予言との比 <b>'+(vv/PRED).toFixed(3)+'</b><br>'
+      + '予言が正しければ信号 S = <b>'+(PRED/SES*f).toFixed(1)+'</b> 事象、'
+      + '有意度 S/√B = <b>'+z.toFixed(2)+'σ</b>'
+      + '<span style="color:'+(ex?'#8a2f18':'#1d5236')+'">'
+      + (ex ? ' → この露光で予言は排除できます'
+            : ' → まだ排除できません（交差は f = '+fc.toFixed(2)+'）')
+      + '</span>';
+  }
+  sf.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
