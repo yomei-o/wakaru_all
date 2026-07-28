@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中心電荷は、無い ── 物理を作る 第13回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--bad);border-radius:3px;background:#fbf0ec;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--bad);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 13 回 ／ 中心電荷は、無い</span></div>
+  <p class="eyebrow">手順1の答えが出ました ── そして理由は、超並進の重みが「半分」だったから</p>
+  <h1>中心電荷は、無い
+    <span class="sub">前回まで、問いを一つに絞ってきました ── <em>BMS₄ の超並進セクターに \(c_M\) の類似物はあるか</em>。<br>答えを出します。<strong>無い。</strong>「まだ見つかっていない」ではなく、<strong>構造的に入りようがない</strong>。<br>中心項を未知数に置いて Jacobi 恒等式を線形方程式として解くと、解が消えます。<br>そして理由まで出ました ── <em>4次元の超並進の重みが \(1/2\) という半端な数だから</em>です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第11回（\(c_L\)、\(c_M\)、BMS-Cardy）、連立一次方程式</span>
+    <span>この回の芯：\(\dim H^2=0\)。的は整数だった</span>
+  </div>
+
+  <p class="lead">前回の記事に、読者からまっとうな指摘をもらいました ── <em>「いつもの問題のすげ替えループ？」</em>。半分そのとおりでした。第12回は第11回の壁に別の方向から着いただけで、前進ではありません。<br>抜ける道は二つしかない。<strong>計算するか、否定を取りに行くか。</strong>この回でその両方をやります。前回の末尾に置いた手順表の <b>手順0（陽性対照）</b>と<b>手順1（分岐点）</b>を、実際に走らせました。<br>結果を先に書きます。手順0は<em>一度落ちて</em>、こちらの式のバグを一つ吐き出しました。そして手順1の答えは <strong>NO</strong> です。<br>これは言い換えではありません。<strong>扉が一枚、閉まりました。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>まず、道具が壊れていないことを確かめる</h2>
+
+  <p>第11回で証明の型を書きました ── 漸近対称性 → 中心電荷 → Cardy。4次元でこれを使うつもりなら、<strong>3次元で答えが分かっている場合に道具が正しく動くこと</strong>を先に見ておかなければなりません。手順0です。</p>
+
+  <p>これを実際にやったところ、<em>落ちました</em>。第11回に書いた BMS-Cardy 公式が、規約を混ぜていたのです ── 代数を \(\frac{c}{12}m^3\) で書きながら、公式は中心項を裸で書く別規約の形を使っていた。エントロピーが \(\sqrt{12}=2\sqrt3\approx3.46\) 倍過大になっていました。</p>
+
+  <p>訂正して走らせ直すと、\(GM\) を6桁動かしても幾何側と<strong>相対偏差 \(2.2\times10^{-16}\)</strong> で一致します。詳細と訂正後の式は<a href="butsuri-tsukuru-11-basho.html">第11回 03 節</a>に載せました。</p>
+
+  <div class="aside">
+    <span class="tag">なぜここを飛ばしてはいけないか</span>
+    \(\sqrt{12}\) は、式を眺めて気づく大きさではありません。陽性対照をやらずに4次元へ進んでいたら、合わない理由をずっと<em>物理のせい</em>にしていたはずです。<strong>道具のバグと自然の事実は、答えが合わないという同じ顔で現れます。</strong>先に道具を潰しておかないと、区別がつきません。
+  </div>
+
+  <p>道具は通りました。手順1に進む資格ができたので、進みます。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>中心項を、未知数にする</h2>
+
+  <p>問いはこうでした ── BMS₄ の<strong>超回転と超並進をまたぐ括弧</strong>に、中心項は入るか。</p>
+
+  <p>「探して見つからない」では答えになりません。<em>入りうる形を全部書き下して、方程式を解けばいい。</em>中心項は数（中心元 \(Z\) の係数）なので、有限個ではなく無限個の未知数ですが、モードごとに区切れば連立一次方程式です。</p>
+
+  <p>まず代数を、3次元も4次元もまとめて書ける形にします。超回転を \(L_m\)、超並進を \(T_r\) として ──</p>
+
+  <div class="keybox">
+    <div class="lbl">共通の形</div>
+    $$[L_m,L_n]=(m-n)L_{m+n}+\cdots,\qquad [T_r,T_s]=0$$
+    $$[L_m,T_r]=\underbrace{(a\,m-r+b)}_{f(m,r)}\,T_{m+r}\;+\;C(m,r)\,Z$$
+  </div>
+
+  <p>ここで \(a\) は、<strong>超並進が超回転の下で持つ重み</strong>です。この一つの数で3次元と4次元が区別されます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th style="width:30%">\([L_m,T_r]\)</th><th>\(a\)</th><th>\(b\)</th></tr>
+    <tr><td><strong>bms₃</strong></td><td>\((m-r)T_{m+r}\)</td><td class="c">\(1\)</td><td class="c">\(0\)</td></tr>
+    <tr><td><strong>bms₄</strong>（片方のカイラリティ）</td><td>\(\left(\frac{m-1}{2}-r\right)T_{m+r}\)</td><td class="c">\(\mathbf{1/2}\)</td><td class="c">\(-1/2\)</td></tr>
+  </table>
+
+  <p>4次元の \(1/2\) は、超並進が天球面上で重み \((-\tfrac12,-\tfrac12)\) を持つことから来ます ── これは確立した事実で、\(\mathfrak{bms}_4\) を \(W(-\tfrac12,-\tfrac12,-\tfrac12,-\tfrac12)\) と表記する流儀があるほどです。<em>この半端な数が、この回の主役になります。</em></p>
+
+  <p>さて \(C(m,r)\) は中心元の係数なので、<strong>モードの和がゼロのときしか立てません</strong>（そうでないと \(Z\) がモードを持ってしまう）。だから未知数は一列に並びます ──</p>
+
+  $$C(m,r)=c_m\,\delta_{m+r,0}$$
+
+  <p>未知数は \(\{c_m\}\)。これで舞台が整いました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>Jacobi 恒等式が、方程式になる</h2>
+
+  <p>勝手な \(c_m\) を入れてよいわけではありません。<strong>リー代数は Jacobi 恒等式を満たさなければならない</strong>からです。\(L_m,\,L_n,\,T_r\) の三つで書くと ──</p>
+
+  $$[[L_m,L_n],T_r]-[L_m,[L_n,T_r]]+[L_n,[L_m,T_r]]=0$$
+
+  <p>中心元は他のすべてと可換なので、中心部分だけ拾えます。\(r=-(m+n)\) のときだけ残って ──</p>
+
+  <div class="keybox">
+    <div class="lbl">コサイクル条件</div>
+    $$(m-n)\,c_{m+n}\;-\;(a n+m+n+b)\,c_m\;+\;(a m+m+n+b)\,c_n\;=\;0$$
+  </div>
+
+  <p>\(c_m\) について完全に線形です。<em>つまりこれは、ただの連立一次方程式です。</em>解空間の次元を数えればいい。</p>
+
+  <p>ただし一つ引き算が要ります。<strong>見かけだけの解</strong>があるからです。生成子を \(T_0\to T_0+\beta Z\) と定義し直すと、何もしていないのに中心項が現れます ──</p>
+
+  $$c_m^{\text{自明}}=\bigl((a+1)m+b\bigr)\beta$$
+
+  <p>これは<em>座標の取り替えでしかない</em>ので、物理的な中心電荷ではありません。数学では<strong>コバウンダリ</strong>と呼びます。求めたいのは、</p>
+
+  $$\dim H^2\;=\;\dim(\text{コサイクル空間})\;-\;\dim(\text{コバウンダリ空間})$$
+
+  <p>これが \(0\) なら「中心電荷は無い」、\(1\) 以上なら「ある」。<strong>答えは整数で、二値です。</strong></p>
+
+  <div class="aside">
+    <span class="tag">やっていることの正体</span>
+    これは<em>リー代数の二次コホモロジー \(H^2\) を、モードを切って有限次元の線形代数に落として計算する</em>という手続きです。第1回で次元行列の整数核を求めたのと、道具立てはほとんど同じ ── <strong>行列を作って、ランクを数える。</strong>物理の言葉が消えて、線形代数だけが残ります。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>陽性対照 ── bms₃ で \(m^3-m\) は出るか</h2>
+
+  <p>また同じ規律です。<strong>答えが分かっている場合で先に試す。</strong>3次元には \(c_M=3/G\) が実在するので、\(a=1,\,b=0\) を入れて \(\dim H^2=1\) が出なければ、この計算は信用できません。</p>
+
+  <p>モードを \(|m|\le8\) で切ると未知数は17個、方程式は217本。有理数で厳密に解きました（浮動小数点を使うと、ランクの判定が閾値の問題になってしまうので）。</p>
+
+  <div class="lab">
+    <span class="tag">陽性対照 ── bms₃（a = 1, b = 0）</span>
+<pre><span class="cm"># [L_m, T_r] = (m - r) T_{m+r} + c_m delta_{m+r,0}</span>
+<span class="cm"># 未知数 17 個（|m| &lt;= 8）、Jacobi から来る方程式 217 本、有理数で厳密に</span>
+
+  コサイクル空間        dim = 2
+  コバウンダリ          dim = 1     c_m = 2m
+  <span class="hi">------------------------------------------</span>
+  <span class="st">dim H^2 = 1</span>
+
+  余分な解を多項式で同定すると:
+    c_m = m^3        Jacobi を満たす : <span class="st">YES</span>
+    c_m = m^3 - m    Jacobi を満たす : <span class="st">YES</span>
+    c_m = m          Jacobi を満たす : YES  <span class="cm">(← コバウンダリ。自明)</span>
+
+  <span class="st">→ 出た。これが c_M = 3/G の正体。</span>
+  <span class="cm">   文献の中心項 (c_M/12)(m^3 - m) と、形が一致している。</span></pre>
+  </div>
+
+  <p><strong>出ました。</strong>\(m^3-m\) が Jacobi を満たし、しかもそれはコバウンダリではない。これが第11回でエントロピーを丸ごと運んでいた \(c_M\) です。3次元の成功が、こちらの計算の中で再現されました。</p>
+
+  <p>道具は動きます。本番へ。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>bms₄ ── 出ない</h2>
+
+  <p>同じコードに \(a=1/2,\,b=-1/2\) を入れます。</p>
+
+  <div class="lab">
+    <span class="tag">本番 ── bms₄（a = 1/2, b = −1/2）</span>
+<pre><span class="cm"># [L_m, T_r] = ((m-1)/2 - r) T_{m+r} + c_m delta_{m+r,0}</span>
+
+  コサイクル空間        dim = 1
+  コバウンダリ          dim = 1     c_m = (3m - 1)/2
+  <span class="hi">------------------------------------------</span>
+  <span class="bd">dim H^2 = 0</span>
+
+  唯一のコサイクルを見ると（|m| &lt;= 12、m = -3..3）:
+    -2/7  -1/5  -4/35  -1/35  2/35  1/7  8/35
+     = (3m - 1) / 35     <span class="cm">← コバウンダリそのもの</span>
+
+  3次元で効いた形を入れてみると:
+    c_m = m^3 - m    Jacobi を満たす : <span class="bd">NO（388 箇所で破れる）</span>
+
+  モード打ち切りを変えても動かない:
+    |m| &lt;= 4   dim H^2 = 0
+    |m| &lt;= 6   dim H^2 = 0
+    |m| &lt;= 8   dim H^2 = 0
+    |m| &lt;= 12  dim H^2 = 0
+
+  符号規約は文献で (m+1)/2 とも (m-1)/2 とも書かれるので両方:
+    a=1/2, b=+1/2   dim H^2 = 0
+    a=1/2, b=-1/2   dim H^2 = 0</pre>
+  </div>
+
+  <p>解空間に残ったのはコバウンダリ一本だけ。しかもそれは、生成子の定義をずらしただけの<em>見かけ</em>です。差し引くと、ゼロ。</p>
+
+  <div class="verdict">
+    <div class="lbl">手順1 の答え</div>
+    <p style="font-size:19px"><strong>BMS₄ の超回転–超並進括弧に、中心電荷は入らない。</strong></p>
+    <p>「まだ見つかっていない」のではありません。<em>Jacobi 恒等式が許さない</em>ので、探しても無い。3次元で \(c_M=3/G\) を成立させていた \(m^3-m\) は、4次元では 388 箇所で恒等式を破ります。</p>
+    <p style="margin-bottom:0">したがって<strong>ルートA'（BMS-Cardy の4次元版）は、構造的に閉じています。</strong>第10回で「3次元では、もう証明されている」と書いた、あの証明はそのままでは持ち上がりません。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>では、どんな代数なら持てるのか</h2>
+
+  <p>ここで止めると「4次元はダメでした」で終わります。<strong>同じコードで \(a\) を掃けば、条件そのものが見えるはずです。</strong>重みを連続的に動かして、\(\dim H^2\) を数えました。</p>
+
+  <div class="fig">
+    <div class="cap">図：超並進の重み \(a\) を動かしたときのコサイクル空間の次元。<b>ほとんどの \(a\) で「コバウンダリだけ」</b>。中心電荷が立つのは、櫛の歯のように離れた数点だけです</div>
+    <canvas id="cv" width="1120" height="380"></canvas>
+    <div class="controls">
+      <label>重み \(a\) = <span class="val" id="va">0.50</span>
+        <input type="range" id="sa" min="-200" max="300" step="1" value="50"></label>
+      <label>定数シフト \(b\) = <span class="val" id="vb">-0.50</span>
+        <input type="range" id="sb" min="-100" max="100" step="5" value="-50"></label>
+      <button id="b3">bms₃（a=1, b=0）</button>
+      <button id="b4">bms₄（a=1/2, b=−1/2）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#c3ceccff"></span>コバウンダリだけ（\(H^2=0\)）</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>本物の中心電荷がある（\(H^2\ge1\)）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>いま選んでいる \(a\)</span>
+    </div>
+  </div>
+
+  <p>スライダーを動かすと、ほとんどの場所で棒は低いままです。そして<strong>整数のところだけ、跳ね上がります。</strong>掃いた結果を表にすると ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:16%">重み \(a\)</th><th style="width:16%">\(b\)</th><th style="width:22%">\(\dim H^2\)</th><th>本物のコサイクル</th></tr>
+    <tr><td>\(-1\)</td><td>\(0\)</td><td class="ok">2</td><td>\(c_m=1,\;c_m=m\)</td></tr>
+    <tr><td>\(0\)</td><td>\(0\)</td><td class="ok">1</td><td>\(c_m=m^2\)</td></tr>
+    <tr class="mark"><td>\(1\)　<strong>bms₃</strong></td><td>\(0\)</td><td class="ok">1</td><td>\(c_m=m^3\)　<strong>← \(c_M=3/G\)</strong></td></tr>
+    <tr class="mark"><td>\(1/2\)　<strong>bms₄</strong></td><td>\(-1/2\)</td><td class="bad">0</td><td>無し</td></tr>
+    <tr><td colspan="4" style="color:var(--ink-soft);font-size:13px">\(a\in\{-1,-\tfrac12,0,\tfrac12,1,\tfrac32,2,3\}\)、\(b\in\{-1,-\tfrac12,0,\tfrac12,1,\tfrac32,2,3\}\) の 64 通りを全部走らせた。<strong>\(H^2\ne0\) になったのは \(b=0\) かつ \(a\in\{-1,0,1\}\) の3点だけ</strong></td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">この回で見つかった条件</div>
+    <p style="margin:6px 0 0;font-size:18px">超回転–超並進括弧に中心電荷が立つのは、<strong>重み \(a\) が整数のときだけ</strong>。</p>
+    <p style="margin:8px 0 0">bms₃ は \(a=1\) ── <em>的の上</em>。bms₄ は \(a=1/2\) ── <em>ちょうど半分ずれている。</em></p>
+  </div>
+
+  <p>これは、このシリーズが何度も踏んできた形です。第2回のアノマリー相殺、第6回の代数の閉じ方、第8回のツイスター的持ち上げ、第11回の中心電荷 ── <strong>連続的に調整できない、二値の的</strong>。今回それは<em>整数性</em>という顔をしていました。</p>
+
+  <p>そして4次元は、外していた。惜しくもなんともなく、きっちり \(1/2\) だけ。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>4次元の「半分」は、どこから来るのか</h2>
+
+  <p>ここは推論込みで書きます。数値の事実（\(a=1/2\) で \(H^2=0\)）は上の計算のとおりですが、<em>なぜ4次元だけ半端になるのか</em>の読みは、著者のものです。</p>
+
+  <p>超並進は「時刻をずらす自由」でした。ずらし幅の関数 \(T\) が、境界の上で座標変換に対してどう変換するか ── その重みが \(a\) です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%"></th><th style="width:26%">境界の空間断面</th><th style="width:26%">超並進の重み</th><th>\(a\)</th></tr>
+    <tr><td><strong>3次元重力</strong></td><td>天球「面」は円 \(S^1\)</td><td>\(-1\)（1方向ぶん丸ごと）</td><td class="c ok">\(1\)</td></tr>
+    <tr><td><strong>4次元重力</strong></td><td>天球面 \(S^2\)</td><td>\((-\tfrac12,-\tfrac12)\)（2方向に折半）</td><td class="c bad">\(1/2\)</td></tr>
+  </table>
+
+  <p>合計は<em>どちらも \(-1\)</em> です。違うのは、<strong>4次元にはカイラリティが二つあるので、その \(-1\) を二人で分け合う</strong>ところ。分け合った結果が \(1/2\) で、整数の的から落ちる。</p>
+
+  <p>言い換えると ── <em>4次元の天球面が2次元だったせいで、重みが割れた。</em>3次元では境界が1次元なので割る相手がおらず、整数のまま残った。</p>
+
+  <div class="caveat">
+    <span class="tag">誘惑に対する注意</span>
+    「じゃあ折半しない別の分け方をすれば」と言いたくなります。<strong>できません。</strong>重み \((-\tfrac12,-\tfrac12)\) は、超並進が4次元時空の並進を含むという要請から決まる ── 勝手に動かすと、それはもう BMS₄ ではない別の代数です。<em>この \(1/2\) は選べる係数ではなく、4次元であることの帰結です。</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>文献と突き合わせる</h2>
+
+  <p>自分の計算だけで「無い」と言うのは危ういので、確認しました。<strong>三つの独立な筋から、同じ答えが出ています。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">筋</th><th>言っていること</th></tr>
+    <tr><td><strong>代数（コホモロジー）</strong><br>Safari–Sheikh-Jabbari 2019<br>arXiv:1902.03260</td><td>「\(\mathfrak{bms}_4\) の二次実コホモロジー \(H^2(\mathfrak{bms}_4;\mathbb{R})\) は、\(C_{\mathcal L},\,C_{\bar{\mathcal L}}\) 以外の中心拡大を許さない」── Barnich–Troessaert を引いての classification。<strong>つまり2つの Witt 側だけで、混ざった括弧には無い。</strong>上の計算と一致</td></tr>
+    <tr><td><strong>電荷代数（場依存）</strong><br>Barnich–Troessaert 2011 / Barnich 2017<br>arXiv:1106.0213, 1703.08704</td><td>4次元で現れるのは<em>場に依存する</em>2-コサイクル。定数の中心電荷ではなく、しかも大域的に定義された BMS を使うと消える。だから Lie 代数ではなく<strong>Lie 亜代数</strong>として扱う（第11回 01 節で触れたもの）</td></tr>
+    <tr><td><strong>電荷代数（最新）</strong><br>Rignon-Bret–Speziale 2024<br>PRD 110, 044050</td><td>Wald–Zoupas の処方を使うと、ヌル無限遠の<strong>どの切断でも</strong> 2-コサイクルも中心拡大も無しに BMS 代数が実現する。論文の題がそのまま「Centerless BMS charge algebra」</td></tr>
+  </table>
+
+  <p>代数の側からも、電荷の側からも、ゼロ。<em>この \(1/2\) は、たまたま今の技術で見つからないという類の壁ではありません。</em></p>
+
+  <div class="aside">
+    <span class="tag">ひとつだけ抜け道の報告がある</span>
+    代数を<strong>広げれば</strong>話は変わります。Weyl 生成子を足した Weyl-BMS（\(\lambda\)-BMS）には中心拡大の族があるという報告があります。ただしそれは \(\mathfrak{bms}_4\) そのものではなく、生成子を追加した別の代数です ── <em>本稿ではこの筋は検算していません。</em>「重みが整数でないから閉じる」という上の条件は、生成子を足せば回避しうる、という程度に読んでください。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">09</span>閉じた扉と、残った扉</h2>
+
+  <p>第11回の末尾に置いた手順表を、埋め直します。</p>
+
+  <table class="tbl">
+    <tr><th style="width:10%">手順</th><th style="width:52%">内容</th><th>状態</th></tr>
+    <tr><td><strong>0</strong></td><td>陽性対照。3次元の BMS-Cardy を原論文の規約で再現する</td><td class="ok">通過（一度落ちて、公式のバグを1個回収）</td></tr>
+    <tr><td><strong>1</strong></td><td>BMS₄ の超並進セクターに \(c_M\) 類似物があるか</td><td class="bad">答えは <strong>NO</strong>。\(\dim H^2=0\)</td></tr>
+    <tr><td><strong>2a</strong></td><td>あれば → ルートA'（BMS-Cardy の4次元版）</td><td class="bad">閉じた</td></tr>
+    <tr><td><strong>2b</strong></td><td>無ければ → 別の型を探す</td><td><strong>ここが唯一の生き残り</strong></td></tr>
+  </table>
+
+  <p>第11回で「答えが『無い』でありうることも含めて、問いは well-posed だ」と書きました。<em>その「無い」を引いた</em>わけです。</p>
+
+  <p>負けたようですが、そうでもありません。<strong>閉じた扉は、二度と叩かなくていい扉です。</strong>第1回で \(p=0.67\) を成果として扱ったのと、同じ扱いをします ── <em>否定は情報です。</em></p>
+
+  <p>残ったのは 2b。第11回 05 節で挙げたルートB ── モジュラー不変性を使わず、熱的な円周が小さい極限で次元還元して Cardy 型の式を作る道（Di Pietro–Komargodski が \(d=4,6\) でやった路線）です。こちらは <em>そもそも \(c_M\) を必要としません</em>。中心電荷が無いことは、この道にとっては打撃ではない。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回で得られた、次に効く一行</div>
+    <p style="margin:6px 0 0;font-size:18px">4次元の面積則を Cardy で出すつもりなら、<strong>中心電荷を経由しない型でなければならない</strong>。</p>
+    <p style="margin:8px 0 0">前回まで「中心電荷が見つかるかどうか」を待っていました。<em>待たなくてよくなりました。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>コサイクル条件 \((m-n)c_{m+n}-(an+m+n+b)c_m+(am+m+n+b)c_n=0\) に \(a=1,\,b=0,\,c_m=m^3\) を入れ、\((m,n)=(2,1)\) で成り立つことを確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">\(a=1,b=0\) なので条件は \((m-n)c_{m+n}-(m+2n)c_m+(2m+n)c_n=0\)。\((m,n)=(2,1)\) で \(c_3=27,\,c_2=8,\,c_1=1\) を入れると \((2-1)\cdot27-(2+2)\cdot8+(4+1)\cdot1=27-32+5=0\)。<strong>成立。</strong>これが3次元の \(c_M\) を支えている恒等式です。</div></details>
+      </li>
+      <li>同じ \((m,n)=(2,1)\) で、今度は \(a=1/2,\,b=-1/2\)（bms₄）に \(c_m=m^3\) を入れるとどうなるか。
+        <details><summary>答えを見る</summary><div class="ans">係数は \(an+m+n+b=\tfrac12+3-\tfrac12=3\) と \(am+m+n+b=1+3-\tfrac12=\tfrac72\)。よって \((2-1)\cdot27-3\cdot8+\tfrac72\cdot1=27-24+3.5=\mathbf{6.5}\neq0\)。<strong>破れます。</strong>手計算1行で、4次元では \(m^3\) が使えないことが見えます ── 本文の「388 箇所で破れる」の、最初の1箇所です。</div></details>
+      </li>
+      <li>コバウンダリ \(c_m=((a+1)m+b)\beta\) が「物理的でない」のはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">生成子を \(T_0\to T_0+\beta Z\) と<em>定義し直しただけ</em>で現れるから。物理は生成子の名前の付け方に依らないので、名前の取り替えで消せる中心項は物理的な情報を持ちません。だから \(H^2\) では商を取って捨てます。<strong>逆に言えば、\(H^2\ne0\) の中心電荷は、どう名前を付け替えても消せない</strong> ── だから物理量になれる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>手順0（陽性対照）は、一度落ちた。</strong> 第11回の BMS-Cardy 公式が規約を混ぜており、\(\sqrt{12}=2\sqrt3\) 倍ずれていた。訂正後は \(GM\) を6桁動かして相対偏差 \(2.2\times10^{-16}\) で幾何側と一致。<em>陽性対照をやらなければ、このバグを持ったまま4次元へ行っていた。</em></p>
+    <p><strong>手順1 の答えは NO。</strong> 中心項を未知数に置いて Jacobi 恒等式を連立一次方程式として有理数で厳密に解くと、bms₄ の超回転–超並進括弧では <strong>\(\dim H^2=0\)</strong>。解空間に残るのはコバウンダリ一本だけ。モード打ち切り \(|m|\le4,6,8,12\) で不変、符号規約 \(b=\pm\tfrac12\) でも不変。</p>
+    <p><strong>陽性対照つきの否定である。</strong> 同じコードに bms₃（\(a=1,b=0\)）を入れると \(\dim H^2=1\) が出て、その中心項は \(m^3-m\) ── 文献の \(c_M=3/G\) と形が一致する。<em>道具は「有る」を検出できる。それでも4次元では出なかった。</em></p>
+    <p><strong>そして理由が出た ── 的は整数だった。</strong> 重み \(a\) を 64 通り掃くと、\(H^2\ne0\) になるのは \(b=0\) かつ \(a\in\{-1,0,1\}\) の3点だけ。bms₃ は \(a=1\) で的の上、<strong>bms₄ は \(a=1/2\) できっちり半分ずれている</strong>。4次元の天球面が2次元なので、重み \(-1\) が二つのカイラリティに折半された結果。</p>
+    <p><strong>ルートA' は閉じた。</strong> 第10回の3次元の証明は、そのままでは持ち上がらない。生き残ったのは、第11回 05 節のルートB ── <em>中心電荷を経由しない</em>次元還元型の Cardy。中心電荷を待つ必要は、もう無い。</p>
+    <p style="margin-bottom:0"><strong>これは言い換えではなかった。</strong> 第12回まで、このシリーズは問いを移動させ続けていた。今回やったのは移動ではなく、<em>扉を一枚閉めること</em>。第1回で \(p=0.67\) を成果として扱ったのと同じ意味で、<strong>否定は情報です。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む</span>
+    <a href="butsuri-tsukuru-10-sanjigen.html">三次元では、もう証明されている</a> ── 4次元に中心電荷が無いと分かった今、あの3次元の証明が<em>正確にどこで \(c_M\) を使っていたのか</em>をもう一度見ると、何を作り直せばいいかが見えます。手順表そのものは <a href="butsuri-tsukuru-11-basho.html">第11回</a> の末尾にあります。
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第13回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます ── 失敗と、その訂正を含めて。</p>
+    <p>確立した内容：BMS₃ / BMS₄ 代数の交換関係と超並進の重み、3次元平坦宇宙論の地平面エントロピーとその BMS-Cardy による再現（Barnich arXiv:1208.4371、Bagchi–Detournay–Fareghbal–Simón arXiv:1208.4372）、\(H^2(\mathfrak{bms}_4;\mathbb{R})\) が2つの Witt 中心電荷以外の中心拡大を許さないこと（Safari–Sheikh-Jabbari arXiv:1902.03260、Barnich–Troessaert arXiv:1106.0213 を引いて）、4次元電荷代数の場依存2-コサイクルと Lie 亜代数（Barnich arXiv:1703.08704）、Wald–Zoupas 処方での centerless な電荷代数（Rignon-Bret–Speziale, PRD 110, 044050 (2024)）。<br>本稿 02〜06 節のコホモロジー計算は、上記の文献の結論を<strong>独立に再導出したもの</strong>で、モードを打ち切った有限次元の線形代数として実行しています ── したがって厳密には「打ち切った範囲で」の主張です（\(|m|\le4,6,8,12\) で不変であることを確認）。<br><strong>いっぽう 07 節の「重みが半端になるのは4次元の天球面が2次元で、\(-1\) が二つのカイラリティに折半されるから」という読みは、本シリーズの著者による解釈です。</strong>重み \((-\tfrac12,-\tfrac12)\) 自体は確立した事実ですが、それを「整数の的を外した」と表現するのは本稿の言い方です。08 節末の Weyl-BMS の抜け道は報告の紹介にとどめ、検算していません。地平面の Carrollian 理論そのものが未構成であることは、第8回・第11回・第12回のとおりです。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、重みを整数からずらすと中心電荷が消えることを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sa=document.getElementById('sa'), sb=document.getElementById('sb'),
+      va=document.getElementById('va'), vb=document.getElementById('vb'), ro=document.getElementById('ro');
+
+  // ---- H^2 を、モードを切った線形代数として数える -------------------------
+  // [L_m,T_r] = (a m - r + b) T_{m+r} + c_m delta_{m+r,0}
+  // コサイクル条件: (m-n)c_{m+n} - (a n+m+n+b)c_m + (a m+m+n+b)c_n = 0
+  // コバウンダリ  : c_m = (a+1)m + b
+  var MODE=6;                       // 図では |m|<=6（13未知数）。本文の表は 8/12 でも同じ
+  var NU=2*MODE+1;
+  function ix(m){ return m+MODE; }
+
+  function cocycleDim(a,b){
+    var rows=[],m,n,row,i;
+    for(m=-MODE;m<=MODE;m++){
+      for(n=-MODE;n<=MODE;n++){
+        if(m+n<-MODE||m+n>MODE) continue;
+        row=new Array(NU); for(i=0;i<NU;i++) row[i]=0;
+        row[ix(m+n)] += (m-n);
+        row[ix(m)]   -= (a*n+m+n+b);
+        row[ix(n)]   += (a*m+m+n+b);
+        var mx=0; for(i=0;i<NU;i++) mx=Math.max(mx,Math.abs(row[i]));
+        if(mx>1e-12){ for(i=0;i<NU;i++) row[i]/=mx; rows.push(row); }
+      }
+    }
+    // 部分ピボット付きガウス消去でランクを数える
+    var r=0,c,p,k,f;
+    for(c=0;c<NU&&r<rows.length;c++){
+      p=-1; var best=1e-9;
+      for(k=r;k<rows.length;k++){ if(Math.abs(rows[k][c])>best){ best=Math.abs(rows[k][c]); p=k; } }
+      if(p<0) continue;
+      var t=rows[r]; rows[r]=rows[p]; rows[p]=t;
+      var inv=1/rows[r][c];
+      for(i=0;i<NU;i++) rows[r][i]*=inv;
+      for(k=0;k<rows.length;k++){
+        if(k===r) continue;
+        f=rows[k][c];
+        if(Math.abs(f)>1e-13){ for(i=0;i<NU;i++) rows[k][i]-=f*rows[r][i]; }
+      }
+      r++;
+    }
+    return NU-r;                     // コサイクル空間の次元
+  }
+  function cobDim(a,b){
+    for(var m=-MODE;m<=MODE;m++){ if(Math.abs((a+1)*m+b)>1e-12) return 1; }
+    return 0;
+  }
+  function h2(a,b){ return Math.max(0, cocycleDim(a,b)-cobDim(a,b)); }
+
+  // ---- 描画 ---------------------------------------------------------------
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.style.height=cssH+'px'; var W=c.width, H=c.height;
+    if(c._dpr!==r||c._w!==cssW){ c.width=Math.round(W*1); c.height=Math.round(H*1); c._dpr=r; c._w=cssW; }
+    return c.getContext('2d');
+  }
+
+  var A_MIN=-2, A_MAX=3, STEP=1/40;
+
+  function draw(){
+    var a=parseInt(sa.value,10)/100, b=parseInt(sb.value,10)/100;
+    va.textContent=a.toFixed(2); vb.textContent=b.toFixed(2);
+
+    var ctx=setupHiDPI(cv), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=64,R=W-24,T=26,B=H-58, pw=R-L, ph=B-T;
+    var maxD=3;
+    function X(v){ return L+(v-A_MIN)/(A_MAX-A_MIN)*pw; }
+    function Y(d){ return B-d/maxD*ph; }
+
+    // 目盛り
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    for(var d=0;d<=maxD;d++){
+      ctx.beginPath(); ctx.moveTo(L,Y(d)); ctx.lineTo(R,Y(d)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(String(d),L-9,Y(d)+5);
+    }
+    for(var t=A_MIN;t<=A_MAX+1e-9;t++){
+      ctx.strokeStyle='#eef3f2'; ctx.beginPath(); ctx.moveTo(X(t),T); ctx.lineTo(X(t),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText(String(t),X(t),B+20);
+    }
+
+    // 棒
+    var bw=Math.max(2, pw/((A_MAX-A_MIN)/STEP)-1.2);
+    for(var v=A_MIN;v<=A_MAX+1e-9;v+=STEP){
+      var vv=Math.round(v*1000)/1000;
+      var dim=cocycleDim(vv,b), cb=cobDim(vv,b), hh=Math.max(0,dim-cb);
+      if(dim<=0) continue;
+      ctx.fillStyle = hh>0 ? '#1f6f74' : '#c3cecc';
+      ctx.fillRect(X(vv)-bw/2, Y(dim), bw, B-Y(dim));
+    }
+
+    // 選択位置
+    var dimS=cocycleDim(a,b), cbS=cobDim(a,b), hS=Math.max(0,dimS-cbS);
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(X(a),T-6); ctx.lineTo(X(a),B+4); ctx.stroke();
+    ctx.fillStyle='#a83a22'; ctx.beginPath();
+    ctx.moveTo(X(a),T-6); ctx.lineTo(X(a)-5,T-14); ctx.lineTo(X(a)+5,T-14); ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('コサイクル空間の次元',L+4,T+2);
+    ctx.textAlign='center';
+    ctx.fillText('超並進の重み  a',(L+R)/2,H-14);
+
+    ro.className = hS>0 ? 'readout hit' : 'readout';
+    ro.innerHTML = '重み <b>a = '+a.toFixed(2)+'</b>、シフト <b>b = '+b.toFixed(2)+'</b> ｜ '
+      + 'コサイクル <b>'+dimS+'</b> － コバウンダリ <b>'+cbS+'</b> ＝ '
+      + '<b style="font-size:16px">dim H² = '+hS+'</b><br>'
+      + (hS>0
+          ? '<span style="color:#1d5236">→ 本物の中心電荷がある。この重みなら Cardy 経路が使える</span>'
+          : '<span style="color:#a83a22">→ 残るのはコバウンダリだけ。生成子の名前を付け替えれば消える ── 中心電荷は無い</span>');
+  }
+
+  sa.addEventListener('input',draw); sb.addEventListener('input',draw);
+  document.getElementById('b3').addEventListener('click',function(){ sa.value=100; sb.value=0;   draw(); });
+  document.getElementById('b4').addEventListener('click',function(){ sa.value=50;  sb.value=-50; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
