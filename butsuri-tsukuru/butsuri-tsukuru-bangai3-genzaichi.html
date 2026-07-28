@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>まだ、CFT ではない ── 物理を作る 番外編③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">番外編 ③ ／ まだ、CFT ではない</span></div>
+  <p class="eyebrow">第4回で紹介した2つの発展の、正直な現在地 ── 手を動かすと、何が足りないかが見える</p>
+  <h1>まだ、CFT ではない
+    <span class="sub">第4回の最後に、平坦時空のホログラフィーとソフトヘアを紹介しました。<br>どちらも「進行中」「受け入れられていない」と書きましたが、それでは診断になっていません。<br><em>正確に、どこで止まっているのか。</em> セレスチャル CFT のほうは、4点関数を作ろうとした瞬間に壊れます。<br>そしてその壊れ方には、<strong>拍子抜けするほど単純な物理的理由</strong>がありました。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回、複素数、交差比（知らなくても本文で作ります）</span>
+    <span>この回の芯：交差比 = −s/t、しかも実数</span>
+  </div>
+
+  <p class="lead">本シリーズの規律の5番目は「反証条件のない予想は載せない」でした。第4回で「セレスチャル・ホログラフィーは未完成」「ソフトヘアには反論がある」と書きましたが、それは<em>ラベルを貼っただけ</em>です。<br>この回では、実際に手を動かします。メリン変換を回し、4点関数を作ろうとして、壊れるところまで見る。そして壊れる理由を突き止める。<br>結論を先に言うと ── <strong>壊れ方が非常にきれいで、しかも物理的な意味がはっきりしています。</strong>「まだできていない」ではなく「なぜこの形なのか」が分かる。それは前進です。</p>
+
+  <h2><span class="n">01</span>まず、うまくいくところ ── 平面波が共形プライマリになる</h2>
+
+  <p>セレスチャル・ホログラフィーの出発点を、厳密に一行で確認します。</p>
+
+  <p>無質量の運動量を「エネルギー × 天球上の点」に分けます。</p>
+
+  $$p^\mu=\omega\,q^\mu(z,\bar z)$$
+
+  <p>ローレンツ変換は、\(z\) にはメビウス変換として、\(\omega\) にはスケーリングとして作用します。ならば <strong>\(\omega\) のスケーリングを対角化すればいい</strong> ── それがメリン変換です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 平面波をメリン変換する</span>
+    $$\int_0^\infty d\omega\;\omega^{\Delta-1}\,e^{i\omega\,q\cdot X-\epsilon\omega}\;=\;\frac{\Gamma(\Delta)}{\bigl(-i\,q\cdot X+\epsilon\bigr)^{\Delta}}$$
+    <p class="lbl">これは厳密（\(\int_0^\infty \omega^{\Delta-1}e^{-a\omega}d\omega=\Gamma(\Delta)/a^\Delta\) そのもの）</p>
+    <p style="margin:8px 0 8px">右辺は \((q\cdot X)^{-\Delta}\) の形。これは天球上で<strong>重み \(\Delta\) の共形プライマリ</strong>として変換します。</p>
+  </div>
+
+  <p>平面波が、天球上の共形場に化けた。ここまでは完璧です。4次元のローレンツ群 \(SO(3,1)\cong SL(2,\mathbb{C})\) が2次元の共形群として働いているので、<em>これは自動的に</em>起きます。</p>
+
+  <h2><span class="n">02</span>4点関数を作ろうとすると、壊れます</h2>
+
+  <p>問題は、1粒子ではなく散乱振幅を変換したときに起きます。</p>
+
+  <p>普通の2次元 CFT なら、4点関数は<strong>交差比 \(z\) の滑らかな関数</strong>です。共形対称性で3点を固定でき、残る自由度が交差比ひとつ。相関関数はその関数として書ける。</p>
+
+  <p>セレスチャル CFT でも同じ形になるはず ── そう期待して、実際に 2→2 の無質量散乱を天球座標に落として、交差比を計算してみます。</p>
+
+  <div class="lab">
+    <span class="tag">2→2 無質量散乱（重心系）の交差比を計算する</span>
+<pre><span class="cm">重心系で 4 つの運動量を組み、方向を天球座標 z_i = tan(θ/2)e^{iφ} に落として</span>
+<span class="cm">交差比 z = (z12·z34)/(z13·z24) を計算する</span>
+
+ 散乱角        交差比 z        |Im z|          -s/t
+   30°      14.928203      <span class="st">1.7e-15</span>      14.928203
+   60°       4.000000      <span class="st">3.7e-16</span>       4.000000
+   90°       2.000000      <span class="st">1.2e-16</span>       2.000000
+  120°       1.333333      <span class="st">4.1e-17</span>       1.333333
+
+<span class="cm">天球上にランダムに 4 点を取ると（＝散乱を無視すると）</span>
+   交差比の実部     |虚部|
+       0.5861     <span class="hi">0.4765</span>
+       2.0586     <span class="hi">2.1025</span>
+      -0.1783     <span class="hi">0.4818</span></pre>
+  </div>
+
+  <p>二つのことが同時に分かります。</p>
+
+  <div class="keybox">
+    <div class="lbl">計算が言っていること</div>
+    <p style="margin:6px 0 0"><strong>①</strong> 交差比は、機械精度で<em>厳密に実数</em>になる。</p>
+    <p style="margin:8px 0 0"><strong>②</strong> しかもその値は \(-s/t\) に一致する ── <em>マンデルスタム変数の比そのもの</em>。</p>
+  </div>
+
+  <p>②は嬉しい発見です。天球という抽象的な場所の交差比が、散乱の一番基本的な量に対応していた。</p>
+
+  <p>ですが①が問題です。<strong>運動量保存が、交差比を実軸に貼り付けている。</strong> 交差比は複素数として2次元分の自由度を持てるはずなのに、実際に到達できるのは1次元だけ。したがって ──</p>
+
+  $$\tilde{\mathcal{M}}_4\;\propto\;\delta(z-\bar z)\times(\cdots)$$
+
+  <p><strong>セレスチャル4点関数は、滑らかな関数ではなく超関数です。</strong> 普通の CFT の相関関数とは、種類が違う。</p>
+
+  <h2><span class="n">03</span>なぜ壊れるのか ── 散乱が平面的だから</h2>
+
+  <p>理由を突き止めると、拍子抜けするほど単純でした。</p>
+
+  <p>重心系の 2→2 散乱を思い浮かべてください。入射する2つの運動量は正反対を向き、出ていく2つも正反対を向く。<strong>4つの運動量は、必ず同一平面に乗ります。</strong></p>
+
+  <p>そして原点を通る平面内の方向は、天球上で<em>大円</em>を描きます。さらに ──</p>
+
+  <div class="keybox">
+    <div class="lbl">複素解析の基本事実</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">天球上の4点が<strong>同一円周上</strong> \(\iff\) <strong>交差比が実数</strong></p>
+  </div>
+
+  <p>つまり、鎖はこうです。</p>
+
+  <p style="text-align:center;font-size:17px;margin:26px 0">
+    運動量保存 → <strong>散乱は平面的</strong> → 天球上で大円 → <strong>交差比が実数</strong> → 相関関数が超関数
+  </p>
+
+  <p><em>セレスチャル CFT が「変な CFT」なのは、2→2 散乱が平面的だからでした。</em> 深い病理ではなく、初等的な運動学。</p>
+
+  <div class="fig">
+    <div class="cap">図：天球を平面に写した（立体射影）もの。4つの粒子の方向を点で示します。散乱角を動かすと点は円周上を動き、交差比は実数のまま。「非平面度」を上げると円から外れ、虚部が立ちます</div>
+    <canvas id="cv" width="720" height="360"></canvas>
+    <div class="controls">
+      <label>散乱角 θ = <span class="val" id="vth">90</span>°
+        <input type="range" id="sth" min="15" max="150" value="90">
+      </label>
+      <label>非平面度（運動量保存を破る量） <span class="val" id="vnp">0.00</span>
+        <input type="range" id="snp" min="0" max="100" value="0">
+      </label>
+      <button id="bz">平面に戻す</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>非平面度をゼロに戻すと、4点は必ず1つの円に乗り、虚部がゼロに落ちます。少しでも持ち上げると、円から外れて虚部が立つ ── そして<em>その配置は運動量保存を満たしません</em>。到達できない。</p>
+
+  <h2><span class="n">04</span>で、何が足りないのか</h2>
+
+  <p>ここまでで診断が書けます。セレスチャル・ホログラフィーが「まだ CFT ではない」と言われるとき、具体的に何が欠けているのか。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">普通の CFT</th><th>セレスチャル CFT</th></tr>
+    <tr><td>4点関数は交差比の<strong>滑らかな関数</strong></td><td class="bad">\(\delta(z-\bar z)\) に台を持つ<strong>超関数</strong></td></tr>
+    <tr><td>演算子スペクトルは<strong>離散</strong>（次元が飛び飛び）</td><td class="bad">\(\Delta\in 1+i\mathbb{R}\) の<strong>連続</strong>スペクトル</td></tr>
+    <tr><td>理論が<strong>独立に定義</strong>されている（作用や格子から）</td><td class="bad">いまのところ<strong>振幅の書き換え</strong>にとどまる</td></tr>
+    <tr><td>状態・演算子対応、OPE、ユニタリ性が揃う</td><td>部分的にしか分かっていない</td></tr>
+  </table>
+
+  <p>三行目が本質です。AdS/CFT が強いのは、境界側の \(\mathcal{N}=4\) 超対称ヤン=ミルズが<strong>重力とは独立に定義された理論</strong>で、両側を別々に計算して照合できるからでした。</p>
+
+  <p>セレスチャル CFT には、まだその「独立な定義」がありません。<em>4次元の振幅を書き換えたものを、2次元の言葉で呼んでいる</em>段階。書き換え自体は正しいし有用ですが、双対性の実例ではない。</p>
+
+  <div class="aside">
+    <span class="tag">それでも進歩である理由</span>
+    「まだできていない」と「なぜこの形なのか分かった」は違います。<br>03 節で見たとおり、超関数性の原因は<strong>平面性という初等的な運動学</strong>でした。原因が分かれば、対処の方向も見える（massive 粒子を入れる、次元を変える、$(2,2)$ signature に移る、など実際に試されています）。<br><em>壊れ方が理解できている壊れ方は、扱える。</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>もう一つの、生き残らなかった提案 ── ソフトヘア</h2>
+
+  <p>第4回で触れたソフトヘアを、きちんと診断します。</p>
+
+  <p><strong>主張（Hawking–Perry–Strominger 2016）</strong>：超並進電荷は無限個ある。ならばブラックホールも無限個の「ソフトな毛」を持つはずで、落ち込んだ情報はそこに記録されているのではないか。無毛定理が言う「毛は3本」は、ハードな毛の話でしかなかった。</p>
+
+  <p>魅力的な筋です。実際、<em>ソフトヘアが存在すること自体は概ね認められています</em>。争点はその先です。</p>
+
+  <div class="verdict no">
+    <div class="hd">反論① ── ソフトヘアは、ブラックホールの性質ではない（Bousso–Porrati 2017）</div>
+    <div class="bd">
+      <p style="margin-top:6px">超並進電荷は<strong>無限遠の漸近データ</strong>で決まります。ということは、ブラックホールから遠く離れた場所でソフトグラビトンを1個放出するだけで、値を変えられる。</p>
+      <p>Bousso–Porrati の言い方が的確です ── それは<em>髪の毛ではなく、かつら</em>だ。ブラックホールに付いているのではなく、遠くに置いても同じ効果が出る。<strong>中に何が落ちたかを区別できない。</strong></p>
+    </div>
+  </div>
+
+  <div class="verdict no">
+    <div class="hd">反論② ── 数が合わない</div>
+    <div class="bd">
+      <p style="margin-top:6px">情報パラドックスを解くには、ちょうど \(e^{A/4G}\) 個の状態が要ります。<strong>有限で、面積で決まる数。</strong></p>
+      <p>ところがソフト電荷は「天球上の関数」で labeled される ── <em>無限個</em>で、しかもすべて<strong>エネルギーがゼロ</strong>。多すぎるうえに縮退している。「たくさんある」と「正しい数だけある」は別のことです。</p>
+    </div>
+  </div>
+
+  <p>現在の見方はこうです。<strong>ソフトヘアは実在する。しかし情報パラドックスは解かない。</strong></p>
+
+  <h2><span class="n">06</span>では、実際に効いたのは何だったのか</h2>
+
+  <p>公平のために書いておくと、情報パラドックスの側では<em>別のところで</em>大きな進展がありました。</p>
+
+  <p><strong>島の公式・レプリカワームホール（2019–20）</strong>です。重力の経路積分から、ブラックホールの輻射のエンタングルメント・エントロピーの<em>ページ曲線</em>が計算されました。上がって、途中で折れて、下がる ── 情報が出てくる振る舞いが、実際に出た。</p>
+
+  <p>そしてここが本シリーズ的に重要なのですが、この計算は<strong>弦理論を使っていません</strong>。半古典重力の経路積分とレプリカ法だけ。主戦場は2次元の JT 重力でした。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── これも完結していません</span>
+    島の公式はページ曲線を再現しましたが、「情報がどう出てくるか」の機構までは説明していません。エントロピーの<em>曲線</em>が出ただけで、<em>符号化の詳細</em>は未解決です。そして計算は特殊な設定（2次元・低次元重力）に限られています。<br>第3回の脚注と同じ立場です ── <strong>壁を一箇所だけ抜いた段階。</strong>
+  </div>
+
+  <h2><span class="n">07</span>診断 ── シリーズの規律で採点する</h2>
+
+  <p>この回で見た3つを、本シリーズの規律（反証条件・先行研究・負の結果）で並べます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">提案</th><th style="width:22%">現在地</th><th>診断</th></tr>
+    <tr><td><strong>セレスチャル<br>ホログラフィー</strong></td><td class="ok">進行中</td><td>書き換えとしては正しく、赤外三角形を CFT の言葉に翻訳できている。欠けているのは<strong>境界理論の独立な定義</strong>。壊れ方（超関数性）の原因は平面性という初等的な運動学だと特定済み ── <em>扱える壊れ方</em>。</td></tr>
+    <tr><td><strong>ソフトヘア</strong></td><td class="bad">否定的</td><td>存在は認められているが、<strong>情報パラドックスは解かない</strong>。局在していない（かつら）、数が合わない。「魅力的なパズル」の段階から進んでいない。</td></tr>
+    <tr><td><strong>島の公式</strong></td><td class="ok">本物の前進</td><td>ページ曲線を実際に導出。<strong>弦理論を使っていない</strong>。ただし低次元に限られ、符号化の機構は未解決。</td></tr>
+  </table>
+
+  <p>第1回で「美しさは仮説の入口であって、証拠ではない」と書きました。ソフトヘアは、まさにその例です ── 筋も美しく、構造も実在するのに、<em>要求される仕事をしなかった</em>。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>セレスチャル4点関数が超関数になる理由を、二段階で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">(1) 重心系の 2→2 無質量散乱では、運動量保存により4つの運動量が<strong>同一平面</strong>に乗る。(2) 原点を通る平面内の方向は天球上で<strong>大円</strong>を描き、同一円周上の4点は<strong>交差比が実数</strong>になる。よって到達可能な配置は複素平面上の実軸だけで、相関関数は \(\delta(z-\bar z)\) に台を持つ。</div></details>
+      </li>
+      <li>本文の表で、90° 散乱の交差比が 2.000000 になっている。これを \(s,t\) から確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">重心系で \(s=4E^2\)、\(t=-s\sin^2(\theta/2)\)。\(\theta=90°\) なら \(\sin^2(45°)=1/2\) なので \(t=-s/2\)。よって \(-s/t=2\)。✓（30° なら \(\sin^2 15°=0.06699\) で \(-s/t=14.928\)。）</div></details>
+      </li>
+      <li>ソフトヘアが「かつら」と呼ばれる理由を一行で。
+        <details><summary>答えを見る</summary><div class="ans">超並進電荷は無限遠の漸近データで決まるので、ブラックホールから遠く離れた場所でソフトグラビトンを放出するだけで変えられる。<strong>ブラックホールに付いていない</strong>ので、中に落ちたものを区別できない。</div></details>
+      </li>
+      <li>「ソフト電荷は無限個あるのだから、情報を入れる場所には困らないはずだ」── どこが誤りか。
+        <details><summary>答えを見る</summary><div class="ans">必要なのは「たくさん」ではなく「<strong>ちょうど \(e^{A/4G}\) 個</strong>」。面積で決まる有限の数を再現しなければならない。無限個のゼロエネルギー状態は、多すぎるうえに縮退していて、正しい状態密度を与えない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>うまくいく部分は、厳密にうまくいく。</strong> 平面波のメリン変換は \(\Gamma(\Delta)/(-i\,q\cdot X+\epsilon)^{\Delta}\) ── 一行で共形プライマリになる。\(SO(3,1)\cong SL(2,\mathbb{C})\) があるので自動的。</p>
+    <p><strong>4点で壊れる。しかも壊れ方がきれい。</strong> 交差比を計算すると機械精度で実数になり、値は \(-s/t\)。したがって相関関数は \(\delta(z-\bar z)\) に台を持つ超関数で、普通の CFT とは種類が違う。</p>
+    <p><strong>原因は、初等的な運動学だった。</strong> 運動量保存 → 散乱は平面的 → 天球上で大円 → 交差比が実数。深い病理ではない。<em>原因が分かる壊れ方は、扱える。</em></p>
+    <p><strong>足りないのは「境界理論の独立な定義」。</strong> AdS/CFT が強いのは両側を別々に計算できるから。セレスチャル CFT はいまのところ振幅の書き換えで、双対性の実例ではない。</p>
+    <p style="margin-bottom:0"><strong>ソフトヘアは、実在するが仕事をしない。</strong> 無限遠のデータで決まるのでブラックホールに局在せず（かつら）、無限個のゼロエネルギー状態は \(e^{A/4G}\) という有限の数を再現しない。情報パラドックスで実際に効いたのは、弦理論を使わない<em>島の公式</em>のほうでした。</p>
+    <div class="next">
+      <span class="lbl">本編に戻ります</span>
+      「係数を、作りにいく」── 第1回で位置を測った \(O(1)\) の壁へ。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。この回で出てきた \(A/4G\) の <em>4</em> も、その一つです。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ番外編③、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：平面波のメリン変換が共形プライマリ波動関数を与えること、\(SO(3,1)\cong SL(2,\mathbb{C})\)、同一円周上の4点と交差比が実数であることの同値性、重心系 2→2 散乱の平面性、交差比 \(=-s/t\)。本文の数値は上記から計算した結果で、\(|{\rm Im}\,z|\) が \(10^{-15}\) 台なのは倍精度の丸め誤差です。<strong>セレスチャル・ホログラフィーは進行中の研究綱領であり、境界理論の独立な構成はまだありません</strong>。ソフトヘアの評価（存在するが情報パラドックスを解かない）は現時点で広く共有された見方ですが、<em>決着した命題ではなく</em>、近地平面対称性など別の筋の研究が続いています。島の公式についても、ページ曲線の再現は確立していますが情報の符号化機構は未解決で、計算は主に低次元重力に限られます。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①物理は、もっと簡単に書けないのか</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②「ct = 一定」は、どこまで通用するか</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、平面から外れた瞬間に虚部が立つのを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sth=document.getElementById('sth'), snp=document.getElementById('snp'),
+      vth=document.getElementById('vth'), vnp=document.getElementById('vnp'), ro=document.getElementById('ro'),
+      bz=document.getElementById('bz');
+
+  // 方向ベクトル → 天球座標（立体射影）  z = tan(θ/2) e^{iφ}
+  function zof(px,py,pz){
+    var r=Math.sqrt(px*px+py*py+pz*pz);
+    var th=Math.acos(Math.max(-1,Math.min(1,pz/r))), ph=Math.atan2(py,px);
+    var t=Math.tan(th/2);
+    return [t*Math.cos(ph), t*Math.sin(ph)];
+  }
+  function csub(a,b){ return [a[0]-b[0], a[1]-b[1]]; }
+  function cmul(a,b){ return [a[0]*b[0]-a[1]*b[1], a[0]*b[1]+a[1]*b[0]]; }
+  function cdiv(a,b){ var d=b[0]*b[0]+b[1]*b[1]; return [(a[0]*b[0]+a[1]*b[1])/d, (a[1]*b[0]-a[0]*b[1])/d]; }
+  function cross4(z1,z2,z3,z4){ return cdiv(cmul(csub(z1,z2),csub(z3,z4)), cmul(csub(z1,z3),csub(z2,z4))); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var th=parseInt(sth.value,10), np=parseInt(snp.value,10)/100;
+    vth.textContent=th; vnp.textContent=np.toFixed(2);
+    var t=th*Math.PI/180;
+
+    // 重心系 2→2。非平面度 np で 4 番目の運動量を面外へ持ち上げる（＝運動量保存を破る）
+    var eps=1e-7;
+    var P=[[eps,0,1],[eps,0,-1],[Math.sin(t),0,Math.cos(t)],
+           [-Math.sin(t)*Math.cos(np*Math.PI/2), Math.sin(np*Math.PI/2), -Math.cos(t)*Math.cos(np*Math.PI/2)]];
+    var Z=P.map(function(p){ return zof(p[0],p[1],p[2]); });
+    var cr=cross4(Z[0],Z[1],Z[2],Z[3]);
+
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=24, pw=(w-gap)*0.60, top=26, bot=h-34;
+    var cx=pw/2, cy=(top+bot)/2, S=Math.min(pw,bot-top)*0.30;
+
+    // ── 左：天球の立体射影
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('① 天球（立体射影）の上の4点', 8, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-3;g<=3;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*S*0.5,top+6); ctx.lineTo(cx+g*S*0.5,bot-6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-pw*0.44,cy+g*S*0.5); ctx.lineTo(cx+pw*0.44,cy+g*S*0.5); ctx.stroke();
+    }
+    // 赤道（θ=90°）＝単位円
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,S,0,6.2832); ctx.stroke(); ctx.setLineDash([]);
+
+    // 3点を通る円（平面配置なら4点目もこの上に乗る）
+    (function(){
+      var A=Z[0],B=Z[2],C=Z[3];
+      var ax=A[0],ay=A[1],bx=B[0],by=B[1],ccx=C[0],ccy=C[1];
+      var d=2*(ax*(by-ccy)+bx*(ccy-ay)+ccx*(ay-by));
+      if(Math.abs(d)<1e-9) return;
+      var ux=((ax*ax+ay*ay)*(by-ccy)+(bx*bx+by*by)*(ccy-ay)+(ccx*ccx+ccy*ccy)*(ay-by))/d;
+      var uy=((ax*ax+ay*ay)*(ccx-bx)+(bx*bx+by*by)*(ax-ccx)+(ccx*ccx+ccy*ccy)*(bx-ax))/d;
+      var rr=Math.hypot(ax-ux,ay-uy);
+      if(rr*S>4000) return;
+      ctx.strokeStyle='rgba(31,111,116,.40)'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.arc(cx+ux*S, cy-uy*S, rr*S, 0, 6.2832); ctx.stroke();
+    })();
+
+    var names=['p₁(入)','p₂(入)','p₃(出)','p₄(出)'];
+    for(var i=0;i<4;i++){
+      var px=cx+Z[i][0]*S, py=cy-Z[i][1]*S;
+      if(!isFinite(px)||Math.abs(px-cx)>pw) continue;
+      ctx.fillStyle = (i===3 && np>0.01) ? '#a83a22' : '#2f5d6b';
+      ctx.beginPath(); ctx.arc(px,py,5,0,6.2832); ctx.fill();
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center'; ctx.fillText(names[i], px, py-10);
+    }
+
+    // ── 右：交差比を複素平面に
+    var L=pw+gap, Rr=w-14;
+    var qx=(L+Rr)/2, qy=cy, QS=Math.min(Rr-L,bot-top)*0.30;
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('② 交差比 z（複素平面）', L-4, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,qy); ctx.lineTo(Rr,qy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(qx,top+6); ctx.lineTo(qx,bot-6); ctx.stroke();
+    // 実軸を強調
+    ctx.strokeStyle='rgba(47,125,90,.55)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(L,qy); ctx.lineTo(Rr,qy); ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='left'; ctx.fillText('実軸 ＝ 到達可能な配置', L+4, qy+16);
+
+    var sc=QS/4;
+    var zx=qx+Math.max(-6,Math.min(6,cr[0]))*sc, zy=qy-Math.max(-6,Math.min(6,cr[1]))*sc;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(zx,qy); ctx.lineTo(zx,zy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(zx,zy,6,0,6.2832); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('Re z', Rr-18, qy+16);
+
+    var s=4, tt=-s*Math.pow(Math.sin(t/2),2), mst=-s/tt;
+    ro.innerHTML = (np<0.005)
+      ? '<b>平面配置（運動量保存を満たす）。</b>4点は1つの円に乗り、交差比は <b>'+cr[0].toFixed(6)+'</b>、虚部は <b>'+Math.abs(cr[1]).toExponential(1)+'</b>（丸め誤差）。'
+        +' そして −s/t = <b>'+mst.toFixed(6)+'</b> と一致します。'
+      : '<b>非平面（運動量保存を破っている）。</b>p₄ が円から外れました。交差比 = '+cr[0].toFixed(4)+' <b>'+(cr[1]<0?'− ':'+ ')+Math.abs(cr[1]).toFixed(4)+'i</b> ── '
+        +'<b>虚部が立ちます</b>。この配置は実際の散乱では到達できません。';
+  }
+
+  sth.addEventListener('input', draw);
+  snp.addEventListener('input', draw);
+  bz.addEventListener('click', function(){ snp.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
