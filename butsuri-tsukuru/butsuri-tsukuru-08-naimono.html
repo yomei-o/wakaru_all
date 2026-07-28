@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>何が無いのか ── 物理を作る 第8回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 8 回 ／ 何が無いのか</span></div>
+  <p class="eyebrow">「独立な定義がない」と6回書いてきた ── それが何を要求しているのかを、仕様として詰める</p>
+  <h1>何が無いのか
+    <span class="sub">このシリーズは「まだ無い」を繰り返してきました。でもそれは<em>ラベル</em>であって、診断ではない。<br>この回は、<strong>「理論を定義する」とは具体的に何をすることか</strong>を4つに分解し、<br>それぞれについて Carrollian ホログラフィーが<em>どこまで来ていて、何で止まっているか</em>を書きます。<br>そして一角だけ、既に閉じているところがあります ── しかも閉じ方が、このシリーズの主題そのものでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第5回・第6回・第7回、番外編③</span>
+    <span>この回の芯：無いものを、仕様として書く</span>
+  </div>
+
+  <p class="lead">「独立な定義がない」── 第5回、第6回、第7回、番外編③で、同じ文を何度も書きました。正直な線としては正しいのですが、これでは<em>付箋を貼っただけ</em>です。本シリーズの規律5は「反証条件を先に書く」でした。ならば「何が揃えば定義できたことになるのか」も、先に書いておくべきです。<br>この回は、その仕様書を作ります。そして仕様の各項目について、いま何が起きているかを見る。<strong>ひとつは、既に満たされています。</strong></p>
+
+  <h2><span class="n">01</span>「理論を定義する」とは、何をすることか</h2>
+
+  <p>物理で「この理論はちゃんと定義されている」と言うとき、実は少なくとも4通りの意味があります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">定義の方法</th><th>やること</th></tr>
+    <tr><td><strong>① 作用</strong></td><td>場を並べ、ラグランジアンを書く。そこから全部が導かれる</td></tr>
+    <tr><td><strong>② 構成的定義</strong></td><td>格子など有限の系で定義し、連続極限を取る。存在を数学的に保証する</td></tr>
+    <tr><td><strong>③ ブートストラップ</strong></td><td>作用を使わず、無矛盾性（交差対称性・ユニタリ性・OPE の結合性）だけで理論を絞り込む</td></tr>
+    <tr><td><strong>④ 既知の理論として同定</strong></td><td>「これは○○理論だ」と言い切れる。別の文脈で既に定義済みのものと一致させる</td></tr>
+  </table>
+
+  <p>AdS/CFT が強いのは、境界側の \(\mathcal{N}=4\) 超対称ヤン=ミルズが<strong>4つとも持っている</strong>からです。作用が書ける。格子で近似できる。ブートストラップも走る。そして「これは \(SU(N)\) ゲージ理論だ」と同定できる。</p>
+
+  <p>だから両側を<em>別々に</em>計算して照合できる。これが「独立な定義」の意味です。</p>
+
+  <div class="keybox">
+    <div class="lbl">仕様書</div>
+    <p style="margin:6px 0 0">Carrollian CFT が「定義された」と言えるのは、<strong>①〜④ のどれか一つでも、重力の側を参照せずに満たしたとき</strong>。</p>
+  </div>
+
+  <p>では、いま何が起きているか。順に見ます。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>① 作用 ── 書けます。ただし、二つ書けてしまう</h2>
+
+  <p>意外に思われるかもしれませんが、<strong>Carrollian 場の理論の作用は書けます。</strong> 相対論的な理論の \(c\to0\) 極限を取ればいい。Carrollian スカラー、Carrollian 電磁気学、Carrollian ヤン=ミルズ ── どれも構成されています。</p>
+
+  <p>ところが、ここに<em>この路線でいちばん具体的な未解決問題</em>があります。</p>
+
+  <div class="keybox">
+    <div class="lbl">電気的／磁気的の分岐</div>
+    <p style="margin:6px 0 0">\(c\to0\) の取り方が<strong>2通り</strong>ある。ハミルトン形式で正準変数の再スケールを2通りに選べるため。</p>
+    <p style="margin:8px 0 0">マクスウェル理論で電場優勢／磁場優勢の極限があるのになぞらえて、<strong>「電気的極限」「磁気的極限」</strong>と呼ばれます。</p>
+    <p style="margin:8px 0 0"><em>そして一般に、この2つは別の理論になります。</em></p>
+  </div>
+
+  <p>つまり「Carrollian スカラー場の理論」と言っても、<strong>どちらのことか決まらない</strong>。そして重力の双対がどちらであるべきか（あるいは両方要るのか）は、決着していません。</p>
+
+  <p>①は「書けない」のではなく、<strong>「書けすぎて、選べない」</strong>という形で詰まっています。</p>
+
+  <h3>ついでに、超局所性を見ておきます</h3>
+
+  <p>第5回で「Carroll 的な力学は超局所的だ」と書きましたが、主張しただけで見せていませんでした。ここで見ておきます。</p>
+
+  <p>Carroll ブースト不変性を課すと、解に強い制約がかかります ── <em>エネルギー密度は静的で、運動量密度はゼロでなければならない</em>。結果として<strong>場が伝播できません</strong>。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 波動方程式の \(c\to0\)</span>
+    <p style="margin:8px 0 0">相対論的なスカラー場： \(\partial_t^2\varphi=c^2\,\partial_x^2\varphi\)</p>
+    <p class="lbl">\(c\to0\) を取ると</p>
+    $$\partial_t^2\varphi=0\qquad\Longrightarrow\qquad \varphi(t,x)=\varphi_0(x)+t\,\pi_0(x)$$
+    <p style="margin:8px 0 8px">右辺に \(x\) の微分がありません。<strong>各点が、隣を一切参照せずに時間発展します。</strong></p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：同じ初期条件（静止した場に、ガウス型の初速度を与える）から出発して、相対論的な場と Carroll 的な場を並べて時間発展させます</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>時刻 t = <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="100" value="0">
+      </label>
+      <button id="bp">▶ 再生</button>
+      <button id="br">戻す</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>左（相対論的）では、初速度の山が<em>左右に広がって台地になります</em> ── 信号が \(\pm c\) で伝わるから。右（Carroll）では、<strong>山がその場で伸びるだけ</strong>。幅がまったく変わりません。</p>
+
+  <p>第5回で「光円錐が潰れて、どこにも行けない」と書いたものの、場の言葉での姿がこれです。<em>二つの事象が因果的に繋がるのは、同じ点にいるときだけ。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>③ ブートストラップ ── 道具の前提が崩れています</h2>
+
+  <p>（②の構成的定義は、超局所性ゆえに格子化が自明にも困難にもなりうる微妙な位置なので、先に③を扱います。）</p>
+
+  <p>ブートストラップは強力な手法です。作用を一切使わず、無矛盾性だけで理論を絞り込む。2次元では、これでミニマル模型が<em>分類</em>できてしまう。</p>
+
+  <p>ところがセレスチャル／Carrollian CFT では、標準的な機械が前提を失います。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">ブートストラップが前提とするもの</th><th>セレスチャル CFT では</th></tr>
+    <tr><td>演算子スペクトルが<strong>離散</strong></td><td class="bad">連続（主系列 \(\Delta\in1+i\mathbb{R}\)）</td></tr>
+    <tr><td>相関関数が<strong>滑らかな関数</strong></td><td class="bad">超関数（番外編③：\(\delta(z-\bar z)\)）</td></tr>
+    <tr><td>ユニタリ性による<strong>正値性</strong></td><td class="bad">通常の形では成り立たない</td></tr>
+    <tr><td>OPE の収束</td><td class="bad">連続スペクトルでは和ではなく積分になる</td></tr>
+  </table>
+
+  <p>離散スペクトルの上で「和が収束する」ことを使う議論が、連続スペクトルでは<em>そのままでは使えません</em>。正値性を使った不等式も同様。</p>
+
+  <p><strong>③は「やってみたが失敗した」ではなく、「道具が入らない」状態です。</strong></p>
+
+  <h2><span class="n">04</span>それでも、一角は閉じています</h2>
+
+  <p>ここまで暗い話が続きましたが、<strong>ひとつだけ、独立な定義に到達している場所があります。</strong></p>
+
+  <p>Costello–Paquette の綱領です。彼らは4次元のゲージ理論の振幅を、<em>ツイスター空間上の6次元正則理論</em>から計算する道具立てを作りました。</p>
+
+  <div class="keybox">
+    <div class="lbl">閉じた一角</div>
+    <p style="margin:6px 0 0">4次元の振幅（形状因子の被積分関数）が、<strong>2次元カイラル代数の相関関数の積の和</strong>として書ける。<br>そしてそのカイラル代数は、celestial holography で見つかった漸近対称性の代数と結びついている。</p>
+    <p style="margin:8px 0 0">さらに彼らは、<strong>ツイスター空間へ局所的かつゲージアノマリーなしに持ち上がる</strong>4次元massless ゲージ理論のクラス（<em>twistorial theories</em>）を特定しました。そのクラスでは、ソフトモードの塔が<strong>量子レベルでも</strong>2次元カイラル代数をなす。</p>
+  </div>
+
+  <p>これは①でも④でもあります ── ツイスター空間上の理論として作用があり、しかも「これは○○だ」と同定できる。<strong>重力の側を参照せずに定義されている。</strong></p>
+
+  <h3>そして、閉じ方がこのシリーズの主題そのものでした</h3>
+
+  <p>注目すべきは、何が理論を選んでいるかです。<strong>アノマリー相殺</strong>。</p>
+
+  <p>三度目です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">回</th><th style="width:30%">的</th><th>性質</th></tr>
+    <tr><td>第1回</td><td class="bad">値が「気の利いた数」に近い</td><td>的を後から増やせる → look-elsewhere に食われる</td></tr>
+    <tr><td>第2回</td><td class="ok">アノマリーが相殺する</td><td class="ok">満たすか満たさないかの<strong>二値</strong></td></tr>
+    <tr><td>第6回</td><td class="ok">代数が閉じる</td><td class="ok"><strong>二値</strong></td></tr>
+    <tr><td><strong>この回</strong></td><td class="ok">ツイスター空間へアノマリーなく持ち上がる</td><td class="ok"><strong>二値</strong></td></tr>
+  </table>
+
+  <p>第1回で総当たりが空振りした理由は「係数を当てにいったから」でした。その裏返しが、また出てきた ── <em>調整の余地がない的だけが、情報を持つ。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 一角とは、どのくらいの角か</span>
+    この成果は<strong>自己双対セクター</strong>に照準を合わせたものです。第6回の \(w_{1+\infty}\) と同じ制限がかかります ── 自己双対重力は可解な特殊部分で、完全な重力ではない。<br>「独立な定義」の仕様は、<em>その角では</em>満たされました。全体ではまだです。<br>それでも「原理的に不可能」ではないことが示されたのは大きい。<strong>一例あることと、ゼロ例であることの差は、決定的です。</strong>
+  </div>
+
+  <h2><span class="n">05</span>残りの、無いものリスト</h2>
+
+  <p>仕様の話を離れて、この路線で未解決のものを並べておきます。第5回・第7回で触れたものも含め、一箇所にまとめます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:28%">未解決</th><th>状況</th></tr>
+    <tr><td><strong>電気的／磁気的の選択</strong></td><td>\(c\to0\) の取り方が2通りあり、一般に別の理論になる。重力の双対がどちらか未決（質量パラメータが無い場合は一致しうる、という指摘もある）</td></tr>
+    <tr><td><strong>セレスチャル中心電荷</strong></td><td>応力テンソルは同定できているのに、中心電荷が何なのか（ゼロなのか）が不明。2次元 CFT なら最初に決まる量が、決まらない</td></tr>
+    <tr><td><strong>状態数 \(=e^{A/4G}\) か</strong></td><td>第7回。地平面の Carrollian 理論の状態数がベッケンシュタイン–ホーキングを与えるかは未解決。<em>この路線の中心的な問い</em></td></tr>
+    <tr><td><strong>近地平面代数の同定</strong></td><td>BMS 型か、Heisenberg 型か、Virasoro か。文献に複数の主張があり決着していない</td></tr>
+    <tr><td><strong>質量のある粒子</strong></td><td>無質量なら綺麗に動くが、質量があると運動量空間の双曲面 \(H^3\) に住む。部分的</td></tr>
+    <tr><td><strong>ループと赤外発散</strong></td><td>ループ振幅は IR 発散するのでドレスト状態の処方が要る。\(w_{1+\infty}\) もループで変形する</td></tr>
+    <tr><td><strong>de Sitter</strong></td><td class="bad">本丸。\(\Lambda>0\) は依然として未解決</td></tr>
+  </table>
+
+  <h2><span class="n">06</span>この一覧の、読み方</h2>
+
+  <p>並べてみると、性質が三つに分かれます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">種類</th><th style="width:32%">例</th><th>見通し</th></tr>
+    <tr><td><strong>技術的</strong></td><td>質量あり、ループ、IR 発散</td><td class="ok">道具の整備。時間がかかるが、原理的な障害は見えていない</td></tr>
+    <tr><td><strong>選択の問題</strong></td><td>電気／磁気、近地平面代数</td><td>候補は出ている。<em>何が選ぶのか</em>が分かっていない</td></tr>
+    <tr><td><strong>本質的</strong></td><td class="bad">状態数、de Sitter</td><td class="bad">何が足りないのかも、はっきりしていない</td></tr>
+  </table>
+
+  <p>本シリーズの規律で言えば、<strong>三行目だけが本当の空白</strong>です。上の二行は「まだやっていない」であって「できない」ではない。</p>
+
+  <p>そして第7回で見たとおり、状態数の問題は<em>二枚の Carroll 面のうち内側</em>にあります。外側（平坦時空のホログラフィー）が解ければ内側（エントロピー）も動く可能性が高い ── 同じ数学だからです。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>\(\mathcal{N}=4\) 超対称ヤン=ミルズが「独立に定義されている」と言えるのは、01 節の4つのうちどれを満たすからか。
+        <details><summary>答えを見る</summary><div class="ans">4つとも。作用が書ける（①）、格子で近似できる（②）、ブートストラップが走る（③）、そして「\(SU(N)\) ゲージ理論だ」と同定できる（④）。だから重力側と<strong>別々に</strong>計算して照合できる。</div></details>
+      </li>
+      <li>相対論的な波動方程式の \(c\to0\) 極限を取ると、なぜ場が伝播しなくなるのか。
+        <details><summary>答えを見る</summary><div class="ans">\(\partial_t^2\varphi=c^2\partial_x^2\varphi\) で \(c\to0\) とすると \(\partial_t^2\varphi=0\)。右辺から<strong>空間微分が消える</strong>ので、各点の時間発展が隣の点を参照しなくなる。解は \(\varphi=\varphi_0(x)+t\pi_0(x)\) で、初期データの形が保たれたまま各点が独立に動く。</div></details>
+      </li>
+      <li>セレスチャル CFT でブートストラップが使えない理由を、二つ挙げよ。
+        <details><summary>答えを見る</summary><div class="ans">(1) 演算子スペクトルが<strong>連続</strong>（主系列 \(\Delta\in1+i\mathbb{R}\)）なので、離散スペクトルの和の収束を使う議論がそのまま使えない。(2) 相関関数が<strong>超関数</strong>（\(\delta(z-\bar z)\) に台を持つ）で、滑らかな関数を前提とする交差対称性の解析が働かない。加えてユニタリ性による正値性も通常の形では成り立たない。</div></details>
+      </li>
+      <li>第1回の総当たりと、第2回・第6回・第8回で出てきた「的」の違いを一行で。
+        <details><summary>答えを見る</summary><div class="ans">第1回の的は<strong>後から増やせた</strong>（\(p/q\)、\(\pi^k\) を足せば被覆率が上がる）ので look-elsewhere に食われた。アノマリー相殺・代数が閉じる・ツイスター空間へ持ち上がるは、いずれも<strong>満たすか満たさないかの二値</strong>で、調整の余地がない。<em>二値の的だけが情報を持つ。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>「独立な定義がない」を、仕様に書き直した。</strong> 理論を定義するには4つの道がある ── 作用、構成的定義、ブートストラップ、既知の理論としての同定。AdS/CFT が強いのは境界側が4つとも持っているから。Carrollian CFT はどれか一つでも、<em>重力を参照せずに</em>満たせばよい。</p>
+    <p><strong>① 作用は書ける。ただし二つ書けてしまう。</strong> \(c\to0\) の取り方が電気的／磁気的の2通りあり、一般に別の理論になる。「書けない」ではなく<em>「選べない」</em>という形の行き詰まり。</p>
+    <p><strong>③ ブートストラップは、道具が入らない。</strong> 連続スペクトル（\(\Delta\in1+i\mathbb{R}\)）と超関数相関のため、離散性・滑らかさ・正値性という前提が全部崩れる。失敗ではなく、機械が適用外。</p>
+    <p><strong>それでも一角は閉じている。</strong> Costello–Paquette のツイスター空間からの構成では、2次元カイラル代数が量子レベルでも閉じ、重力を参照せずに定義されている。しかも理論を選んでいるのは<strong>アノマリー相殺</strong> ── 第2回・第6回に続いて三度目の「二値の的」。ただし自己双対セクターに限る。</p>
+    <p style="margin-bottom:0"><strong>そして残りは、三種類に分かれる。</strong> 技術的（質量・ループ）、選択の問題（電気／磁気・近地平面代数）、そして本質的（<em>状態数が \(e^{A/4G}\) か</em>・<em>de Sitter</em>）。本当の空白は最後の二つだけです。</p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第8回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：Carrollian 場の理論の作用が \(c\to0\) 極限として構成できること、電気的／磁気的の2つの極限が正準変数の異なる再スケールから生じ一般に非同値であること、Carroll ブースト不変性が伝播を禁じる（超局所性）こと、\(c\to0\) で波動方程式が \(\partial_t^2\varphi=0\) になること、セレスチャル演算子の主系列 \(\Delta\in1+i\mathbb{R}\)、Costello–Paquette による 4d 振幅の 2d カイラル代数相関関数としての表示とアノマリーのない「twistorial theories」の特定（arXiv:2201.02595、Comm. Math. Phys. 2023）。<br><strong>いっぽう、重力の双対が電気的／磁気的のどちらであるべきかは未決です</strong>（質量パラメータが無い場合には両者が一致しうるという指摘もあります）。<strong>セレスチャル中心電荷、地平面の状態数が \(A/4G\) を与えるか、近地平面対称性の代数の同定、そして \(\Lambda>0\) はいずれも未解決です</strong>。Costello–Paquette の成果は自己双対セクターに照準を合わせたもので、完全な重力への拡張は未解決です。図は1次元スカラー場の模式で、相対論的な側は d'Alembert の公式、Carroll 側は \(\varphi=\varphi_0+t\pi_0\) をそのまま描いています。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図の「再生」で、片方だけが広がらないところを見られます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), ro=document.getElementById('ro'),
+      bp=document.getElementById('bp'), br=document.getElementById('br');
+  var playing=false, raf=null;
+
+  // 初期条件：φ0 = 0、初速度 π0(x) = ガウス
+  var SIG=0.16, C=1.0, XMAX=1.0;
+  function pi0(x){ return Math.exp(-x*x/(2*SIG*SIG)); }
+
+  // π0 の原始関数を数値的に用意（d'Alembert の公式で使う）
+  var NG=2400, XL=-3.0, XR=3.0, dx=(XR-XL)/NG, F=new Float64Array(NG+1);
+  (function(){ var acc=0; F[0]=0;
+    for(var i=1;i<=NG;i++){ var xa=XL+(i-1)*dx, xb=XL+i*dx;
+      acc += 0.5*(pi0(xa)+pi0(xb))*dx; F[i]=acc; } })();
+  function Fint(x){
+    if(x<=XL) return F[0]; if(x>=XR) return F[NG];
+    var u=(x-XL)/dx, i=Math.floor(u), f=u-i;
+    return F[i]*(1-f)+F[i+1]*f;
+  }
+  // 相対論的： φ(t,x) = (1/2c)[F(x+ct) - F(x-ct)]   （φ0=0 の d'Alembert）
+  function phiRel(t,x){ return (Fint(x+C*t)-Fint(x-C*t))/(2*C); }
+  // Carroll：  φ(t,x) = t·π0(x)
+  function phiCar(t,x){ return t*pi0(x); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/100; vt.textContent=t.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, pw=(w-gap)/2, T=26, B=h-38;
+    var YMAX=0.62;
+
+    function panel(x0,title,fn,col){
+      var L=x0+36, R=x0+pw-10, base=B-14, top=T+6;
+      function X(x){ return L+(R-L)*(x+XMAX)/(2*XMAX); }
+      function Y(v){ return base-(base-top)*(v/YMAX); }
+
+      ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+      for(var g=0;g<=4;g++){ var yy=top+(base-top)*g/4; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke(); }
+      ctx.strokeStyle='#7a8785';
+      ctx.beginPath(); ctx.moveTo(L,base); ctx.lineTo(R,base); ctx.stroke();
+
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(title, x0+6, T-9);
+
+      // 半値全幅で測る（Carroll は形が厳密に固定なので、これなら定数になる）
+      var M=420, vals=[], vmax=0;
+      for(var k0=0;k0<=M;k0++){ var xx0=-XMAX+2*XMAX*k0/M, vv=fn(t,xx0); vals.push(vv); if(vv>vmax) vmax=vv; }
+      var wmin=99, wmax=-99;
+      if(vmax>1e-6) for(var k1=0;k1<=M;k1++){
+        if(vals[k1]>=vmax/2){ var xx1=-XMAX+2*XMAX*k1/M; if(xx1<wmin) wmin=xx1; if(xx1>wmax) wmax=xx1; }
+      }
+      ctx.strokeStyle=col; ctx.lineWidth=2.4; ctx.beginPath();
+      var first=true;
+      for(var k=0;k<=M;k++){
+        var x=-XMAX+2*XMAX*k/M, v=vals[k];
+        var px=X(x), py=Y(Math.min(v,YMAX));
+        if(first){ ctx.moveTo(px,py); first=false; } else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.lineTo(X(XMAX),base); ctx.lineTo(X(-XMAX),base); ctx.closePath();
+      ctx.globalAlpha=0.13; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
+
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center'; ctx.fillText('x', (L+R)/2, base+18);
+      return (wmax>wmin)? (wmax-wmin) : 0;
+    }
+
+    var wR=panel(0, '① 相対論的（∂ₜ²φ = c²∂ₓ²φ）', phiRel, '#1f6f74');
+    var wC=panel(pw+gap, '② Carroll（∂ₜ²φ = 0）', phiCar, '#a83a22');
+
+    ro.innerHTML = (t<0.02)
+      ? '\\(t=0\\)。どちらも同じ初期条件（静止した場に、ガウス型の初速度）。<b>時刻を進めてください。</b>'
+      : '半値全幅 ── 相対論的 <b>'+wR.toFixed(3)+'</b> ／ Carroll <b>'+wC.toFixed(3)+'</b>（Carroll は t によらず一定）　'
+        +'左は信号が \\(\\pm c\\) で伝わるので<b>台地状に広がります</b>。右は<b>幅が一切変わりません</b> ── '
+        +'各点が隣を参照せずに独立に伸びるだけ。これが<b>超局所性</b>です。';
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  function step(){
+    if(!playing) return;
+    var v=parseInt(st.value,10)+1;
+    if(v>=100){ v=100; playing=false; bp.textContent='▶ 再生'; }
+    st.value=v; draw();
+    if(playing) raf=requestAnimationFrame(step);
+  }
+  bp.addEventListener('click', function(){
+    if(playing){ playing=false; bp.textContent='▶ 再生'; if(raf) cancelAnimationFrame(raf); return; }
+    if(parseInt(st.value,10)>=100) st.value=0;
+    playing=true; bp.textContent='⏸ 停止'; step();
+  });
+  br.addEventListener('click', function(){ playing=false; bp.textContent='▶ 再生'; st.value=0; draw(); });
+  st.addEventListener('input', function(){ playing=false; bp.textContent='▶ 再生'; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
