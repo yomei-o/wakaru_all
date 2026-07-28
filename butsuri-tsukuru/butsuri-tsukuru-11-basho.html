@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探す場所が、違ったのではないか ── 物理を作る 第11回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 11 回 ／ 探す場所が、違ったのではないか</span></div>
+  <p class="eyebrow">「中心電荷はゼロ」── ところが3次元でも、そちらはゼロだった</p>
+  <h1>探す場所が、違ったのではないか
+    <span class="sub">前回、4次元で欠けている3つを挙げました。その筆頭が<em>中心電荷</em>です。<br>調べると悪い知らせが二つ出てきます ── \(c=0\) と報告されていて、しかも中心拡大が定数ですらない。<br>Cardy 経路は塞がったように見えます。<strong>ところが3次元でも、その中心電荷はゼロでした。</strong><br>エントロピーを運んだのは、もう一つの側だった ── だとすれば、探す場所が違うのかもしれません。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第10回、半直積の気分</span>
+    <span>この回の芯：\(c_L=0\)、\(c_M=3/G\)</span>
+  </div>
+
+  <p class="lead">前回、第9回の予想を証明する型が見つかりました ── 漸近対称性 → 中心電荷 → Cardy。そして4次元で欠けているものが3つに絞れました。その筆頭、<strong>中心電荷</strong>を調べにいくのがこの回です。<br>出てきたのは、素直に読めば行き止まりでした。ところが3次元の成功例をもう一度分解すると、<em>同じ行き止まりが3次元にもあった</em>ことに気づきます。それでも entropy は出た。<br>この回は結論を出しません。出せるのは、<strong>問いを正しい形に置き直すところまで</strong>です。それでも書く価値はあると思っています ── 本シリーズが繰り返し確かめてきたのは、<em>探し方が間違っていると何も出ない</em>ということでしたから。</p>
+
+  <h2><span class="n">01</span>悪い知らせ、二つ</h2>
+
+  <p>4次元の中心電荷について、文献が言っていることは二つあります。どちらも歓迎できません。</p>
+
+  <div class="keybox">
+    <div class="lbl">事実1</div>
+    <p style="margin:6px 0 0">拡張 BMS₄（＋シャドウ対称性）の構成で、<strong>Virasoro 中心電荷は \(c=0\)</strong> と報告されている。</p>
+  </div>
+
+  <p>Cardy の公式 \(S=2\pi\sqrt{cL_0/6}\) に \(c=0\) を入れると、\(S=0\)。エントロピーがゼロになってしまいます。</p>
+
+  <div class="keybox">
+    <div class="lbl">事実2</div>
+    <p style="margin:6px 0 0">そもそも BMS₄ の中心拡大は、定数の中心電荷ではない。Barnich が扱ったのは<strong>中心拡大された BMS₄ リー亜代数（Lie algebroid）</strong> ── <em>場に依存する</em>構造で、BMS₃ の \(c_M=3/G\) のような「一つの数」ではありません。</p>
+  </div>
+
+  <p>入れるべき数が無く、あるものはゼロ。素直に読めば、Cardy 経路は4次元で塞がっています。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>ところが、3次元でもゼロでした</h2>
+
+  <p>ここで前回の成功例を、もう一段細かく分解します。</p>
+
+  <p>BMS 代数は<strong>半直積</strong>です ── 超回転（Virasoro）が超並進に作用する形。</p>
+
+  $$\text{BMS}=\underbrace{\text{超回転}}_{L_n}\;\ltimes\;\underbrace{\text{超並進}}_{M_n}$$
+
+  <p>半直積なので、中心項が入りうる場所が<em>2箇所</em>あります。</p>
+
+  <div class="calc">
+    <span class="tag">BMS₃ の交換関係（模式）</span>
+    $$[L_m,L_n]=(m-n)L_{m+n}+\frac{c_L}{12}m^3\delta_{m+n,0}$$
+    $$[L_m,M_n]=(m-n)M_{m+n}+\frac{c_M}{12}m^3\delta_{m+n,0}$$
+    $$[M_m,M_n]=0$$
+    <p class="lbl">中心電荷が二つある</p>
+    <p style="margin:8px 0 8px">\(c_L\) は Virasoro どうしの括弧に、\(c_M\) は<strong>超回転と超並進をまたぐ</strong>括弧に入ります。後者は Barnich–Compère 中心電荷と呼ばれます。</p>
+  </div>
+
+  <p>そして3次元アインシュタイン重力の値が、これです。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:24%">\(c_L\)（Virasoro 側）</th><th>\(c_M\)（超並進側）</th></tr>
+    <tr><td><strong>BMS₃（3次元平坦重力）</strong></td><td class="bad">\(0\)</td><td class="ok">\(3/G\)</td></tr>
+  </table>
+
+  <p><strong>\(c_L=0\) です。</strong> 3次元でも、Virasoro 側の中心電荷はゼロでした。</p>
+
+  <p>それでも BMS-Cardy は動いた。動かしたのは、もう一つの側です。</p>
+
+  <h2><span class="n">03</span>どちらが、エントロピーを運んでいるのか</h2>
+
+  <p>BMS₃ の Cardy 型公式は、二つの中心電荷が両方入った形をしています。</p>
+
+  <div class="keybox">
+    <div class="lbl">BMS-Cardy</div>
+    $$S=2\pi\left[\;c_L\sqrt{\frac{M_0}{2c_M}}\;+\;L_0\sqrt{\frac{c_M}{2M_0}}\;\right]$$
+  </div>
+
+  <p>アインシュタイン重力では \(c_L=0\) なので、<strong>第1項が丸ごと落ちます</strong>。残るのは第2項だけ ──</p>
+
+  $$S=2\pi L_0\sqrt{\frac{c_M}{2M_0}}\qquad(c_L=0)$$
+
+  <p>エントロピーは、<em>完全に \(c_M\) が担っています</em>。動かして確かめてください。</p>
+
+  <div class="fig">
+    <div class="cap">図：BMS-Cardy の二つの寄与。\(c_L\) をゼロにしても \(c_M\) が残ればエントロピーは生きます。逆に \(c_M\) をゼロにすると消えます</div>
+    <canvas id="cv" width="720" height="320"></canvas>
+    <div class="controls">
+      <label>\(c_L\)（Virasoro 側） = <span class="val" id="vl">0.0</span>
+        <input type="range" id="sl" min="0" max="60" value="0">
+      </label>
+      <label>\(c_M\)（超並進側） = <span class="val" id="vm">3.0</span>
+        <input type="range" id="sm" min="0" max="60" value="30">
+      </label>
+      <button id="be">アインシュタイン重力（c_L=0, c_M=3/G）</button>
+      <button id="bz">c_M をゼロに</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#9fb0ae"></span>第1項（\(c_L\) の寄与）</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>第2項（\(c_M\) の寄与）</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>「アインシュタイン重力」を押すと、灰色の棒（\(c_L\) の寄与）がゼロになり、青い棒（\(c_M\) の寄与）だけが立ちます。<strong>これが3次元でエントロピーが出た実際の姿です。</strong></p>
+
+  <p>逆に \(c_M\) をゼロにすると、\(c_L\) をいくら上げても ── 第1項は \(1/\sqrt{c_M}\) なので発散し、公式そのものが壊れます。<em>\(c_M\) は、あってもなくてもよい飾りではありません。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>だから、問いはこう書き換わります</h2>
+
+  <p>01 節の「悪い知らせ」を、02〜03 節を踏まえて読み直します。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:22%">\(c_L\)（Virasoro 側）</th><th>\(c_M\) 類似物（超並進側）</th></tr>
+    <tr><td>BMS₃</td><td class="bad">\(0\)</td><td class="ok">\(3/G\) ← エントロピーを運んだ</td></tr>
+    <tr><td><strong>BMS₄</strong></td><td class="bad">\(0\)（報告あり）</td><td class="c"><strong>？</strong></td></tr>
+  </table>
+
+  <p><strong>「4次元の Virasoro 中心電荷はゼロだ」は、3次元でもそうでした。</strong> 悪い知らせだと思ったものは、実は成功例と同じ状況だった。</p>
+
+  <p>だとすれば、問うべきことが変わります。</p>
+
+  <div class="keybox">
+    <div class="lbl">置き直した問い</div>
+    <p style="margin:6px 0 0;text-decoration:line-through;color:#9fb0ae">セレスチャル CFT の中心電荷は何か</p>
+    <p style="margin:8px 0 0;font-size:18px"><strong>BMS₄ の<em>超並進セクター</em>に、\(c_M\) の類似物はあるか</strong></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── ここは私の読みです</span>
+    01〜03 節の事実（\(c_L=0\)、\(c_M=3/G\)、BMS-Cardy の形、4次元での \(c=0\) の報告、Lie 亜代数）は文献にあるものです。<br>いっぽう「だからセレスチャル中心電荷の議論は超回転セクターに寄りすぎており、探す場所が違うのではないか」という<strong>読みは、確立した指摘ではありません</strong>。本シリーズの著者の推論です。<br>ただし問い自体は well-posed です ── <em>BMS₄ の超並進セクターに中心項が入るかどうか</em>は、代数の構造の問題であって、意見の問題ではない。<strong>答えが「無い」でありうることも含めて。</strong>
+  </div>
+
+  <h2><span class="n">05</span>そして②も、書き換わります</h2>
+
+  <p>前回挙げた②「モジュラー不変性の類似物」も、調べると事情が変わります。</p>
+
+  <p>2次元 Cardy の仕掛けはトーラス \(T^2\) の \(SL(2,\mathbb{Z})\) でした（第10回 03 節）。二つのサイクルを入れ替えると高温と低温が交換される。</p>
+
+  <p>ところが4次元の境界は \(\mathbb{R}_u\times S^2\)。熱的に \(u\) を巻いても \(S^1\times S^2\) で ── <strong>\(S^2\) には、交換すべき相手のサイクルがありません。</strong> トーラスの構造そのものが無い。</p>
+
+  <p>ルートAは、構造的に塞がっています。<em>ですが、高次元で Cardy 型の公式が作られていないわけではありません。</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">ルート</th><th style="width:26%">仕掛け</th><th>必要な入力</th></tr>
+    <tr><td class="bad">A：モジュラー不変性</td><td>トーラスの \(SL(2,\mathbb{Z})\)</td><td>中心電荷（\(S^1\times S^2\) では<strong>使えない</strong>）</td></tr>
+    <tr><td class="ok"><strong>B：熱的有効作用</strong></td><td>熱的円周を小さくして KK 還元、微分展開</td><td><strong>異常係数・カシミールエネルギー</strong></td></tr>
+  </table>
+
+  <p>ルートBが、高次元での実際のやり方です。熱的な円周が他のスケールより十分小さい極限で次元還元し、微分展開の係数が CFT のデータを符号化する。Di Pietro–Komargodski が \(d=4,6\) の超対称理論で Cardy 公式を導いたのがこの路線です。</p>
+
+  <p>そしてルートBを取ると、<strong>①の中身がまた変わります</strong> ── 必要なのは中心電荷ではなく、熱的有効作用の係数になる。</p>
+
+  <div class="aside">
+    <span class="tag">つまり ①②③ は独立ではありません</span>
+    前回「欠けているのは3つ」と並べましたが、<em>一つずつ解ける3つではありませんでした</em>。<br><strong>②が何かを決めないと、①が「何の係数か」すら決まらない。</strong> ルートAなら中心電荷、ルートBなら異常係数。順番が逆だったことになります。
+  </div>
+
+  <h2><span class="n">06</span>改訂したロードマップ</h2>
+
+  <table class="tbl">
+    <tr><th style="width:12%">手順</th><th>やること</th></tr>
+    <tr><td><strong>0</strong></td><td><strong>陽性対照。</strong> 3次元の BMS-Cardy を、原論文の規約で再現する。\(c_M=3/G\) から平坦宇宙論の地平面エントロピーを出す。<em>ここが合わなければ道具が壊れている</em></td></tr>
+    <tr><td><strong>1</strong></td><td><strong>分岐点。</strong> BMS₄ の超並進セクターに \(c_M\) 類似物があるか。<em>純粋な代数の問題で、答えは二値</em></td></tr>
+    <tr><td><strong>2a</strong></td><td>あれば → ルートA'（BMS-Cardy の4次元版）。ただしモジュラー構造の代替が要る</td></tr>
+    <tr><td><strong>2b</strong></td><td>無ければ → ルートB。\(S^1_\beta\times S^2\) 上の Carrollian 熱的有効作用を作る</td></tr>
+    <tr><td><strong>3</strong></td><td>状態密度を出して \(A/4G\) と照合</td></tr>
+  </table>
+
+  <p><strong>手順1が二値の的です。</strong> 第2回（アノマリー相殺）、第6回（代数が閉じる）、第8回（ツイスターへの持ち上げ）に続いて、四度目 ── <em>満たすか満たさないかで決まる的</em>。本シリーズが繰り返し「これだけが情報を持つ」と書いてきた形です。</p>
+
+  <h2><span class="n">07</span>この回で、何が変わったか</h2>
+
+  <p>結論は出ていません。それでも状態は動いたと思います。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>前回まで</th><th>この回のあと</th></tr>
+    <tr><td>中心電荷の状況</td><td class="bad">「\(c=0\) だから行き止まり」</td><td>3次元でも \(c_L=0\)。<strong>行き止まりではない可能性</strong></td></tr>
+    <tr><td>問いの形</td><td>「中心電荷は何か」</td><td class="ok"><strong>「超並進セクターに中心項はあるか」</strong>（二値）</td></tr>
+    <tr><td>①②③ の関係</td><td class="bad">独立な3つだと思っていた</td><td>②が①を決める。<strong>順番が逆だった</strong></td></tr>
+    <tr><td>②の見通し</td><td>「モジュラー類似物が無い」</td><td>ルートAは塞がっているが、<strong>ルートB（熱的有効作用）がある</strong></td></tr>
+  </table>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>BMS 代数に中心電荷が二つ入りうるのはなぜか。構造で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">BMS は<strong>半直積</strong> 超回転 \(\ltimes\) 超並進。だから括弧が3種類あり（\([L,L]\)、\([L,M]\)、\([M,M]\)）、中心項が入りうる場所も複数になる。\([L,L]\) に入るのが \(c_L\)、\([L,M]\) に入るのが \(c_M\)（Barnich–Compère）。\([M,M]=0\) は可換。</div></details>
+      </li>
+      <li>3次元アインシュタイン重力で \(c_L=0\) なのに、エントロピーがゼロにならないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">BMS-Cardy が二項からなり、\(c_L\) が掛かるのは第1項だけだから。\(c_L=0\) で第1項が落ちても、第2項 \(2\pi L_0\sqrt{c_M/2M_0}\) が残る。<strong>エントロピーを運んでいるのは \(c_M\)</strong>（超並進セクター）。</div></details>
+      </li>
+      <li>「4次元の中心電荷はゼロだから Cardy 経路は死んだ」── どこが早計か。
+        <details><summary>答えを見る</summary><div class="ans">ゼロだと報告されているのは <strong>Virasoro（超回転）側</strong>。3次元でもそこはゼロだったが、超並進側の \(c_M\) が生きていたので Cardy は動いた。問うべきは「4次元の超並進セクターに \(c_M\) 類似物があるか」であって、Virasoro 側ではない。</div></details>
+      </li>
+      <li>4次元でモジュラー不変性が使えないのはなぜか。代わりの道は。
+        <details><summary>答えを見る</summary><div class="ans">境界が \(\mathbb{R}_u\times S^2\) で、熱的に巻いても \(S^1\times S^2\)。<strong>\(S^2\) には交換すべき相手のサイクルがない</strong>のでトーラスの \(SL(2,\mathbb{Z})\) 構造が存在しない。<br>代わりの道は<strong>熱的有効作用</strong>（高温で熱的円周を小さくして KK 還元し、微分展開の係数に CFT データを読む）。必要な入力は中心電荷ではなく異常係数・カシミールエネルギーになる。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>悪い知らせは、二つあった。</strong> 拡張 BMS₄ の Virasoro 中心電荷は \(c=0\) と報告されており、そもそも BMS₄ の中心拡大は定数ではなく<em>場に依存するリー亜代数</em>。素直に読めば Cardy 経路は塞がっている。</p>
+    <p><strong>ところが3次元でも \(c_L=0\) だった。</strong> BMS 代数は半直積なので中心電荷が二つ入り、3次元アインシュタイン重力では \(c_L=0\)、\(c_M=3/G\)。BMS-Cardy の第1項は落ち、<em>エントロピーは完全に \(c_M\)（超並進セクター）が運んでいた</em>。</p>
+    <p><strong>だから問いが書き換わる。</strong> 「セレスチャル中心電荷は何か」ではなく ── <strong>「BMS₄ の超並進セクターに \(c_M\) 類似物はあるか」</strong>。二値で決まる問いで、四度目の「二値の的」。</p>
+    <p><strong>②も書き換わった。</strong> \(S^1\times S^2\) にはトーラスの \(SL(2,\mathbb{Z})\) が無いのでルートA（モジュラー）は構造的に塞がっている。代わりにルートB（熱的有効作用）があり、その場合<em>必要な入力は中心電荷ではなく異常係数</em>になる。</p>
+    <p style="margin-bottom:0"><strong>そして ①②③ は独立ではなかった。</strong> ②が何かを決めないと ① が「何の係数か」すら決まらない。前回「一つずつ」と並べたのは、順番が逆でした。<em>結論は出ていませんが、問いの形は変わりました。</em></p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第11回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：BMS 代数が超回転と超並進の半直積であること、BMS₃ に二つの中心電荷 \(c_L, c_M\) が入ること、3次元アインシュタイン重力で \(c_L=0\)・\(c_M=3/G\)（Barnich–Compère）であること、BMS-Cardy 公式が二項からなること、拡張 BMS₄（＋シャドウ対称性）の構成で Virasoro 中心電荷が \(c=0\) と報告されていること、Barnich による中心拡大された BMS₄ リー亜代数、および Di Pietro–Komargodski による \(d=4,6\) 超対称理論の Cardy 公式と熱的有効作用の手法。交換関係と Cardy 公式の具体形は文献により規約が異なります。<br><strong>いっぽう「探す場所が超回転セクターに寄りすぎている」という読みは本シリーズの著者の推論であり、確立した指摘ではありません</strong>。BMS₄ の超並進セクターに \(c_M\) 類似物が存在するかは未解決で、<em>存在しない可能性も含みます</em>。この回は第9回の予想を証明しておらず、問いの形を置き直したところまでです。図は BMS-Cardy 公式の二項の相対的な寄与を示す模式で、単位は任意です。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、どちらの中心電荷がエントロピーを運んでいるか確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sl=document.getElementById('sl'), sm=document.getElementById('sm'),
+      vl=document.getElementById('vl'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  // BMS-Cardy： S = 2π[ c_L √(M0/2c_M) + L0 √(c_M/2M0) ]   （単位は任意）
+  var M0=1.0, L0=2.0;
+  function terms(cL,cM){
+    // c_M→0 では第1項が 1/√c_M で発散する。ただし c_L=0 なら 0×∞ で、値はゼロ
+    if(cM<=1e-9) return [ (cL<=1e-9 ? 0 : Infinity), 0 ];
+    return [2*Math.PI*cL*Math.sqrt(M0/(2*cM)), 2*Math.PI*L0*Math.sqrt(cM/(2*M0))];
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var cL=parseInt(sl.value,10)/10, cM=parseInt(sm.value,10)/10;
+    vl.textContent=cL.toFixed(1); vm.textContent=cM.toFixed(1);
+    var t=terms(cL,cM), T1=t[0], T2=t[1];
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=56, R=w-20, T=28, B=h-52;
+    var SMAX=60;
+    function Y(v){ return B-(B-T)*Math.min(v,SMAX)/SMAX; }
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){ var yy=T+(B-T)*g/4; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillStyle='#9fb0ae'; ctx.font='10.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='right'; ctx.fillText(Math.round(SMAX*(4-g)/4), L-6, yy+4); }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    var bw=Math.min(150,(R-L)/4), gap=(R-L-2*bw)/3;
+    var x1=L+gap, x2=L+gap*2+bw;
+
+    function bar(x,v,col,lab,sub){
+      var finite=isFinite(v);
+      var y=finite?Y(v):T-6;
+      ctx.fillStyle=col; ctx.globalAlpha=finite?0.85:0.35;
+      ctx.fillRect(x,y,bw,B-y); ctx.globalAlpha=1;
+      ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.strokeRect(x,y,bw,B-y);
+      ctx.fillStyle='#191d22'; ctx.font='600 13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(finite?v.toFixed(2):'発散', x+bw/2, y-8);
+      ctx.fillStyle='#4c545c'; ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(lab, x+bw/2, B+20);
+      ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillStyle='#9fb0ae'; ctx.fillText(sub, x+bw/2, B+36);
+    }
+    bar(x1, T1, '#9fb0ae', '第1項', 'c_L の寄与');
+    bar(x2, T2, '#1f6f74', '第2項', 'c_M の寄与');
+
+    ctx.fillStyle='#4c545c'; ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='left'; ctx.fillText('エントロピー S への寄与', L, T-10);
+
+    var total = isFinite(T1) ? (T1+T2) : Infinity;
+    if(cM<0.05 && cL<0.05){
+      ro.innerHTML='<b>c_L = c_M = 0。</b>両方の項が消えて <b>S = 0</b> ── エントロピーがありません。'
+        +'<b>中心電荷が無ければ、Cardy は何も出しません。</b>';
+    }else if(cM<0.05){
+      ro.innerHTML='<b>c_M → 0（c_L は残したまま）。</b>第2項が消え、第1項は \\(1/\\sqrt{c_M}\\) なので<b>発散します</b> ── '
+        +'公式そのものが壊れる。<b>c_M は、あってもなくてもよい飾りではありません。</b>';
+    }else if(cL<0.05){
+      ro.innerHTML='<b>c_L = 0（アインシュタイン重力）。</b>第1項は完全に落ち、S = <b>'+T2.toFixed(2)+'</b> は'
+        +'<b>すべて c_M が運んでいます</b>。── 3次元でエントロピーが出た、実際の姿がこれです。';
+    }else{
+      ro.innerHTML='c_L = <b>'+cL.toFixed(1)+'</b>、c_M = <b>'+cM.toFixed(1)+'</b> ｜ '
+        +'第1項 '+T1.toFixed(2)+' ＋ 第2項 '+T2.toFixed(2)+' = S <b>'+total.toFixed(2)+'</b>'
+        +'　── c_L を 0 に戻すと、第1項だけが消えます。';
+    }
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  sl.addEventListener('input', draw);
+  sm.addEventListener('input', draw);
+  document.getElementById('be').addEventListener('click', function(){ sl.value=0; sm.value=30; draw(); });
+  document.getElementById('bz').addEventListener('click', function(){ sm.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
