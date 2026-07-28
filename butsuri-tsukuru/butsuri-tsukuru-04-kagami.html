@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鏡は、戻ってこない ── 物理を作る 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .tri{margin:30px 0;padding:24px 26px;border:1.5px solid var(--rule);border-radius:4px;background:#fdfefc;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .tri .t{font-size:11px;letter-spacing:.2em;font-weight:700;color:var(--acc);margin-bottom:14px;}
+  .tri table{width:100%;border-collapse:collapse;font-size:14px;}
+  .tri td{padding:7px 8px;vertical-align:top;}
+  .tri td.v{font-weight:700;color:var(--ink);white-space:nowrap;}
+  .tri td.y{color:var(--ink-soft);font-size:12.5px;white-space:nowrap;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.tri,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 4 回 ／ 鏡は、戻ってこない</span></div>
+  <p class="eyebrow">平坦時空の対称性は、ポアンカレではなく無限次元だった ── そしてそれは、測れる</p>
+  <h1>鏡は、戻ってこない
+    <span class="sub">重力波が通り過ぎたあと、LIGO の鏡は<em>元の位置に帰りません</em>。<br>永久にずれる。その量が、<strong>平坦時空の対称性が無限次元であること</strong>の直接の証拠になります。<br>1962年の幾何学、1965年の散乱振幅、1974年の重力波 ── 50年間ばらばらだった3つが、<br>同じ一つの構造の三つの顔だった。そして最後に、<em>平坦時空のホログラフィー</em>が現れます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：球面調和関数の気分、第2回・第3回、対称性の自発的破れ</span>
+    <span>この回の芯：永久変位 ≒ 陽子半径の 1/3600</span>
+  </div>
+
+  <p class="lead">第3回で、舞台は平坦でいいことを確かめました。曲率は舞台の性質ではなく、舞台の上の場でよい。<br>では、その平坦な舞台には<em>どれだけの対称性があるのか</em>。誰でも「ポアンカレ群だろう」と答えます ── 並進4つとローレンツ6つで、計10個。<br><strong>それが間違っていました。</strong> しかも1962年から知られていた。無限遠での本当の対称性は<em>無限次元</em>で、その事実は抽象的な数学に留まらず、重力波検出器の鏡が元に戻らないという、きわめて具体的な形で現れます。<br>この回は、その無限次元の対称性を追いかけて、最後に平坦時空のホログラフィーまで行きます。</p>
+
+  <h2><span class="n">01</span>無限遠の対称性は、ポアンカレではない</h2>
+
+  <p>「物質から十分離れれば時空は平坦になる。だから漸近的な対称性はポアンカレ群だろう」── 自然な推論です。</p>
+
+  <p>Bondi–van der Burg–Metzner (1962) と Sachs (1962) が、重力波を厳密に扱うために光的無限遠 \(\mathscr{I}^+\)（スクライ・プラス）での漸近対称性を計算しました。出てきたのは ──</p>
+
+  <div class="keybox">
+    <div class="lbl">BMS 群</div>
+    $$\text{BMS}=\underbrace{\text{ローレンツ}}_{6\ \text{個}}\;\ltimes\;\underbrace{\text{超並進}}_{\textbf{無限次元}}$$
+  </div>
+
+  <h3>超並進とは何か</h3>
+
+  <p>鍵は、<strong>無限遠には方向によって別々に到達する</strong>ことです。天球上の各方向が、\(\mathscr{I}^+\) の別の点に対応している。</p>
+
+  <p>通常の並進は、遅延時刻 \(u\) を<em>定数だけ</em>ずらします。ところが ──</p>
+
+  $$u\;\longrightarrow\;u-f(\theta,\phi)$$
+
+  <p>と<strong>角度に依存した量</strong>だけずらしても、漸近構造は保たれる。これが超並進です。\(f\) を球面調和関数で展開すると、構造が見えます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── ポアンカレはどこにいるのか</span>
+    $$f(\theta,\phi)=\underbrace{\sum_{\ell=0,1}c_{\ell m}Y_{\ell m}}_{\textbf{通常の並進（4個）}}\;+\;\underbrace{\sum_{\ell\ge2}c_{\ell m}Y_{\ell m}}_{\textbf{超並進（無限個）}}$$
+    <p class="lbl">内訳</p>
+    <p style="margin:8px 0 8px">\(\ell=0\)（1個）が時間並進、\(\ell=1\)（3個）が空間並進。<strong>ポアンカレ群の並進部分は、無限の塔の最初の4段でしかありませんでした。</strong></p>
+  </div>
+
+  <h2><span class="n">02</span>なぜ Coleman–Mandula に殺されないのか</h2>
+
+  <p>ここで警戒すべきことがあります。前回、時空対称性を大きくすることは <strong>Coleman–Mandula の定理</strong>で禁じられている、と確認しました。BMS はその禁令に触れないのでしょうか。</p>
+
+  <p>触れません。理由は一行です。</p>
+
+  <div class="keybox">
+    <div class="lbl">回避の理由</div>
+    <p style="margin:6px 0 0"><strong>超並進は自発的に破れている。</strong></p>
+    <p style="margin:8px 0 0">真空が BMS 不変ではありません ── 超並進で互いに結ばれた<em>縮退した真空が無限個</em>ある。そして Coleman–Mandula が制限するのは、<strong>破れていない</strong> S 行列の対称性です。</p>
+  </div>
+
+  <p>破れた対称性が生むのは、散乱への拘束ではなく<em>南部・ゴールドストーン粒子</em>です。そしてこの場合、それは ──</p>
+
+  <p style="text-align:center;font-size:19px;margin:26px 0"><strong>ソフトグラビトンは、破れた超並進のゴールドストーン粒子である。</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>赤外三角形 ── 50年かけて、別々に見つかった</h2>
+
+  <p>ここからが面白いところです。独立に発見された3つの現象が、<strong>同じ構造の三つの顔</strong>だと分かりました（Strominger ほか、2013–17）。</p>
+
+  <div class="tri">
+    <div class="t">50年、別々の分野で</div>
+    <table>
+      <tr><td class="y">1962</td><td class="v">漸近対称性（BMS）</td><td>一般相対論。無限遠の対称性が無限次元だと判明</td></tr>
+      <tr><td class="y">1965</td><td class="v">ソフト定理</td><td>散乱振幅。Weinberg が \(q\to0\) の普遍極を発見</td></tr>
+      <tr><td class="y">1974 / 1991</td><td class="v">記憶効果</td><td>重力波天文学。試験質量が永久変位する</td></tr>
+    </table>
+  </div>
+
+  <h3>頂点① ソフト定理（Weinberg 1965）</h3>
+
+  <p>任意の散乱振幅に、運動量 \(q\to0\) のグラビトンを1本足すと ──</p>
+
+  $$\mathcal{M}_{n+1}(q\to0)=\left(\frac{\kappa}{2}\sum_i\frac{(p_i\cdot\epsilon)^2}{p_i\cdot q}\right)\mathcal{M}_n+O(q^0)$$
+
+  <p>先頭項は \(1/q\) の<strong>極</strong>で、係数は外線の運動量だけで決まる ── <em>相互作用の詳細に一切依りません</em>。</p>
+
+  <p>Weinberg はこれを使って<strong>等価原理を導出</strong>しました。すべての粒子が同じ強さで重力に結合しなければ、ソフト定理が矛盾する。第3回で「等価原理は仮定ではなく結論」と書きましたが、これはその<em>散乱振幅版</em>です。同じ結論に、まったく別の道から到達している。</p>
+
+  <h3>頂点② 記憶効果（Zel'dovich–Polnarev 1974、Christodoulou 1991）</h3>
+
+  <p>自由に浮かぶ試験質量 ── LIGO の鏡だと思ってください。重力波のバーストが通過する。過ぎ去ったあと、時空はまた平坦に戻る。</p>
+
+  <p><strong>ところが、鏡は元の位置に戻りません。</strong> 振動ではなく<em>永久変位</em>です。</p>
+
+  <h3>そして3本の辺</h3>
+
+  <table class="tbl">
+    <tr><th style="width:30%">辺</th><th>関係</th></tr>
+    <tr><td><strong>対称性 ⟺ ソフト定理</strong></td><td>S 行列の BMS 不変性を Ward 恒等式として書くと、<em>そのまま Weinberg のソフト定理になる</em>。超並進電荷が「ハードな部分（物質に作用）」と「ソフトな部分（ゼロ運動量グラビトンを生成）」に分かれるので、ソフト定理があの形をしている。</td></tr>
+    <tr><td><strong>ソフト定理 ⟺ 記憶効果</strong></td><td>互いの<em>フーリエ変換</em>。記憶効果は、位置空間で見たゼロ振動数（＝ソフト）極限。</td></tr>
+    <tr><td><strong>記憶効果 ⟺ 対称性</strong></td><td>波が通過すると、<em>いる真空が変わる</em>。前も後も「平坦」だが、別の平坦な真空で、両者は超並進で結ばれている。<strong>永久変位の量＝超並進のパラメータ。</strong></td></tr>
+  </table>
+
+  <p>真空の無限縮退という抽象的な話が、鏡の位置という測れる量になっている。それを図で見ます。</p>
+
+  <div class="fig">
+    <div class="cap">図：自由に浮かぶ試験質量のリング。重力波のバーストが通過します。「再生」を押してください（strain は見えるように \(10^{21}\) 倍に誇張しています）</div>
+    <canvas id="cv" width="720" height="340"></canvas>
+    <div class="controls">
+      <label>時刻 <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="1000" value="0">
+      </label>
+      <label>連星の傾斜角 ι = <span class="val" id="vi">90</span>°
+        <input type="range" id="si" min="0" max="90" value="90">
+      </label>
+      <button id="bp">▶ 再生</button>
+      <button id="br">戻す</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#b3c0bd"></span>元の円（波が来る前）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>いまの試験質量</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>波形 \(h_+(t)\)</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>波が過ぎたあと、赤いリングは<em>灰色の円に重なりません</em>。楕円に潰れたまま止まる。右の波形を見ると、振動が収まったあとに <strong>ゼロに戻らない段差</strong>が残っているのが分かります。これが記憶です。</p>
+
+  <p>傾斜角を 0°（真正面）にすると、記憶が消えます。この角度依存性は、次節で式として出てきます。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>実際に計算する</h2>
+
+  <p>数字を出しましょう。連星合体で効くのは<strong>非線形記憶（Christodoulou 記憶）</strong>で、源は<em>重力波自身のエネルギー流束</em>です。優勢な \((2,0)\) モードからの記憶振幅は ──</p>
+
+  <div class="keybox">
+    <div class="lbl">記憶の振幅</div>
+    $$h_{\rm mem}(\iota)\;\simeq\;\frac{G\,E_{\rm rad}}{c^4\,R}\cdot\frac{\sin^2\iota\,\bigl(17+\cos^2\iota\bigr)}{96}$$
+  </div>
+
+  <p>角度因子を先に見ておきます。</p>
+
+  <table class="tbl">
+    <tr><th>傾斜角 \(\iota\)</th><th class="num">0°（真正面）</th><th class="num">30°</th><th class="num">60°</th><th class="num">90°（真横）</th></tr>
+    <tr><td>角度因子</td><td class="num">0.0000</td><td class="num">0.0462</td><td class="num">0.1348</td><td class="num">0.1771</td></tr>
+  </table>
+
+  <p><strong>真正面から見ると記憶はゼロ、真横で最大。</strong> 記憶は純粋な \(+\) 偏極の効果だからです。</p>
+
+  <p>実イベントに入れます。</p>
+
+  <div class="lab">
+    <span class="tag">実際の重力波イベントでの記憶</span>
+<pre>イベント          E_rad      D_L    傾斜     h_mem      振動ピーク比
+                [Msun c²]  [Mpc]  [deg]
+GW150914          3.00       440    150    <span class="hi">1.51e-23</span>      1.5%
+GW150914（真横なら） 3.00       440     90    <span class="hi">5.78e-23</span>      5.8%
+GW190521          7.60      5300     90    <span class="hi">1.22e-23</span>      2.0%
+GW170817（中性子星） 0.04        40    152    <span class="hi">1.95e-24</span>      2.0%
+
+<span class="cm">スケーリング検算： h ∝ E_rad / D_L</span>
+<span class="cm">  GW190521/GW150914 の予想比 (7.6/3.0)/(5300/440) = 0.2103</span>
+<span class="cm">  実際の比（真横どうし）                          = <span class="st">0.2103</span>  ✓</span></pre>
+  </div>
+
+  <p>GW150914 の記憶が小さいのは距離のせいではなく<em>向き</em>です。傾斜 150°、つまりほぼ真正面だったので \(\sin^2\iota\) で 1/4 に落ちている。</p>
+
+  <h3>で、それは何メートルか</h3>
+
+  <p>LIGO の腕は 4 km です。掛け算します。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 永久変位を長さにする</span>
+    $$\Delta L = h_{\rm mem}\times 4\,\mathrm{km}$$
+    <p class="lbl">GW150914（実際の傾斜）</p>
+    <p style="margin:8px 0 0">\(1.51\times10^{-23}\times4000\,\mathrm{m}=6.0\times10^{-20}\,\mathrm{m}\) ── <strong>陽子半径の約 1/14000</strong></p>
+    <p class="lbl">GW150914（仮に真横だったら）</p>
+    <p style="margin:8px 0 8px">\(5.78\times10^{-23}\times4000\,\mathrm{m}=2.3\times10^{-19}\,\mathrm{m}\) ── <strong>陽子半径の約 1/3600</strong></p>
+  </div>
+
+  <p>そして重要なのは大きさではありません。<strong>それが戻らない</strong>ことです。振動なら通り過ぎれば終わりですが、この 6×10⁻²⁰ m は永久に残る。宇宙のどこかで起きたブラックホール合体が、あなたの検出器の幾何を<em>恒久的に書き換えた</em>。</p>
+
+  <h2><span class="n">05</span>なぜ、まだ観測されていないのか</h2>
+
+  <p>記憶効果は<strong>未観測</strong>です。振動する波形より 1〜2 桁小さいだけなのに、なぜ捕まらないのか。</p>
+
+  <p>理由は大きさではなく<em>周波数</em>です。記憶は<strong>ほぼ直流（DC）の段差</strong>です。ところが LIGO は帯域通過型の装置で、10 Hz 以下ではほとんど感度がありません。地面振動に埋もれる。<em>いちばん感度の無い場所に信号がある。</em></p>
+
+  <p>戦略は積み上げです。1イベントの記憶 SNR を \(\rho\) とすると、\(N\) イベントで \(\sqrt{N}\rho\)。</p>
+
+  <div class="lab">
+    <span class="tag">3σ に必要なイベント数</span>
+<pre>単一イベントの記憶 SNR   3σ に必要な N
+   ρ = 0.05                 3600
+   ρ = 0.067                <span class="hi">2005</span>
+   ρ = 0.10                  900</pre>
+  </div>
+
+  <p>文献の見積もりは、aLIGO 設計感度で \(O(10^3)\) イベント規模。<strong>LISA なら、はるかに容易</strong>です（低周波が主戦場なので、記憶の置き場所と装置の得意分野が一致する）。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── これは予報であって、結果ではない</span>
+    記憶効果は<strong>まだ一度も観測されていません</strong>。上の数字は、既知のイベントから計算した<em>期待値</em>と、文献の検出見込みです。<br>「無限次元の対称性が実験で確かめられた」とは、まだ言えません。言えるのは<em>「言えるようになる道筋が、具体的な数字として存在する」</em>までです。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>そして、平坦時空のホログラフィー</h2>
+
+  <p>最後に、この回でいちばん遠くまで行く話をします。</p>
+
+  <p>ホログラフィーの最大の弱点は、<strong>制御できている実例が反ド・ジッター空間（\(\Lambda<0\)）だけ</strong>だということでした。我々の宇宙は \(\Lambda>0\) です。</p>
+
+  <p><strong>セレスチャル・ホログラフィー</strong>は、平坦時空でホログラフィーをやろうとする綱領です。境界は AdS の境界ではなく、<em>光的無限遠の天球 \(S^2\)</em>。</p>
+
+  <p>仕掛けの核心は、ひとつの群論的事実です。</p>
+
+  <div class="keybox">
+    <div class="lbl">なぜ天球なのか</div>
+    $$\underbrace{SO(3,1)}_{\textbf{4次元のローレンツ群}}\;\cong\;\underbrace{SL(2,\mathbb{C})}_{\textbf{S}^2\textbf{ の大域共形群}}$$
+    <p style="margin:8px 0 0">4次元のローレンツ変換は、<strong>天球上の共形変換そのもの</strong>です。</p>
+  </div>
+
+  <p>だから散乱振幅を、運動量固有状態ではなく<em>ブースト固有状態</em>の基底で書き直す（メリン変換を使う）と、4次元の振幅が2次元 CFT の相関関数の形になります。</p>
+
+  <p>そして赤外三角形が、そのまま CFT の構造に翻訳されます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">4次元・平坦時空</th><th>セレスチャル CFT（天球上）</th></tr>
+    <tr><td>散乱振幅</td><td>相関関数</td></tr>
+    <tr><td>超並進</td><td>カレント代数</td></tr>
+    <tr><td><strong>ソフトグラビトン</strong></td><td><strong>応力テンソル</strong></td></tr>
+    <tr><td>超回転（subleading soft）</td><td>Virasoro</td></tr>
+  </table>
+
+  <p>ソフトグラビトンが CFT の応力テンソルになる。平坦時空の赤外の物理が、丸ごと2次元共形場理論の言葉に写る。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 未完成です</span>
+    セレスチャル CFT は、<strong>独立に定義された理論としてまだ構成されていません</strong>。いまのところ振幅の書き換えであって、AdS/CFT のような「両側が厳密に定義された双対性の実例」ではない。<br>相関関数も異様です（連続スペクトル、超関数的）。標準的な CFT の枠に収まっていない。超回転の正しい拡張（Virasoro か \(\mathrm{Diff}(S^2)\) か）も決着していません。<br><strong>方向であって、到達点ではありません。</strong>
+  </div>
+
+  <div class="aside">
+    <span class="tag">寄り道 ── ソフトヘアと情報パラドックス</span>
+    超並進電荷が無限個あるなら、ブラックホールも無限個の「ソフトな毛」を持つはずだ ── Hawking–Perry–Strominger (2016) はそこに情報パラドックスの解決を見ました。<br><strong>ただし受け入れられていません。</strong>ソフトヘアの存在自体は概ね認められていますが、「情報を蓄えるには量が足りない」という強い反論があります（Bousso–Porrati ほか）。本シリーズの言葉で言えば、これは<em>魅力的なパズル</em>の段階です。
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>超並進は無限個あるのに、そのうち4個だけが「通常の並進」と呼ばれる。どの4個か。
+        <details><summary>答えを見る</summary><div class="ans">球面調和関数 \(Y_{\ell m}\) の \(\ell=0\)（1個）と \(\ell=1\)（3個）。前者が時間並進、後者が空間並進の3方向。\(\ell\ge2\) がすべて新しい超並進。</div></details>
+      </li>
+      <li>BMS は時空対称性を無限次元に拡大するのに、なぜ Coleman–Mandula に抵触しないのか。
+        <details><summary>答えを見る</summary><div class="ans">超並進が<strong>自発的に破れている</strong>から。CM が制限するのは真空を不変に保つ（破れていない）対称性で、破れた対称性はゴールドストーン粒子（この場合ソフトグラビトン）とソフト定理を生むだけ。散乱を自明化しない。</div></details>
+      </li>
+      <li>記憶効果は振動する波形より1〜2桁小さいだけなのに、なぜ検出がずっと難しいのか。
+        <details><summary>答えを見る</summary><div class="ans">記憶は<strong>ほぼ直流の段差</strong>で、周波数がゼロ付近にある。地上干渉計は 10 Hz 以下でほぼ感度が無い（地面振動）。<em>信号が、装置のいちばん苦手な帯域に置かれている</em>。大きさではなく周波数の問題。</div></details>
+      </li>
+      <li>真正面（\(\iota=0\)）から見た連星合体では、記憶がゼロになる。式のどこから来るか。
+        <details><summary>答えを見る</summary><div class="ans">角度因子 \(\sin^2\iota\,(17+\cos^2\iota)/96\) の \(\sin^2\iota\)。記憶は純粋な \(+\) 偏極の効果で、円偏極になる正面向きでは打ち消し合う。GW150914 は傾斜 150°（ほぼ正面）だったため、真横の場合の約 1/4 に落ちている。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>平坦時空の対称性は、ポアンカレではない。</strong> 光的無限遠での漸近対称性は BMS 群＝ローレンツ ⋉ 超並進で、<em>無限次元</em>。通常の並進4つは、球面調和関数の \(\ell=0,1\) という最初の4段でしかなかった。</p>
+    <p><strong>Coleman–Mandula には触れない。</strong> 超並進が自発的に破れているから。そしてソフトグラビトンは、その破れのゴールドストーン粒子である。</p>
+    <p><strong>50年間ばらばらだった3つが、同じものだった。</strong> 漸近対称性（1962）＝ソフト定理（1965）＝記憶効果（1974/91）。ソフト定理は BMS の Ward 恒等式で、記憶効果はそのフーリエ変換で、永久変位は超並進のパラメータそのもの。</p>
+    <p><strong>そして測れる。</strong> GW150914 の記憶は \(h=1.5\times10^{-23}\)、LIGO の 4 km 腕で \(6.0\times10^{-20}\) m ── 陽子半径の 1/14000。大きさより、<em>戻らない</em>ことが本質。ただし直流信号なので装置の苦手な帯域にあり、\(O(10^3)\) イベントの積み上げが要る。<strong>まだ未観測。</strong></p>
+    <p style="margin-bottom:0"><strong>そして平坦時空のホログラフィー。</strong> \(SO(3,1)\cong SL(2,\mathbb{C})\) ── 4次元のローレンツ群は天球の共形群そのもの。ソフトグラビトンがセレスチャル CFT の応力テンソルになる。<em>未完成だが、\(\Lambda<0\) に縛られないホログラフィーの、いま唯一の道筋。</em></p>
+    <div class="next">
+      <span class="lbl">次回予告</span>
+      第5回「係数を、作りにいく」── 第1回で位置を測った \(O(1)\) の壁へ、正面から。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。対称性・極限・数え上げの三つで、係数がどこまで手で出せるかを試します ── 総当たりが2回とも空振りした理由（<em>係数を当てにいったから</em>）の、裏返しの回です。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第4回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：BMS 群と超並進（Bondi–van der Burg–Metzner 1962、Sachs 1962）、Weinberg のソフトグラビトン定理（1965）、記憶効果（Zel'dovich–Polnarev 1974、Christodoulou 1991）、これら3者の等価性（Strominger ほか 2013–2017）、\(SO(3,1)\cong SL(2,\mathbb{C})\)。<strong>記憶効果は未観測です</strong> ── 本文の \(h_{\rm mem}\) は公表されたイベントパラメータから上式で計算した期待値で、必要イベント数は文献の見積もりに基づく予報です。使用した記憶振幅の式は優勢モードのみを取った近似で、係数には定式化による差があります。<strong>セレスチャル・ホログラフィーは進行中の研究綱領であり、完成した双対性の実例はまだありません</strong>。ソフトヘアによる情報パラドックスの解決には有力な反論があり、決着していません。図の strain は \(10^{21}\) 倍に誇張してあります。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①物理は、もっと簡単に書けないのか</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②「ct = 一定」は、どこまで通用するか</a> ｜ 姉妹編：<a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図の「再生」で、鏡が戻ってこないところを見られます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), si=document.getElementById('si'),
+      vt=document.getElementById('vt'), vi=document.getElementById('vi'), ro=document.getElementById('ro'),
+      bp=document.getElementById('bp'), br=document.getElementById('br');
+
+  var N=28, playing=false, raf=null;
+
+  // 角度因子（本文の式と同一）
+  function ang(iDeg){
+    var i=iDeg*Math.PI/180, s2=Math.sin(i)*Math.sin(i), c2=Math.cos(i)*Math.cos(i);
+    return s2*(17+c2)/96;
+  }
+
+  // 波形：バーストの振動 ＋ 記憶の段差
+  //   h+(t) = A·envelope·cos(ωt)  +  h_mem·(ステップ)
+  function hplus(t, iDeg){
+    var t0=0.45, sig=0.10;
+    var env=Math.exp(-Math.pow((t-t0)/sig,2)/2);
+    var osc=0.55*env*Math.cos(2*Math.PI*9*(t-t0));
+    var step=0.5*(1+Math.tanh((t-t0)/(0.55*sig)));
+    var mem=(ang(parseFloat(iDeg))/0.1771)*0.30;   // 真横で 0.30、正面で 0
+    return osc + mem*step;
+  }
+  function hcross(t, iDeg){
+    var t0=0.45, sig=0.10;
+    var env=Math.exp(-Math.pow((t-t0)/sig,2)/2);
+    return 0.55*env*Math.sin(2*Math.PI*9*(t-t0))*Math.cos(parseFloat(iDeg)*Math.PI/180);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/1000, iDeg=si.value;
+    vt.textContent=t.toFixed(2); vi.textContent=iDeg;
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, lw=Math.min((w-gap)*0.42, h-70), pw=(w-gap)-lw;
+    var top=26, bot=h-34;
+
+    // ── 左：試験質量のリング
+    var cx=lw/2+6, cy=(top+bot)/2, R=Math.min(lw,bot-top)*0.36;
+    var hp=hplus(t,iDeg), hc=hcross(t,iDeg);
+
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('① 試験質量のリング', 8, top-9);
+
+    // 元の円
+    ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,6.2832); ctx.stroke(); ctx.setLineDash([]);
+
+    // 変位した試験質量：δx = ½(h+ x + h× y), δy = ½(h× x − h+ y)
+    ctx.fillStyle='#a83a22';
+    var pts=[];
+    for(var k=0;k<N;k++){
+      var a=2*Math.PI*k/N, x=R*Math.cos(a), y=R*Math.sin(a);
+      var X=x+0.5*(hp*x+hc*y), Y=y+0.5*(hc*x-hp*y);
+      pts.push([cx+X, cy-Y]);
+    }
+    ctx.strokeStyle='rgba(168,58,34,.45)'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    for(var k2=0;k2<=N;k2++){ var p=pts[k2%N]; if(k2===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); }
+    ctx.stroke();
+    for(var k3=0;k3<N;k3++){ ctx.beginPath(); ctx.arc(pts[k3][0],pts[k3][1],3.1,0,6.2832); ctx.fill(); }
+
+    // ── 右：波形
+    var L=lw+gap+34, Rr=w-12, T=top+4, B=bot-8, mid=(T+B)/2;
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('② 波形 h₊(t)', L-26, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,mid); ctx.lineTo(Rr,mid); ctx.stroke();
+    ctx.strokeStyle='#7a8785';
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+
+    var SC=(B-T)/2.6;
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2; ctx.beginPath();
+    for(var j=0;j<=400;j++){
+      var tt=j/400, xx=L+(Rr-L)*tt, yy=mid-hplus(tt,iDeg)*SC;
+      if(j===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke();
+
+    // 記憶の段差を示す線
+    var memv=hplus(1.0,iDeg);
+    ctx.strokeStyle='rgba(168,58,34,.55)'; ctx.lineWidth=1.3; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L,mid-memv*SC); ctx.lineTo(Rr,mid-memv*SC); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='right'; ctx.fillText('記憶（戻らない段差）', Rr-4, mid-memv*SC-6);
+
+    // 現在時刻カーソル
+    var xc=L+(Rr-L)*t;
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(xc,T); ctx.lineTo(xc,B); ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('時間 →', (L+Rr)/2, B+18);
+
+    var af=ang(parseFloat(iDeg));
+    ro.innerHTML = (t<0.30)
+      ? '波が来る前。赤いリングは灰色の円にぴったり重なっています。｜ 傾斜 ι = <b>'+iDeg+'°</b>、角度因子 <b>'+af.toFixed(4)+'</b>'
+      : (t<0.62
+        ? '<b>通過中。</b>リングが振動しています。｜ 傾斜 ι = <b>'+iDeg+'°</b>、角度因子 <b>'+af.toFixed(4)+'</b>'
+        : (af<0.004
+          ? '通過後。傾斜 <b>0°（真正面）</b>なので記憶がゼロ ── リングは元の円に戻りました。<b>正面からは記憶が見えません。</b>'
+          : '<b>通過後。振動は終わったのに、リングは元の円に戻っていません。</b>楕円のまま止まっています ── これが記憶効果。｜ 角度因子 <b>'+af.toFixed(4)+'</b>（真横で最大 0.1771）'));
+  }
+
+  function step(){
+    if(!playing) return;
+    var v=parseInt(st.value,10)+7;
+    if(v>=1000){ v=1000; playing=false; bp.textContent='▶ 再生'; }
+    st.value=v; draw();
+    if(playing) raf=requestAnimationFrame(step);
+  }
+
+  bp.addEventListener('click', function(){
+    if(playing){ playing=false; bp.textContent='▶ 再生'; if(raf) cancelAnimationFrame(raf); return; }
+    if(parseInt(st.value,10)>=1000) st.value=0;
+    playing=true; bp.textContent='⏸ 停止'; step();
+  });
+  br.addEventListener('click', function(){ playing=false; bp.textContent='▶ 再生'; st.value=0; draw(); });
+  st.addEventListener('input', function(){ playing=false; bp.textContent='▶ 再生'; draw(); });
+  si.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
