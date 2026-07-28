@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>決着は、光子1個 ── 物理を作る 第18回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ink);border-radius:3px;background:#f2f5f3;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.target{border-color:#8a3b5c;background:#f7edf1;}
+  .verdict.target .lbl{color:#8a3b5c;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 18 回 ／ 決着は、光子1個</span></div>
+  <p class="eyebrow">刻みは本物か、それともゼロに持っていけるのか ── 待てば動く分岐に、数字を入れる</p>
+  <h1>決着は、光子1個
+    <span class="sub"><a href="butsuri-tsukuru-17-suisei.html">第17回</a>で、<em>計算のための</em>平坦な格子には何の障害もないと分かりました。<br>残っているのは <strong>刻み \(a\) が本物かどうか</strong> ── 本物なら<a href="butsuri-tsukuru-16-moreru.html">第16回</a>の代金が付き、ゼロに持っていけるなら付きません。<br>これは待てば動く分岐です。<em>では、どうやって決着するのか。</em><br><strong>約 112 PeV の光子が1個、壊れずに届けば決まります。</strong></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第2回・第16回（ローレンツ破れ）、しきい値の計算</span>
+    <span>この回の芯：112 PeV。いまの記録の 80 倍</span>
+  </div>
+
+  <p class="lead">ここまで格子の筋を二つに分けてきました ── <strong>刻みが数値的なら問題なし</strong>（第17回で水星を 42.9807 秒角/世紀 で回した）、<strong>刻みが物理的なら代金あり</strong>（第16回：超対称性か、重力の漏れ）。<br>分岐は「\(a\) はゼロに持っていけるか」の一問です。そしてこれは意見ではなく<em>観測が答える問い</em>です。<br>この回は、その観測の中身を数字にします。使えない道具から順に潰していくと、最後に一つだけ残ります ── そして残ったものには、<strong>はっきりした目標値</strong>が付いていました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>まず、使えない道具を潰す</h2>
+
+  <h3>エントロピーは、この問いに盲目</h3>
+
+  <p>いちばん自然に見える道具から。<em>刻みが本物なら、地平面のセルは実在するので \(N=A/a^2\) は本当の数え上げになる</em> ── だからブラックホールのエントロピーで区別できそうに思えます。</p>
+
+  <p><strong>できません。</strong><a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>で見たとおり、カットオフ依存の発散はニュートン定数のくりこみに丸ごと吸われます。エンタングルメント側の \(A/48\pi\epsilon^2\) と、熱核から独立に出した \(\delta(1/G)=1/12\pi\epsilon^2\) が \(A/4\) の因子ごと一致する ── だから</p>
+
+  $$S=\frac{A}{4G_{\text{ren}}}$$
+
+  <p>は、\(a\) が本物でも連続でも<em>同じ形</em>になります。<strong>エントロピーは、刻みの有無を見ていません。</strong></p>
+
+  <div class="aside">
+    <span class="tag">これは第14回の結論の裏返し</span>
+    第14回では「自由度密度は決まらなくてよかった」と読みました。<em>同じ事実を今回の問いに当てると「カットオフの値は観測に出ない」</em>になります。<br>片方では長所（発散が消える）、片方では短所（区別できない）。<strong>同じ一つの性質です。</strong>
+  </div>
+
+  <h3>干渉計は、もうやって空振りしている</h3>
+
+  <p>もし時空が粒状なら、位置が「プランク時間ごとにプランク長ぶん」ふらつくはず ── ホログラフィック雑音です。Fermilab の <strong>Holometer</strong> がこれを直接探しました。40 m の干渉計を2台、独立に置いて出力の相関を 25 MHz まで取る。</p>
+
+  <p>結果は<strong>空振り</strong>でした。Hogan の予言する量の雑音は、高い有意度で否定されています。</p>
+
+  <div class="caveat">
+    <span class="tag">ただし潰れたのは一模型</span>
+    Holometer が排除したのは<em>特定のモデルが予言する特定の雑音量</em>です。「時空に刻みがある」という考え全体を排除したわけではありません。<strong>粒状性の現れ方は模型に依るので、一つ潰しても次があります。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>残るのは、超高エネルギー光子</h2>
+
+  <p>刻みが本物なら、分散関係が変わります。<a href="butsuri-tsukuru-16-moreru.html">第16回</a>で見たとおり、超対称性と CPT を課したあと残るのは \(n=2\)（次元6）です。</p>
+
+  $$E^2=p^2\left[1+\left(\frac{p}{E_{\rm LV}}\right)^2\right]$$
+
+  <p>超光速側（プラス符号）だと、光子が<strong>有効質量</strong>を持ちます。</p>
+
+  $$m_{\rm eff}^2=\frac{p^4}{E_{\rm LV}^2}$$
+
+  <p>これが \((2m_e)^2\) を越えると、<em>真空中で光子が電子対に崩壊できるようになります</em>。開くしきい値は</p>
+
+  <div class="keybox">
+    <div class="lbl">光子崩壊のしきい値</div>
+    $$\frac{p^4}{E_{\rm LV}^2}>(2m_e)^2\qquad\Longleftrightarrow\qquad p>\sqrt{2m_eE_{\rm LV}}$$
+    <p style="margin:8px 0 0">裏返すと ── <strong>エネルギー \(E\) の光子が壊れずに届いたなら</strong></p>
+    $$\boxed{\;E_{\rm LV}>\frac{E^2}{2m_e}\;}$$
+    <p style="margin:8px 0 0"><em>調整できる係数がありません。</em>電子質量と観測された光子のエネルギーだけで決まります。</p>
+  </div>
+
+  <p>ここが気持ちのいいところです。<strong>\(E\) の2乗で効きます。</strong>だから光子のエネルギーを上げると、下限が二次で伸びる。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>飛行時間法では、届きません</h2>
+
+  <p>比較のために、よく使われるもう一つの手法を並べます。<em>高エネルギーの光子ほど遅れて着く</em>という時間差を測るやり方です。\(n=2\) なら</p>
+
+  $$\Delta t\simeq\frac{3D}{2c}\left(\frac{E}{E_{\rm LV}}\right)^2
+  \qquad\Longrightarrow\qquad
+  E_{\rm LV}>E\sqrt{\frac{3D}{2c\,\Delta t}}$$
+
+  <p><strong>こちらは \(E\) の1乗でしか伸びません。</strong>この差が、勝負を決めます。</p>
+
+  <div class="lab">
+    <span class="tag">二つの手法を並べる</span>
+<pre><span class="cm"># 光子崩壊: E_LV > E^2/(2 m_e)                    ── 係数フリー、E の2乗</span>
+<span class="cm"># 飛行時間: LHAASO GRB221009A の公表値でアンカー   ── E の1乗</span>
+<span class="cm">#           E=18 TeV で E_LV > 1.2e21 eV (n=2, 95%CL)</span>
+
+  光子 E        崩壊の下限        M_Pl比      飛行時間の下限     M_Pl比
+ <span class="hi">-------------------------------------------------------------------------</span>
+  18 TeV      3.17e20 eV      2.6e-08     1.20e21 eV      9.8e-08
+  1.4 PeV     1.92e24 eV      <span class="st">1.6e-04</span>     9.33e22 eV      7.6e-06
+  10 PeV      9.78e25 eV      8.0e-03     6.67e23 eV      5.5e-05
+  <span class="hi">112 PeV     1.22e28 eV      1.00        7.45e24 eV      6.1e-04</span>
+  1 EeV       9.78e29 eV      80.1        6.67e25 eV      5.5e-03
+
+<span class="cm"># M_Pl に到達するのに必要な光子エネルギー</span>
+  光子崩壊 :  <span class="st">1.117e17 eV = 112 PeV</span>   （LHAASO 記録 1.4 PeV の 80 倍）
+  飛行時間 :  <span class="bd">1.831e20 eV = 183 EeV</span>   （GZK 打ち切り ~5e19 eV を超える）
+
+<span class="cm"># 交点</span>
+  E = 2 m_e L0/E0 = 68.1 TeV。これより上では崩壊が常に強い（2乗 vs 1乗）。</pre>
+  </div>
+
+  <p>飛行時間法でプランクスケールに届くには <strong>183 EeV</strong> の光子が要ります。ところがそのエネルギーの光子は、宇宙背景放射と反応して<em>宇宙論的距離を伝播できません</em>（GZK 打ち切りは \(5\times10^{19}\) eV 級）。</p>
+
+  <div class="keybox">
+    <div class="lbl">この差は「難しい」と「不可能」の差</div>
+    <p style="margin:6px 0 0"><strong>飛行時間法：不可能。</strong>必要な光子が、そもそも届かない。</p>
+    <p style="margin:8px 0 0"><strong>光子崩壊：80 倍。</strong>難しいが、不可能ではない。</p>
+  </div>
+
+  <p>念のため数字で確認すると ── 100 PeV の光子が 1 Gpc 伝播したときの時間差は \(\delta v/c=(E/M_{\rm Pl})^2=6.7\times10^{-23}\) から <strong>\(6.9\times10^{-6}\) 秒</strong>。GRB の時間構造は ms 級なので、100 倍以上足りません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>目標値</h2>
+
+  <div class="verdict target">
+    <div class="lbl">待てば動く分岐の、決着条件</div>
+    <p style="font-size:20px"><strong>約 112 PeV の光子が1個、壊れずに届けば決まります。</strong></p>
+    <p>\(E=\sqrt{2m_eM_{\rm Pl}}=1.117\times10^{17}\) eV。LHAASO の現在の記録 1.4 PeV の <strong>80 倍</strong>。</p>
+    <p style="margin-bottom:0">それが観測されれば、<em>プランクスケールの物理的な刻み（\(n=2\) 超光速側）は死にます。</em>観測されないうちは、第16回の窓（\(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV）の中で生き残ります。</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：観測された光子のエネルギーから出る \(E_{\rm LV}\) の下限。<b>崩壊は傾き 2、飛行時間は傾き 1</b>（両対数）。だから上へ行くほど差が開きます。横線がプランクスケール、縦線が現在の記録と目標値と GZK 打ち切り</div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <label>観測された光子のエネルギー = <span class="val" id="ve">1.4 PeV</span>
+        <input type="range" id="se" min="130" max="190" step="1" value="152"></label>
+      <button id="bn">いまの記録（1.4 PeV）</button>
+      <button id="bt">目標（112 PeV）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#8a3b5c"></span>光子崩壊（\(E^2/2m_e\)）</span>
+      <span><span class="swatch" style="background:#2f5d6b"></span>飛行時間（\(\propto E\)）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>プランクスケール</span>
+    </div>
+  </div>
+
+  <p>崩壊の線は傾き 2、飛行時間の線は傾き 1。<strong>68.1 TeV で交差し、それより上では崩壊が常に勝ちます。</strong>1.4 PeV の時点で既に 20 倍以上の差がついています。</p>
+
+  <div class="caveat">
+    <span class="tag">この 112 PeV について</span>
+    これは<strong>新しい予言ではありません。</strong>既知の光子崩壊の下限を、\(E_{\rm LV}=M_{\rm Pl}\) について逆に解いただけです。<br>また本稿のしきい値計算は素直な二体崩壊の見積りなので、文献の最強値（\(n=2\) で \(>10^{-3}M_{\rm Pl}\)、第16回）とは<em>係数ぶん違います</em> ── 文献はシャワー形成の抑制（亜光速側）など複数のチャンネルを合わせているためです。<strong>112 PeV は桁の目安として読んでください。</strong>実際の解析ではもう少し低いエネルギーで到達しうる。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>ただし、対称ではない</h2>
+
+  <p>ここは正直に書かなければいけないところです。<strong>この問いは、両側に同じ強さで答えられません。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>できるか</th></tr>
+    <tr><td><strong>粒状性を発見する</strong></td><td class="ok">できる。\(E\) を上げれば、あるなら必ずいつか出る</td></tr>
+    <tr><td><strong>連続性を証明する</strong></td><td class="bad">できない。何を測ってもゼロが続くだけ</td></tr>
+    <tr><td><strong>空振りで粒状性を排除する</strong></td><td class="bad">できない。スケールを押し上げるだけ</td></tr>
+  </table>
+
+  <p>だから答えられる問いは「\(a\) が<em>このスケール以下</em>にあるか」であって、「\(a\) はゼロか」ではありません。<strong>現在の境界は \(\sim10^{-3}M_{\rm Pl}\)。</strong></p>
+
+  <p>そしてこれは、このシリーズが繰り返してきた形の一つです ── <em>問いを well-posed な形に直すと、答えられる部分と答えられない部分に割れる。</em><a href="butsuri-tsukuru-15-kabe.html">第15回</a>で「\(G\) はどこから来るのか」を \(\alpha_G\) に直したのと同じ操作です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>格子の筋の、現在地</h2>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th style="width:37%">刻みが数値的（\(a\to0\)）</th><th>刻みが物理的（最小長あり）</th></tr>
+    <tr><td>GR が建つか</td><td class="ok">建つ。42.9807″/世紀（<a href="butsuri-tsukuru-17-suisei.html">第17回</a>）</td><td class="ok">建つ（低エネルギーでは同じ）</td></tr>
+    <tr><td>差分で解けるか</td><td class="ok">解ける（ずれを変数にすれば）</td><td class="ok">解ける</td></tr>
+    <tr><td>ローレンツ破れ</td><td class="ok">起きない（背景が観測できない）</td><td class="bad">起きる。SUSY＋CPT が要る（<a href="butsuri-tsukuru-02-koushi.html">第2回</a>）</td></tr>
+    <tr><td>創発で逃げられるか</td><td>—</td><td class="bad">物質は守れるが重力が漏れる（<a href="butsuri-tsukuru-16-moreru.html">第16回</a>）</td></tr>
+    <tr><td>新しい物理を言うか</td><td class="bad">言わない。座標の取り方</td><td class="ok"><strong>言う。\(n=2\) の分散</strong></td></tr>
+    <tr class="mark"><td><strong>決着</strong></td><td colspan="2" class="c"><strong>112 PeV の光子1個</strong></td></tr>
+  </table>
+
+  <p>最後の2行が対になっています。<em>数値的な格子は安全だが何も言わない。物理的な格子は代金が付くが、言うことがある。</em>そして<strong>言うことがある側だけが、測れます。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">この回で残った一行</div>
+    <p style="margin:6px 0 0">「空間は歪まない」という立場は、<strong>刻みを物理的だと言った瞬間に反証可能になります。</strong></p>
+    <p style="margin:8px 0 0">それまでは安全で、そのぶん無内容 ── <em>安全と無内容が同じ一つの事実から来ている</em>のは、<a href="butsuri-tsukuru-03-heitan.html">第3回</a>の「平坦背景は原理的に観測できない」の言い換えです。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(E_{\rm LV}>E^2/(2m_e)\) に \(E=1.4\) PeV、\(m_e=5.11\times10^5\) eV を入れ、\(M_{\rm Pl}=1.22\times10^{28}\) eV との比を出せ。
+        <details><summary>答えを見る</summary><div class="ans">\(E_{\rm LV}>(1.4\times10^{15})^2/(2\times5.11\times10^5)=1.96\times10^{30}/1.02\times10^6=\mathbf{1.92\times10^{24}}\) eV。\(M_{\rm Pl}\) 比は \(1.92\times10^{24}/1.22\times10^{28}=\mathbf{1.6\times10^{-4}}\)。<strong>プランクまで4桁弱。</strong>（文献の最強値はチャンネルを増やして \(10^{-3}\) 程度に届いています。）</div></details>
+      </li>
+      <li>同じ式を \(E_{\rm LV}=M_{\rm Pl}\) について解き、必要な光子エネルギーを出せ。
+        <details><summary>答えを見る</summary><div class="ans">\(E=\sqrt{2m_eM_{\rm Pl}}=\sqrt{2\times5.11\times10^5\times1.22\times10^{28}}=\sqrt{1.25\times10^{34}}=\mathbf{1.12\times10^{17}}\) eV \(=\) <strong>112 PeV</strong>。<em>平方根なので、4桁足りない下限を埋めるのに必要な光子エネルギーは 2桁でよい</em> ── これが「2乗で効く」ことの実利です。</div></details>
+      </li>
+      <li>なぜ飛行時間法は「難しい」ではなく「不可能」なのか。
+        <details><summary>答えを見る</summary><div class="ans">下限が \(E\) の<strong>1乗</strong>でしか伸びないから。公表値（18 TeV で \(1.2\times10^{21}\) eV）から比例で伸ばすと、\(M_{\rm Pl}\) には \(18\,\mathrm{TeV}\times(1.22\times10^{28}/1.2\times10^{21})=\mathbf{183}\) <strong>EeV</strong> が必要。<em>ところが \(10^{20}\) eV 級の光子は宇宙背景放射と反応して宇宙論的距離を伝播できません</em>（GZK 打ち切り \(\sim5\times10^{19}\) eV）。必要な道具が原理的に手に入らない ── だから「不可能」です。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>エントロピーはこの問いに盲目。</strong> 刻みが本物なら \(N=A/a^2\) が本当の数え上げになるので区別できそうに見えるが、<a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>のとおりカットオフ依存の発散は \(1/G\) のくりこみに吸われる。<em>\(a\) が本物でも連続でも \(S=A/4G_{\rm ren}\) は同じ形。</em>第14回では長所だった性質が、ここでは短所になる。</p>
+    <p><strong>干渉計は空振り済み、ただし一模型。</strong> Fermilab Holometer が 40 m の干渉計2台を 25 MHz まで相関を取り、Hogan の予言する量のホログラフィック雑音を高い有意度で排除した。<em>潰れたのは特定のモデルで、粒状性そのものではない。</em></p>
+    <p><strong>残るのは超高エネルギー光子。しきい値に調整できる係数がない。</strong> \(n=2\) 超光速側では光子が有効質量 \(m_{\rm eff}^2=p^4/E_{\rm LV}^2\) を持ち、\((2m_e)^2\) を越えると真空中で電子対に崩壊する。エネルギー \(E\) の光子が届いたなら <strong>\(E_{\rm LV}>E^2/(2m_e)\)</strong> ── 電子質量と観測値だけで決まる。</p>
+    <p><strong>目標値は 112 PeV。いまの記録の 80 倍。</strong> \(E=\sqrt{2m_eM_{\rm Pl}}=1.117\times10^{17}\) eV。LHAASO の 1.4 PeV は \(E_{\rm LV}>1.6\times10^{-4}M_{\rm Pl}\) を与える（文献の最強値はチャンネルを増やして \(10^{-3}M_{\rm Pl}\)）。<em>2乗で効くので、4桁の不足を埋めるのに必要な光子エネルギーは2桁。</em></p>
+    <p><strong>飛行時間法は不可能。</strong> 下限が \(E\) の1乗でしか伸びないので、\(M_{\rm Pl}\) には <strong>183 EeV</strong> が必要 ── GZK 打ち切り（\(\sim5\times10^{19}\) eV）を超えており、その光子は宇宙論的距離を伝播できない。両者は 68.1 TeV で交差し、それより上では崩壊が常に勝つ。<em>100 PeV・1 Gpc の時間差は \(6.9\times10^{-6}\) 秒で、GRB の ms 級構造には 100 倍以上足りない。</em></p>
+    <p><strong>ただし対称ではない。</strong> 粒状性は<em>発見</em>できるが、連続性は<em>証明</em>できない。空振りは粒状性を排除せず、スケールを押し上げるだけ。<strong>答えられるのは「\(a\) がこのスケール以下にあるか」で、現在の境界は \(\sim10^{-3}M_{\rm Pl}\)。</strong>第15回で「\(G\) はどこから来るか」を \(\alpha_G\) に直したのと同じ、問いの整形。</p>
+    <p style="margin-bottom:0"><strong>そして格子の筋が閉じた。</strong> 数値的な刻みは<em>安全だが何も言わない</em>（座標の取り方）。物理的な刻みは<em>代金が付くが、言うことがある</em>（\(n=2\) の分散）。<strong>言うことがある側だけが測れます。</strong>「空間は歪まない」という立場は、刻みを物理的だと言った瞬間に反証可能になる ── それまでは安全で、そのぶん無内容。<em>安全と無内容が同じ一つの事実から来ている</em>のは、第3回の「平坦背景は原理的に観測できない」の言い換えです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む</span>
+    <a href="butsuri-tsukuru-16-moreru.html">物質は守れた。重力が漏れる</a> ── 刻みが物理的だった場合の代金を測った回です。この回の 112 PeV が「窓を閉めに来る側」で、第16回の \(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV が「窓の側」。<em>どちらが先に動くかで決着します。</em><br>刻みが数値的な場合は <a href="butsuri-tsukuru-17-suisei.html">第17回</a>、そもそも格子の話が始まったのは <a href="butsuri-tsukuru-02-koushi.html">第2回</a> です。
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第18回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます ── 使えない道具を潰していく過程を含めて。</p>
+    <p>確立した内容：\(n=2\)（次元6）のローレンツ破れ分散関係と、超光速側で光子が有効質量を持つこと、真空中の光子崩壊 \(\gamma\to e^+e^-\) のしきい値、LHAASO による GRB 221009A の \(n=2\) 飛行時間下限（arXiv:2312.09079、95% CL、最尤法）、LHAASO の PeV 光子による \(n=2\) 制限 \(>10^{-3}M_{\rm Pl}\)（arXiv:2105.07967）、GZK 打ち切りと超高エネルギー光子の伝播距離の制限、Fermilab Holometer の構成と Hogan モデルに対する否定的結果、エンタングルメント・エントロピーの発散がニュートン定数のくりこみに吸収されること（第14回）。<br><strong>本稿の 112 PeV という値は新しい予言ではなく、既知の光子崩壊の下限を \(E_{\rm LV}=M_{\rm Pl}\) について逆に解いたものです。</strong>またしきい値の計算は素直な二体崩壊の見積りであり、文献の最強値とは係数ぶん異なります（文献は亜光速側のシャワー形成抑制など複数チャンネルを合わせています）── <em>112 PeV は桁の目安であり、実際の解析ではより低いエネルギーで到達しうる</em>ことを明記します。飛行時間の下限の外挿は公表値からの単純な比例外挿で、装置の詳細（有効面積、タイミング分解能、赤方偏移分布）を考慮していません。<br><strong>「言うことがある側だけが測れる」「安全と無内容が同じ事実から来ている」という整理は、本シリーズの著者によるものです。</strong>物理的な刻みが原理的に検出不可能であることも、逆に必ず検出できることも、示されていません。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a>｜<a href="butsuri-tsukuru-12-menseki.html">第12回</a>｜<a href="butsuri-tsukuru-13-omomi.html">第13回</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">第14回</a>｜<a href="butsuri-tsukuru-15-kabe.html">第15回</a>｜<a href="butsuri-tsukuru-16-moreru.html">第16回</a>｜<a href="butsuri-tsukuru-17-suisei.html">第17回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、崩壊と飛行時間の伸び方の差を確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), se=document.getElementById('se'),
+      ve=document.getElementById('ve'), ro=document.getElementById('ro');
+
+  var ME=5.10999e5, MPL=1.2209e28;        // eV
+  var E0=1.8e13, L0=1.2e21;               // 飛行時間のアンカー（LHAASO GRB221009A）
+  var E_REC=1.4e15, E_TGT=Math.sqrt(2*ME*MPL), E_GZK=5e19;
+
+  function decay(E){ return E*E/(2*ME); }
+  function tof(E){ return L0*(E/E0); }
+  function fmtE(E){
+    if(E>=1e18) return (E/1e18).toPrecision(3)+' EeV';
+    if(E>=1e15) return (E/1e15).toPrecision(3)+' PeV';
+    return (E/1e12).toPrecision(3)+' TeV';
+  }
+
+  function draw(){
+    var lg=parseInt(se.value,10)/10;       // log10(E/eV)
+    var E=Math.pow(10,lg);
+    ve.textContent=fmtE(E);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=76,R=W-26,T=28,B=H-58;
+    var XMIN=13, XMAX=19;                  // log10(E/eV)
+    var YMIN=-9, YMAX=3;                   // log10(E_LV/M_Pl)
+    function X(x){ return L+(x-XMIN)/(XMAX-XMIN)*(R-L); }
+    function Y(y){ return B-(y-YMIN)/(YMAX-YMIN)*(B-T); }
+
+    ctx.font='13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=YMIN;y<=YMAX;y+=2){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText('10^'+y,L-9,Y(y)+5);
+    }
+    for(var x=XMIN;x<=XMAX;x++){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center';
+      ctx.fillText(fmtE(Math.pow(10,x)),X(x),B+20);
+    }
+
+    // プランクスケール
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([7,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(R,Y(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.textAlign='left';
+    ctx.fillText('プランクスケール',L+6,Y(0)-8);
+
+    // 二つの下限
+    function curve(fn,col){
+      ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+      var first=true;
+      for(var xx=XMIN;xx<=XMAX;xx+=0.02){
+        var v=Math.log10(fn(Math.pow(10,xx))/MPL);
+        if(v<YMIN||v>YMAX){ first=true; continue; }
+        if(first){ ctx.moveTo(X(xx),Y(v)); first=false; } else ctx.lineTo(X(xx),Y(v));
+      }
+      ctx.stroke();
+    }
+    curve(decay,'#8a3b5c');
+    curve(tof,'#2f5d6b');
+
+    // 縦の目印
+    function mark(Ev,label,col,dy){
+      var xx=Math.log10(Ev);
+      if(xx<XMIN||xx>XMAX) return;
+      ctx.strokeStyle=col; ctx.setLineDash([3,3]); ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(X(xx),T); ctx.lineTo(X(xx),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText(label,X(xx),T+dy);
+    }
+    mark(E_REC,'いまの記録','#5d6a68',14);
+    mark(E_TGT,'目標 112 PeV','#8a3b5c',30);
+    mark(E_GZK,'GZK','#a83a22',46);
+
+    // 選択点
+    var d=decay(E), t=tof(E);
+    ctx.fillStyle='#8a3b5c';
+    ctx.beginPath(); ctx.arc(X(lg),Y(Math.min(YMAX,Math.log10(d/MPL))),6,0,6.284); ctx.fill();
+    ctx.fillStyle='#2f5d6b';
+    ctx.beginPath(); ctx.arc(X(lg),Y(Math.min(YMAX,Math.log10(t/MPL))),6,0,6.284); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('E_LV の下限 / M_Pl',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('壊れずに届いた光子のエネルギー',(L+R)/2,H-14);
+
+    var reach = d>=MPL;
+    ro.className = reach ? 'readout hit' : 'readout';
+    ro.innerHTML='壊れずに届いた光子 <b>'+fmtE(E)+'</b> ｜ '
+      + '崩壊から <b>E_LV > '+d.toExponential(2)+' eV</b>（M_Pl 比 <b>'+(d/MPL).toExponential(2)+'</b>）<br>'
+      + '飛行時間からは <b>'+t.toExponential(2)+' eV</b>（M_Pl 比 '+(t/MPL).toExponential(2)+'）── '
+      + '崩壊のほうが <b>'+(d/t).toPrecision(3)+' 倍</b>強い<br>'
+      + (reach
+          ? '<span style="color:#1d5236">→ プランクスケール到達。物理的な刻み（n=2 超光速側）は排除される</span>'
+          : '<span style="color:#8a3b5c">→ プランクまであと <b>'+(MPL/d).toExponential(2)+'</b> 倍。必要な光子は <b>'
+            + fmtE(E_TGT)+'</b></span>');
+  }
+
+  se.addEventListener('input',draw);
+  document.getElementById('bn').addEventListener('click',function(){ se.value=Math.round(Math.log10(E_REC)*10); draw(); });
+  document.getElementById('bt').addEventListener('click',function(){ se.value=Math.round(Math.log10(E_TGT)*10); draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
