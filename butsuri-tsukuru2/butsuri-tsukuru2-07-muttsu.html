@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粒子は六個で、比は決まっていた ── 物理を作る 第2部 第7回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 7 回 ／ 粒子は六個で、比は決まっていた</span></div>
+  <p class="eyebrow">今回は先に原典を開いた ── 出てきたのは、零パラメータの予言と、ひとつのアノマリー</p>
+  <h1>粒子は六個で、比は決まっていた
+    <span class="sub">第4回で「次は原典を先に確認する」と決めて、第5回・第6回と<strong>2回続けて破りました</strong>（訂正⑬）。<br>今回は先に開きました。族ゲージ粒子の論文4本です。<br>出てきたもの ── <strong>新粒子は六個いて、その質量比は荷電レプトンの質量が決めている。</strong>自由パラメータは比のなかに一つも無い。<br>そして<em>元の模型にはアノマリーがあり</em>、直すと打ち消しが厳密でなくなります。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：原典4本と、6×6 の表</span>
+    <span>この回の芯：予言はある。ただし \(n\) が何にも縛られていない</span>
+  </div>
+
+  <p class="lead">前回まで「Sumino の族ゲージ粒子」を<em>ひとつの新粒子</em>として扱っていました。違いました。<br><strong>U(3) の随伴表現なので、独立な質量は六個あります。</strong>そして質量行列は荷電レプトン質量そのもので書かれているので、<em>六個の比は測定済みの数から完全に決まります。</em><br>これは第2部で初めて出てきた<strong>零パラメータの予言</strong>です。ただし、値段も一緒に出てきました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>今回は、先に開いた</h2>
+
+  <p>読んだのはこの4本です。要約ではなく本文を開きました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">arXiv</th><th>題</th><th>この回で使ったところ</th></tr>
+    <tr><td>1405.6778</td><td>Spectroscopy of Family Gauge Bosons</td><td>質量行列の形と、六個の比</td></tr>
+    <tr><td>1608.04514</td><td>Sumino's Cancellation Mechanism in an Anomaly-Free Model</td><td><strong>アノマリー</strong>と \(m_0=7.6219\) MeV、\(K\) 崩壊の予言</td></tr>
+    <tr><td>1608.01650</td><td>Muon-Electron Conversion in a Family Gauge Boson Model</td><td>結合の値、\(n\) 依存性、制限の表</td></tr>
+    <tr><td>1701.01921</td><td>Koide, <em>Sumino Model and My Personal View</em></td><td>模型の現状と、著者自身の反証条件</td></tr>
+  </table>
+
+  <div class="caveat">
+    <span class="tag">なぜこれを最初の節にするか</span>
+    <p>第4回で「③原典があって規約が確認できるか、を先に確認する」と決めました。第5回でオーダー計算のまま書き、第6回でもそのまま書き、<strong>訂正⑬になりました。</strong>過程（\(\mu\to eee\)）も実験（Mu3e）も違っていた。<br><em>2回続けて同じ手続きを飛ばしたので、今回は順番を変えたことを本文に書いておきます。</em>これで守れたかどうかが、次回わかります。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>質量比は、レプトンが決めていた</h2>
+
+  <p>族ゲージ粒子は U(3) の随伴表現なので、\(A^i_j\)（\(i,j=1,2,3\)）という 3×3 の並びです。原典が与える質量行列はこれです。</p>
+
+  <div class="calc">
+    <p>正常階層（Case B）：</p>
+    $$M_{ij}^2=k\bigl(m_{e_i}^{\,n}+m_{e_j}^{\,n}\bigr)$$
+    <p>逆階層（Case A）：</p>
+    $$M_{ij}^2=k\Bigl(\frac{1}{m_{e_i}^{\,n}}+\frac{1}{m_{e_j}^{\,n}}\Bigr)$$
+    <p>右辺に出てくるのは<strong>荷電レプトンの質量だけ</strong>です。\(k\) は全体のスケール、\(n\) は指数。<em>だから比には自由パラメータが一つも残りません。</em></p>
+  </div>
+
+  <p>計算しました。いちばん軽いものを 1 に規格化した六個の比です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:8%">\(n\)</th><th class="c">\(M_{11}\)</th><th class="c">\(M_{12}\)</th><th class="c">\(M_{13}\)</th><th class="c">\(M_{22}\)</th><th class="c">\(M_{23}\)</th><th class="c">\(M_{33}\)</th><th class="c">開き</th></tr>
+    <tr><td>1/2</td><td class="num">1</td><td class="num">2.773</td><td class="num">5.476</td><td class="num">3.792</td><td class="num">6.056</td><td class="num">7.679</td><td class="num">7.68</td></tr>
+    <tr><td>1</td><td class="num">1</td><td class="num">10.19</td><td class="num">41.70</td><td class="num">14.38</td><td class="num">42.92</td><td class="num">58.97</td><td class="num">59.0</td></tr>
+    <tr class="mark"><td><strong>2</strong></td><td class="num">1</td><td class="num">146.2</td><td class="num">2459</td><td class="num ok">206.8</td><td class="num">2463</td><td class="num ok">3477</td><td class="num">3477</td></tr>
+    <tr><td>3</td><td class="num">1</td><td class="num">2102</td><td class="num">\(1.45\times10^5\)</td><td class="num">2973</td><td class="num">\(1.45\times10^5\)</td><td class="num">\(2.05\times10^5\)</td><td class="num">\(2.05\times10^5\)</td></tr>
+  </table>
+
+  <p>（Case B。Case A は同じ数字が逆順に並び、いちばん軽いのが \(M_{33}\) になります。開きは同じです。）</p>
+
+  <p>\(n=2\) の行を見てください。</p>
+
+  <div class="keybox">
+    $$M_{11}:M_{22}:M_{33}=1:206.8:3477=m_e:m_\mu:m_\tau$$
+    <p style="margin:8px 0 0;"><strong>\(n=2\) では、対角の族ゲージ粒子の質量がレプトン質量に正比例します。</strong>\(M_{ii}^2\propto m_{e_i}^2\) なので当たり前ですが、<em>当たり前が数字になると見え方が変わります</em> ── 新粒子の質量スペクトルが、すでに測ってある三つの数のコピーになる。</p>
+  </div>
+
+  <p>開きも閉じた式で書けます。\(\text{開き}=(m_\tau/m_e)^{n/2}\)。\(n=2\) なら 3477、\(n=1\) ならその平方根 58.97。</p>
+
+  <div class="fig">
+    <div class="cap">図：予言されたスペクトル。<b>上の段が六個の族ゲージ粒子、下の段が荷電レプトン</b>（どちらもいちばん軽いものを 1 に規格化、横軸は対数）。<b>スライダーで \(n\) を、ボタンで階層の向きを変えられます</b> ── \(n=2\) のとき、対角の3本（\(M_{11},M_{22},M_{33}\)）が下の段のレプトンと<em>ぴったり重なります</em></div>
+    <canvas id="cv" width="1120" height="400"></canvas>
+    <div class="controls">
+      <label>指数 \(n\) = <span class="val" id="vn">2.00</span>
+        <input type="range" id="sn" min="0.25" max="4" step="0.25" value="2"></label>
+      <button id="bB">正常階層（Case B）</button>
+      <button id="bA">逆階層（Case A）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#a35a2f"></span>対角 \(M_{ii}\)（族数を変えない）</span>
+      <span><span class="swatch" style="background:#5c6b8a"></span>非対角 \(M_{ij}\)（族数を変える＝実験が縛る）</span>
+      <span><span class="swatch" style="background:#7a4a8a"></span>荷電レプトン \(m_e,m_\mu,m_\tau\)</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>厳密な和則が、ひとつ落ちてくる</h2>
+
+  <p>原典は \(2M_{ij}^2\simeq M_{ii}^2+M_{jj}^2\) と書いています。<em>\(\simeq\) が気になったので確かめました。</em></p>
+
+  <div class="calc">
+    <p>\(M_{ij}^2=k(f_i+f_j)\) の形なら（\(f_i=m_{e_i}^n\) でも \(1/m_{e_i}^n\) でも）</p>
+    $$2M_{ij}^2=2k(f_i+f_j),\qquad M_{ii}^2+M_{jj}^2=2kf_i+2kf_j=2k(f_i+f_j)$$
+    <p>完全に同じ。<strong>近似ではなく恒等式です。</strong></p>
+  </div>
+
+  <div class="lab">
+    <span class="tag">fgb.py ── 数値でも確認</span>
+<pre>  B(nor)  n=0.5  max |2M_ij^2/(M_ii^2+M_jj^2) - 1| = <span class="bd">0.00e+00</span>
+  B(nor)  n=1    ...                                = <span class="bd">0.00e+00</span>
+  B(nor)  n=2    ...                                = <span class="bd">0.00e+00</span>
+  B(nor)  n=3    ...                                = <span class="bd">0.00e+00</span>
+  A(inv)  n=0.5 〜 n=3                              = <span class="bd">0.00e+00</span></pre>
+  </div>
+
+  <div class="verdict">
+    <p><strong>これは署名（signature）として使えます。</strong>もしこの六個が見つかったら、質量は</p>
+    <p style="text-align:center;">\(2M_{ij}^2=M_{ii}^2+M_{jj}^2\)</p>
+    <p>を \(n\) にも全体スケールにも依らずに満たさなければなりません。<em>三個の質量が測れれば、残り三個は計算で出ます。</em>模型を殺すにも確かめるにも、六個全部を見つける必要はありません。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>結合は、合っていた</h2>
+
+  <p>第5回で打ち消しの条件から \(\alpha_F=4\alpha\) を出しました。原典と比べます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">出どころ</th><th>\(g_F/\sqrt2\)</th></tr>
+    <tr><td>arXiv:1608.01650（Model B）</td><td class="num">\(0.428/\sqrt n\)</td></tr>
+    <tr><td>arXiv:1608.01650（Model A）</td><td class="num">\(0.491/\sqrt n\)</td></tr>
+    <tr><td>arXiv:1405.6778（\(n=2\)、Case B）</td><td class="num">\(e=0.307\)</td></tr>
+    <tr class="mark"><td><strong>私の \(\alpha_F=4\alpha\)</strong></td><td class="num ok">\(0.428255/\sqrt n\)</td></tr>
+  </table>
+
+  <p><strong>比は \(n\) に依らず 1.00060</strong> ── 原典が 0.4283 を 0.428 と丸めた分です。そして \(n=2\) のほうは偶然ではなく厳密でした。</p>
+
+  <div class="calc">
+    $$\alpha_F=4\alpha \;\Longrightarrow\; g_F=\sqrt{16\pi\alpha} \;\Longrightarrow\; \frac{g_F}{2}=\sqrt{4\pi\alpha}=e$$
+    <p>\(n=2\) では \(g_F/\sqrt{2n}=g_F/2\) なので、原典の「\(g_F/\sqrt2=e\)」は<strong>\(\alpha_F=4\alpha\) とまったく同じ主張</strong>です。数値では \(0.302822\) 対 \(0.302822\)、比 1.00000。</p>
+  </div>
+
+  <p>第5回の導出は正しく、<em>使い方だけを間違えていた</em>ことになります（訂正⑬）。陽性対照としてはこれで通りました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>\(n\) は、何にも縛られていない</h2>
+
+  <p>ここが今回いちばん悪い知らせです。</p>
+
+  <p>打ち消しは「族ゲージのログが \(\log m_{e_i}\) を再現すること」を要求します。ところが \(M_{ii}^2\propto m_{e_i}^n\) なら</p>
+
+  $$\log M_{ii}^2=n\log m_{e_i}+\text{const}$$
+
+  <p>なので、係数 \(n\) は結合の側に吸わせられます。<strong>打ち消しは、どんな \(n\) でも成り立つ</strong>（原典に明記）。つまり<em>機構は \(n\) を決めません。</em></p>
+
+  <div class="caveat">
+    <span class="tag">書きながら間違えたので、そのまま書きます</span>
+    <p>私は最初「\(n\) が大きいとスペクトルがプランクスケールを超えるから、結局 \(n\) は縛られる」と書きました。<strong>計算違いです。</strong>いちばん軽いものを 100 TeV に固定すると：</p>
+    <div class="lab" style="margin:10px 0 6px;">
+<pre>    n   M_33/M_11    M_33 [TeV]    M_33 [GeV]    M_33/M_Pl
+  0.5       7.679         767.9     7.679e+05     6.29e-14
+    1       58.97          5897     5.897e+06     4.83e-13
+    2        3477     3.477e+05     3.477e+08     2.85e-11
+    3   2.051e+05     2.051e+07     <span class="bd">2.051e+10</span>     1.68e-09
+    4   1.209e+07     1.209e+09     1.209e+12     <span class="bd">9.9e-08</span></pre>
+    </div>
+    <p>\(n=3\) でも \(2\times10^{10}\) GeV ── \(M_{\rm Pl}=1.22\times10^{19}\) GeV の<strong>9桁下</strong>です。\(n=4\) でもまだ \(10^{-7}M_{\rm Pl}\)。<em>プランクスケールは \(n\) を縛りません。</em>私の言い分のほうが間違っていました。</p>
+  </div>
+
+  <div class="verdict warn">
+    <p><strong>だから \(n\) は本当に自由です。</strong>機構も縛らず、プランクスケールも縛らない。\(n=1/2,1,2,3,\dots\) はそれぞれ<em>別の模型で、同じ打ち消しを持つ</em>ということになります。</p>
+    <p>予言力の観点では、これは第6回の「\(2.7\times10^5\) に1」と同じ種類の損失です ── <em>説明が一つに決まらない。</em></p>
+  </div>
+
+  <p>\(n\) が変えるのは、実験が直接縛る「いちばん軽い非対角」と「いちばん軽い状態」の比です。だから \(n\) は、ひとつの実験上限を課したときに<strong>塔全体がどこに座るか</strong>を動かします。</p>
+
+  <table class="tbl">
+    <tr><th style="width:14%">\(n\)</th><th class="c">Case B：\(M_{12}/M_{11}\)</th><th class="c">Case A：\(M_{23}/M_{33}\)</th></tr>
+    <tr><td>1/2</td><td class="num">2.773</td><td class="num">1.597</td></tr>
+    <tr><td>1</td><td class="num">10.19</td><td class="num">2.985</td></tr>
+    <tr class="mark"><td>2</td><td class="num">146.2</td><td class="num">11.91</td></tr>
+    <tr><td>3</td><td class="num">2102</td><td class="num">48.77</td></tr>
+  </table>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>元の模型には、アノマリーがある</h2>
+
+  <p>これは原典を開かなければ絶対に出てこなかった話です。</p>
+
+  <p>Sumino の元の模型（Model A）は \((\nu_i,e_i^-)_L\) を \(\mathbf3\)、\((\nu_i,e_i^-)_R\) を \(\mathbf{3^*}\) に置きます。<strong>この割り当てはアノマリー自由ではありません。</strong>さらに \(\Delta N_{\rm family}=2\) の有効相互作用も生みます。</p>
+
+  <p>直すには両方を \(\mathbf3\) に置く。ところがそれだと逆階層が出ないので、\(\mathrm{U}(3)\times\mathrm{U}(3)'\) の \((\mathbf3,\mathbf{3^*})\) スカラー \(\Psi\) と、シングレットのフレーバン \(\Phi_0\) を足すことになります。そして ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">版</th><th class="c">アノマリー自由</th><th class="c">打ち消し</th><th class="c">追加の入力</th></tr>
+    <tr><td>Sumino 元の模型（Model A）</td><td class="c bad"><strong>いいえ</strong></td><td class="c ok">厳密</td><td class="c">なし</td></tr>
+    <tr><td>アノマリー自由な Model B</td><td class="c ok">はい</td><td class="c bad">厳密でない</td><td class="c bad">\(\zeta=1.752\)</td></tr>
+    <tr class="mark"><td>改良された Model C</td><td class="c ok">はい</td><td class="c ok">厳密</td><td class="c bad">\(m_0=7.6219\) MeV</td></tr>
+  </table>
+
+  <div class="verdict warn">
+    <p><strong>「微調整ゼロ」の帳簿は、良くなるどころか悪くなりました。</strong></p>
+    <p>元の模型は厳密に打ち消すがアノマリーがある。アノマリーを消すと打ち消しが厳密でなくなり \(\zeta=1.752\) が要る。厳密さを取り戻すと \(m_0=7.6219\) MeV という<em>新しい質量パラメータ</em>が要る。</p>
+  </div>
+
+  <p>\(m_0=7.6219\) MeV は妙な数なので、レプトン質量と比べました。</p>
+
+  <div class="lab">
+    <span class="tag">fgb.py ── 数合わせ6本</span>
+<pre>  m_0 / m_e                      = 14.915686
+  m_0 / m_mu                     =  0.072137
+  m_0 / sqrt(m_e m_mu)           =  <span class="bd">1.037293</span>
+  m_0 / (m_mu/14)                =  <span class="bd">1.009921</span>
+  m_0 / sqrt(m_e m_tau)          =  0.252940
+  m_0 / (m_e m_mu m_tau)^(1/3)   =  0.166494</pre>
+  </div>
+
+  <p>\(m_\mu/14\) が 1% で近いですが、<strong>6本試して 1% で近いものが1本なら、それは当たりではありません</strong>（第1回の look-elsewhere と同じ話）。<em>\(m_0\) は合わせたパラメータです。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>上限の、75パーセント</h2>
+
+  <p>そして原典に、この6話で初めて出てくる種類の数字がありました。</p>
+
+  <p>族ゲージ粒子はレプトン数を族ごとに変えるので、稀な \(K\) 崩壊を引き起こします。Model C の \(n=2\) について、原典は分岐比を出しています。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">過程 \(K^+\to\pi^+\mu^+e^-\)</th><th class="c">分岐比</th><th class="c">実験上限比</th></tr>
+    <tr><td>実験上限（BNL E865、90% CL）</td><td class="num">\(&lt;1.3\times10^{-11}\)</td><td class="c">1</td></tr>
+    <tr class="mark"><td><strong>Model C（\(n=2\)）の予言</strong></td><td class="num bad"><strong>\(0.97\times10^{-11}\)</strong></td><td class="num bad"><strong>0.75</strong></td></tr>
+    <tr><td>Model B（\(n=2\)）の予言</td><td class="num">\(2.3\times10^{-16}\)</td><td class="num">\(1.8\times10^{-5}\)</td></tr>
+  </table>
+
+  <div class="keybox">
+    <p style="margin:0;"><strong>Model C は、現在の実験上限の 75% を予言しています。</strong>あと <strong>1.34 倍</strong>で決まります。</p>
+  </div>
+
+  <p>そしてこの過程は、いま動いている実験の射程にあります。NA62 は<em>荷電共役の側</em>（\(K^+\to\pi^+\mu^-e^+\)）の上限を E865 の \(5.2\times10^{-10}\) から \(6.6\times10^{-11}\) へ、<strong>8倍改善しました</strong>。同じ改善を \(\mu^+e^-\) の側に当てれば上限は \(1.6\times10^{-12}\) ── <em>予言の 6分の1</em>です。</p>
+
+  <div class="caveat">
+    <span class="tag">ここは私の外挿です</span>
+    <p>「8倍の改善を別のモードに当てれば」は<strong>著者の外挿で、NA62 の公表した見通しではありません。</strong>モードごとに背景も感度も違います。確実に言えるのは<em>予言が現在の上限の 75% にあること</em>と、<em>NA62 が姉妹モードで8倍を実証したこと</em>の二つだけです。</p>
+  </div>
+
+  <div class="verdict">
+    <p><strong>6話かけて、初めて「上限の下に潜り込んでいる予言」に着きました。</strong></p>
+    <p>これまでは「\(m_\tau\) を14倍精密に測れば」「次世代の \(\mu\)-\(e\) 転換が全域を覆う」── どれも<em>将来の機械</em>の話でした。\(K^+\to\pi^+\mu^+e^-\) は<strong>すでにある上限に対して 0.75</strong>。桁が足りないのではなく、係数が足りないだけです。</p>
+  </div>
+
+  <p>ただし念のため ── これは<strong>Model C の \(n=2\) についての数字</strong>です。05 節で見たとおり \(n\) は自由で、版も A / B / C があります。<em>殺せるのは「この版のこの \(n\)」であって、Koide 関係そのものではありません。</em></p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>「六個の比が決まっている」ことは、模型にとって有利か不利か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>圧倒的に有利です ── ただし条件つきで。</strong>零パラメータの予言は、当たれば強く、外れれば即死します。第2部でこれまで扱ってきた「妙にきれいな数」のほとんどは<em>後から合わせられる</em>形をしていましたが、これは違います。<br>条件は、<strong>その六個が見つかる見込みがあるかどうか</strong>。いちばん軽いものが \(10^2\)–\(10^3\) TeV なら加速器では作れないので、確かめる手段は間接（稀崩壊）だけになります。<em>予言は鋭いが、鋭さを使う場所が限られる。</em></div></details>
+      </li>
+      <li>和則 \(2M_{ij}^2=M_{ii}^2+M_{jj}^2\) はどれだけ強い言明か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>形について強く、値については何も言いません。</strong>この和則は \(M_{ij}^2=k(f_i+f_j)\) という<em>加法的な形</em>と同値です。だから「六個の質量が加法的に組まれている」という主張であって、\(f_i\) が何かは指定しません（レプトン質量の \(n\) 乗というのは別の仮定）。<br>実験的には便利です ── <em>三個測れば残り三個が出る</em>ので、模型を殺すのに全部を見つける必要がない。<strong>反証しやすい形になっているのは、良い設計です。</strong></div></details>
+      </li>
+      <li>\(n\) が自由なのは、第6回の「\(2.7\times10^5\) に1」と同じ問題か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>種類が違います。</strong>第6回は<em>連続パラメータの微調整</em>で、確率として値段が付きました。今回の \(n\) は<em>離散的な選択肢</em>で、確率にはなりません ── \(n=1\) と \(n=2\) は別の模型で、どちらも同じ打ち消しを持つ。<br>だから値段の付け方が変わります。「何分の1」ではなく<strong>「説明が一意でない」</strong>という損失です。<em>そしてこちらのほうが厄介かもしれません</em> ── 微調整は数えられますが、模型の枝分かれは数えにくい。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>この回で分かったこと</h2>
+
+    <p><strong>今回は先に原典を開きました。</strong>4本（1405.6778／1608.04514／1608.01650／1701.01921）。第4回で決めた手続きを第5回・第6回と2回破って訂正⑬になったので、順番を変えました。<em>そして開かなければ出てこなかったものが、実際に3つ出ました</em> ── 六個という数、アノマリー、そして \(K\) 崩壊の数字です。</p>
+
+    <p><strong>新粒子は六個いて、質量比は荷電レプトンが決めています。</strong>\(M_{ij}^2=k(m_{e_i}^n+m_{e_j}^n)\)（または逆数版）なので、比に自由パラメータが一つも入りません。\(n=2\) では \(M_{11}:M_{22}:M_{33}=1:206.8:3477=m_e:m_\mu:m_\tau\) ── <em>新粒子のスペクトルが、測ってある三つの数のコピーになります。</em>開きは \((m_\tau/m_e)^{n/2}\)。<strong>第2部で初めて出た零パラメータの予言です。</strong></p>
+
+    <p><strong>そして厳密な和則が落ちてきました。</strong>原典が \(\simeq\) と書いていた \(2M_{ij}^2=M_{ii}^2+M_{jj}^2\) は、この形なら<em>恒等式</em>です（数値でも \(0.00\times10^{0}\)）。\(n\) にも全体スケールにも依らないので、<strong>三個の質量が測れれば残り三個が出ます</strong> ── 反証に六個そろえる必要がない。</p>
+
+    <p><strong>結合は合っていました。</strong>第5回の \(\alpha_F=4\alpha\) は原典の \(g_F/\sqrt2=0.428/\sqrt n\) を比 1.00060 で再現し、\(n=2\) では \(g_F/2=\sqrt{4\pi\alpha}=e\) と<em>厳密に同じ主張</em>でした。導出は正しく、使い方だけを間違えていた（訂正⑬）。</p>
+
+    <p><strong>\(n\) は何にも縛られていません。</strong>\(\log M_{ii}^2=n\log m_{e_i}+\)const なので打ち消しはどんな \(n\) でも成立し、しかも私が「プランクスケールが縛る」と書いたのは<em>計算違い</em>でした ── \(n=3\) でも \(2\times10^{10}\) GeV、\(M_{\rm Pl}\) の9桁下。\(n=4\) でもまだ届きません。<strong>\(n=1/2,1,2,3,\dots\) はそれぞれ別の模型で、同じ打ち消しを持ちます。</strong>第6回の微調整とは違う種類の損失（確率ではなく一意性）です。</p>
+
+    <p><strong>元の模型には、アノマリーがあります。</strong>\((\nu,e)_L\) を \(\mathbf3\)、\((\nu,e)_R\) を \(\mathbf{3^*}\) に置く割り当てはアノマリー自由でなく、\(\Delta N_{\rm family}=2\) も生みます。直すと打ち消しが厳密でなくなって \(\zeta=1.752\) が要り、厳密さを取り戻すと \(m_0=7.6219\) MeV という新しい質量パラメータが要る。<em>\(m_0\) をレプトン質量と6通り比べて、当たりはありませんでした</em>（\(m_\mu/14\) が 1% ですが、6本試して1本の 1% は当たりではない）。</p>
+
+    <p><strong>そして \(K^+\to\pi^+\mu^+e^-\)。</strong>Model C の \(n=2\) の予言は \(0.97\times10^{-11}\)、実験上限は \(1.3\times10^{-11}\)（BNL E865、90% CL）── <strong>上限の 75%、あと 1.34 倍</strong>。6話やってきて初めて、<em>将来の機械ではなく既にある上限のすぐ下</em>に予言が来ました。</p>
+
+    <p><strong>ただし殺せる範囲は狭いままです。</strong>その数字は「Model C の \(n=2\)」についてのもので、\(n\) は自由、版も A/B/C あります。だから \(K\) 崩壊が見つからなくても<em>Koide 関係そのものは死にません</em> ── 死ぬのは打ち消し機構のひとつの実装です。そして「NA62 の8倍を別モードに当てれば \(1.6\times10^{-12}\)」は<strong>私の外挿で、実験側の見通しではありません</strong>。モードごとに背景が違うので、そこは弱いままです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>次は \(K^+\to\pi^+\mu^+e^-\) の側を原典で確認します。</strong>今回いちばん鋭い数字がそこなのに、私が触ったのは<em>予言側の論文だけ</em>です ── 上限 \(1.3\times10^{-11}\) は E865 の論文を、NA62 の8倍改善は NA62 の論文を、まだ開いていません。<em>今回「先に開いた」と書いた直後にこれなので、手続きはまだ半分です。</em><br>第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a> ｜ 第2回：<a href="butsuri-tsukuru2-02-genten.html">原典を開いたら、私が間違っていた</a> ｜ 第3回：<a href="butsuri-tsukuru2-03-yogen.html">本人が、予言と書いていた</a> ｜ 第4回：<a href="butsuri-tsukuru2-04-todokanai.html">届かない原典と、消えた補正項</a> ｜ 第5回：<a href="butsuri-tsukuru2-05-kagami.html">45度は、鏡だった</a> ｜ 第6回：<a href="butsuri-tsukuru2-06-tsukurenai.html">その鏡は、対称性では作れない</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第7回、物理好きの高校生・大学生向け読み物です。Koide 関係の打ち消し機構が要求する新粒子を、原典から数字にした回です。</p>
+    <p><strong>確立した内容：</strong>族ゲージ粒子の質量行列の形 \(M_{ij}^2=k(m_{e_i}^n+m_{e_j}^n)\) とその逆数版、および六個の質量比（arXiv:1405.6778「Spectroscopy of Family Gauge Bosons」）。Sumino の元の模型が \(\mathbf3\) と \(\mathbf{3^*}\) の割り当てのためアノマリー自由でないこと、アノマリー自由版で打ち消しが厳密でなくなること（\(\zeta=1.752\)）、Model C が \(m_0=7.6219\) MeV で厳密さを回復すること、および \(K^+\to\pi^+\mu^+e^-\) の分岐比予言 \(0.97\times10^{-11}\)（Model C, \(n=2\)）と \(2.3\times10^{-16}\)（Model B, \(n=2\)）（arXiv:1608.04514）。族ゲージ結合 \(g_F/\sqrt2=0.428/\sqrt n\)（Model B）と \(0.491/\sqrt n\)（Model A）、および打ち消しが任意の \(n\) で成立すること（arXiv:1608.01650）。Koide 自身による Sumino 模型の総括（arXiv:1701.01921）。\(K^+\to\pi^+\mu^+e^-\) の上限 \(1.3\times10^{-11}\)（90% CL、BNL E865）と NA62 による姉妹モード \(K^+\to\pi^+\mu^-e^+\) の \(6.6\times10^{-11}\)。荷電レプトンの PDG 質量。</p>
+    <p><strong>著者の整理／未確認：</strong>本稿の数値（六個の質量比の表、開き \((m_\tau/m_e)^{n/2}\)、\(n=2\) で \(M_{ii}\propto m_{e_i}\) になること、和則が恒等式であることの証明と数値確認、\(\alpha_F=4\alpha\) と原典の結合の比 1.00060 および \(n=2\) での厳密一致、\(n\) を変えたときのスペクトルの位置、\(m_0\) の数合わせ6本）は、著者が書いた純 Python コードの出力です。<br><strong>「\(n\) はプランクスケールで縛られる」は著者の計算違いでした</strong>（05 節にそのまま残しています）。\(n=3\) でも最重量は \(2\times10^{10}\) GeV で \(M_{\rm Pl}\) の9桁下です。<br><strong>「NA62 の8倍改善を \(\mu^+e^-\) モードに当てれば上限は \(1.6\times10^{-12}\)」は著者の外挿で、NA62 の公表した見通しではありません。</strong>モードごとに背景と感度が違うため、この一文は弱い主張です。上限 \(1.3\times10^{-11}\) と NA62 の \(6.6\times10^{-11}\) は文献値ですが、<em>E865 と NA62 の原論文そのものは開いていません</em>（次回の宿題）。<br>\(K\) 崩壊の予言は「Model C の \(n=2\)」に固有のもので、\(n\) は自由、版も A/B/C あるため、これが外れても Koide 関係そのものは否定されません ── 否定されるのは打ち消し機構のひとつの実装です。第5回・第6回で「新しい物理は出ていない」と書いた状態は、この回でも変わっていません。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a> ｜ 姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a> ／ <a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）→「PDF に保存」。図は最後の状態で印刷されます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var sn=document.getElementById('sn'), vn=document.getElementById('vn'), ro=document.getElementById('ro');
+  var W=1120,H=400, INV=false;
+
+  var ME=0.51099895000, MMU=105.6583755, MTAU=1776.93;
+  var LAB=['11','12','13','22','23','33'];
+  var PR=[[0,0],[0,1],[0,2],[1,1],[1,2],[2,2]];
+
+  function spectrum(n,inv){
+    var m=[ME,MMU,MTAU], f=[];
+    for(var i=0;i<3;i++) f.push(inv?Math.pow(1/m[i],n):Math.pow(m[i],n));
+    var M2=[], mn=Infinity;
+    for(var k=0;k<6;k++){ var v=f[PR[k][0]]+f[PR[k][1]]; M2.push(v); if(v<mn) mn=v; }
+    var r=[]; for(k=0;k<6;k++) r.push(Math.sqrt(M2[k]/mn));
+    return r;
+  }
+  function lepRatios(inv){
+    var m=[ME,MMU,MTAU];
+    var base=inv?MTAU:ME;
+    return [m[0]/base, m[1]/base, m[2]/base].map(function(x){return inv?1/x:x;});
+  }
+
+  var L=78, R=1064, YT=118, YL=252;
+
+  function draw(){
+    var n=parseFloat(sn.value);
+    vn.textContent=n.toFixed(2);
+    var r=spectrum(n,INV);
+    var lr=lepRatios(INV);
+    var maxv=Math.max(r[5],r[0],lr[0],lr[1],lr[2]);
+    var lo=0, hi=Math.log(maxv)/Math.LN10;
+    if(hi<0.5) hi=0.5;
+    hi=hi*1.06+0.05;
+    function X(v){ var t=Math.log(v)/Math.LN10; return L+(t-lo)/(hi-lo)*(R-L); }
+
+    ctx.clearRect(0,0,W,H);
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    /* axis */
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    var dec=Math.ceil(hi);
+    for(var g=0;g<=dec;g++){
+      if(g>hi) break;
+      var xx=L+(g-lo)/(hi-lo)*(R-L);
+      ctx.beginPath(); ctx.moveTo(xx,YT-52); ctx.lineTo(xx,YL+52); ctx.stroke();
+      ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+      ctx.fillText('10^'+g, xx, YL+72);
+    }
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.moveTo(L,YT); ctx.lineTo(R,YT); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L,YL); ctx.lineTo(R,YL); ctx.stroke();
+
+    /* FGB row */
+    for(var k=0;k<6;k++){
+      var diag = PR[k][0]===PR[k][1];
+      var x=X(r[k]);
+      ctx.strokeStyle = diag ? '#a35a2f' : '#5c6b8a';
+      ctx.lineWidth = diag ? 3.2 : 2;
+      ctx.beginPath(); ctx.moveTo(x,YT-26); ctx.lineTo(x,YT+26); ctx.stroke();
+      ctx.fillStyle = diag ? '#a35a2f' : '#5c6b8a';
+      ctx.textAlign='center';
+      ctx.fillText('M'+LAB[k], x, diag?YT-34:YT+40);
+    }
+    /* lepton row */
+    var lnm=['m_e','m_mu','m_tau'];
+    for(k=0;k<3;k++){
+      var x2=X(lr[k]);
+      ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=3.2;
+      ctx.beginPath(); ctx.moveTo(x2,YL-24); ctx.lineTo(x2,YL+24); ctx.stroke();
+      ctx.fillStyle='#7a4a8a'; ctx.textAlign='center';
+      ctx.fillText(lnm[k], x2, YL+40);
+    }
+    /* match indicator at n=2 */
+    var diagIdx=[0,3,5];
+    var matched=true;
+    for(k=0;k<3;k++){
+      var a=r[diagIdx[k]], b=lr[k];
+      if(Math.abs(Math.log(a/b))>1e-9) matched=false;
+    }
+    if(matched){
+      ctx.strokeStyle='#2f7d5a'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+      for(k=0;k<3;k++){
+        var xm=X(r[diagIdx[k]]);
+        ctx.beginPath(); ctx.moveTo(xm,YT+26); ctx.lineTo(xm,YL-24); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle='#191d22'; ctx.textAlign='left';
+    ctx.fillText('族ゲージ粒子（6本）', L, YT-58);
+    ctx.fillText('荷電レプトン（3本）', L, YL-40);
+    ctx.textAlign='center'; ctx.fillStyle='#4c545c';
+    ctx.fillText('いちばん軽いものを 1 とした比（対数）', (L+R)/2, H-10);
+
+    ro.className = matched ? 'readout hit' : 'readout';
+    var spread=Math.max.apply(null,r)/Math.min.apply(null,r);
+    ro.innerHTML = (INV?'<b>逆階層（Case A）</b>':'<b>正常階層（Case B）</b>')
+      + '｜n = <b>'+n.toFixed(2)+'</b>｜開き = <b>'+spread.toPrecision(4)+'</b>'
+      + '（= (m_tau/m_e)^(n/2)）｜いちばん軽い非対角 / いちばん軽い = <b>'
+      + (INV? (r[4]/Math.min.apply(null,r)).toPrecision(4)
+            : (r[1]/Math.min.apply(null,r)).toPrecision(4)) + '</b><br>'
+      + '<span style="color:'+(matched?'#1d5236':'#4c545c')+'">'
+      + (matched
+         ? ' → n = 2。対角の3本が荷電レプトンと完全に一致します（M_ii ∝ m_ei）'
+         : ' → 対角の3本はレプトンと一致しません。一致するのは n = 2 のときだけです')
+      + '</span>';
+  }
+  sn.addEventListener('input',draw);
+  document.getElementById('bB').addEventListener('click',function(){ INV=false; draw(); });
+  document.getElementById('bA').addEventListener('click',function(){ INV=true; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
