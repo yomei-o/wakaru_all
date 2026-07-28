@@ -101,6 +101,7 @@
   .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
     font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
 
+  .okmark{color:var(--ok);}
   .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
   .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
     font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
@@ -149,7 +150,7 @@
   </h1>
   <div class="byline">
     <span>必要な道具：第10回、半直積の気分</span>
-    <span>この回の芯：\(c_L=0\)、\(c_M=3/G\)</span>
+    <span>この回の芯：\(c_L=0\)、\(c_M=3/G\)｜陽性対照 通過</span>
   </div>
 
   <p class="lead">前回、第9回の予想を証明する型が見つかりました ── 漸近対称性 → 中心電荷 → Cardy。そして4次元で欠けているものが3つに絞れました。その筆頭、<strong>中心電荷</strong>を調べにいくのがこの回です。<br>出てきたのは、素直に読めば行き止まりでした。ところが3次元の成功例をもう一度分解すると、<em>同じ行き止まりが3次元にもあった</em>ことに気づきます。それでも entropy は出た。<br>この回は結論を出しません。出せるのは、<strong>問いを正しい形に置き直すところまで</strong>です。それでも書く価値はあると思っています ── 本シリーズが繰り返し確かめてきたのは、<em>探し方が間違っていると何も出ない</em>ということでしたから。</p>
@@ -210,14 +211,45 @@
 
   <div class="keybox">
     <div class="lbl">BMS-Cardy</div>
-    $$S=2\pi\left[\;c_L\sqrt{\frac{M_0}{2c_M}}\;+\;L_0\sqrt{\frac{c_M}{2M_0}}\;\right]$$
+    $$S=2\pi\left[\;c_L\sqrt{\frac{M_0}{24\,c_M}}\;+\;L_0\sqrt{\frac{c_M}{24\,M_0}}\;\right]$$
+  </div>
+
+  <div class="caveat">
+    <span class="tag">規約の罠 ── ここで一度つまずきました</span>
+    <p style="margin:6px 0 0">この公式は文献では <strong>\(S=2\pi[\,c_L\sqrt{M_0/2c_M}+L_0\sqrt{c_M/2M_0}\,]\)</strong> と、分母が <b>2</b> で書かれていることがあります。それは中心項を <em>\(c\,m(m^2-1)\)</em> と裸で書く規約（Bagchi ら、\(c_{LM}=1/4\)）での形です。<br>本稿は 02 節で代数を <em>\(\frac{c}{12}m^3\)</em> と書き、\(c_M=3/G\) を使っています。この規約では \(c_{LL}=c_L/12,\;c_{LM}=c_M/12\) なので、代入すると<strong>両項とも分母が \(2\to24\)</strong> になります。<br>混ぜると \(\sqrt{12}=2\sqrt3\approx3.46\) 倍ずれます。<b>この記事は初出時それを混ぜていました</b> ── 下の陽性対照で捕まえて訂正したものです。</p>
   </div>
 
   <p>アインシュタイン重力では \(c_L=0\) なので、<strong>第1項が丸ごと落ちます</strong>。残るのは第2項だけ ──</p>
 
-  $$S=2\pi L_0\sqrt{\frac{c_M}{2M_0}}\qquad(c_L=0)$$
+  $$S=2\pi L_0\sqrt{\frac{c_M}{24\,M_0}}\qquad(c_L=0)$$
 
   <p>エントロピーは、<em>完全に \(c_M\) が担っています</em>。動かして確かめてください。</p>
+
+  <div class="lab">
+    <span class="tag">陽性対照 ── 道具が壊れていないことを、先に確かめる</span>
+<pre><span class="cm"># 3次元平坦宇宙論（flat space cosmology）で、既知の答えと突き合わせる</span>
+<span class="cm">#   計量   ds^2 = 8GM du^2 - 2 du dr + 8GJ du dphi + r^2 dphi^2   [Barnich 1208.4371]</span>
+<span class="cm">#   地平面 r_C = sqrt(2 G J^2 / M)      幾何側 S = 2 pi r_C / 4G = pi|J| / sqrt(2GM)</span>
+<span class="cm">#   場の理論側 c_L = 0, c_M = 3/G, M_0 = M, L_0 = J</span>
+
+    G M         J  |  幾何 S          BMS-Cardy       比
+ <span class="hi">-----------------------------------------------------------------</span>
+     10         3  |  2.1074444193    2.1074444193    1.000000000000000
+    100        17  |  3.7764504974    3.7764504974    1.000000000000000
+  1e+04       250  |  5.5536036727    5.5536036727    1.000000000000000
+  1e+06     3e+04  | 66.6432440724   66.6432440724    1.000000000000000
+    2.5       1.3  |  1.8264518301    1.8264518301    1.000000000000000
+
+ 最大相対偏差 = <span class="st">2.2e-16</span>   <span class="st">→ 陽性対照 通過</span>
+ <span class="cm">（分母を 24 でなく 2 にすると、比は全行で 3.4641016151 = 2*sqrt(3) に揃う）</span></pre>
+  </div>
+
+  <p>この確認は飾りではありません。<strong>4次元で同じ型を使うつもりなら、3次元で答えが分かっている場合に道具が正しく動くことを先に見ておく必要があります。</strong>実際、ここで係数の取り違えが一つ見つかりました ── \(\sqrt{12}\) は、目で見ても気づかない大きさです。</p>
+
+  <div class="aside">
+    <span class="tag">ついでに出てきたもの</span>
+    Bagchi らの規約では \(h_M=GM+\tfrac18\) と、ゼロモードが<strong>ずれて</strong>います。この \(1/8=c_{LM}/2\) は、2次元 Cardy の \(L_0\to L_0-c/24\) にあたる真空シフトです。幾何側とのずれは \(-1/(16GM)\) で、\(GM=1\) で \(-5.7\%\)、\(GM=10^4\) で \(-6.3\times10^{-6}\)。<em>大きなブラックホールでしか一致しない</em>という、Cardy 公式のいつもの性格がここにも出ます。
+  </div>
 
   <div class="fig">
     <div class="cap">図：BMS-Cardy の二つの寄与。\(c_L\) をゼロにしても \(c_M\) が残ればエントロピーは生きます。逆に \(c_M\) をゼロにすると消えます</div>
@@ -299,7 +331,7 @@
 
   <table class="tbl">
     <tr><th style="width:12%">手順</th><th>やること</th></tr>
-    <tr><td><strong>0</strong></td><td><strong>陽性対照。</strong> 3次元の BMS-Cardy を、原論文の規約で再現する。\(c_M=3/G\) から平坦宇宙論の地平面エントロピーを出す。<em>ここが合わなければ道具が壊れている</em></td></tr>
+    <tr><td><strong>0</strong></td><td><strong>陽性対照。</strong> 3次元の BMS-Cardy を、原論文の規約で再現する。\(c_M=3/G\) から平坦宇宙論の地平面エントロピーを出す。<em>ここが合わなければ道具が壊れている</em><br><strong class="okmark">→ 実施済み・通過（03 節）。</strong>相対偏差 \(2.2\times10^{-16}\)。ただし<em>一度落ちて</em>、係数の取り違えが一つ見つかりました</td></tr>
     <tr><td><strong>1</strong></td><td><strong>分岐点。</strong> BMS₄ の超並進セクターに \(c_M\) 類似物があるか。<em>純粋な代数の問題で、答えは二値</em></td></tr>
     <tr><td><strong>2a</strong></td><td>あれば → ルートA'（BMS-Cardy の4次元版）。ただしモジュラー構造の代替が要る</td></tr>
     <tr><td><strong>2b</strong></td><td>無ければ → ルートB。\(S^1_\beta\times S^2\) 上の Carrollian 熱的有効作用を作る</td></tr>
@@ -327,7 +359,7 @@
         <details><summary>答えを見る</summary><div class="ans">BMS は<strong>半直積</strong> 超回転 \(\ltimes\) 超並進。だから括弧が3種類あり（\([L,L]\)、\([L,M]\)、\([M,M]\)）、中心項が入りうる場所も複数になる。\([L,L]\) に入るのが \(c_L\)、\([L,M]\) に入るのが \(c_M\)（Barnich–Compère）。\([M,M]=0\) は可換。</div></details>
       </li>
       <li>3次元アインシュタイン重力で \(c_L=0\) なのに、エントロピーがゼロにならないのはなぜか。
-        <details><summary>答えを見る</summary><div class="ans">BMS-Cardy が二項からなり、\(c_L\) が掛かるのは第1項だけだから。\(c_L=0\) で第1項が落ちても、第2項 \(2\pi L_0\sqrt{c_M/2M_0}\) が残る。<strong>エントロピーを運んでいるのは \(c_M\)</strong>（超並進セクター）。</div></details>
+        <details><summary>答えを見る</summary><div class="ans">BMS-Cardy が二項からなり、\(c_L\) が掛かるのは第1項だけだから。\(c_L=0\) で第1項が落ちても、第2項 \(2\pi L_0\sqrt{c_M/24M_0}\) が残る。<strong>エントロピーを運んでいるのは \(c_M\)</strong>（超並進セクター）。</div></details>
       </li>
       <li>「4次元の中心電荷はゼロだから Cardy 経路は死んだ」── どこが早計か。
         <details><summary>答えを見る</summary><div class="ans">ゼロだと報告されているのは <strong>Virasoro（超回転）側</strong>。3次元でもそこはゼロだったが、超並進側の \(c_M\) が生きていたので Cardy は動いた。問うべきは「4次元の超並進セクターに \(c_M\) 類似物があるか」であって、Virasoro 側ではない。</div></details>
@@ -367,12 +399,12 @@
   var cv=document.getElementById('cv'), sl=document.getElementById('sl'), sm=document.getElementById('sm'),
       vl=document.getElementById('vl'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
 
-  // BMS-Cardy： S = 2π[ c_L √(M0/2c_M) + L0 √(c_M/2M0) ]   （単位は任意）
+  // BMS-Cardy： S = 2π[ c_L √(M0/24c_M) + L0 √(c_M/24M0) ]   （c_M=3/G の規約。3次元平坦宇宙論で陽性対照済み）
   var M0=1.0, L0=2.0;
   function terms(cL,cM){
     // c_M→0 では第1項が 1/√c_M で発散する。ただし c_L=0 なら 0×∞ で、値はゼロ
     if(cM<=1e-9) return [ (cL<=1e-9 ? 0 : Infinity), 0 ];
-    return [2*Math.PI*cL*Math.sqrt(M0/(2*cM)), 2*Math.PI*L0*Math.sqrt(cM/(2*M0))];
+    return [2*Math.PI*cL*Math.sqrt(M0/(24*cM)), 2*Math.PI*L0*Math.sqrt(cM/(24*M0))];
   }
 
   function setupHiDPI(c){
