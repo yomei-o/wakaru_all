@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>その鏡は、対称性では作れない ── 物理を作る 第2部 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#7a4a8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dfcfe8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#241d2b;color:#e6dced;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#c0a3d6;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#9a8ba6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#f0e9f4;color:#4a2f56;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#f4eef7;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eef7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4a2f56;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#efe9f2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f0e9f4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4a2f56;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#241d2b;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第2部 ── その数は、偶然か</span><span class="ep">第 6 回 ／ その鏡は、対称性では作れない</span></div>
+  <p class="eyebrow">前回いちばん気持ちよく書いた一文が、表現論で潰れた ── そして扉が閉まった</p>
+  <h1>その鏡は、対称性では作れない
+    <span class="sub">前回、\(Q=2/3\) が「フレーバー空間の形式が<em>鏡映</em>であること」と同値だと書き、<br><strong>「離散条件だから、対称性で強制できる筋がある」</strong>と続けました。<br>公開したあと自分で掘って、<strong>その一文が成り立たないことが分かりました。</strong><br>対称性では原理的に出せない。<em>そして代わりに、43年ぶんの文献の形が説明できました。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：\(S_3\) の表現、乱数1500組、そして引き算</span>
+    <span>この回の芯：出口は2つしかなく、両方に値札が付いている</span>
+  </div>
+
+  <p class="lead">第1部で「閉まった扉」を4枚数えました。<strong>これは5枚目です。</strong><br>ただし前の4枚と違って、閉まったのは<em>私が前回開けたと思った扉</em>でした。<br>そして閉め方が分かると、なぜ43年だれも通れなかったのかが見えます ── <strong>通り道が最初から2本しかなく、両方に高い値札が付いていた。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>まず、変数を1個に落とす</h2>
+
+  <p>前回の2パラメータ表示をそのまま使います。\(v_i=\sqrt{m_i}\) を平均とずれに分けて</p>
+
+  $$v_i=a\bigl(1+x\cos\theta_i\bigr),\qquad \theta_i=\theta+\frac{2\pi(i-1)}{3}$$
+
+  <p>\(\sum\cos\theta_i=0\) と \(\sum\cos^2\theta_i=3/2\) を使うと \(\sum v=3a\)、\(\sum v^2=a^2(3+\tfrac32x^2)\) なので</p>
+
+  <div class="keybox">
+    $$Q=\frac{3+\frac32x^2}{9}=\frac13+\frac{x^2}{6}$$
+    <p style="margin:8px 0 0;"><strong>\(\theta\) が完全に落ちます。</strong>\(Q\) は \(x\)（八重項部分と一重項部分の大きさの比）だけの関数で、Koide 関係は <strong>\(x=\sqrt2\)</strong> の一点です。</p>
+  </div>
+
+  <div class="lab">
+    <span class="tag">deep.py の出力</span>
+<pre>  measured Q  = 0.666664463415
+  -&gt; x        = <span class="bd">1.414208889</span>
+     sqrt2    = <span class="bd">1.414213562</span>
+     x - sqrt2 = -4.674e-06   (relative -3.305e-06)
+  dQ/dx = x/3 = 0.471403  -&gt;  sigma_x = 1.158e-05
+  i.e. a model must land x on sqrt2 to <span class="bd">8.19e-06</span> relative.</pre>
+  </div>
+
+  <p>これで標的が一行になりました。<strong>模型は \(x\) を \(\sqrt2\) に、相対 \(8\times10^{-6}\) で当てなければならない。</strong></p>
+
+  <p>純粋に代数の形で書くとこうです。\(e_1=\sum v\)、\(e_2=\sum_{i&lt;j}v_iv_j\) として</p>
+
+  $$e_1^2=6e_2 \quad\Longleftrightarrow\quad \frac{e_2}{e_1^2}=\frac16$$
+
+  <p>\(e_2/e_1^2\) の値域は \([0,1/3]\)（0 が「1つだけが重い」、\(1/3\) が「完全縮退」）なので、<em>Koide は民主極限のちょうど半分</em>。そして \(e_3=v_1v_2v_3\) は完全に自由 ── それが2つ目のパラメータ \(\theta\) です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>訂正⑫ ── 対称性では、出せない</h2>
+
+  <p>前回の一文はこうでした。<em>「離散条件は、対称性が強制できる種類のものです」</em>。潰れた理由を2通りで書きます。</p>
+
+  <h3 style="font-size:18px;margin:26px 0 10px;">理由その1：次元が合わない</h3>
+
+  <p>\(\sqrt m\) の3次元空間は、置換群 \(S_3\) の下で</p>
+
+  $$\mathbf{3}=\mathbf{1}\ (\text{自明表現、対角線方向})\ \oplus\ \mathbf{2}\ (\text{標準表現})$$
+
+  <p>と分かれます。Koide 関係は \(|\mathbf1\ \text{成分}|=|\mathbf2\ \text{成分}|\)。</p>
+
+  <p>前回これを「最大混合」と呼び、ニュートリノの \(\theta_{23}\) と並べました。<strong>そこが誤りです。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">対象</th><th>「ちょうど半分」の出どころ</th><th class="c">写す先</th></tr>
+    <tr><td>\(\theta_{23}\)</td><td>\(\mu\leftrightarrow\tau\) の<strong>交換対称性</strong>。交換で不変（または反不変）な状態は 50:50 に強制される</td><td class="c ok">1次元 → 1次元</td></tr>
+    <tr class="mark"><td>Koide</td><td>?</td><td class="c bad">1次元 → <strong>2次元</strong></td></tr>
+  </table>
+
+  <p>交換対称性の機構は<strong>「一方の部分空間を他方に写す等長写像」</strong>を必要とします。1次元の空間を2次元の空間に写す線形等長写像は<em>存在しません</em>。だから \(\theta_{23}\) の機構はここでは使えません。</p>
+
+  <h3 style="font-size:18px;margin:26px 0 10px;">理由その2：独立な不変量の間に、関係は課せない</h3>
+
+  <p>こちらのほうが決定的です。\(S_3\) 不変量は冪和</p>
+
+  $$p_1=\sum v_i,\qquad p_2=\sum v_i^2,\qquad p_3=\sum v_i^3$$
+
+  <p>で、これらは<strong>代数的に独立</strong>です。Koide 関係は</p>
+
+  $$p_2=\tfrac23p_1^{\,2}$$
+
+  <p>── つまり<em>独立な2つの不変量の間の関係</em>。対称性が決められるのは<strong>「どの不変量が存在するか」までで、不変量の間に関係を課すことはできません。</strong></p>
+
+  <div class="verdict warn">
+    <p><strong>だから出口は2つしかありません。</strong></p>
+    <p>(a) <strong>力学</strong> ── ポテンシャルの最小値が \(x=\sqrt2\) の上に来る<br>(b) <strong>より大きい空間の対称性</strong> ── 質量そのものではなく、質量が「作られる元」に対称性を置き、関係を射影で降ろす</p>
+    <p>質量そのものの線形対称性からは、<em>原理的に</em>出ません。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">これで43年ぶんの文献の形が説明できます</span>
+    <p>Koide 自身の nonet 模型、Sumino の族ゲージ、yukawaon 模型 ── <strong>例外なく、関係を vev（真空期待値）に入れています。</strong>私はこれを「みんな同じ手を使っている」と読んでいましたが、逆でした。</p>
+    <p><em>独立な不変量の間の関係を生成できる場所が、vev しかなかった。</em>選択ではなく、唯一の出口だったのです。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>出口 (a) の値段を測る</h2>
+
+  <p>力学しかないのなら、その値段を数字にできます。<strong>「一般的なポテンシャルは \(x=\sqrt2\) を当ててくれるのか」</strong>を測ります。</p>
+
+  <p>4次までの最も一般的な \(S_3\) 不変ポテンシャルを、\(a\)（一重項）、\(\rho\)（八重項の大きさ）、\(\theta\)（八重項の向き）で書きます。\(\theta\) 依存は <strong>\(\cos3\theta\) しか許されません</strong>（\(\mathbf2\) の三次不変量）。\(x=\rho/a\) として</p>
+
+  <div class="calc">
+    $$V=A\,a^2+B\,a^3+C\,a^4$$
+    $$A=-(m_1+m_2x^2),\quad B=c_1x^2+c_2x^3\cos3\theta$$
+    $$C=L_1+L_2x^2+L_3x^4+L_4x^3\cos3\theta$$
+    <p>\(a\) については解析的に最小化できます（\(4Ca^2+3Ba+2A=0\)）。あとは \((x,\theta)\) を走査するだけ。<em>\(Q\) は \(x\) だけの関数なので、必要なのは最小値での \(x\) の分布です。</em></p>
+  </div>
+
+  <p>結合定数を O(1) でランダムに1500組振りました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">最小値での \(x\)</th><th class="c">割合</th><th>意味</th></tr>
+    <tr><td>\([0,\,0.5)\)</td><td class="num">30.5%</td><td>ほぼ縮退（\(Q\simeq1/3\)）</td></tr>
+    <tr><td>\([0.5,\,1.0)\)</td><td class="num">33.9%</td><td></td></tr>
+    <tr><td>\([1.0,\,1.35)\)</td><td class="num">11.5%</td><td></td></tr>
+    <tr class="mark"><td>\([1.35,\,1.45)\) ← \(\sqrt2\) はここ</td><td class="num bad">1.7%</td><td><strong>Koide の近く</strong></td></tr>
+    <tr><td>\([1.45,\,1.8)\)</td><td class="num">4.0%</td><td></td></tr>
+    <tr><td>\([1.8,\,2.0]\)</td><td class="num">18.5%</td><td>最大階層（\(Q\simeq1\)）</td></tr>
+  </table>
+
+  <p>\(\sqrt2\) 近傍の密度は 0.16／単位 \(x\)。実験が要求する窓は \(\pm1.16\times10^{-5}\) なので</p>
+
+  <div class="keybox">
+    <p style="margin:0;text-align:center;font-size:19px;">一般的なポテンシャルが \(x=\sqrt2\) を実験精度で当てる確率<br><strong>\(3.7\times10^{-6}\)　＝　\(2.7\times10^5\) に 1</strong></p>
+  </div>
+
+  <div class="verdict">
+    <p><strong>スカラーポテンシャルは、Koide 関係を説明しません。</strong></p>
+    <p>質量の \(10^{-5}\) の一致を、<em>結合定数の \(10^{-5}\) の一致に移し替えるだけ</em>です。情報は消えていません。本当に説明するには結合定数が何かで<strong>関係づけられて</strong>いる必要があり、それは同じ問題の一段上です。</p>
+  </div>
+
+  <h3 style="font-size:18px;margin:26px 0 10px;">しかも、第二の微調整が独立に要る</h3>
+
+  <p>\(\cos3\theta\) が唯一の \(\theta\) 依存なので、最小値は \(\cos3\theta\to\pm1\) に走ります。そこでは3つの \(\cos\theta_i\) のうち2つが一致する ── <strong>質量が2つ縮退します。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">\(\theta\)</th><th>\(\sqrt m\) の比</th><th>\(m\) の比</th></tr>
+    <tr><td>0°（\(\cos3\theta=+1\)）</td><td class="num">0.2929 : 0.2929 : 2.4142</td><td class="num bad">1 : 1 : 67.9</td></tr>
+    <tr><td>60°（\(\cos3\theta=-1\)）</td><td class="num">−0.4142 : 1.7071 : 1.7071</td><td class="num bad">1 : 17.0 : 17.0</td></tr>
+    <tr class="mark"><td>荷電レプトン（227.27°）</td><td class="num">0.7148 : 10.279 : 42.154</td><td class="num ok">1 : 207 : 3477</td></tr>
+  </table>
+
+  <p>レプトンの \(\cos3\theta=+0.786\) は、一般的な最小値（\(\pm1\)）から 0.214 離れています。<strong>\(x=\sqrt2\) の微調整とは別に、三次不変量も抑えなければなりません。</strong>二つは独立です。</p>
+
+  <div class="fig">
+    <div class="cap">図：<b>左</b>は \(a\) について最小化したポテンシャルの地形（横軸 \(x\)、縦軸 \(\cos3\theta\)）。<b>結合定数をスライダーで振ると最小値（白丸）が飛び回ります</b> ── 縦の赤線 \(x=\sqrt2\) と横の紫線（レプトンの \(\cos3\theta\)）の交点に来ることは、まず起きません。<b>右</b>は1500組ぶんの \(x\) のヒストグラム。<em>図は本文の表とは別の乱数列（記事内 JS 側の抽選）なので、\(\sqrt2\) 近傍の割合が 1.0% と 1.7% でずれます</em> ── その 1.6 倍のずれが、下の演習③で言う「係数は信用できない」の実測値です</div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <label>結合定数の組 = <span class="val" id="vs">1</span> 番目
+        <input type="range" id="ss" min="1" max="60" step="1" value="1"></label>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#8a3a4a"></span>\(x=\sqrt2\)（Koide）</span>
+      <span><span class="swatch" style="background:#7a4a8a"></span>レプトンの \(\cos3\theta=0.786\)</span>
+      <span><span class="swatch" style="background:#ffffff;border:1px solid #888"></span>そのポテンシャルの最小値</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>出口 (b) は、本当に微調整をゼロにする</h2>
+
+  <p>もう一つの出口を具体化します。前回の「光的」という言い方を真面目に使います。</p>
+
+  <p>\(\eta=2P-I\) の固有ベクトルで座標を張ると、フレーバー空間は 1+2 次元ミンコフスキーになります。</p>
+
+  <div class="calc">
+    $$n_0=\frac{(1,1,1)}{\sqrt3}\ (+1),\qquad n_1=\frac{(1,-1,0)}{\sqrt2}\ (-1),\qquad n_2=\frac{(1,1,-2)}{\sqrt6}\ (-1)$$
+    <p>レプトンの座標は \((v_0,v_1,v_2)=(30.684732,\ -6.762899,\ -29.930081)\)、規格化した不変量は</p>
+    $$\frac{v_0^2-v_1^2-v_2^2}{v_0^2}=2-3Q=+6.61\times10^{-6}$$
+    <p>つまり<b>時間的側に \(10^{-6}\) だけ</b> ── 測定精度では光的です。</p>
+  </div>
+
+  <p>ここで 1+2 次元の性質を使います。<strong>あらゆる光的ベクトルは、実2成分スピノルの2乗として書けます。</strong>\(\xi=(p,q)\) に対して</p>
+
+  $$v_0=p^2+q^2,\qquad v_1=p^2-q^2,\qquad v_2=2pq$$
+
+  <p>とすると \(v_0^2-v_1^2-v_2^2\equiv0\) が<em>恒等的に</em>成り立ちます（\(SL(2,\mathbb R)\simeq SO(1,2)\) のスピノル対応）。</p>
+
+  <div class="verdict">
+    <p><strong>これで Koide 関係は恒等式になります。</strong>2つの実数 \((p,q)\) を与えると3つの質量が出て、\(Q=2/3\) が機械精度で成立する ── <em>微調整はゼロ</em>です。</p>
+  </div>
+
+  <p>ただし条件が一つ付きます。スピノルが光的にするのは<strong>ベクトル \(v\)</strong> ですが、Koide は \(\sqrt m=|v|\) についての主張です。両者が一致するのは<em>3成分すべてが正の枝</em>だけ。その枝の大きさを幾何で測ると</p>
+
+  <div class="lab">
+    <span class="tag">deep2.py の出力</span>
+<pre>  measure of the positive-mass region on the celestial circle: <span class="bd">25.0000%</span>
+  -&gt; EXACTLY 1/4, as three arcs of 30 degrees: (15,45), (135,165), (255,285).
+  One arc per choice of which mass is the largest.</pre>
+  </div>
+
+  <p><strong>ちょうど 1/4</strong>、30度の弧が3本（どの質量が最大かの3通り）。これは<em>領域の条件</em>で、微調整ではありません。レプトンは \(\phi=257.2675°\)、3本目の弧の中に座っています。</p>
+
+  <table class="tbl">
+    <tr><th style="width:38%">経路</th><th class="c">入力</th><th class="c">出力</th><th class="c">Koide</th><th class="c">微調整</th></tr>
+    <tr><td>標準模型（湯川3個）</td><td class="c num">3</td><td class="c num">3</td><td class="c">出てこない</td><td class="c">─</td></tr>
+    <tr><td>一般的な \(S_3\) ポテンシャル</td><td class="c num">~8</td><td class="c num">3</td><td class="c bad">微調整</td><td class="c bad">\(2.7\times10^5\) に1</td></tr>
+    <tr class="mark"><td>スピノル \((p,q)\)</td><td class="c num">2</td><td class="c num">3</td><td class="c ok"><strong>恒等式</strong></td><td class="c ok"><strong>なし</strong></td></tr>
+  </table>
+
+  <p>レプトン自身のスピノルは \(p=3.458456\)、\(q=-4.327102\)。\(v_2=2pq\) の残差 \(-1.04\times10^{-4}\) が<em>Koide のずれの全部</em>です ── <strong>荷電レプトンは、1個のスピノル＋相対 \(3.5\times10^{-6}\) の揺らぎ。</strong></p>
+
+  <p>そして \(\eta\) を保つ群は <strong>\(SO(1,2)\)、非コンパクト</strong>です。文献の族対称性は全部コンパクトでした ── SU(3)、SO(3)、U(3)、\(A_4\)、\(S_4\)、\(\Delta(27)\)。</p>
+
+  <div class="keybox">
+    <p style="margin:0;"><strong>コンパクト群は不定計量を保てません。</strong>だからコンパクトな族対称性では光的条件を恒等式にできず、vev の条件として残すしかない ── <em>微調整が消えなかった理由がここにあります。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>そして出口 (b) も、閉まる</h2>
+
+  <p>ここで止めれば気持ちのいい回になります。<strong>前回それをやって転んだので、続けます。</strong></p>
+
+  <p>非コンパクトな単純リー群には、<strong>自明なもの以外の有限次元ユニタリ表現が存在しません。</strong></p>
+
+  <p>3世代は3次元の多重項です。もし \(SO(1,2)\) が量子論の対称性としてそこに作用するなら、その多重項は非コンパクト群の3次元ユニタリ表現でなければならない ── <em>そういうものは無い</em>。具体的には、\(SO(1,2)\) の「ブースト」は正定値なヒルベルト空間のノルムを保たないので、ユニタリな理論の対称性になれません。</p>
+
+  <table class="tbl">
+    <tr><th style="width:52%">\(SO(1,2)\) の使い方</th><th class="c">判定</th></tr>
+    <tr><td>ゲージ化する／S行列の大域対称性と呼ぶ</td><td class="c bad"><strong>死</strong></td></tr>
+    <tr><td>\(\eta\) を「質量パラメータ空間の構造」と見る（\(\sqrt m_i\) が2成分対象の双線形）</td><td class="c ok">生存</td></tr>
+    <tr><td>\(\eta\) を古典スカラーポテンシャルの対称性とし、真空で破る</td><td class="c ok">生存</td></tr>
+  </table>
+
+  <div class="verdict warn">
+    <p><strong>だからスピノル結果の正直な版は、こうです。</strong></p>
+    <p>「新しい対称性を見つけた」ではなく ── <em>「答えがどういう形をしていなければならないかを見つけた」</em>。</p>
+    <p>最初に見えたより弱い。そしてこの差が、<strong>前回私が踏み外した差そのもの</strong>です。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">もう一つの出口の形（記録として）</span>
+    <p>no-go が禁じているのは<em>線形</em>対称性です。非線形な反転は禁じられていません。そして自然なものが一つあり、Koide はその不動点です。</p>
+    <p>\(Q=1/3+x^2/6\) なので、\(x^2\mapsto4-x^2\) という写像は \(Q\) の言葉で <strong>\(Q\mapsto \frac43-Q\)</strong>。これは値域 \([1/3,1]\) をそれ自身に写し、<em>縮退</em>と<em>最大階層</em>という両端を入れ替えます。不動点は</p>
+    $$Q=\tfrac43-Q\ \Longrightarrow\ Q=\tfrac23$$
+    <p>つまり Koide は「スペクトルが<em>縮退 ↔ 最大階層</em>の双対性に対して自己双対である」ことと同値。<strong>不動点は対称性が守れる種類のものです。</strong>ただし \(D\) の物理的実現がないので、いまはまた書き換えです ── \(\eta^2=I\) と同じ立場。<em>結果ではなく、答えの形の候補として記録します。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>実験の側：一本は閉じ、一本だけ生きている</h2>
+
+  <p>理論側が詰まったので、実験側を勘定します。前回「\(m_\tau\) を 7.8 keV で測れば 5σ で決着する」と書きました。<strong>できるのか。</strong></p>
+
+  <p>Belle II の 2023 年の測定は \(m_\tau=1777.09\pm0.08\,(\text{stat})\pm0.11\,(\text{syst})\) MeV、積分光度 190 fb\(^{-1}\)。統計誤差は \(1/\sqrt{L}\) で落ちますが、<em>系統誤差は落ちません。</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">積分光度</th><th class="c">統計</th><th class="c">系統</th><th class="c">合計</th></tr>
+    <tr><td>190 fb\(^{-1}\)（2023）</td><td class="num">80 keV</td><td class="num">110 keV</td><td class="num">136 keV</td></tr>
+    <tr><td>1 ab\(^{-1}\)</td><td class="num">35 keV</td><td class="num">110 keV</td><td class="num">115 keV</td></tr>
+    <tr><td>5 ab\(^{-1}\)</td><td class="num">16 keV</td><td class="num">110 keV</td><td class="num">111 keV</td></tr>
+    <tr class="mark"><td>50 ab\(^{-1}\)（最終目標）</td><td class="num ok">5 keV</td><td class="num bad">110 keV</td><td class="num bad">110 keV</td></tr>
+  </table>
+
+  <p>統計は届きます。<strong>合計は 110 keV で床に当たります。</strong>必要なのは 7.8 keV なので、<em>系統誤差をさらに14倍削らなければならない</em> ── その道筋を誰も示していません。</p>
+
+  <div class="verdict warn">
+    <p><strong>\(m_\tau\) を測って Koide を殺す道は、当面閉じました。</strong>統計ではなく系統で閉じています。</p>
+    <p>残るのは \(\mu\to eee\) ── Mu3e が \(10^{-16}\) まで測れば族ゲージ粒子は ~890 TeV 以上に押し上げられ、Sumino が必要とした \(10^2\)–\(10^3\) TeV の窓は閉じます。<em>これが、この43年前の数字が動いている実験に触れる唯一の場所です。</em></p>
+  </div>
+
+  <p>いっぽう、今の精度で<em>すでに決着している</em>ものもあります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">仮説</th><th class="c">含意される \(m_\tau\)</th><th class="c">PDG との pull</th></tr>
+    <tr class="mark"><td>極質量で Koide</td><td class="num">1776.9690</td><td class="num ok">\(-0.43\sigma\)</td></tr>
+    <tr><td>\(M_{\rm Pl}\) で Koide（湯川の走り）</td><td class="num">1776.8997</td><td class="num ok">\(+0.34\sigma\)</td></tr>
+    <tr><td>\(\overline{\rm MS}(M_Z)\) で Koide</td><td class="num">1754.844</td><td class="num bad">\(+245\sigma\)</td></tr>
+  </table>
+
+  <p><strong>スキームの問題はデータで決着しました（246σ）。スケールの問題は手つかずです</strong>（0.43σ と 0.34σ、区別できません）。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>クォークの外れ方に、法則はなかった</h2>
+
+  <p>穴が一つ残っていました。<strong>なぜクォークは免除されるのか。</strong>まず外れ方を不変量で測ります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">三つ組</th><th class="c">\(Q\)</th><th class="c">\(D=2-3Q\)</th><th class="c">光円錐との関係</th><th class="c">階層 \(m_3/m_1\)</th></tr>
+    <tr class="mark"><td>\((e,\mu,\tau)\)</td><td class="num">0.666664</td><td class="num ok">\(+6.6\times10^{-6}\)</td><td class="c ok"><strong>上に乗る</strong></td><td class="num">3477</td></tr>
+    <tr><td>\((d,s,b)\)</td><td class="num">0.742058</td><td class="num bad">\(-0.226\)</td><td class="c bad">空間的（外）</td><td class="num">1001</td></tr>
+    <tr><td>\((u,c,t)\)</td><td class="num">0.876989</td><td class="num bad">\(-0.631\)</td><td class="c bad">空間的（外）</td><td class="num">\(1.2\times10^5\)</td></tr>
+  </table>
+
+  <p>\(|D_{up}|/|D_{down}|=2.79\)。これが何かの比なら糸口になります。試しました。</p>
+
+  <div class="lab">
+    <span class="tag">deep3.py ── 仮説を4本、全部外し</span>
+<pre>  |D_up|/|D_down|                = <span class="bd">2.7897</span>
+    vs 電荷比 2                  =        2      ratio 1.395
+    vs 電荷^2 比 4               =        4      ratio 0.697
+    vs (y_t/y_b)^2               =     1363      ratio 0.002
+    vs 階層比                    =      119      ratio 0.023</pre>
+  </div>
+
+  <p><strong>1 になるものが一つもありません。</strong>階層に対しては単調（レプトン → ダウン型 → アップ型で \(|D|\) が増える）ですが、\((d,s,b)\) は階層 1001 で \(|D|=0.226\)、レプトンは階層 3477 で \(6.6\times10^{-6}\) ── <em>階層だけの滑らかな関数では、3477 で \(10^{-6}\) を作れません。</em></p>
+
+  <p>指数を動かして救えないかも試しました。\(R_p=\sum m^{2p}/(\sum m^p)^2\)（\(p=1/2\) が Koide）で \(2/3\) を出す \(p\) は</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">三つ組</th><th class="c">\(R_{1/2}\)</th><th class="c">\(2/3\) を出す \(p\)</th></tr>
+    <tr class="mark"><td>\((e,\mu,\tau)\)</td><td class="num">0.666664</td><td class="num ok">0.500003</td></tr>
+    <tr><td>\((d,s,b)\)</td><td class="num">0.742058</td><td class="num">0.418965</td></tr>
+    <tr><td>\((u,c,t)\)</td><td class="num">0.876989</td><td class="num">0.282769</td></tr>
+  </table>
+
+  <p>固まりません。そして <strong>\(p=1/2\) はレプトンで当てはめた指数ではありません</strong> ── \(Q\) が最低2つの冪和の比になる<em>唯一の</em> \(p\) です。\(1/2\) は選ばれた値ではなく、代数的に指定された値でした。</p>
+
+  <div class="caveat">
+    <span class="tag">負の結果として載せます</span>
+    <p>この節は<strong>収穫ゼロ</strong>です。クォークが「外れている」ことは分かり、それが不変量で \(-0.226\) と \(-0.631\) だと測れましたが、<em>なぜその値なのかは何も分かりませんでした。</em>免除の理由を後から足せばパラメータが増え、3つの質量に対して2個までという予算を超えます。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>「対称性では出せない」は Koide 関係にとって有利か不利か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>どちらでもなく、地図です。</strong>関係が本物である確率は変わりません ── 変わるのは<em>どこを探すべきか</em>。<br>ただし実務としては<strong>不利側</strong>です。いちばん安く済む説明（対称性で強制）が消え、残った2本にはどちらも値札が付きました（力学は \(2.7\times10^5\) に1、非コンパクトはユニタリ性で死ぬ）。<em>「まだ誰も導いていない」の理由が「難しいから」から「出口が2本しかないから」に変わりました。</em></div></details>
+      </li>
+      <li>スピノル構成で微調整がゼロになるなら、それは説明ではないのか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>いまは説明ではありません。</strong>「\(\sqrt m\) が2成分対象の双線形である」と<em>仮定すれば</em> Koide が出る、という構造の記述です。なぜそう仮定できるのかが空白なので、<strong>仮定を1個から1個へ移し替えただけ</strong>。<br>それでも書く価値があるのは、移した先の仮定が<em>形として具体的</em>だからです ── 「2成分の何かがあって、質量はその双線形」という言明は模型として組めます。<em>組んだ瞬間にユニタリ性の壁に当たる、というところまでが今回の到達点です。</em></div></details>
+      </li>
+      <li>\(2.7\times10^5\) に1という数字は、どこまで信用できるか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>桁として信用でき、係数としては信用できません。</strong>結合定数の分布（\(10^{-1}\) から \(10\) の対数一様、符号ランダム）は著者が決めたもので、別の抽選にすれば動きます。<em>実際に動きました</em> ── この記事の図は別の乱数列と粗い格子で同じ計算をしていて、\(\sqrt2\) 近傍の密度は 0.160 ではなく 0.100／単位 \(x\)、値段は \(2.7\times10^5\) ではなく \(4.3\times10^5\) に1 と出ます。<strong>1.6 倍。それが係数の信用度です。</strong><br>動かないのは構造です ── <em>\(x\) が O(1) の範囲に散らばり、実験窓が \(10^{-5}\) なら、比は必ず \(10^{-5}\) 台になる</em>。第1回の 51% と同じ弱点（族・測度の設計依存）を持つ数字なので、<strong>「\(10^{-5}\) の一致が \(10^{-5}\) の一致に移るだけ」という定性的な結論のほうが本体です。</strong></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>この回で分かったこと</h2>
+
+    <p><strong>変数は1個だった。</strong>\(Q=1/3+x^2/6\) で \(\theta\) が完全に落ちます。Koide は \(x=\sqrt2\) の一点で、模型はそこを相対 \(8\times10^{-6}\) で当てなければならない。代数形では \(e_2/e_1^2=1/6\) ── 値域 \([0,1/3]\) のちょうど半分で、\(e_3\) は自由。</p>
+
+    <p><strong>そして対称性では出せません（訂正⑫）。</strong>\(\sqrt m\) の空間は \(S_3\) の下で \(\mathbf1\oplus\mathbf2\)。次元が違うので写す等長写像が無く、交換対称性の機構は使えません。さらに決定的に、\(p_1\) と \(p_2\) は代数的に独立な不変量で、<em>対称性は独立な不変量の間に関係を課せません</em>。前回「離散条件だから対称性で強制できる」と書いたのは誤りでした。</p>
+
+    <p><strong>その代わり、43年ぶんの文献の形が説明できました。</strong>Koide 自身の nonet、Sumino、yukawaon ── 例外なく関係を vev に入れています。私はそれを流行りだと読んでいましたが、<em>独立な不変量の間の関係を生成できる場所が vev しかなかった</em>のです。選択ではなく唯一の出口でした。</p>
+
+    <p><strong>力学の値段は \(2.7\times10^5\) に1。</strong>4次までの一般的な \(S_3\) 不変ポテンシャルで結合定数を1500組振ると、\(\sqrt2\) 近傍の密度は 0.16／単位 \(x\)。実験窓 \(\pm1.16\times10^{-5}\) を掛けて \(3.7\times10^{-6}\)。<em>スカラーポテンシャルは質量の \(10^{-5}\) を結合定数の \(10^{-5}\) に移し替えるだけです。</em>しかも一般的な最小値は \(\cos3\theta\to\pm1\) に走って質量を2つ縮退させるので、<strong>三次不変量を抑える第二の微調整が独立に要ります。</strong></p>
+
+    <p><strong>もう一つの出口は、本当に微調整をゼロにする。</strong>1+2 次元ではあらゆる光的ベクトルが実2成分スピノルの2乗なので、\(\sqrt m\) をスピノルの双線形とすれば \(Q=2/3\) は恒等式になります。2つの実数から3つの質量が出る。正質量の枝は天球円の<strong>ちょうど 25%</strong>（30度の弧が3本、どの質量が最大かの3通り）で、レプトンは \(\phi=257.27°\) に座っています。レプトンは<em>1個のスピノル＋相対 \(3.5\times10^{-6}\) の揺らぎ</em>でした。</p>
+
+    <p><strong>そしてその出口も閉まります。</strong>\(\eta\) を保つ群 \(SO(1,2)\) は非コンパクトで、非コンパクト単純群には自明でない有限次元ユニタリ表現がありません。3世代を \(SO(1,2)\) の3次元多重項にはできない ── ブーストがヒルベルト空間のノルムを保たないからです。生き残るのは「質量パラメータ空間の構造」または「古典ポテンシャルの対称性」まで。<em>「対称性を見つけた」ではなく「答えの形が分かった」が正しい強さです。</em></p>
+
+    <p><strong>実験は一本閉じ、一本だけ残りました。</strong>Belle II は 50 ab\(^{-1}\) でも \(m_\tau\) の合計誤差が 110 keV の系統の床に当たり、必要な 7.8 keV には系統をさらに14倍削る必要があります。残るのは Mu3e の \(\mu\to eee\)（\(10^{-16}\)）で、これは Sumino の窓 \(10^2\)–\(10^3\) TeV を丸ごと踏み越えます。ついでに、スキームの問題（極質量か \(\overline{\rm MS}\) か）は 246σ でデータが決着させており、スケールの問題は 0.43σ 対 0.34σ で手つかずです。</p>
+
+    <p><strong>クォークについては収穫ゼロでした。</strong>不変量で \((d,s,b)\) が \(-0.226\)、\((u,c,t)\) が \(-0.631\) と測れて、どちらも光円錐の外（空間的）だと分かりましたが、比 2.79 は電荷比・電荷²比・湯川比²・階層比のどれとも合わず、指数 \(p\) も固まりません。<em>免除の理由は何も分かっていません。</em>そして今回の 02 節の論法（次元の不一致と不変量の独立性）は初等的なもので、既知文献で確認したものではありません ── <strong>前回いちばん自信のあった一文が潰れた直後なので、この回の論法も同じ扱いをしてください。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>次は Sumino の原典を開きます。</strong>この回と前回で使った族ゲージ粒子の質量下限（\(\mu\to eee\) で 89 TeV、Mu3e で 887 TeV、\(K^0\) 混合で 606 TeV）は<em>すべて著者のオーダー計算</em>で、フレーバー構造が非対角結合を抑える議論を読んでいません。<strong>第4回で「③原典があって規約が確認できるか」を先に確認すると決めたのに、2回続けて後回しにしています。</strong>そこからやります。<br>第1回：<a href="butsuri-tsukuru2-01-yorisotta.html">データが、式に寄っていった</a> ｜ 第2回：<a href="butsuri-tsukuru2-02-genten.html">原典を開いたら、私が間違っていた</a> ｜ 第3回：<a href="butsuri-tsukuru2-03-yogen.html">本人が、予言と書いていた</a> ｜ 第4回：<a href="butsuri-tsukuru2-04-todokanai.html">届かない原典と、消えた補正項</a> ｜ 第5回：<a href="butsuri-tsukuru2-05-kagami.html">45度は、鏡だった</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第2部 ── その数は、偶然か」第6回、物理好きの高校生・大学生向け読み物です。第5回の訂正（⑫）から始まり、Koide 関係の導出可能性そのものを扱います。</p>
+    <p><strong>確立した内容：</strong>Koide 関係とその \(1/3\le Q\le1\) という範囲、\(Q=2/3\) が \(\sqrt m\) と \((1,1,1)\) のなす角 \(45^\circ\) と同値であること（Foot 1994 ほか）、\(S_3\) の下での \(\mathbf3=\mathbf1\oplus\mathbf2\) 分解と対称多項式の基本定理、非コンパクト単純リー群に自明でない有限次元ユニタリ表現が存在しないこと、1+2 次元ミンコフスキー空間の光的ベクトルと \(SL(2,\mathbb R)\) スピノルの対応、Koide 関係が走りにほぼ依らないこと（Li &amp; Ma, PRD 73, 013009 (2006)）、極質量と \(\overline{\rm MS}\) 質量で関係が \(10^{-3}\) 程度ずれることと族ゲージによる打ち消し機構（Sumino, Phys.Lett.B671:477 (2009)）、荷電レプトンとクォークの PDG 質量、Belle II の \(\tau\) 質量測定（PRD 108, 032006 (2023)）、\(\mu\to eee\) の SINDRUM 上限と Mu3e の目標感度、そして Koide 関係が現在まで導出されていないこと。</p>
+    <p><strong>著者の整理／未確認：</strong>本稿の数値（\(Q=1/3+x^2/6\) という書き換え、\(x=1.414208889\)、\(e_2/e_1^2=0.166667768\)、一般的な \(S_3\) ポテンシャル1500組での \(x\) の分布と \(3.7\times10^{-6}\) という値、\(\cos3\theta\) の縮退、ミンコフスキー座標とスピノル \((p,q)\)、天球円上の正質量領域 25%、共通スケールでのクォークの \(Q\) と \(D=2-3Q\)、\(R_p=2/3\) を出す \(p\)、Belle II の誤差外挿）は、著者が書いた純 Python コードの出力です。<br><strong>02 節の no-go は初等的な論法で、既知文献で確認したものではありません。</strong>次元の不一致と不変量の独立性という2点だけに依っていますが、前回いちばん自信のあった主張が潰れた直後なので、読者は同じ疑いを本稿にも向けてください。<br><strong>\(2.7\times10^5\) に1は係数としては信用できません。</strong>結合定数の分布は著者が決めたもので、別の抽選なら動きます ── 実測で 1.6 倍（本文の表は \(2.7\times10^5\) に1、記事内の図は別の乱数列と粗い格子で \(4.3\times10^5\) に1）。桁と定性的結論（\(10^{-5}\) が \(10^{-5}\) に移るだけ）が本体です。記事内 JS は mulberry32 を Python で再実装して独立に検算しました。<br>族ゲージ粒子の質量下限は<strong>オーダー計算</strong>で、フレーバー構造が非対角結合を抑える可能性を考慮していません（文献を読んでいません）。Belle II の外挿は公表された統計・系統の分割から著者が行ったもので、実験側の見通しではありません。1ループのクォーク質量の走りは \(m_b(M_Z)\) を4ループ値より 9% 高く出すため、\(D\) の値に数 % の不定性が残ります。\(Q\mapsto4/3-Q\) の双対性には物理的実現がなく、答えの形の候補として記録しただけです。</p>
+    <p><a href="index.html">第2部の目次</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a> ｜ 姉妹編：<a href="../wakaru/index.html">わかる宇宙論</a> ／ <a href="../wakaru-soutai/index.html">わかる相対論</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）→「PDF に保存」。図は最後の状態で印刷されます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var ss=document.getElementById('ss'), vs=document.getElementById('vs'), ro=document.getElementById('ro');
+  var W=1120,H=440, PI=Math.PI, SQ2=Math.sqrt(2);
+  var LEP_C3=0.785883;
+
+  function mk32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296; }; }
+
+  /* the same coupling draw as deep.py: log-uniform magnitude in [0.1,10] */
+  function draws(rnd){
+    function mag(){ return Math.pow(10, rnd()*2-1); }
+    function sgn(){ return rnd()<0.5?-1:1; }
+    return {m1:mag(), m2:mag(), c1:sgn()*mag(), c2:sgn()*mag(),
+            L1:mag(), L2:sgn()*mag(), L3:mag(), L4:sgn()*mag()};
+  }
+  function vmin(x,c3,K){
+    var A=-(K.m1+K.m2*x*x);
+    var B=K.c1*x*x + K.c2*x*x*x*c3;
+    var C=K.L1 + K.L2*x*x + K.L3*Math.pow(x,4) + K.L4*x*x*x*c3;
+    if(C<=0) return null;
+    var d=9*B*B-32*A*C; if(d<0) return null;
+    var a=(-3*B+Math.sqrt(d))/(8*C); if(a<=0) return null;
+    return A*a*a + B*a*a*a + C*Math.pow(a,4);
+  }
+  function positive(x,th){
+    for(var i=0;i<3;i++) if(1+x*Math.cos(th+2*PI*i/3)<=0) return false;
+    return true;
+  }
+  function minimum(K){
+    var best=null;
+    for(var it=0;it<72;it++){
+      var th=2*PI*it/72, c3=Math.cos(3*th);
+      for(var ix=1;ix<=160;ix++){
+        var x=2.0*ix/160;
+        if(!positive(x,th)) continue;
+        var v=vmin(x,c3,K);
+        if(v===null) continue;
+        if(best===null||v<best.v) best={v:v,x:x,th:th,c3:c3};
+      }
+    }
+    return best;
+  }
+
+  /* histogram of x over 1500 coupling sets -- computed once */
+  var HIST=null, NB=40, XS=[];
+  function buildHist(){
+    var rnd=mk32(20260728);
+    HIST=new Array(NB); for(var i=0;i<NB;i++) HIST[i]=0;
+    for(var s=0;s<1500;s++){
+      var K=draws(rnd);
+      var b=minimum(K);
+      if(b===null) continue;
+      if(s<60) XS.push(K);
+      var k=Math.floor(b.x/2.0*NB); if(k<0)k=0; if(k>=NB)k=NB-1;
+      HIST[k]++;
+    }
+  }
+
+  var PA={l:64,r:534,t:36,b:388}, PB={l:614,r:1076,t:36,b:388};
+
+  function draw(){
+    if(HIST===null) buildHist();
+    var idx=parseInt(ss.value,10);
+    vs.textContent=idx;
+    var K=XS[idx-1];
+    var best=minimum(K);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    /* ---- panel A: landscape in (x, cos3theta) ---- */
+    function AX(x){ return PA.l+(x/2.0)*(PA.r-PA.l); }
+    function AY(c){ return PA.b-((c+1)/2)*(PA.b-PA.t); }
+    var NXG=94, NYG=64, vals=[], vmn=1e99, vmx=-1e99;
+    for(var iy=0;iy<NYG;iy++){
+      vals.push([]);
+      var c3=-1+2*iy/(NYG-1);
+      var th=Math.acos(Math.max(-1,Math.min(1,c3)))/3;
+      for(var ix=0;ix<NXG;ix++){
+        var x=2.0*(ix+0.5)/NXG;
+        var v=positive(x,th)?vmin(x,c3,K):null;
+        vals[iy].push(v);
+        if(v!==null){ if(v<vmn)vmn=v; if(v>vmx)vmx=v; }
+      }
+    }
+    var bw=(PA.r-PA.l)/NXG, bh=(PA.b-PA.t)/NYG;
+    for(iy=0;iy<NYG;iy++) for(ix=0;ix<NXG;ix++){
+      var v=vals[iy][ix];
+      if(v===null){ ctx.fillStyle='#eef1f0'; }
+      else {
+        var t=(v-vmn)/(vmx-vmn+1e-30);
+        t=Math.pow(t,0.35);
+        var r=Math.round(40+200*t), g=Math.round(30+195*t), b2=Math.round(60+180*t);
+        ctx.fillStyle='rgb('+r+','+g+','+b2+')';
+      }
+      ctx.fillRect(PA.l+ix*bw, PA.b-(iy+1)*bh, bw+0.6, bh+0.6);
+    }
+    ctx.strokeStyle='#8a3a4a'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(AX(SQ2),PA.t); ctx.lineTo(AX(SQ2),PA.b); ctx.stroke();
+    ctx.strokeStyle='#7a4a8a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(PA.l,AY(LEP_C3)); ctx.lineTo(PA.r,AY(LEP_C3)); ctx.stroke();
+    if(best){
+      ctx.fillStyle='#ffffff'; ctx.strokeStyle='#191d22'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(AX(best.x),AY(best.c3),7,0,6.284); ctx.fill(); ctx.stroke();
+    }
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.strokeRect(PA.l,PA.t,PA.r-PA.l,PA.b-PA.t);
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    for(var g=0;g<=4;g++) ctx.fillText((0.5*g).toFixed(1),AX(0.5*g),PA.b+18);
+    ctx.textAlign='right';
+    ctx.fillText('+1',PA.l-8,AY(1)+10); ctx.fillText('0',PA.l-8,AY(0)+4);
+    ctx.fillText('-1',PA.l-8,AY(-1));
+    ctx.textAlign='left'; ctx.fillStyle='#191d22';
+    ctx.fillText('x = (octet)/(singlet)',PA.r-150,PA.b+18);
+    ctx.fillText('cos 3theta',PA.l+4,PA.t-10);
+    ctx.fillStyle='#8a3a4a'; ctx.fillText('sqrt2',AX(SQ2)+6,PA.t+14);
+
+    /* ---- panel B: histogram of x at the minimum ---- */
+    var mx=0; for(g=0;g<NB;g++) if(HIST[g]>mx) mx=HIST[g];
+    function BX(x){ return PB.l+(x/2.0)*(PB.r-PB.l); }
+    function BY(v){ return PB.b-(v/mx)*(PB.b-PB.t); }
+    var bw2=(PB.r-PB.l)/NB;
+    ctx.fillStyle='#c3ccca';
+    for(g=0;g<NB;g++){
+      if(!HIST[g]) continue;
+      ctx.fillRect(PB.l+g*bw2+0.6, BY(HIST[g]), bw2-1.2, PB.b-BY(HIST[g]));
+    }
+    ctx.strokeStyle='#8a3a4a'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(BX(SQ2),PB.t-6); ctx.lineTo(BX(SQ2),PB.b); ctx.stroke();
+    if(best){
+      ctx.strokeStyle='#191d22'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(BX(best.x),PB.t); ctx.lineTo(BX(best.x),PB.b); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(PB.l,PB.b); ctx.lineTo(PB.r,PB.b); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    for(g=0;g<=4;g++) ctx.fillText((0.5*g).toFixed(1),BX(0.5*g),PB.b+18);
+    ctx.textAlign='left'; ctx.fillStyle='#191d22';
+    ctx.fillText('1500 組の最小値での x',PB.l,PB.t-10);
+    ctx.fillStyle='#8a3a4a'; ctx.fillText('sqrt2',BX(SQ2)+6,PB.t+14);
+
+    var near=0, tot=0;
+    for(g=0;g<NB;g++){ tot+=HIST[g];
+      var xc=2.0*(g+0.5)/NB; if(Math.abs(xc-SQ2)<0.05) near+=HIST[g]; }
+    var hit = best && Math.abs(best.x-SQ2)<0.05;
+    ro.className = hit ? 'readout hit' : 'readout';
+    ro.innerHTML = '結合定数の組 <b>'+idx+'</b>｜最小値は <b>x = '
+      + (best?best.x.toFixed(3):'--') + '</b>, cos3theta = <b>'
+      + (best?best.c3.toFixed(3):'--') + '</b> → <b>Q = '
+      + (best?(1/3+best.x*best.x/6).toFixed(4):'--') + '</b><br>'
+      + '1500 組のうち x が sqrt2 の ±0.05 に入ったのは <b>'
+      + (near/tot*100).toFixed(1) + '%</b>。'
+      + '<span style="color:'+(hit?'#8a2f18':'#1d5236')+'">'
+      + (hit ? ' → この組はたまたま近い。ただし実験が要求する窓は ±1.16e-5 で、この帯の 4300 分の1'
+             : ' → 外れ。実験が要求する窓は ±1.16e-5、この帯よりさらに 4300 倍狭い')
+      + '</span>';
+  }
+  ss.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
