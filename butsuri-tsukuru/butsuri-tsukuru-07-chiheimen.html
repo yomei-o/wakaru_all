@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地平面も、Carroll だった ── 物理を作る 第7回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 7 回 ／ 地平面も、Carroll だった</span></div>
+  <p class="eyebrow">宇宙には、光速がゼロになる面が2枚ある ── そして片方は、40年前から流体だと言われていた</p>
+  <h1>地平面も、Carroll だった
+    <span class="sub">前回、\(\mathscr{I}\)（無限遠）の幾何が Carroll 的だと分かりました。<br>ところが同じ性質を持つ面が、宇宙にはもう一枚あります ── <strong>ブラックホールの地平面</strong>。<br>理由は単純で、どちらも<em>ヌル超曲面</em>だから。そして地平面に近づくことは、文字どおり <strong>\(c\to0\) を取ること</strong>でした。<br>すると、1979年から「たとえ話」だと思われてきたあるものに、幾何学的な出自がつきます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第5回（Carroll 幾何）、シュワルツシルト計量</span>
+    <span>この回の芯：\(dr/dt=(1-r_s/r)\to0\)</span>
+  </div>
+
+  <p class="lead">第5回で、平坦時空のホログラフィーの境界が3次元で、そこには「光速ゼロの幾何」が乗っていることを見ました。奇妙な結論に思えたかもしれません ── <em>そんな幾何が、本当に物理に出てくるのか。</em><br>出てきます。しかも一箇所ではありません。<strong>ヌル超曲面なら、必ず Carroll 多様体になる</strong>からです。そして物理的に重要なヌル超曲面は、宇宙に2枚ある。<br>この回は、もう一枚のほう ── ブラックホールの地平面を見にいきます。そこには、Carroll 幾何が発見されるずっと前から知られていた「地平面は粘性流体のように振る舞う」という不思議な事実が待っています。</p>
+
+  <h2><span class="n">01</span>ヌル超曲面なら、必ず Carroll になる</h2>
+
+  <p>第5回で \(\mathscr{I}\) の計量が退化する理由を書きました。<em>\(u\) 方向がヌルなので、長さがゼロ。</em></p>
+
+  <p>この議論は、\(\mathscr{I}\) の何も使っていません。<strong>ヌルであることしか使っていない。</strong> だから一般に成り立ちます。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の出発点</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">ヌル超曲面 \(\;\Longrightarrow\;\) 計量が退化 \(\;\Longrightarrow\;\) <strong>Carroll 多様体</strong></p>
+  </div>
+
+  <p>では、物理的に重要なヌル超曲面はどこにあるか。<em>2枚あります。</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">面</th><th style="width:20%">何の境界か</th><th>Carroll 的</th><th>対称性</th></tr>
+    <tr><td><strong>\(\mathscr{I}\)（光的無限遠）</strong></td><td>宇宙の外側</td><td class="c ok">○</td><td>BMS（超並進・超回転）</td></tr>
+    <tr><td><strong>事象の地平面</strong></td><td>ブラックホールの内側</td><td class="c ok">○</td><td>地平面超並進・超回転</td></tr>
+  </table>
+
+  <p>第5回は片方しか扱っていませんでした。<strong>宇宙は、2枚の Carroll 面に挟まれている</strong>ことになります ── 遠くの果てと、穴のふち。</p>
+
+  <h2><span class="n">02</span>地平面に近づくことは、\(c\to0\) を取ること</h2>
+
+  <p>ここは、たとえ話ではなく計算です。シュワルツシルト計量で、動径方向に走る光を追いかけます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 座標光速を出す</span>
+    <p style="margin:8px 0 0">光は \(ds^2=0\)。動径方向なら</p>
+    $$0=-\Bigl(1-\frac{r_s}{r}\Bigr)c^2dt^2+\frac{dr^2}{1-\dfrac{r_s}{r}}$$
+    <p class="lbl">解くと</p>
+    $$\frac{dr}{dt}=\pm\,c\Bigl(1-\frac{r_s}{r}\Bigr)$$
+    <p style="margin:10px 0 8px">遠方（\(r\gg r_s\)）では \(\pm c\)。ところが地平面 \(r\to r_s\) で ── <strong>ゼロになります。</strong></p>
+  </div>
+
+  <p>第5回のスライダーを思い出してください。あれは「もし光速が違ったら」という仮定の話でした。<strong>地平面では、それが実際に起きています。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">対応</div>
+    <p style="margin:6px 0 0">地平面近傍の動径座標が、<strong>ゼロに向かう「仮想的な光速」</strong>の役を果たす。<br>地平面に近づく極限 ＝ <em>超相対論的極限 \(c\to0\)</em> ＝ Carroll 極限。</p>
+  </div>
+
+  <p>図で見てください。第5回と同じ「光円錐が潰れる」現象が、今度は座標をいじるのではなく、<em>ただ穴に近づくだけ</em>で起きます。</p>
+
+  <div class="fig">
+    <div class="cap">図：シュワルツシルト時空の \((r,t)\) 図。各半径での光円錐を描いています。スライダーで観測点を地平面へ近づけてください</div>
+    <canvas id="cv" width="720" height="340"></canvas>
+    <div class="controls">
+      <label>観測点 &nbsp;r / r<sub>s</sub> = <span class="val" id="vr">2.00</span>
+        <input type="range" id="sr" min="1005" max="4000" value="2000">
+      </label>
+      <button id="bf">遠方 r = 4rₛ</button>
+      <button id="bn">地平面すれすれ</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>遠方では見慣れた 45° の光円錐です。地平面に近づくにつれて<em>閉じていき</em>、\(r\to r_s\) で完全に潰れて縦線になる ── 第5回の「Carroll の国」と同じ絵です。</p>
+
+  <div class="aside">
+    <span class="tag">正直な線 ── これは座標の話でもある</span>
+    \(dr/dt\to0\) はシュワルツシルト座標での<strong>座標光速</strong>で、自由落下する観測者が局所で測る光速はいつでも \(c\) です（等価原理）。第5回の言葉で言えば、これは「舞台が変わった」のではなく「記帳が変わった」。<br>ですが、<em>地平面という面そのものの幾何が退化している</em>ことは座標に依りません。ヌル超曲面であることは不変な性質です。<strong>座標光速がゼロに行くのは、その不変な事実の見え方。</strong>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>膜パラダイム ── 40年前の「たとえ話」</h2>
+
+  <p>ここから、この回でいちばん面白い話になります。</p>
+
+  <p>1979年、Damour が奇妙なことに気づきました。<strong>アインシュタイン方程式を地平面に射影すると、流体の方程式になる。</strong></p>
+
+  <p>Thorne らがこれを「膜パラダイム」として体系化しました（1986）。地平面を、次のような性質を持つ<em>2次元の粘性膜</em>とみなすと、外から見た物理が正しく再現される。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">膜の性質</th><th>値</th></tr>
+    <tr><td>ずり粘性 \(\eta\)</td><td>\(1/16\pi G\)</td></tr>
+    <tr><td><strong>体積粘性 \(\zeta\)</strong></td><td class="bad">\(-1/16\pi G\)　── <strong>負！</strong></td></tr>
+    <tr><td>エントロピー密度</td><td>\(1/4G\)（面積あたり）</td></tr>
+    <tr><td><strong>表面抵抗率</strong></td><td>\(377\;\Omega\)／square ── <em>真空のインピーダンス \(Z_0=\mu_0c\) そのもの</em></td></tr>
+  </table>
+
+  <p>表面抵抗率が真空のインピーダンスに一致するのは、覚えておくと楽しい事実です。そして<strong>体積粘性が負</strong> ── 普通の流体ではありえない。地平面が「未来を先取りして反応する」（teleological）性質の現れです。</p>
+
+  <p>この対応は長らく<em>類推</em>だと思われていました。便利だが、なぜそうなるのかは分からない。<strong>「地平面が流体に似ている」以上の説明がなかった。</strong></p>
+
+  <h3>それが、Carrollian 流体だった</h3>
+
+  <p>Donnay–Marteau (2019) が示したのはこうです。</p>
+
+  <div class="keybox">
+    <div class="lbl">膜パラダイムの出自</div>
+    <p style="margin:6px 0 0">地平面の力学を支配する2本の方程式 ── <strong>ヌル Raychaudhuri 方程式</strong>と<strong>Damour 方程式</strong> ── は、エネルギー運動量テンソルの保存則の<em>超相対論的（\(c\to0\)）極限</em>として得られる。</p>
+    <p style="margin:8px 0 0">つまり、これらは<strong>Carrollian 流体の保存則</strong>である。</p>
+  </div>
+
+  <p>さらに、時間的な面を地平面に近づけていくと、その誘導幾何が<em>ローレンツ的から Carroll 的へ退化</em>し、誘導されたアインシュタイン方程式が Carrollian 流体の保存方程式に落ちる ── という形で、極限が制御された形で示されています。</p>
+
+  <p>40年間「うまくいくたとえ話」だったものに、<strong>幾何学的な出自がついた</strong>わけです。地平面が流体に見えたのは偶然ではなく、<em>そこが Carroll 多様体だったから</em>。</p>
+
+  <div class="aside">
+    <span class="tag">シリーズの言葉で言うと</span>
+    第1回から繰り返してきた基準がここでも効きます ── <strong>フィットか、導出か。</strong><br>膜パラダイムは長いあいだ「合うように作った対応」でした。粘性も抵抗率も、合わせにいった数字に見えた。<br>それが Carroll 極限から<em>出てくる</em>と分かったことで、性質が変わりました。<strong>フィットが、導出になった。</strong>
+  </div>
+
+  <h2><span class="n">04</span>地平面にも、超並進がある</h2>
+
+  <p>\(\mathscr{I}\) が Carroll 的で BMS 対称性を持つなら、地平面も同じ構造を持つはずです。持ちます。</p>
+
+  <p>Donnay–Giribet–González–Pino (PRL 2016) が、ブラックホール地平面の漸近対称性を計算し、<strong>地平面超並進・超回転</strong>を見つけました。\(\mathscr{I}\) の BMS と同型の構造が、穴のふちにもある。</p>
+
+  <p>形も同じです ── 地平面上の各点で、独立に「時間」をずらす操作。第5回で見たとおり、<em>超局所性の必然的な帰結</em>です。</p>
+
+  <h2><span class="n">05</span>これは、ソフトヘアの欠陥を埋めるか</h2>
+
+  <p>ここで番外編③を思い出してください。ソフトヘアがなぜ失格になったか。</p>
+
+  <p><strong>Bousso–Porrati の批判 ──「それは髪ではなく、かつらだ」。</strong> 超並進電荷は<em>無限遠</em>の漸近データで決まるので、ブラックホールから遠く離れた場所でソフトグラビトンを1個放出するだけで変えられる。中に何が落ちたかを区別できない。</p>
+
+  <p>地平面の対称性は、この批判に対して<em>構造的に強い</em>立場にあります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:32%"></th><th>\(\mathscr{I}\) のソフトヘア</th><th>地平面の対称性</th></tr>
+    <tr><td>電荷が決まる場所</td><td class="bad">無限遠</td><td class="ok"><strong>地平面そのもの</strong></td></tr>
+    <tr><td>遠くから変えられるか</td><td class="bad">変えられる（かつら）</td><td class="ok">局在している</td></tr>
+    <tr><td>状態数は \(e^{A/4G}\) か</td><td class="bad">合わない</td><td class="bad">未解決</td></tr>
+  </table>
+
+  <p>局在性の問題は解けます。<strong>ですが数の問題は、そのまま残っています。</strong></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── 埋まったのは半分だけ</span>
+    地平面の対称性は「かつら」批判をかわしますが、<em>それだけでは情報パラドックスを解きません</em>。必要なのは「たくさんある」ではなく「<strong>ちょうど \(e^{A/4G}\) 個ある</strong>」こと。<br>地平面の Carrollian 場の理論の状態数が \(A/4G\) を与えるかどうかは、<strong>まだ答えが出ていません</strong>。これはこの路線の中心的な未解決問題です。<br>そして近地平面対称性の代数が何なのか（BMS 型か、Heisenberg 型か、Virasoro か）についても、文献に複数の主張があり決着していません。
+  </div>
+
+  <h2><span class="n">06</span>二枚の Carroll 面</h2>
+
+  <p>全体の構図を描いておきます。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回で見えた構図</div>
+    <p style="margin:6px 0 0">宇宙には、計量が退化した面が<strong>2枚</strong>ある。</p>
+    <p style="margin:10px 0 0">外側の \(\mathscr{I}\) ── そこに Carrollian 場の理論が乗れば、<em>平坦時空のホログラフィー</em>。</p>
+    <p style="margin:6px 0 0">内側の地平面 ── そこに Carrollian 場の理論が乗れば、<em>ブラックホールのエントロピー</em>。</p>
+    <p style="margin:10px 0 0"><strong>同じ数学が、まったく違う二つの問題に効く。</strong></p>
+  </div>
+
+  <p>そしてどちらも、同じところで止まっています ── <em>Carrollian 場の理論の、独立な定義がない。</em></p>
+
+  <p>第5回で「探し場所が正しくなった」と書きました。この回で分かったのは、<strong>その探し場所が2つあり、しかも同じものだ</strong>ということです。片方が解ければ、もう片方も動く可能性が高い。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>なぜヌル超曲面は必ず Carroll 多様体になるのか、一行で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">ヌル方向は「光が走る方向」で長さがゼロなので、その面に誘導される計量が<strong>退化する</strong>（逆行列を持たない）。退化した計量を持つ多様体が Carroll 多様体。\(\mathscr{I}\) の議論はヌル性しか使っていないので、地平面にもそのまま適用できる。</div></details>
+      </li>
+      <li>\(r=2r_s\) と \(r=1.01\,r_s\) で、座標光速 \(dr/dt\) はそれぞれ \(c\) の何倍か。
+        <details><summary>答えを見る</summary><div class="ans">\(dr/dt=c(1-r_s/r)\)。\(r=2r_s\) なら \(1-1/2=0.5\) 倍。\(r=1.01r_s\) なら \(1-1/1.01=0.0099\) 倍 ── 遠方の約 1% にまで落ちる。\(r\to r_s\) でゼロ。</div></details>
+      </li>
+      <li>「地平面では光速がゼロになる」と言うとき、注意すべき点は何か。
+        <details><summary>答えを見る</summary><div class="ans">ゼロになるのは<strong>シュワルツシルト座標での座標光速</strong>で、自由落下観測者が局所で測る光速はいつでも \(c\)（等価原理）。ただし<em>地平面がヌル超曲面であること</em>自体は座標に依らない不変な性質で、座標光速がゼロに行くのはその見え方。</div></details>
+      </li>
+      <li>膜パラダイムの体積粘性は負である。普通の流体でこれが起きないのはなぜで、地平面で起きるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">通常の流体で体積粘性が負だと、圧縮が自発的に暴走してしまい熱力学第二法則に反する。地平面が例外なのは、その力学が<strong>teleological（未来の境界条件で決まる）</strong>だから ── 地平面の位置は「将来どうなるか」で定義されるので、通常の因果的な散逸系ではない。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>Carroll 幾何は特殊事情ではなかった。</strong> ヌル超曲面なら必ず計量が退化して Carroll 多様体になる ── \(\mathscr{I}\) の議論はヌル性しか使っていなかった。そして物理的に重要なヌル超曲面は宇宙に2枚ある：無限遠と、事象の地平面。</p>
+    <p><strong>地平面に近づくことは、\(c\to0\) を取ること。</strong> 動径方向の座標光速は \(dr/dt=c(1-r_s/r)\) で、地平面でゼロになる。第5回のスライダーは仮定の話だったが、地平面ではそれが実際に起きている。</p>
+    <p><strong>膜パラダイムの出自が判明した。</strong> 1979年以来「地平面は粘性流体のように振る舞う」は便利な類推でしかなかった。ヌル Raychaudhuri 方程式と Damour 方程式は、<em>Carrollian 流体の保存則</em>だった ── \(c\to0\) 極限から出てくる。<strong>フィットが、導出になった。</strong></p>
+    <p><strong>ソフトヘアの欠陥は、半分だけ埋まる。</strong> 地平面の超並進は定義上そこに局在しているので「かつら」批判をかわす。しかし状態数が \(e^{A/4G}\) を与えるかは<em>未解決</em>で、近地平面対称性の代数が何なのかにも複数の主張がある。</p>
+    <p style="margin-bottom:0"><strong>そして構図が見えた。</strong> 宇宙は2枚の Carroll 面に挟まれている。外側に理論が乗れば平坦時空のホログラフィー、内側に乗ればブラックホールのエントロピー ── <em>同じ数学が、まったく別の二つの問題に効く。</em>そして両方とも、Carrollian 場の理論の独立な定義がないという同じ一点で止まっています。</p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第7回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：ヌル超曲面の誘導計量が退化すること、シュワルツシルト座標での動径方向座標光速 \(dr/dt=c(1-r_s/r)\)、膜パラダイム（Damour 1979、Thorne–Price–Macdonald 1986）とその輸送係数、地平面の Carrollian 幾何と Damour 方程式・ヌル Raychaudhuri 方程式が Carrollian 保存則であること（Donnay–Marteau, Class. Quantum Grav. 36, 165002, 2019）、地平面における超並進・超回転（Donnay–Giribet–González–Pino, PRL 116, 091101, 2016）。<br><strong>いっぽう、地平面の Carrollian 場の理論の状態数が \(A/4G\) を再現するかは未解決です</strong>。近地平面対称性の代数についても文献に複数の提案があり決着していません。また Carrollian ホログラフィーは進行中の研究綱領であり、境界理論の独立な構成はまだありません。図の光円錐はシュワルツシルト座標での座標光速に基づく模式で、局所慣性系で測る光速は常に \(c\) です。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ｜ 姉妹編：<a href="../wakaru-blackhole/index.html">わかるブラックホール</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーを右端まで動かすと、光円錐が潰れます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sr=document.getElementById('sr'),
+      vr=document.getElementById('vr'), ro=document.getElementById('ro');
+
+  // シュワルツシルト座標での動径方向座標光速： dr/dt = 1 - rs/r  （c=1, rs=1）
+  function vcoord(x){ return 1 - 1/x; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var x=parseInt(sr.value,10)/1000; vr.textContent=x.toFixed(3);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=64, R=w-18, T=24, B=h-40;
+    var RMIN=1.0, RMAX=4.3;
+    function X(r){ return L+(R-L)*(r-RMIN)/(RMAX-RMIN); }
+
+    // 背景グリッド
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=1;g<=4;g++){ ctx.beginPath(); ctx.moveTo(X(g),T); ctx.lineTo(X(g),B); ctx.stroke(); }
+    for(var k=0;k<=4;k++){ var y=T+(B-T)*k/4; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke(); }
+
+    // 地平面（r = rs）
+    ctx.fillStyle='rgba(26,30,34,.10)';
+    ctx.fillRect(L-8,T,X(1)-L+8,B-T);
+    ctx.strokeStyle='#191d22'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(X(1),T); ctx.lineTo(X(1),B); ctx.stroke();
+    ctx.fillStyle='#191d22'; ctx.save();
+    ctx.font='600 12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.translate(X(1)-10,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+    ctx.fillText('事象の地平面 r = rₛ', 0, 0); ctx.restore();
+
+    // 各半径での光円錐
+    var samples=[1.05,1.15,1.35,1.7,2.2,3.0,4.0];
+    var CH=(B-T)*0.17;
+    function cone(r, hi){
+      var v=vcoord(r), cxp=X(r), cyp=(T+B)/2;
+      var dx=v*(X(RMAX)-X(RMIN))/(RMAX-RMIN)*0.55;   // 縦 CH に対する横の広がり
+      ctx.fillStyle = hi ? 'rgba(168,58,34,.18)' : 'rgba(31,111,116,.13)';
+      ctx.beginPath(); ctx.moveTo(cxp,cyp);
+      ctx.lineTo(cxp-dx,cyp-CH); ctx.lineTo(cxp+dx,cyp-CH); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cxp,cyp);
+      ctx.lineTo(cxp-dx,cyp+CH); ctx.lineTo(cxp+dx,cyp+CH); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = hi ? '#a83a22' : '#1f6f74'; ctx.lineWidth = hi ? 2.4 : 1.6;
+      ctx.beginPath();
+      ctx.moveTo(cxp-dx,cyp-CH); ctx.lineTo(cxp,cyp); ctx.lineTo(cxp+dx,cyp-CH);
+      ctx.moveTo(cxp-dx,cyp+CH); ctx.lineTo(cxp,cyp); ctx.lineTo(cxp+dx,cyp+CH);
+      ctx.stroke();
+      ctx.fillStyle = hi ? '#a83a22' : '#2f5d6b';
+      ctx.beginPath(); ctx.arc(cxp,cyp,hi?4.5:3,0,6.2832); ctx.fill();
+    }
+    samples.forEach(function(r){ if(Math.abs(r-x)>0.12) cone(r,false); });
+    cone(x,true);
+
+    // 軸
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center';
+    for(var t2=1;t2<=4;t2++) ctx.fillText(t2+'rₛ', X(t2), B+18);
+    ctx.fillText('半径 r →', (L+R)/2, B+34);
+    ctx.save(); ctx.translate(22,(T+B)/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillText('時間 t', 0, 0); ctx.restore();
+
+    var v=vcoord(x);
+    ro.innerHTML = 'r = <b>'+x.toFixed(3)+' rₛ</b> における座標光速 &nbsp;dr/dt = 1 − rₛ/r = <b>'+v.toFixed(4)+' c</b>'
+      + (x>3.0 ? '　── 遠方なのでほぼ通常の光円錐です。'
+        : (x<1.05 ? '　── <b>光円錐がほぼ潰れました。</b>遠方の '+(100*v).toFixed(1)+'% しかありません。これが Carroll 極限です。'
+                  : '　── 円錐が閉じてきています（遠方の '+(100*v).toFixed(1)+'%）。'));
+  }
+
+  sr.addEventListener('input', draw);
+  document.getElementById('bf').addEventListener('click', function(){ sr.value=4000; draw(); });
+  document.getElementById('bn').addEventListener('click', function(){ sr.value=1005; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
