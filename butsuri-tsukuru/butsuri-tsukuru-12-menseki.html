@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面積則は、ただで出てくる ── 物理を作る 第12回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 12 回 ／ 面積則は、ただで出てくる</span></div>
+  <p class="eyebrow">超局所性が \(S\propto A\) を自動的に生む ── そして残るのは、第1回で測ったあの壁だけ</p>
+  <h1>面積則は、ただで出てくる
+    <span class="sub">前回、問いを「超並進セクターに中心電荷はあるか」に置き直しました。<br>では係数を出すには、結局なにが要るのか。詰めていくと妙なことに気づきます ──<br><strong>面積則 \(S\propto A\) のほうは、Carrollian 理論なら構造から自動的に出ます。</strong><br>ただで出る。そして残るのは係数だけ ── <em>第1回で位置を測った、あの壁</em>です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第5回・第8回（超局所性）、対数</span>
+    <span>この回の芯：1ビットあたり 2.773 プランク面積</span>
+  </div>
+
+  <p class="lead">ここまで「\(e^{A/4G}\) 個の状態を持つことをどう示すか」を追いかけてきました。第10回で証明の型が見つかり、第11回で問いを置き直した。<br>この回は少し引いて、<em>そもそも何を示さなければならないのか</em>を分解します。すると主張が二つに割れます ── <strong>面積に比例すること</strong>と、<strong>比例係数が \(1/4G\) であること</strong>。<br>そして前者は、Carrollian 理論の性質から<em>ほとんど自動的に</em>出てきます。難しいのは後者だけ。しかもその後者は、このシリーズが第1回から何度もぶつかってきた壁と、同じものでした。</p>
+
+  <h2><span class="n">01</span>超局所性を、もう一度</h2>
+
+  <p>第5回と第8回で確かめたことを使います。</p>
+
+  <p>Carroll 幾何では光円錐が潰れているので、信号が伝わりません。第8回の図で見たとおり、場の方程式は \(\partial_t^2\varphi=0\) になり、右辺に空間微分がない ── <strong>各点が、隣を一切参照せずに時間発展します</strong>。</p>
+
+  <div class="keybox">
+    <div class="lbl">超局所性</div>
+    <p style="margin:6px 0 0">Carrollian な理論では、二つの事象が因果的に繋がるのは<strong>同じ点にいるときだけ</strong>。空間の各点が、独立な系になっている。</p>
+  </div>
+
+  <h2><span class="n">02</span>独立なら、分配関数は掛け算になります</h2>
+
+  <p>統計力学の基本です。独立な系を並べたら、分配関数は<em>積</em>になる。</p>
+
+  $$Z=\prod_{x}Z_x\qquad\Longrightarrow\qquad \log Z=\sum_x \log Z_x$$
+
+  <p>そして超局所な理論では、この \(x\) は<strong>空間の各点</strong>です。だから \(\log Z\) は<em>点の数</em>に比例する。</p>
+
+  <p>ここで、Carrollian 理論が住んでいる場所を思い出してください。第7回で確かめたとおり ── <strong>ヌル超曲面の上</strong>です。地平面なら、その空間断面は<em>2次元の面</em>。</p>
+
+  <div class="keybox">
+    <div class="lbl">結論が、二行で出ます</div>
+    <p style="margin:6px 0 0">超局所 \(\Longrightarrow\) エントロピーは<strong>点の数に比例</strong></p>
+    <p style="margin:6px 0 0">点は面の上にある \(\Longrightarrow\) 点の数は<strong>面積に比例</strong></p>
+    <p style="margin:10px 0 0;font-size:18px;text-align:center"><strong>したがって \(S\propto A\)。</strong></p>
+  </div>
+
+  <p>これが「ただで出てくる」の意味です。ブラックホールの微視状態を数える必要も、Cardy の公式も要りません。<em>超局所な理論が2次元の面に乗っている</em>という、それだけから面積則が従います。</p>
+
+  <div class="aside">
+    <span class="tag">なぜこれが不思議なのか</span>
+    普通の（局所的で相対論的な）場の理論では、エントロピーは<strong>体積</strong>に比例します。3次元空間に詰め込める情報は \(V/\epsilon^3\)。<br>面積則は、そこからの逸脱として長らく謎でした ── 第2回で「重力は QFT ではない」と言われる根拠にもなった性質です。<br>ところが Carrollian 理論では、<em>理論が住んでいる場所がそもそも面</em>なので、体積則を出しようがない。<strong>逸脱ではなく、既定値になります。</strong>
+  </div>
+
+  <h2><span class="n">03</span>では、係数は何を意味するのか</h2>
+
+  <p>面積則が出たので、残りは係数です。式で書きます。面を一辺 \(a\) のセルに切り、1セルあたりの状態数を \(q\) とすると ──</p>
+
+  $$S=N\log q,\qquad N=\frac{A}{a^2}\qquad\Longrightarrow\qquad S=\frac{\log q}{a^2}\,A$$
+
+  <p>これがベッケンシュタイン–ホーキング \(S=A/4\ell_P^2\) に一致するには ──</p>
+
+  $$\frac{\log q}{a^2}=\frac{1}{4\ell_P^2}$$
+
+  <p>ここで大事なのは、<strong>\(a\) と \(q\) が個別には決まらない</strong>ことです。決まるのは組み合わせだけ。セルを細かくすれば1セルあたりの状態数は減り、粗くすれば増える ── そして<em>エントロピーは変わりません</em>。動かして確かめてください。</p>
+
+  <div class="fig">
+    <div class="cap">図：面をセルに切る。セルの大きさを変えても、エントロピーは変わりません（1セルあたりの状態数がちょうど打ち消すため）。<em>描画の格子は整数セルに丸めていますが、数値は厳密な \(N=A/a^2\) を使っています</em></div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>セルの一辺 &nbsp;a / ℓ<sub>P</sub> = <span class="val" id="va">1.00</span>
+        <input type="range" id="sa" min="60" max="320" value="100">
+      </label>
+      <button id="b1">a = ℓ_P</button>
+      <button id="b2">1セル＝1ビット</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>セルを動かすと、セル数 \(N\) と1セルあたりの状態数 \(q\) は変わるのに、積 \(N\log q\) は動きません。<strong>面積則は堅牢で、決まっているのは「単位面積あたりの情報量」という一つの数だけ</strong>です。</p>
+
+  <h3>その一つの数を、具体的に</h3>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 何ビット詰まっているのか</span>
+    <p style="margin:8px 0 0">\(S/k_B=A/4\ell_P^2\) をビットに直すと（\(\log_2\) に換算）</p>
+    $$\text{ビット数}=\frac{A}{4\ell_P^2\ln 2}=\frac{A}{2.773\,\ell_P^2}$$
+    <p class="lbl">つまり</p>
+    <p style="margin:8px 0 8px"><strong>1ビットあたり \(4\ln2=2.773\) プランク面積。</strong> 単位面積では \(1.381\times10^{69}\) bit/m²。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:34%">ヌル面</th><th class="num">面積 [m²]</th><th class="num">ビット数</th></tr>
+    <tr><td>太陽質量ブラックホール</td><td class="num">\(1.10\times10^{8}\)</td><td class="num">\(1.51\times10^{77}\)</td></tr>
+    <tr><td>Sgr A*</td><td class="num">\(2.03\times10^{21}\)</td><td class="num">\(2.80\times10^{90}\)</td></tr>
+    <tr><td><strong>de Sitter 地平面</strong></td><td class="num">\(2.35\times10^{53}\)</td><td class="num"><strong>\(3.24\times10^{122}\)</strong></td></tr>
+  </table>
+
+  <p>第9回で出した宇宙の状態数 \(e^{2.25\times10^{122}}\) を、ビットで言い直すとこうなります ── <strong>宇宙は \(3.24\times10^{122}\) ビットの機械</strong>。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>そして、第1回にまた戻ります</h2>
+
+  <p>この回でやったことを、一行にまとめます。</p>
+
+  <p style="text-align:center;font-size:18px;margin:24px 0"><strong>\(S\propto A\) は構造から出た。残ったのは \(1/4\) だけ。</strong></p>
+
+  <p>第1回の 08 節に、こう書いてありました。</p>
+
+  <div class="keybox">
+    <div class="lbl">第1回 08 節より（三度目の引用）</div>
+    <p style="margin:6px 0 0">ブラックホールのエントロピーで言えば、<strong>\(S\propto A\) までは次元で出るのに、\(1/4\) だけが出ない</strong>。そこを埋めるには、数える対象そのもの ── 状態、機構、対称性 ── が要る。</p>
+  </div>
+
+  <p>まったく同じ場所に着きました。しかも今回は<em>次元解析ですらなく</em>、超局所性という構造から \(S\propto A\) が出た。それでも \(1/4\) は出ない。</p>
+
+  <p>本シリーズが第1回から測ってきた \(O(1)\) の壁は、経路を変えても<strong>同じ高さで立っています</strong>。</p>
+
+  <h2><span class="n">05</span>ただし ── ただで出たものには、代償があります</h2>
+
+  <p>ここは正直に書かなければいけません。02 節の議論には、隠れた穴があります。</p>
+
+  <p><strong>連続体には、点が無限個あります。</strong></p>
+
+  <p>「点の数に比例する」と言いましたが、連続的な面の上には点が非可算無限個ある。だから \(N=A/a^2\) と書いた時点で、<em>\(a\) というカットオフを手で入れています</em>。そして \(\log q/a^2\) は、\(a\to0\) で発散しうる。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── これは通常の QFT と同じ病気です</span>
+    通常の場の理論でも、面をまたぐ<strong>エンタングルメント・エントロピー</strong>は面積に比例します ── \(S\sim A/\epsilon^2\)。ところが係数がカットオフ \(\epsilon\) に依存して発散する。<br>02 節の議論は、<em>まったく同じ形の発散</em>を抱えています。「面積則がただで出た」のは本当ですが、<strong>係数がただで出たわけではありません</strong>。
+  </div>
+
+  <h3>それでも、違いはあります</h3>
+
+  <p>エンタングルメント・エントロピーの発散は、<em>面の外側（バルク）にある自由度</em>をトレースアウトすることから来ます。外を消すから、境目に無限が溜まる。</p>
+
+  <p>Carrollian の場合は事情が違います。<strong>理論そのものが面の上に定義されています</strong>（第7回・第8回）。トレースアウトすべき「外」が無い。</p>
+
+  <p>すると係数 \(\log q/a^2\) は、外部のカットオフではなく<em>理論自身の自由度密度</em>で決まるはずです。そしてそれは ──</p>
+
+  <div class="keybox">
+    <div class="lbl">一周しました</div>
+    <p style="margin:6px 0 0">単位面積あたりの自由度密度 ＝ 状態密度 ＝ <strong>第11回の「中心電荷」の問い</strong>。</p>
+  </div>
+
+  <p>問題は消えていません。<em>移動しただけ</em>です ── 第3回で「曲率は消えたのではなく共形因子に引っ越した」と書いたのと、同じ形。</p>
+
+  <p>ただし移動先が良くなっています。「カットオフ依存で原理的に決まらない」から「理論のデータとして決まるはずだが、まだ計算できていない」へ。<strong>答えのない問いから、答えのある問いへ。</strong></p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>超局所な理論で、なぜ面積則が自動的に出るのか。二段階で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">(1) 各点が独立なので分配関数が積になり、\(\log Z\) が<strong>点の数に比例</strong>する。(2) Carrollian 理論はヌル超曲面の上に住み、その空間断面は2次元の面なので、<strong>点の数は面積に比例</strong>する。よって \(S\propto A\)。</div></details>
+      </li>
+      <li>セルの大きさ \(a\) を2倍にすると、1セルあたりの状態数 \(q\) はどうなるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\log q=a^2/4\ell_P^2\) なので、\(a\) が2倍なら \(\log q\) は<strong>4倍</strong>（\(q\) は4乗）。セル数 \(N=A/a^2\) は 1/4 になるので、積 \(N\log q\) は変わらない。<em>エントロピーは \(a\) の選び方に依らない。</em></div></details>
+      </li>
+      <li>1セルを1ビット（\(q=2\)）にすると、セルの一辺はプランク長の何倍か。
+        <details><summary>答えを見る</summary><div class="ans">\(\ln 2=a^2/4\ell_P^2\) より \(a^2=4\ell_P^2\ln2=2.773\,\ell_P^2\)、よって \(a=1.665\,\ell_P\)。<strong>1ビットあたり約 2.77 プランク面積</strong>ということ。</div></details>
+      </li>
+      <li>「面積則がただで出た」のに、まだ何も解けていないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">出たのは<strong>比例すること</strong>だけで、<strong>比例係数</strong>ではないから。しかも連続体では点が無限個あるので、\(N=A/a^2\) と書いた時点でカットオフを手で入れている。係数 \(\log q/a^2\) は、通常の QFT のエンタングルメント・エントロピー \(S\sim A/\epsilon^2\) と同じ発散を抱えている。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>面積則は、構造から自動的に出る。</strong> 超局所なら分配関数が点ごとの積になり \(\log Z\) は点の数に比例。そして Carrollian 理論はヌル面の上に住むので、点の数は面積に比例する ── \(S\propto A\)。<em>微視状態を数える必要も Cardy も要らない。</em></p>
+    <p><strong>普通の場の理論では体積則になるのに。</strong> 面積則が長らく謎だったのは、体積則からの逸脱だったから。Carrollian では<em>理論が住む場所がそもそも面</em>なので、逸脱ではなく既定値になる。</p>
+    <p><strong>係数は、一つの数に凝縮される。</strong> セルの大きさ \(a\) と1セルの状態数 \(q\) は個別には決まらず、決まるのは \(\log q/a^2\) だけ。それが \(1/4\ell_P^2\) であることは ── <strong>1ビットあたり \(4\ln2=2.773\) プランク面積</strong>、\(1.381\times10^{69}\) bit/m²。de Sitter 地平面なら \(3.24\times10^{122}\) ビット。</p>
+    <p><strong>そして第1回に、三度目に戻る。</strong> 「\(S\propto A\) までは出るのに \(1/4\) だけが出ない」── 今回は次元解析ですらなく構造から \(S\propto A\) が出たのに、壁は同じ高さで立っていた。</p>
+    <p style="margin-bottom:0"><strong>ただし、ただで出たのは形だけ。</strong> 連続体には点が無限にあるので、\(N=A/a^2\) はカットオフを手で入れている ── 通常の QFT のエンタングルメント・エントロピー \(S\sim A/\epsilon^2\) と同じ発散。<em>ただし Carrollian ではトレースアウトすべき「外」が無いので、係数は理論自身の自由度密度で決まるはず</em>。それは第11回の中心電荷の問いそのもので、<strong>一周しました。</strong></p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第12回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：Carrollian 理論の超局所性、独立系の分配関数が積になること、ベッケンシュタイン–ホーキング・エントロピー \(S=A/4\ell_P^2\)、およびそこから計算した数値（1ビットあたり \(4\ln2=2.773\,\ell_P^2\)、\(1.381\times10^{69}\) bit/m²、各ヌル面のビット数）、通常の場の理論におけるエンタングルメント・エントロピーの面積則と UV 発散。<br><strong>いっぽう「Carrollian 理論の超局所性からブラックホールの面積則が導かれる」という 02 節の議論は、本シリーズの著者による構造的な整理であって、確立した導出ではありません</strong>。実際 05 節で述べたとおり、連続体では点の数が無限であり、セル分割はカットオフの導入にあたります。係数 \(1/4\) はこの議論では導かれておらず、それを与える自由度密度が理論のデータとして決まるかどうかも未解決です。地平面の Carrollian 理論そのものが未構成であることは、第8回・第11回のとおりです。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">第10回</a>｜<a href="butsuri-tsukuru-11-basho.html">第11回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、セルを変えてもエントロピーが動かないことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sa=document.getElementById('sa'),
+      va=document.getElementById('va'), ro=document.getElementById('ro');
+
+  // 面を一辺 a のセルに切る。S = N ln q、N = A/a^2。
+  // S = A/(4 lP^2) を満たすには ln q = a^2/(4 lP^2)  ── a を変えても S は不変
+  var SIDE=12;   // 面の一辺（lP 単位）── 図では模式的に
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var a=parseInt(sa.value,10)/100; va.textContent=a.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var T=26, B=h-34, S=Math.min((B-T), (w-40)*0.42);
+    var x0=24, y0=(T+B)/2-S/2;
+
+    // 面（正方形のパッチ）
+    ctx.fillStyle='#f2f7f6'; ctx.fillRect(x0,y0,S,S);
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,S,S);
+
+    // セル分割
+    var n=Math.max(1,Math.round(SIDE/a));       // 一辺あたりのセル数
+    var cs=S/n;
+    ctx.strokeStyle='rgba(31,111,116,.35)'; ctx.lineWidth=n>60?0.4:1;
+    for(var i=1;i<n;i++){
+      ctx.beginPath(); ctx.moveTo(x0+i*cs,y0); ctx.lineTo(x0+i*cs,y0+S); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x0,y0+i*cs); ctx.lineTo(x0+S,y0+i*cs); ctx.stroke();
+    }
+    ctx.fillStyle='#1f6f74'; ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='left'; ctx.fillText('ヌル面（面積 A）をセルに切る', x0, T-8);
+
+    // 数値パネル ── 描画は整数セルだが、数値は厳密な N = A/a^2 を使う
+    var N=(SIDE/a)*(SIDE/a);
+    var lnq=a*a/4;                 // ln q = a^2/(4 lP^2)   （lP=1 の単位）
+    var q=Math.exp(lnq);
+    var Stot=N*lnq;                // = SIDE^2/4 で一定のはず
+    var Sexact=SIDE*SIDE/4;
+
+    var px=x0+S+34, py=y0+8, lh=30;
+    function row(lab,val,col){
+      ctx.fillStyle='#4c545c'; ctx.font='12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign='left'; ctx.fillText(lab, px, py);
+      ctx.fillStyle=col||'#191d22'; ctx.font='600 17px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(val, px, py+20);
+      py+=lh+16;
+    }
+    row('セル数 N = A / a²', N.toFixed(1));
+    row('1セルあたりの状態数 q', q.toFixed(4));
+    row('エントロピー S = N ln q', Stot.toFixed(4), '#a83a22');
+
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(px-10, py-14); ctx.lineTo(w-18, py-14); ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('A / 4ℓ_P² = '+Sexact.toFixed(4)+'（不変）', px, py+6);
+
+    ro.innerHTML='セルの一辺 <b>a = '+a.toFixed(2)+' ℓ_P</b> ｜ セル数 <b>'+N.toFixed(1)+'</b> ｜ '
+      +'1セルの状態数 <b>q = '+q.toFixed(4)+'</b> ｜ '
+      +'S = N ln q = <b>'+Stot.toFixed(4)+'</b>　'
+      +'── <b>A/4ℓ_P² = '+Sexact.toFixed(4)+' と厳密に一致。a を変えても動きません。</b>'
+      + (Math.abs(q-2)<0.02 ? '　★ ちょうど<b>1セル＝1ビット</b>です。' : '');
+  }
+
+  sa.addEventListener('input', draw);
+  document.getElementById('b1').addEventListener('click', function(){ sa.value=100; draw(); });
+  document.getElementById('b2').addEventListener('click', function(){ sa.value=Math.round(Math.sqrt(4*Math.log(2))*100); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
