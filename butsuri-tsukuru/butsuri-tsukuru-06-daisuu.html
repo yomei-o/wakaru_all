@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見覚えのある代数 ── 物理を作る 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button.off{background:#9fb0ae;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 6 回 ／ 見覚えのある代数</span></div>
+  <p class="eyebrow">当てにいっていないのに出てきた ── このシリーズの価値基準で、いちばん強い証拠</p>
+  <h1>見覚えのある代数
+    <span class="sub">前回まで「足りない」話が続きました。境界理論の独立な定義がまだ無い、と。<br>この回は逆です。<strong>誰も入れていないのに出てきたもの</strong>の話をします。<br>ソフト定理の無限の塔を代数として組むと、\(w_{1+\infty}\) という<em>既に名前のある代数</em>が現れる ──<br>面積保存の幾何、自己双対重力、ツイスター理論に、<strong>先に</strong>登場していた代数です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：ポアソン括弧（本文で作ります）、第4回、第5回</span>
+    <span>この回の芯：フィットしていないものが、出てきた</span>
+  </div>
+
+  <p class="lead">第1回で、無次元量を16万本総当たりして何も出ませんでした。第5回まで、平坦時空のホログラフィーには核心が欠けていると書き続けました。このシリーズは、負の結果ばかり載せています。<br>それには理由があります。第1回で学んだ規律 ── <em>係数を当てにいく探索は構造的に空になる</em>。フィットしたものは証拠にならない。<br>だからこそ、逆のことが起きたときは大事に扱うべきです。<strong>誰も探していなかったのに、勝手に出てきたもの。</strong> この回で扱うのは、それです。</p>
+
+  <h2><span class="n">01</span>ソフト定理には、無限の塔がある</h2>
+
+  <p>第4回では、Weinberg のソフトグラビトン定理を扱いました。振幅にグラビトンを1本足して \(q\to0\) にすると、\(1/q\) の極が出る ── あれは<strong>先頭項だけ</strong>です。</p>
+
+  <p>展開を続けると、塔になっています。</p>
+
+  $$\mathcal{M}_{n+1}=\underbrace{\frac{S^{(0)}}{q}\,\mathcal{M}_n}_{\text{超並進}}+\underbrace{S^{(1)}\,\mathcal{M}_n}_{\text{超回転}}+\underbrace{q\,S^{(2)}\,\mathcal{M}_n}_{?}+\underbrace{q^2 S^{(3)}\,\mathcal{M}_n}_{?}+\cdots$$
+
+  <p>各項が、それぞれ<em>別の対称性</em>の Ward 恒等式に対応します。第4回で見た超並進（\(q^{-1}\)）と超回転（\(q^{0}\)）は、無限に続く塔の最初の2段でしかなかった。</p>
+
+  <div class="aside">
+    <span class="tag">既視感</span>
+    第4回でも同じ構造がありました ── 超並進を球面調和関数で展開すると、通常の並進は \(\ell=0,1\) の最初の4段だった。<br>今度は<em>ソフト展開の次数</em>のほうに塔がある。<strong>この分野は、見えていたものが常に「無限の塔の一段目」だと判明し続けています。</strong>
+  </div>
+
+  <h2><span class="n">02</span>塔を、代数として組む</h2>
+
+  <p>問題は、この塔が<strong>閉じた代数をなすか</strong>です。段どうしの交換子を取ったとき、また塔の中に戻ってくるか。</p>
+
+  <p>Strominger (2021) の結果はこうです。</p>
+
+  <div class="keybox">
+    <div class="lbl">結果</div>
+    <p style="margin:6px 0 0">正ヘリシティのソフトグラビトンの塔全体が、<strong>\(w_{1+\infty}\) の wedge 部分代数</strong>に基づく<em>単一のカイラル2次元 Kac–Moody 対称性</em>に組織化される。</p>
+    <p style="margin:8px 0 0">しかも<strong>ソフト光子・グルーオンの塔も、その下で既約に変換する</strong>。</p>
+  </div>
+
+  <p>閉じました。しかも重力だけでなく、ゲージ場のソフトセクターまで同じ代数の表現に収まる。</p>
+
+  <p>ここで当然の疑問が出ます ── <em>\(w_{1+\infty}\) とは何か。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>\(w_\infty\) の正体 ── 面積を保つ変形</h2>
+
+  <p>難しい名前ですが、中身は驚くほど素朴です。<strong>2次元の面を、面積を変えずに変形する操作</strong>の全体です。</p>
+
+  <p>作り方を書きます。平面上の関数 \(f(x,y)\) を一つ選ぶ。それを「ハミルトニアン」だと思って、流れを作ります。</p>
+
+  $$\dot x=\frac{\partial f}{\partial y},\qquad \dot y=-\frac{\partial f}{\partial x}$$
+
+  <p>これはハミルトン力学そのもので、<strong>リウヴィルの定理により面積が保存されます</strong>。\(f\) を変えれば別の変形が得られる。関数 \(f\) の個数だけ、変形がある ── だから無限次元です。</p>
+
+  <p>そして、これらの変形の交換子は<strong>ポアソン括弧</strong>になります。</p>
+
+  $$\{f,g\}=\frac{\partial f}{\partial x}\frac{\partial g}{\partial y}-\frac{\partial f}{\partial y}\frac{\partial g}{\partial x}$$
+
+  <p>閉じているかを確かめましょう。単項式でやると一行です。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 代数が閉じることを、手で確かめる</span>
+    <p style="margin:8px 0 0">\(f=x^{a}y^{b}\)、\(g=x^{c}y^{d}\) を入れる。</p>
+    $$\{x^{a}y^{b},\,x^{c}y^{d}\}=\bigl(ad-bc\bigr)\;x^{a+c-1}\,y^{b+d-1}$$
+    <p class="lbl">右辺もまた単項式</p>
+    <p style="margin:8px 0 8px">閉じています。<strong>構造定数は \(ad-bc\) ── 2×2 行列式ひとつ。</strong> 添字を付け替えると、これが標準的な \(w_\infty\) の交換関係 \([w^p_m,w^q_n]=(m(q-1)-n(p-1))\,w^{p+q-2}_{m+n}\) の形になります。</p>
+  </div>
+
+  <p>つまり \(w_\infty\) は、<em>平面上の関数にポアソン括弧を入れただけ</em>のものです。高校の微分ができれば構造定数まで自分で出せる。</p>
+
+  <p>「面積を保つ」がどういうことか、動かして見てください。</p>
+
+  <div class="fig">
+    <div class="cap">図：ハミルトニアン \(f\) を選んで流す。形はどんどん歪みますが、<strong>面積は変わりません</strong>（面積は多角形近似で毎回計算しています）</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>流す時間 t = <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="150" value="0">
+      </label>
+      <button id="f1" class="">f = xy（双曲）</button>
+      <button id="f2" class="off">f = x²/2（ずり）</button>
+      <button id="f3" class="off">f = x³/3（非線形）</button>
+      <button id="br">戻す</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>どれを選んでも、面積の変化は<em>丸め誤差の範囲</em>に収まります。形は原形をとどめないほど歪むのに。</p>
+
+  <p>ちなみに3つとも厳密解があります ── \(f=xy\) なら \(x=x_0e^{t},\;y=y_0e^{-t}\)、\(f=x^2/2\) なら \(x=x_0,\;y=y_0-x_0t\)、\(f=x^3/3\) なら \(x=x_0,\;y=y_0-x_0^2t\)。数値積分の誤差ではなく、<strong>本当に厳密に面積が保たれています</strong>。</p>
+
+  <h2><span class="n">04</span>なぜ「見覚えがある」のか ── 4つの入口</h2>
+
+  <p>ここが、この回の主題です。\(w_{1+\infty}\) は<strong>ソフト定理のために作られた代数ではありません</strong>。まったく別の場所に、先に現れていました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:32%">先に現れていた場所</th><th>文脈</th></tr>
+    <tr><td><strong>面積保存微分同相</strong></td><td>純粋な幾何。03 節で作ったもの</td></tr>
+    <tr><td><strong>自己双対重力</strong></td><td>アインシュタイン方程式の<em>可解な</em>セクター（プレバンスキー方程式）の対称性</td></tr>
+    <tr><td><strong>ツイスター理論</strong></td><td>Penrose の非線形グラビトン構成。ツイスター空間の変形として自己双対重力を作る</td></tr>
+    <tr><td><strong>2次元可積分系</strong></td><td>無限個の保存量を持つ系に、繰り返し現れる代数</td></tr>
+    <tr><td style="color:var(--bad);font-weight:700">そして今回：ソフト定理</td><td>4次元重力の散乱振幅の \(q\to0\) 極限</td></tr>
+  </table>
+
+  <p>5つ目だけが、他の4つとまったく違う入口です。散乱振幅の赤外極限という、幾何ともツイスターとも無関係に見える場所から、<em>同じ代数が出た</em>。</p>
+
+  <h3>偶然ではありません ── 自己双対セクターが鍵</h3>
+
+  <p>実は繋がりが分かっています。<strong>自己双対重力は可積分</strong>で、その対称性が \(w_\infty\) でした。そして ──</p>
+
+  <div class="keybox">
+    <div class="lbl">何が起きているか</div>
+    <p style="margin:6px 0 0">重力の<strong>ソフト・共線極限</strong>は、事実上<em>自己双対セクターを見ている</em>。<br>だから自己双対重力の対称性である \(w_{1+\infty}\) が、ソフト定理の塔として現れる。</p>
+  </div>
+
+  <p>つまり赤外の物理とツイスター理論が、この代数を通じて同じものを指していた。<em>別々の入口が、同じ部屋に通じていた</em>ということです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>なぜ、これが「強い証拠」なのか</h2>
+
+  <p>ここで、このシリーズの価値基準に照らします。</p>
+
+  <p>第1回で、16万本の無次元量を総当たりして何も出ませんでした。番外編③でも、セレスチャル CFT に中身が足りないと書きました。共通する教訓はこれでした。</p>
+
+  <p style="text-align:center;font-size:19px;margin:26px 0"><strong>係数を当てにいく探索は、構造的に空になる。</strong></p>
+
+  <p>「$p/q$ のどれかに当たればいい」と言った瞬間、当たること自体が情報を持たなくなる。的を増やせば被覆率が上がるだけ。</p>
+
+  <p><strong>\(w_{1+\infty}\) は、その正反対です。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>第1回の総当たり</th><th>\(w_{1+\infty}\)</th></tr>
+    <tr><td>的は</td><td class="bad">後から選んだ（\(p/q\)、\(\pi^k\)）</td><td class="ok">先に存在していた（面積保存、可積分系）</td></tr>
+    <tr><td>自由度</td><td class="bad">的を増やせば当たる</td><td class="ok">代数が閉じるか閉じないか、二値</td></tr>
+    <tr><td>look-elsewhere</td><td class="bad">効く（被覆率＝ヒット率）</td><td class="ok">効かない</td></tr>
+    <tr><td>種類</td><td class="bad">フィット</td><td class="ok"><strong>発見</strong></td></tr>
+  </table>
+
+  <p>第2回で、アノマリー相殺を「制約を的にする」例として扱いました。あれと同じ構造です ── <em>満たすか満たさないかが二値で決まる的</em>には、look-elsewhere が発生しない。</p>
+
+  <p>代数が閉じるかどうかは、選択の余地がありません。閉じたなら、そこに構造がある。</p>
+
+  <h2><span class="n">06</span>正直な線</h2>
+
+  <p>過大評価しないために、限界をはっきり書きます。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまで確立しているか</span>
+    <p style="margin:6px 0 0"><strong>① ツリーレベルです。</strong> ループ補正は代数を変形させます。「変形されたソフト代数」の研究が進んでいますが、変形後に何になるかは決着していません。</p>
+    <p style="margin:8px 0 0"><strong>② 自己双対セクターです。</strong> 正ヘリシティに限った話で、自己双対重力は完全な重力の<em>可解な特殊部分</em>にすぎません。両ヘリシティを含む完全な理論への拡張は未解決。</p>
+    <p style="margin:8px 0 0"><strong>③ 対称性であって、理論の構成ではありません。</strong> 「対称性が分かった」と「双対理論が作れた」の距離は、まだ相当あります。第5回で空いたままだった<em>境界理論の独立な定義</em>は、この結果では埋まりません。</p>
+  </div>
+
+  <p>本シリーズの言葉で言えば ── これは<strong>強い状況証拠であって、証明ではない</strong>。第1回の規律6「解いた、と書かない」を守るなら、そう書くのが正確です。</p>
+
+  <p>それでも、負の結果ばかり並べてきたこのシリーズにとって、<em>当てにいっていないのに出てきたもの</em>が一つあるのは大きい。探し場所が正しいという徴候だからです。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>\(\{x^2y,\;xy^2\}\) を計算せよ。そして結果が単項式であることを確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">公式 \(\{x^ay^b,x^cy^d\}=(ad-bc)x^{a+c-1}y^{b+d-1}\) に \((a,b)=(2,1)\)、\((c,d)=(1,2)\) を入れる。\(ad-bc=2\cdot2-1\cdot1=3\)。よって \(3\,x^{2}y^{2}\)。単項式に戻っている ── 代数が閉じている。</div></details>
+      </li>
+      <li>\(f=xy\) の流れが面積を保つことを、厳密解から直接示せ。
+        <details><summary>答えを見る</summary><div class="ans">\(\dot x=\partial_y f=x\)、\(\dot y=-\partial_x f=-y\)。よって \(x=x_0e^{t}\)、\(y=y_0e^{-t}\)。ヤコビアンは \(\det\begin{pmatrix}e^t&0\\0&e^{-t}\end{pmatrix}=e^t\cdot e^{-t}=1\)。<strong>厳密に 1</strong> なので面積は保たれる。</div></details>
+      </li>
+      <li>なぜ \(w_{1+\infty}\) の出現は「第1回の総当たり」と違って look-elsewhere の影響を受けないのか。
+        <details><summary>答えを見る</summary><div class="ans">総当たりでは<strong>的を後から選べた</strong>（\(p/q\) や \(\pi^k\) を増やせば被覆率が上がり、当たりやすくなる）。<br>代数が閉じるかどうかは<strong>二値</strong>で、調整の余地がない。しかも \(w_{1+\infty}\) は面積保存幾何や可積分系という<em>まったく別の目的で先に定義されていた</em>ので、後付けで選んだ的ではない。第2回のアノマリー相殺と同じ構造。</div></details>
+      </li>
+      <li>この結果は、第5回で空いていた「境界理論の独立な定義」を埋めるか。
+        <details><summary>答えを見る</summary><div class="ans">埋めない。対称性が分かることと、理論を構成することは別。\(w_{1+\infty}\) は「そこに構造がある」ことの強い証拠だが、Carrollian CFT を作用や格子から定義したわけではない。<em>探し場所が正しいという徴候</em>まで。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>ソフト定理には無限の塔がある。</strong> 第4回で扱った超並進（\(q^{-1}\)）と超回転（\(q^0\)）は、最初の2段でしかなかった。そして塔は<em>閉じた代数をなす</em> ── \(w_{1+\infty}\) の wedge 部分代数（Strominger 2021）。ソフト光子・グルーオンの塔も、その下で既約に変換する。</p>
+    <p><strong>\(w_\infty\) の中身は素朴。</strong> 平面上の関数にポアソン括弧を入れただけ ── 面積を保つ変形の全体。単項式で計算すると構造定数は \(ad-bc\) という 2×2 行列式ひとつで、代数が閉じることが一行で確かめられる。</p>
+    <p><strong>そして、この代数は先に存在していた。</strong> 面積保存微分同相、自己双対重力（プレバンスキー方程式）、ツイスター理論、2次元可積分系。散乱振幅の赤外極限という<em>まったく別の入口</em>から、同じ代数が出てきた。偶然ではなく、重力のソフト・共線極限が自己双対セクターを見ているため。</p>
+    <p><strong>これがこのシリーズにとって強い証拠である理由。</strong> 第1回の総当たりは的を後から選べたので look-elsewhere に食われた。代数が閉じるかは<em>二値</em>で、しかも \(w_{1+\infty}\) は別の目的で先に定義されていた ── <strong>フィットではなく、発見</strong>。第2回のアノマリー相殺と同じ構造です。</p>
+    <p style="margin-bottom:0"><strong>ただし、まだ証明ではない。</strong> ツリーレベル、自己双対セクター、そして「対称性が分かった」であって「理論が作れた」ではない。第5回で空いていた核心は、そのまま空いています。</p>
+    <div class="next">
+      <span class="lbl">この先の回</span>
+      「係数を、作りにいく」── 第1回で位置を測った \(O(1)\) の壁へ、正面から。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。この回で見た「フィットではなく発見」を、係数についてやれるかどうかの試みです。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第6回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：ソフト定理の無限展開の存在、正ヘリシティのソフトグラビトンの塔が \(w_{1+\infty}\) の wedge 部分代数に組織化されること（Strominger, PRL 127, 221601, 2021）、\(w_\infty\) が面積保存微分同相の代数であること、単項式のポアソン括弧の公式、自己双対重力の可積分性とツイスター記述（Penrose の非線形グラビトン）。<strong>この結果は主にツリーレベル・正ヘリシティ（自己双対）セクターで確立したものであり、ループ補正は代数を変形させます。完全な重力への拡張は未解決です</strong>。また対称性の同定は双対理論の構成ではなく、境界理論の独立な定義は依然として存在しません。図の3つの流れは厳密解を用いており、面積保存は数値近似ではなく厳密（ヤコビアンが恒等的に 1）です。表示される面積は多角形近似による値なので、離散化に由来する一定の差は残ります。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、形が歪んでも面積が変わらないことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), ro=document.getElementById('ro');
+  var btns=[document.getElementById('f1'),document.getElementById('f2'),document.getElementById('f3')];
+  var mode=0, N=200;
+
+  // 初期形状：単位円（半径 0.9）
+  var P0=[];
+  for(var k=0;k<N;k++){ var a=2*Math.PI*k/N; P0.push([0.9*Math.cos(a), 0.9*Math.sin(a)]); }
+
+  // 3 つのハミルトニアン流れ。いずれも厳密解（ヤコビアン ≡ 1）
+  //   f = xy    : ẋ= x,   ẏ=-y     →  x=x0 e^t,  y=y0 e^-t
+  //   f = x²/2  : ẋ= 0,   ẏ=-x     →  x=x0,      y=y0 - x0 t
+  //   f = x³/3  : ẋ= 0,   ẏ=-x²    →  x=x0,      y=y0 - x0² t
+  function flow(p,t,m){
+    var x=p[0], y=p[1];
+    if(m===0) return [x*Math.exp(t*0.9), y*Math.exp(-t*0.9)];
+    if(m===1) return [x, y - x*t*1.6];
+    return [x, y - x*x*t*2.2];
+  }
+  function area(P){ // 多角形の符号付き面積（靴ひも公式）
+    var s=0;
+    for(var i=0;i<P.length;i++){ var j=(i+1)%P.length; s+=P[i][0]*P[j][1]-P[j][0]*P[i][1]; }
+    return Math.abs(s)/2;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/100; vt.textContent=t.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=16,R=w-16,T=22,B=h-34, cx=(L+R)/2, cy=(T+B)/2;
+    var S=Math.min(R-L,B-T)*0.30;
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-6;g<=6;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*S/2,T); ctx.lineTo(cx+g*S/2,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,cy+g*S/2); ctx.lineTo(R,cy+g*S/2); ctx.stroke();
+    }
+    ctx.strokeStyle='#9fb0ae'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,cy); ctx.lineTo(R,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,T); ctx.lineTo(cx,B); ctx.stroke();
+
+    // 元の形
+    ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    for(var i=0;i<=N;i++){ var p=P0[i%N]; var X=cx+p[0]*S, Y=cy-p[1]*S; if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+    ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+
+    // 流した形
+    var Pt=P0.map(function(p){ return flow(p,t,mode); });
+    ctx.fillStyle='rgba(31,111,116,.16)'; ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(var j=0;j<=N;j++){ var q=Pt[j%N]; var X2=cx+q[0]*S, Y2=cy-q[1]*S; if(j===0)ctx.moveTo(X2,Y2); else ctx.lineTo(X2,Y2); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    var A0=area(P0), A1=area(Pt);
+    var names=['f = xy（双曲）','f = x²/2（ずり）','f = x³/3（非線形）'];
+    ctx.fillStyle='#1f6f74'; ctx.font='600 12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='left'; ctx.fillText(names[mode], L+4, T-6);
+
+    var rel=Math.abs(A1-A0)/A0;
+    ro.innerHTML='元の面積 <b>'+A0.toFixed(9)+'</b> ｜ 流したあと <b>'+A1.toFixed(9)+'</b> ｜ '
+      +'相対変化 <b>'+rel.toExponential(2)+'</b>'
+      +(t<0.01 ? '　（t を上げてください）'
+               : '　→ 形は大きく歪んでいるのに、<b>面積は変わっていません</b>。これが「面積保存」＝ w<sub>∞</sub> の中身です。');
+  }
+
+  st.addEventListener('input', draw);
+  btns.forEach(function(b,i){
+    b.addEventListener('click', function(){
+      mode=i; btns.forEach(function(x,j){ x.className = (j===i)?'':'off'; }); draw();
+    });
+  });
+  document.getElementById('br').addEventListener('click', function(){ st.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

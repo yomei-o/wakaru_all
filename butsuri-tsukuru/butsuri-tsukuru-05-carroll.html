@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>境界は、3次元だった ── 物理を作る 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 5 回 ／ 境界は、3次元だった</span></div>
+  <p class="eyebrow">セレスチャル CFT は情報を捨てすぎていた ── 光速ゼロの幾何が、それを取り戻す</p>
+  <h1>境界は、3次元だった
+    <span class="sub">前回の番外編で、平坦時空のホログラフィーが<em>4点関数で壊れる</em>ところを見ました。<br>診断は「相関関数が超関数になる」。ではどう直すのか。<br>答えは意外な方向にありました ── <strong>境界を2次元だと思ったのが間違い</strong>だった。<br>そして正しい3次元の境界は、<em>光速がゼロの世界</em>という奇妙な幾何を持っています。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第4回、番外編③、群の縮約（本文で作ります）</span>
+    <span>この回の芯：BMS ＝ 3次元の共形 Carroll 群</span>
+  </div>
+
+  <p class="lead">番外編③で、セレスチャル CFT の4点関数が \(\delta(z-\bar z)\) に台を持つ超関数になることを、実際に計算して確かめました。原因は「2→2 散乱が平面的だから」── 初等的な運動学でした。<br>そこで私は「壊れ方が分かる壊れ方は扱える」と書きました。この回は、その<em>扱い方</em>です。<br>そして直し方は、細部の修正ではありませんでした。<strong>境界の次元そのものが間違っていた。</strong> 正しい境界は3次元で、そこには「光速がゼロの幾何」が乗っている ── ルイス・キャロルの名を冠した、動くことのできない世界です。</p>
+
+  <h2><span class="n">01</span>本当の容疑者 ── 余次元が合っていない</h2>
+
+  <p>まず、番外編③の診断をもう一段深く読み直します。</p>
+
+  <p>ホログラフィーの標準形は AdS/CFT です。そこでは <strong>\(d+1\) 次元のバルク ↔ \(d\) 次元の境界</strong>。境界はバルクの<em>余次元1</em>にある。ところが ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:36%"></th><th>バルク</th><th>境界</th><th>余次元</th></tr>
+    <tr><td>AdS/CFT</td><td>AdS\(_{d+1}\)</td><td>CFT\(_d\)</td><td class="c ok">1</td></tr>
+    <tr><td>セレスチャル</td><td>4次元 平坦時空</td><td>2次元 天球 \(S^2\)</td><td class="c bad">2</td></tr>
+  </table>
+
+  <p><strong>セレスチャルだけ、余次元が2です。</strong> これは異例で、しかも偶然ではありません。メリン変換で何をしたか思い出してください。</p>
+
+  $$\tilde{\mathcal{M}}(\Delta,z,\bar z)=\int_0^\infty d\omega\;\omega^{\Delta-1}\,\mathcal{M}(\omega,z,\bar z)$$
+
+  <p>エネルギー \(\omega\) を<em>積分して消しています</em>。4次元の情報のうち1次元分を、変換で潰した。だから境界が2次元になった。</p>
+
+  <div class="keybox">
+    <div class="lbl">診断のやり直し</div>
+    <p style="margin:6px 0 0">超関数性は「変な CFT だから」ではない。<br><strong>入れ物が1次元足りないから、余った情報がデルタ関数として溢れている。</strong></p>
+  </div>
+
+  <p>ならば処方箋は明らかです ── <em>\(\omega\) を消さなければいい。</em></p>
+
+  <h2><span class="n">02</span>\(\omega\) を残す ── 境界は 3 次元になる</h2>
+
+  <p>メリン変換の代わりに、\(\omega\) をそのフーリエ共役である<strong>遅延時刻 \(u\)</strong> に移します。情報は捨てられません。</p>
+
+  <p>すると、演算子が住む場所はこうなります。</p>
+
+  $$\mathcal{O}(u,z,\bar z)\qquad\text{──}\qquad \mathscr{I}^+ \cong \mathbb{R}_u\times S^2$$
+
+  <p>光的無限遠 \(\mathscr{I}^+\) は、天球 \(S^2\) に \(u\) 方向を掛けた<strong>3次元</strong>の多様体です。天球はその「輪切り」でしかなかった。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th>セレスチャル</th><th>Carrollian</th></tr>
+    <tr><td>境界</td><td>天球 \(S^2\)</td><td><strong>\(\mathscr{I}\) 全体</strong></td></tr>
+    <tr><td>次元</td><td>2</td><td><strong>3</strong></td></tr>
+    <tr><td>余次元</td><td class="bad">2（異例）</td><td class="ok">1（標準）</td></tr>
+    <tr><td>\(\omega\) を</td><td>積分して消す</td><td><strong>\(u\) として残す</strong></td></tr>
+  </table>
+
+  <p>これで余次元が 1 に戻りました。あとは「3次元の境界に、どんな理論が乗るのか」です。<em>ここが奇妙で、面白いところです。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>\(\mathscr{I}\) の幾何 ── 計量が退化している</h2>
+
+  <p>\(\mathscr{I}^+\) に計量を入れてみます。ところが困ったことが起きます。</p>
+
+  <p>\(u\) 方向は<strong>ヌル</strong>です。光が走る方向なので、長さがゼロ。したがって \(\mathscr{I}\) の上の計量は ──</p>
+
+  $$ds^2\Big|_{\mathscr{I}}=\underbrace{0\cdot du^2}_{\text{時間方向の長さがゼロ}}+\;d\Omega^2$$
+
+  <p><strong>退化しています。</strong> 逆行列が存在しない。普通のリーマン幾何もローレンツ幾何も使えません。</p>
+
+  <p>ではこれは何なのか。名前がついています。</p>
+
+  <h3>Carroll 幾何 ── 光速をゼロにした世界</h3>
+
+  <p>ポアンカレ群には、<em>2つの極限</em>があります。どちらも群の縮約（Inönü–Wigner 縮約）です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">極限</th><th style="width:22%">得られる群</th><th>ブーストの形</th><th>絶対なのは</th></tr>
+    <tr><td>\(c\to\infty\)</td><td>ガリレイ群</td><td>\(x'=x-vt,\quad t'=t\)</td><td><strong>時間</strong></td></tr>
+    <tr><td>\(c\to 0\)</td><td><strong>Carroll 群</strong></td><td>\(t'=t-b\!\cdot\!x,\quad x'=x\)</td><td><strong>空間</strong></td></tr>
+  </table>
+
+  <p>きれいに<em>双対</em>です。ガリレイでは時間が絶対で空間が混ざる。Carroll ではその逆 ── <strong>空間が絶対で、時間のほうが混ざる</strong>。</p>
+
+  <p>名付けたのは Lévy-Leblond (1965)。ルイス・キャロル『鏡の国のアリス』の赤の女王から取っています ── <em>「同じ場所にとどまるだけで、力いっぱい走り続けなければならない」</em>。</p>
+
+  <p>なぜその引用なのか。図で見てください。</p>
+
+  <div class="fig">
+    <div class="cap">図：光速を変えると、光円錐がどう変わるか。スライダーを両端まで振ってみてください</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>光速 &nbsp;log₁₀ c = <span class="val" id="vc">0.00</span>
+        <input type="range" id="sc" min="-200" max="200" value="0">
+      </label>
+      <button id="bg">ガリレイ c→∞</button>
+      <button id="bl">ローレンツ c=1</button>
+      <button id="bc">Carroll c→0</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>\(c\to\infty\) では光円錐が<em>水平に開ききって</em>、同時刻面が絶対になります（ガリレイ）。逆に \(c\to0\) では ──</p>
+
+  <div class="keybox">
+    <div class="lbl">Carroll の国</div>
+    <p style="margin:6px 0 0">光円錐が<strong>時間軸に潰れます</strong>。到達できる場所が、いま自分がいる点だけになる。<br><em>どれだけ時間が経っても、どこにも行けない。</em></p>
+  </div>
+
+  <p>これが赤の女王の意味です。そして物理として重要な帰結が出ます ── <strong>Carroll 的な力学は「超局所的（ultra-local）」</strong>。信号が伝わらないので、空間の各点が<em>独立に</em>時間発展します。</p>
+
+  <h2><span class="n">04</span>そして BMS が、その正体だった</h2>
+
+  <p>ここで第4回に戻ります。超並進とは何だったか。</p>
+
+  $$u\;\longrightarrow\;u-f(\theta,\phi)$$
+
+  <p><strong>天球の各方向で、独立に \(u\) をずらす。</strong></p>
+
+  <p>読み直してください。これは<em>「空間の各点が独立に時間発展する」</em>そのものです。超局所的な時間並進 ── まさに Carroll 幾何が要求する形。</p>
+
+  <p>実際、厳密な同型が成り立ちます（Duval–Gibbons–Horvathy ほか）。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回の芯</div>
+    $$\text{BMS}_4\;\cong\;\text{3次元の共形 Carroll 群}$$
+    <p style="margin:8px 0 0">第4回で「平坦時空の対称性は無限次元だ」と驚いたもの、その正体は <strong>光速ゼロの共形群</strong>でした。無限次元なのは、超局所性のせい ── 各点が独立なので、点の数だけ生成子がある。</p>
+  </div>
+
+  <p>そして超関数性の話に戻ります。<strong>超局所的な理論では、離れた点の相関にデルタ関数が出るのは病理ではありません。</strong> 信号が伝わらないのだから、点どうしが繋がっていないのは当然です。</p>
+
+  <p>セレスチャルで「変なもの」に見えたデルタ関数は、Carrollian の言葉では<em>理論の基本的性質</em>になる。同じ数式が、正しい入れ物に置いた途端、異常ではなくなった。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>二つの枠組みは、対立していません</h2>
+
+  <p>ここで誤解を避けておきます。番外編③でやったセレスチャルの計算は、無駄になりません。</p>
+
+  <p>「Bridging Carrollian and Celestial Holography」(2022–23) が示したのは、両者が<strong>積分変換で結ばれている</strong>ということです。別の理論ではなく、<em>散乱振幅の基底の取り替え</em>。</p>
+
+  <div class="calc">
+    <span class="tag">関係</span>
+    $$\underbrace{\mathcal{O}(u,z,\bar z)}_{\text{Carrollian}}\;\xrightarrow[\;\;u\to\Delta\;\;]{\text{変換}}\;\underbrace{\mathcal{O}_\Delta(z,\bar z)}_{\text{セレスチャル}}$$
+    <p class="lbl">確かめられていること</p>
+    <p style="margin:8px 0 8px">Carrollian の演算子をセレスチャルの演算子に対応させると、<strong>Carrollian の Ward 恒等式が2次元セレスチャル CFT のそれを再現</strong>する。さらに Carrollian 側の Ward 恒等式は、<strong>BMS のフラックス収支則</strong>そのものになる。</p>
+  </div>
+
+  <p>つまり ── 片方が正しくて片方が間違い、ではありません。<em>Carrollian のほうが情報を捨てていない</em>、というだけです。セレスチャルは、そこから \(u\) を積分した「射影」。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>セレスチャル</th><th>Carrollian</th></tr>
+    <tr><td>使いやすさ</td><td class="ok">2次元 CFT の道具が使える</td><td>3次元、道具は発展途上</td></tr>
+    <tr><td>余次元</td><td class="bad">2</td><td class="ok">1</td></tr>
+    <tr><td>デルタ関数</td><td class="bad">異常に見える</td><td class="ok">超局所性として自然</td></tr>
+    <tr><td>対称性の正体</td><td>\(SL(2,\mathbb{C})\) が見える</td><td class="ok"><strong>BMS がそのまま</strong></td></tr>
+  </table>
+
+  <h2><span class="n">06</span>もう一つの朗報 ── \(w_{1+\infty}\)</h2>
+
+  <p>ここまで「足りない」話が続いたので、<strong>強い肯定的証拠</strong>を一つ出します。</p>
+
+  <p>第4回でソフト定理を扱いましたが、実は先頭項しか話していませんでした。無限の塔があります。</p>
+
+  $$\underbrace{q^{-1}}_{\text{超並進}},\quad\underbrace{q^{0}}_{\text{超回転}},\quad\underbrace{q^{1}}_{?},\quad\underbrace{q^{2}}_{?},\quad\cdots$$
+
+  <p>Strominger (2021) が示したのは ── <strong>正ヘリシティのソフトグラビトンの塔全体が、\(w_{1+\infty}\) の wedge 部分代数に基づく単一のカイラル2次元 Kac–Moody 対称性に組織化される</strong>。しかもソフト光子・グルーオンの塔も、その下で既約に変換します。</p>
+
+  <p>なぜこれが重要なのか。<strong>\(w_{1+\infty}\) は、この目的のために作られた代数ではありません。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">\(w_{1+\infty}\) が既に現れていた場所</th><th></th></tr>
+    <tr><td>2次元面の<strong>面積保存微分同相</strong></td><td>純粋な幾何</td></tr>
+    <tr><td><strong>自己双対重力</strong>の対称性</td><td>可解な重力のセクター</td></tr>
+    <tr><td>ツイスター理論</td><td>Penrose の綱領</td></tr>
+    <tr><td>2次元可解系</td><td>可積分性</td></tr>
+  </table>
+
+  <p>散乱振幅のソフト極限という、まったく別の入口から、<em>名前と表現論を持った既知の無限次元代数</em>が出てきた。番外編③で「中身が足りない」と書きましたが、これは逆向きの証拠 ── <strong>中身がある徴候</strong>です。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── どこまで確立しているか</span>
+    確立しているのは主に<strong>ツリーレベル・自己双対セクター</strong>です。自己双対重力は可解な特殊セクターであって、完全な重力ではありません。ループへの拡張、非自己双対への拡張は未解決。<br>「代数が出た」は「理論が構成できた」ではない ── 本シリーズの規律で言えば、これは<em>強い状況証拠</em>であって証明ではありません。
+  </div>
+
+  <h2><span class="n">07</span>それでも残っていること</h2>
+
+  <p>余次元は直りました。デルタ関数の意味も分かりました。強い代数的証拠も出た。では完成なのか。</p>
+
+  <p><strong>いいえ。核心の欠落は、そのまま残っています。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">まだ無いもの</div>
+    <p style="margin:6px 0 0"><strong>境界理論の、独立な定義。</strong></p>
+    <p style="margin:8px 0 0">AdS/CFT が強いのは、境界側の \(\mathcal{N}=4\) 超対称ヤン=ミルズが<em>重力とは無関係に定義された理論</em>で、両側を別々に計算して照合できるからでした。<br>Carrollian CFT には、まだその「独立な定義」がありません。作用も、格子も、他の構成法も無い。</p>
+  </div>
+
+  <p>探す対象が「変な2次元 CFT」から「3次元 Carrollian CFT」に変わったのは前進です。<em>探し場所が正しくなった。</em> でも見つかってはいない。</p>
+
+  <p>加えて、残っている技術的な穴を並べておきます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">残っているもの</th><th>状況</th></tr>
+    <tr><td><strong>質量のある粒子</strong></td><td>無質量なら綺麗に動くが、質量があると運動量空間の双曲面 \(H^3\) に住むので別扱いが要る。部分的</td></tr>
+    <tr><td><strong>ループと赤外発散</strong></td><td>ループ振幅は IR 発散するので、ドレスト状態の処方が要る。活発</td></tr>
+    <tr><td><strong>中心電荷</strong></td><td>応力テンソルはあるのに、中心電荷が何なのか（ゼロなのか）が不明</td></tr>
+    <tr><td><strong>AdS の平坦極限</strong></td><td>\(\ell\to\infty\) で導出する保守的ルート。極限が特異で、CFT の同定ができていない</td></tr>
+    <tr><td><strong>de Sitter</strong></td><td>依然として本丸。\(\Lambda>0\) は未解決</td></tr>
+  </table>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>セレスチャル CFT の余次元が 2 になってしまう理由を、変換の言葉で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">メリン変換 \(\int_0^\infty d\omega\,\omega^{\Delta-1}\) がエネルギー \(\omega\) を<strong>積分して消す</strong>から。4次元の情報のうち1次元分が潰れ、残った天球 \(S^2\) は2次元。\(\omega\) をフーリエ共役の \(u\) として残せば \(\mathscr{I}\cong\mathbb{R}_u\times S^2\) の3次元になり、余次元が1に戻る。</div></details>
+      </li>
+      <li>ガリレイ群と Carroll 群は、ポアンカレ群のどんな極限か。そして何が「絶対」になるか。
+        <details><summary>答えを見る</summary><div class="ans">どちらも群の縮約。\(c\to\infty\) がガリレイで、ブーストは \(x'=x-vt,\ t'=t\) ── <strong>時間が絶対</strong>。\(c\to0\) が Carroll で、\(t'=t-b\cdot x,\ x'=x\) ── <strong>空間が絶対</strong>。互いに双対な極限になっている。</div></details>
+      </li>
+      <li>Carroll 幾何で「何も動けない」のはなぜか。そしてそれが超並進とどう繋がるか。
+        <details><summary>答えを見る</summary><div class="ans">\(c\to0\) で光円錐が時間軸に潰れ、到達可能な領域が自分のいる点だけになるから。したがって信号が伝わらず、力学は<strong>超局所的</strong>（空間の各点が独立に時間発展）。<br>超並進 \(u\to u-f(\theta,\phi)\) は「天球の各方向で独立に時間をずらす」操作で、これはまさに超局所的な時間並進。だから BMS が共形 Carroll 群になる。</div></details>
+      </li>
+      <li>番外編③で見た \(\delta(z-\bar z)\) は、Carrollian の立場ではなぜ異常でないのか。
+        <details><summary>答えを見る</summary><div class="ans">超局所的な理論では離れた点どうしが力学的に繋がっていないので、相関がデルタ関数に台を持つのは<strong>理論の基本的性質</strong>。セレスチャルで「変」に見えたのは、入れ物（2次元）が本来の3次元より小さく、超局所性が異常として現れていたため。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>診断が間違っていた。</strong> 番外編③の超関数性は「変な CFT だから」ではなく、<em>入れ物が1次元足りないから</em>だった。メリン変換がエネルギーを積分して消していたので、余次元が 2 になっていた ── AdS/CFT の 1 に対して異例。</p>
+    <p><strong>\(\omega\) を \(u\) として残せば、境界は3次元になる。</strong> \(\mathscr{I}\cong\mathbb{R}_u\times S^2\)。余次元が 1 に戻る。天球はその輪切りでしかなかった。</p>
+    <p><strong>その3次元の境界は、光速ゼロの幾何を持つ。</strong> \(u\) 方向がヌルなので計量が退化し、Carroll 幾何になる。\(c\to0\) では光円錐が潰れ、どこにも行けない（赤の女王）。だから力学は<strong>超局所的</strong>。</p>
+    <p><strong>そして BMS の正体が分かった。</strong> \(\text{BMS}_4\cong\) 3次元の共形 Carroll 群。超並進が「各方向で独立に時間をずらす」操作なのは、超局所性そのもの。第4回で驚いた無限次元性は、点の数だけ生成子があるということだった。<em>そしてデルタ関数は、異常ではなく基本的性質になった。</em></p>
+    <p><strong>強い肯定的証拠も出ている。</strong> ソフト定理の無限の塔が \(w_{1+\infty}\) に組織化される ── 面積保存微分同相・自己双対重力・ツイスターに既に現れていた代数が、まったく別の入口から出てきた。ただしツリーレベル・自己双対セクターに限る。</p>
+    <p style="margin-bottom:0"><strong>それでも、核心は空いたまま。</strong> 境界理論の独立な定義がない。前進したのは<em>探し場所が正しくなった</em>ことで、見つかったわけではありません。</p>
+    <div class="next">
+      <span class="lbl">この先の回</span>
+      「係数を、作りにいく」── 第1回で位置を測った \(O(1)\) の壁へ、正面から。次元解析が出せない \(8\pi\) や \(1/4\) は、どこから来るのか。総当たりが2回とも空振りした理由（<em>係数を当てにいったから</em>）の、裏返しの回です。
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第5回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：\(\mathscr{I}\) の計量が退化していること、ガリレイ群と Carroll 群がポアンカレ群の \(c\to\infty\) / \(c\to0\) 縮約であること、Carroll 群の命名（Lévy-Leblond 1965）、BMS 群と3次元共形 Carroll 群の同型、Carrollian と celestial が積分変換で結ばれること（Donnay–Fiorucci–Herfray–Ruzziconi 2022、および Bridging 論文 2022–23）、Carrollian の Ward 恒等式が BMS フラックス収支則を再現すること、ソフトグラビトンの塔が \(w_{1+\infty}\) の wedge 部分代数をなすこと（Strominger 2021）。<br><strong>Carrollian ホログラフィーは進行中の研究綱領であり、境界理論の独立な構成はまだありません</strong>。\(w_{1+\infty}\) の結果は主にツリーレベル・自己双対セクターで確立したもので、完全な重力・ループへの拡張は未解決です。図は光円錐の開き方を示す模式で、縮約の極限は図の両端でのみ厳密に成立します。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①物理は、もっと簡単に書けないのか</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②「ct = 一定」は、どこまで通用するか</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③まだ、CFT ではない</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図のスライダーを左端まで振ると、Carroll の国が見られます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sc=document.getElementById('sc'),
+      vc=document.getElementById('vc'), ro=document.getElementById('ro');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var lg=parseInt(sc.value,10)/100; vc.textContent=lg.toFixed(2);
+    var c=Math.pow(10,lg);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=54, R=w-16, T=24, B=h-38;
+    var cx=(L+R)/2, cy=(T+B)/2;
+    var SX=(R-L)/2*0.92, SY=(B-T)/2*0.92;
+
+    // 軸
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-4;g<=4;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*SX/4,T); ctx.lineTo(cx+g*SX/4,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,cy+g*SY/4); ctx.lineTo(R,cy+g*SY/4); ctx.stroke();
+    }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,cy); ctx.lineTo(R,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,T); ctx.lineTo(cx,B); ctx.stroke();
+
+    // 光円錐 x = ±c t （画面では t 上向き）
+    // 縦 1 単位あたり横に c 単位進む。画面上では傾きを SX/SY でスケール
+    var slope = c*SX/SY;             // 画面上の「1 縦あたりの横」
+    var half  = Math.min(slope*(SY), SX*40);
+
+    // 未来円錐の内部を塗る
+    ctx.fillStyle='rgba(31,111,116,.13)';
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx-half, cy-SY); ctx.lineTo(cx+half, cy-SY); ctx.closePath(); ctx.fill();
+    // 過去
+    ctx.fillStyle='rgba(76,84,92,.09)';
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx-half, cy+SY); ctx.lineTo(cx+half, cy+SY); ctx.closePath(); ctx.fill();
+
+    // 円錐の境界線
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    ctx.moveTo(cx-half, cy-SY); ctx.lineTo(cx,cy); ctx.lineTo(cx+half, cy-SY);
+    ctx.moveTo(cx-half, cy+SY); ctx.lineTo(cx,cy); ctx.lineTo(cx+half, cy+SY);
+    ctx.stroke();
+
+    // 原点
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,6.2832); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('空間 x', (L+R)/2, B+20);
+    ctx.save(); ctx.translate(20,(T+B)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('時間 t', 0, 0); ctx.restore();
+    ctx.textAlign='left'; ctx.fillStyle='#1f6f74';
+    ctx.font='600 12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.fillText('未来に到達できる領域', L+6, T+16);
+
+    var msg;
+    if(lg>1.2){
+      msg='<b>ガリレイの世界（c→∞）。</b>光円錐が水平に開ききり、'
+        +'<b>どこへでも一瞬で行けます</b>。同時刻面が絶対になり、時間が全員共通の量になる。';
+    }else if(lg<-1.2){
+      msg='<b>Carroll の国（c→0）。</b>光円錐が時間軸に潰れました ── '
+        +'<b>どれだけ時間が経っても、いまいる点から動けません</b>。'
+        +'信号が伝わらないので、空間の各点が独立に時間発展する（<b>超局所性</b>）。'
+        +'これが \\(\\mathscr{I}\\) の幾何です。';
+    }else{
+      msg='<b>ローレンツの世界（c ≈ 1）。</b>おなじみの光円錐。'
+        +'到達できる領域は、円錐の内側だけに限られています。'
+        +'｜ c = <b>'+c.toFixed(3)+'</b>';
+    }
+    ro.innerHTML=msg;
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  sc.addEventListener('input', draw);
+  document.getElementById('bg').addEventListener('click', function(){ sc.value=200; draw(); });
+  document.getElementById('bl').addEventListener('click', function(){ sc.value=0; draw(); });
+  document.getElementById('bc').addEventListener('click', function(){ sc.value=-200; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
