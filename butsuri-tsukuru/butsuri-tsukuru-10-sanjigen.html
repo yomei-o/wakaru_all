@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3次元では、もう証明されている ── 物理を作る 第10回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 10 回 ／ 3次元では、もう証明されている</span></div>
+  <p class="eyebrow">前回の予想は、次元を一つ落とせば定理でした ── 証明の型と、4次元で欠けている3つ</p>
+  <h1>3次元では、もう証明されている
+    <span class="sub">前回、予想を一文で書きました ── <em>面積 \(A\) のヌル面に乗る Carrollian 理論は \(e^{A/4G}\) 個の状態を持つ</em>。<br>では、どうやったら証明できるのか。調べると、<strong>証明の型は既にあり、3次元では終わっていました</strong>。<br>しかも決定的なのは、その型が<em>微視状態を一つも同定せずに</em>エントロピーを出すこと。<br>つまり第8回で行き止まりだった「理論の定義がない」は、この問題では<strong>障害にならないかもしれません</strong>。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第8回・第9回、対数、分割数（本文で作ります）</span>
+    <span>この回の芯：BMS₃ で \(c_M=3/G\)</span>
+  </div>
+
+  <p class="lead">第9回で出した一文は、本シリーズの規律6に従って「候補であって、解ではない」と書きました。ではその候補は、どうすれば解になるのか。<em>証明の道筋があるのか、それとも見当もつかないのか。</em><br>これは大きな違いです。第8回で未解決を三分類したとき、「本質的」の箱に入れたのは<strong>何が足りないのかも分かっていない</strong>という意味でした。<br>調べ直したら、そうではありませんでした。<strong>型はあり、3次元では成功済みで、4次元で欠けているものは3つに名指しできます。</strong> しかもそのうち一つは、第8回で既に「未解決」と書いていたものでした。</p>
+
+  <h2><span class="n">01</span>証明の型 ── Strominger の BTZ</h2>
+
+  <p>1998年、Strominger は3次元のブラックホール（BTZ）のエントロピーを、\(1/4\) ごと導出しました。使ったのは3段だけです。</p>
+
+  <div class="keybox">
+    <div class="lbl">型</div>
+    $$\underbrace{\text{漸近対称性}}_{\text{Brown–Henneaux}}\;\longrightarrow\;\underbrace{c=\frac{3\ell}{2G}}_{\text{中心電荷}}\;\longrightarrow\;\underbrace{S=2\pi\sqrt{\frac{c\,L_0}{6}}}_{\text{Cardy の公式}}\;=\;\frac{A}{4G}$$
+  </div>
+
+  <p>ここが決定的です。<strong>微視状態を一つも同定していません。</strong></p>
+
+  <p>「ブラックホールの中に、これこれの状態が \(e^{A/4G}\) 個ある」とは言っていない。<em>何を数えたのか知らないまま</em>、正しい数が出てきます。</p>
+
+  <p>なぜそんなことが可能なのか。Cardy の公式が、対称性だけから<strong>状態密度の漸近形</strong>を決めてしまうからです。</p>
+
+  <h2><span class="n">02</span>Cardy の公式を、実際に確かめる</h2>
+
+  <p>「対称性だけから状態数が出る」は、信じにくい主張です。確かめられる例でやってみます。</p>
+
+  <p>いちばん簡単な2次元 CFT ── 自由ボソン1個（\(c=1\)）を取ります。この理論のエネルギー準位 \(n\) の状態数は、<strong>整数 \(n\) の分割数 \(p(n)\)</strong> になります。\(n\) をいくつかの正整数の和に分ける方法の数。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 微視状態を、本当に数える</span>
+    <p style="margin:8px 0 0">\(p(4)=5\)：&nbsp; \(4\)、\(3{+}1\)、\(2{+}2\)、\(2{+}1{+}1\)、\(1{+}1{+}1{+}1\)</p>
+    <p class="lbl">これは漸化式で正確に計算できます</p>
+    <p style="margin:8px 0 8px">\(p(100)=190{,}569{,}292\)。<strong>一つ残らず数え上げられる</strong>ので、Cardy の予言と突き合わせられます。</p>
+  </div>
+
+  <p>いっぽう Cardy の公式は、理論の中身を一切見ずに \(c=1\) だけから ──</p>
+
+  $$S=\log p(n)\;\simeq\;2\pi\sqrt{\frac{c\,n}{6}}\qquad(c=1)$$
+
+  <p>数えた答えと、対称性だけの答え。合うでしょうか。</p>
+
+  <div class="fig">
+    <div class="cap">図：分割数を実際に数え上げた \(\log p(n)\) と、Cardy の公式の比較。あなたのブラウザが漸化式で \(p(n)\) を計算しています</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>表示する範囲 &nbsp;n ≤ <span class="val" id="vn">2000</span>
+        <input type="range" id="sn" min="50" max="2000" value="2000">
+      </label>
+      <button id="b1">n ≤ 100</button>
+      <button id="b2">n ≤ 2000</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#1f6f74"></span>実際に数えた \(\log p(n)\)</span>
+      <span><span class="swatch" style="background:#a83a22"></span>Cardy の先頭項</span>
+      <span><span class="swatch" style="background:#8a6d1f"></span>Cardy ＋ 対数補正</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>先頭項だけだと、\(n=100\) では比が 0.74 ── ずれています。Cardy は<em>漸近公式</em>なので当然です。ところが対数補正（Hardy–Ramanujan）まで入れると ──</p>
+
+  <div class="lab">
+    <span class="tag">数え上げ vs 対称性だけの公式</span>
+<pre>   n      log p(n)    Cardy 先頭項   比      Cardy+対数補正    比
+   50       12.227       18.138   0.674       12.290   <span class="st">0.99484</span>
+  100       19.066       25.651   0.743       19.110   <span class="st">0.99766</span>
+  500       49.187       57.357   0.858       49.207   <span class="st">0.99960</span>
+ 1000       72.258       81.116   0.891       72.272   <span class="st">0.99981</span>
+ 2000      105.168      114.715   0.917      105.178   <span class="hi">0.99991</span></pre>
+  </div>
+
+  <p><strong>0.99991。</strong> 一つ一つ数え上げた答えと、\(c=1\) という数だけから出した公式が、ここまで一致します。</p>
+
+  <p>これが Strominger のやったことです。BTZ では \(c=3\ell/2G\) を漸近対称性から取り、Cardy に入れた。<em>ブラックホールの中身を一度も見ずに。</em></p>
+
+  <h2><span class="n">03</span>なぜ、中身を見なくてよいのか</h2>
+
+  <p>仕掛けは<strong>モジュラー不変性</strong>です。</p>
+
+  <p>2次元 CFT をトーラスの上に置くと、分配関数はトーラスの形 \(\tau\) の関数になります。ところがトーラスには、二つのサイクルを入れ替えても同じ形になるという対称性がある ── \(\tau\to-1/\tau\)。</p>
+
+  <p>そしてこの入れ替えは、<strong>高温と低温を交換します</strong>。</p>
+
+  <div class="keybox">
+    <div class="lbl">Cardy の仕掛け</div>
+    <p style="margin:6px 0 0">低温側では、分配関数は<strong>基底状態だけ</strong>で決まる ── そしてそのエネルギーは \(-c/24\)、つまり<em>中心電荷ひとつ</em>。</p>
+    <p style="margin:8px 0 0">モジュラー不変性がそれを高温側に翻訳する。だから<strong>高エネルギーの状態密度が、\(c\) だけで決まってしまう。</strong></p>
+  </div>
+
+  <p>「一番簡単な端（基底状態）を、対称性で一番難しい端（高励起）に運ぶ」── これが Cardy の正体です。中身を知らなくてよいのは、そのため。</p>
+
+  <p><em>そしてここに、後で効いてくる前提が3つ隠れています。</em> 「基底状態だけで決まる」と言うためには、スペクトルが<strong>離散</strong>で、<strong>ギャップ</strong>があり、<strong>ユニタリ</strong>でなければなりません。06 節に戻ってきます。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>そして3次元の平坦時空では、もう終わっています</h2>
+
+  <p>ここが、この回でいちばんの発見でした。</p>
+
+  <p>Strominger の BTZ は AdS の話です。では<strong>平坦時空</strong>ではどうか。3次元の漸近平坦時空の漸近対称性は BMS₃ ── 第5回で見たとおり、共形 Carroll 代数です。</p>
+
+  <p>やることは同じでした。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">段</th><th>3次元平坦時空では</th></tr>
+    <tr><td><strong>漸近対称性</strong></td><td>BMS₃（＝2次元共形 Carroll）</td></tr>
+    <tr><td><strong>中心電荷</strong></td><td>AdS₃ 代数の縮約から <strong>\(c_M=3/G\)</strong>（Barnich–Compère 中心電荷）</td></tr>
+    <tr><td><strong>Cardy 型の公式</strong></td><td>BMS-Cardy： \(S=2\pi L_0\sqrt{c_M/2M_0}\)</td></tr>
+    <tr><td><strong>結果</strong></td><td class="ok">3次元平坦宇宙論の<strong>地平面エントロピーを再現</strong></td></tr>
+  </table>
+
+  <p>Barnich (2012)、および Bagchi–Detournay–Fareghbal–Simón。<strong>第9回で予想として書いた一文の、3次元版は定理です。</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">つまり</div>
+    <p style="margin:6px 0 0">「面積 \(A\) のヌル面に乗る Carrollian 理論は \(e^{A/4G}\) 個の状態を持つ」<br>── これは<strong>3次元では、既に示されている</strong>。</p>
+  </div>
+
+  <p>予想の身分が変わります。「見当もつかない」ではなく、<em>「一つ下の次元では成立が確認されている主張の、次元を上げた版」</em>。</p>
+
+  <h2><span class="n">05</span>4次元で欠けているのは、3つ</h2>
+
+  <p>3次元の成功を分解すると、4次元で何が要るかがそのまま出ます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:28%">要るもの</th><th style="width:26%">3次元では</th><th>4次元では</th></tr>
+    <tr><td><strong>① 中心電荷</strong></td><td class="ok">\(c_M=3/G\)</td><td class="bad">不明</td></tr>
+    <tr><td><strong>② モジュラー不変性の類似物</strong></td><td class="ok">BMS₃ 指標で確立</td><td class="bad">未解決（\(\mathbb{R}_u\times S^2\) 上で何が対応するか）</td></tr>
+    <tr><td><strong>③ Cardy 型の状態密度公式</strong></td><td class="ok">BMS-Cardy あり</td><td class="bad">未解決</td></tr>
+  </table>
+
+  <p>そして ① について、重要なことに気づきます。</p>
+
+  <div class="aside">
+    <span class="tag">第8回の未解決が、ここで正体を現します</span>
+    第8回の「無いものリスト」に、こう書きました ── <em>「セレスチャル中心電荷：応力テンソルは同定できているのに、中心電荷が何なのか（ゼロなのか）が不明。2次元 CFT なら最初に決まる量が、決まらない」</em>。<br>あれは細かい技術的な穴ではありませんでした。<strong>Cardy 経路の、最初の入力そのもの</strong>です。証明に必要な最初の数が欠けている。<br>第8回で「選択の問題」ではなく上の箱に入れるべきだった、ということになります。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>順番についての、重要な帰結</h2>
+
+  <p>ここで、01 節の「微視状態を同定していない」が効いてきます。</p>
+
+  <p>第8回で、この路線の核心的な欠落を「境界理論の独立な定義がない」と診断しました。作用も、構成的定義も、ブートストラップも、同定もできていない、と。</p>
+
+  <p>ところが Cardy 経路は、<strong>理論が何であるかを知らなくても走ります</strong>。要るのは対称性と中心電荷とモジュラー類似物だけで、ヒルベルト空間の中身は要らない。</p>
+
+  <div class="keybox">
+    <div class="lbl">順番</div>
+    <p style="margin:6px 0 0">第8回の「定義がない」は、<strong>エントロピー問題のブロッカーではないかもしれない。</strong></p>
+    <p style="margin:8px 0 0">定義が先に必要だと思っていたが、逆かもしれない ── <em>エントロピーのほうが先に落ちる可能性がある。</em></p>
+  </div>
+
+  <p>実際そうでした。BTZ のエントロピーが Cardy で出たのは 1998年。それは <em>「BTZ の微視状態とは何か」を誰も知らないまま</em>受け入れられました。順番として、先に落ちたのはエントロピーのほうです。</p>
+
+  <h2><span class="n">07</span>ただし、障害も同じ場所にあります</h2>
+
+  <p>03 節の最後に隠しておいた前提を、回収します。</p>
+
+  <p>Cardy の導出は無条件ではありません。「低温側は基底状態だけで決まる」と言うために、<strong>離散スペクトル・ギャップ・ユニタリ性</strong>を仮定しています。</p>
+
+  <p>そして第8回で確認したのは、まさにこれでした。</p>
+
+  <table class="tbl">
+    <tr><th style="width:38%">Cardy が仮定するもの</th><th>セレスチャル／Carrollian CFT では</th></tr>
+    <tr><td>スペクトルが<strong>離散</strong></td><td class="bad">連続（主系列 \(\Delta\in1+i\mathbb{R}\)）</td></tr>
+    <tr><td><strong>ギャップ</strong>がある</td><td class="bad">連続なので、基底状態が孤立しない</td></tr>
+    <tr><td><strong>ユニタリ性</strong>による正値性</td><td class="bad">通常の形では成り立たない</td></tr>
+  </table>
+
+  <p><strong>ブートストラップが効かない理由と、まったく同じです。</strong> 第8回で「道具の前提が崩れる」と書いたその道具の中に、Cardy も入っていた。</p>
+
+  <p>3次元でうまくいったのは、BMS₃ に対してモジュラー不変性の類似物が実際に見つかったからです。4次元の Carrollian で同じものが立つかは、まだ誰も知りません。</p>
+
+  <h2><span class="n">08</span>で、何をやるか</h2>
+
+  <p>本シリーズの規律2は「陽性対照を先に取る」でした。それに従うと、順番はこうなります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:12%">手順</th><th>やること</th></tr>
+    <tr><td><strong>1</strong></td><td><strong>陽性対照。</strong> まず3次元の結果を、自分の道具で再現する。BMS₃ の \(c_M=3/G\) と BMS-Cardy から、平坦宇宙論の地平面エントロピーを出す。<em>ここで合わなければ道具が壊れている</em></td></tr>
+    <tr><td><strong>2</strong></td><td>4次元の中心電荷を計算する。3次元共形 Carroll 代数の中心拡大 ── Brown–Henneaux の \(3\ell/2G\)、BMS₃ の \(3/G\) に相当するもの</td></tr>
+    <tr><td><strong>3</strong></td><td>\(\mathbb{R}_u\times S^2\) 上でモジュラー類似物を探す。連続スペクトルのままで何が言えるか</td></tr>
+    <tr><td><strong>4</strong></td><td>状態密度を出して \(A/4G\) と照合する</td></tr>
+  </table>
+
+  <p>手順1が一番大事です。第1回で \(E_h\) を掘り当ててから未知に向けたのと、同じ作法。<em>答えが分かっている場所で機械を検証してから、分からない場所へ持っていく。</em></p>
+
+  <h2><span class="n">09</span>「証明」には、強さの段階があります</h2>
+
+  <p>最後に、目標の水準をはっきりさせておきます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">方法</th><th style="width:30%">得られるもの</th><th>例</th></tr>
+    <tr><td>ユークリッド経路積分</td><td>\(A/4G\) は出るが、<strong>何を数えたか分からない</strong></td><td>Gibbons–Hawking（1977）</td></tr>
+    <tr><td class="ok"><strong>Cardy 型</strong></td><td>\(A/4G\) が出る。微視状態は同定しない</td><td>BTZ（1998）、BMS₃（2012）</td></tr>
+    <tr><td>明示的な数え上げ</td><td>状態そのものを列挙</td><td>Strominger–Vafa（1996）</td></tr>
+  </table>
+
+  <p>第9回の予想に対する現実的な目標は<strong>真ん中</strong>です。BTZ がその水準で受け入れられているので、同じ水準に到達すれば証明として通ります。</p>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>\(p(4)=5\) を手で確かめよ。そして \(p(5)\) を求めよ。
+        <details><summary>答えを見る</summary><div class="ans">\(4\)、\(3{+}1\)、\(2{+}2\)、\(2{+}1{+}1\)、\(1^4\) で 5 通り。<br>\(p(5)=7\)：\(5\)、\(4{+}1\)、\(3{+}2\)、\(3{+}1{+}1\)、\(2{+}2{+}1\)、\(2{+}1{+}1{+}1\)、\(1^5\)。</div></details>
+      </li>
+      <li>Cardy の公式が「中身を見なくてよい」のはなぜか。仕掛けを一行で。
+        <details><summary>答えを見る</summary><div class="ans">モジュラー不変性 \(\tau\to-1/\tau\) が<strong>高温と低温を交換</strong>するから。低温側は基底状態（エネルギー \(-c/24\)）だけで決まるので、その一つの数が高温側の状態密度に翻訳される。<em>一番簡単な端を、対称性で一番難しい端に運んでいる。</em></div></details>
+      </li>
+      <li>Cardy の導出が Carrollian CFT にそのまま使えない理由を三つ挙げよ。
+        <details><summary>答えを見る</summary><div class="ans">(1) スペクトルが連続（主系列 \(\Delta\in1+i\mathbb{R}\)）で離散でない。(2) 連続なのでギャップがなく「基底状態だけで決まる」が言えない。(3) 通常の形のユニタリ性・正値性が成り立たない。<strong>第8回でブートストラップが効かない理由と同じ。</strong></div></details>
+      </li>
+      <li>「境界理論の独立な定義がない」ことが、エントロピー問題では障害にならないかもしれないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">Cardy 経路は<strong>微視状態を同定しない</strong>から。要るのは対称性・中心電荷・モジュラー類似物だけで、ヒルベルト空間の中身は不要。実際 BTZ のエントロピーは 1998年に導出されたが、「BTZ の微視状態とは何か」は当時も今も未解決のまま。<em>順番として、エントロピーのほうが先に落ちうる。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>証明の型は、既にある。</strong> 漸近対称性 → 中心電荷 → Cardy 型の公式 → \(A/4G\)。Strominger が 1998年に BTZ でやった手順で、<em>微視状態を一つも同定していない</em>。</p>
+    <p><strong>そして Cardy は本当に効く。</strong> 自由ボソン（\(c=1\)）の状態数は分割数 \(p(n)\) で、一つ残らず数えられる。数えた \(\log p(2000)=105.168\) と、\(c=1\) だけから出した公式（対数補正込み）\(105.178\) ── <strong>比 0.99991</strong>。</p>
+    <p><strong>3次元の平坦時空では、もう終わっている。</strong> BMS₃ の中心電荷 \(c_M=3/G\) と BMS-Cardy 公式が、3次元平坦宇宙論の地平面エントロピーを再現する（Barnich 2012 ほか）。<em>第9回の予想の3次元版は定理。</em></p>
+    <p><strong>4次元で欠けているのは3つ。</strong> ① 中心電荷 ② モジュラー不変性の類似物 ③ Cardy 型の状態密度公式。そして ① は第8回で「セレスチャル中心電荷が不明」と書いたもの ── <em>細かい穴ではなく、証明の最初の入力だった。</em></p>
+    <p><strong>順番が変わるかもしれない。</strong> Cardy 経路は理論の定義を要求しないので、第8回で核心の欠落とした「独立な定義がない」は、エントロピー問題では障害にならない可能性がある。BTZ も、微視状態が分からないまま先にエントロピーが落ちた。</p>
+    <p style="margin-bottom:0"><strong>ただし障害も同じ場所にある。</strong> Cardy は離散スペクトル・ギャップ・ユニタリ性を仮定し、Carrollian CFT はその三つを全部破る ── ブートストラップが効かないのとまったく同じ理由。3次元で通ったのは BMS₃ のモジュラー類似物が見つかったからで、4次元で立つかは未解決です。</p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第10回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：Brown–Henneaux の中心電荷 \(c=3\ell/2G\)、Cardy の公式とそのモジュラー不変性からの導出、Strominger による BTZ エントロピーの導出（1998）、自由ボソンの状態数が分割数であることと Hardy–Ramanujan の漸近形、BMS₃ の Barnich–Compère 中心電荷 \(c_M=3/G\) と BMS-Cardy 公式、およびそれによる3次元平坦宇宙論の地平面エントロピーの再現（Barnich 2012、Bagchi–Detournay–Fareghbal–Simón）。<br><strong>いっぽう4次元での中心電荷、モジュラー不変性の類似物、Cardy 型の状態密度公式はいずれも未解決です</strong>。したがって第9回の予想は、この回でも証明されていません。「定義がなくてもエントロピーが先に落ちうる」という見通しも、3次元の前例に基づく推測であって保証ではありません。図の \(p(n)\) はブラウザ上で漸化式により厳密に計算していますが、倍精度の範囲で扱える \(n\) に限っています。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">第9回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、数え上げと公式が一致していくのを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'),
+      vn=document.getElementById('vn'), ro=document.getElementById('ro');
+
+  // 分割数 p(n) を漸化式で厳密に計算（自由ボソン c=1 の状態数）
+  var NMAX=2000, P=new Float64Array(NMAX+1); P[0]=1;
+  for(var k=1;k<=NMAX;k++) for(var n=k;n<=NMAX;n++) P[n]+=P[n-k];
+  var LOGP=new Float64Array(NMAX+1);
+  for(var i=1;i<=NMAX;i++) LOGP[i]=Math.log(P[i]);
+
+  function cardy(n){ return 2*Math.PI*Math.sqrt(n/6); }                      // c=1 の先頭項
+  function cardyHR(n){ return Math.PI*Math.sqrt(2*n/3)-Math.log(4*n*Math.sqrt(3)); } // ＋対数補正
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var NM=parseInt(sn.value,10); vn.textContent=NM;
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=52,R=w-16,T=24,B=h-42;
+    var ymax=cardy(NM)*1.06;
+    function X(n){ return L+(R-L)*n/NM; }
+    function Y(v){ return B-(B-T)*v/ymax; }
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){ var yy=T+(B-T)*g/4; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke(); }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.1;
+    ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+
+    function curve(fn,col,wid,dash){
+      ctx.strokeStyle=col; ctx.lineWidth=wid;
+      if(dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for(var n=1;n<=NM;n++){ var px=X(n), py=Y(fn(n)); if(n===1) ctx.moveTo(px,py); else ctx.lineTo(px,py); }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    curve(function(n){return cardy(n);},      '#a83a22', 2.0, [6,4]);
+    curve(function(n){return cardyHR(n);},    '#8a6d1f', 2.0, null);
+    curve(function(n){return LOGP[n];},       '#1f6f74', 2.6, null);
+
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center';
+    for(var t=0;t<=4;t++){ var nn=Math.round(NM*t/4); ctx.fillText(nn, X(nn), B+16); }
+    ctx.fillText('エネルギー準位 n', (L+R)/2, B+34);
+    ctx.save(); ctx.translate(18,(T+B)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('log（状態数）', 0, 0); ctx.restore();
+
+    var Lp=LOGP[NM], C=cardy(NM), H=cardyHR(NM);
+    ro.innerHTML='n = <b>'+NM+'</b> で ｜ 数え上げ log p(n) = <b>'+Lp.toFixed(3)+'</b> ｜ '
+      +'Cardy 先頭項 '+C.toFixed(3)+'（比 '+(Lp/C).toFixed(3)+'） ｜ '
+      +'<b>Cardy ＋ 対数補正 '+H.toFixed(3)+'（比 '+(Lp/H).toFixed(5)+'）</b>'
+      +(NM>=500 ? '　── 一つ一つ数えた答えと、c = 1 という数だけから出した公式が一致しています。' : '　── n を大きくしてください。');
+  }
+
+  sn.addEventListener('input', draw);
+  document.getElementById('b1').addEventListener('click', function(){ sn.value=100; draw(); });
+  document.getElementById('b2').addEventListener('click', function(){ sn.value=2000; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

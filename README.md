@@ -34,6 +34,20 @@
 
 （フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
+## 🔧 姉妹シリーズ「物理を作る」
+
+「わかる」が**既知の物理を解説する**シリーズなのに対し、こちらは立場が逆になります ── 空白に対して**道具を作り、走らせ、出た結果をそのまま読む**。うまくいかなかった回も、うまくいかなかったまま載せます。主役は結論ではなく、作業のほうです。
+
+背骨は一文 ── **物理を作るとは、予想することではなく、予想が死ぬ条件を先に作ることである。**
+
+| シリーズ | 内容 | 読む（公開サイト）|
+|---|---|---|
+| **物理を作る** | 無次元量を16万本総当たりして偶然しか出ないことを測る（p=0.67）→ 時空を格子にすると18桁のファインチューニングが出る → 舞台は平坦でよい（等価原理が結論として出る）→ 重力波の記憶効果と BMS の無限次元対称性 → 境界は3次元だった（光速ゼロの Carroll 幾何）→ ソフト定理の塔が \(w_{1+\infty}\) をなす → 地平面も Carroll（膜パラダイムの出自）→ 何が無いのかを仕様として詰める → 二つの空白は一つだったのか → 3次元では、もう証明されている（本編10話＋番外3話・進行中）| [開く](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html) |
+
+各話に**動く図**つき。探索プログラムは純 C++・依存なし（[kuuhaku_cpp](https://github.com/yomei-o/kuuhaku_cpp)）。負の結果も、負のまま載せています。
+
+（フォルダ名：`butsuri-tsukuru/`）
+
 ## 🌐 English editions（英語版）
 
 英語版を各シリーズごとに `*-en/` フォルダで公開しています。An English translation of every series is available.

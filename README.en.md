@@ -37,6 +37,16 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 The Japanese originals live in sibling folders and are listed in the [Japanese README](README.md). Quick links: [Fields](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) · [Relativity](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) · [Quantum](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) · [Renormalization](https://yomei-o.github.io/wakaru_all/wakaru-kurikomi/index.html) · [Temperature](https://yomei-o.github.io/wakaru_all/wakaru-ondo/index.html) · [Tunneling](https://yomei-o.github.io/wakaru_all/wakaru-surinuke/index.html) · [Refraction](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu/index.html) · [Cosmology](https://yomei-o.github.io/wakaru_all/wakaru/index.html) · [Force](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) · [Mass](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) · [Universe-as-Computer](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki/uchu-keisanki-index.html) · [Learning](https://yomei-o.github.io/wakaru_all/wakaru_learn/index.html) · [UNIX](https://yomei-o.github.io/wakaru_all/wakaru-unix/index.html).
 
+## 🔧 Sister series: *Making Physics* (Japanese only)
+
+Where the "Wakaru" series **explains** known physics, this one flips the stance: it **builds a tool, runs it, and reads the result as it comes** — including the runs that failed. The subject is the work itself, not the conclusion.
+
+Spine, in one line: *making physics is not about predicting, but about deciding in advance how a prediction would die.*
+
+10 main episodes + 3 bonus, in progress. Every episode carries an interactive figure. **Japanese only for now.**
+
+➡ [butsuri-tsukuru/](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html)
+
 ## How to read
 Start from the contents page of the **published site** above and go to each episode. Every individual HTML file just works when opened in a browser (the only external dependency is the MathJax CDN). To print, use each page's "Print → Save as PDF."
 
