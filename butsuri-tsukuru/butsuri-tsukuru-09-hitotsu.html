@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二つの空白は、一つだったのか ── 物理を作る 第9回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る</span><span class="ep">第 9 回 ／ 二つの空白は、一つだったのか</span></div>
+  <p class="eyebrow">第1回で総当たりの出発点に置いた \(10^{-122}\) が、状態数として戻ってきます</p>
+  <h1>二つの空白は、一つだったのか
+    <span class="sub">前回、本質的な未解決が2つ残りました ── <em>地平面の状態数</em>と、<em>de Sitter</em>。<br>ところがこの2つ、<strong>同じ問いである可能性があります</strong>。決め手は単純で、<br>de Sitter の宇宙論的地平面も<em>ヌル超曲面</em>だから。<br>そして正しければ、宇宙のヒルベルト空間の次元が一つの数として出ます ── \(10^{9.76\times10^{121}}\)。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：第7回・第8回、対数目盛りの気分</span>
+    <span>この回の芯：\(S_{\rm dS}=2.25\times10^{122}\)</span>
+  </div>
+
+  <p class="lead">第8回で、未解決の一覧を三種類に分けました。技術的なもの、選択の問題、そして<strong>本質的なもの</strong>。最後の箱に残ったのは2つだけでした ── 「地平面の Carrollian 理論の状態数は \(e^{A/4G}\) を与えるか」と「\(\Lambda>0\) のホログラフィーは何か」。<br>この回で扱うのは、その2つが<em>別の問題なのか</em>という問いです。結論から言うと、同じ問いに見える理由がはっきりあり、同じだった場合の答えは<strong>一文で書けます</strong>。<br>ただし、同じでない可能性も3つあります。そして分野自体が、この点で二派に割れています。</p>
+
+  <h2><span class="n">01</span>決め手 ── de Sitter の地平面も、ヌル面</h2>
+
+  <p>第7回で確立したことを思い出してください。</p>
+
+  <p style="text-align:center;font-size:18px;margin:22px 0"><strong>ヌル超曲面 \(\Longrightarrow\) 計量が退化 \(\Longrightarrow\) Carroll 多様体</strong></p>
+
+  <p>この議論はヌル性しか使っていません。そして <strong>de Sitter 空間の宇宙論的地平面も、ヌル超曲面です。</strong> 静的パッチの果て、観測者が原理的に情報を受け取れなくなる面。</p>
+
+  <p>さらに Gibbons–Hawking (1977) が示したとおり、この面は温度とエントロピーを持ちます。</p>
+
+  <div class="keybox">
+    <div class="lbl">Gibbons–Hawking</div>
+    $$T=\frac{\hbar H}{2\pi k_B},\qquad S=\frac{A}{4G}$$
+    <p style="margin:8px 0 0"><strong>ブラックホールと、まったく同じ式です。</strong></p>
+  </div>
+
+  <p>つまり第7回で「宇宙には Carroll 面が2枚ある」と書きましたが ── <em>3枚でした</em>。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">ヌル面</th><th style="width:22%">面積</th><th>そこに理論が乗れば</th></tr>
+    <tr><td>\(\mathscr{I}\)（光的無限遠）</td><td>無限</td><td>平坦時空のホログラフィー</td></tr>
+    <tr><td>ブラックホール地平面</td><td>有限</td><td>ブラックホールのエントロピー</td></tr>
+    <tr><td><strong>de Sitter 地平面</strong></td><td>有限</td><td><strong>宇宙全体のホログラフィー</strong></td></tr>
+  </table>
+
+  <p>そして、第8回で残った2つの空白は<em>この表の下2行</em>です。同じ種類の面についての、同じ種類の問い。</p>
+
+  <h2><span class="n">02</span>もし同じなら、答えは一文で書けます</h2>
+
+  <div class="keybox">
+    <div class="lbl">仮に、同じ結論だとすると</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:19px"><strong>面積 \(A\) のヌル面に乗る Carrollian 理論は、<br>\(e^{A/4G}\) 個の状態を持つ。</strong></p>
+  </div>
+
+  <p>この一文で、三つとも片付きます。しかも整合性が取れている。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">ヌル面</th><th style="width:20%">面積</th><th>帰結</th></tr>
+    <tr><td>\(\mathscr{I}\)</td><td>無限</td><td class="ok">無限次元ヒルベルト空間 ＝ 普通の場の理論。<em>矛盾しない</em></td></tr>
+    <tr><td>ブラックホール地平面</td><td>有限</td><td class="ok">ベッケンシュタイン–ホーキング。<em>既知の答えを再現</em></td></tr>
+    <tr><td>de Sitter 地平面</td><td>有限</td><td class="ok"><strong>宇宙全体のヒルベルト空間が有限次元</strong></td></tr>
+  </table>
+
+  <p>一行目が効いています。平坦時空では \(\mathscr{I}\) の面積が無限なので、状態数も無限 ── これは<em>普通の場の理論と同じ</em>で、何もおかしくない。同じ公式が、平坦時空では既知の結論に落ちる。</p>
+
+  <p>三行目は、まったく違う主張です。<strong>宇宙は有限状態機械である</strong>と言っている。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>我々の宇宙の、数</h2>
+
+  <p>数を入れましょう。de Sitter 地平面の半径は \(r_H=c/H_0\)。</p>
+
+  <div class="calc">
+    <span class="tag">やってみよう ── 宇宙の状態数</span>
+    <p style="margin:8px 0 0">\(r_H=c/H_0=1.367\times10^{26}\,\mathrm{m}\)（14.45 Gly）。面積 \(A=4\pi r_H^2=2.35\times10^{53}\,\mathrm{m^2}\)。</p>
+    <p class="lbl">プランク面積 \(\ell_P^2=\hbar G/c^3=2.61\times10^{-70}\,\mathrm{m^2}\) で割ると</p>
+    $$\frac{S}{k_B}=\frac{A}{4\ell_P^2}=\mathbf{2.25\times10^{122}}$$
+    <p class="lbl">したがって</p>
+    $$\dim\mathcal{H}=e^{S/k_B}=10^{\,9.76\times10^{121}}$$
+  </div>
+
+  <p>比較のために、エントロピーの階梯を見てください。すべて同じ式 \(S=A/4\ell_P^2\) で計算されています。</p>
+
+  <div class="fig">
+    <div class="cap">図：ヌル面のエントロピー（\(\log_{10}\) 目盛り）。すべて同じ式 \(S=A/4\ell_P^2\) から出ています。スライダーでブラックホールの質量を変えてみてください</div>
+    <canvas id="cv" width="720" height="300"></canvas>
+    <div class="controls">
+      <label>ブラックホールの質量 &nbsp;log₁₀(M / M<sub>☉</sub>) = <span class="val" id="vm">0.0</span>
+        <input type="range" id="sm" min="0" max="240" value="0">
+      </label>
+      <button id="b1">太陽質量</button>
+      <button id="b2">Sgr A*</button>
+      <button id="b3">M87*</button>
+      <button id="b4">dS に並ぶ質量</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>M87* の超巨大ブラックホール（\(6.5\times10^9\,M_\odot\)）でさえ、de Sitter 地平面より <strong>25.7 桁</strong>小さい。</p>
+
+  <div class="aside">
+    <span class="tag">検算 ── 偶然ではない一致</span>
+    \(S=S_{\rm dS}\) となるブラックホールの質量を逆算すると <strong>\(4.63\times10^{22}\,M_\odot=9.2\times10^{52}\,\mathrm{kg}\)</strong>。<br>観測可能宇宙の質量はおよそ \(1.5\times10^{53}\,\mathrm{kg}\) ── <strong>比 0.61、同じ桁です。</strong><br>これは偶然ではなく、我々の宇宙がだいたい自分の地平面スケールにある（\(\Omega\approx1\)）という事実の現れです。整合性の確認になります。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>そして、第1回に戻ります</h2>
+
+  <p>ここがこの回でいちばん驚いたところです。</p>
+
+  <p>第1回で、無次元量の総当たりを始めたときの表を思い出してください。「説明できない無次元量」の筆頭に置いたのは ──</p>
+
+  $$\frac{\rho_\Lambda}{\rho_{\rm Pl}}\sim10^{-122}$$
+
+  <p>そして de Sitter エントロピーは、\(H^2=\Lambda c^2/3\) を使うと</p>
+
+  $$S_{\rm dS}=\frac{\pi c^5}{\hbar G H^2}=\frac{3\pi}{\Lambda\,\ell_P^2}$$
+
+  <div class="keybox">
+    <div class="lbl">同じ数の、裏表</div>
+    $$S_{\rm dS}\;\propto\;\frac{1}{\rho_\Lambda/\rho_{\rm Pl}}$$
+    <p style="margin:8px 0 0">第1回で「説明できない」と書いた \(10^{-122}\) は、<strong>de Sitter エントロピーの逆数</strong>でした。</p>
+  </div>
+
+  <p>実際に確かめられます ── \(1/(2.25\times10^{122})=4.4\times10^{-123}\)。第1回の表の値と、\(3\pi\) の因子の範囲で一致します。</p>
+
+  <p>総当たりの出発点に置いた数が、9回まわって<em>宇宙の状態数</em>として戻ってきた。第1回では「説明できない値」でしたが、いまは<strong>「宇宙が何ビット持っているか」</strong>という意味を持っています。</p>
+
+  <div class="aside">
+    <span class="tag">とはいえ、説明されたわけではありません</span>
+    意味がついたことと、<em>なぜその値なのか</em>が分かったことは別です。「なぜ \(\Lambda\) がこの大きさか」＝「なぜ宇宙のビット数が \(10^{122}\) か」に言い換わっただけ。<br>ただし言い換えとしては大きい。<strong>宇宙定数問題が、情報量の問題になりました。</strong>
+  </div>
+
+  <h2><span class="n">05</span>「宇宙は計算できる」が、数になる</h2>
+
+  <p>第2回で、こう書きました ── <em>計算可能性に必要なのは有限の情報量であって、空間の刻みではない。</em></p>
+
+  <p>その「有限の情報量」に、いま値がつきました。</p>
+
+  <div class="keybox">
+    <div class="lbl">もし 02 節が正しければ</div>
+    <p style="margin:6px 0 0">宇宙は、状態数 \(e^{2.25\times10^{122}}\) の<strong>有限状態機械</strong>である。</p>
+    <p style="margin:8px 0 0">比喩ではなく、\(\Lambda\) から計算できる数として。</p>
+  </div>
+
+  <p>第2回では「格子は要らない」と結論しました。ここでも要りません ── 有限性の出どころは空間の刻みではなく、<strong>地平面の面積</strong>です。共変に定義されていて、優先系を作らない。</p>
+
+  <p>ただし、有限次元であることには<em>厳しい代償</em>もあります。有限次元のヒルベルト空間には、厳密な連続スペクトルの観測量が存在しません。厳密な S 行列も定義できない（散乱の「無限の未来」が地平面で切られるので）。<strong>「計算できる」と引き換えに、「厳密に測れる」を失います。</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>それでも、同じだと示されてはいません</h2>
+
+  <p>ここから正直な線です。2つの問題が同じだと<em>期待できる</em>理由は 01 節で見ましたが、同じでない可能性が3つあります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">非対称性</th><th>ブラックホール</th><th>de Sitter</th></tr>
+    <tr><td><strong>① 内と外</strong></td><td>観測者は地平面の<strong>外</strong></td><td class="bad">観測者は地平面の<strong>中</strong>（静的パッチ）</td></tr>
+    <tr><td><strong>② 観測者依存性</strong></td><td>地平面はほぼ一意</td><td class="bad">観測者ごとに<strong>別の地平面</strong>。「誰の地平面か」問題</td></tr>
+    <tr><td><strong>③ 有限性の質</strong></td><td>全体のヒルベルト空間は無限次元</td><td class="bad"><strong>全体が有限次元</strong> ── 質的に別物</td></tr>
+  </table>
+
+  <p>③ が特に重い。ブラックホールがあっても、漸近平坦時空全体のヒルベルト空間は無限次元のままです。de Sitter では宇宙<em>そのもの</em>が有限次元になる。これは「大きさが違う」ではなく「種類が違う」。</p>
+
+  <h2><span class="n">07</span>分野も、二派に割れています</h2>
+
+  <p>もう一つ正直に書いておくべきことがあります。de Sitter ホログラフィーには、<strong>統合されていない二つの綱領</strong>があります。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">綱領</th><th style="width:26%">双対の住処</th><th>性質</th></tr>
+    <tr><td><strong>dS/CFT</strong><br>（Strominger 2001）</td><td>\(\mathscr{I}^+\)（<strong>空間的</strong>な境界）</td><td>ユークリッド的・<em>非ユニタリ</em>・中心電荷が虚数</td></tr>
+    <tr><td><strong>静的パッチ／地平面</strong></td><td><strong>地平面</strong>（ヌル面）</td><td>有限次元。<em>観測者に紐づく</em></td></tr>
+  </table>
+
+  <p><strong>この回の議論が繋がるのは、後者だけです。</strong> 前者の \(\mathscr{I}^+\) は空間的な面なので、ヌル面ではなく、したがって Carroll 多様体でもない。第7回で作った道具が効きません。</p>
+
+  <p>つまり「二つの空白は一つだった」という見立ては、<em>de Sitter ホログラフィーの二派のうち一方を選んだ上で</em>成り立つ話です。選択が正しいかどうかは、まだ決着していません。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線 ── この回の身分</span>
+    01〜03 節は<strong>確立した事実</strong>です（Gibbons–Hawking のエントロピー、ヌル面が Carroll 的であること、数値計算）。<br>04 節の \(S_{\rm dS}\propto1/(\rho_\Lambda/\rho_{\rm Pl})\) も、式変形だけの<strong>恒等式</strong>です。<br>いっぽう <strong>02 節の「一文」は予想です</strong> ── 面積 \(A\) のヌル面に乗る Carrollian 理論が \(e^{A/4G}\) 個の状態を持つことは、<em>示されていません</em>。それを示すのが、そもそも第8回で残った空白でした。<br>本シリーズの規律6に従って書けば ── <strong>これは候補であって、解ではありません。</strong>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>なぜ de Sitter の地平面は Carroll 多様体になるのか。第7回の議論のどこを使うか。
+        <details><summary>答えを見る</summary><div class="ans">第7回の議論は「ヌル超曲面 → 誘導計量が退化 → Carroll 多様体」で、<strong>ヌル性しか使っていない</strong>。de Sitter の宇宙論的地平面もヌル超曲面なので、そのまま適用できる。だから宇宙には Carroll 面が3枚ある（\(\mathscr{I}\)、ブラックホール地平面、de Sitter 地平面）。</div></details>
+      </li>
+      <li>02 節の「一文」が、平坦時空で矛盾を生まないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">\(\mathscr{I}\) の面積は<strong>無限</strong>なので \(e^{A/4G}=\infty\)、つまり無限次元ヒルベルト空間。これは普通の場の理論と同じ結論で、何もおかしくない。同じ公式が、平坦時空では既知の答えに落ちる ── だから三つを統一する候補になりうる。</div></details>
+      </li>
+      <li>第1回の \(10^{-122}\) と \(S_{\rm dS}\) の関係を式で示せ。
+        <details><summary>答えを見る</summary><div class="ans">de Sitter では \(H^2=\Lambda c^2/3\) なので \(S_{\rm dS}=\pi c^5/(\hbar G H^2)=3\pi/(\Lambda\ell_P^2)\)。いっぽう \(\rho_\Lambda/\rho_{\rm Pl}\propto\Lambda\ell_P^2\)。したがって \(S_{\rm dS}\propto1/(\rho_\Lambda/\rho_{\rm Pl})\) ── <strong>互いに逆数</strong>。数値でも \(1/(2.25\times10^{122})=4.4\times10^{-123}\) で、\(3\pi\) の因子の範囲で一致する。</div></details>
+      </li>
+      <li>「宇宙のヒルベルト空間が有限次元」だと、何を失うか。
+        <details><summary>答えを見る</summary><div class="ans">厳密な連続スペクトルの観測量が存在しなくなる。また厳密な S 行列も定義できない ── 散乱の「無限の未来」が地平面で切られるため。<strong>計算可能性と引き換えに、厳密な測定可能性を失う</strong>。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>Carroll 面は3枚あった。</strong> 第7回で2枚（\(\mathscr{I}\) と地平面）と書きましたが、de Sitter の宇宙論的地平面もヌル超曲面なので Carroll 多様体。しかも Gibbons–Hawking により、ブラックホールと<em>同じ式</em> \(S=A/4G\) のエントロピーを持つ。</p>
+    <p><strong>だから第8回の空白2つは、同じ問いに見える。</strong> 仮の答えは一文 ── <em>「面積 \(A\) のヌル面に乗る Carrollian 理論は \(e^{A/4G}\) 個の状態を持つ」</em>。この一文で三つとも片付き、しかも平坦時空では既知の結論（無限次元＝普通の場の理論）に落ちる。</p>
+    <p><strong>我々の宇宙の数。</strong> \(S_{\rm dS}=2.25\times10^{122}\)、\(\dim\mathcal{H}=10^{9.76\times10^{121}}\)。M87* の超巨大ブラックホールでさえ 25.7 桁下。\(S=S_{\rm dS}\) となる質量は観測可能宇宙の質量の 0.61 倍で、整合している。</p>
+    <p><strong>そして第1回の数が戻ってきた。</strong> \(S_{\rm dS}=3\pi/(\Lambda\ell_P^2)\) なので、\(S_{\rm dS}\propto1/(\rho_\Lambda/\rho_{\rm Pl})\) ── 総当たりの出発点に置いた \(10^{-122}\) は、<em>de Sitter エントロピーの逆数</em>だった。宇宙定数問題が、情報量の問題に言い換わる。</p>
+    <p style="margin-bottom:0"><strong>ただし、同じだとは示されていません。</strong> 内と外、観測者依存性、有限性の質 ── 三つの非対称性が残る。そして de Sitter ホログラフィー自体が二派に割れていて、この回の議論が繋がるのは<em>地平面側の一派だけ</em>。02 節の一文は<strong>候補であって、解ではありません。</strong></p>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ第9回、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p>確立した内容：de Sitter 宇宙論的地平面がヌル超曲面であること、Gibbons–Hawking の温度とエントロピー \(S=A/4G\)（1977）、\(S_{\rm dS}=3\pi/(\Lambda\ell_P^2)\) という式変形、本文の数値（\(H_0=2.1927\times10^{-18}\,\mathrm{s^{-1}}\) から計算）、および dS/CFT と静的パッチ・ホログラフィーという二つの綱領が併存していること。<br><strong>いっぽう 02 節の「面積 \(A\) のヌル面に乗る Carrollian 理論は \(e^{A/4G}\) 個の状態を持つ」は予想であり、示されていません</strong>。地平面の Carrollian 理論の状態数がベッケンシュタイン–ホーキング・エントロピーを再現するかは第8回で挙げた未解決問題そのもので、この回はそれを解いていません。また二つの空白が同一の問題であるという見立ては、de Sitter ホログラフィーの二派のうち地平面側を選んだ上で成り立つもので、その選択の正否も決着していません。数値は最新の宇宙論パラメータの選び方で数割動きます。</p>
+    <p>本編：<a href="butsuri-tsukuru-01-hi.html">第1回</a>｜<a href="butsuri-tsukuru-02-koushi.html">第2回</a>｜<a href="butsuri-tsukuru-03-heitan.html">第3回</a>｜<a href="butsuri-tsukuru-04-kagami.html">第4回</a>｜<a href="butsuri-tsukuru-05-carroll.html">第5回</a>｜<a href="butsuri-tsukuru-06-daisuu.html">第6回</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">第7回</a>｜<a href="butsuri-tsukuru-08-naimono.html">第8回</a> ｜ 番外編：<a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ｜ 姉妹編：<a href="../wakaru-blackhole/index.html">わかるブラックホール</a>／<a href="../wakaru-uchu-keisanki/uchu-keisanki-index.html">宇宙は計算機</a> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、ブラックホールが de Sitter に届かないことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'),
+      vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  var hbar=1.054571817e-34, c=2.99792458e8, G=6.67430e-11, Msun=1.98892e30;
+  var lP2=hbar*G/(c*c*c);
+  function log10Sbh(logM){                       // logM = log10(M/Msun)
+    var M=Math.pow(10,logM)*Msun, rs=2*G*M/(c*c);
+    return Math.log10(4*Math.PI*rs*rs/(4*lP2));
+  }
+  var H0=2.1927e-18, rH=c/H0;
+  var logSdS=Math.log10(4*Math.PI*rH*rH/(4*lP2));   // 122.35
+
+  var MARKS=[
+    {x:log10Sbh(0),    t:'太陽質量 BH'},
+    {x:log10Sbh(Math.log10(4.297e6)), t:'Sgr A*'},
+    {x:log10Sbh(Math.log10(6.5e9)),   t:'M87*'},
+    {x:80,             t:'観測可能宇宙のバリオン数'},
+    {x:logSdS,         t:'de Sitter 地平面'}
+  ];
+
+  function setupHiDPI(cc){
+    var r=window.devicePixelRatio||1, cssW=cc.clientWidth||cc.width, cssH=cc.height*(cssW/cc.width);
+    cc.width=Math.round(cssW*r); cc.height=Math.round(cssH*r);
+    var ctx=cc.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var logM=parseInt(sm.value,10)/10; vm.textContent=logM.toFixed(1);
+    var S=log10Sbh(logM);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=28, R=w-18, AX=h-64, LO=60, HI=130;
+    function X(v){ return L+(R-L)*(v-LO)/(HI-LO); }
+
+    // 目盛り
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=LO;g<=HI;g+=10){ ctx.beginPath(); ctx.moveTo(X(g),36); ctx.lineTo(X(g),AX); ctx.stroke(); }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,AX); ctx.lineTo(R,AX); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.textAlign='center';
+    for(var g2=LO;g2<=HI;g2+=10){ ctx.fillText('10'+String(g2).split('').map(function(d){return '⁰¹²³⁴⁵⁶⁷⁸⁹'[+d];}).join(''), X(g2), AX+16); }
+    ctx.fillText('エントロピー S / k_B', (L+R)/2, AX+36);
+
+    // 固定マーカー
+    MARKS.forEach(function(m,i){
+      var isDS = (m.t.indexOf('de Sitter')>=0);
+      var yTop = 42 + (i%2)*22;
+      ctx.strokeStyle = isDS ? '#a83a22' : '#9fb0ae';
+      ctx.lineWidth = isDS ? 2.4 : 1.2;
+      ctx.beginPath(); ctx.moveTo(X(m.x), yTop); ctx.lineTo(X(m.x), AX); ctx.stroke();
+      ctx.fillStyle = isDS ? '#a83a22' : '#4c545c';
+      ctx.font = (isDS?'600 ':'')+'11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.textAlign = (X(m.x)>R-90) ? 'right' : 'left';
+      ctx.fillText(m.t, X(m.x)+(ctx.textAlign==='right'?-5:5), yTop-4);
+    });
+
+    // 可変マーカー（スライダーの BH）
+    var px=X(Math.max(LO,Math.min(HI,S)));
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(px,AX); ctx.lineTo(px,AX-26); ctx.stroke();
+    ctx.fillStyle='#1f6f74';
+    ctx.beginPath(); ctx.arc(px,AX-30,6,0,6.2832); ctx.fill();
+
+    var gap=logSdS-S;
+    ro.innerHTML='M = 10<sup>'+logM.toFixed(1)+'</sup> M<sub>☉</sub> のブラックホール ｜ '
+      +'S/k<sub>B</sub> = 10<sup>'+S.toFixed(2)+'</sup> ｜ '
+      +(gap>0.5
+        ? 'de Sitter 地平面（10<sup>'+logSdS.toFixed(2)+'</sup>）より <b>'+gap.toFixed(1)+' 桁</b>小さい'
+        : '<b>de Sitter 地平面に並びました。</b>この質量は '+(Math.pow(10,logM)*Msun/1e53).toFixed(2)+'×10<sup>53</sup> kg ── 観測可能宇宙の質量（〜1.5×10<sup>53</sup> kg）と同じ桁です');
+  }
+
+  sm.addEventListener('input', draw);
+  document.getElementById('b1').addEventListener('click', function(){ sm.value=0; draw(); });
+  document.getElementById('b2').addEventListener('click', function(){ sm.value=Math.round(Math.log10(4.297e6)*10); draw(); });
+  document.getElementById('b3').addEventListener('click', function(){ sm.value=Math.round(Math.log10(6.5e9)*10); draw(); });
+  document.getElementById('b4').addEventListener('click', function(){ sm.value=Math.round(Math.log10(4.628e22)*10); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
