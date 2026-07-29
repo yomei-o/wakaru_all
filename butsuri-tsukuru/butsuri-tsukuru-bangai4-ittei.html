@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>それでも光速は一定である ── 物理を作る 番外編④</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f4a6b;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark{background:#eef3f7;}
+  table.tbl tr.mark td{border-bottom-color:#cddae4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る ── 番外編</span><span class="ep">番外編 ④ ／ それでも光速は一定である</span></div>
+  <p class="eyebrow">番外編②が張った罠を、正面から通してみた回</p>
+  <h1>それでも光速は一定である
+    <span class="sub">番外編②は「\(ct=\) 一定」を3通りに読んで、こう終わりました ──<br><em>関数1本（共形平坦）では星は書けない。壁の名前はワイルテンソル。</em><br>そして念を押していました ── <strong>「屈折率描像で光の曲がりが出るのは当然で、情報はゼロ。区別がつくのは光以外（時計・物質の軌道・潮汐力）の側」。</strong><br>今回はそこを全部通します。<em>関数を1本から2本に増やすだけで通りました。</em><br>そして通った先で、②とまったく同じ形の壁に当たります ── 今度の名前は<strong>回転</strong>。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：スカラー関数2本と、正準方程式</span>
+    <span>この回の芯：変わるのは座標の光速。物理の光速は動かない</span>
+  </div>
+
+  <p class="lead">番外編②の結論は正しく、今も生きています。<strong>「\(c\) が変わる」と読むと死ぬ</strong> ── \(c\) は次元を持つので、変わったことに観測者によらない意味がない。そして<strong>共形平坦（\(ds^2=\Omega^2\eta_{\mu\nu}dx^\mu dx^\nu\)、スカラー1本）では星が書けない</strong> ── ワイルテンソルが消えないから。<br>ところが②は、こうも書いていました。<em>「区別がつくのは光以外の側」</em>。<br>これは<strong>やってみろという指示</strong>です。この回でやります ── ただし<em>スカラーを2本にします。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>変えたのは、関数の本数だけ</h2>
+
+  <table class="tbl">
+    <tr><th style="width:20%"></th><th style="width:40%">番外編②（共形平坦）</th><th>この回</th></tr>
+    <tr><td>形</td><td>\(ds^2=\Omega^2(x)\,\eta_{\mu\nu}dx^\mu dx^\nu\)</td><td class="ok">\(ds^2=-A^2dt^2+B^4\,\delta_{ij}dx^idx^j\)</td></tr>
+    <tr><td>スカラーの数</td><td class="bad">1本</td><td class="ok"><strong>2本</strong></td></tr>
+    <tr><td>平坦なのは</td><td>時空</td><td class="ok"><strong>空間だけ</strong></td></tr>
+    <tr class="mark"><td>星は書けるか</td><td class="bad">×（ワイル \(\ne0\)）</td><td class="ok"><strong>○　厳密に</strong></td></tr>
+  </table>
+
+  <p><strong>この2つは違うものです。</strong>\(-A^2dt^2+B^4\delta_{ij}dx^idx^j\) が共形平坦になるのは \(A/B^2\) が定数のときだけ。<em>だから②の壁を回避しています</em> ── ワイルテンソルを消していません。消さずに、空間だけ平坦にしています。</p>
+
+  <p>そしてシュワルツシルト解は<strong>厳密にこの形</strong>で書けます（等方座標）。\(u=m/2\rho\) として</p>
+
+  <div class="calc">
+    <span class="tag">入力はこれだけ</span>
+    $$A^2=\left(\frac{1-u}{1+u}\right)^2,\qquad B^4=(1+u)^4,\qquad u=\frac{m}{2\rho},\quad m=\frac{GM}{c^2}$$
+    <p style="margin:6px 0 0">格子の上の光の速さは <strong>\(c(\rho)=A/B^2=\dfrac{1-u}{(1+u)^3}\)</strong> ── 場所の関数になります。</p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">ここが②の①と衝突していないこと</span>
+    ②は「\(c\) が変わると読むと死ぬ」と書きました。<strong>これは今も正しい。</strong><br>
+    上の \(c(\rho)\) は<em>座標で測った光の速さ</em>で、座標の取り方に依る量です。局所的に測る光速はどこでも \(c\) のまま ── だから<strong>物理定数が変わっているわけではありません。</strong>変わっているのは物差しと時計の目盛りの付け方です。<br>
+    <em>この区別が最後まで効きます。タイトルがそれです。</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>道具 ── クリストッフェル記号は1個も出てこない</h2>
+
+  <p>\(F\equiv1/A^2\)、\(G\equiv1/B^4\) と置くと、超ハミルトニアンが2行で書けます。</p>
+
+  <div class="calc">
+    <span class="tag">これが全部</span>
+    $$H=\tfrac12\left(-E^2F(\rho)+|p|^2G(\rho)\right)=-\tfrac12\mu^2\qquad(\mu=1\ \text{物質},\ \mu=0\ \text{光})$$
+    $$\frac{dx^i}{d\lambda}=p_iG,\qquad \frac{dp_i}{d\lambda}=-\tfrac12\left(-E^2F'+|p|^2G'\right)\frac{x^i}{\rho},\qquad \frac{dt}{d\lambda}=EF$$
+  </div>
+
+  <p>1点で必要な数は<strong>4つ（\(F,G,F',G'\)）だけ</strong>です。静的球対称計量の \(\Gamma^\mu_{\nu\lambda}\) は直交座標でゼロでない成分が20個以上ありますが、<em>一つも作りません。</em>測地線方程式も曲率テンソルも出てきません。</p>
+
+  <div class="aside">
+    <span class="lab">正直に</span>
+    軽くなっているのは<strong>「平坦な格子だから」ではなく「正準形式だから」</strong>です。正準形式は光速の解釈とは独立な標準的な道具で、ブラックホール周りのレイトレーシングを行う数値コードは、いま普通にこれを使っています。<em>教科書の順路（クリストッフェル→測地線方程式→2階のまま数値解法）が重いのは、教育の問題です。</em><br>
+    それでも、この回の要点は減りません ── <strong>2本のスカラーと正準方程式だけで、②が「区別がつく」と言った量が全部出る</strong>かどうか。それが問題です。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>②の罠を通す ── 光以外を、全部</h2>
+
+  <p>②の指摘はこうでした ── <em>ヌル測地線は共形不変なので、共形因子をいじる描像は光には必ず当たる。当たって当然のものが当たっても情報はゼロ。区別がつくのは時計・物質の軌道・潮汐力。</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">観測量</th><th style="width:12%">②の分類</th><th style="width:22%">平坦な格子</th><th style="width:22%">参照</th><th>比</th></tr>
+    <tr><td>光の曲がり（太陽の縁）</td><td class="c">光</td><td class="num">1.751201 ″</td><td class="num">VLBI 1.75119 ″</td><td class="num">1.000006</td></tr>
+    <tr class="mark"><td><strong>水星の近日点移動</strong></td><td class="c bad"><strong>物質の軌道</strong></td><td class="num">42.9806 ″/世紀</td><td class="num">GR 42.980578</td><td class="num ok"><strong>1.000000</strong></td></tr>
+    <tr class="mark"><td><strong>重力赤方偏移</strong></td><td class="c bad"><strong>時計</strong></td><td class="num">\(2.458454\times10^{-15}\)</td><td class="num">\(gh/c^2\)</td><td class="num ok"><strong>0.999996</strong></td></tr>
+    <tr class="mark"><td><strong>GPS の時計</strong></td><td class="c bad"><strong>時計＋速度</strong></td><td class="num">38.610 μs/日</td><td class="num">文献 +38.6</td><td class="num ok"><strong>1.0003</strong></td></tr>
+    <tr><td>シャピロ遅延（往復）</td><td class="c">光</td><td class="num">247.295 μs</td><td class="num">Viking 約 250</td><td class="num">1.000223</td></tr>
+  </table>
+
+  <p><strong>②が「区別がつく」と言った3つが、全部通りました。</strong>しかも近日点は \(10^{-6}\)、赤方偏移は \(4\times10^{-6}\) の一致です。</p>
+
+  <p>GPS は重力ぶん \(+45.65\) と速度ぶん \(-7.11\) を<em>同じ一本の式から同時に</em>出しています ── \(d\tau/dt=\sqrt{(1-v^2F/G)/F}\)。残差 \(3\times10^{-4}\) は数値誤差ではなく地上の基準面の取り方で、赤道半径 38.543／平均半径 38.610／極半径 38.744 と振れます（文献値はジオイドと \(J_2\) を使う）。</p>
+
+  <div class="caveat">
+    <span class="tag">この回で踏んだ穴 ①：桁落ち</span>
+    赤方偏移が最初 \(gh/c^2\) の <strong>0.9935 倍</strong>になりました。0.65% のずれなので、物理かと思いました。<em>違いました。</em><br>
+    答えは \(2.4\times10^{-15}\) の桁で、それを「1 に近い数の引き算」\(d\tau/dt|_2 / d\tau/dt|_1 - 1\) で作っていました。倍精度の \(\varepsilon=2.2\times10^{-16}\) の<strong>11倍しか残っていない</strong>。閉じた形
+    $$\frac{A(\rho_2)}{A(\rho_1)}-1=\frac{2(u_1-u_2)}{(1+u_2)(1-u_1)},\qquad u_1-u_2=\frac{m}{2}\frac{\rho_2-\rho_1}{\rho_1\rho_2}$$
+    に直したら <strong>0.999996</strong> になりました。<em>本編第17回で踏んだのと同じ穴を、自分の道具の中でもう一度踏んでいます。</em>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">この回で踏んだ穴 ②：刻み幅と、近日点の位置</span>
+    水星が最初まったく回りませんでした。\(\lambda\) が固有時なので \(h=\eta\rho\) と書くと<strong>1周が2億段</strong>になる ── 空間の歩幅 \(|p|G\) で割って修正。<br>
+    次に <strong>65762 ″/世紀</strong> が出ました。近日点を「1段の中で \(\rho\) が最小の点」で拾っていたので、刻み角（〜6″）が信号（0.10″/周）を完全に埋めていました。\(\vec x\cdot\vec p=0\) のゼロ交差で内挿して <strong>42.9806</strong>。<em>本編第19回の教訓（不変量では捕まらないバグがある）そのままです。</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>潮汐の側も ── 強い場へ</h2>
+
+  <p>②が挙げた最後の1つが潮汐力です。ここは弱い場では細いので、強い場へ持っていきます。</p>
+
+  <p>\(c(\rho)=(1-u)/(1+u)^3\) は \(\rho\to m/2\)（\(u\to1\)）で<strong>ゼロになります</strong>。等方座標ではそこが地平面です。<em>座標特異点も無限大の曲率も出てきません</em> ── 平坦な格子の言葉では、地平面は「光が止まる面」でしかない。</p>
+
+  <div class="keybox">
+    <div class="lab">影の大きさが1行で出る</div>
+    <p style="margin:6px 0 0">ヌルの \(H=0\) を \(|p|^2=p_\rho^2+L^2/\rho^2\) に分けると、折り返し条件が \(\rho/c(\rho)=b\) になります。\(V(\rho)\equiv\rho/c(\rho)\) は \(\rho\to\infty\) で \(\infty\)、\(\rho\to m/2\) でも（\(c\to0\) だから）\(\infty\) ── <strong>だから最小値がある。</strong></p>
+    $$b_{\rm crit}=\min_\rho\ \frac{\rho}{c(\rho)}$$
+    <p style="margin:6px 0 0"><strong>ブラックホールの影の大きさは「半径 ÷ その場所の光の速さ」の最小値。</strong>幾何も曲率も要りません。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:33%">平坦な格子（数値）</th><th>解析解・観測</th></tr>
+    <tr><td>最小値の位置</td><td class="num">1.866025382 \(m\)</td><td class="num">\(1+\sqrt3/2=1.866025404\)</td></tr>
+    <tr class="mark"><td><strong>\(b_{\rm crit}\)</strong></td><td class="num ok"><strong>5.196152423 \(m\)</strong></td><td class="num ok">\(\sqrt{27}=5.196152423\)　<strong>12桁一致</strong></td></tr>
+    <tr><td>M87* の影の角直径</td><td class="num">39.69 μas</td><td class="num">EHT 42.0 ± 3.0　<strong>0.8σ</strong></td></tr>
+    <tr><td>Sgr A* の影の角直径</td><td class="num">53.25 μas</td><td class="num">EHT 51.8 ± 2.3　<strong>0.6σ</strong></td></tr>
+  </table>
+
+  <p>そして \(b\to b_{\rm crit}\) で曲がり角が対数発散するので、\(\Delta\phi=\pi,3\pi,5\pi,\dots\) に<strong>光子リング</strong>が並びます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">周目</th><th style="width:34%">\(b/b_{\rm crit}-1\)</th><th>前との比</th></tr>
+    <tr><td>1</td><td class="num">\(3.09\times10^{-2}\)</td><td>—</td></tr>
+    <tr><td>2</td><td class="num">\(5.41\times10^{-5}\)</td><td class="num">572×</td></tr>
+    <tr><td>3</td><td class="num">\(1.01\times10^{-7}\)</td><td class="num ok"><strong>535.6×</strong></td></tr>
+    <tr class="mark"><td>4</td><td class="num">\(1.89\times10^{-10}\)</td><td class="num ok"><strong>535.5×</strong>　（\(e^{2\pi}=535.4917\)）</td></tr>
+  </table>
+
+  <p><strong>\(e^{2\pi}\) が出てきました。教えていません。</strong>入れたのは \(\rho/c(\rho)\) だけです。</p>
+
+  <div class="aside">
+    <span class="lab">独立な検算がバグを1つ捕まえた</span>
+    弱い場の曲がり角を、2次元 RK4 の光線追跡（1.751201″）と、1次元の折り返し点積分（1.751203″）の<strong>2通りで出しました。</strong>後者は最初 −22.6″ になり、原因は Simpson の端点（折り返し点）で 0/0 を 0 と書いたこと ── 誤差が \(1/N^4\) ではなく \(1/N\) で落ちているのが証拠でした。<em>不変量のずれは \(10^{-15}\) のままで、何も教えてくれませんでした。</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>では、この格子にどれだけ自由度が残っているのか</h2>
+
+  <p>ここまで \(F,G\) に「シュワルツシルトと同じ1組」しか入れていません。<strong>つまみを付けて振り、観測量で削ります。</strong></p>
+
+  <div class="calc">
+    <span class="tag">つまみ2本</span>
+    $$A^2=1-2U+2\beta U^2,\qquad B^4=1+2\gamma U,\qquad U=\frac{m}{\rho}$$
+    <p style="margin:6px 0 0">\(\beta=\gamma=1\) が GR。格子の言葉では <strong>\(\gamma\) が物差しの伸び、\(\beta\) が時計の2次の非線形性</strong>。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:28%">観測量</th><th style="width:18%">∂ln/∂γ（数値）</th><th style="width:14%">解析</th><th style="width:18%">∂ln/∂β（数値）</th><th>解析</th></tr>
+    <tr><td>光の曲がり</td><td class="num ok">0.500000477</td><td class="num">1/2</td><td class="num">\(-1.2\times10^{-6}\)</td><td class="num">0</td></tr>
+    <tr class="mark"><td>近日点移動</td><td class="num ok"><strong>0.666666339</strong></td><td class="num">2/3</td><td class="num ok"><strong>−0.333333867</strong></td><td class="num">−1/3</td></tr>
+  </table>
+
+  <p><strong>PPN の係数を、道具が自分で出しました。</strong>教えていません。要点は<em>向きが直交していない</em>ことです ── 光の曲がりは \(\gamma\) しか見ず、近日点は \(2\gamma-\beta\) を見る。だから2つ揃うと分離できます。</p>
+
+  <p>Cassini の電波リンクが \(\gamma-1=(2.1\pm2.3)\times10^{-5}\)。これを \(c(\rho)\) に翻訳すると：</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">\(\rho\)</th><th style="width:34%">\(c/c_\infty-1\)（GR）</th><th>\(\gamma\) の許容幅で動く量</th></tr>
+    <tr class="mark"><td>太陽の縁</td><td class="num">\(-4.245\times10^{-6}\)</td><td class="num bad">\(4.88\times10^{-11}\)　＝ <strong>その \(1.1\times10^{-5}\) 倍</strong></td></tr>
+    <tr><td>1 AU</td><td class="num">\(-1.974\times10^{-8}\)</td><td class="num">\(2.27\times10^{-13}\)　＝ 同じ比</td></tr>
+  </table>
+
+  <div class="verdict">
+    <div class="lab">この回のいちばん実用的な結論</div>
+    <p style="font-size:19px">平坦な格子は<strong>「使ってよい」が「好きに書ける」わけではありません。</strong></p>
+    <p style="margin-bottom:0">\(c(\rho)\) の形は<strong>5桁の精度で決め打ち</strong>されています。「重力を可変光速で説明する」という言い方が自由に聞こえるなら、それは自由度を数えていないからです。</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>空間はねじれない。だから格子を流す</h2>
+
+  <p>いちばん強い反論はこれです ── <em>「平坦な格子では空間がねじれないのだから、慣性系の引きずりは出ないだろう」</em>。</p>
+
+  <p>答えは<strong>ねじらない。流れを置く</strong>でした。関数を1本足します。</p>
+
+  <div class="calc">
+    <span class="tag">3本目の関数＝流れ</span>
+    $$ds^2=-A^2dt^2+B^4\left|d\vec x-\vec V\,dt\right|^2,\qquad \vec V=\Omega(\rho)\left(\hat z\times\vec x\right),\quad \Omega=\frac{2\mathcal J}{\rho^3},\quad \mathcal J\equiv\frac{GJ}{c^3}$$
+    <p style="margin:6px 0 0">計算すると、ハミルトニアンの形が<strong>まったく変わりません</strong>：</p>
+    $$H=\tfrac12\left(-FW^2+G|p|^2\right),\qquad W\equiv E-\vec V\cdot\vec p$$
+    <p style="margin:6px 0 0">\(E\) が \(W\) に変わるだけ ── <em>風はエネルギーをドップラーずらしするだけ。</em>そして</p>
+    $$\frac{dx^i}{d\lambda}=\underbrace{Gp_i}_{\text{格子の中を進む}}+\underbrace{FV^iW}_{\text{風に運ばれる}}$$
+  </div>
+
+  <p>1行目がそのまま<strong>川の絵</strong>になっています。太陽の風速は表面で \(1.97\times10^{-12}c\)。</p>
+
+  <table class="tbl">
+    <tr><th style="width:36%">観測量</th><th style="width:26%">平坦な格子</th><th style="width:20%">参照</th><th>比</th></tr>
+    <tr><td>順行/逆行の光の曲がりの差</td><td class="num">係数 <strong>8</strong></td><td class="num">\(8\mathcal J/b^2\)</td><td class="num ok"><strong>1.000027</strong></td></tr>
+    <tr class="mark"><td>LAGEOS の昇交点歳差</td><td class="num"><strong>30.593 mas/年</strong></td><td class="num">解析式／文献 約31</td><td class="num ok"><strong>1.000002</strong></td></tr>
+  </table>
+
+  <p>差は \(\mathcal J\) に厳密に比例します（\(10^5\)〜\(10^8\) 倍で比が動かない）。本物の太陽に外挿すると <strong>1.62 μas</strong>（片側 0.81 μas）。</p>
+
+  <div class="aside">
+    <span class="lab">対照実験を1回間違えた</span>
+    最初、傾斜角 0°（赤道軌道）を対照に使いました。<strong>使えません</strong> ── 赤道軌道は \(L_x=L_y=0\) で昇交点そのものが定義されず、<code>atan2(0,0)</code> の雑音を「信号の \(5\times10^6\) 倍」として測っていました。<br>
+    風を切る（\(\mathcal J=0\)）に変えたら、ドリフトは信号の <strong>\(6.5\times10^{-12}\)</strong> 倍に落ちました。<em>軌道面を回しているのは風だと確定。</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>地平面の内側は、どこにあるのか</h2>
+
+  <p>\(c\to0\) の先は「内側」ではありません。<strong>格子がそこで折り返しています。</strong></p>
+
+  <p>面積半径は \(r(\rho)=\rho+m+\dfrac{m^2}{4\rho}\)。\(dr/d\rho=1-\dfrac{m^2}{4\rho^2}\) が \(\rho=m/2\) でゼロ ── \(r\) はそこで<strong>最小値 \(2m\)</strong> を取り、\(\rho\to0\) でまた \(r\to\infty\)。しかも反転 \(\rho\to m^2/4\rho\) は<strong>厳密な等長変換</strong>（数値で差 0 を確認）。</p>
+
+  <div class="verdict warn">
+    <div class="lab">つまり</div>
+    <p style="font-size:19px">静的な平坦格子は、<strong>外側を2枚</strong>貼り合わせたものを覆っていて、<strong>内側を一度も覆っていません。</strong></p>
+    <p style="margin-bottom:0">\(\rho<m/2\) は「奥」ではなく「同じ瞬間の、もう一つの外側」── アインシュタイン–ローゼンの橋（喉の半径 \(2m\)）です。</p>
+  </div>
+
+  <p>そしてその橋は<strong>開いて閉じます</strong>。クラスカル座標で \(T^2-X^2=(1-r/2m)e^{r/2m}\) を解くと、\(T=0\) で喉の半径 \(2m\)、\(|T|=1\) で <strong>0</strong>。渡ろうとする因果的な曲線は、渡り切る前に特異点に着きます。</p>
+
+  <p>覆えない理由は座標の都合ではありません ── <strong>内側に静止できる観測者がいないから</strong>です。「格子」は「静止」を前提にした図なので、静的な図は必ずそこで終わります。</p>
+
+  <p><strong>流していいなら書けます。</strong>しかも静的な版より綺麗になります。</p>
+
+  <div class="calc">
+    <span class="tag">Painlevé–Gullstrand ── 空間が厳密にユークリッド</span>
+    $$ds^2=-dt^2+\left(dr+v(r)dt\right)^2+r^2d\Omega^2,\qquad v(r)=\sqrt{\frac{2m}{r}}$$
+    <p style="margin:6px 0 0">共形因子すら無い。ラプスは 1。つまり <strong>\(c\) は厳密に一定</strong>で、動いているのは格子そのもの。<br>そして \(v(r)=\sqrt{2m/r}\) は<strong>ニュートンの脱出速度</strong>。半径方向の光は</p>
+    $$\frac{dr}{dt}=\pm1-v(r)$$
+    <p style="margin:6px 0 0"><strong>地平面は「光が止まる面」ではなく「川の流れが光速に達する面」。</strong>内側は「川が超光速」。<em>負になる量は一つも出てきません。</em></p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:30%">平坦な格子</th><th style="width:26%">流れ</th><th>覆う領域</th></tr>
+    <tr><td>静止（等方座標）</td><td>なし</td><td>I ＋ III（2枚の外側）</td></tr>
+    <tr class="mark"><td>内向きに流れる（PG）</td><td class="num">\(v=+\sqrt{2m/r}\)</td><td class="ok"><strong>I ＋ II（外側＋内側）</strong></td></tr>
+    <tr><td>外向きに流れる（時間反転）</td><td class="num">\(v=-\sqrt{2m/r}\)</td><td>I ＋ IV（ホワイトホール）</td></tr>
+  </table>
+
+  <p><strong>どれも空間は平坦。違うのは流れの向きだけ。</strong>そして1枚で4領域を覆う平坦格子はありません ── <em>ここが「座標に依らない言葉」が本当に必要になる理由です。</em></p>
+
+  <p>ただし ── <strong>本物のブラックホールには III も IV もありません。</strong>あれは「はじめから永遠にあって周りが完全に真空」という仮定の産物で、星が潰れて出来た穴では \(\rho<m/2\) に当たる場所は<em>潰れていく星の中身</em>に置き換わります。<strong>実在の穴に必要な平坦格子は、内向きに流れる1枚だけ。</strong></p>
+
+  <p>内側で \(r\) は「場所」ではなく「時刻」になります。地平面から特異点までの固有時は、数値積分で \(\tau_{\infty\text{から}}=1.333333332\,m\)（\(=4/3\)）、最長が \(3.141592654\,m\)（\(=\pi\)）。太陽質量なら <strong>6.567 μs</strong>、M87* なら <strong>711.5 分</strong>です。</p>
+
+  <div class="fig">
+    <div class="lab">図：2枚の平坦な格子と、同じ影</div>
+    <p style="font-size:14.5px;margin:2px 0 10px">横軸は \(m\) を単位にした半径。<b>ボタンで3つの見方を切り替えます</b> ── ①静止した格子（\(c\) が場所で変わり、喉でゼロ）②流れる格子（\(c\) は厳密に一定で、川が光速を超える）③影を決める \(V=\rho/c\) の最小値</p>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <button id="b1">① 静止した格子（可変 c）</button>
+      <button id="b2">② 流れる格子（一定 c ＋ 川）</button>
+      <button id="b3">③ 影 ＝ min ρ/c</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>これは、スプレッドシートだった</h2>
+
+  <p>ここまでを一言でまとめると、<strong>ブックに複数シートがあって、どれも平坦なセルの格子で、行を進める幅とセルの横滑りを自分で決めている</strong>ということです。<em>比喩ではなく、そのまま形式になっています</em> ── ADM の 3+1 分解です。</p>
+
+  <div class="calc">
+    <span class="tag">ADM</span>
+    $$ds^2=-N^2dt^2+\gamma_{ij}\left(dx^i+\beta^idt\right)\left(dx^j+\beta^jdt\right)$$
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:30%">スプレッドシート</th><th style="width:24%">相対論</th><th>この回で出てきたもの</th></tr>
+    <tr><td>シート1枚＝平坦なセルの格子</td><td>空間スライス \(\gamma_{ij}\)</td><td>等方座標なら \(B^4\delta_{ij}\)、PG なら<strong>厳密に \(\delta_{ij}\)</strong></td></tr>
+    <tr><td>行を1つ進める時間の幅</td><td>ラプス \(N\)</td><td>等方座標 \(N=A\)、PG は \(N=1\)</td></tr>
+    <tr class="mark"><td><strong>セルが横に滑る量</strong></td><td>シフト \(\beta^i\)</td><td class="ok"><strong>川の流速</strong> \(\sqrt{2m/r}\)、渦 \(2\mathcal J/\rho^3\)</td></tr>
+    <tr><td>ブック内の複数シート</td><td>複数のチャート</td><td>I+III（静止）／I+II（内向き）／I+IV（外向き）</td></tr>
+    <tr><td><code>=Sheet2!A1</code> で参照</td><td>座標変換・重なり</td><td>反転 \(\rho\to m^2/4\rho\)</td></tr>
+    <tr class="mark"><td><strong>どのシートから読んでも同じ値</strong></td><td>観測量が座標に依らない</td><td class="ok"><strong>\(b_{\rm crit}=5.1961524227\) が2枚の格子で10桁一致</strong></td></tr>
+  </table>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">09</span>数値相対論は、もうこれをやっている</h2>
+
+  <p>番外編②の最後に一行だけ書いてありました ── <em>「格子が歪まないので差分で解ける ── 数値相対論はまさにそれをやっています」</em>。それを具体化します。</p>
+
+  <p>ヌル条件 \(0=-\alpha^2dt^2+\gamma_{ij}(dx^i+\beta^idt)(dx^j+\beta^jdt)\) を解くと</p>
+
+  <div class="calc">
+    <span class="tag">座標での光速</span>
+    $$\frac{dx^i}{dt}=-\beta^i\pm\alpha\,n^i$$
+    <p style="margin:6px 0 0"><strong>「場所によって違う光速 \(\alpha\)」＋「風 \(\beta^i\)」</strong> ── この回で作ったものと同じ形。そして \(\alpha,\beta^i\) は方程式が決めるのではなく<em>こちらが選ぶ</em>量です。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:26%">数値相対論の実務</th><th>中身</th></tr>
+    <tr class="mark"><td><strong>タイムステップ</strong></td><td>CFL 条件が \(\Delta t\lesssim\Delta x/(\alpha+|\beta|)\) ── <strong>情報が格子を渡る速さは \(c\) ではなく \(\alpha+|\beta|\)</strong>。全コードが毎ステップ「いまここの座標光速」で刻み幅を決めている</td></tr>
+    <tr class="mark"><td><strong>特異点回避</strong></td><td>Bona–Massó 族 \(\partial_t\alpha=-\alpha^2f(\alpha)K\)、いちばん使われる 1+log は \(f=2/\alpha\)。穴が出来かけると \(K\) が発散して <strong>\(\alpha\) が 0 に潰れる</strong>（collapsed lapse）── <em>座標光速をゼロに落として進化を凍らせ、コードを落ちなくしている</em></td></tr>
+    <tr><td>座標が吸い込まれない工夫</td><td>gamma-driver / puncture gauge で \(\beta^i\) を能動的に吹かせる（連星なら一緒に回る）</td></tr>
+    <tr><td>おまけの病理</td><td>ゲージモードの伝播速度は \(\alpha\sqrt f\)。1+log なら \(\sqrt{2\alpha}\) で、座標光速 \(\alpha\) との比は \(\sqrt{2/\alpha}\) ── <strong>\(\alpha&lt;2\) ならいつでも1を超える</strong>。しかも衝撃波を作ることがあり <strong>gauge shock</strong> という名前が付いている</td></tr>
+  </table>
+
+  <p><strong>座標光速がこの分野で全然神聖でないことの、いちばん露骨な証拠が最後の行です。</strong></p>
+
+  <div class="keybox">
+    <div class="lab">gauge shock は「完璧な物理の中のバグ」</div>
+    <p style="margin:6px 0 0">ここは性質がはっきりしています ── <strong>gauge shock は世界にあるバグではなく、世界の書き方にあるバグ</strong>です。時空は無傷で、観測量も無傷で、それでも<em>計算だけが壊れる</em>。</p>
+    <p style="margin:8px 0 0">だから直し方も物理ではありません。\(f(\alpha)\) の関数形を選び直すだけです（\(f=1+\kappa/\alpha^2\) の形が使われます）。<strong>物理には手を触れずに、記述のバグを潰す。</strong></p>
+    <p style="margin:8px 0 0;font-size:14.5px;color:var(--ink-soft)">この一節は読者からの指摘で入りました。<em>座標の選択がバグを生みうる、という一点が、この回でいちばん驚かれた場所です。</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">10</span>それでも光速は一定である</h2>
+
+  <div class="verdict">
+    <div class="lab">タイトルの意味</div>
+    <p>ここまで全部、<strong>座標で測った光速が場所によって変わる図</strong>で計算しました。地平面ではゼロにまでなりました。</p>
+    <p><em>それでも物理の光速は一度も変わっていません。</em>変わったのは物差しと時計の目盛りの付け方 ── <strong>ゲージ量</strong>です。番外編②の①（「\(c\) が変わる」と読むと死ぬ）は、そのまま生きています。</p>
+    <p style="margin-bottom:0">証拠は数値で出ました ── <strong>\(c\) が場所で変わる格子と、\(c\) が厳密に一定な格子が、同じ影（\(b_{\rm crit}=5.1961524227\,m\)）を10桁一致で出す。</strong>選択に依る量は観測量ではない、という意味です。</p>
+  </div>
+
+  <p>そして「同じことをめんどくさく計算しているのか」という問いには、<strong>半分そうです</strong>と答えるのが正確です。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th style="width:34%">軽い側</th><th>軽くならない側</th></tr>
+    <tr><td>何をする</td><td class="ok">シートを<strong>読む</strong>（観測量を出す）</td><td class="bad">シートを<strong>埋める</strong>（場を決める）</td></tr>
+    <tr><td>要るもの</td><td class="ok">\(F,G\)（と風）＋正準方程式</td><td class="bad">アインシュタイン方程式</td></tr>
+    <tr class="mark"><td>この回では</td><td class="ok"><strong>全部やった</strong></td><td class="bad"><strong>一度もやっていない</strong> ── \(F,G\) は手で入れた</td></tr>
+    <tr><td>例</td><td>光・時計・軌道・潮汐・影・引きずり</td><td class="bad">2体問題、重力波、星の内部</td></tr>
+  </table>
+
+  <p>連星パルサーをこの回に入れなかったのは、これが理由です。<em>質量が2つあると背景場そのものが未知になる</em> ── そこは平坦な格子では軽くなりません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">11</span>壁 ── 番外編②と同じ形で、名前が違う</h2>
+
+  <p>②は「関数1本では星が書けない、壁はワイルテンソル」で終わりました。この回は関数を2本（＋風で3本）にして星を通しました。<strong>では、この形はどこまで行けるのか。</strong></p>
+
+  <div class="verdict warn">
+    <div class="lab">壁の名前は「回転」</div>
+    <p><strong>Kerr（回転する穴）は、この形では厳密に書けません。</strong></p>
+    <p>Garat と Price が示しました ── <em>軸対称で、シュワルツシルト極限で滑らかに一定時刻面に帰着する葉層に限れば、Kerr 時空に共形平坦な空間スライスは存在しない</em>（Phys. Rev. D 61 (2000) 124011）。その後、より広い条件での議論もあります（arXiv:1908.03456）。</p>
+    <p style="margin-bottom:0">だから \(B^4\delta_{ij}\) の形では回転する穴を厳密に表せない。<em>これは実務に直接効いています</em> ── Bowen–York の共形平坦な初期データが回転する穴に使えず、偽の放射を伴う理由がこれです。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:22%"></th><th style="width:30%">要求</th><th style="width:22%">書けるもの</th><th>壁</th></tr>
+    <tr><td>番外編②</td><td>時空が共形平坦（1関数）</td><td>FRW</td><td class="bad"><strong>ワイルテンソル</strong>（星が書けない）</td></tr>
+    <tr class="mark"><td><strong>この回</strong></td><td>空間が共形平坦＋ラプス＋シフト（3関数）</td><td class="ok"><strong>シュワルツシルト（内側まで）</strong></td><td class="bad"><strong>回転</strong>（Kerr が書けない）</td></tr>
+    <tr><td>数値相対論</td><td>\(\gamma_{ij}\) を進化させる（制限なし）</td><td class="ok">何でも</td><td>初期データと\(\alpha,\beta\)の設計</td></tr>
+  </table>
+
+  <p>この回で影の非対称（順行と逆行で影が割れる）を出せなかったのも、同じ理由です。渦 \(\Omega=2\mathcal J/\rho^3\) は弱い場の形で、光子球では \(\Omega V\approx1.59\,(a/m)\) ── <strong>\(a/m>0.03\) で1次近似が崩れます</strong>。出せば \(8.31(a/m)\,m\) という数字になりますが、よく引かれる Kerr の影のずれ \(2a\) と<em>4倍合わないまま</em>なので載せません。<strong>Kerr の厳密な川（Painlevé–Gullstrand の Kerr 版は存在します：arXiv:0805.0206）を入れ直す必要があります。</strong></p>
+
+  <div class="prob">
+    <div class="lab">手を動かす</div>
+    <ol>
+      <li>番外編②は「共形平坦では星が書けない」と結論した。この回の形はなぜその壁に当たらないのか。
+        <details><summary>答えを見る</summary><div class="ans">②の形はスカラー<strong>1本</strong>（\(ds^2=\Omega^2\eta\)）で、共形平坦性 ⟺ ワイル \(=0\)。シュワルツシルトはワイル \(\ne0\) なので不可能。<br>この回の形は<strong>2本</strong>（\(-A^2dt^2+B^4\delta_{ij}dx^idx^j\)）で、これが共形平坦になるのは \(A/B^2\) が定数のときだけ。<em>ワイルを消していません</em> ── 消さずに「空間だけ」平坦にしています。だから星が厳密に書けます。<br><strong>②の結論は間違っていません。要求が違うだけです。</strong></div></details>
+      </li>
+      <li>②は「光の曲がりが合っても情報はゼロ」と言った。ではこの回の何が情報になっているのか。
+        <details><summary>答えを見る</summary><div class="ans">ヌル測地線は共形不変なので、共形因子をいじる描像は<strong>光には必ず当たる</strong>。だから 1.751201″ は証拠になりません。<br>情報になるのは②自身が挙げた3つ ── <strong>時計</strong>（赤方偏移 0.999996、GPS 1.0003）、<strong>物質の軌道</strong>（近日点 1.000000）、<strong>潮汐</strong>（影 \(\sqrt{27}m\) を12桁、光子リングの \(e^{2\pi}\)）。<em>これらは共形不変ではないので、当たったことに意味があります。</em></div></details>
+      </li>
+      <li>影の大きさが \(\min_\rho\,\rho/c(\rho)\) で決まるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">ヌルの \(H=0\) で \(|p|^2=p_\rho^2+L^2/\rho^2\) と分けると、折り返し（\(p_\rho=0\)）の条件が \(\rho/c(\rho)=b\) になる。\(V=\rho/c\) は \(\rho\to\infty\) で \(\infty\)、\(\rho\to m/2\) でも \(c\to0\) だから \(\infty\) ── <strong>最小値がある</strong>。それより小さい \(b\) では折り返せず、落ちる。<br>だから \(b_{\rm crit}=\min V\)。数値で \(5.196152423\,m=\sqrt{27}\,m\)（12桁）。<em>幾何も曲率も使っていません。</em></div></details>
+      </li>
+      <li>地平面の内側で「光速がマイナスになる」わけではないのはなぜか。二段で答えよ。
+        <details><summary>答えを見る</summary><div class="ans"><strong>第1段</strong>：\(c=\sqrt{G/F}\) で \(F=((1+u)/(1-u))^2\) は<em>2乗</em>。だから \(u>1\) でも \(F>0\) で、\(c=|1-u|/(1+u)^3\ge0\)。負に見えるのは \(A=\sqrt{A^2}\) の枝の取り違え。<br><strong>第2段</strong>：そもそも \(\rho<m/2\) は内側ではない。\(r(\rho)\) は \(\rho=m/2\) で最小値 \(2m\) を取り、\(\rho\to0\) でまた \(\infty\)。反転 \(\rho\to m^2/4\rho\) が等長変換なので、<em>外側の2枚重ね</em>。<strong>静的な格子は内側を一度も覆っていません。</strong><br>内側は流れる格子（PG）が覆い、そこでは \(c\) が厳密に一定で、川が超光速になるだけ。<em>負になる量は一つも出てきません。</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>番外編②の罠を通した。</strong> ②は「屈折率描像で光が合うのは当然で情報ゼロ、区別がつくのは<em>時計・物質の軌道・潮汐力</em>」と書いていた。関数を1本から<strong>2本</strong>（\(-A^2dt^2+B^4\delta_{ij}dx^idx^j\)）にすると、その3つが全部通る ── 近日点 <strong>42.9806″/世紀（比 1.000000）</strong>、重力赤方偏移 \(2.458454\times10^{-15}\)（0.999996）、GPS <strong>38.610 μs/日</strong>（1.0003）、潮汐の側は影 \(b_{\rm crit}=\sqrt{27}\,m\) を<strong>12桁</strong>。<em>②の結論は間違っていない ── 要求が違う。</em>この形が共形平坦になるのは \(A/B^2\) が定数のときだけで、ワイルを消していない。</p>
+    <p><strong>クリストッフェル記号を1個も作らずに全部出た。</strong> 1点で必要な数は \(F,G,F',G'\) の4つだけ。ただし<em>軽くなっているのは「平坦な格子だから」ではなく「正準形式だから」</em>で、そこは分けて数えるべき。</p>
+    <p><strong>影の大きさは \(\min_\rho\,\rho/c(\rho)\) で決まる。</strong> 「半径 ÷ その場所の光の速さ」の最小値。幾何も曲率も要らない。EHT の M87*（39.69 vs 42.0±3.0、<strong>0.8σ</strong>）と Sgr A*（53.25 vs 51.8±2.3、<strong>0.6σ</strong>）。光子リングは \(b_{\rm crit}\) に <strong>535.5倍</strong>ずつ貼りつき、\(e^{2\pi}=535.4917\) が<em>教えていないのに出てきた</em>。</p>
+    <p><strong>残っている自由度は5桁で決め打ちされている。</strong> つまみ \(\beta,\gamma\) を付けると、道具が PPN の係数を自分で出す（\(\partial\ln/\partial\gamma=0.500000477\)、\(0.666666339\)、\(\partial\ln/\partial\beta=-0.333333867\)）。Cassini の \(\gamma-1=(2.1\pm2.3)\times10^{-5}\) を \(c(\rho)\) に翻訳すると、太陽の縁の落ち込み \(4.245\times10^{-6}\) に対し許容幅は<strong>その \(1.1\times10^{-5}\) 倍</strong>。<em>平坦な格子は「使ってよい」が「好きに書ける」わけではない。</em></p>
+    <p><strong>空間はねじらない。格子を流す。</strong> 風 \(\vec V=\Omega(\hat z\times\vec x)\)、\(\Omega=2\mathcal J/\rho^3\) を入れると、ハミルトニアンは形が変わらず \(E\to W=E-\vec V\cdot\vec p\) になるだけ。運動方程式は「格子の中を進む分＋風に運ばれる分」。順行/逆行の曲がりの差が係数 <strong>8</strong>（比 1.000027）、LAGEOS の昇交点歳差 <strong>30.593 mas/年</strong>（比 1.000002）。風を切ると \(6.5\times10^{-12}\) 倍に落ちる。</p>
+    <p><strong>地平面の内側は「奥」ではなく別のシートにある。</strong> \(r(\rho)\) は \(\rho=m/2\) で最小 \(2m\)、反転 \(\rho\to m^2/4\rho\) が等長 ── <em>静的な格子は外側を2枚覆っていて、内側を一度も覆っていない</em>。橋は開いて閉じる（\(T=0\) で \(2m\)、\(|T|=1\) で 0）。内側は<strong>内向きに流れる格子（PG）</strong>が覆い、そこでは空間が<em>厳密にユークリッド</em>、\(c\) は<em>厳密に一定</em>、川が超光速になるだけ。固有時は \(4m/3\)（最長 \(\pi m\)）。4領域には3種類の格子が要るが、<strong>実在の穴には内向き1枚で足りる</strong>（III と IV は永遠・真空の産物）。</p>
+    <p><strong>これは ADM の 3+1 だった。</strong> ラプス \(N\) ＝ 行の幅、シフト \(\beta^i\) ＝ セルの横滑り、空間計量 ＝ セルの目盛り。そして<strong>数値相対論はもうこれをやっている</strong> ── 座標光速は \(-\beta^i\pm\alpha n^i\) で、CFL 条件が \(\Delta t\lesssim\Delta x/(\alpha+|\beta|)\)。1+log スライシング（\(f=2/\alpha\)）は穴の近くで<em>わざと \(\alpha\) を 0 に潰して</em>特異点回避に使う。ゲージモードは \(\alpha\sqrt f\) で伝わり、1+log では \(\alpha&lt;2\) のとき座標光速を超え、<strong>gauge shock</strong> という名の病理まである。</p>
+    <p><strong>それでも光速は一定である。</strong> 全部「座標で測った光速が場所で変わる図」で計算したが、物理の光速は一度も変わっていない。変わったのはゲージ量。証拠は<em>\(c\) が変わる格子と \(c\) が厳密に一定な格子が同じ影を10桁一致で出したこと</em>。②の「\(c\) が変わると読むと死ぬ」はそのまま生きている。</p>
+    <p><strong>「めんどくさく計算しているのか」への答えは、半分そう。</strong> シートを<em>読む</em>側（観測量）は軽い ── この回で全部やった。シートを<em>埋める</em>側（場を決める）は軽くならない ── <strong>この回では一度もやっていない。\(F,G\) は手で入れた。</strong>2体問題・重力波・星の内部はそちら側。</p>
+    <p style="margin-bottom:0"><strong>そして壁は、②と同じ形で名前が違う。</strong> ②の壁がワイルテンソル（星が書けない）だったのに対し、この回の壁は<strong>回転</strong> ── <em>軸対称でシュワルツシルト極限に滑らかに帰着する葉層に限れば、Kerr に共形平坦な空間スライスは存在しない</em>（Garat &amp; Price, PRD 61 (2000) 124011）。Bowen–York の初期データが回転する穴に使えない理由がこれで、この回で影の非対称を出せなかった理由も同じ。</p>
+  </div>
+
+  <div class="next">
+    <span class="lab">この回の位置づけ</span>
+    番外編②<a href="butsuri-tsukuru-bangai2-ct.html">「ct = 一定」は、どこまで通用するか</a>の直接の続きです。②が「区別がつくのは光以外の側」と書いた場所を、実際に測りに行った回になります。<br>
+    本編との関係でいうと、<strong>第17回</strong><a href="butsuri-tsukuru-17-suisei.html">平坦な格子で、水星が回る</a>で1つだけ出した数（42.9807″/世紀）を、道具にまとめて6本に増やした回です。第17回で踏んだ桁落ちの穴を、この回でもう一度踏んでいます（04・06節）。<br>
+    そして<strong>第19回</strong><a href="butsuri-tsukuru-19-raku.html">こっちのほうが、計算が楽だ</a>の「楽だ」に、範囲の限定を付けた回でもあります ── <em>読む側は楽。埋める側は楽にならない。</em>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る」シリーズ番外編④、物理好きの高校生・大学生向け読み物です。姉妹編「わかる」が既知の物理を解説するのに対し、本シリーズは作業そのものを見せます。</p>
+    <p><strong>確立した内容</strong>：シュワルツシルト解の等方座標表示、ヌル測地線の共形不変性、共形平坦性とワイルテンソル消失の同値性、シュワルツシルト光子球 \(r=3m\) と臨界衝突径数 \(\sqrt{27}\,m\)、光子リングの \(e^{-2\pi}\) スケーリング、等方座標が2枚の漸近平坦領域を喉 \(r=2m\) で繋ぐこと（アインシュタイン–ローゼンの橋）と反転 \(\rho\to m^2/4\rho\) の等長性、Painlevé–Gullstrand 座標の空間平坦性と \(v=\sqrt{2m/r}\)、地平面から特異点までの固有時 \(4m/3\)（および最長 \(\pi m\)）、ADM 3+1 分解、数値相対論の CFL 条件が \(\alpha+|\beta|\) で決まること、Bona–Massó 族 \(\partial_t\alpha=-\alpha^2f(\alpha)K\) と 1+log（\(f=2/\alpha\)）、gauge shock の存在、Cassini の \(\gamma-1=(2.1\pm2.3)\times10^{-5}\)（Bertotti, Iess, Tortora, Nature 425 (2003) 374）、EHT の M87*（42±3 μas）と Sgr A*（51.8±2.3 μas）の影の角直径、Garat &amp; Price の共形平坦スライス非存在（Phys. Rev. D 61 (2000) 124011）。</p>
+    <p><strong>本稿の計算</strong>：上の表のすべての数値（1.751201″、42.9806″/世紀、\(2.458454\times10^{-15}\)、38.610 μs/日、247.295 μs、5.196152423 \(m\)、39.69 / 53.25 μas、535.5倍、PPN の対数微分、\(1.1\times10^{-5}\)、係数 8、30.593 mas/年、\(1.333333332\,m\) と \(3.141592654\,m\)）。検算コードは純 Python・依存なし：<code>flatgrid.py</code>（弱い場5つ）／<code>flatgrid2.py</code>（強い場・影・光子リング）／<code>flatgrid3.py</code>（残っている自由度）／<code>flatgrid4.py</code>（風）／<code>flatgrid5.py</code>・<code>flatgrid6.py</code>（地平面とシートの枚数）。</p>
+    <p><strong>ここは慎重に読んでください。</strong>「クリストッフェル記号が要らない」のは<em>観測量を出す作業について</em>で、そこが軽いのは正準形式のおかげであって「平坦な格子」固有の利点ではありません（ブラックホール周りのレイトレーシングを行う数値コードは普通に正準形式を使います）。<br>
+    <strong>この回はアインシュタイン方程式を一度も解いていません。</strong>\(F\) と \(G\) は手で入れた既知の解です。2体問題・重力波・星の内部はこの道具の外側です（連星パルサーを扱わなかったのはそのためです）。<br>
+    <strong>PPN の \(\beta\) 側の許容幅は推定です。</strong>\(\gamma\) は Cassini の一次情報を使いましたが、\(\beta\) について MESSENGER 以降の数値は Verma, Fienga, Laskar, Manche, Gastineau, A&amp;A 561 (2014) A115 の要旨に載っておらず、本稿では \(|\delta\beta|\sim2.5\times10^{-5}\) を推定として使っています（一次情報で未確認）。<br>
+    <strong>Garat–Price の非存在証明には条件が付いています</strong>（軸対称かつシュワルツシルト極限で滑らかに一定時刻面に帰着する葉層）。無条件の主張ではありません。<br>
+    <strong>影の非対称（\(8.31(a/m)\,m\)）は載せていません。</strong>弱い場の渦 \(\Omega=2\mathcal J/\rho^3\) が光子球で破れており（\(\Omega V\approx1.59(a/m)\)）、よく引かれる Kerr の影のずれ \(2a\) と4倍合わないままです。<br>
+    <strong>「スプレッドシート」は読者の言葉です。</strong>ADM 3+1 との対応は本稿の整理で、教科書の用語ではありません。</p>
+    <p>本編：<a href="index.html">目次</a> ｜ 番外編②：<a href="butsuri-tsukuru-bangai2-ct.html">「ct = 一定」は、どこまで通用するか</a> ｜ 第17回：<a href="butsuri-tsukuru-17-suisei.html">平坦な格子で、水星が回る</a> ｜ 第19回：<a href="butsuri-tsukuru-19-raku.html">こっちのほうが、計算が楽だ</a></p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、2枚の格子が同じ影を出すことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;
+
+  // m = 1 の単位。等方座標： u = 1/(2ρ)
+  function c_iso(rho){ var u=0.5/rho; return Math.abs(1-u)/Math.pow(1+u,3); }
+  function r_of_rho(rho){ var u=0.5/rho; return rho*Math.pow(1+u,2); }
+  function V_iso(rho){ var c=c_iso(rho); return c>0 ? rho/c : Infinity; }
+  function v_pg(r){ return Math.sqrt(2.0/r); }
+
+  function axes(ctx,L,R,T,B,x0,x1,y0,y1,xlab,ylab,xticks,yticks){
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef2f4'; ctx.lineWidth=1;
+    var i;
+    for(i=0;i<yticks.length;i++){
+      var yy=B-(yticks[i]-y0)/(y1-y0)*(B-T);
+      ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right';
+      ctx.fillText(String(yticks[i]), L-8, yy+4);
+    }
+    for(i=0;i<xticks.length;i++){
+      var xx=L+(xticks[i]-x0)/(x1-x0)*(R-L);
+      ctx.beginPath(); ctx.moveTo(xx,T); ctx.lineTo(xx,B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center';
+      ctx.fillText(String(xticks[i]), xx, B+20);
+    }
+    ctx.strokeStyle='#c8d2d6'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left'; ctx.fillText(ylab,L,T-14);
+    ctx.textAlign='center'; ctx.fillText(xlab,(L+R)/2,B+42);
+  }
+
+  function draw(){
+    var ctx=cv.getContext('2d'), Wd=cv.width, Ht=cv.height;
+    ctx.clearRect(0,0,Wd,Ht);
+    var L=78,R=Wd-40,T=44,B=Ht-62;
+    var i,x,y;
+
+    if(MODE===0){
+      var x0=0.05,x1=6.0,y0=0,y1=1.05;
+      axes(ctx,L,R,T,B,x0,x1,y0,y1,'ρ / m  （等方座標の半径）','格子上の光の速さ c(ρ)/c∞',
+           [1,2,3,4,5,6],[0,0.2,0.4,0.6,0.8,1.0]);
+      function X(v){ return L+(v-x0)/(x1-x0)*(R-L); }
+      function Y(v){ return B-(v-y0)/(y1-y0)*(B-T); }
+      // 喉の縦線
+      ctx.setLineDash([5,4]); ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(X(0.5),T); ctx.lineTo(X(0.5),B); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#8a2f18'; ctx.textAlign='left';
+      ctx.fillText('ρ = m/2  （喉 = 地平面、c → 0）', X(0.5)+8, T+16);
+      // 1枚目（ρ>m/2）
+      ctx.strokeStyle='#1f4a6b'; ctx.lineWidth=2.4; ctx.beginPath();
+      for(i=0;i<=900;i++){ x=0.5+ (x1-0.5)*i/900; y=c_iso(x);
+        if(i===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y)); }
+      ctx.stroke();
+      // 2枚目（ρ<m/2）
+      ctx.strokeStyle='#6a3fa0'; ctx.lineWidth=2.4; ctx.setLineDash([4,3]); ctx.beginPath();
+      for(i=0;i<=600;i++){ x=0.05+(0.5-0.05)*i/600; y=c_iso(x);
+        if(i===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y)); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#1f4a6b'; ctx.fillText('1枚目の外側', X(3.4), Y(c_iso(3.4))-12);
+      // 2枚目の山（ρ=m/4 で c=1/27）に印を付ける
+      ctx.fillStyle='#6a3fa0';
+      ctx.beginPath(); ctx.arc(X(0.25),Y(1/27),5,0,6.284); ctx.fill();
+      ctx.fillStyle='#5a3590';
+      ctx.fillText('2枚目の外側（内側ではない）── 山でも c = 1/27', X(0.42), Y(1/27)+22);
+      ctx.fillText('ρ が無限の領域を有限の球に押し込むので、この曲線も 0 に潰れます',
+                   X(0.42), Y(1/27)+40);
+      ro.innerHTML='<b>① 静止した格子。</b>光の速さが場所の関数になり、喉 \\(\\rho=m/2\\) で <b>0</b>。'
+        + 'その先（紫の破線）は内側ではなく <b>もう一つの外側</b> ── 面積半径 \\(r(\\rho)\\) が '
+        + '\\(\\rho=m/2\\) で最小 \\(2m\\) を取り、\\(\\rho\\to0\\) でまた \\(\\infty\\) に戻るため。'
+        + '<b>この格子は内側を一度も覆っていません。</b>';
+
+    } else if(MODE===1){
+      var x0b=0.05,x1b=8.0,y0b=0,y1b=3.0;
+      axes(ctx,L,R,T,B,x0b,x1b,y0b,y1b,'r / m  （面積半径）','速さ / c',
+           [1,2,3,4,5,6,7,8],[0,0.5,1.0,1.5,2.0,2.5,3.0]);
+      function X2(v){ return L+(v-x0b)/(x1b-x0b)*(R-L); }
+      function Y2(v){ return B-(v-y0b)/(y1b-y0b)*(B-T); }
+      ctx.setLineDash([5,4]); ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(X2(2),T); ctx.lineTo(X2(2),B); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#8a2f18'; ctx.textAlign='left';
+      ctx.fillText('r = 2m  （川が光速に達する）', X2(2)+8, T+16);
+      // c = 1（厳密に一定）
+      ctx.strokeStyle='#1f5a42'; ctx.lineWidth=2.8;
+      ctx.beginPath(); ctx.moveTo(L,Y2(1)); ctx.lineTo(R,Y2(1)); ctx.stroke();
+      ctx.fillStyle='#1f5a42'; ctx.fillText('水に対する光の速さ ＝ 1（厳密に一定）', X2(4.2), Y2(1)-10);
+      // 川の速さ
+      ctx.strokeStyle='#1f4a6b'; ctx.lineWidth=2.4; ctx.beginPath();
+      for(i=0;i<=900;i++){ x=0.05+(x1b-0.05)*i/900; y=v_pg(x); if(y>y1b) continue;
+        ctx.lineTo(X2(x),Y2(y)); }
+      ctx.stroke();
+      ctx.fillStyle='#1f4a6b'; ctx.fillText('川の速さ v(r) = √(2m/r)  ＝ 脱出速度', X2(0.6), Y2(2.55));
+      // 外向きの光
+      ctx.strokeStyle='#8a6d1f'; ctx.lineWidth=2.2; ctx.setLineDash([6,3]); ctx.beginPath();
+      for(i=0;i<=900;i++){ x=0.05+(x1b-0.05)*i/900; y=1-v_pg(x); if(y< -0.05) continue;
+        ctx.lineTo(X2(x),Y2(Math.max(y,0))); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#6b5418'; ctx.fillText('外向きの光の座標速さ 1 - v(r)', X2(4.2), Y2(0.62));
+      ro.innerHTML='<b>② 流れる格子（Painlevé–Gullstrand）。</b>空間は<b>厳密にユークリッド</b>、'
+        + '\\(c\\) は<b>厳密に一定</b>。動いているのは格子そのもので、速さは'
+        + '<b>ニュートンの脱出速度</b> \\(\\sqrt{2m/r}\\)。'
+        + '\\(r=2m\\) で川が光速に達し、外向きの光が止まる ── '
+        + '<b>内側では川が超光速。負になる量は一つもありません。</b>';
+
+    } else {
+      var x0c=0.5,x1c=8.0,y0c=4.5,y1c=12.0;
+      axes(ctx,L,R,T,B,x0c,x1c,y0c,y1c,'半径 / m','V = ρ/c(ρ)  ＝ 折り返しに必要な衝突径数 b/m',
+           [1,2,3,4,5,6,7,8],[5,6,7,8,9,10,11,12]);
+      function X3(v){ return L+(v-x0c)/(x1c-x0c)*(R-L); }
+      function Y3(v){ return B-(v-y0c)/(y1c-y0c)*(B-T); }
+      // V(ρ)（等方座標）
+      ctx.strokeStyle='#1f4a6b'; ctx.lineWidth=2.6; ctx.beginPath();
+      var started=false;
+      for(i=0;i<=1400;i++){ x=0.502+(x1c-0.502)*i/1400; y=V_iso(x);
+        if(!isFinite(y)||y>y1c){ started=false; continue; }
+        if(!started){ ctx.moveTo(X3(x),Y3(y)); started=true; } else ctx.lineTo(X3(x),Y3(y)); }
+      ctx.stroke();
+      // 最小値
+      var s27=Math.sqrt(27), rs=1+Math.sqrt(3)/2;
+      ctx.setLineDash([4,4]); ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(L,Y3(s27)); ctx.lineTo(R,Y3(s27)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X3(rs),Y3(s27)); ctx.lineTo(X3(rs),B); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#a83a22';
+      ctx.beginPath(); ctx.arc(X3(rs),Y3(s27),7,0,6.284); ctx.fill();
+      ctx.textAlign='left';
+      ctx.fillText('最小値 b_crit = √27 m = 5.196152423 m', X3(rs)+14, Y3(s27)-10);
+      ctx.fillText('ρ = 1.866025 m  （＝ 面積半径 3m）', X3(rs)+14, Y3(s27)+16);
+      ctx.fillStyle='#1f4a6b';
+      ctx.fillText('V は両端で ∞ に発散する（ρ→∞ と、c→0 の喉）', X3(3.6), Y3(10.6));
+      ro.innerHTML='<b>③ 影の大きさ。</b>折り返し条件は \\(\\rho/c(\\rho)=b\\)。'
+        + '\\(V=\\rho/c\\) は \\(\\rho\\to\\infty\\) で \\(\\infty\\)、\\(\\rho\\to m/2\\) でも '
+        + '\\(c\\to0\\) だから \\(\\infty\\) ── <b>だから最小値がある</b>。'
+        + 'それより小さい \\(b\\) の光は折り返せず落ちる。'
+        + '<b>影の大きさは「半径 ÷ その場所の光の速さ」の最小値だけで決まります</b>'
+        + '（幾何も曲率も使っていません）。流れる格子で計算しても同じ値が10桁一致で出ます。';
+    }
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+  document.getElementById('b1').addEventListener('click',function(){ MODE=0; draw(); });
+  document.getElementById('b2').addEventListener('click',function(){ MODE=1; draw(); });
+  document.getElementById('b3').addEventListener('click',function(){ MODE=2; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
