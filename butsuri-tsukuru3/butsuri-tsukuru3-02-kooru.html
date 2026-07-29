@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最強の上限が、放置されているモードだった ── 物理を作る 第3部 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f5f8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c9dcea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1b2836;color:#dce7f0;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#8fb6d0;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f95a6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e6eef4;color:#1f3b52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eaf1f6;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf1f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1f3b52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e7eef3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6eef4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1f3b52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#1b2836;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第3部 ── まだ、測られていない</span><span class="ep">第 2 回 ／ 最強の上限が、放置されているモードだった</span></div>
+  <p class="eyebrow">PDG の \(K^+\) を全部並べたら、第1回の読みがまた逆転した</p>
+  <h1>最強の上限が、放置されているモードだった
+    <span class="sub">第1回は「<em>狭くて安い測定が体系的に落ちる</em>」で終わりました。<br>第2回はそれを機械的に洗います。PDG の \(K^+\) のレプトン数・フレーバー破れモードは<strong>全部で9本</strong>。<br>並べてみたら、逆でした ── <strong>9本のうちいちばん強い上限が、NA62 が触らなかったモードに付いている。</strong><br>理由は単純でした。<em>そのモードには、専用の実験が16年あったのです。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：PDG の \(K^+\) 一覧、割り算</span>
+    <span>この回の芯：狭いモードは落ちるのではなく、凍る</span>
+  </div>
+
+  <p class="lead">第1回の結論は「専用実験を建てるほど広くなく、既存の解析計画に入るほど一般的でもない ── どちらの門もくぐれない測定が落ちる」でした。<br>それを機械的に確かめるつもりで、<strong>PDG の \(K^+\) 崩壊モードを全部持ってきました。</strong>レプトンフレーバー破れ（LF）が4本、レプトン数破れ（L）が5本、合計9本。<em>これで一つのセクターを漏れなく洗ったことになります。</em><br>そして並べた瞬間に、第1回の読みが崩れました。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>\(K^+\) を、全部並べる</h2>
+
+  <table class="tbl">
+    <tr><th style="width:32%">モード</th><th style="width:16%">上限（90% CL）</th><th style="width:8%">種</th><th>出どころ</th></tr>
+    <tr class="mark"><td><strong>\(K^+\to\pi^+\mu^+e^-\)</strong></td><td class="num ok"><strong>\(1.3\times10^{-11}\)</strong></td><td class="c">LF</td><td class="bad"><strong>E777 / E865（専用）</strong><br><span style="font-size:12px">2005年公表・1998年データ</span></td></tr>
+    <tr><td>\(K^+\to\pi^-\mu^+e^+\)</td><td class="num">\(4.2\times10^{-11}\)</td><td class="c">L</td><td class="ok">NA62（副産物）2021</td></tr>
+    <tr><td>\(K^+\to\pi^-\mu^+\mu^+\)</td><td class="num">\(4.2\times10^{-11}\)</td><td class="c">L</td><td>—</td></tr>
+    <tr><td>\(K^+\to\pi^-e^+e^+\)</td><td class="num">\(5.3\times10^{-11}\)</td><td class="c">L</td><td>—</td></tr>
+    <tr><td>\(K^+\to\pi^+\mu^-e^+\)</td><td class="num">\(6.6\times10^{-11}\)</td><td class="c">LF</td><td class="ok">NA62（副産物）2021</td></tr>
+    <tr><td>\(K^+\to\pi^0\pi^-\mu^+e^+\)</td><td class="num">\(2.9\times10^{-10}\)</td><td class="c">L</td><td>—</td></tr>
+    <tr><td>\(K^+\to\pi^0\pi^+\mu^-e^+\)</td><td class="num">\(3.1\times10^{-10}\)</td><td class="c">LF</td><td>—</td></tr>
+    <tr><td>\(K^+\to\pi^0\pi^+\mu^+e^-\)</td><td class="num">\(5.0\times10^{-10}\)</td><td class="c">LF</td><td>—</td></tr>
+    <tr><td>\(K^+\to\pi^-\pi^0e^+e^+\)</td><td class="num">\(8.5\times10^{-10}\)</td><td class="c">L</td><td>—</td></tr>
+  </table>
+
+  <p>上限の強い順に並べました。<strong>一番上が、第2部で追いかけていたモードです。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>逆転</h2>
+
+  <div class="verdict warn">
+    <div class="lbl">第1回の読みが崩れた</div>
+    <p style="font-size:19px"><strong>9本のうちいちばん強い上限は、NA62 が触らなかったモードに付いています。</strong></p>
+    <p>NA62 が 2021年に更新した2本は、それより<em>弱い</em>ところにあります ──</p>
+    <p style="margin-bottom:0">\(\pi^-\mu^+e^+\)：\(4.2\times10^{-11}\) ＝ <strong>3.2倍弱い</strong>／\(\pi^+\mu^-e^+\)：\(6.6\times10^{-11}\) ＝ <strong>5.1倍弱い</strong></p>
+  </div>
+
+  <p>第1回は「狭いモードは誰もやらない」と読みました。<em>ところが実測は逆で、その狭いモードにこそ最良の上限が付いている。</em></p>
+
+  <p>NA62 は 3〜5倍弱い上限を2本更新して、<strong>いちばん強い上限のモードだけを触らなかった</strong>ことになります。第1回で「なぜ触らなかったのか」を「広さで説明できる」と書きましたが、それでは<em>なぜそのモードが最良なのか</em>が説明できません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>理由 ── 専用実験が16年あった</h2>
+
+  <div class="keybox">
+    <div class="lbl">出どころを辿ると</div>
+    <p style="margin:6px 0 0"><strong>E777</strong>（1982、BNL AGS）── 論文の題そのものが <em>“A Search for the Rare Decay \(K^+\to\pi^+\mu^+e^-\)”</em></p>
+    <p style="margin:8px 0 0"><strong>E865</strong>（BNL AGS、〜1998）── <em>「\(K^+\to\pi^+\mu^+e^-\) の探索に専念した実験」</em>。6 GeV/c の \(K^+\) ビーム、AGS の 1.6秒パルスごとに \(1.5\times10^7\) 個</p>
+    <p style="margin:8px 0 0">最終結果は Sher ら（2005）。<em>「前回の探索は25年前」</em>と書かれています</p>
+  </div>
+
+  <p><strong>この一本のモードに、専用の実験が二代続けて16年あったのです。</strong>だから最良の上限が付いている。当然でした。</p>
+
+  <p>そして 1998年でデータが止まり、以後28年、何も足されていません。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>だから、模型を直す</h2>
+
+  <p>第1回のモデル（狭い×安い＝落ちる）は、静的すぎました。時間を入れると形が変わります。</p>
+
+  <div class="verdict">
+    <div class="lbl">直した読み</div>
+    <p style="font-size:19px"><strong>狭いモードは「やられない」のではなく、「凍る」。</strong></p>
+    <p><strong>広いモード</strong>は、新しい実験が建つたびに<em>副産物として</em>上限が更新される。だから止まらない。</p>
+    <p style="margin-bottom:0"><strong>狭いモード</strong>は、専用実験がある期間だけ一気に進んで、<em>その実験が終わったところで止まる。</em>次に更新されるのは、また誰かが専用に建てたときだけ。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:24%"></th><th style="width:38%">広いモード</th><th>狭いモード</th></tr>
+    <tr><td>更新の仕組み</td><td class="ok">新しい実験の<strong>副産物</strong></td><td class="bad"><strong>専用実験</strong>だけ</td></tr>
+    <tr><td>進み方</td><td class="ok">連続。止まらない</td><td class="bad">階段状。専用実験の寿命で止まる</td></tr>
+    <tr><td>いまの上限の質</td><td>実験世代なりの値</td><td class="ok"><strong>不釣り合いに良い</strong>（専用の押しが入った）</td></tr>
+    <tr><td>例</td><td>\(\mu\to eee\)（1988年の上限、Mu3e が4桁抜きに来る）</td><td>\(K^+\to\pi^+\mu^+e^-\)（16年の専用、28年の凍結）</td></tr>
+  </table>
+
+  <p>3行目が、この回の検証にあたります。<strong>「凍っているモードの上限は、不釣り合いに良いはず」</strong> ── 9本を並べた表がそのとおりになっていました。</p>
+
+  <div class="fig">
+    <div class="cap">図：PDG の \(K^+\) 全9本。<b>横軸は上限（対数、左が強い）</b>。<b>ボタンで色分けを切り替えます</b> ── 「出どころ」で塗ると、いちばん左（最強）だけが<b>終了した専用実験</b>の色になります</div>
+    <canvas id="cv" width="1120" height="420"></canvas>
+    <div class="controls">
+      <button id="b1">出どころで塗る</button>
+      <button id="b2">種（LF / L）で塗る</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#a83a22"></span>終了した専用実験（凍結）</span>
+      <span><span class="swatch" style="background:#2f7d5a"></span>NA62 の副産物（2021）</span>
+      <span><span class="swatch" style="background:#8a9694"></span>その他</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>訂正⑯ ── 第1回の読み</h2>
+
+  <p>第1回の「落ちるものの形」の表を直します。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th style="width:34%">第1回の読み</th><th>直した読み</th></tr>
+    <tr><td>広い×安い</td><td>すぐやられる</td><td class="ok">同じ</td></tr>
+    <tr><td>広い×高い</td><td>専用実験が建つ</td><td class="ok">同じ。<em>加えて副産物で連続更新される</em></td></tr>
+    <tr class="mark"><td><strong>狭い×安い</strong></td><td class="bad">ここが落ちる</td><td class="bad"><strong>ここが凍る。</strong>過去に専用実験があれば<em>上限は最良</em>だが、そこから動かない</td></tr>
+    <tr><td>狭い×高い</td><td>誰もやらない</td><td class="ok">同じ</td></tr>
+  </table>
+
+  <p>違いは<strong>「落ちる」と「凍る」</strong>です。落ちているなら上限は悪いはず。<em>凍っているなら、止まった時点の質のまま残る</em> ── そして専用実験が付いていたモードは、その時点で最良でした。</p>
+
+  <div class="caveat">
+    <span class="tag">これで探し方も変わります</span>
+    第1回の条件は「①予言が上限に肉薄 ②覆う範囲が狭い ③既存のデータで届く」でした。<br>②を測る代理変数が見つかりました ── <strong>最良の上限を出したのが「専用実験」か「副産物」か。</strong>専用なら狭い。副産物なら広い。<em>これは PDG の出典を見るだけで機械的に判定できます。</em><br>そして③は「専用実験が終わっているか」で判定できる ── 終わっていれば、いま動いている実験のデータで届く可能性が高い。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>この回で洗えた範囲</h2>
+
+  <p>正直に言うと、洗えたのは<strong>\(K^+\) 一つのセクターだけ</strong>です。9本。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">セクター</th><th>状態</th></tr>
+    <tr><td>\(K^+\)</td><td class="ok"><strong>完了。</strong>9本すべて。1本が「凍った専用」、2本が「NA62 の副産物」</td></tr>
+    <tr><td>\(K_L,\ K_S\)</td><td class="bad">未着手（\(K_L\to\mu e\) は \(4.7\times10^{-12}\) と分かっているが出どころ未確認）</td></tr>
+    <tr><td>\(\pi^0,\ \eta,\ \eta'\)</td><td class="bad">未着手</td></tr>
+    <tr><td>\(D,\ B\) 中間子</td><td class="bad">未着手</td></tr>
+    <tr><td>\(\tau\) の LFV 崩壊</td><td class="bad">未着手（Belle II が副産物で押している側のはず）</td></tr>
+    <tr><td>陽子崩壊のモード別</td><td class="bad">未着手</td></tr>
+  </table>
+
+  <p>1セクターで模型が一度直りました。<em>残りを洗えば、また直るかもしれません。</em>それがこのシリーズの進み方です。</p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(K^+\to\pi^+\mu^+e^-\) の上限 \(1.3\times10^{-11}\) と、NA62 が更新した2本を比べ、比を出せ。
+        <details><summary>答えを見る</summary><div class="ans">\(4.2/1.3=\mathbf{3.2}\) 倍、\(6.6/1.3=\mathbf{5.1}\) 倍 ── どちらも E865 のモードより<strong>弱い</strong>。<br>ここが第1回の読みを崩したところです。「誰もやらないモード」に最良の上限が付いているのは、<em>過去に専用実験があったから</em>としか説明できません。</div></details>
+      </li>
+      <li>「凍っているモードの上限は不釣り合いに良いはず」── これはなぜ予言になるのか。
+        <details><summary>答えを見る</summary><div class="ans">専用実験は<strong>そのモードのために最適化される</strong>ので、同じ時代の副産物より良い上限を出します。だから凍った瞬間の質は高い。<br>そして凍っているので<em>その後の実験世代の進歩が反映されない</em>。結果として「古いのに最良」という組み合わせになります。<strong>これは「古い上限＝放置＝悪い上限」という素朴な予想の逆</strong>で、だから予言として働きます ── 9本の表がそのとおりでした。</div></details>
+      </li>
+      <li>この回で「②覆う範囲が狭い」の代理変数が見つかった。それは何で、なぜ機械的に判定できるのか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>最良の上限を出したのが専用実験か副産物か</strong>。専用実験が建つのは、そのモードだけを狙う理由があるとき ── つまり<em>特定の模型が特定のモードを予言したとき</em>です。汎用モードなら専用に建てる必要がなく、どの実験でも副産物で出る。<br>そして PDG は<strong>各上限の出典（実験名と年）を必ず載せている</strong>ので、実験の性格を1回調べれば判定できます。<em>予言のカタログを作る必要がありません</em> ── そこがこの代理変数の値打ちです。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>\(K^+\) のセクターを漏れなく洗った。</strong> PDG のレプトンフレーバー破れ（LF）4本＋レプトン数破れ（L）5本、<em>合計9本</em>。一つのセクターを完全に並べたのは第3部で初めて。</p>
+    <p><strong>そして第1回の読みが逆転した。</strong> 9本のうち<strong>いちばん強い上限（\(1.3\times10^{-11}\)）が、NA62 が触らなかったモード</strong>に付いている。NA62 が 2021年に更新した2本は \(4.2\times10^{-11}\)（3.2倍弱い）と \(6.6\times10^{-11}\)（5.1倍弱い）。<em>「狭いモードは誰もやらない」では、なぜそれが最良なのかを説明できない。</em></p>
+    <p><strong>理由は専用実験だった。</strong> E777（1982、論文の題が “A Search for the Rare Decay \(K^+\to\pi^+\mu^+e^-\)”）と E865（BNL AGS、〜1998、<em>そのモードの探索に専念した実験</em>）── <strong>一本のモードに専用の実験が二代続けて16年</strong>。だから最良の上限が付いた。そして 1998年でデータが止まり、以後28年動いていない。</p>
+    <p><strong>だから「落ちる」ではなく「凍る」。</strong> 広いモードは新しい実験の<em>副産物として連続的に</em>更新される。狭いモードは<em>専用実験がある期間だけ階段状に進み、終わったところで止まる</em>。次の更新は、また誰かが専用に建てたときだけ。</p>
+    <p><strong>そして検証になっていた。</strong> この模型は「凍っているモードの上限は不釣り合いに良いはず」を予言する（専用実験はそのモードに最適化されるので、凍った瞬間の質が高い）。<em>これは「古い上限＝悪い上限」という素朴な予想の逆</em>で、9本の表はそのとおりになっていた。</p>
+    <p style="margin-bottom:0"><strong>探し方も変わった。</strong> 「覆う範囲が狭い」の代理変数が見つかった ── <strong>最良の上限を出したのが専用実験か副産物か</strong>。専用が建つのは特定の模型が特定のモードを予言したときで、汎用なら副産物で出る。そして<em>PDG は各上限の出典を必ず載せている</em>ので、予言のカタログを作らずに機械判定できる。洗えたのは \(K^+\) の1セクターだけで、\(K_L\)・\(\pi^0\)・\(\eta\)・\(D\)・\(B\)・\(\tau\)・陽子崩壊は未着手。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>出どころで洗う</strong> ── この回で代理変数が決まりました。<em>PDG の上限のうち、最良値が「終了した専用実験」から来ているものを列挙する。</em>それが「凍っているモード」の一覧になります。<br>\(K_L\to\mu e\) の \(4.7\times10^{-12}\) はどこから来たのか、\(\tau\) の LFV は Belle II が副産物で押しているのか、陽子崩壊はモードごとにどうなっているのか ── 順に見ます。<br>第1回：<a href="butsuri-tsukuru3-01-6500bai.html">6500倍高い道が、選ばれていた</a> ｜ 第2部：<a href="../butsuri-tsukuru2/index.html">その数は、偶然か</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第3部 ── まだ、測られていない」第2回です。第1回で立てた模型（狭い×安い＝落ちる）を、実データで直した回になります。</p>
+    <p>確立した内容：PDG が \(K^+\) について収録しているレプトンフレーバー破れ4モードとレプトン数破れ5モードの上限（すべて 90% CL）、そのうち \(K^+\to\pi^-\mu^+e^+&lt;4.2\times10^{-11}\) と \(K^+\to\pi^+\mu^-e^+&lt;6.6\times10^{-11}\) が NA62（Phys. Rev. Lett. 127 (2021) 131802）によること、\(K^+\to\pi^+\mu^+e^-&lt;1.3\times10^{-11}\) が A. Sher et al., Phys. Rev. D 72 (2005) 012005 によること、E777 が 1982年に同モードの探索として行われたこと、E865 が BNL AGS でそのモードの探索に専念した実験であったこと。<br>本稿の比（3.2倍・5.1倍）と凍結年数（データ1998年から28年、公表2005年から21年）は著者の計算です。<br><strong>表の「出どころ」欄で「—」としたモードは、出典を確認していません。</strong>PDG は各上限に出典を付けていますが、この回では \(\pi^+\mu^+e^-\)・\(\pi^-\mu^+e^+\)・\(\pi^+\mu^-e^+\) の3本だけを辿りました。残る6本の出どころは未確認です ── <em>したがって「9本のうち専用実験由来は1本」とは言っていません。</em>言えるのは「最良の上限が専用実験由来で、それが凍っている」までです。<br><strong>「狭いモードは落ちるのではなく凍る」という模型は、本シリーズの著者による整理です。</strong>標本は \(K^+\) の1セクターで、実験計画の決定過程を調べたものではありません。<em>NA62 が \(\pi^+\mu^+e^-\) を出さなかった理由は、依然として公表論文に書かれていません</em>（第2部第8回のとおり）。</p>
+    <p><a href="index.html">第3部の目次</a> ｜ 第2部：<a href="../butsuri-tsukuru2/index.html">その数は、偶然か</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a></p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、最強の上限だけが凍結色になることを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;   // 0 出どころ, 1 種
+
+  // name, 上限, 種, src: 'frozen' | 'na62' | 'other'
+  var M=[
+    {n:'pi+ mu+ e-',      v:1.3e-11, k:'LF', s:'frozen', lab:'E777/E865（専用・1998で凍結）'},
+    {n:'pi- mu+ e+',      v:4.2e-11, k:'L',  s:'na62',   lab:'NA62 副産物 2021'},
+    {n:'pi- mu+ mu+',     v:4.2e-11, k:'L',  s:'other',  lab:'出どころ未確認'},
+    {n:'pi- e+ e+',       v:5.3e-11, k:'L',  s:'other',  lab:'出どころ未確認'},
+    {n:'pi+ mu- e+',      v:6.6e-11, k:'LF', s:'na62',   lab:'NA62 副産物 2021'},
+    {n:'pi0 pi- mu+ e+',  v:2.9e-10, k:'L',  s:'other',  lab:'出どころ未確認'},
+    {n:'pi0 pi+ mu- e+',  v:3.1e-10, k:'LF', s:'other',  lab:'出どころ未確認'},
+    {n:'pi0 pi+ mu+ e-',  v:5.0e-10, k:'LF', s:'other',  lab:'出どころ未確認'},
+    {n:'pi- pi0 e+ e+',   v:8.5e-10, k:'L',  s:'other',  lab:'出どころ未確認'}
+  ];
+  var COL={frozen:'#a83a22', na62:'#2f7d5a', other:'#8a9694'};
+  var COLK={LF:'#1f5f8a', L:'#8a6d1f'};
+
+  function draw(){
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=170,R=W-40,T=44,B=H-58;
+    var XMIN=-11.2, XMAX=-8.9;   // log10(限界)
+    function X(lg){ return L+(lg-XMIN)/(XMAX-XMIN)*(R-L); }
+    var rh=(B-T)/M.length;
+
+    ctx.font='12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var e=-11;e<=-9;e++){
+      ctx.beginPath(); ctx.moveTo(X(e),T-14); ctx.lineTo(X(e),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText('10^'+e,X(e),B+22);
+    }
+    for(var i=0;i<M.length;i++){
+      var m=M[i], y=T+rh*(i+0.5);
+      var col = MODE===0 ? COL[m.s] : COLK[m.k];
+      var lg=Math.log(m.v)/Math.LN10;
+      ctx.strokeStyle='#e7eef3'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke();
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(X(lg),y,m.s==='frozen'?9:6,0,6.284); ctx.fill();
+      if(m.s==='frozen'){ ctx.strokeStyle=col; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(X(lg),y,14,0,6.284); ctx.stroke(); }
+      ctx.fillStyle='#26333a'; ctx.textAlign='right';
+      ctx.fillText('K+ → '+m.n, L-14, y+4);
+      ctx.textAlign='left'; ctx.fillStyle=col;
+      ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(m.v.toExponential(1)+'  '+(MODE===0?m.lab:m.k), X(lg)+20, y+4);
+      ctx.font='12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText(MODE===0?'色 = 上限の出どころ':'色 = LF（フレーバー破れ）／ L（レプトン数破れ）',L,T-22);
+    ctx.textAlign='center'; ctx.fillText('上限（左が強い）',(L+R)/2,H-16);
+
+    ro.className='readout';
+    ro.innerHTML = MODE===0
+      ? '<b>出どころで塗る</b>：いちばん左（最強 \\(1.3\\times10^{-11}\\)）だけが'
+        + '<span style="color:#8a2f18">終了した専用実験の色</span>。'
+        + 'NA62 が 2021年に更新した2本は、それより 3.2倍・5.1倍 <b>弱い</b>ところにある'
+      : '<b>種で塗る</b>：LF と L が入り混じっていて、上限の強さと種は関係がない ── '
+        + '<span style="color:#1f4a6b">分けているのは種ではなく、専用実験があったかどうか</span>';
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+  document.getElementById('b1').addEventListener('click',function(){ MODE=0; draw(); });
+  document.getElementById('b2').addEventListener('click',function(){ MODE=1; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
