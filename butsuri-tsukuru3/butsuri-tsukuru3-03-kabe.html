@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>止めた理由は、書いてあった ── 物理を作る 第3部 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f5f8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c9dcea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1b2836;color:#dce7f0;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#8fb6d0;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f95a6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e6eef4;color:#1f3b52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eaf1f6;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf1f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1f3b52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e7eef3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6eef4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1f3b52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#1b2836;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第3部 ── まだ、測られていない</span><span class="ep">第 3 回 ／ 止めた理由は、書いてあった</span></div>
+  <p class="eyebrow">2000年の総説を開いたら、凍結の理由が二つとも書いてあった</p>
+  <h1>止めた理由は、書いてあった
+    <span class="sub">第2回は「専用実験が終わったから凍った」で止まりました。<em>では、なぜ終わったのか。</em><br>一次資料（Barker &amp; Kettell 2000）を開いたら、両方の理由が一行で書いてありました ── <strong>背景の壁</strong>です。<br>そして壁の位置が書いてあるので、<strong>残っている土地の広さが計算できます</strong>。<br>\(K_L\to\mu e\) に永久に残っているのは、分岐比で <strong>47倍</strong>、質量スケールで <strong>2.6倍</strong>だけでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：総説1本、4乗根</span>
+    <span>この回の芯：凍結年数では、解けるかどうか分からない</span>
+  </div>
+
+  <p class="lead">第2回で「狭いモードは落ちるのではなく<strong>凍る</strong>」と直しました。専用実験がある期間だけ進んで、終わったところで止まる。<em>けれど、なぜ終わったのかを聞いていませんでした。</em><br>この回でやったことは一つです ── <strong>総説を1本、開きました。</strong>Barker &amp; Kettell「Developments in Rare Kaon Decay Physics」（BNL-67590 / arXiv:hep-ex/0009024、2000年）。E865 の実験当事者を含む総説です。<br>そこに、両方の理由が書いてありました。<em>そして書いてあったのは「予算が尽きた」ではありませんでした。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>書いてあったこと</h2>
+
+  <div class="keybox">
+    <div class="lbl">\(K_L\to\mu e\)（E871、上限 \(4.7\times10^{-12}\)）について</div>
+    <p style="margin:6px 0 0"><em>「この崩壊をさらに追う近い将来の計画は無い。\(K_{e3}\) 由来の背景（\(\pi\) が \(\mu\) に崩壊し、電子が散乱する）を \(10^{-13}\) の水準より下げるのが難しく、それは E871 の感度のすぐ先だからである。」</em></p>
+    <p style="margin:10px 0 0;font-size:14.5px;color:var(--ink-soft)">── Barker &amp; Kettell (2000) 4.1 節（大意）</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">\(K^+\to\pi^+\mu^+e^-\)（E865、上限 \(1.3\times10^{-11}\)）について</div>
+    <p style="margin:6px 0 0"><em>「E865 はすでに偶発同時計数による背景で制限されつつある。この探索を続ける計画は無い。」</em></p>
+    <p style="margin:8px 0 0">同じ節の冒頭には、第2回で外から確かめたことがそのまま書いてあります ── <em>「E865 は LFV 崩壊 \(K^+\to\pi^+\mu^+e^-\) を探すために設計された。」</em></p>
+    <p style="margin:10px 0 0;font-size:14.5px;color:var(--ink-soft)">── 同 4.2 節（大意）</p>
+  </div>
+
+  <p>もう一つ、同じ節にこうあります ── <em>「この分野の実験の焦点は、いまや稀なミューオン崩壊の限界を改善する方へ移った。」</em><br><strong>第2回で外から推測した「セクターの移動」が、2000年の時点で当事者に明言されていました。</strong></p>
+
+  <div class="caveat">
+    <span class="tag">つまり、凍結は怠慢ではない</span>
+    第2回は「専用実験の寿命で止まる」と書きました。それは正しいのですが、止まった理由が<strong>物理の壁</strong>だったなら、話が変わります。<br>
+    <em>壁があるなら、続けても取れる土地が少ない。</em>そして壁の位置（\(10^{-13}\)）が書いてあるので ── <strong>残っている土地の広さが、割り算で出ます。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>残っている土地を、質量で数える</h2>
+
+  <p>分岐比の比では、大きさの感覚が狂います。4フェルミ型の演算子なら振幅は \(1/M^2\)、分岐比は \(1/M^4\)。だから<strong>到達できる質量スケールは分岐比の \(-1/4\) 乗</strong>でしか伸びません。</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    <div class="lbl">壁までの距離を、質量スケールに直す</div>
+    $$ M \propto B^{-1/4} \qquad\Longrightarrow\qquad \frac{M_{\text{床}}}{M_{\text{いま}}} = \left(\frac{B_{\text{いま}}}{B_{\text{床}}}\right)^{1/4} $$
+  </div>
+
+  <p>同じ総説が、\(K_L\to\mu e\) の現在の上限に対する質量の値も出しています ── <em>「電弱結合の強さを持つ未知のボソンに対し、質量の下限 150 TeV」</em>。これで両端が揃いました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th style="width:22%">分岐比</th><th>質量スケール</th></tr>
+    <tr><td>いまの上限（1998年）</td><td class="num">\(4.7\times10^{-12}\)</td><td class="num"><strong>150 TeV</strong>（総説の値）</td></tr>
+    <tr><td>背景の床</td><td class="num">\(1.0\times10^{-13}\)</td><td class="num"><strong>393 TeV</strong>（本稿の計算）</td></tr>
+    <tr class="mark"><td><strong>残っている全部</strong></td><td class="num bad"><strong>47倍</strong></td><td class="num bad"><strong>2.62倍</strong></td></tr>
+  </table>
+
+  <div class="verdict warn">
+    <div class="lbl">これが \(K_L\to\mu e\) に永久に残された土地</div>
+    <p style="font-size:19px"><strong>150 TeV から 393 TeV。</strong>物理の床まで完全に掘り切っても、質量スケールは <strong>2.6倍</strong>しか伸びません。</p>
+    <p style="margin-bottom:0">比較のために、凍る直前の10年を同じ物差しで測ります ── 総説によれば <strong>1988年に約 \(10^{-8}\)</strong> だった上限が、1998年に \(4.7\times10^{-12}\)。<em>10年で 2128倍、質量で 6.8倍。</em><br><strong>残りは、その10年で稼いだ分の 0.39倍しかない。</strong></p>
+  </div>
+
+  <p>「安いのに残っている測定」を探しているのに、<em>残っている土地のほうが小さかった</em>わけです。第1回で立てた条件の③（既存のデータで届く）は満たしても、<strong>届いた先が狭い</strong>。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>ミューオン側は、壁ではなかった</h2>
+
+  <p>同じ物差しを、いま解凍しつつあるモードに当てます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">モード</th><th style="width:15%">いまの上限</th><th style="width:12%">出どころ</th><th style="width:15%">狙う先</th><th>質量で</th></tr>
+    <tr><td>\(\mu\to eee\)（Mu3e 第1期）</td><td class="num">\(1.0\times10^{-12}\)</td><td class="c">SINDRUM<br>1988</td><td class="num">\(2\times10^{-15}\)</td><td class="num ok">4.73倍</td></tr>
+    <tr class="mark"><td>\(\mu\to eee\)（Mu3e 第2期）</td><td class="num">\(1.0\times10^{-12}\)</td><td class="c">SINDRUM<br>1988</td><td class="num">\(2\times10^{-16}\)</td><td class="num ok"><strong>8.41倍</strong></td></tr>
+    <tr><td>\(\mu^-N\to e^-N\)（Mu2e）</td><td class="num">\(7.0\times10^{-13}\)</td><td class="c">SINDRUM II<br>2006（Au）</td><td class="num">\(7\times10^{-17}\)</td><td class="num ok"><strong>10.0倍</strong></td></tr>
+    <tr><td>\(K_L\to\mu e\)（床まで）</td><td class="num">\(4.7\times10^{-12}\)</td><td class="c">E871<br>1998</td><td class="num">\(1\times10^{-13}\)</td><td class="num bad"><strong>2.62倍</strong></td></tr>
+  </table>
+
+  <p><strong>\(\mu\to eee\) は 38年凍っていました。</strong>1988年の SINDRUM の上限が、いまも最良です。<em>それでも壁ではありませんでした</em> ── Mu3e が第1期で 500倍、第2期で 5000倍を取りに来ます。物理最初のデータは <strong>いま（2026年）</strong>です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>だから、凍結年数は指標にならない</h2>
+
+  <div class="verdict">
+    <div class="lbl">この回の芯</div>
+    <p style="font-size:19px"><strong>38年凍った \(\mu\to eee\) は解け、28年凍った \(K_L\to\mu e\) は解けません。</strong></p>
+    <p><em>年数の順と、解ける順が一致しない。</em>だから「古い上限＝狙い目」は使えません。</p>
+    <p style="margin-bottom:0">区別しているのは一つだけ ── <strong>止まった理由が「強度待ち」か「背景の床」か。</strong>そしてそれは、多くの場合<em>総説に一行で書いてあります。</em></p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:24%">モード</th><th style="width:13%">上限</th><th style="width:10%">凍結</th><th style="width:24%">止まった理由</th><th>残る質量</th></tr>
+    <tr><td>\(\mu\to eee\)</td><td class="num">\(1.0\times10^{-12}\)</td><td class="c">38年</td><td class="ok">強度・技術待ち</td><td class="num ok">8.41倍 → 解ける</td></tr>
+    <tr><td>\(\mu^-N\to e^-N\)</td><td class="num">\(7.0\times10^{-13}\)</td><td class="c">20年</td><td class="ok">強度待ち</td><td class="num ok">10.0倍 → 解ける</td></tr>
+    <tr class="mark"><td>\(K_L\to\mu e\)</td><td class="num">\(4.7\times10^{-12}\)</td><td class="c">28年</td><td class="bad"><strong>背景の床 \(10^{-13}\)</strong></td><td class="num bad">2.62倍 → 解けない</td></tr>
+    <tr><td>\(K^+\to\pi^+\mu^+e^-\)</td><td class="num">\(1.3\times10^{-11}\)</td><td class="c">28年</td><td class="bad"><strong>偶発背景</strong>（数値なし）</td><td class="c">不明</td></tr>
+  </table>
+
+  <div class="fig">
+    <div class="cap">図：<b>横軸は凍結年数、縦軸は残っている土地（質量スケールの倍率）</b>。<b>相関はありません</b>。色が「止まった理由」で、それだけが縦軸を決めています ── <b>ボタンで軸を「分岐比の倍率」に切り替え</b>られます（対数なので見え方が変わるだけで、順番は変わりません）</div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <button id="b1">縦軸：質量スケールの倍率</button>
+      <button id="b2">縦軸：分岐比の倍率（対数）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#2f7d5a"></span>強度・技術待ち（解ける）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>背景の床（解けない）</span>
+      <span><span class="swatch" style="background:#8a9694"></span>理由は書かれているが数値なし</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>ただし、専門家は「まだやる価値がある」と書いていた</h2>
+
+  <p>ここで反対側の一次資料が出てきます。<strong>L. G. Landsberg「Is it still worth searching for lepton flavor violation in rare kaon decays?」</strong>（Physics of Atomic Nuclei 68 (2005) 1190、投稿 2004年10月）── <em>題そのものが、この回の問いです。</em></p>
+
+  <div class="keybox">
+    <div class="lbl">要旨の骨</div>
+    <p style="margin:6px 0 0">カオンでの LFV 探索はミューオン崩壊での探索と<strong>相補的</strong>であり、<em>「世代量子数が近似的に保存する模型」</em>に対しては<strong>他の過程より優れた感度</strong>を与える。したがって新しいカオン LFV 探索は、荷電レプトンでの LFV 探索計画の重要かつ独立な一部である。</p>
+  </div>
+
+  <p>答えは「はい」でした。<em>そして誰もやりませんでした。</em>21年後の 2026年、\(K_L\to\mu e\) の最良値は 1998年の \(4.7\times10^{-12}\) から動いていません。後継として名前が挙がっていた KAMI（Fermilab）と CKM／E921（同）は<strong>どちらも実現していません</strong>（KOPIO も同時期に閉じられました）。</p>
+
+  <div class="caveat">
+    <span class="tag">この二つは矛盾していません</span>
+    Landsberg の議論は<strong>「模型による」</strong>という形をしています ── <em>世代量子数がほぼ保存する模型では、カオン LFV がミューオン LFV に勝つ。</em>そういう模型に賭けるなら、質量で 2.6倍でも意味がある。<br>
+    そして第1回で見つけた基準を思い出してください ── <strong>選ばれるのは安さではなく「広さ」</strong>。<em>「特定の模型クラスでのみ勝つ」は、いちばん狭い側です。</em><br>
+    つまり第1回・第2回・この回は、三度同じ答えを出しています ── <strong>選択は合理的だった。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>訂正⑱ ── 第2部第8回の「1.8倍」に条件が付く</h2>
+
+  <p>第2部第8回で、\(K^+\to\pi^+\mu^+e^-\) は<strong>露光 1.8倍で予言に届く</strong>と計算しました。背景制限なので感度は \(1/\sqrt f\)、\(f=1.8\) で 1.34倍改善 ── 数字自体は変わりません。<em>けれど今回、背景の正体が「偶発同時計数」だと分かりました。</em>そこに条件が付きます。</p>
+
+  <p>偶発背景は<strong>瞬間レートの2乗</strong>で増えます。だから「露光を 1.8倍にする」の中身が効きます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">露光 1.8倍の稼ぎ方</th><th style="width:14%">信号</th><th style="width:16%">偶発背景</th><th>感度 \(S/\sqrt B\)</th></tr>
+    <tr><td><strong>時間</strong>で稼ぐ（瞬間レート一定）</td><td class="num">1.8倍</td><td class="num">1.80倍</td><td class="num ok"><strong>1.342倍</strong> → 届く</td></tr>
+    <tr class="mark"><td><strong>瞬間強度</strong>で稼ぐ</td><td class="num">1.8倍</td><td class="num bad">3.24倍</td><td class="num bad"><strong>1.000倍</strong> → 何も改善しない</td></tr>
+  </table>
+
+  <p>下の行の 1.000 は近似ではなく<strong>厳密</strong>です。\(S\propto f\)、\(B\propto f^2\) なら \(S/\sqrt B\propto f/f=1\)。<em>偶発背景に対しては、瞬間強度を上げることが原理的に無意味になります。</em></p>
+
+  <div class="caveat">
+    <span class="tag">訂正の向き：不利（条件の追加）</span>
+    第2部第8回の 1.8倍は、<strong>「同じ瞬間レートで運転時間を 1.8倍にする」場合の数字</strong>でした。それを書いていませんでした。<br>
+    \(1/\sqrt f\) を使った時点で「背景は露光に比例」を仮定していたので<em>計算は整合しています</em>が、仮定を明示しないまま「1.8倍で決着」と言ったのは不十分です。<br>
+    そしてこれは第3部全体に効きます ── <strong>「既存のデータで届く」を数えるとき、露光の稼ぎ方まで指定しないと数えたことにならない。</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>直った探し方</h2>
+
+  <p>第1回の条件は「①予言が上限に肉薄 ②覆う範囲が狭い ③既存のデータで届く」でした。第2回で②の代理変数（専用実験由来か副産物か）が決まり、この回で残りが直りました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:16%"></th><th style="width:36%">前</th><th>いま</th></tr>
+    <tr><td>①肉薄</td><td>予言が既存上限に近い</td><td class="ok">同じ。ただし<strong>床までの距離</strong>も見る ── 床が近いなら肉薄しても土地がない</td></tr>
+    <tr><td>②狭さ</td><td>覆う範囲が狭い（測り方不明）</td><td class="ok">最良値が<strong>専用実験由来か副産物か</strong>（第2回）</td></tr>
+    <tr class="mark"><td><strong>③届く</strong></td><td class="bad">既存のデータで届く</td><td class="bad"><strong>露光の稼ぎ方まで指定して届く</strong>。偶発背景なら瞬間強度は効かない</td></tr>
+    <tr class="mark"><td><strong>④新：理由</strong></td><td>—</td><td class="bad"><strong>止まった理由が「強度待ち」か「背景の床」か。</strong>床なら残る土地を \(B^{-1/4}\) で数える</td></tr>
+  </table>
+
+  <p>④が、この回で足したものです。<em>そして④は、たいてい総説の一行を読むだけで分かります。</em></p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>\(K_L\to\mu e\) の上限 \(4.7\times10^{-12}\) から背景の床 \(10^{-13}\) まで掘ったとき、到達質量スケールは何倍になるか。総説の 150 TeV を使って絶対値も出せ。
+        <details><summary>答えを見る</summary><div class="ans">分岐比の比は \(4.7\times10^{-12}/10^{-13}=47\)。質量は \(-1/4\) 乗なので \(47^{1/4}=\mathbf{2.62}\) 倍。<br>\(150\times2.62=\mathbf{393}\) TeV。<strong>150 TeV から 393 TeV ── それが \(K_L\to\mu e\) に永久に残された全部です。</strong><br>凍る直前の10年（\(10^{-8}\to4.7\times10^{-12}\)、質量で \(2128^{1/4}=6.8\) 倍）と比べると、残りは <em>0.39倍</em>。</div></details>
+      </li>
+      <li>Mu3e 第2期は \(10^{-12}\to2\times10^{-16}\)。質量では何倍か。\(K_L\to\mu e\) の残りと比べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(5000^{1/4}=\mathbf{8.41}\) 倍。\(K_L\to\mu e\) の 2.62倍の <strong>3.2倍</strong>です。<br>ここが要点 ── <strong>\(\mu\to eee\) は38年、\(K_L\to\mu e\) は28年凍っています。長く凍っている方が、大きく解ける。</strong>年数は指標になりません。</div></details>
+      </li>
+      <li>偶発背景に対して、露光を「瞬間強度 \(f\) 倍」で稼ぐと感度は何倍になるか。式で示せ。
+        <details><summary>答えを見る</summary><div class="ans">信号 \(S\propto f\)。偶発同時計数は独立な2粒子が偶然重なる確率なので瞬間レートの2乗、\(B\propto f^2\)。したがって
+        $$ \frac{S}{\sqrt B}\propto \frac{f}{\sqrt{f^2}}=\frac{f}{f}=1 $$
+        <strong>ちょうど 1 ── 厳密に、何も改善しません。</strong>近似ではありません。<br>だから偶発背景に当たった実験は、ビームを強くしても進めない。<em>運転時間を延ばすか、検出器の時間分解能を上げるしかない</em>（後者は \(B\) の係数を下げるので効きます）。</div></details>
+      </li>
+      <li>この回は「凍結は怠慢ではない」と結論した。では第3部はまだ何を探せるのか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>「止まった理由が強度待ちで、かつ誰も再開していないモード」</strong>です。<br>\(\mu\to eee\)（Mu3e）、\(\mu^-N\to e^-N\)（Mu2e/COMET）、\(\mu\to e\gamma\)（MEG II）── ミューオン側の強度待ちは<em>三つ全部が同時に再開しています</em>。だからここは空いていません。<br>カオン LFV は強度待ちではなく背景の床なので、空いていても土地が狭い。<br><em>つまり第3部が探すべきは、この二つのどちらでもないセクターです</em> ── そこがまだ洗えていません（\(\tau\)、\(D\)、\(B\)、陽子崩壊のモード別）。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>止めた理由が、一次資料に書いてあった。</strong> Barker &amp; Kettell「Developments in Rare Kaon Decay Physics」（BNL-67590 / arXiv:hep-ex/0009024、2000年）── \(K_L\to\mu e\) は<em>「\(K_{e3}\) 由来の背景を \(10^{-13}\) より下げるのが難しく、それは E871 の感度のすぐ先」</em>だから追わない。\(K^+\to\pi^+\mu^+e^-\) は<em>「E865 はすでに偶発背景で制限されつつあり、続ける計画は無い」</em>。<strong>凍結の理由は予算ではなく物理の壁でした。</strong></p>
+    <p><strong>第2回の推測が当事者に明言されていた。</strong> 同じ節に<em>「この分野の実験の焦点は、いまや稀なミューオン崩壊の限界を改善する方へ移った」</em>。第2回で外から推測した「セクターの移動」が、2000年の総説にそのまま書いてありました。<em>そして「E865 は LFV 崩壊 \(K^+\to\pi^+\mu^+e^-\) を探すために設計された」も同じ節に。</em></p>
+    <p><strong>壁の位置が書いてあるので、残っている土地が計算できた。</strong> 分岐比 \(B\propto1/M^4\) なので質量は \(M\propto B^{-1/4}\)。\(4.7\times10^{-12}\to10^{-13}\) は 47倍 ＝ 質量で \(47^{1/4}=\mathbf{2.62}\) 倍。総説の \(150\) TeV を使うと <strong>150 TeV → 393 TeV</strong>。<em>それが \(K_L\to\mu e\) に永久に残された全部です。</em>凍る直前の10年（1988年 約 \(10^{-8}\) → 1998年 \(4.7\times10^{-12}\)、質量で 6.8倍）の <strong>0.39倍</strong>しかない。</p>
+    <p><strong>そして凍結年数は指標にならないと分かった。</strong> \(\mu\to eee\) は SINDRUM（1988）から<strong>38年</strong>凍っていて、いまも最良。それでも壁ではなく強度待ちだったので、Mu3e が第1期 500倍・第2期 5000倍（質量で 4.73倍・<strong>8.41倍</strong>）を取りに来ます（物理最初のデータは 2026年）。\(\mu^-N\to e^-N\) は 20年凍って Mu2e が質量 10倍。<em>38年凍った方が解け、28年凍った方が解けない</em> ── 区別しているのは<strong>「強度待ちか、背景の床か」</strong>だけ。</p>
+    <p><strong>反対側の一次資料もあった。</strong> L. G. Landsberg「Is it still worth searching for lepton flavor violation in rare kaon decays?」（Phys. At. Nucl. 68 (2005) 1190）── 答えは<strong>「はい」</strong>。理由は相補性で、<em>「世代量子数が近似的に保存する模型」に対してはカオン LFV が他の過程より優れた感度を持つ</em>。<em>そして21年後、誰もやっていません。</em>後継候補の KAMI と CKM／E921 はどちらも実現せず。<strong>矛盾はしません</strong> ── 「特定の模型クラスでのみ勝つ」は第1回の基準（広さ）でいちばん狭い側です。第1回・第2回・この回で三度、<strong>選択は合理的だった</strong>という同じ答えが出ました。</p>
+    <p><strong>訂正⑱（不利・条件の追加）。</strong> 第2部第8回の「露光 1.8倍で決着」は、<strong>「同じ瞬間レートで運転時間を 1.8倍」の場合の数字</strong>でした。偶発背景は瞬間レートの2乗で増えるので、瞬間強度で 1.8倍にすると \(S/\sqrt B\propto f/\sqrt{f^2}=\mathbf{1.000}\) ── <em>厳密に、何も改善しません。</em>\(1/\sqrt f\) を使った時点で仮定は入っていましたが、明示していませんでした。</p>
+    <p style="margin-bottom:0"><strong>探し方に④が付いた。</strong> ①肉薄（＋床までの距離も見る） ②狭さ（専用か副産物か） ③届く（<strong>露光の稼ぎ方まで指定して</strong>） ④<strong>止まった理由が強度待ちか背景の床か</strong>。④は総説の一行で分かります。<em>そしてミューオン側の強度待ちは三つ全部が同時に再開中なので空いていません</em> ── 次に洗うのは \(\tau\)・\(D\)・\(B\)・陽子崩壊です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>\(\tau\) は、副産物で押されている</strong> ── ④の物差しで次のセクターに行きます。\(\tau\) の LFV 崩壊は Belle／BaBar／Belle II が<em>副産物として</em>押している側のはずです。第2回の分類では「広いモード」。<br>ならば \(\tau\) には「凍っているモード」が無いのか、それとも \(\tau\) の中にも専用の押しが入って凍った枝があるのか。<em>そして陽子崩壊 ── あそこはモードごとに出どころが違うので、④が効くはずです。</em><br>第1回：<a href="butsuri-tsukuru3-01-6500bai.html">6500倍高い道が、選ばれていた</a> ｜ 第2回：<a href="butsuri-tsukuru3-02-kooru.html">最強の上限が、放置されているモードだった</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第3部 ── まだ、測られていない」第3回です。第2回で「凍る」と直した模型に、<em>凍った理由</em>を入れた回になります。</p>
+    <p>確立した内容：Barker &amp; Kettell, <em>Developments in Rare Kaon Decay Physics</em>, BNL-67590（2000年8月1日、同年11月8日改訂）／arXiv:hep-ex/0009024 に、\(K_L\to\mu e\) を追う近い将来の計画が無いこと・その理由が \(10^{-13}\) 水準の背景であること・E865 が偶発背景で制限されつつあり続ける計画が無いこと・E865 が \(K^+\to\pi^+\mu^+e^-\) の探索のために設計されたこと・分野の焦点が稀なミューオン崩壊へ移ったこと・\(B(K_L\to\mu e)&lt;4.7\times10^{-12}\) が電弱結合の未知ボソンに対し 150 TeV の下限を与えることが書かれていること。E791 が 1988〜1990年、E871 が 1995〜1996年に走ったこと。L. G. Landsberg, Phys. At. Nucl. 68 (2005) 1190 の題と要旨。SINDRUM (1988) の \(B(\mu\to eee)&lt;1.0\times10^{-12}\) が現在も最良であること、SINDRUM II (2006) の \(R_{\mu e}(\mathrm{Au})&lt;7.0\times10^{-13}\)、Mu3e の第1期 \(2\times10^{-15}\)・第2期 \(2\times10^{-16}\) という目標、Mu2e の \(7\times10^{-17}\) という目標。<br><strong>質量スケールの倍率（2.62倍・4.73倍・8.41倍・10.0倍・393 TeV）と、\(f/\sqrt{f^2}=1\) の表は、すべて本稿の計算です。</strong>検算コード：<code>kabe.py</code>（純 Python・依存なし）。</p>
+    <p><strong>ここは慎重に読んでください。</strong>\(M\propto B^{-1/4}\) は<em>4フェルミ型の接触相互作用を仮定した場合</em>の関係です。総説の 150 TeV も「電弱結合の強さを持つ未知のボソン」という仮定つきの値なので、<strong>2.62倍という結論はその仮定の中でだけ成り立ちます</strong>。軽い媒介粒子や、結合が質量に依存する模型では別の数になります。<br><strong>\(10^{-13}\) の背景の床は 2000年時点の見積りです。</strong>検出器技術（特に時間分解能と粒子識別）が変われば下がりうるもので、物理定数ではありません ── <em>下がるという具体的な提案を私が見つけていない、というだけです。</em><br><strong>\(K^+\to\pi^+\mu^+e^-\) の床は数値化されていません。</strong>総説は「偶発背景で制限されつつある」と書くだけで、水準を書いていません。だから表の「不明」は本当に不明です。<br><strong>「選択は合理的だった」は依然として私の整理です。</strong>実験計画の決定過程を調べたものではありません。そして<em>NA62 が \(K^+\to\pi^+\mu^+e^-\) を出さなかった理由は、いまも公表論文に書かれていません</em>（第2部第8回のとおり）── この回で分かったのは E865 が止まった理由で、NA62 が出さない理由ではありません。</p>
+    <p><a href="index.html">第3部の目次</a> ｜ 第2部：<a href="../butsuri-tsukuru2/index.html">その数は、偶然か</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a></p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、凍結年数と残り土地に相関が無いことを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;   // 0 質量倍率, 1 分岐比倍率(log)
+
+  // frozen年, 残り(分岐比倍率), why, 色種
+  var D=[
+    {n:'mu → eee',        yr:38, br:5000,  s:'wait',  lab:'Mu3e 第2期',        note:'強度・技術待ち'},
+    {n:'mu- N → e- N',    yr:20, br:10000, s:'wait',  lab:'Mu2e / COMET',      note:'強度待ち'},
+    {n:'K_L → mu e',      yr:28, br:47,    s:'wall',  lab:'背景の床 1e-13',    note:'背景の床'},
+    {n:'K+ → pi+ mu+ e-', yr:28, br:null,  s:'unk',   lab:'偶発背景（数値なし）', note:'理由はあるが数値なし'}
+  ];
+  var COL={wait:'#2f7d5a', wall:'#a83a22', unk:'#8a9694'};
+  function mass(br){ return Math.pow(br,0.25); }
+
+  function draw(){
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=96,R=W-40,T=40,B=H-64;
+    var XMIN=12, XMAX=44;                 // 凍結年数
+    function X(y){ return L+(y-XMIN)/(XMAX-XMIN)*(R-L); }
+    var YMIN, YMAX, Yv, ylab, ticks;
+    if(MODE===0){ YMIN=0; YMAX=11; Yv=function(d){ return mass(d.br); };
+      ylab='残っている土地（質量スケールの倍率）'; ticks=[0,2,4,6,8,10]; }
+    else { YMIN=0; YMAX=4.4; Yv=function(d){ return Math.log(d.br)/Math.LN10; };
+      ylab='残っている土地（分岐比の倍率・常用対数）'; ticks=[0,1,2,3,4]; }
+    function Y(v){ return B-(v-YMIN)/(YMAX-YMIN)*(B-T); }
+
+    ctx.font='12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var i=0;i<ticks.length;i++){
+      ctx.beginPath(); ctx.moveTo(L,Y(ticks[i])); ctx.lineTo(R,Y(ticks[i])); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right';
+      ctx.fillText(MODE===0? (ticks[i]+'×') : ('10^'+ticks[i]), L-10, Y(ticks[i])+4);
+    }
+    for(var y=15;y<=40;y+=5){
+      ctx.strokeStyle='#f2f6f5'; ctx.beginPath(); ctx.moveTo(X(y),T); ctx.lineTo(X(y),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText(y+'年',X(y),B+22);
+    }
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    for(var k=0;k<D.length;k++){
+      var d=D[k], col=COL[d.s];
+      if(d.br===null){
+        // 数値なし：軸下に印だけ置く
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+        ctx.beginPath(); ctx.moveTo(X(d.yr),B); ctx.lineTo(X(d.yr),B-26); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=col; ctx.textAlign='left';
+        ctx.fillText('K+ → pi+ mu+ e-（'+d.lab+'）', X(d.yr)+8, B-32);
+        continue;
+      }
+      var px=X(d.yr), py=Y(Yv(d));
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(px,py,8,0,6.284); ctx.fill();
+      if(d.s==='wall'){ ctx.strokeStyle=col; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(px,py,14,0,6.284); ctx.stroke(); }
+      ctx.fillStyle='#26333a'; ctx.textAlign= d.yr>32?'right':'left';
+      var dx = d.yr>32? -18 : 18;
+      ctx.fillText(d.n, px+dx, py-2);
+      ctx.fillStyle=col;
+      ctx.font='11.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      ctx.fillText(d.note+'  '+(MODE===0? (mass(d.br).toFixed(2)+'×') : (d.br+'×')), px+dx, py+14);
+      ctx.font='12.5px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText(ylab,L,T-16);
+    ctx.textAlign='center'; ctx.fillText('凍結年数（最良の上限が出た年から 2026年まで）',(L+R)/2,H-16);
+
+    ro.className='readout';
+    ro.innerHTML = MODE===0
+      ? '<b>質量スケールで見る。</b>38年凍った \\(\\mu\\to eee\\) が <b>8.41倍</b>、20年の \\(\\mu\\text{-}e\\) 転換が <b>10.0倍</b>、'
+        + '28年の <span style="color:#8a2f18">\\(K_L\\to\\mu e\\) は 2.62倍</span>。'
+        + '<b>横軸との相関はありません</b> ── 縦軸を決めているのは色（止まった理由）だけです'
+      : '<b>分岐比の倍率（対数）で見る。</b>見え方は変わりますが順番は同じ ── '
+        + '10000倍・5000倍・<span style="color:#8a2f18">47倍</span>。'
+        + '<b>分岐比だと差が大きく見えすぎます</b>：47倍と5000倍は 106倍離れて見えて、質量では 3.2倍しか違いません';
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+  document.getElementById('b1').addEventListener('click',function(){ MODE=0; draw(); });
+  document.getElementById('b2').addEventListener('click',function(){ MODE=1; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
