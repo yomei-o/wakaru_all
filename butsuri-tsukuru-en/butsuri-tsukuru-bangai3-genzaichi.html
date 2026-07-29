@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Not a CFT yet ── The Lattice We Build, Bonus ③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Bonus ③ ／ Not a CFT yet</span></div>
+  <p class="eyebrow">An honest status report on the two developments introduced in Episode 4 ── do the work by hand and you see what is missing</p>
+  <h1>Not a CFT yet
+    <span class="sub">At the end of Episode 4 we introduced holography for flat spacetime and soft hair.<br>Both were labelled "in progress" and "not accepted," but that is no diagnosis.<br><em>Where exactly does it stop?</em> Celestial CFT breaks the moment you try to build a four-point function.<br>And that breakage has an <strong>anticlimactically simple physical reason</strong>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 4, complex numbers, the cross ratio (built in the text if you do not know it)</span>
+    <span>The core of this episode: cross ratio = −s/t, and real</span>
+  </div>
+
+  <p class="lead">Discipline #5 of this series was "do not publish a conjecture with no falsification condition." Episode 4 wrote that "celestial holography is unfinished" and "soft hair has objections," but that is <em>just sticking labels on</em>.<br>This episode does the work by hand. Run the Mellin transform, try to build a four-point function, and watch it break. Then track down why.<br>The conclusion first ── <strong>the breakage is very clean, and its physical meaning is clear.</strong> Not "it cannot be done yet" but "we understand why it has this shape." That is progress.</p>
+
+  <h2><span class="n">01</span>First, what does work ── a plane wave becomes a conformal primary</h2>
+
+  <p>Let us confirm celestial holography's starting point exactly, in one line.</p>
+
+  <p>Split a massless momentum into "energy × a point on the celestial sphere."</p>
+
+  $$p^\mu=\omega\,q^\mu(z,\bar z)$$
+
+  <p>A Lorentz transformation acts on \(z\) as a Möbius transformation and on \(\omega\) as a scaling. So <strong>just diagonalize the scaling of \(\omega\)</strong> ── that is the Mellin transform.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── Mellin-transform a plane wave</span>
+    $$\int_0^\infty d\omega\;\omega^{\Delta-1}\,e^{i\omega\,q\cdot X-\epsilon\omega}\;=\;\frac{\Gamma(\Delta)}{\bigl(-i\,q\cdot X+\epsilon\bigr)^{\Delta}}$$
+    <p class="lbl">this is exact (it is literally \(\int_0^\infty \omega^{\Delta-1}e^{-a\omega}d\omega=\Gamma(\Delta)/a^\Delta\))</p>
+    <p style="margin:8px 0 8px">The right-hand side has the form \((q\cdot X)^{-\Delta}\), which transforms as a <strong>conformal primary of weight \(\Delta\)</strong> on the celestial sphere.</p>
+  </div>
+
+  <p>A plane wave has turned into a conformal field on the sphere. So far, perfect. Because the four-dimensional Lorentz group \(SO(3,1)\cong SL(2,\mathbb{C})\) acts as the two-dimensional conformal group, <em>this happens automatically</em>.</p>
+
+  <h2><span class="n">02</span>Try to build a four-point function and it breaks</h2>
+
+  <p>The problem shows up when you transform a scattering amplitude rather than one particle.</p>
+
+  <p>In an ordinary 2d CFT, a four-point function is a <strong>smooth function of the cross ratio \(z\)</strong>. Conformal symmetry fixes three points, leaving one degree of freedom: the cross ratio. The correlator can be written as a function of it.</p>
+
+  <p>Celestial CFT should take the same form ── so, expecting that, let us actually drop a 2→2 massless scattering event into celestial coordinates and compute the cross ratio.</p>
+
+  <div class="lab">
+    <span class="tag">COMPUTE THE CROSS RATIO OF 2→2 MASSLESS SCATTERING (CENTRE OF MASS)</span>
+<pre><span class="cm">assemble 4 momenta in the centre-of-mass frame, drop the directions onto celestial coordinates z_i = tan(θ/2)e^{iφ}</span>
+<span class="cm">and compute the cross ratio z = (z12·z34)/(z13·z24)</span>
+
+ scattering angle   cross ratio z   |Im z|          -s/t
+   30°      14.928203      <span class="st">1.7e-15</span>      14.928203
+   60°       4.000000      <span class="st">3.7e-16</span>       4.000000
+   90°       2.000000      <span class="st">1.2e-16</span>       2.000000
+  120°       1.333333      <span class="st">4.1e-17</span>       1.333333
+
+<span class="cm">taking 4 random points on the celestial sphere (= ignoring scattering)</span>
+   Re(cross ratio)  |Im|
+       0.5861     <span class="hi">0.4765</span>
+       2.0586     <span class="hi">2.1025</span>
+      -0.1783     <span class="hi">0.4818</span></pre>
+  </div>
+
+  <p>Two things become clear at once.</p>
+
+  <div class="keybox">
+    <div class="lbl">WHAT THE COMPUTATION SAYS</div>
+    <p style="margin:6px 0 0"><strong>①</strong> The cross ratio comes out <em>exactly real</em> to machine precision.</p>
+    <p style="margin:8px 0 0"><strong>②</strong> And its value equals \(-s/t\) ── <em>a ratio of Mandelstam variables</em>.</p>
+  </div>
+
+  <p>② is a happy find. The cross ratio of an abstract place like the celestial sphere corresponds to the most basic quantity of scattering.</p>
+
+  <p>But ① is the problem. <strong>Momentum conservation pins the cross ratio to the real axis.</strong> The cross ratio ought to have two dimensions' worth of freedom as a complex number, yet only one is actually reachable. Hence ──</p>
+
+  $$\tilde{\mathcal{M}}_4\;\propto\;\delta(z-\bar z)\times(\cdots)$$
+
+  <p><strong>The celestial four-point function is not a smooth function but a distribution.</strong> A different kind of object from an ordinary CFT correlator.</p>
+
+  <h2><span class="n">03</span>Why it breaks ── because the scattering is planar</h2>
+
+  <p>Track down the reason and it is anticlimactically simple.</p>
+
+  <p>Picture 2→2 scattering in the centre-of-mass frame. The two incoming momenta point exactly opposite each other, and so do the two outgoing ones. <strong>The four momenta necessarily lie in a single plane.</strong></p>
+
+  <p>And directions within a plane through the origin trace out a <em>great circle</em> on the celestial sphere. Furthermore ──</p>
+
+  <div class="keybox">
+    <div class="lbl">A BASIC FACT OF COMPLEX ANALYSIS</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">four points on the sphere are <strong>concyclic</strong> \(\iff\) <strong>the cross ratio is real</strong></p>
+  </div>
+
+  <p>So the chain is this.</p>
+
+  <p style="text-align:center;font-size:17px;margin:26px 0">
+    momentum conservation → <strong>scattering is planar</strong> → a great circle on the sphere → <strong>the cross ratio is real</strong> → the correlator is a distribution
+  </p>
+
+  <p><em>Celestial CFT is a "weird CFT" because 2→2 scattering is planar.</em> Not a deep pathology but elementary kinematics.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the celestial sphere mapped to a plane (stereographic projection). The dots show the four particles' directions. Move the scattering angle and the dots travel along a circle, the cross ratio staying real. Raise the "non-planarity" and they leave the circle, and an imaginary part appears</div>
+    <canvas id="cv" width="720" height="360"></canvas>
+    <div class="controls">
+      <label>scattering angle θ = <span class="val" id="vth">90</span>°
+        <input type="range" id="sth" min="15" max="150" value="90">
+      </label>
+      <label>non-planarity (the amount of momentum-conservation violation) <span class="val" id="vnp">0.00</span>
+        <input type="range" id="snp" min="0" max="100" value="0">
+      </label>
+      <button id="bz">back to the plane</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>Return the non-planarity to zero and the four points necessarily lie on one circle, with the imaginary part dropping to zero. Lift it even slightly and they leave the circle and an imaginary part appears ── and <em>that configuration does not satisfy momentum conservation</em>. It is unreachable.</p>
+
+  <h2><span class="n">04</span>So what is missing?</h2>
+
+  <p>Now we can write the diagnosis. When celestial holography is said to be "not a CFT yet," what concretely is lacking?</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">an ordinary CFT</th><th>celestial CFT</th></tr>
+    <tr><td>the four-point function is a <strong>smooth function</strong> of the cross ratio</td><td class="bad">a <strong>distribution</strong> supported on \(\delta(z-\bar z)\)</td></tr>
+    <tr><td>the operator spectrum is <strong>discrete</strong> (dimensions come in steps)</td><td class="bad">a <strong>continuous</strong> spectrum \(\Delta\in 1+i\mathbb{R}\)</td></tr>
+    <tr><td>the theory is <strong>independently defined</strong> (from an action or a lattice)</td><td class="bad">for now, no more than <strong>a rewriting of amplitudes</strong></td></tr>
+    <tr><td>state–operator correspondence, the OPE and unitarity are all in place</td><td>understood only partially</td></tr>
+  </table>
+
+  <p>The third row is the essential one. What makes AdS/CFT strong is that the boundary side, \(\mathcal{N}=4\) supersymmetric Yang–Mills, is <strong>a theory defined independently of gravity</strong>, so both sides can be computed separately and cross-checked.</p>
+
+  <p>Celestial CFT has no such "independent definition" yet. <em>It is at the stage of calling a rewriting of four-dimensional amplitudes by two-dimensional names.</em> The rewriting itself is correct and useful, but it is not an instance of a duality.</p>
+
+  <div class="aside">
+    <span class="tag">WHY IT IS STILL PROGRESS</span>
+    "It cannot be done yet" and "we understand why it has this shape" are different things.<br>As §03 showed, the cause of the distributional behaviour was <strong>planarity: elementary kinematics</strong>. Once you know the cause, the direction of a remedy becomes visible too (adding massive particles, changing the dimension, moving to \((2,2)\) signature ── all of these are actually being tried).<br><em>A breakage whose mode of breaking is understood can be handled.</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>The other proposal, which did not survive ── soft hair</h2>
+
+  <p>Let us properly diagnose the soft hair touched on in Episode 4.</p>
+
+  <p><strong>The claim (Hawking–Perry–Strominger 2016)</strong>: there are infinitely many supertranslation charges. Then a black hole should have infinitely many pieces of "soft hair," and the information that fell in may be recorded there. The no-hair theorem's "three hairs" was only about hard hair.</p>
+
+  <p>An attractive line. Indeed <em>the existence of soft hair is broadly granted</em>. The dispute is about what comes next.</p>
+
+  <div class="verdict no">
+    <div class="hd">Objection ① ── soft hair is not a property of the black hole (Bousso–Porrati 2017)</div>
+    <div class="bd">
+      <p style="margin-top:6px">The supertranslation charge is fixed by <strong>asymptotic data at infinity</strong>. Which means you can change its value simply by emitting one soft graviton far away from the black hole.</p>
+      <p>Bousso–Porrati's phrasing is apt ── it is <em>not hair but a wig</em>. It is not attached to the black hole; put it far away and you get the same effect. <strong>It cannot distinguish what fell in.</strong></p>
+    </div>
+  </div>
+
+  <div class="verdict no">
+    <div class="hd">Objection ② ── the numbers do not match</div>
+    <div class="bd">
+      <p style="margin-top:6px">Solving the information paradox needs exactly \(e^{A/4G}\) states. <strong>A finite number, fixed by the area.</strong></p>
+      <p>But soft charges are labelled by "functions on the celestial sphere" ── <em>infinitely many</em>, and all with <strong>zero energy</strong>. Too many, and degenerate besides. "There are lots" and "there are exactly the right number" are different things.</p>
+    </div>
+  </div>
+
+  <p>The current view is this. <strong>Soft hair is real. But it does not solve the information paradox.</strong></p>
+
+  <h2><span class="n">06</span>So what did actually work?</h2>
+
+  <p>For fairness, let us note that on the information-paradox side there was major progress <em>somewhere else</em>.</p>
+
+  <p><strong>The island formula and replica wormholes (2019–20)</strong>. From the gravitational path integral, the <em>Page curve</em> of the entanglement entropy of black-hole radiation was computed. Rising, turning over, and falling ── the behaviour of information coming back out actually came out.</p>
+
+  <p>And what matters for this series: that computation <strong>does not use string theory</strong>. Only the semiclassical gravitational path integral and the replica method. The main battleground was two-dimensional JT gravity.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── this is not finished either</span>
+    The island formula reproduced the Page curve, but it does not explain the mechanism of "how the information comes out." Only the <em>curve</em> of the entropy came out; the <em>details of the encoding</em> are unsolved. And the computations are limited to special settings (two-dimensional, low-dimensional gravity).<br>The same position as Episode 3's footnote ── <strong>the stage of having got through the wall at one spot.</strong>
+  </div>
+
+  <h2><span class="n">07</span>Diagnosis ── grading by the series' discipline</h2>
+
+  <p>Let us line up the three things seen here against this series' discipline (falsification conditions, prior work, negative results).</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">proposal</th><th style="width:22%">status</th><th>diagnosis</th></tr>
+    <tr><td><strong>celestial<br>holography</strong></td><td class="ok">in progress</td><td>correct as a rewriting, and it translates the infrared triangle into CFT language. What is missing is <strong>an independent definition of the boundary theory</strong>. The cause of the breakage (distributional behaviour) has been identified as planarity, elementary kinematics ── <em>a manageable kind of breakage</em>.</td></tr>
+    <tr><td><strong>soft hair</strong></td><td class="bad">negative</td><td>its existence is granted, but <strong>it does not solve the information paradox</strong>. Not localized (a wig), and the numbers do not match. It has not moved on from the stage of "an attractive puzzle."</td></tr>
+    <tr><td><strong>the island formula</strong></td><td class="ok">real progress</td><td>the Page curve actually derived. <strong>It does not use string theory.</strong> But it is limited to low dimensions and the encoding mechanism is unsolved.</td></tr>
+  </table>
+
+  <p>Episode 1 wrote that "beauty is the entrance to a hypothesis, not evidence for it." Soft hair is exactly that case ── the line is beautiful and the structure real, and yet <em>it did not do the job required of it</em>.</p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>State in two steps why the celestial four-point function becomes a distribution.
+        <details><summary>show the answer</summary><div class="ans">(1) In centre-of-mass 2→2 massless scattering, momentum conservation puts the four momenta in <strong>a single plane</strong>. (2) Directions within a plane through the origin trace a <strong>great circle</strong> on the celestial sphere, and four concyclic points have a <strong>real cross ratio</strong>. So the reachable configurations are only the real axis of the complex plane, and the correlator is supported on \(\delta(z-\bar z)\).</div></details>
+      </li>
+      <li>In the table in the text, the cross ratio at 90° scattering is 2.000000. Verify this from \(s,t\).
+        <details><summary>show the answer</summary><div class="ans">In the centre-of-mass frame \(s=4E^2\) and \(t=-s\sin^2(\theta/2)\). At \(\theta=90°\), \(\sin^2(45°)=1/2\), so \(t=-s/2\). Hence \(-s/t=2\). ✓ (At 30°, \(\sin^2 15°=0.06699\) gives \(-s/t=14.928\).)</div></details>
+      </li>
+      <li>In one line: why is soft hair called a "wig"?
+        <details><summary>show the answer</summary><div class="ans">Because the supertranslation charge is fixed by asymptotic data at infinity, so it can be changed simply by emitting a soft graviton far from the black hole. <strong>It is not attached to the black hole</strong>, so it cannot distinguish what fell in.</div></details>
+      </li>
+      <li>"There are infinitely many soft charges, so there is no shortage of places to put information" ── where is the error?
+        <details><summary>show the answer</summary><div class="ans">What is needed is not "lots" but "<strong>exactly \(e^{A/4G}\)</strong>." A finite number fixed by the area has to be reproduced. Infinitely many zero-energy states are too many and degenerate besides, and do not give the right density of states.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>The part that works, works exactly.</strong> The Mellin transform of a plane wave is \(\Gamma(\Delta)/(-i\,q\cdot X+\epsilon)^{\Delta}\) ── a conformal primary in one line. Automatic, thanks to \(SO(3,1)\cong SL(2,\mathbb{C})\).</p>
+    <p><strong>It breaks at four points. And the breakage is clean.</strong> Compute the cross ratio and it is real to machine precision, with value \(-s/t\). Hence the correlator is a distribution supported on \(\delta(z-\bar z)\) ── a different kind of object from an ordinary CFT's.</p>
+    <p><strong>The cause was elementary kinematics.</strong> Momentum conservation → planar scattering → a great circle on the sphere → a real cross ratio. Not a deep pathology. <em>A breakage whose cause is understood can be handled.</em></p>
+    <p><strong>What is missing is "an independent definition of the boundary theory."</strong> AdS/CFT is strong because both sides can be computed separately. Celestial CFT is for now a rewriting of amplitudes, not an instance of a duality.</p>
+    <p style="margin-bottom:0"><strong>Soft hair is real but does not do the job.</strong> Being fixed by data at infinity it is not localized on the black hole (a wig), and infinitely many zero-energy states do not reproduce the finite number \(e^{A/4G}\). What actually worked on the information paradox was <em>the island formula</em>, which uses no string theory.</p>
+    <div class="next">
+      <span class="lbl">BACK TO THE MAIN SERIES</span>
+      <a href="butsuri-tsukuru-05-carroll.html">The boundary was three-dimensional</a> ── answering head-on the "four-point function becomes a distribution" problem diagnosed here. The real culprit was <em>the dimension of the boundary</em>.
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Bonus ③ of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: that the Mellin transform of a plane wave gives a conformal primary wavefunction; \(SO(3,1)\cong SL(2,\mathbb{C})\); the equivalence of four concyclic points and a real cross ratio; the planarity of centre-of-mass 2→2 scattering; and cross ratio \(=-s/t\). The numbers in the text are computed from the above, and the \(|{\rm Im}\,z|\) values at the \(10^{-15}\) level are double-precision rounding error. <strong>Celestial holography is an ongoing research programme, and an independent construction of the boundary theory does not yet exist</strong>. The assessment of soft hair (it exists but does not solve the information paradox) is a widely shared view at present, but <em>not a settled proposition</em>, and research along other lines such as near-horizon symmetry continues. As for the island formula, the reproduction of the Page curve is established but the information-encoding mechanism is unsolved, and the computations are mainly limited to low-dimensional gravity.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">① Could physics be written more simply?</a>／<a href="butsuri-tsukuru-bangai2-ct.html">② How far does "ct = constant" get you?</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can confirm that an imaginary part appears the moment you leave the plane.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sth=document.getElementById('sth'), snp=document.getElementById('snp'),
+      vth=document.getElementById('vth'), vnp=document.getElementById('vnp'), ro=document.getElementById('ro'),
+      bz=document.getElementById('bz');
+
+  // direction vector → celestial coordinate (stereographic projection)  z = tan(θ/2) e^{iφ}
+  function zof(px,py,pz){
+    var r=Math.sqrt(px*px+py*py+pz*pz);
+    var th=Math.acos(Math.max(-1,Math.min(1,pz/r))), ph=Math.atan2(py,px);
+    var t=Math.tan(th/2);
+    return [t*Math.cos(ph), t*Math.sin(ph)];
+  }
+  function csub(a,b){ return [a[0]-b[0], a[1]-b[1]]; }
+  function cmul(a,b){ return [a[0]*b[0]-a[1]*b[1], a[0]*b[1]+a[1]*b[0]]; }
+  function cdiv(a,b){ var d=b[0]*b[0]+b[1]*b[1]; return [(a[0]*b[0]+a[1]*b[1])/d, (a[1]*b[0]-a[0]*b[1])/d]; }
+  function cross4(z1,z2,z3,z4){ return cdiv(cmul(csub(z1,z2),csub(z3,z4)), cmul(csub(z1,z3),csub(z2,z4))); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var th=parseInt(sth.value,10), np=parseInt(snp.value,10)/100;
+    vth.textContent=th; vnp.textContent=np.toFixed(2);
+    var t=th*Math.PI/180;
+
+    // centre-of-mass 2→2. non-planarity np lifts the fourth momentum out of the plane (= violates momentum conservation)
+    var eps=1e-7;
+    var P=[[eps,0,1],[eps,0,-1],[Math.sin(t),0,Math.cos(t)],
+           [-Math.sin(t)*Math.cos(np*Math.PI/2), Math.sin(np*Math.PI/2), -Math.cos(t)*Math.cos(np*Math.PI/2)]];
+    var Z=P.map(function(p){ return zof(p[0],p[1],p[2]); });
+    var cr=cross4(Z[0],Z[1],Z[2],Z[3]);
+
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=24, pw=(w-gap)*0.60, top=26, bot=h-34;
+    var cx=pw/2, cy=(top+bot)/2, S=Math.min(pw,bot-top)*0.30;
+
+    // ── left: the stereographic projection of the celestial sphere
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('① the four points on the celestial sphere (stereographic)', 8, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-3;g<=3;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*S*0.5,top+6); ctx.lineTo(cx+g*S*0.5,bot-6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-pw*0.44,cy+g*S*0.5); ctx.lineTo(cx+pw*0.44,cy+g*S*0.5); ctx.stroke();
+    }
+    // the equator (θ=90°) = the unit circle
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,S,0,6.2832); ctx.stroke(); ctx.setLineDash([]);
+
+    // the circle through three points (in a planar configuration the fourth lies on it too)
+    (function(){
+      var A=Z[0],B=Z[2],C=Z[3];
+      var ax=A[0],ay=A[1],bx=B[0],by=B[1],ccx=C[0],ccy=C[1];
+      var d=2*(ax*(by-ccy)+bx*(ccy-ay)+ccx*(ay-by));
+      if(Math.abs(d)<1e-9) return;
+      var ux=((ax*ax+ay*ay)*(by-ccy)+(bx*bx+by*by)*(ccy-ay)+(ccx*ccx+ccy*ccy)*(ay-by))/d;
+      var uy=((ax*ax+ay*ay)*(ccx-bx)+(bx*bx+by*by)*(ax-ccx)+(ccx*ccx+ccy*ccy)*(bx-ax))/d;
+      var rr=Math.hypot(ax-ux,ay-uy);
+      if(rr*S>4000) return;
+      ctx.strokeStyle='rgba(31,111,116,.40)'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.arc(cx+ux*S, cy-uy*S, rr*S, 0, 6.2832); ctx.stroke();
+    })();
+
+    var names=['p₁(in)','p₂(in)','p₃(out)','p₄(out)'];
+    for(var i=0;i<4;i++){
+      var px=cx+Z[i][0]*S, py=cy-Z[i][1]*S;
+      if(!isFinite(px)||Math.abs(px-cx)>pw) continue;
+      ctx.fillStyle = (i===3 && np>0.01) ? '#a83a22' : '#2f5d6b';
+      ctx.beginPath(); ctx.arc(px,py,5,0,6.2832); ctx.fill();
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='center'; ctx.fillText(names[i], px, py-10);
+    }
+
+    // ── right: the cross ratio in the complex plane
+    var L=pw+gap, Rr=w-14;
+    var qx=(L+Rr)/2, qy=cy, QS=Math.min(Rr-L,bot-top)*0.30;
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('② the cross ratio z (complex plane)', L-4, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,qy); ctx.lineTo(Rr,qy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(qx,top+6); ctx.lineTo(qx,bot-6); ctx.stroke();
+    // emphasize the real axis
+    ctx.strokeStyle='rgba(47,125,90,.55)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(L,qy); ctx.lineTo(Rr,qy); ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='left'; ctx.fillText('the real axis = reachable configurations', L+4, qy+16);
+
+    var sc=QS/4;
+    var zx=qx+Math.max(-6,Math.min(6,cr[0]))*sc, zy=qy-Math.max(-6,Math.min(6,cr[1]))*sc;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(zx,qy); ctx.lineTo(zx,zy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(zx,zy,6,0,6.2832); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='center'; ctx.fillText('Re z', Rr-18, qy+16);
+
+    var s=4, tt=-s*Math.pow(Math.sin(t/2),2), mst=-s/tt;
+    ro.innerHTML = (np<0.005)
+      ? '<b>Planar configuration (momentum conservation satisfied).</b> The four points lie on one circle, the cross ratio is <b>'+cr[0].toFixed(6)+'</b>, and the imaginary part is <b>'+Math.abs(cr[1]).toExponential(1)+'</b> (rounding error).'
+        +' And it agrees with −s/t = <b>'+mst.toFixed(6)+'</b>.'
+      : '<b>Non-planar (momentum conservation violated).</b> p₄ has left the circle. Cross ratio = '+cr[0].toFixed(4)+' <b>'+(cr[1]<0?'− ':'+ ')+Math.abs(cr[1]).toFixed(4)+'i</b> ── '
+        +'<b>an imaginary part appears</b>. This configuration is unreachable in actual scattering.';
+  }
+
+  sth.addEventListener('input', draw);
+  snp.addEventListener('input', draw);
+  bz.addEventListener('click', function(){ snp.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

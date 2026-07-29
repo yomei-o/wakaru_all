@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>This way the arithmetic is easier ── The Lattice We Build, final episode</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button.bug{background:#a83a22;}
+  .controls button:active{transform:translateY(1px);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e4f0e8;color:#1d5236;}
+  .readout.bad{background:#fbf0ec;color:#8a2f18;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ink);border-radius:3px;background:#f2f5f3;}
+  .verdict .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .fin{margin:34px 0 0;padding:26px 30px;border:2px solid var(--ink);border-radius:3px;background:#fdfefc;text-align:center;}
+  .fin .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.24em;color:var(--ink-soft);font-weight:700;margin-bottom:10px;}
+  .fin p{margin:8px 0;} .fin a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.fin,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Final episode (Episode 19) ／ This way the arithmetic is easier</span></div>
+  <p class="eyebrow">Taking stock of eighteen episodes ── no new physics came out. What came out was a ledger of mistakes, and three tools</p>
+  <h1>This way the arithmetic is easier
+    <span class="sub">This series began under the pretext of "going out to make unsolved physics."<br><strong>Not one piece of new physics came out.</strong> Let me say that first.<br>What came out was four closed doors, one calculation that went through, one falsifiable number.<br>And one more thing ── a record of <em>which way of writing makes mistakes less likely</em>. That is the last story.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: the previous episodes, especially 1, 11 and 17</span>
+    <span>The core of this episode: a representation carrying an invariant tells you the moment it breaks</span>
+  </div>
+
+  <p class="lead">This is the final episode, so let us count the results. <strong>New physics: 0.</strong> Eighteen episodes, and not one formula unknown to humanity.<br>But not empty-handed either. <em>Four negatives established, one known result rederived myself, one falsifiable number produced.</em> And the most reusable item is probably none of those ── it is <strong>the ledger of where I went wrong</strong>.<br>Laid out, the ledger shows a definite skew. <em>The mistakes were not proportional to the difficulty of the physics.</em> What they were proportional to was <strong>how many conventions the representation has</strong>.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>Taking stock of eighteen episodes</h2>
+
+  <table class="tbl">
+    <tr><th style="width:22%">kind</th><th style="width:10%">count</th><th>contents</th></tr>
+    <tr><td><strong>doors closed</strong></td><td class="c ok">4</td><td>
+      <a href="butsuri-tsukuru-13-omomi.html">Ep. 13</a> no central charge enters BMS₄ (\(\dim H^2=0\)) ／
+      <a href="butsuri-tsukuru-14-kazoenai.html">Ep. 14</a> the coefficient does not come from matter degrees of freedom ／
+      <a href="butsuri-tsukuru-15-kabe.html">Ep. 15</a> the wall was Episode 1's theorem ／
+      <a href="butsuri-tsukuru-16-moreru.html">Ep. 16</a> emergence leaks at gravity</td></tr>
+    <tr><td><strong>calculations that went through</strong></td><td class="c ok">1</td><td>
+      <a href="butsuri-tsukuru-17-suisei.html">Ep. 17</a> Mercury on a flat lattice, 42.9807 arcsec/century, GR ratio 1.0000</td></tr>
+    <tr><td><strong>falsifiable numbers</strong></td><td class="c ok">1</td><td>
+      <a href="butsuri-tsukuru-18-kesshaku.html">Ep. 18</a> 112 PeV (one cell of the table, though)</td></tr>
+    <tr class="mark"><td><strong>new physics</strong></td><td class="c bad">0</td><td>Zero. No hedging</td></tr>
+  </table>
+
+  <p>The same ending as Episode 1's brute force finishing at \(p=0.67\). <em>Having written then that "a negative is information," I keep the promise</em> ── the four doors count as results.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>The ledger of mistakes</h2>
+
+  <p>Here is the real subject. <strong>Every bug from eighteen episodes, laid out.</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:16%">episode</th><th style="width:20%">weight of the representation</th><th style="width:30%">bug</th><th>who caught it</th></tr>
+    <tr><td>Ep. 1</td><td>medium (dimension matrix)</td><td>the kernel of \(c,\hbar,G\) was trivial</td><td class="ok">myself (swapped the example)</td></tr>
+    <tr><td>Ep. 3</td><td>light</td><td>extrapolated a weak field into a strong one</td><td class="ok">myself (restricted the range)</td></tr>
+    <tr><td>Ep. 8</td><td>light</td><td>confused threshold width with FWHM</td><td class="ok">myself</td></tr>
+    <tr><td>Ep. 9</td><td>light</td><td>misattributed the source of \(10^{-122}\)</td><td class="bad">a reader (pointed out on GitHub)</td></tr>
+    <tr><td>Ep. 12</td><td>light</td><td>lattice rounding leaked into the numbers</td><td class="ok">myself</td></tr>
+    <tr class="mark"><td><strong>Ep. 11</strong></td><td class="bad"><strong>heavy (BMS central charge)</strong></td><td class="bad"><strong>mixed conventions. off by \(\sqrt{12}\)</strong></td><td class="bad"><strong>the positive control</strong></td></tr>
+    <tr><td>Ep. 16, early</td><td>medium (literature dependent)</td><td>trusted a search summary's number (21× → actually 1000×)</td><td class="bad">the original paper</td></tr>
+    <tr><td>Ep. 17</td><td>light (4 ODEs)</td><td>dropped the \(2\pi\) unwinding</td><td class="ok">the positive control (isolated at once)</td></tr>
+    <tr><td>Ep. 17</td><td>light</td><td>cancellation broke the finite difference</td><td class="ok">explained by estimate</td></tr>
+    <tr><td>Ep. 18</td><td>light</td><td>the title claimed more than the content</td><td class="bad">a reader</td></tr>
+  </table>
+
+  <div class="keybox">
+    <div class="lbl">WHAT THE LEDGER SHOWS</div>
+    <p style="margin:6px 0 0">The bugs I could not catch myself <strong>cluster in the formalism-heavy episodes and the literature-dependent ones.</strong></p>
+    <p style="margin:8px 0 0">Whereas the episode built on four ordinary differential equations produced only <em>bookkeeping</em> and <em>rounding</em> ── <strong>not one physics bug.</strong> Because there was no room for one.</p>
+  </div>
+
+  <p>The \(\sqrt{12}\) case is the clearest example. In the episode on the BMS₃ central charge I mixed conventions: <em>writing the algebra in the \(c/12\) convention while using the formula from another</em>. The entropy was overestimated by a factor of 3.46, and staring at the formula shows nothing.</p>
+
+  <p>By contrast, Episode 17's bug was merely folding the perihelion azimuth into \(\pi\) and dropping the \(2\pi\). <strong>Nothing in the physics was wrong.</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>Only three tools helped</h2>
+
+  <table class="tbl">
+    <tr><th style="width:26%">tool</th><th>what it caught</th></tr>
+    <tr><td><strong>positive control</strong><br><span style="font-size:12px">try it first where the answer is known</span></td><td>\(\sqrt{12}\) (Ep. 11). \(2\pi\) (Ep. 17 ── light bending already matched 1.75119, so it narrowed to the recording side rather than the integrator). Episode 13's \(\dim H^2=0\) is also trustworthy only because \(m^3-m\) was confirmed to come out for bms₃ first</td></tr>
+    <tr><td><strong>read the original</strong><br><span style="font-size:12px">do not settle for a summary</span></td><td>21× → 1000× (Ep. 16, early). Evaluating Solodukhin's formula myself gave \(48\pi\) (the summary said \(12\pi\)). The BMS-Cardy convention (Ep. 11)</td></tr>
+    <tr><td><strong>turn a claim into a number</strong><br><span style="font-size:12px">do not stop at "not in conflict"</span></td><td>Episode 2's "not in conflict" → three orders of margin at \(n=2\). Episode 12's "the coefficient does not come out" → 2.773 Planck areas per bit. Episode 17's "one word is missing" → 1/3. And 112 PeV</td></tr>
+  </table>
+
+  <p>None of this improved because I learned more physics. <em>All three are matters of discipline.</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>Why flat coordinates are easier ── an invariant comes attached</h2>
+
+  <p>The form used in Episode 17, once more. With \(F\) the magnitude of \(g^{00}\) and \(G\) the coefficient of \(g^{ij}\),</p>
+
+  $$H=\tfrac12\bigl(-E^2F+|\vec p\,|^2G\bigr)=-\tfrac12$$
+
+  <p>The right-hand side is a constant. <strong>If you are integrating correctly, \(H\) does not move.</strong> So you can self-check throughout the integration.</p>
+
+  <div class="lab">
+    <span class="tag">A BUILT-IN CHECK (CONFIRMED IN EPISODE 17'S CODE)</span>
+<pre>  H at the start        = -0.4999999999999999
+  max drift of H after 6 orbits (60000 steps) = <span class="st">2.220e-16</span>
+
+  <span class="cm"># i.e. it does not move down to the double-precision limit. you see the moment it breaks.</span></pre>
+  </div>
+
+  <p>Integrate a geodesic via Christoffel symbols and this invariant <em>does not come attached automatically</em>. You have to build \(g_{\mu\nu}\dot x^\mu\dot x^\nu\) separately and watch it.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: watch \(|H+1/2|\) step by step. With the correct formulae it stays pinned at \(10^{-16}\). <b>Use the buttons to inject a deliberate error into the formulae and it rises immediately</b> ── that is what "you see the moment it breaks" means</div>
+    <canvas id="cv" width="1120" height="380"></canvas>
+    <div class="controls">
+      <button id="b0">correct formulae</button>
+      <button id="b1" class="bug">flip the sign of \(F'\)</button>
+      <button id="b2" class="bug">shift \(G'\) by 1%</button>
+      <button id="b3" class="bug">drop the \(G\) in \(\dot x\)</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#2f7d5a"></span>correct formulae</span>
+      <span><span class="swatch" style="background:#a83a22"></span>formulae with an error injected</span>
+    </div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">BUT SOME BUGS THE INVARIANT CANNOT CATCH</span>
+    Episode 17's \(2\pi\) bug <strong>does not violate \(H\) at all.</strong> The integration was perfectly correct; it was the recording that broke.<br>So two tools are needed ── <em>the invariant catches bugs in the "formulae," and the positive control catches bugs in the "bookkeeping."</em> Today's two cases were exactly one of each. <strong>Either one alone is not enough.</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>So you may take the easier one</h2>
+
+  <p>This is the final episode's conclusion. And the ground for it is not preference but a <strong>theorem</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">COORDINATES ARE FREE</div>
+    <p style="margin:6px 0 0">A coordinate system with \(c=\) constant and one with \(c\cdot t=\) constant (a flat background plus a varying rate of travel) are <strong>the same physics</strong>. Being diffeomorphism invariance, it can never break.</p>
+    <p style="margin:8px 0 0">Episode 17 stepped on that numerically ── 42.9807 arcsec/century on a flat lattice. The same as standard general relativity.</p>
+    <p style="margin:8px 0 0"><em>If they are the same, use whichever is harder to get wrong.</em></p>
+  </div>
+
+  <p>And "harder to get wrong" has content ── <strong>no three-index contractions. fewer conventions to choose from. an invariant comes attached automatically.</strong> Those three.</p>
+
+  <p>Indeed, all Episode 17 needed was two scalar functions and their first derivatives, and four ordinary differential equations. <em>No Christoffel symbols (40 components in four dimensions), no covariant derivatives, no coordinate patches.</em></p>
+
+  <div class="aside">
+    <span class="tag">THIS IS NOT A NEW CLAIM</span>
+    <a href="https://link.aps.org/doi/10.1103/RevModPhys.29.363">Dicke (Rev. Mod. Phys. 29, 363, 1957)</a>, in "Gravitation without a Principle of Equivalence," built the formalism of <strong>putting a refractive index on flat absolute space</strong> and showed that light bending matches observation. It even has a classification name: conservative VSL.<br>And numerical relativity solves on orthogonal lattices every day. <em>The lattice does not warp. What warps is the field on the lattice.</em><br>All this episode can claim is the <strong>working property</strong> that "that representation, having fewer conventions, breaks less easily."
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>What need not be decided, do not decide</h2>
+
+  <p>There is one more framing this series received at the end. <em>There is no need to decide between discrete and continuous.</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:32%"></th><th style="width:24%">strength of standing</th><th>for how long</th></tr>
+    <tr><td>equivalence of coordinate systems<br><span style="font-size:12px">\(c=\)const and \(c\cdot t=\)const are the same</span></td><td class="ok">a theorem</td><td>forever</td></tr>
+    <tr><td>indistinguishability of discrete and continuous<br><span style="font-size:12px">a CD and a record</span></td><td>for now</td><td class="bad">up to \(\sim10^{-3}M_{\rm Pl}\). it moves</td></tr>
+  </table>
+
+  <p>Let us be precise here. <strong>Nyquist in signal processing is exact, but a spacetime lattice is not.</strong> Even below the cutoff a residual \((E/E_{\rm LV})^2\) appears ── <em>which is why the number 112 PeV exists.</em> Were the indistinguishability exact, no such number would exist.</p>
+
+  <p>So ── <strong>"need not be decided" is correct, and is not correct forever.</strong> It has an expiry date.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>What remains</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>status</th></tr>
+    <tr><td>the origin of the \(1/4\)</td><td class="bad">not obtained. by Episode 1's theorem, so long as \(G\) carries dimensions it will not come out as it stands (<a href="butsuri-tsukuru-15-kabe.html">Ep. 15</a>)</td></tr>
+    <tr><td>the horizon's Carrollian theory</td><td class="bad">unconstructed (<a href="butsuri-tsukuru-08-naimono.html">Ep. 8</a>, <a href="butsuri-tsukuru-11-basho.html">Ep. 11</a>, <a href="butsuri-tsukuru-12-menseki.html">Ep. 12</a>)</td></tr>
+    <tr><td>a 4d Cardy-type formula</td><td class="bad">the central-charge route is closed. the dimensional-reduction route does not work on its own</td></tr>
+    <tr><td>is the spacing physical?</td><td>on hold. the boundary is \(\sim10^{-3}M_{\rm Pl}\); one settlement is <strong>112 PeV</strong></td></tr>
+    <tr><td>can Kerr be written the same way?</td><td class="bad">probably, but <em>unverified</em>. off-diagonal terms are needed</td></tr>
+    <tr><td>evolving the fields themselves</td><td class="bad">not attempted. numerical relativity's hard parts are not geodesics but constraints and stability</td></tr>
+  </table>
+
+  <p>The last two rows are where this series never set foot. <strong>"Motion within a given field" went through, but "the side that makes the field" was never touched.</strong> I leave that honestly blank.</p>
+
+  <div class="prob">
+    <div class="lbl">WORK IT BY HAND (THE LAST THREE)</div>
+    <ol>
+      <li>Verify that \(H=\frac12(-E^2F+|p|^2G)\) is conserved, from the equations of motion \(\dot x_i=p_iG\) and \(\dot p_i=-\frac12(-E^2F'+|p|^2G')x_i/\rho\).
+        <details><summary>show the answer</summary><div class="ans">\(\dot H=\frac12\left[-E^2F'\dot\rho+|p|^2G'\dot\rho\right]+G\,\vec p\cdot\dot{\vec p}\). Here \(\dot\rho=\frac{\vec x\cdot\dot{\vec x}}{\rho}=\frac{G\,\vec x\cdot\vec p}{\rho}\) and \(\vec p\cdot\dot{\vec p}=-\frac12(-E^2F'+|p|^2G')\frac{\vec x\cdot\vec p}{\rho}\). Substituting, the first and second terms <strong>cancel exactly</strong>. <em>That cancellation is what "the built-in check" really is.</em></div></details>
+      </li>
+      <li>How many components does a Christoffel symbol have in four dimensions? \(\Gamma^\mu_{\nu\rho}\) is symmetric in its lower two indices.
+        <details><summary>show the answer</summary><div class="ans">\(4\times\frac{4\cdot5}{2}=\mathbf{40}\) components, each a sum of three metric derivatives. <strong>But \(\partial_\lambda g^{\mu\nu}\) also has 40 components</strong>, so on count alone there is no gain. The gain is twofold: <em>not having to write three-index contractions</em>, and <em>getting an invariant attached</em>.</div></details>
+      </li>
+      <li>In which episodes were the bugs I could not catch myself? What do they have in common?
+        <details><summary>show the answer</summary><div class="ans">Episode 9 (the source of \(10^{-122}\)), Episode 11 (\(\sqrt{12}\)), Episode 16's early part (21×), Episode 18 (the title). <strong>In common: heavy formalism, dependence on the literature, or the prose side.</strong> The episodes that ran ODEs produced only bookkeeping and rounding, and even those were caught at once by the positive control. <em>The mistakes were proportional not to the difficulty of the physics but to the number of conventions.</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What the whole series learned</h2>
+    <p><strong>New physics: 0.</strong> Eighteen episodes, and no formula unknown to humanity. What came out was four closed doors (\(\dim H^2=0\); the coefficient does not come from degrees of freedom; the wall was Episode 1's theorem; emergence leaks at gravity), one calculation that went through (42.9807 arcsec/century), and one falsifiable number (112 PeV, one cell of the table). <em>Having written in Episode 1 that "a negative is information," the four count as results.</em></p>
+    <p><strong>The mistakes were not proportional to the difficulty of the physics.</strong> The bugs I could not catch myself cluster in the formalism-heavy episodes (Episode 11's \(\sqrt{12}\)), the literature-dependent ones (Episode 16's early 21×), and the prose side (Episodes 9 and 18). <em>The episode built on four ODEs produced only bookkeeping (\(2\pi\)) and rounding (cancellation) ── not one physics bug.</em> What they were proportional to was <strong>how many conventions the representation has</strong>.</p>
+    <p><strong>Three tools helped, all of them discipline.</strong> ① <em>the positive control</em> (try it first where the answer is known) ── it caught both the \(\sqrt{12}\) and the \(2\pi\). ② <em>read the original</em> ── the search summary's 21×, Solodukhin's \(48\pi\). ③ <em>turn a claim into a number</em> ── "not in conflict" into three orders of margin, "the coefficient does not come out" into 2.773 Planck areas. <strong>None of it improved because I learned more physics.</strong></p>
+    <p><strong>A representation carrying an invariant tells you the moment it breaks.</strong> \(H=\frac12(-E^2F+|p|^2G)=-\frac12\) stayed within \(2.2\times10^{-16}\) throughout the integration. Going via Christoffel symbols does not attach this automatically. <em>But the \(2\pi\) bug does not violate \(H\)</em> ── the invariant catches "formula" bugs, the positive control catches "bookkeeping" bugs. <strong>Two tools were needed.</strong></p>
+    <p><strong>So you may take the easier one.</strong> \(c=\)const and \(c\cdot t=\)const are the same physics (diffeomorphism invariance, a theorem that can never break). Being the same, use the one with no three-index contractions, fewer conventions, and an attached invariant. <em>This is not a new claim</em> ── Dicke matched light bending with a flat background plus a refractive index in 1957, and numerical relativity solves on orthogonal lattices every day. All this episode can claim is a <strong>working property</strong>.</p>
+    <p><strong>What need not be decided, do not decide. But it has an expiry date.</strong> The equivalence of coordinate systems is a theorem and holds forever. The indistinguishability of discrete and continuous holds <em>for now</em>, with the boundary at \(\sim10^{-3}M_{\rm Pl}\). Nyquist in signal processing is exact but a spacetime lattice is not, and a residual \((E/E_{\rm LV})^2\) appears ── <strong>which is why the number 112 PeV exists.</strong> Were it exactly indistinguishable, no such number would exist.</p>
+    <p style="margin-bottom:0"><strong>And the blanks.</strong> The origin of the \(1/4\), the horizon's Carrollian theory, a 4d Cardy, whether Kerr can be written the same way, and <em>evolving the fields themselves</em>. The last is the biggest ── this series got "motion within a given field" through but never touched "the side that makes the field." <strong>Numerical relativity's hard parts are not geodesics but constraints and stability.</strong></p>
+  </div>
+
+  <div class="fin">
+    <div class="lbl">The Lattice We Build ── END</div>
+    <p>19 main episodes + 3 bonus. <strong>No new physics came out, but the ledger of mistakes remains.</strong></p>
+    <p>Where the sister series "That Clicks" <em>explains known physics</em>, this one's pretext was to <em>show the work itself</em>. That what it had to show turned out to be mostly failures and corrections was <strong>according to plan.</strong></p>
+    <p style="margin-bottom:0"><a href="index.html">Back to contents</a> ｜ read from the start: <a href="butsuri-tsukuru-01-hi.html">Episode 1, Let a machine hunt for the ratios nobody has taken yet</a></p>
+  </div>
+
+  <div class="foot">
+    <p>This document is the final episode (Episode 19) of the "Lattice We Build" series, a reading piece for high-school and university students who love physics.</p>
+    <p>Established material: the Hamiltonian form of the geodesic \(H=\frac12g^{\mu\nu}p_\mu p_\nu\) and its conservation; the component count of Christoffel symbols; the Schwarzschild solution in isotropic coordinates; diffeomorphism invariance; Dicke's flat-background-plus-refractive-index formalism (Rev. Mod. Phys. 29, 363, 1957); that numerical relativity uses orthogonal lattices; Nyquist's sampling theorem; and the literature cited in each episode of this series.<br>The numbers in this article (the \(H\) drift \(2.2\times10^{-16}\), the 40 Christoffel components) were computed and checked by the author. <strong>The ledger of bugs is this series' actual working record and corresponds to the articles and correction commits of each episode.</strong><br><strong>The reading that "mistakes are proportional to the number of conventions in the representation" is this series' author's framing and is not a statistical claim</strong> ── the sample is a dozen-odd items, and the subject and difficulty differ episode by episode. All that can be shown is "this time the skew came out that way."<br>The property that "flat coordinates plus the Hamiltonian form are easier" is also limited to <em>solving the motion of particles or light within a given metric</em>. This episode's discussion does not extend to the problem of evolving the field equations themselves (constraints, gauge, stability, the treatment of singularities and horizons). Nor has verification been done for metrics with off-diagonal terms, such as Kerr.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a>｜<a href="butsuri-tsukuru-12-menseki.html">Episode 12</a>｜<a href="butsuri-tsukuru-13-omomi.html">Episode 13</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">Episode 14</a>｜<a href="butsuri-tsukuru-15-kabe.html">Episode 15</a>｜<a href="butsuri-tsukuru-16-moreru.html">Episode 16</a>｜<a href="butsuri-tsukuru-17-suisei.html">Episode 17</a>｜<a href="butsuri-tsukuru-18-kesshaku.html">Episode 18</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can confirm that breaking the formulae makes the check react immediately.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;   // 0 correct, 1 F' flipped, 2 G' by 1%, 3 drop the G in xdot
+
+  // PPN weak field (m/a not exaggerated. a setting close to Mercury is enough)
+  var MM=0.004, ECC=0.35, BETA=1.0, GAM=1.0, ASEMI=1.0;
+
+  function FG(rho){
+    var U=MM/rho, dU=-MM/(rho*rho);
+    var g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;
+    var dF=-(-2+4*BETA*U)*dU/(g00*g00);
+    var dG=-(2*GAM)*dU/(gij*gij);
+    if(MODE===1) dF=-dF;            // flip the sign
+    if(MODE===2) dG=dG*1.01;        // shift by 1%
+    return {F:1/g00, G:1/gij, dF:dF, dG:dG};
+  }
+  function rhs(x,y,px,py,E){
+    var rho=Math.sqrt(x*x+y*y), q=FG(rho), p2=px*px+py*py;
+    var k=-0.5*(-E*E*q.dF+p2*q.dG)/rho;
+    var g = (MODE===3) ? 1.0 : q.G;   // drop the G in xdot
+    return [px*g, py*g, k*x, k*y];
+  }
+  function step(s,h,E){
+    var k1=rhs(s[0],s[1],s[2],s[3],E);
+    var k2=rhs(s[0]+0.5*h*k1[0],s[1]+0.5*h*k1[1],s[2]+0.5*h*k1[2],s[3]+0.5*h*k1[3],E);
+    var k3=rhs(s[0]+0.5*h*k2[0],s[1]+0.5*h*k2[1],s[2]+0.5*h*k2[2],s[3]+0.5*h*k2[3],E);
+    var k4=rhs(s[0]+h*k3[0],s[1]+h*k3[1],s[2]+h*k3[2],s[3]+h*k3[3],E);
+    var o=[]; for(var i=0;i<4;i++) o.push(s[i]+h*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+    return o;
+  }
+  function Hval(s,E){
+    var rho=Math.sqrt(s[0]*s[0]+s[1]*s[1]);
+    var U=MM/rho, g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;   // the check always uses the correct formulae
+    return 0.5*(-E*E/g00 + (s[2]*s[2]+s[3]*s[3])/gij);
+  }
+
+  function run(){
+    var rp=ASEMI*(1-ECC), vp=Math.sqrt(MM*(1+ECC)/(ASEMI*(1-ECC)));
+    var U=MM/rp, g00=1-2*U+2*BETA*U*U, gij=1+2*GAM*U;
+    var A2=g00, B4=gij;
+    var E=A2/Math.sqrt(A2-vp*vp*B4);
+    var py=vp*B4*E/A2;
+    var s=[rp,0,0,py];
+    var T=2*Math.PI*Math.sqrt(ASEMI*ASEMI*ASEMI/MM), N=4000, h=T/N;
+    var dev=[];
+    for(var i=0;i<N*2;i++){
+      s=step(s,h,E);
+      if(i%8===0) dev.push(Math.abs(Hval(s,E)+0.5));
+    }
+    return dev;
+  }
+
+  function draw(){
+    var dev=run();
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=76,R=W-26,T=28,B=H-56;
+    var YMIN=-17, YMAX=1;
+    function X(i){ return L+i/(dev.length-1)*(R-L); }
+    function Y(v){ var l=Math.max(YMIN,Math.min(YMAX,Math.log10(Math.max(v,1e-18))));
+                   return B-(l-YMIN)/(YMAX-YMIN)*(B-T); }
+
+    ctx.font='13px "Helvetica Neue",Arial,sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=YMIN;y<=YMAX;y+=3){
+      ctx.beginPath(); ctx.moveTo(L,Y(Math.pow(10,y))); ctx.lineTo(R,Y(Math.pow(10,y))); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText('10^'+y,L-9,Y(Math.pow(10,y))+5);
+    }
+    // the double-precision floor
+    ctx.strokeStyle='#c3ceca'; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(2.2e-16)); ctx.lineTo(R,Y(2.2e-16)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#8a9694'; ctx.textAlign='left'; ctx.fillText('double-precision floor 2.2e-16',L+6,Y(2.2e-16)-7);
+
+    ctx.strokeStyle = MODE===0 ? '#2f7d5a' : '#a83a22';
+    ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i=0;i<dev.length;i++){
+      if(i===0) ctx.moveTo(X(i),Y(dev[i])); else ctx.lineTo(X(i),Y(dev[i]));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left'; ctx.fillText('|H + 1/2|',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('integration step (2 orbits)',(L+R)/2,H-14);
+
+    var mx=0; for(var k=0;k<dev.length;k++) mx=Math.max(mx,dev[k]);
+    var names=['correct formulae',"F' sign flipped","G' shifted by 1%","G dropped in xdot"];
+    ro.className = MODE===0 ? 'readout' : 'readout bad';
+    ro.innerHTML='<b>'+names[MODE]+'</b> ｜ max of \\(|H+1/2|\\) = <b>'+mx.toExponential(2)+'</b><br>'
+      + (MODE===0
+        ? '<span style="color:#1d5236">→ stays within a few times the floor (accumulated over 8000 steps). the formulae are correct</span>'
+        : '<span style="color:#8a2f18">→ risen <b>'+(mx/2.2e-16).toExponential(1)+'</b>× above the floor. '
+          + 'you can tell the formulae are broken without knowing any physics</span>');
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+
+  [['b0',0],['b1',1],['b2',2],['b3',3]].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('click',function(){ MODE=p[1]; draw(); });
+  });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

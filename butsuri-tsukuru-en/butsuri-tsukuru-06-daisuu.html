@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>An algebra I had seen before ── The Lattice We Build, Episode 6</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button.off{background:#9fb0ae;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 6 ／ An algebra I had seen before</span></div>
+  <p class="eyebrow">It came out although nobody aimed at it ── by this series' criterion, the strongest kind of evidence</p>
+  <h1>An algebra I had seen before
+    <span class="sub">Up to now the story has been "not enough." No independent definition of the boundary theory yet.<br>This episode is the reverse. It is about <strong>something that came out although nobody put it in</strong>.<br>Assemble the infinite tower of soft theorems into an algebra and \(w_{1+\infty}\) appears ── <em>an algebra that already had a name</em>,<br>having shown up <strong>earlier</strong> in area-preserving geometry, self-dual gravity and twistor theory.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Poisson brackets (we build them in the text), Episodes 4 and 5</span>
+    <span>The core of this episode: something we were not fitting to came out</span>
+  </div>
+
+  <p class="lead">In Episode 1 we brute-forced 160,000-odd dimensionless quantities and got nothing. Through Episode 5 we kept writing that holography for flat spacetime is missing its centre. This series publishes little but negative results.<br>There is a reason for that. The discipline learned in Episode 1 ── <em>a search that aims at coefficients comes out structurally empty</em>. What you fitted is not evidence.<br>Which is exactly why, when the opposite happens, it should be handled with care. <strong>Something nobody was looking for that came out on its own.</strong> That is what this episode is about.</p>
+
+  <h2><span class="n">01</span>The soft theorem has an infinite tower</h2>
+
+  <p>Episode 4 dealt with Weinberg's soft graviton theorem. Add one graviton to an amplitude and take \(q\to0\) and a \(1/q\) pole appears ── that was <strong>only the leading term</strong>.</p>
+
+  <p>Continue the expansion and it is a tower.</p>
+
+  $$\mathcal{M}_{n+1}=\underbrace{\frac{S^{(0)}}{q}\,\mathcal{M}_n}_{\text{supertranslations}}+\underbrace{S^{(1)}\,\mathcal{M}_n}_{\text{superrotations}}+\underbrace{q\,S^{(2)}\,\mathcal{M}_n}_{?}+\underbrace{q^2 S^{(3)}\,\mathcal{M}_n}_{?}+\cdots$$
+
+  <p>Each term corresponds to the Ward identity of <em>a different symmetry</em>. The supertranslations (\(q^{-1}\)) and superrotations (\(q^{0}\)) seen in Episode 4 were only the first two rungs of an infinite tower.</p>
+
+  <div class="aside">
+    <span class="tag">DÉJÀ VU</span>
+    Episode 4 had the same structure ── expand supertranslations in spherical harmonics and the ordinary translations were the first four rungs, \(\ell=0,1\).<br>This time the tower is in <em>the order of the soft expansion</em>. <strong>In this field, whatever was visible keeps turning out to be "the first rung of an infinite tower."</strong>
+  </div>
+
+  <h2><span class="n">02</span>Assembling the tower as an algebra</h2>
+
+  <p>The question is whether this tower <strong>forms a closed algebra</strong>. When you take the commutator of two rungs, do you land back inside the tower?</p>
+
+  <p>Strominger's (2021) result is this.</p>
+
+  <div class="keybox">
+    <div class="lbl">RESULT</div>
+    <p style="margin:6px 0 0">The entire tower of positive-helicity soft gravitons organizes into <em>a single chiral 2d Kac–Moody symmetry</em> based on <strong>the wedge subalgebra of \(w_{1+\infty}\)</strong>.</p>
+    <p style="margin:8px 0 0">And moreover <strong>the towers of soft photons and gluons transform irreducibly under it</strong>.</p>
+  </div>
+
+  <p>It closed. And not only gravity ── the soft sectors of gauge fields fit into representations of the same algebra.</p>
+
+  <p>The obvious question follows ── <em>what is \(w_{1+\infty}\)?</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>What \(w_\infty\) really is ── deformations that preserve area</h2>
+
+  <p>A forbidding name, but the content is startlingly plain. It is the set of all <strong>operations that deform a two-dimensional surface without changing its area</strong>.</p>
+
+  <p>Here is how to build it. Pick a function \(f(x,y)\) on the plane. Think of it as a "Hamiltonian" and generate the flow.</p>
+
+  $$\dot x=\frac{\partial f}{\partial y},\qquad \dot y=-\frac{\partial f}{\partial x}$$
+
+  <p>This is Hamiltonian mechanics itself, and <strong>by Liouville's theorem the area is conserved</strong>. Change \(f\) and you get a different deformation. There are as many deformations as there are functions \(f\) ── hence infinite-dimensional.</p>
+
+  <p>And the commutator of these deformations is the <strong>Poisson bracket</strong>.</p>
+
+  $$\{f,g\}=\frac{\partial f}{\partial x}\frac{\partial g}{\partial y}-\frac{\partial f}{\partial y}\frac{\partial g}{\partial x}$$
+
+  <p>Let us check that it closes. With monomials it is one line.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── check by hand that the algebra closes</span>
+    <p style="margin:8px 0 0">Put in \(f=x^{a}y^{b}\) and \(g=x^{c}y^{d}\).</p>
+    $$\{x^{a}y^{b},\,x^{c}y^{d}\}=\bigl(ad-bc\bigr)\;x^{a+c-1}\,y^{b+d-1}$$
+    <p class="lbl">the right-hand side is a monomial too</p>
+    <p style="margin:8px 0 8px">It closes. <strong>The structure constant is \(ad-bc\) ── a single 2×2 determinant.</strong> Relabel the indices and this takes the form of the standard \(w_\infty\) commutation relation \([w^p_m,w^q_n]=(m(q-1)-n(p-1))\,w^{p+q-2}_{m+n}\).</p>
+  </div>
+
+  <p>So \(w_\infty\) is <em>nothing more than functions on the plane with a Poisson bracket</em>. If you can differentiate, you can derive the structure constants yourself.</p>
+
+  <p>Move the figure to see what "preserving area" means.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: choose a Hamiltonian \(f\) and flow. The shape distorts more and more, but <strong>the area does not change</strong> (the area is recomputed each time by polygonal approximation)</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>flow time t = <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="150" value="0">
+      </label>
+      <button id="f1" class="">f = xy (hyperbolic)</button>
+      <button id="f2" class="off">f = x²/2 (shear)</button>
+      <button id="f3" class="off">f = x³/3 (non-linear)</button>
+      <button id="br">reset</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>Whichever you choose, the change in area stays <em>within rounding error</em> ── even though the shape is distorted past recognition.</p>
+
+  <p>Incidentally all three have exact solutions ── for \(f=xy\), \(x=x_0e^{t},\;y=y_0e^{-t}\); for \(f=x^2/2\), \(x=x_0,\;y=y_0-x_0t\); for \(f=x^3/3\), \(x=x_0,\;y=y_0-x_0^2t\). It is not numerical-integration error: <strong>the area really is preserved exactly</strong>.</p>
+
+  <h2><span class="n">04</span>Why it "looks familiar" ── four entrances</h2>
+
+  <p>This is the subject of the episode. \(w_{1+\infty}\) is <strong>not an algebra built for soft theorems</strong>. It had appeared earlier, in entirely different places.</p>
+
+  <table class="tbl">
+    <tr><th style="width:32%">where it appeared earlier</th><th>context</th></tr>
+    <tr><td><strong>area-preserving diffeomorphisms</strong></td><td>pure geometry. what we built in §03</td></tr>
+    <tr><td><strong>self-dual gravity</strong></td><td>the symmetry of the <em>solvable</em> sector of the Einstein equations (the Plebański equation)</td></tr>
+    <tr><td><strong>twistor theory</strong></td><td>Penrose's non-linear graviton construction: building self-dual gravity as a deformation of twistor space</td></tr>
+    <tr><td><strong>2d integrable systems</strong></td><td>an algebra that recurs in systems with infinitely many conserved quantities</td></tr>
+    <tr><td style="color:var(--bad);font-weight:700">and now: soft theorems</td><td>the \(q\to0\) limit of 4d gravitational scattering amplitudes</td></tr>
+  </table>
+
+  <p>Only the fifth is an entirely different entrance from the other four. From a place that looks unrelated to geometry or twistors — the infrared limit of scattering amplitudes — <em>the same algebra came out</em>.</p>
+
+  <h3>Not a coincidence ── the self-dual sector is the key</h3>
+
+  <p>In fact the connection is understood. <strong>Self-dual gravity is integrable</strong>, and its symmetry was \(w_\infty\). And ──</p>
+
+  <div class="keybox">
+    <div class="lbl">WHAT IS GOING ON</div>
+    <p style="margin:6px 0 0">The <strong>soft and collinear limits</strong> of gravity are effectively <em>looking at the self-dual sector</em>.<br>So \(w_{1+\infty}\), the symmetry of self-dual gravity, appears as the tower of soft theorems.</p>
+  </div>
+
+  <p>So infrared physics and twistor theory were pointing at the same thing through this algebra. <em>Separate entrances led to the same room.</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>Why this counts as "strong evidence"</h2>
+
+  <p>Let us hold this against the series' criterion.</p>
+
+  <p>In Episode 1 we brute-forced 160,000 dimensionless quantities and got nothing. In Bonus ③ we wrote that celestial CFT lacks content. The shared lesson was this.</p>
+
+  <p style="text-align:center;font-size:19px;margin:26px 0"><strong>A search that aims at coefficients comes out structurally empty.</strong></p>
+
+  <p>The moment you say "hitting any one of \(p/q\) will do," hitting carries no information. Add targets and you only raise the coverage.</p>
+
+  <p><strong>\(w_{1+\infty}\) is the exact opposite.</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>Episode 1's brute force</th><th>\(w_{1+\infty}\)</th></tr>
+    <tr><td>the target was</td><td class="bad">chosen afterwards (\(p/q\), \(\pi^k\))</td><td class="ok">already there beforehand (area preservation, integrable systems)</td></tr>
+    <tr><td>freedom</td><td class="bad">add targets and you hit</td><td class="ok">the algebra closes or it does not: binary</td></tr>
+    <tr><td>look-elsewhere</td><td class="bad">applies (coverage = hit rate)</td><td class="ok">does not apply</td></tr>
+    <tr><td>kind</td><td class="bad">fitting</td><td class="ok"><strong>discovery</strong></td></tr>
+  </table>
+
+  <p>In Episode 2 we treated anomaly cancellation as an example of "making a constraint the target." This is the same structure ── <em>a target that is decided by a yes/no</em> produces no look-elsewhere effect.</p>
+
+  <p>Whether the algebra closes leaves no room for choice. If it closed, there is structure there.</p>
+
+  <h2><span class="n">06</span>The honest line</h2>
+
+  <p>To avoid overvaluing it, let us state the limits plainly.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── how far is it established</span>
+    <p style="margin:6px 0 0"><strong>① It is tree level.</strong> Loop corrections deform the algebra. Work on "deformed soft algebras" is progressing, but what it becomes after deformation is unsettled.</p>
+    <p style="margin:8px 0 0"><strong>② It is the self-dual sector.</strong> Restricted to positive helicity, and self-dual gravity is only a <em>solvable special part</em> of full gravity. The extension to the full theory with both helicities is unsolved.</p>
+    <p style="margin:8px 0 0"><strong>③ It is a symmetry, not a construction of a theory.</strong> The distance between "we know the symmetry" and "we can build the dual theory" is still considerable. The <em>independent definition of the boundary theory</em> left empty in Episode 5 is not filled by this result.</p>
+  </div>
+
+  <p>In this series' language ── this is <strong>strong circumstantial evidence, not a proof</strong>. Keeping Episode 1's discipline #6, "never write 'solved'," that is the accurate way to put it.</p>
+
+  <p>Even so, for a series that has lined up nothing but negative results, having one thing that <em>came out although we were not aiming at it</em> is significant. It is a sign that the place we are looking is right.</p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>Compute \(\{x^2y,\;xy^2\}\), and check that the result is a monomial.
+        <details><summary>show the answer</summary><div class="ans">Put \((a,b)=(2,1)\) and \((c,d)=(1,2)\) into the formula \(\{x^ay^b,x^cy^d\}=(ad-bc)x^{a+c-1}y^{b+d-1}\). \(ad-bc=2\cdot2-1\cdot1=3\). Hence \(3\,x^{2}y^{2}\). Back to a monomial ── the algebra closes.</div></details>
+      </li>
+      <li>Show directly from the exact solution that the flow of \(f=xy\) preserves area.
+        <details><summary>show the answer</summary><div class="ans">\(\dot x=\partial_y f=x\), \(\dot y=-\partial_x f=-y\). Hence \(x=x_0e^{t}\), \(y=y_0e^{-t}\). The Jacobian is \(\det\begin{pmatrix}e^t&0\\0&e^{-t}\end{pmatrix}=e^t\cdot e^{-t}=1\). <strong>Exactly 1</strong>, so the area is preserved.</div></details>
+      </li>
+      <li>Why is the appearance of \(w_{1+\infty}\), unlike "Episode 1's brute force," immune to look-elsewhere?
+        <details><summary>show the answer</summary><div class="ans">In the brute force the <strong>target could be chosen afterwards</strong> (add \(p/q\) or \(\pi^k\) and the coverage rises, making hits easier).<br>Whether an algebra closes is <strong>binary</strong>, with no room to tune. And \(w_{1+\infty}\) had <em>already been defined for a completely different purpose</em> — area-preserving geometry, integrable systems — so it is not a target picked after the fact. The same structure as anomaly cancellation in Episode 2.</div></details>
+      </li>
+      <li>Does this result fill the "independent definition of the boundary theory" left empty in Episode 5?
+        <details><summary>show the answer</summary><div class="ans">It does not. Knowing a symmetry and constructing a theory are different things. \(w_{1+\infty}\) is strong evidence that "there is structure there," but Carrollian CFT has not been defined from an action or a lattice. Only as far as <em>a sign that the place we are looking is right</em>.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>The soft theorem has an infinite tower.</strong> The supertranslations (\(q^{-1}\)) and superrotations (\(q^0\)) treated in Episode 4 were only the first two rungs. And the tower <em>forms a closed algebra</em> ── the wedge subalgebra of \(w_{1+\infty}\) (Strominger 2021). The towers of soft photons and gluons transform irreducibly under it.</p>
+    <p><strong>The content of \(w_\infty\) is plain.</strong> Just functions on the plane with a Poisson bracket ── the set of all area-preserving deformations. Computed on monomials, the structure constant is a single 2×2 determinant \(ad-bc\), and closure can be checked in one line.</p>
+    <p><strong>And this algebra existed beforehand.</strong> Area-preserving diffeomorphisms, self-dual gravity (the Plebański equation), twistor theory, 2d integrable systems. The same algebra came out of <em>an entirely different entrance</em>, the infrared limit of scattering amplitudes. Not a coincidence: the soft and collinear limits of gravity are looking at the self-dual sector.</p>
+    <p><strong>Why this is strong evidence for this series.</strong> Episode 1's brute force allowed the target to be chosen afterwards, so it was eaten by look-elsewhere. Whether an algebra closes is <em>binary</em>, and \(w_{1+\infty}\) had been defined earlier for another purpose ── <strong>discovery, not fitting</strong>. The same structure as anomaly cancellation in Episode 2.</p>
+    <p style="margin-bottom:0"><strong>But still not a proof.</strong> Tree level, the self-dual sector, and "we know the symmetry" rather than "we built the theory." The centre left empty in Episode 5 is still empty.</p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-07-chiheimen.html">The horizon was Carrollian too</a> ── the "geometry with zero speed of light" seen in Episode 5 did not belong to \(\mathscr{I}\) alone. The universe has one more such surface ── <em>a black-hole horizon</em>. And the membrane paradigm, a "figure of speech" for forty years, acquires a geometric pedigree.
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 6 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: the existence of the infinite soft expansion; that the tower of positive-helicity soft gravitons organizes into the wedge subalgebra of \(w_{1+\infty}\) (Strominger, PRL 127, 221601, 2021); that \(w_\infty\) is the algebra of area-preserving diffeomorphisms; the monomial Poisson-bracket formula; and the integrability and twistor description of self-dual gravity (Penrose's non-linear graviton). <strong>This result is established mainly at tree level in the positive-helicity (self-dual) sector, and loop corrections deform the algebra. The extension to full gravity is unsolved</strong>. Also, identifying a symmetry is not constructing a dual theory, and an independent definition of the boundary theory still does not exist. The three flows in the figure use exact solutions, so area preservation is exact rather than a numerical approximation (the Jacobian is identically 1). The displayed area is computed by polygonal approximation, so a constant discretization difference remains.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can confirm that the area does not change even as the shape distorts.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), ro=document.getElementById('ro');
+  var btns=[document.getElementById('f1'),document.getElementById('f2'),document.getElementById('f3')];
+  var mode=0, N=200;
+
+  // initial shape: the unit circle (radius 0.9)
+  var P0=[];
+  for(var k=0;k<N;k++){ var a=2*Math.PI*k/N; P0.push([0.9*Math.cos(a), 0.9*Math.sin(a)]); }
+
+  // three Hamiltonian flows. all exact solutions (Jacobian ≡ 1)
+  //   f = xy    : ẋ= x,   ẏ=-y     →  x=x0 e^t,  y=y0 e^-t
+  //   f = x²/2  : ẋ= 0,   ẏ=-x     →  x=x0,      y=y0 - x0 t
+  //   f = x³/3  : ẋ= 0,   ẏ=-x²    →  x=x0,      y=y0 - x0² t
+  function flow(p,t,m){
+    var x=p[0], y=p[1];
+    if(m===0) return [x*Math.exp(t*0.9), y*Math.exp(-t*0.9)];
+    if(m===1) return [x, y - x*t*1.6];
+    return [x, y - x*x*t*2.2];
+  }
+  function area(P){ // signed area of a polygon (the shoelace formula)
+    var s=0;
+    for(var i=0;i<P.length;i++){ var j=(i+1)%P.length; s+=P[i][0]*P[j][1]-P[j][0]*P[i][1]; }
+    return Math.abs(s)/2;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/100; vt.textContent=t.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=16,R=w-16,T=22,B=h-34, cx=(L+R)/2, cy=(T+B)/2;
+    var S=Math.min(R-L,B-T)*0.30;
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-6;g<=6;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*S/2,T); ctx.lineTo(cx+g*S/2,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,cy+g*S/2); ctx.lineTo(R,cy+g*S/2); ctx.stroke();
+    }
+    ctx.strokeStyle='#9fb0ae'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,cy); ctx.lineTo(R,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,T); ctx.lineTo(cx,B); ctx.stroke();
+
+    // the original shape
+    ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    for(var i=0;i<=N;i++){ var p=P0[i%N]; var X=cx+p[0]*S, Y=cy-p[1]*S; if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+    ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+
+    // the flowed shape
+    var Pt=P0.map(function(p){ return flow(p,t,mode); });
+    ctx.fillStyle='rgba(31,111,116,.16)'; ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(var j=0;j<=N;j++){ var q=Pt[j%N]; var X2=cx+q[0]*S, Y2=cy-q[1]*S; if(j===0)ctx.moveTo(X2,Y2); else ctx.lineTo(X2,Y2); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    var A0=area(P0), A1=area(Pt);
+    var names=['f = xy (hyperbolic)','f = x²/2 (shear)','f = x³/3 (non-linear)'];
+    ctx.fillStyle='#1f6f74'; ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='left'; ctx.fillText(names[mode], L+4, T-6);
+
+    var rel=Math.abs(A1-A0)/A0;
+    ro.innerHTML='original area <b>'+A0.toFixed(9)+'</b> ｜ after flowing <b>'+A1.toFixed(9)+'</b> ｜ '
+      +'relative change <b>'+rel.toExponential(2)+'</b>'
+      +(t<0.01 ? '　(raise t)'
+               : '　→ the shape is heavily distorted, and yet <b>the area has not changed</b>. That is "area preservation" = the content of w<sub>∞</sub>.');
+  }
+
+  st.addEventListener('input', draw);
+  btns.forEach(function(b,i){
+    b.addEventListener('click', function(){
+      mode=i; btns.forEach(function(x,j){ x.className = (j===i)?'':'off'; }); draw();
+    });
+  });
+  document.getElementById('br').addEventListener('click', function(){ st.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

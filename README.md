@@ -23,6 +23,7 @@
 | **わかる温度** | 温度は物質の性質ではない。k_B は両替レート。エネルギーの配り方・熱と追跡・ゆらぎの定理・負の温度・虚時間の周期・ウンルー効果（全7話・完結＋番外1「地平面までの光の飛行時間が、温度」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ondo/index.html) |
 | **わかるすり抜け** | 越えられない壁を、越えずに向こう側へ。虚時間の中を歩く・太陽が燃える理由・熱かすり抜けか・ジョセフソン効果・超伝導は違う・摂動論に見えないもの・真空崩壊（全7話・完結＋番外6「常温核融合は起きるのか」「ミュオン触媒」「原子1個が見える理由」「トンネル時間」「量子生物学の仕分け」「室温超伝導の30年」「すり抜けるものが時空に広がるとき」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-surinuke/index.html) |
 | **わかる屈折** | 屈折で光が遅くなるのに、なぜ光速不変は破れないのか。遅いのは波・光の円錐が二つある・位相速度は c を超える・反射は食い違いから・屈折と吸収は同じ関数・光を止める・屈折率の地図（全7話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu/index.html) |
+| **つくる格子**〔※作る側〕| 唯一「わかる」ではなく**つくる**シリーズ。空白に道具を作って走らせる。無次元量を16万本総当たりして偶然しか出ないことを測る（p=0.67）→ 時空を格子にすると18桁のファインチューニング → 舞台は平坦でよい（等価原理が結論として出る）→ 重力波の記憶効果と BMS → 境界は3次元だった（光速ゼロの Carroll 幾何）→ ソフト定理の塔が w(1+∞) をなす → 地平面も Carroll → 何が無いのかを仕様として詰める → 3次元では、もう証明されている → **BMS₄ に中心電荷は無い**（dim H²=0 を自分で計算）→ 面積則はただで出る → 自由度は数えなくてよかった → **壁は第1回の定理だった** → 平坦な格子で水星が回る（**42.9807″/世紀**、GR比 1.0000）→ 決着は光子1個（**112 PeV**）→ こっちのほうが計算が楽だ。**閉まった扉4枚・通った計算1つ・反証可能な数字1つ・新しい物理0**（全19話＋番外4話・完結）| [開く](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html) |
 | **わかる宇宙論** | 光速・微細構造定数・ゲージから宇宙を読む | [開く](https://yomei-o.github.io/wakaru_all/wakaru/index.html) |
 | **わかる力** | 「力」の正体を、場・幾何・対称性まで剥がす | [開く](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) |
 | **わかる質量** | 質量とは何か | [開く](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) |
@@ -32,23 +33,17 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
-## 🔧 姉妹シリーズ「物理を作る」
+## 🔧 「つくる格子」だけは、立場が逆
 
-「わかる」が**既知の物理を解説する**シリーズなのに対し、こちらは立場が逆になります ── 空白や「怪しい数」に対して**道具を作り、走らせ、出た結果をそのまま読む**。うまくいかなかった回も、**自分が間違えた回も**、そのまま載せます。主役は結論ではなく、作業のほうです。
+上の表で1本だけ「わかる」ではなく**つくる**なのが「つくる格子」です。「わかる」が**既知の物理を解説する**のに対し、こちらは空白に対して**道具を作り、走らせ、出た結果をそのまま読む**。作る道具が**格子**です ── 時空を格子にすると何が壊れるのか、そして平坦な格子のままなら何がそっくり回るのか。うまくいかなかった回も、**自分が間違えた回も**、そのまま載せます。主役は結論ではなく、作業のほうです。
 
 背骨は一文 ── **物理を作るとは、予想することではなく、予想が死ぬ条件を先に作ることである。**
-
-| シリーズ | 内容 | 読む（公開サイト）|
-|---|---|---|
-| **物理を作る 第1部** | 空白に道具を作って走らせる。無次元量を16万本総当たりして偶然しか出ないことを測る（p=0.67）→ 時空を格子にすると18桁のファインチューニング → 舞台は平坦でよい（等価原理が結論として出る）→ 重力波の記憶効果と BMS → 境界は3次元だった（光速ゼロの Carroll 幾何）→ ソフト定理の塔が w(1+∞) をなす→ 地平面も Carroll → 何が無いのかを仕様として詰める → 3次元では、もう証明されている → **BMS₄ に中心電荷は無い**（dim H²=0 を自分で計算）→ 面積則はただで出る → 自由度は数えなくてよかった → **壁は第1回の定理だった** → 平坦な格子で水星が回る（**42.9807″/世紀**、GR比 1.0000）→ 決着は光子1個（**112 PeV**）→ こっちのほうが計算が楽だ。**閉まった扉4枚・通った計算1つ・反証可能な数字1つ・新しい物理0**（全19話＋番外3話・完結）| [開く](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html) |
 
 各話に**動く図**つき。検算コードは純 C++／純 Python・依存なし（[kuuhaku_cpp](https://github.com/yomei-o/kuuhaku_cpp)）。
 
 **負の結果は負のまま、訂正は隠さず載せています** ── 訂正バナー＋台帳を各話に付けています。方針は「良くなったから開いてよかった」ではなく「向きが読めないから開く」です。
-
-（フォルダ名：`butsuri-tsukuru/`）
 
 ## 🌐 English editions（英語版）
 
@@ -65,6 +60,7 @@
 | **Temperature That Clicks**（わかる温度）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ondo-en/index.html) |
 | **Tunneling That Clicks**（わかるすり抜け）| [open](https://yomei-o.github.io/wakaru_all/wakaru-surinuke-en/index.html) |
 | **Refraction That Clicks**（わかる屈折）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu-en/index.html) |
+| **The Lattice We Build**（つくる格子）| [open](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru-en/index.html) |
 | **Force That Clicks**（わかる力）| [open](https://yomei-o.github.io/wakaru_all/wakaru-chikara-en/index.html) |
 | **Mass That Clicks**（わかる質量）| [open](https://yomei-o.github.io/wakaru_all/wakaru-shitsuryo-en/index.html) |
 | **The Universe Is a Computer**（宇宙は計算機）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki-en/uchu-keisanki-index.html) |

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The mirror does not come back ── The Lattice We Build, Episode 4</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .tri{margin:30px 0;padding:24px 26px;border:1.5px solid var(--rule);border-radius:4px;background:#fdfefc;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  .tri .t{font-size:11px;letter-spacing:.2em;font-weight:700;color:var(--acc);margin-bottom:14px;}
+  .tri table{width:100%;border-collapse:collapse;font-size:14px;}
+  .tri td{padding:7px 8px;vertical-align:top;}
+  .tri td.v{font-weight:700;color:var(--ink);white-space:nowrap;}
+  .tri td.y{color:var(--ink-soft);font-size:12.5px;white-space:nowrap;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 14px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.tri,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 4 ／ The mirror does not come back</span></div>
+  <p class="eyebrow">The symmetry of flat spacetime was not Poincaré but infinite-dimensional ── and it is measurable</p>
+  <h1>The mirror does not come back
+    <span class="sub">After a gravitational wave has passed, LIGO's mirrors <em>do not return to where they started</em>.<br>They are displaced permanently. That amount is direct evidence that <strong>the symmetry of flat spacetime is infinite-dimensional</strong>.<br>The geometry of 1962, the scattering amplitudes of 1965, the gravitational waves of 1974 ── three things kept apart for fifty years<br>turn out to be three faces of one structure. And at the end, <em>holography for flat spacetime</em> appears.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: a feel for spherical harmonics, Episodes 2 and 3, spontaneous symmetry breaking</span>
+    <span>The core of this episode: permanent displacement ≈ 1/3600 of a proton radius</span>
+  </div>
+
+  <p class="lead">Episode 3 confirmed that the stage may stay flat. Curvature can be a field on the stage rather than a property of it.<br>So <em>how much symmetry does that flat stage have?</em> Anyone would answer "the Poincaré group" ── four translations and six Lorentz transformations, ten in all.<br><strong>That was wrong.</strong> And it has been known since 1962. The true symmetry at infinity is <em>infinite-dimensional</em>, and that fact does not stay in abstract mathematics: it shows up in the extremely concrete form of a gravitational-wave detector's mirrors failing to return to where they were.<br>This episode chases that infinite-dimensional symmetry, and ends up at holography for flat spacetime.</p>
+
+  <h2><span class="n">01</span>The symmetry at infinity is not Poincaré</h2>
+
+  <p>"Get far enough from matter and spacetime becomes flat, so the asymptotic symmetry must be the Poincaré group" ── a natural inference.</p>
+
+  <p>Bondi–van der Burg–Metzner (1962) and Sachs (1962) computed the asymptotic symmetry at null infinity \(\mathscr{I}^+\) (scri-plus) in order to handle gravitational waves exactly. What came out was ──</p>
+
+  <div class="keybox">
+    <div class="lbl">THE BMS GROUP</div>
+    $$\text{BMS}=\underbrace{\text{Lorentz}}_{6}\;\ltimes\;\underbrace{\text{supertranslations}}_{\textbf{infinite-dimensional}}$$
+  </div>
+
+  <h3>What is a supertranslation?</h3>
+
+  <p>The key is that <strong>you reach infinity separately in each direction</strong>. Each direction on the celestial sphere corresponds to a different point of \(\mathscr{I}^+\).</p>
+
+  <p>An ordinary translation shifts the retarded time \(u\) <em>by a constant</em>. But ──</p>
+
+  $$u\;\longrightarrow\;u-f(\theta,\phi)$$
+
+  <p>shifting it by an <strong>angle-dependent amount</strong> also preserves the asymptotic structure. That is a supertranslation. Expand \(f\) in spherical harmonics and the structure becomes visible.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── where is Poincaré?</span>
+    $$f(\theta,\phi)=\underbrace{\sum_{\ell=0,1}c_{\ell m}Y_{\ell m}}_{\textbf{ordinary translations (4)}}\;+\;\underbrace{\sum_{\ell\ge2}c_{\ell m}Y_{\ell m}}_{\textbf{supertranslations (infinitely many)}}$$
+    <p class="lbl">the breakdown</p>
+    <p style="margin:8px 0 8px">\(\ell=0\) (one) is time translation, \(\ell=1\) (three) are the space translations. <strong>The translation part of the Poincaré group was only the first four rungs of an infinite tower.</strong></p>
+  </div>
+
+  <h2><span class="n">02</span>Why this is not killed by Coleman–Mandula</h2>
+
+  <p>Here is something to be wary of. Previously we noted that enlarging spacetime symmetry is forbidden by the <strong>Coleman–Mandula theorem</strong>. Does BMS not run into that prohibition?</p>
+
+  <p>It does not. The reason is one line.</p>
+
+  <div class="keybox">
+    <div class="lbl">WHY IT ESCAPES</div>
+    <p style="margin:6px 0 0"><strong>Supertranslations are spontaneously broken.</strong></p>
+    <p style="margin:8px 0 0">The vacuum is not BMS invariant ── there are <em>infinitely many degenerate vacua</em> related to each other by supertranslations. And what Coleman–Mandula restricts are the <strong>unbroken</strong> symmetries of the S-matrix.</p>
+  </div>
+
+  <p>What a broken symmetry produces is not a constraint on scattering but a <em>Nambu–Goldstone particle</em>. And in this case, that is ──</p>
+
+  <p style="text-align:center;font-size:19px;margin:26px 0"><strong>The soft graviton is the Goldstone particle of broken supertranslations.</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The infrared triangle ── discovered separately over fifty years</h2>
+
+  <p>Here is the interesting part. Three independently discovered phenomena turned out to be <strong>three faces of the same structure</strong> (Strominger and others, 2013–17).</p>
+
+  <div class="tri">
+    <div class="t">Fifty years, in separate fields</div>
+    <table>
+      <tr><td class="y">1962</td><td class="v">asymptotic symmetry (BMS)</td><td>general relativity. the symmetry at infinity is found to be infinite-dimensional</td></tr>
+      <tr><td class="y">1965</td><td class="v">soft theorem</td><td>scattering amplitudes. Weinberg finds the universal pole at \(q\to0\)</td></tr>
+      <tr><td class="y">1974 / 1991</td><td class="v">memory effect</td><td>gravitational-wave astronomy. test masses are permanently displaced</td></tr>
+    </table>
+  </div>
+
+  <h3>Vertex ① the soft theorem (Weinberg 1965)</h3>
+
+  <p>Add one graviton of momentum \(q\to0\) to any scattering amplitude and ──</p>
+
+  $$\mathcal{M}_{n+1}(q\to0)=\left(\frac{\kappa}{2}\sum_i\frac{(p_i\cdot\epsilon)^2}{p_i\cdot q}\right)\mathcal{M}_n+O(q^0)$$
+
+  <p>The leading term is a <strong>pole</strong> in \(1/q\), and its coefficient is fixed by the external momenta alone ── <em>it does not depend on the details of the interaction at all</em>.</p>
+
+  <p>Weinberg used this to <strong>derive the equivalence principle</strong>. Unless every particle couples to gravity with the same strength, the soft theorem is inconsistent. Episode 3 wrote that "the equivalence principle is a conclusion, not an assumption"; this is the <em>scattering-amplitude version</em> of it. The same conclusion, reached by an entirely different road.</p>
+
+  <h3>Vertex ② the memory effect (Zel'dovich–Polnarev 1974, Christodoulou 1991)</h3>
+
+  <p>Freely floating test masses ── think of LIGO's mirrors. A burst of gravitational waves passes through. After it is gone, spacetime returns to being flat.</p>
+
+  <p><strong>But the mirrors do not return to where they were.</strong> Not an oscillation but a <em>permanent displacement</em>.</p>
+
+  <h3>And the three edges</h3>
+
+  <table class="tbl">
+    <tr><th style="width:30%">edge</th><th>relation</th></tr>
+    <tr><td><strong>symmetry ⟺ soft theorem</strong></td><td>Write the BMS invariance of the S-matrix as a Ward identity and <em>you get Weinberg's soft theorem directly</em>. The supertranslation charge splits into a "hard part" (acting on matter) and a "soft part" (creating a zero-momentum graviton), which is why the soft theorem has the shape it does.</td></tr>
+    <tr><td><strong>soft theorem ⟺ memory effect</strong></td><td>Each other's <em>Fourier transform</em>. The memory effect is the zero-frequency (= soft) limit seen in position space.</td></tr>
+    <tr><td><strong>memory effect ⟺ symmetry</strong></td><td>When the wave passes, <em>the vacuum you are in changes</em>. Both before and after are "flat," but they are different flat vacua, related by a supertranslation. <strong>The amount of permanent displacement = the supertranslation parameter.</strong></td></tr>
+  </table>
+
+  <p>The abstract story of infinite vacuum degeneracy has become a measurable quantity: the position of a mirror. Let us see it in a figure.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: a ring of freely floating test masses. A burst of gravitational waves passes through. Press "play" (the strain is exaggerated by \(10^{21}\) so you can see it)</div>
+    <canvas id="cv" width="720" height="340"></canvas>
+    <div class="controls">
+      <label>time <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="1000" value="0">
+      </label>
+      <label>binary inclination ι = <span class="val" id="vi">90</span>°
+        <input type="range" id="si" min="0" max="90" value="90">
+      </label>
+      <button id="bp">▶ play</button>
+      <button id="br">reset</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#b3c0bd"></span>the original circle (before the wave)</span>
+      <span><span class="swatch" style="background:#a83a22"></span>the test masses now</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>waveform \(h_+(t)\)</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>After the wave has passed, the red ring <em>does not coincide with the grey circle</em>. It stops, still squashed into an ellipse. Look at the waveform on the right and you can see a <strong>step that does not return to zero</strong> once the oscillation has died away. That is the memory.</p>
+
+  <p>Set the inclination to 0° (face-on) and the memory vanishes. This angular dependence comes out as a formula in the next section.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>Doing the calculation</h2>
+
+  <p>Let us get a number. What matters in a binary merger is the <strong>non-linear memory (Christodoulou memory)</strong>, whose source is <em>the energy flux of the gravitational waves themselves</em>. The memory amplitude from the dominant \((2,0)\) mode is ──</p>
+
+  <div class="keybox">
+    <div class="lbl">THE MEMORY AMPLITUDE</div>
+    $$h_{\rm mem}(\iota)\;\simeq\;\frac{G\,E_{\rm rad}}{c^4\,R}\cdot\frac{\sin^2\iota\,\bigl(17+\cos^2\iota\bigr)}{96}$$
+  </div>
+
+  <p>Let us look at the angular factor first.</p>
+
+  <table class="tbl">
+    <tr><th>inclination \(\iota\)</th><th class="num">0° (face-on)</th><th class="num">30°</th><th class="num">60°</th><th class="num">90° (edge-on)</th></tr>
+    <tr><td>angular factor</td><td class="num">0.0000</td><td class="num">0.0462</td><td class="num">0.1348</td><td class="num">0.1771</td></tr>
+  </table>
+
+  <p><strong>Seen face-on the memory is zero; edge-on it is maximal.</strong> Because the memory is a purely \(+\)-polarization effect.</p>
+
+  <p>Now put in real events.</p>
+
+  <div class="lab">
+    <span class="tag">MEMORY IN ACTUAL GRAVITATIONAL-WAVE EVENTS</span>
+<pre>event              E_rad      D_L    incl    h_mem      ratio to osc. peak
+                [Msun c²]  [Mpc]  [deg]
+GW150914          3.00       440    150    <span class="hi">1.51e-23</span>      1.5%
+GW150914 (if edge-on) 3.00       440     90    <span class="hi">5.78e-23</span>      5.8%
+GW190521          7.60      5300     90    <span class="hi">1.22e-23</span>      2.0%
+GW170817 (neutron star) 0.04      40    152    <span class="hi">1.95e-24</span>      2.0%
+
+<span class="cm">scaling check: h ∝ E_rad / D_L</span>
+<span class="cm">  predicted ratio GW190521/GW150914 (7.6/3.0)/(5300/440) = 0.2103</span>
+<span class="cm">  actual ratio (both edge-on)                            = <span class="st">0.2103</span>  ✓</span></pre>
+  </div>
+
+  <p>GW150914's memory is small not because of distance but because of <em>orientation</em>. The inclination was 150°, i.e. nearly face-on, so \(\sin^2\iota\) drops it to a quarter.</p>
+
+  <h3>So how many metres is that?</h3>
+
+  <p>LIGO's arms are 4 km. Multiply.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── turn the permanent displacement into a length</span>
+    $$\Delta L = h_{\rm mem}\times 4\,\mathrm{km}$$
+    <p class="lbl">GW150914 (actual inclination)</p>
+    <p style="margin:8px 0 0">\(1.51\times10^{-23}\times4000\,\mathrm{m}=6.0\times10^{-20}\,\mathrm{m}\) ── <strong>about 1/14000 of a proton radius</strong></p>
+    <p class="lbl">GW150914 (had it been edge-on)</p>
+    <p style="margin:8px 0 8px">\(5.78\times10^{-23}\times4000\,\mathrm{m}=2.3\times10^{-19}\,\mathrm{m}\) ── <strong>about 1/3600 of a proton radius</strong></p>
+  </div>
+
+  <p>And what matters is not the size. It is that <strong>it does not go back</strong>. An oscillation is over once it passes, but this 6×10⁻²⁰ m stays forever. A black-hole merger somewhere in the universe has <em>permanently rewritten the geometry of your detector</em>.</p>
+
+  <h2><span class="n">05</span>Why it has not been observed yet</h2>
+
+  <p>The memory effect is <strong>unobserved</strong>. It is only one or two orders below the oscillating waveform, so why is it not caught?</p>
+
+  <p>The reason is not the size but the <em>frequency</em>. The memory is <strong>an essentially DC step</strong>. But LIGO is a band-pass instrument with almost no sensitivity below 10 Hz. It is buried in seismic noise. <em>The signal sits exactly where the instrument is least sensitive.</em></p>
+
+  <p>The strategy is stacking. If the memory SNR of one event is \(\rho\), then \(N\) events give \(\sqrt{N}\rho\).</p>
+
+  <div class="lab">
+    <span class="tag">EVENTS NEEDED FOR 3σ</span>
+<pre>memory SNR per event    N needed for 3σ
+   ρ = 0.05                 3600
+   ρ = 0.067                <span class="hi">2005</span>
+   ρ = 0.10                  900</pre>
+  </div>
+
+  <p>The literature estimates \(O(10^3)\) events at aLIGO design sensitivity. <strong>With LISA it would be far easier</strong> (low frequency is its main battleground, so where the memory sits and what the instrument is good at coincide).</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── this is a forecast, not a result</span>
+    The memory effect has <strong>never once been observed</strong>. The numbers above are <em>expectations</em> computed from known events, plus detection prospects from the literature.<br>We cannot yet say "an infinite-dimensional symmetry has been confirmed by experiment." All we can say is <em>"a route to being able to say it exists, as concrete numbers."</em>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>And then, holography for flat spacetime</h2>
+
+  <p>Finally, the part of this episode that goes furthest.</p>
+
+  <p>Holography's greatest weakness was that <strong>the only controlled examples are anti-de Sitter space (\(\Lambda<0\))</strong>. Our universe has \(\Lambda>0\).</p>
+
+  <p><strong>Celestial holography</strong> is the programme of doing holography in flat spacetime. The boundary is not the AdS boundary but <em>the celestial sphere \(S^2\) at null infinity</em>.</p>
+
+  <p>The heart of the mechanism is one group-theoretic fact.</p>
+
+  <div class="keybox">
+    <div class="lbl">WHY THE CELESTIAL SPHERE</div>
+    $$\underbrace{SO(3,1)}_{\textbf{the 4d Lorentz group}}\;\cong\;\underbrace{SL(2,\mathbb{C})}_{\textbf{the global conformal group of }S^2}$$
+    <p style="margin:8px 0 0">A four-dimensional Lorentz transformation <strong>is a conformal transformation of the celestial sphere</strong>.</p>
+  </div>
+
+  <p>So if you rewrite scattering amplitudes in a basis of <em>boost eigenstates</em> rather than momentum eigenstates (using the Mellin transform), a four-dimensional amplitude takes the form of a correlation function of a two-dimensional CFT.</p>
+
+  <p>And the infrared triangle translates directly into CFT structure.</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">4d flat spacetime</th><th>celestial CFT (on the sphere)</th></tr>
+    <tr><td>scattering amplitude</td><td>correlation function</td></tr>
+    <tr><td>supertranslations</td><td>current algebra</td></tr>
+    <tr><td><strong>soft graviton</strong></td><td><strong>stress tensor</strong></td></tr>
+    <tr><td>superrotations (subleading soft)</td><td>Virasoro</td></tr>
+  </table>
+
+  <p>The soft graviton becomes the CFT's stress tensor. The whole infrared physics of flat spacetime maps into the language of a two-dimensional conformal field theory.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── it is unfinished</span>
+    Celestial CFT has <strong>not yet been constructed as an independently defined theory</strong>. For now it is a rewriting of amplitudes, not an example of "a duality with both sides exactly defined" like AdS/CFT.<br>The correlation functions are strange too (continuous spectrum, distributional). They do not fit the standard CFT frame. The correct extension of superrotations (Virasoro or \(\mathrm{Diff}(S^2)\)) is also unsettled.<br><strong>A direction, not a destination.</strong>
+  </div>
+
+  <div class="aside">
+    <span class="tag">A DETOUR ── soft hair and the information paradox</span>
+    If there are infinitely many supertranslation charges, a black hole should have infinitely many pieces of "soft hair" ── Hawking–Perry–Strominger (2016) saw a resolution of the information paradox there.<br><strong>It has not been accepted, however.</strong> The existence of soft hair is broadly granted, but there is a strong objection that "there is not enough of it to store the information" (Bousso–Porrati and others). In this series' language, this is at the stage of <em>an attractive puzzle</em>.
+  </div>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>There are infinitely many supertranslations, yet only four of them are called "ordinary translations." Which four?
+        <details><summary>show the answer</summary><div class="ans">The \(\ell=0\) (one) and \(\ell=1\) (three) spherical harmonics \(Y_{\ell m}\). The former is time translation, the latter the three directions of space translation. Everything with \(\ell\ge2\) is a new supertranslation.</div></details>
+      </li>
+      <li>BMS enlarges spacetime symmetry to infinite dimension, so why does it not conflict with Coleman–Mandula?
+        <details><summary>show the answer</summary><div class="ans">Because supertranslations are <strong>spontaneously broken</strong>. What CM restricts are symmetries that leave the vacuum invariant (unbroken); a broken symmetry only produces Goldstone particles (here, soft gravitons) and soft theorems. It does not trivialize scattering.</div></details>
+      </li>
+      <li>The memory effect is only one or two orders below the oscillating waveform, so why is it so much harder to detect?
+        <details><summary>show the answer</summary><div class="ans">The memory is <strong>an essentially DC step</strong>, with its frequency near zero. Ground interferometers have almost no sensitivity below 10 Hz (seismic noise). <em>The signal is placed in the instrument's worst band.</em> A problem of frequency, not of size.</div></details>
+      </li>
+      <li>For a binary merger seen face-on (\(\iota=0\)) the memory is zero. Where in the formula does that come from?
+        <details><summary>show the answer</summary><div class="ans">The \(\sin^2\iota\) in the angular factor \(\sin^2\iota\,(17+\cos^2\iota)/96\). The memory is a purely \(+\)-polarization effect, and for a face-on orientation, which is circularly polarized, it cancels. GW150914 had inclination 150° (nearly face-on), so it drops to about a quarter of the edge-on case.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>The symmetry of flat spacetime is not Poincaré.</strong> The asymptotic symmetry at null infinity is the BMS group = Lorentz ⋉ supertranslations, and it is <em>infinite-dimensional</em>. The four ordinary translations were only the first four rungs, \(\ell=0,1\) of the spherical harmonics.</p>
+    <p><strong>It does not touch Coleman–Mandula.</strong> Because supertranslations are spontaneously broken. And the soft graviton is the Goldstone particle of that breaking.</p>
+    <p><strong>Three things kept apart for fifty years were the same thing.</strong> Asymptotic symmetry (1962) = the soft theorem (1965) = the memory effect (1974/91). The soft theorem is BMS's Ward identity, the memory effect is its Fourier transform, and the permanent displacement is the supertranslation parameter itself.</p>
+    <p><strong>And it is measurable.</strong> GW150914's memory is \(h=1.5\times10^{-23}\), which over LIGO's 4 km arms is \(6.0\times10^{-20}\) m ── 1/14000 of a proton radius. More important than the size is that it <em>does not go back</em>. But being a DC signal it sits in the instrument's worst band, and stacking \(O(10^3)\) events is required. <strong>Still unobserved.</strong></p>
+    <p style="margin-bottom:0"><strong>And holography for flat spacetime.</strong> \(SO(3,1)\cong SL(2,\mathbb{C})\) ── the 4d Lorentz group is the conformal group of the celestial sphere. The soft graviton becomes the stress tensor of a celestial CFT. <em>Unfinished, but currently the only route to a holography not tied to \(\Lambda<0\).</em></p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-05-carroll.html">The boundary was three-dimensional</a> ── the celestial holography introduced here breaks when you try to build a four-point function. The real culprit was <em>the dimension of the boundary</em>. The correct boundary is three-dimensional, and it carries "a geometry with zero speed of light."
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 4 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: the BMS group and supertranslations (Bondi–van der Burg–Metzner 1962, Sachs 1962), Weinberg's soft graviton theorem (1965), the memory effect (Zel'dovich–Polnarev 1974, Christodoulou 1991), the equivalence of these three (Strominger and others 2013–2017), and \(SO(3,1)\cong SL(2,\mathbb{C})\). <strong>The memory effect is unobserved</strong> ── the \(h_{\rm mem}\) values in the text are expectations computed with the formula above from published event parameters, and the required event counts are forecasts based on estimates in the literature. The memory amplitude formula used keeps only the dominant mode, and coefficients differ between formulations. <strong>Celestial holography is an ongoing research programme; there is as yet no completed example of the duality</strong>. The resolution of the information paradox by soft hair faces strong objections and is unsettled. The strain in the figure is exaggerated by \(10^{21}\).</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">① Could physics be written more simply?</a>／<a href="butsuri-tsukuru-bangai2-ct.html">② How far does "ct = constant" get you?</a> ｜ sister series: <a href="../wakaru-soutai-en/index.html">Relativity That Clicks</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). Press "play" in the figure to watch the mirror fail to come back.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'), si=document.getElementById('si'),
+      vt=document.getElementById('vt'), vi=document.getElementById('vi'), ro=document.getElementById('ro'),
+      bp=document.getElementById('bp'), br=document.getElementById('br');
+
+  var N=28, playing=false, raf=null;
+
+  // angular factor (identical to the formula in the text)
+  function ang(iDeg){
+    var i=iDeg*Math.PI/180, s2=Math.sin(i)*Math.sin(i), c2=Math.cos(i)*Math.cos(i);
+    return s2*(17+c2)/96;
+  }
+
+  // waveform: the burst oscillation + the memory step
+  //   h+(t) = A·envelope·cos(ωt)  +  h_mem·(step)
+  function hplus(t, iDeg){
+    var t0=0.45, sig=0.10;
+    var env=Math.exp(-Math.pow((t-t0)/sig,2)/2);
+    var osc=0.55*env*Math.cos(2*Math.PI*9*(t-t0));
+    var step=0.5*(1+Math.tanh((t-t0)/(0.55*sig)));
+    var mem=(ang(parseFloat(iDeg))/0.1771)*0.30;   // 0.30 edge-on, 0 face-on
+    return osc + mem*step;
+  }
+  function hcross(t, iDeg){
+    var t0=0.45, sig=0.10;
+    var env=Math.exp(-Math.pow((t-t0)/sig,2)/2);
+    return 0.55*env*Math.sin(2*Math.PI*9*(t-t0))*Math.cos(parseFloat(iDeg)*Math.PI/180);
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/1000, iDeg=si.value;
+    vt.textContent=t.toFixed(2); vi.textContent=iDeg;
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, lw=Math.min((w-gap)*0.42, h-70), pw=(w-gap)-lw;
+    var top=26, bot=h-34;
+
+    // ── left: the ring of test masses
+    var cx=lw/2+6, cy=(top+bot)/2, R=Math.min(lw,bot-top)*0.36;
+    var hp=hplus(t,iDeg), hc=hcross(t,iDeg);
+
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('① ring of test masses', 8, top-9);
+
+    // the original circle
+    ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,6.2832); ctx.stroke(); ctx.setLineDash([]);
+
+    // displaced test masses: δx = ½(h+ x + h× y), δy = ½(h× x − h+ y)
+    ctx.fillStyle='#a83a22';
+    var pts=[];
+    for(var k=0;k<N;k++){
+      var a=2*Math.PI*k/N, x=R*Math.cos(a), y=R*Math.sin(a);
+      var X=x+0.5*(hp*x+hc*y), Y=y+0.5*(hc*x-hp*y);
+      pts.push([cx+X, cy-Y]);
+    }
+    ctx.strokeStyle='rgba(168,58,34,.45)'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    for(var k2=0;k2<=N;k2++){ var p=pts[k2%N]; if(k2===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); }
+    ctx.stroke();
+    for(var k3=0;k3<N;k3++){ ctx.beginPath(); ctx.arc(pts[k3][0],pts[k3][1],3.1,0,6.2832); ctx.fill(); }
+
+    // ── right: the waveform
+    var L=lw+gap+34, Rr=w-12, T=top+4, B=bot-8, mid=(T+B)/2;
+    ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+    ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('② waveform h₊(t)', L-26, top-9);
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,mid); ctx.lineTo(Rr,mid); ctx.stroke();
+    ctx.strokeStyle='#7a8785';
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+
+    var SC=(B-T)/2.6;
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2; ctx.beginPath();
+    for(var j=0;j<=400;j++){
+      var tt=j/400, xx=L+(Rr-L)*tt, yy=mid-hplus(tt,iDeg)*SC;
+      if(j===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke();
+
+    // line marking the memory step
+    var memv=hplus(1.0,iDeg);
+    ctx.strokeStyle='rgba(168,58,34,.55)'; ctx.lineWidth=1.3; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L,mid-memv*SC); ctx.lineTo(Rr,mid-memv*SC); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='right'; ctx.fillText('memory (the step that stays)', Rr-4, mid-memv*SC-6);
+
+    // cursor for the current time
+    var xc=L+(Rr-L)*t;
+    ctx.strokeStyle='#4c545c'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(xc,T); ctx.lineTo(xc,B); ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='center'; ctx.fillText('time →', (L+Rr)/2, B+18);
+
+    var af=ang(parseFloat(iDeg));
+    ro.innerHTML = (t<0.30)
+      ? 'Before the wave. The red ring sits exactly on the grey circle. ｜ inclination ι = <b>'+iDeg+'°</b>, angular factor <b>'+af.toFixed(4)+'</b>'
+      : (t<0.62
+        ? '<b>Passing through.</b> The ring is oscillating. ｜ inclination ι = <b>'+iDeg+'°</b>, angular factor <b>'+af.toFixed(4)+'</b>'
+        : (af<0.004
+          ? 'After the pass. Inclination <b>0° (face-on)</b>, so the memory is zero ── the ring has returned to the original circle. <b>Face-on, the memory is invisible.</b>'
+          : '<b>After the pass. The oscillation is over, and yet the ring has not returned to the original circle.</b> It has stopped as an ellipse ── that is the memory effect. ｜ angular factor <b>'+af.toFixed(4)+'</b> (maximum 0.1771 edge-on)'));
+  }
+
+  function step(){
+    if(!playing) return;
+    var v=parseInt(st.value,10)+7;
+    if(v>=1000){ v=1000; playing=false; bp.textContent='▶ play'; }
+    st.value=v; draw();
+    if(playing) raf=requestAnimationFrame(step);
+  }
+
+  bp.addEventListener('click', function(){
+    if(playing){ playing=false; bp.textContent='▶ play'; if(raf) cancelAnimationFrame(raf); return; }
+    if(parseInt(st.value,10)>=1000) st.value=0;
+    playing=true; bp.textContent='⏸ pause'; step();
+  });
+  br.addEventListener('click', function(){ playing=false; bp.textContent='▶ play'; st.value=0; draw(); });
+  st.addEventListener('input', function(){ playing=false; bp.textContent='▶ play'; draw(); });
+  si.addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

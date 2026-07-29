@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maybe I was looking in the wrong place ── The Lattice We Build, Episode 11</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .okmark{color:var(--ok);}
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 11 ／ Maybe I was looking in the wrong place</span></div>
+  <p class="eyebrow">"The central charge is zero" ── but in three dimensions that one was zero as well</p>
+  <h1>Maybe I was looking in the wrong place
+    <span class="sub">Last time we listed the three things missing in four dimensions. The leading one is the <em>central charge</em>.<br>Looking it up produces two pieces of bad news ── it is reported as \(c=0\), and the central extension is not even a constant.<br>The Cardy route looks blocked. <strong>But in three dimensions that central charge was zero too.</strong><br>What carried the entropy was the other side ── in which case we may be looking in the wrong place.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 10, a feel for semidirect products</span>
+    <span>The core of this episode: \(c_L=0\), \(c_M=3/G\)｜positive control passed</span>
+  </div>
+
+  <p class="lead">Last time we found the template for proving Episode 9's conjecture ── asymptotic symmetry → central charge → Cardy. And what is missing in four dimensions narrowed to three items. This episode goes after the leading one, the <strong>central charge</strong>.<br>What came out was, read plainly, a dead end. But decompose the three-dimensional success once more and we notice that <em>the same dead end existed in three dimensions too</em>. And the entropy still came out.<br>This episode reaches no conclusion. What it can deliver is <strong>putting the question into the right form</strong>. I think that is still worth writing ── what this series has confirmed again and again is that <em>with the wrong way of looking, nothing comes out</em>.</p>
+
+  <h2><span class="n">01</span>Two pieces of bad news</h2>
+
+  <p>The literature says two things about the four-dimensional central charge. Neither is welcome.</p>
+
+  <div class="keybox">
+    <div class="lbl">FACT 1</div>
+    <p style="margin:6px 0 0">In constructions of extended BMS₄ (with shadow symmetry), <strong>the Virasoro central charge is reported to be \(c=0\)</strong>.</p>
+  </div>
+
+  <p>Put \(c=0\) into Cardy's formula \(S=2\pi\sqrt{cL_0/6}\) and \(S=0\). The entropy vanishes.</p>
+
+  <div class="keybox">
+    <div class="lbl">FACT 2</div>
+    <p style="margin:6px 0 0">And the central extension of BMS₄ is not a constant central charge in the first place. What Barnich treated was a <strong>centrally extended BMS₄ Lie algebroid</strong> ── a <em>field-dependent</em> structure, not "a single number" like BMS₃'s \(c_M=3/G\).</p>
+  </div>
+
+  <p>There is no number to put in, and what there is, is zero. Read plainly, the Cardy route is blocked in four dimensions.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>But it was zero in three dimensions too</h2>
+
+  <p>Let us decompose last episode's success one level further.</p>
+
+  <p>The BMS algebra is a <strong>semidirect product</strong> ── superrotations (Virasoro) acting on supertranslations.</p>
+
+  $$\text{BMS}=\underbrace{\text{superrotations}}_{L_n}\;\ltimes\;\underbrace{\text{supertranslations}}_{M_n}$$
+
+  <p>Being a semidirect product, there are <em>two places</em> a central term can enter.</p>
+
+  <div class="calc">
+    <span class="tag">THE BMS₃ COMMUTATORS (SCHEMATIC)</span>
+    $$[L_m,L_n]=(m-n)L_{m+n}+\frac{c_L}{12}m^3\delta_{m+n,0}$$
+    $$[L_m,M_n]=(m-n)M_{m+n}+\frac{c_M}{12}m^3\delta_{m+n,0}$$
+    $$[M_m,M_n]=0$$
+    <p class="lbl">there are two central charges</p>
+    <p style="margin:8px 0 8px">\(c_L\) enters the bracket of two Virasoros; \(c_M\) enters the bracket that <strong>straddles superrotations and supertranslations</strong>. The latter is called the Barnich–Compère central charge.</p>
+  </div>
+
+  <p>And here are the values for three-dimensional Einstein gravity.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:24%">\(c_L\) (Virasoro side)</th><th>\(c_M\) (supertranslation side)</th></tr>
+    <tr><td><strong>BMS₃ (3d flat gravity)</strong></td><td class="bad">\(0\)</td><td class="ok">\(3/G\)</td></tr>
+  </table>
+
+  <p><strong>\(c_L=0\).</strong> In three dimensions too, the Virasoro-side central charge was zero.</p>
+
+  <p>And BMS-Cardy still worked. What made it work was the other side.</p>
+
+  <h2><span class="n">03</span>Which one carries the entropy?</h2>
+
+  <p>The Cardy-type formula for BMS₃ has both central charges in it.</p>
+
+  <div class="keybox">
+    <div class="lbl">BMS-Cardy</div>
+    $$S=2\pi\left[\;c_L\sqrt{\frac{M_0}{24\,c_M}}\;+\;L_0\sqrt{\frac{c_M}{24\,M_0}}\;\right]$$
+  </div>
+
+  <div class="caveat">
+    <span class="tag">A CONVENTION TRAP ── I tripped over this once</span>
+    <p style="margin:6px 0 0">In the literature this formula is sometimes written <strong>\(S=2\pi[\,c_L\sqrt{M_0/2c_M}+L_0\sqrt{c_M/2M_0}\,]\)</strong>, with <b>2</b> in the denominator. That is the form in the convention where the central term is written bare as <em>\(c\,m(m^2-1)\)</em> (Bagchi et al., \(c_{LM}=1/4\)).<br>This article writes the algebra in §02 as <em>\(\frac{c}{12}m^3\)</em> and uses \(c_M=3/G\). In that convention \(c_{LL}=c_L/12,\;c_{LM}=c_M/12\), so on substitution <strong>both terms get denominator \(2\to24\)</strong>.<br>Mix them and you are off by \(\sqrt{12}=2\sqrt3\approx3.46\). <b>This article did mix them on first publication</b> ── caught by the positive control below and corrected.</p>
+  </div>
+
+  <p>In Einstein gravity \(c_L=0\), so <strong>the first term drops entirely</strong>. Only the second remains ──</p>
+
+  $$S=2\pi L_0\sqrt{\frac{c_M}{24\,M_0}}\qquad(c_L=0)$$
+
+  <p>The entropy is <em>carried entirely by \(c_M\)</em>. Move the figure and check.</p>
+
+  <div class="lab">
+    <span class="tag">POSITIVE CONTROL ── confirm first that the tool is not broken</span>
+<pre><span class="cm"># check against the known answer for 3d flat space cosmology</span>
+<span class="cm">#   metric   ds^2 = 8GM du^2 - 2 du dr + 8GJ du dphi + r^2 dphi^2   [Barnich 1208.4371]</span>
+<span class="cm">#   horizon  r_C = sqrt(2 G J^2 / M)      geometry side S = 2 pi r_C / 4G = pi|J| / sqrt(2GM)</span>
+<span class="cm">#   field theory side c_L = 0, c_M = 3/G, M_0 = M, L_0 = J</span>
+
+    G M         J  |  geometry S      BMS-Cardy       ratio
+ <span class="hi">-----------------------------------------------------------------</span>
+     10         3  |  2.1074444193    2.1074444193    1.000000000000000
+    100        17  |  3.7764504974    3.7764504974    1.000000000000000
+  1e+04       250  |  5.5536036727    5.5536036727    1.000000000000000
+  1e+06     3e+04  | 66.6432440724   66.6432440724    1.000000000000000
+    2.5       1.3  |  1.8264518301    1.8264518301    1.000000000000000
+
+ max relative deviation = <span class="st">2.2e-16</span>   <span class="st">→ positive control PASSED</span>
+ <span class="cm">(with denominator 2 instead of 24, the ratio lines up at 3.4641016151 = 2*sqrt(3) on every row)</span></pre>
+  </div>
+
+  <p>This check is not decoration. <strong>If we intend to use the same template in four dimensions, we must first see the tool work correctly where the three-dimensional answer is known.</strong> And indeed one misplaced coefficient turned up here ── \(\sqrt{12}\) is not a size you notice by eye.</p>
+
+  <div class="aside">
+    <span class="tag">SOMETHING THAT CAME OUT ALONG THE WAY</span>
+    In Bagchi et al.'s convention the zero mode is <strong>shifted</strong>: \(h_M=GM+\tfrac18\). That \(1/8=c_{LM}/2\) is the vacuum shift corresponding to \(L_0\to L_0-c/24\) in 2d Cardy. The offset from the geometry side is \(-1/(16GM)\), i.e. \(-5.7\%\) at \(GM=1\) and \(-6.3\times10^{-6}\) at \(GM=10^4\). <em>It agrees only for large black holes</em> ── the usual character of Cardy formulae shows up here as well.
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: the two contributions to BMS-Cardy. Set \(c_L\) to zero and the entropy survives as long as \(c_M\) remains. Set \(c_M\) to zero and it disappears</div>
+    <canvas id="cv" width="720" height="320"></canvas>
+    <div class="controls">
+      <label>\(c_L\) (Virasoro side) = <span class="val" id="vl">0.0</span>
+        <input type="range" id="sl" min="0" max="60" value="0">
+      </label>
+      <label>\(c_M\) (supertranslation side) = <span class="val" id="vm">3.0</span>
+        <input type="range" id="sm" min="0" max="60" value="30">
+      </label>
+      <button id="be">Einstein gravity (c_L=0, c_M=3/G)</button>
+      <button id="bz">set c_M to zero</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#9fb0ae"></span>first term (the \(c_L\) contribution)</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>second term (the \(c_M\) contribution)</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>Press "Einstein gravity" and the grey bar (the \(c_L\) contribution) goes to zero, leaving only the blue bar (the \(c_M\) contribution). <strong>This is what actually produced the entropy in three dimensions.</strong></p>
+
+  <p>Conversely, set \(c_M\) to zero and no matter how far you raise \(c_L\) ── the first term goes as \(1/\sqrt{c_M}\), so it diverges and the formula itself breaks. <em>\(c_M\) is not optional decoration.</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>So the question rewrites itself</h2>
+
+  <p>Let us reread §01's "bad news" in the light of §02–03.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:22%">\(c_L\) (Virasoro side)</th><th>\(c_M\) analogue (supertranslation side)</th></tr>
+    <tr><td>BMS₃</td><td class="bad">\(0\)</td><td class="ok">\(3/G\) ← carried the entropy</td></tr>
+    <tr><td><strong>BMS₄</strong></td><td class="bad">\(0\) (as reported)</td><td class="c"><strong>?</strong></td></tr>
+  </table>
+
+  <p><strong>"The four-dimensional Virasoro central charge is zero" was also true in three dimensions.</strong> What we took for bad news was in fact the same situation as the success case.</p>
+
+  <p>If so, what we should be asking changes.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE QUESTION, RE-PLACED</div>
+    <p style="margin:6px 0 0;text-decoration:line-through;color:#9fb0ae">what is the central charge of celestial CFT</p>
+    <p style="margin:8px 0 0;font-size:18px"><strong>does the <em>supertranslation sector</em> of BMS₄ have an analogue of \(c_M\)?</strong></p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── this part is my reading</span>
+    The facts in §01–03 (\(c_L=0\), \(c_M=3/G\), the form of BMS-Cardy, the report of \(c=0\) in four dimensions, the Lie algebroid) are from the literature.<br>The <strong>reading</strong> that "therefore the central-charge discussion leans too far towards the superrotation sector, and we may be looking in the wrong place" <strong>is not an established point</strong>. It is this series' author's inference.<br>But the question itself is well posed ── <em>whether a central term can enter the supertranslation sector of BMS₄</em> is a question about the structure of an algebra, not a matter of opinion. <strong>Including the possibility that the answer is "no."</strong>
+  </div>
+
+  <h2><span class="n">05</span>And ② rewrites itself too</h2>
+
+  <p>Item ②, "an analogue of modular invariance," also looks different on investigation.</p>
+
+  <p>The mechanism of 2d Cardy was the \(SL(2,\mathbb{Z})\) of the torus \(T^2\) (Episode 10, §03). Exchange the two cycles and high and low temperature swap.</p>
+
+  <p>But the four-dimensional boundary is \(\mathbb{R}_u\times S^2\). Wrap \(u\) thermally and you get \(S^1\times S^2\) ── <strong>and \(S^2\) has no partner cycle to exchange with.</strong> The torus structure itself is absent.</p>
+
+  <p>Route A is structurally blocked. <em>But that does not mean no Cardy-type formula has been built in higher dimensions.</em></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">route</th><th style="width:26%">mechanism</th><th>required input</th></tr>
+    <tr><td class="bad">A: modular invariance</td><td>the \(SL(2,\mathbb{Z})\) of the torus</td><td>the central charge (<strong>unusable</strong> on \(S^1\times S^2\))</td></tr>
+    <tr><td class="ok"><strong>B: thermal effective action</strong></td><td>shrink the thermal circle, KK reduce, derivative expansion</td><td><strong>anomaly coefficients, Casimir energy</strong></td></tr>
+  </table>
+
+  <p>Route B is how it is actually done in higher dimensions. In the limit where the thermal circle is much smaller than the other scales, reduce dimensionally, and the coefficients of the derivative expansion encode the CFT data. Di Pietro–Komargodski derived Cardy formulae for supersymmetric theories in \(d=4,6\) along this route.</p>
+
+  <p>And taking route B <strong>changes what ① means again</strong> ── what is needed is not the central charge but the coefficients of the thermal effective action.</p>
+
+  <div class="aside">
+    <span class="tag">SO ①②③ ARE NOT INDEPENDENT</span>
+    Last time we listed "three things missing," but <em>they were not three things solvable one at a time</em>.<br><strong>Until ② is decided, ① is not even determined as "the coefficient of what."</strong> Central charge for route A, anomaly coefficients for route B. The order was the other way round.
+  </div>
+
+  <h2><span class="n">06</span>The revised roadmap</h2>
+
+  <table class="tbl">
+    <tr><th style="width:12%">step</th><th>what to do</th></tr>
+    <tr><td><strong>0</strong></td><td><strong>Positive control.</strong> Reproduce the 3d BMS-Cardy in the original papers' convention. From \(c_M=3/G\), get the horizon entropy of flat cosmology. <em>If this does not agree, the tool is broken</em><br><strong class="okmark">→ done, passed (§03).</strong> Relative deviation \(2.2\times10^{-16}\). But it <em>failed once</em>, and one misplaced coefficient turned up</td></tr>
+    <tr><td><strong>1</strong></td><td><strong>The branch point.</strong> Does the supertranslation sector of BMS₄ have a \(c_M\) analogue? <em>A pure algebra question, with a binary answer</em><br><strong style="color:var(--bad)">→ done. The answer is NO.</strong> \(\dim H^2(\mathfrak{bms}_4)=0\) ── computed in <a href="butsuri-tsukuru-13-omomi.html" style="color:var(--acc)">Episode 13</a></td></tr>
+    <tr><td><strong>2a</strong></td><td>if yes → route A' (a 4d version of BMS-Cardy). But a substitute for the modular structure is needed<br><strong style="color:var(--bad)">→ closed</strong></td></tr>
+    <tr><td><strong>2b</strong></td><td>if no → route B. Build a Carrollian thermal effective action on \(S^1_\beta\times S^2\)</td></tr>
+    <tr><td><strong>3</strong></td><td>Produce the density of states and check against \(A/4G\)</td></tr>
+  </table>
+
+  <p><strong>Step 1 is a binary target.</strong> After Episode 2 (anomaly cancellation), Episode 6 (an algebra closing) and Episode 8 (lifting to twistor space), this is the fourth ── <em>a target settled by whether it is satisfied or not</em>. The form this series has repeatedly said "is the only kind that carries information."</p>
+
+  <h2><span class="n">07</span>What changed in this episode</h2>
+
+  <p>No conclusion was reached. Even so, I think the state of things moved.</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>up to last time</th><th>after this episode</th></tr>
+    <tr><td>the central-charge situation</td><td class="bad">"\(c=0\), so it is a dead end"</td><td>\(c_L=0\) in 3d too. <strong>possibly not a dead end</strong></td></tr>
+    <tr><td>the form of the question</td><td>"what is the central charge"</td><td class="ok"><strong>"is there a central term in the supertranslation sector"</strong> (binary)</td></tr>
+    <tr><td>the relation among ①②③</td><td class="bad">we thought they were three independent items</td><td>② determines ①. <strong>the order was reversed</strong></td></tr>
+    <tr><td>the outlook for ②</td><td>"there is no modular analogue"</td><td>route A is blocked, but <strong>route B (thermal effective action) exists</strong></td></tr>
+  </table>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>Why can two central charges enter the BMS algebra? Explain structurally.
+        <details><summary>show the answer</summary><div class="ans">BMS is a <strong>semidirect product</strong>, superrotations \(\ltimes\) supertranslations. So there are three kinds of bracket (\([L,L]\), \([L,M]\), \([M,M]\)) and more than one place a central term can enter. \(c_L\) enters \([L,L]\) and \(c_M\) (Barnich–Compère) enters \([L,M]\). \([M,M]=0\) is abelian.</div></details>
+      </li>
+      <li>In 3d Einstein gravity \(c_L=0\), so why does the entropy not vanish?
+        <details><summary>show the answer</summary><div class="ans">Because BMS-Cardy has two terms and \(c_L\) multiplies only the first. With \(c_L=0\) the first term drops, but the second, \(2\pi L_0\sqrt{c_M/24M_0}\), remains. <strong>What carries the entropy is \(c_M\)</strong> (the supertranslation sector).</div></details>
+      </li>
+      <li>"The 4d central charge is zero, so the Cardy route is dead" ── where is that too hasty?
+        <details><summary>show the answer</summary><div class="ans">What is reported as zero is the <strong>Virasoro (superrotation) side</strong>. In three dimensions that side was zero too, yet Cardy worked because the supertranslation-side \(c_M\) was alive. The question to ask is "does the 4d supertranslation sector have a \(c_M\) analogue," not about the Virasoro side.</div></details>
+      </li>
+      <li>Why is modular invariance unusable in four dimensions? And what is the alternative?
+        <details><summary>show the answer</summary><div class="ans">The boundary is \(\mathbb{R}_u\times S^2\), and wrapping it thermally gives \(S^1\times S^2\). <strong>\(S^2\) has no partner cycle to exchange with</strong>, so the torus's \(SL(2,\mathbb{Z})\) structure does not exist.<br>The alternative is the <strong>thermal effective action</strong> (at high temperature, shrink the thermal circle, KK reduce, and read the CFT data off the derivative expansion). The required input becomes anomaly coefficients and Casimir energy rather than the central charge.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>There were two pieces of bad news.</strong> The Virasoro central charge of extended BMS₄ is reported to be \(c=0\), and the central extension of BMS₄ is not a constant at all but a <em>field-dependent Lie algebroid</em>. Read plainly, the Cardy route is blocked.</p>
+    <p><strong>But \(c_L=0\) in three dimensions too.</strong> Being a semidirect product, the BMS algebra admits two central charges, and in 3d Einstein gravity \(c_L=0\), \(c_M=3/G\). The first term of BMS-Cardy drops, and <em>the entropy was carried entirely by \(c_M\) (the supertranslation sector)</em>.</p>
+    <p><strong>So the question rewrites itself.</strong> Not "what is the celestial central charge" but ── <strong>"does the supertranslation sector of BMS₄ have a \(c_M\) analogue?"</strong> A question settled by a yes or no: the fourth "binary target."</p>
+    <p><strong>② rewrote itself too.</strong> \(S^1\times S^2\) has no torus \(SL(2,\mathbb{Z})\), so route A (modular) is structurally blocked. In its place there is route B (thermal effective action), in which case <em>the required input is anomaly coefficients rather than a central charge</em>.</p>
+    <p style="margin-bottom:0"><strong>And ①②③ were not independent.</strong> Until ② is decided, ① is not even determined as "the coefficient of what." Listing them "one at a time" last time had the order backwards. <em>No conclusion was reached, but the form of the question changed.</em></p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-12-menseki.html">The area law comes out for free</a> ── what is actually needed to get the coefficient? Pinning it down shows that <em>the area law itself falls out automatically from the structure of a Carrollian theory</em>. All that remains is the coefficient ── and that is the wall whose position we measured in Episode 1.
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 11 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: that the BMS algebra is a semidirect product of superrotations and supertranslations; that BMS₃ admits two central charges \(c_L, c_M\); that in 3d Einstein gravity \(c_L=0\) and \(c_M=3/G\) (Barnich–Compère); that the BMS-Cardy formula consists of two terms; that in constructions of extended BMS₄ (with shadow symmetry) the Virasoro central charge is reported as \(c=0\); Barnich's centrally extended BMS₄ Lie algebroid; and Di Pietro–Komargodski's Cardy formula and thermal-effective-action method for \(d=4,6\) supersymmetric theories. The explicit forms of the commutators and of the Cardy formula differ by convention across the literature.<br><strong>On the other hand, the reading that "the search leans too far towards the superrotation sector" is this series' author's inference and not an established point</strong>. Whether the supertranslation sector of BMS₄ has a \(c_M\) analogue is unsolved, <em>including the possibility that it does not exist</em>. This episode does not prove Episode 9's conjecture; it goes only as far as re-placing the question. The figure is a schematic of the relative contributions of the two terms of the BMS-Cardy formula, in arbitrary units.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). The figure lets you check which central charge carries the entropy.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sl=document.getElementById('sl'), sm=document.getElementById('sm'),
+      vl=document.getElementById('vl'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  // BMS-Cardy: S = 2π[ c_L √(M0/24c_M) + L0 √(c_M/24M0) ]   (the c_M=3/G convention; positive control run on 3d flat cosmology)
+  var M0=1.0, L0=2.0;
+  function terms(cL,cM){
+    // as c_M→0 the first term diverges as 1/√c_M. but with c_L=0 it is 0×∞ and the value is zero
+    if(cM<=1e-9) return [ (cL<=1e-9 ? 0 : Infinity), 0 ];
+    return [2*Math.PI*cL*Math.sqrt(M0/(24*cM)), 2*Math.PI*L0*Math.sqrt(cM/(24*M0))];
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var cL=parseInt(sl.value,10)/10, cM=parseInt(sm.value,10)/10;
+    vl.textContent=cL.toFixed(1); vm.textContent=cM.toFixed(1);
+    var t=terms(cL,cM), T1=t[0], T2=t[1];
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=56, R=w-20, T=28, B=h-52;
+    var SMAX=60;
+    function Y(v){ return B-(B-T)*Math.min(v,SMAX)/SMAX; }
+
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){ var yy=T+(B-T)*g/4; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillStyle='#9fb0ae'; ctx.font='10.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='right'; ctx.fillText(Math.round(SMAX*(4-g)/4), L-6, yy+4); }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    var bw=Math.min(150,(R-L)/4), gap=(R-L-2*bw)/3;
+    var x1=L+gap, x2=L+gap*2+bw;
+
+    function bar(x,v,col,lab,sub){
+      var finite=isFinite(v);
+      var y=finite?Y(v):T-6;
+      ctx.fillStyle=col; ctx.globalAlpha=finite?0.85:0.35;
+      ctx.fillRect(x,y,bw,B-y); ctx.globalAlpha=1;
+      ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.strokeRect(x,y,bw,B-y);
+      ctx.fillStyle='#191d22'; ctx.font='600 13px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(finite?v.toFixed(2):'divergent', x+bw/2, y-8);
+      ctx.fillStyle='#4c545c'; ctx.font='12px "Helvetica Neue",Arial,sans-serif';
+      ctx.fillText(lab, x+bw/2, B+20);
+      ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+      ctx.fillStyle='#9fb0ae'; ctx.fillText(sub, x+bw/2, B+36);
+    }
+    bar(x1, T1, '#9fb0ae', 'first term', 'the c_L contribution');
+    bar(x2, T2, '#1f6f74', 'second term', 'the c_M contribution');
+
+    ctx.fillStyle='#4c545c'; ctx.font='11.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='left'; ctx.fillText('contribution to the entropy S', L, T-10);
+
+    var total = isFinite(T1) ? (T1+T2) : Infinity;
+    if(cM<0.05 && cL<0.05){
+      ro.innerHTML='<b>c_L = c_M = 0.</b> Both terms vanish and <b>S = 0</b> ── there is no entropy. '
+        +'<b>With no central charge, Cardy produces nothing.</b>';
+    }else if(cM<0.05){
+      ro.innerHTML='<b>c_M → 0 (with c_L kept).</b> The second term vanishes and the first, going as \\(1/\\sqrt{c_M}\\), <b>diverges</b> ── '
+        +'the formula itself breaks. <b>c_M is not optional decoration.</b>';
+    }else if(cL<0.05){
+      ro.innerHTML='<b>c_L = 0 (Einstein gravity).</b> The first term drops entirely, and S = <b>'+T2.toFixed(2)+'</b> is '
+        +'<b>carried entirely by c_M</b>. ── this is what actually produced the entropy in three dimensions.';
+    }else{
+      ro.innerHTML='c_L = <b>'+cL.toFixed(1)+'</b>、c_M = <b>'+cM.toFixed(1)+'</b> ｜ '
+        +'first term '+T1.toFixed(2)+' + second term '+T2.toFixed(2)+' = S <b>'+total.toFixed(2)+'</b>'
+        +'　── set c_L back to 0 and only the first term disappears.';
+    }
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  sl.addEventListener('input', draw);
+  sm.addEventListener('input', draw);
+  document.getElementById('be').addEventListener('click', function(){ sl.value=0; sm.value=30; draw(); });
+  document.getElementById('bz').addEventListener('click', function(){ sm.value=0; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

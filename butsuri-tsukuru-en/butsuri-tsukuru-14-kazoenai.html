@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The degrees of freedom never needed counting ── The Lattice We Build, Episode 14</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:230px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 14 ／ The degrees of freedom never needed counting</span></div>
+  <p class="eyebrow">Pushing route B answered Episode 12's question ── except the answer is "that question is not needed"</p>
+  <h1>The degrees of freedom never needed counting
+    <span class="sub">Last time, with no central charge, what remained was route B ── a dimensional-reduction Cardy that <em>does not route through a central charge</em>.<br>Pushing it, this does not work straightforwardly in four dimensions either. Because <strong>the leading coefficient is not a universal quantity</strong>.<br>But getting stuck there made me notice the question was the wrong shape.<br><em>The number of degrees of freedom never had to be determined at all.</em> What is determined is only its <strong>ratio</strong> to \(G\).</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 12 (the area law and its coefficient), logarithms, thermodynamics</span>
+    <span>The core of this episode: the divergence of \(S_{EE}\) agrees exactly with the renormalization of \(1/G\)</span>
+  </div>
+
+  <p class="lead">Episode 12 wrote that the area law itself comes out of the Carrollian structure while <strong>only the coefficient does not</strong>. It concluded "the coefficient should be fixed by the theory's own density of degrees of freedom" and thereby returned to Episode 11's central-charge question ── <em>going full circle</em>.<br>This time we cut that circle from another side. Route B obtains the free energy from a local effective action, so it is <strong>precisely a tool for computing that "density of degrees of freedom."</strong> If usable, Episode 12's homework is done.<br>The conclusion first. <em>Route B does not work in four dimensions.</em> But pinning down why shows that the very way Episode 12 set up the question was wrong.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>What route B is</h2>
+
+  <p>Two-dimensional Cardy came from modular invariance (Episode 10, §03). Exchange the two cycles of the torus and high and low temperature swap ── that symmetry constrains the state count.</p>
+
+  <p>Route B does not use that symmetry. Instead ──</p>
+
+  <div class="keybox">
+    <div class="lbl">ROUTE B (DIMENSIONAL REDUCTION)</div>
+    <p style="margin:6px 0 0">Put a system at temperature \(1/\beta\) on a space with a <strong>thermal circle</strong> of circumference \(\beta\). As \(\beta\to0\) that circle collapses, so <em>the theory reduces to one dimension lower</em>. Read off the coefficients of the reduced local effective action and you get \(\log Z\) at high temperature.</p>
+  </div>
+
+  <p>Since no modular invariance is needed, it does not care about the dimension. This is the line Di Pietro–Komargodski followed for supersymmetric theories in \(d=4,6\).</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>Positive control ── in two dimensions A and B are the same thing</h2>
+
+  <p>Again, check the tool first. <strong>Run route B in two dimensions and see whether it gives the same answer as Cardy.</strong></p>
+
+  <p>The route-B side is just thermodynamics. The high-temperature free energy of a 2d CFT is \(F=-\pi cL/(6\beta^2)\), so ──</p>
+
+  $$S=-\frac{\partial F}{\partial T}=\frac{\pi cL}{3\beta}$$
+
+  <p>The route-A side is Cardy. Get \(L_0\) from the energy and put it in.</p>
+
+  <div class="lab">
+    <span class="tag">POSITIVE CONTROL ── compare A and B in two dimensions</span>
+<pre><span class="cm"># B: thermal   S = pi c L / (3 beta)</span>
+<span class="cm"># A: Cardy    S = 2pi sqrt(c L0/6) + 2pi sqrt(c L0bar/6),  L0 = L0bar = E L/(4pi)</span>
+
+      c        L     beta |  S_thermal        S_Cardy          ratio
+ <span class="hi">--------------------------------------------------------------------</span>
+      1       10      0.3 |  34.90658504      34.90658504      1.000000000000000
+     24      100      0.5 |  5026.54824574    5026.54824574    1.000000000000000
+    0.5        7     0.05 |  73.30382858      73.30382858      1.000000000000000
+    3.7     1000      2.1 |  1845.06235211    1845.06235211    1.000000000000000
+
+ max deviation <span class="st">2.2e-16</span>   <span class="st">→ positive control PASSED</span></pre>
+  </div>
+
+  <p>An exact match. But it matches <em>too well</em>, and that is the point.</p>
+
+  <div class="keybox">
+    <div class="lbl">WHAT IS HAPPENING IN TWO DIMENSIONS</div>
+    <p style="margin:6px 0 0">The <strong>leading coefficient of the thermal free energy is the central charge \(c\)</strong>, directly.</p>
+    <p style="margin:8px 0 0">That is, in two dimensions "the number of degrees of freedom" and "the central charge" are the same number. Which is why Cardy works ── <em>the quantity to be counted happened to be a universal one.</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>In four dimensions that leading term is not universal</h2>
+
+  <p>Here is the wall. Do the same in four dimensions and the leading term is</p>
+
+  $$\log Z\;\sim\;\frac{V}{\beta^{3}}\times(\text{coefficient of the free-energy density})$$
+
+  <p>And this coefficient <strong>changes with the coupling.</strong> Let us check it in the most famous example ── \(\mathcal{N}=4\) supersymmetric Yang–Mills theory.</p>
+
+  <div class="calc">
+    <span class="tag">CALCULATION</span>
+    <div class="lbl">free fields (weak coupling)</div>
+    <p style="margin:4px 0">The free-field free-energy density is \(f=-\dfrac{\pi^2T^4}{90}\left(n_b+\tfrac78 n_f\right)\). For \(\mathcal{N}=4\), \(n_b=n_f=8N^2\), so</p>
+    $$f_{\text{free}}=-\frac{\pi^2T^4}{90}\left(8+\tfrac78\cdot8\right)N^2=-\frac{\pi^2N^2T^4}{6}$$
+    <div class="lbl">strong coupling (Gubser–Klebanov–Peet, from the AdS₅ black brane)</div>
+    $$f_{\text{strong}}=-\frac{\pi^2N^2T^4}{8}$$
+    <div class="lbl">ratio</div>
+    $$\frac{f_{\text{strong}}}{f_{\text{free}}}=\frac{1/8}{1/6}=\boxed{\frac34}$$
+  </div>
+
+  <p><strong>The same theory, and changing the coupling multiplies the coefficient by \(3/4\).</strong> "The number of degrees of freedom" is a function of the coupling.</p>
+
+  <p>This is fatal. What we want is \(A/4G\) ── <em>a universal number independent of the matter content</em>. A universal quantity does not come out of a non-universal one.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>Di Pietro–Komargodski's rescue, and its blind spot</h2>
+
+  <p>That does not make route B useless. <strong>Use a supersymmetric index and this non-universal leading term disappears.</strong></p>
+
+  <p>Weight by \((-1)^F\) and long representations cancel, leaving only BPS states. Then the \(\beta^{-3}\) volume term drops entirely ── in the papers' phrasing, "a supersymmetric theory generates no cosmological constant."</p>
+
+  <p>And <strong>the next term, which shows its face after the drop, was universal</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">Di Pietro–Komargodski (\(d=4\), \(S^3\times S^1\), \(S^3\) of radius 1)</div>
+    $$\beta\to0:\qquad \log Z\;\sim\;-\frac{16\pi^2}{3\beta}\,(a-c)$$
+    <p style="margin:8px 0 0">\(a,c\) are the trace-anomaly coefficients. \(\mathrm{Tr}\,R=16(a-c)\).</p>
+  </div>
+
+  <p>Anomaly coefficients do not move with the coupling ('t Hooft anomaly matching). <em>So this is a genuine universal quantity.</em> Let us check it on a free chiral multiplet.</p>
+
+  <div class="lab">
+    <span class="tag">CHECK ── the anomaly coefficients</span>
+<pre><span class="cm"># a = (3/32)(3 TrR^3 - TrR),  c = (1/32)(9 TrR^3 - 5 TrR)</span>
+
+<span class="hi">identity a - c = TrR/16</span>
+  TrR^3=1       TrR=0     -> a=9/32    c=9/32    a-c=0      TrR/16=0      <span class="st">OK</span>
+  TrR^3=0       TrR=1     -> a=-3/32   c=-5/32   a-c=1/16   TrR/16=1/16   <span class="st">OK</span>
+  TrR^3=-1/27   TrR=-1/3  -> a=1/48    c=1/24    a-c=-1/48  TrR/16=-1/48  <span class="st">OK</span>
+
+<span class="hi">free chiral multiplet (R=2/3, the fermion has R=-1/3)</span>
+  a = 1/48    known value 1/48 : <span class="st">OK</span>
+  c = 1/24    known value 1/24 : <span class="st">OK</span>
+  DP-K:  log Z = -16 pi^2 (a-c)/(3 beta) = <span class="st">pi^2/(9 beta)</span>
+
+<span class="hi">N=4 SYM SU(N) (1 vector + 3 chirals, all adjoint)</span>
+  N=2   TrR=0   a=3/4    c=3/4    a==c  known (N^2-1)/4 = 3/4    <span class="st">OK</span>
+  N=3   TrR=0   a=2      c=2      a==c  known (N^2-1)/4 = 2      <span class="st">OK</span>
+  N=10  TrR=0   a=99/4   c=99/4   a==c  known (N^2-1)/4 = 99/4   <span class="st">OK</span>
+
+  <span class="bd">=> in N=4 SYM, a=c. the DP-K universal term is exactly zero.</span></pre>
+  </div>
+
+  <p>The formulae are right, and they reproduce the known \(a=1/48,\;c=1/24\) for a free chiral. But ──</p>
+
+  <div class="caveat">
+    <span class="tag">THE BLIND SPOT</span>
+    <strong>The formula degenerates in precisely the theory that has a black-hole dual.</strong> \(\mathcal{N}=4\) SYM has \(a=c\), so \(a-c=0\). The DP-K universal term is zero and says nothing.<br>This is a known problem: getting the AdS₅ black-hole entropy out of the index required a different limit found in 2019 (complex chemical potentials). <em>So "route B where it worked" requires the trio of supersymmetry, an index, and complex potentials.</em> The horizon's Carrollian theory has none of the three.
+  </div>
+
+  <p>Stopping plainly here ends at "route B failed too." <strong>Before stopping, there is one thing that nags.</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>A universal quantity and a non-universal one end up balancing</h2>
+
+  <p>Let us restate the fact seen in §03.</p>
+
+  <table class="tbl">
+    <tr><th style="width:50%">quantity</th><th>does it depend on the matter content?</th></tr>
+    <tr><td>the free-energy coefficient of the field theory (= the number of degrees of freedom)</td><td class="bad">yes (a factor \(3/4\) in \(\mathcal{N}=4\))</td></tr>
+    <tr><td>the coefficient of the entanglement entropy \(S\sim A/\epsilon^2\)</td><td class="bad">yes (grows with the number of field species)</td></tr>
+    <tr class="mark"><td><strong>the black-hole entropy \(A/4G\)</strong></td><td class="ok"><strong>no</strong></td></tr>
+  </table>
+
+  <p>Read normally, this is a contradiction. <em>Add one more field species and the entanglement across the horizon certainly increases.</em> And yet \(A/4G\) does not move. Where did the increase go?</p>
+
+  <p>This is the long-standing difficulty called the <strong>species problem</strong>. It is the same divergence that Episode 12 honestly wrote about as "\(N=A/a^2\) puts in a cutoff by hand."</p>
+
+  <p>And the answer had already appeared, in 1994.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>The divergence is absorbed into the renormalization of \(G\)</h2>
+
+  <p>Susskind–Uglum's proposal is this ── <em>the divergence of the entanglement entropy and the renormalization of Newton's constant are the same divergence.</em></p>
+
+  <p>Plausible as a statement, but the question is whether the coefficients match. <strong>Let us compute both sides independently and compare.</strong></p>
+
+  <h3>Right side: the divergence of the entanglement entropy</h3>
+
+  <p>Solodukhin's review, eq. (28), gives the value for a single free scalar crossing a surface of area \(A\) ──</p>
+
+  $$S_{EE}=\frac{A}{6(d-2)(4\pi)^{(d-2)/2}\epsilon^{\,d-2}}
+  \;\xrightarrow{\;d=4\;}\;\frac{A}{6\cdot2\cdot4\pi\,\epsilon^2}=\frac{A}{48\pi\epsilon^2}$$
+
+  <h3>Left side: the renormalization of Newton's constant</h3>
+
+  <p>This one is obtained from the heat kernel, <em>without looking at entropy at all</em>. The divergent part of the one-loop effective action of a single scalar, in the Seeley–DeWitt expansion, is</p>
+
+  $$\Gamma_{\text{div}}=-\frac12\int_{\epsilon^2}^{\infty}\frac{ds}{s}\,\frac{1}{(4\pi s)^2}\int d^4x\sqrt{g}\;\bigl(a_0+a_1 s+\cdots\bigr),
+  \qquad a_0=1,\;\; a_1=\Bigl(\tfrac16-\xi\Bigr)R$$
+
+  <p>This \(\tfrac16\) is the textbook coefficient and has nothing to do with entropy. Picking out only the \(R\) term ──</p>
+
+  $$\Gamma_{\text{div}}\supset-\frac{1}{32\pi^2}\Bigl(\tfrac16-\xi\Bigr)\frac{1}{\epsilon^2}\int d^4x\sqrt{g}\,R$$
+
+  <p>Compare with the Euclidean Einstein–Hilbert action \(-\frac{1}{16\pi G}\int\sqrt{g}\,R\) ──</p>
+
+  $$\frac{1}{G_{\text{ren}}}=\frac{1}{G_0}+\frac{1}{2\pi\epsilon^2}\Bigl(\tfrac16-\xi\Bigr)
+  \qquad\xrightarrow{\;\xi=0\;}\qquad \frac{1}{G_{\text{ren}}}=\frac{1}{G_0}+\frac{1}{12\pi\epsilon^2}$$
+
+  <h3>Compare them</h3>
+
+  <div class="lab">
+    <span class="tag">DO TWO INDEPENDENT CALCULATIONS GIVE THE SAME NUMBER?</span>
+<pre><span class="cm"># right: entanglement entropy (from Solodukhin eq. 28)</span>
+  S_EE                     = A / (48 pi eps^2)
+
+<span class="cm"># left: renormalization of G (from the heat kernel a1 = (1/6 - xi)R. derived without looking at entropy)</span>
+  delta(1/G) |_{xi=0}      = 1 / (12 pi eps^2)
+  A/4 * delta(1/G)         = A / (48 pi eps^2)
+
+<span class="hi">  ------------------------------------------------</span>
+  <span class="st">Agreement. And exactly, down to the factor of "4".</span>
+
+<span class="cm"># does it stay linked for general xi?</span>
+  xi = 0     delta(1/G) = (1/12)/(pi eps^2)   required S_EE = A/(48 pi eps^2)
+  xi = 1/12  delta(1/G) = (1/24)/(pi eps^2)   required S_EE = A/(96 pi eps^2)
+  xi = 1/6   delta(1/G) = <span class="st">0</span>                  required S_EE = <span class="st">0</span>
+  xi = 1/4   delta(1/G) = -(1/24)/(pi eps^2)  required S_EE = negative
+
+  <span class="cm">at conformal coupling xi=1/6, both sides cross zero simultaneously.</span></pre>
+  </div>
+
+  <p><strong>They match.</strong> And down to the factor of \(A/4\). One is "entanglement across a surface," the other "the coefficient of the \(R\) term in the gravitational effective action" — entirely different calculations. And they give the same number.</p>
+
+  <div class="verdict">
+    <div class="lbl">THE ANSWER TO EPISODE 12'S QUESTION</div>
+    <p style="font-size:19px"><strong>The density of degrees of freedom \(\sigma\) never had to be determined.</strong></p>
+    <p>Add matter and \(S_{EE}\) increases. <em>And the same matter increases \(1/G\) by exactly as much.</em> So</p>
+    $$S=\underbrace{\frac{A}{4G_0}}_{\text{bare}}+\underbrace{\frac{N_s A}{48\pi\epsilon^2}}_{\text{matter entanglement}}=\frac{A}{4G_{\text{ren}}}$$
+    <p style="margin-bottom:0">The form does not change. <strong>What is determined is not \(\sigma\) alone but only the ratio of \(\sigma\) to \(G\).</strong> Episode 12's "the cell side \(a\) and the states per cell \(q\) are not determined individually; only \(\log q/a^2\) is" ── <em>was exactly this, all along.</em></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>Watching it not move when you add</h2>
+
+  <div class="fig">
+    <div class="cap">Figure: increase the number of matter species \(N_s\) and the entanglement part (green) grows. But \(1/G\) grows by exactly as much, so <b>the total is always \(A/4G_{\text{ren}}\)</b>. Units \(A=1,\ \epsilon=1\)</div>
+    <canvas id="cv" width="1120" height="380"></canvas>
+    <div class="controls">
+      <label>number of matter species \(N_s\) = <span class="val" id="vn">12</span>
+        <input type="range" id="sn" min="0" max="80" step="1" value="12"></label>
+      <label>bare \(1/G_0\) = <span class="val" id="vg">1.00</span>
+        <input type="range" id="sg" min="0" max="300" step="1" value="100"></label>
+      <button id="bs">Sakharov (1/G₀ = 0)</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#4c545c"></span>bare term \(A/4G_0\)</span>
+      <span><span class="swatch" style="background:#2f7d5a"></span>matter entanglement \(N_sA/48\pi\epsilon^2\)</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>independently computed \(A/4G_{\text{ren}}\)</span>
+    </div>
+  </div>
+
+  <p>Increase the species with the slider and the breakdown moves, but <strong>the total and the rightmost bar are always at exactly the same height</strong>. The split of "where geometry ends and matter begins" <em>carries no meaning</em> ── because you can move it.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">08</span>What still remains ── the bare \(1/G_0\)</h2>
+
+  <p>Honestly: <strong>this has not derived the \(1/4\).</strong> It has only explained "why adding matter does not move the \(1/4\)"; \(G\) itself is still a number supplied from outside.</p>
+
+  <p>There is an interesting limit, though. The figure's "Sakharov" button. <em>Set the bare \(1/G_0\) to zero</em> ── the idea that gravity is not a fundamental force but wells up entirely out of matter loops (Sakharov 1967, induced gravity).</p>
+
+  <p>Then \(A/4G\) becomes <strong>entirely matter entanglement</strong>. And the required number of species is fixed ──</p>
+
+  <div class="calc">
+    <span class="tag">CALCULATION</span>
+    <p style="margin:4px 0">Set \(1/G_0=0\) and take the cutoff at the Planck length \(\epsilon=\ell_P\). With \(\hbar=c=1\), \(\ell_P^2=G\), so</p>
+    $$\frac{1}{G}=\frac{N_s}{12\pi\epsilon^2}=\frac{N_s}{12\pi G}\qquad\Longrightarrow\qquad N_s=12\pi\simeq37.7$$
+  </div>
+
+  <p>About 38 scalars' worth. The <em>order of magnitude matches</em> the number of Standard Model degrees of freedom (roughly 100).</p>
+
+  <div class="caveat">
+    <span class="tag">THIS IS NOT A RESULT</span>
+    Fermions and gauge fields have different heat-kernel coefficients, so this \(37.7\) cannot be compared with the Standard Model as it stands. It also depends on the definition of the cutoff. <strong>Nothing beyond "the order of magnitude matches" can be said from this calculation.</strong> Read meaning into it and we are straight back to Bonus ③'s look-elsewhere.
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">09</span>What became of route B</h2>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>result</th></tr>
+    <tr><td><strong>route B itself</strong></td><td class="bad">does not work in four dimensions. the leading term is non-universal, DP-K's universal term requires a supersymmetric index, and it degenerates for \(\mathcal{N}=4\)</td></tr>
+    <tr><td><strong>Episode 12's homework</strong></td><td class="ok">solved. but in the form <strong>"no need to compute it"</strong> rather than "compute the density of degrees of freedom"</td></tr>
+    <tr><td><strong>the \(1/4\) itself</strong></td><td class="bad">still not obtained. the bare \(1/G_0\) remains an external input</td></tr>
+  </table>
+
+  <p>Episode 1's wall was there a <strong>fourth</strong> time. But its character has shifted slightly ── previously it was "there is no tool to produce the coefficient"; this time we learned that <em>"the coefficient can never come out of matter degrees of freedom."</em></p>
+
+  <p>The counting direction has closed. One door closed in Episode 13, and another closed here. <strong>What remains is only the question of where to get \(G\) itself.</strong></p>
+
+  <div class="prob">
+    <div class="lbl">WORK IT BY HAND</div>
+    <ol>
+      <li>Compute the free-field free-energy density of \(\mathcal{N}=4\) SYM from \(n_b=n_f=8N^2\).
+        <details><summary>show the answer</summary><div class="ans">\(f=-\frac{\pi^2T^4}{90}(n_b+\frac78n_f)=-\frac{\pi^2T^4}{90}\left(8+7\right)N^2=-\frac{\pi^2T^4}{90}\cdot15N^2=-\frac{\pi^2N^2T^4}{6}\). Against the strong-coupling \(-\frac{\pi^2N^2T^4}{8}\), that is \(3/4\). <strong>The same theory changes its number of degrees of freedom when the coupling changes</strong> ── the starting point of this episode.</div></details>
+      </li>
+      <li>From \(a=\frac{3}{32}(3\,\mathrm{Tr}R^3-\mathrm{Tr}R)\) and \(c=\frac{1}{32}(9\,\mathrm{Tr}R^3-5\,\mathrm{Tr}R)\), find \(a-c\) and check that \(\mathrm{Tr}R^3\) cancels.
+        <details><summary>show the answer</summary><div class="ans">\(a-c=\frac{1}{32}\left[(9X-3Y)-(9X-5Y)\right]=\frac{2Y}{32}=\frac{\mathrm{Tr}R}{16}\) (with \(X=\mathrm{Tr}R^3,\,Y=\mathrm{Tr}R\)). <strong>\(\mathrm{Tr}R^3\) drops out cleanly</strong>, so the DP-K answer can be written with the single quantity \(\mathrm{Tr}R\). \(\mathrm{Tr}R=0\) for \(\mathcal{N}=4\) because the gaugino's \(+1\) and the three chirals' \(3\times(-\frac13)\) cancel exactly.</div></details>
+      </li>
+      <li>For a scalar at conformal coupling \(\xi=1/6\), \(\delta(1/G)=0\). What must the leading divergence of \(S_{EE}\) then be?
+        <details><summary>show the answer</summary><div class="ans">If Susskind–Uglum holds, the \(A/\epsilon^2\) divergence of \(S_{EE}\) must be <strong>zero at the same time</strong>. If only one side survived, the form \(A/4G_{\text{ren}}\) would break. This linkage is a non-trivial consistency condition between two independent calculations ── <em>and it is satisfied by the same factor \(\bigl(\frac16-\xi\bigr)\) appearing on both sides.</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>Positive control: in two dimensions, routes A and B were the same thing.</strong> \(S=\pi cL/3\beta\) from the thermal free energy agrees with Cardy to a deviation of \(2.2\times10^{-16}\). <em>In two dimensions "the number of degrees of freedom" is the central charge itself</em>, which is why Cardy works.</p>
+    <p><strong>In four dimensions that leading term is not universal.</strong> The free-energy coefficient of \(\mathcal{N}=4\) SYM is \(-\pi^2N^2T^4/6\) at weak coupling and \(-\pi^2N^2T^4/8\) at strong ── a factor of <strong>\(3/4\)</strong>. Even in the same theory, "the number of degrees of freedom" moves with the coupling. The universal \(A/4G\) will not come from here.</p>
+    <p><strong>DP-K's rescue has a blind spot.</strong> With a supersymmetric index the \(\beta^{-3}\) term vanishes and the universal term \(\log Z\sim-\frac{16\pi^2}{3\beta}(a-c)\) appears (verified by reproducing \(a=1/48,\,c=1/24\) for a free chiral, and \(a-c=\mathrm{Tr}R/16\)). But <strong>it degenerates for \(\mathcal{N}=4\), where \(a=c\)</strong> ── nothing can be said in precisely the theory with a black-hole dual.</p>
+    <p><strong>And the question had been set up wrong.</strong> Add matter and \(S_{EE}\) increases. But the same matter increases \(1/G\) too. The entanglement side \(A/48\pi\epsilon^2\) (Solodukhin eq. 28) and the \(\delta(1/G)=1/12\pi\epsilon^2\) obtained <em>independently</em> from the heat kernel (from \(a_1=(\frac16-\xi)R\)) <strong>agree exactly, down to the factor of \(A/4\)</strong>. At \(\xi=1/6\) both sides cross zero simultaneously.</p>
+    <p><strong>Episode 12's homework was solved with the answer inverted.</strong> The density of degrees of freedom \(\sigma\) need not be determined ── what is determined is only the ratio of \(\sigma\) to \(G\). Episode 12's "\(a\) and \(q\) are not determined individually; only \(\log q/a^2\) is" was exactly this. <em>Not a circle: it closed.</em></p>
+    <p style="margin-bottom:0"><strong>And still the \(1/4\) is not obtained.</strong> The bare \(1/G_0\) remains an external input. Take Sakharov's induced gravity with \(1/G_0=0\) and everything becomes matter entanglement, requiring \(N_s=12\pi\simeq37.7\) species at \(\epsilon=\ell_P\) ── the order matches the Standard Model, but <em>nothing more can be said, since fermions and gauge fields with different coefficients have not been mixed in</em>. Episode 1's wall, a fourth time. But its character has changed ── <strong>from "there is no tool to produce the coefficient" to "the coefficient can never come out of matter degrees of freedom."</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">READ NEXT</span>
+    <a href="butsuri-tsukuru-12-menseki.html">The area law comes out for free</a> ── where the homework answered here came from. Reread §05, which wrote "the cell side \(a\) and the states per cell \(q\) are not determined individually," and its meaning changes. <em>That was not a defect; it was the renormalization of \(G\) itself.</em> The list of closed doors is at the end of <a href="butsuri-tsukuru-13-omomi.html">Episode 13</a>.
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-15-kabe.html">Episode 1 had already proved the wall</a> ── the episode that goes to dig into the remaining "where does \(G\) come from." We notice before digging ── <em>that question is not well posed</em>. Fix it and you get \(\alpha_G=5.9\times10^{-39}\), and this one has a mechanism. <strong>Nineteen orders come out of \(1/57\).</strong>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 14 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself ── including the tools that did not work and what was learned from that.</p>
+    <p>Established material: the agreement of the high-temperature free energy of a 2d CFT with the Cardy formula; the free-field free-energy density \(f=-\frac{\pi^2T^4}{90}(n_b+\frac78n_f)\); that the strong-coupling free energy of \(\mathcal{N}=4\) SYM is \(3/4\) of the free-field value (Gubser–Klebanov–Peet); the relation of \(a,c\) to the anomaly coefficients in \(\mathcal{N}=1\) and that \(a=c=(N^2-1)/4\) for \(\mathcal{N}=4\); Di Pietro–Komargodski's \(d=4\) Cardy-type formula (arXiv:1407.6061); that the Cardy limit of the \(\mathcal{N}=4\) index requires complex chemical potentials to reproduce the AdS₅ black hole; the Seeley–DeWitt coefficient \(a_1=(\frac16-\xi)R\); the leading divergence of the entanglement entropy (Solodukhin, Living Rev. Relativity 14 (2011) 8, eq. 28); Susskind–Uglum's renormalization proposal; and Sakharov's induced gravity.<br>The computational parts of this article (the 2d A/B agreement, the anomaly-coefficient checks, the comparison of \(\delta(1/G)\) from the heat kernel with \(S_{EE}\), and \(N_s=12\pi\)) were carried out and checked by the author from the above. <strong>On the other hand, the reading that "therefore Episode 12's density-of-degrees-of-freedom question was set up wrongly" is this series' author's framing.</strong> The Susskind–Uglum proposal itself is widely accepted, but a proof that the divergences cancel exactly for general field content is not treated here (non-minimal couplings and higher-derivative terms require separate discussion). The \(N_s\simeq37.7\) of §08 is <em>no more than an order-of-magnitude match</em> and ignores the coefficient differences for fermions and gauge fields. That the horizon's Carrollian theory itself is unconstructed is as stated in Episodes 8, 11 and 12.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a>｜<a href="butsuri-tsukuru-12-menseki.html">Episode 12</a>｜<a href="butsuri-tsukuru-13-omomi.html">Episode 13</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). The figure lets you confirm that the total does not move when you add matter.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'), sg=document.getElementById('sg'),
+      vn=document.getElementById('vn'), vg=document.getElementById('vg'), ro=document.getElementById('ro');
+
+  // in units A = 1, eps = 1:
+  //   S_bare   = A/(4 G0)              = invG0/4
+  //   S_matter = Ns A/(48 pi eps^2)    = Ns/(48 pi)
+  //   1/G_ren  = 1/G0 + Ns/(12 pi eps^2)
+  //   S_total  = A/(4 G_ren)           = invGren/4      <- should agree, computed independently
+  function parts(Ns,invG0){
+    var bare   = invG0/4;
+    var matter = Ns/(48*Math.PI);
+    var invGren= invG0 + Ns/(12*Math.PI);
+    return { bare:bare, matter:matter, sum:bare+matter, total:invGren/4, invGren:invGren };
+  }
+
+  function draw(){
+    var Ns=parseInt(sn.value,10), invG0=parseInt(sg.value,10)/100;
+    vn.textContent=String(Ns); vg.textContent=invG0.toFixed(2);
+    var p=parts(Ns,invG0);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=70,R=W-30,T=30,B=H-56;
+    // fix the axis maximum at the slider's largest value so it does not jump
+    var maxV=Math.max(parts(80,3).total, 0.001);
+    function Y(v){ return B-(v/maxV)*(B-T); }
+
+    ctx.font='13px "Helvetica Neue",Arial,sans-serif';
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var k=0;k<=5;k++){
+      var v=maxV*k/5;
+      ctx.beginPath(); ctx.moveTo(L,Y(v)); ctx.lineTo(R,Y(v)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(v.toFixed(2),L-9,Y(v)+5);
+    }
+
+    var bw=150, x1=L+140, x2=L+430;
+
+    // left: stack the breakdown
+    ctx.fillStyle='#4c545c';
+    ctx.fillRect(x1, Y(p.bare), bw, B-Y(p.bare));
+    ctx.fillStyle='#2f7d5a';
+    ctx.fillRect(x1, Y(p.sum), bw, Y(p.bare)-Y(p.sum));
+    // right: the independent calculation
+    ctx.fillStyle='#1f6f74';
+    ctx.fillRect(x2, Y(p.total), bw, B-Y(p.total));
+
+    ctx.strokeStyle='#a83a22'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1-24,Y(p.sum)); ctx.lineTo(x2+bw+24,Y(p.sum)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='center';
+    ctx.fillText('stack the breakdown',x1+bw/2,B+22);
+    ctx.fillText('A / 4G_ren directly',x2+bw/2,B+22);
+    ctx.fillText('(bare + entanglement)',x1+bw/2,B+40);
+    ctx.fillText('(from the renormalized G)',x2+bw/2,B+40);
+    ctx.textAlign='left'; ctx.fillStyle='#a83a22';
+    ctx.fillText('same height',x2+bw+30,Y(p.sum)+4);
+
+    var diff=Math.abs(p.sum-p.total);
+    ro.innerHTML='matter <b>'+Ns+' species</b>, bare <b>1/G₀ = '+invG0.toFixed(2)+'</b> ｜ '
+      + 'bare <b>'+p.bare.toFixed(4)+'</b> + entanglement <b>'+p.matter.toFixed(4)+'</b> = <b>'+p.sum.toFixed(6)+'</b><br>'
+      + 'independently computed A/4G_ren (1/G_ren = '+p.invGren.toFixed(4)+') = <b>'+p.total.toFixed(6)+'</b> ｜ '
+      + 'difference <b>'+diff.toExponential(1)+'</b>'
+      + (invG0===0
+          ? '<br><span style="color:#1d5236">Sakharov: the bare term is zero. <b>All</b> of the area law becomes matter entanglement. '
+            + 'At ε=ℓ_P the required number of species is N=12π≈37.7</span>'
+          : '');
+  }
+
+  sn.addEventListener('input',draw); sg.addEventListener('input',draw);
+  document.getElementById('bs').addEventListener('click',function(){ sg.value=0; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

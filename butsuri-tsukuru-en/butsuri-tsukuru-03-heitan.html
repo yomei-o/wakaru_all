@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The stage may stay flat ── The Lattice We Build, Episode 3</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 3 ／ The stage may stay flat</span></div>
+  <p class="eyebrow">Curvature is a way of keeping the books, not the content of the physics ── how far can we get on a flat stage?</p>
+  <h1>The stage may stay flat
+    <span class="sub">Episode 2 showed that spacetime does not need a <em>spacing</em>. So does it need a <em>warp</em>?<br>The picture that writes gravity as "the speed of light varying from place to place on flat spacetime" is checkmated by the <em>Weyl tensor</em>.<br>But what was missing was <strong>a single word</strong>. Supply it and the whole of general relativity stands up on a flat stage.<br>And beyond that lies a description with no curvature among its basic elements ── holography.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: a feel for tensors, conformal transformations, Episode 2</span>
+    <span>The core of this episode: curvature is a field, not the stage</span>
+  </div>
+
+  <p class="lead">"Space curves" is relativity's most famous claim and its hardest to swallow. Shown a picture of a weight on a rubber sheet, one nods vaguely and moves on ── plenty of people do exactly that.<br>Here let us push the straightforward doubt all the way. <em>Does it really have to be curved?</em> Could the stage stay flat, with something happening on top of it?<br>The conclusion up front ── <strong>it could. It holds exactly.</strong> But getting there requires diagnosing precisely where the naive approach gets stuck, and supplying exactly one missing thing. And beyond the supplying, a stronger position is waiting.</p>
+
+  <h2><span class="n">01</span>First, exactly where it gets stuck</h2>
+
+  <p>"Gravity is the speed of light varying from place to place on flat spacetime" ── let us start from that picture (the piece that follows this rereading all the way is <a href="butsuri-tsukuru-bangai2-ct.html" style="color:#1f6f74">Bonus ②</a>). It is the approach of positing a refractive index \(n(x)\approx1-2\Phi/c^2\). Light bending, gravitational redshift and the Shapiro delay all come out correctly this way.</p>
+
+  <p>Written as a formula, this picture amounts to assuming the following metric.</p>
+
+  $$ds^2=\Omega^2(x)\,\eta_{\mu\nu}dx^\mu dx^\nu$$
+
+  <p>A flat metric with nothing but a position-dependent <strong>scalar</strong> factor. This is called <em>conformally flat</em>. And there is an exact criterion.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CRITERION</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">the metric is conformally flat \(\iff\) <strong>the Weyl tensor vanishes</strong></p>
+  </div>
+
+  <p>That draws the boundary. And the result splits cleanly.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">spacetime</th><th style="width:22%">Weyl tensor</th><th>writable with a scalar alone?</th></tr>
+    <tr><td><strong>FRW (expanding universe)</strong></td><td>\(=0\)</td><td class="ok">yes. and exactly</td></tr>
+    <tr><td><strong>Schwarzschild (a star)</strong></td><td>\(\ne0\)</td><td class="bad">impossible in principle</td></tr>
+  </table>
+
+  <p>The expanding universe <em>really is conformally flat</em>. Move to conformal time and light runs on exact 45° straight lines. That is no accident ── the expanding universe is literally "flat spacetime × a scale factor," and in that sense it is <strong>not curved</strong>. Your intuition, as far as cosmology goes, is correct as a theorem.</p>
+
+  <p>Schwarzschild is different. It is a vacuum solution, so \(R_{\mu\nu}=0\), which means <em>all of the curvature is Weyl curvature</em>.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── curvature that will not vanish</span>
+    $$R_{abcd}R^{abcd}=\frac{48G^2M^2}{c^4r^6}\neq 0$$
+    <p class="lbl">this is the tidal force itself</p>
+    <p style="margin:8px 0 8px">Ricci is zero and yet the curvature invariant is not ── what remains is all Weyl. So it <strong>cannot be made conformally flat</strong>. However you choose the scalar \(\Omega(x)\), you cannot write down a single star.</p>
+  </div>
+
+  <h3>Why "light alone" happened to come out right</h3>
+
+  <p>This is the interesting part. There is a mechanical explanation for why the refractive-index picture only works for "<em>light</em> in a static weak field."</p>
+
+  <p><strong>Null geodesics are conformally invariant.</strong> The path of light does not change when you multiply by \(\Omega^2\). So as long as the conformal class of the metric is right, <em>light bending is structurally bound to be reproduced</em>.</p>
+
+  <p>Which is to say the refractive-index picture is built so as to hit for light. But the parts that a conformal factor cannot squash ── Weyl curvature, the rate of clocks, the orbits of matter ── are untouchable with one scalar.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>What was missing was a single word</h2>
+
+  <p>So what is missing? A concrete example makes it obvious in an instant.</p>
+
+  <p>Consider <strong>frame dragging</strong>. Around a rotating body, the time for light to circle clockwise and the time to circle anticlockwise <em>differ</em> (this has been measured).</p>
+
+  <p>A scalar \(c(x)\) cannot write this. It has <strong>only one value</strong> at each point, so it cannot return different answers for different directions.</p>
+
+  <p>To write it you need \(c(x,\hat n)\) ── <em>a direction-dependent speed of light</em>. Gravitational waves are the same. A TT polarization stretches one direction and shrinks the orthogonal one. A scalar cannot write anisotropic stretching.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE MISSING WORD</div>
+    <p style="margin:6px 0 0">Something that gives a speed <strong>per direction</strong> at each point.<br>Mathematics calls it a tensor field; physics calls it <strong>the metric \(g_{\mu\nu}\)</strong>.</p>
+  </div>
+
+  <p>Here you might think "so it was the metric after all. We are just back to curvature." <strong>That is exactly what is not so.</strong> Here is where the real subject begins.</p>
+
+  <h2><span class="n">03</span>Put a tensor field on flat spacetime</h2>
+
+  <p>General relativity can be constructed as the theory of <em>a self-interacting massless spin-2 field \(h_{\mu\nu}\) living on flat Minkowski spacetime</em>. Gupta (1954), Feynman, Deser (1970).</p>
+
+  <p>Deser's argument is the cleanest.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── the series closes</span>
+    <p style="margin:8px 0 0"><strong>Step 1.</strong> On flat spacetime \(\eta_{\mu\nu}\), write a massless spin-2 field \(h_{\mu\nu}\) (a free field).</p>
+    <p style="margin:8px 0 0"><strong>Step 2.</strong> This field couples to the energy-momentum of matter. But <em>the field itself carries energy</em>. So it must couple to itself as well.</p>
+    <p style="margin:8px 0 0"><strong>Step 3.</strong> Add the correction term. That correction term also carries energy, so add again. Iterate.</p>
+    <p class="lbl">result</p>
+    <p style="margin:8px 0 8px"><strong>The series closes, and becomes the Einstein equations themselves.</strong> And</p>
+    $$g_{\mu\nu}=\eta_{\mu\nu}+h_{\mu\nu}$$
+    <p style="margin:8px 0 8px">appears <em>as a consequence</em>, as the "effective metric." It was not assumed at the outset; it came out.</p>
+  </div>
+
+  <p>Weinberg showed something stronger still. <strong>Any Lorentz-invariant theory of a massless spin-2 particle coupled to a conserved source must, at low energy, become general relativity.</strong> Which is to say ──</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CORE OF THIS EPISODE</div>
+    <p style="margin:6px 0 0"><strong>The equivalence principle is a conclusion, not an assumption.</strong><br>You do not need to put "gravitational mass = inertial mass" in by hand. It is <em>derived</em> from the setup of a spin-2 field on flat spacetime.</p>
+  </div>
+
+  <p>So "space is not warped; a field on a flat stage merely behaves that way" is not a poetic rephrasing but <strong>an exact formulation</strong>. Curvature becomes not a <em>property of the stage</em> but a <em>field</em> sitting on the stage.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the same light bending, booked two ways. Left = "space is curved," right = "space is flat and there is a field." Change the mass with the slider</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>mass of the body &nbsp;μ = GM/c² = <span class="val" id="vm">0.018</span>
+        <input type="range" id="sm" min="0" max="30" value="18">
+      </label>
+      <button id="b0">zero mass</button>
+      <button id="b1">stronger</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#a83a22"></span>the light path (identical on both sides)</span>
+      <span><span class="swatch" style="background:#b3c0bd"></span>the straight line it would have taken with no mass</span>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>The red path does not differ by <em>a single pixel</em> between left and right. The same array is drawn twice. The only difference is how the background is drawn ── on the left the lattice is distorted; on the right the lattice is left square and the field is shown by shading.</p>
+
+  <p><strong>What is observed is only the red line.</strong> The background lattice is, in both cases, a line you drew on paper; it is not out there in nature.</p>
+
+  <h2><span class="n">04</span>Price ① ── the flat background cannot be observed</h2>
+
+  <p>Let us draw the honest line. This formulation has a strange price.</p>
+
+  <p>Nothing couples to \(\eta_{\mu\nu}\) alone. Rulers, clocks and light all measure with \(g=\eta+h\). So <strong>you can say "it is really flat," but no experiment detecting that flatness exists even in principle</strong>.</p>
+
+  <p>A delicate position. Like a preferred frame, but a completely invisible one.</p>
+
+  <div class="aside">
+    <span class="tag">HOWEVER ── which is exactly why it does not catch Episode 2's disease</span>
+    The eighteen orders of fine-tuning seen in Episode 2 arose from a <strong>physical preferred frame</strong> being amplified by radiative corrections.<br>The flat background \(\eta_{\mu\nu}\) is different. <em>Since nothing couples to it, it does not act on the renormalization either.</em> What cannot be seen cannot be amplified.<br>"Safe, and at the same time empty" ── that duality pins down the character of this formulation. Precisely because its physical content is zero, so is its harm.
+  </div>
+
+  <h2><span class="n">05</span>Price ② ── it is bad at global structure</h2>
+
+  <p>One more, and this one is a substantive limitation.</p>
+
+  <p>An expansion around a flat background does not cover <strong>the interior of a horizon, non-trivial topology, or a closed universe</strong> well. The reach of the perturbation series is limited.</p>
+
+  <p>The shape of it is "completely right locally, insufficient globally." Try to write the interior of a black hole as \(\eta+h\) and the premise that \(h\) is small collapses.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── "not fundamental" is not "not real"</span>
+    Whichever formulation you choose, tidal forces can be measured. \(R_{\mu\nu\rho\sigma}\) has observable consequences.<br>What you are choosing is <strong>a way of keeping the books</strong>; you are not deleting physics. You are free to say "it is not curved," but not one phenomenon disappears as a result.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>And it can be solved by finite differences</h2>
+
+  <p>So far this has been "you may book it that way." But this position has a <em>practical payoff</em>. And it is not a thought experiment ── it is <strong>running for real right now</strong>.</p>
+
+  <p>If the lattice does not distort, you can lay square cells out in space and replace derivatives by differences. For someone who writes programs, this is decisively welcome.</p>
+
+  $$\frac{\partial f}{\partial x}\;\longrightarrow\;\frac{f_{i+1}-f_{i-1}}{2\Delta x}$$
+
+  <p>And ── <strong>numerical relativity does exactly this.</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">WHAT IS ACTUALLY DONE</div>
+    <p style="margin:6px 0 0">Lay a flat orthogonal lattice out in memory. At each point put \(g_{\mu\nu}\) (in practice variables called BSSN or Z4c) <strong>as field values</strong>. Evolve in time by finite differences.</p>
+    <p style="margin:8px 0 0"><strong>The lattice never distorts.</strong> The curvature is not in the lattice but <em>inside the numbers sitting on the lattice points</em>.</p>
+  </div>
+
+  <p>When LIGO detected a black-hole merger, the waveform templates matched against the data were built this way. <strong>Curved spacetime, computed on a lattice that does not distort.</strong></p>
+
+  <p>And structurally this is Deser's formulation of §03 itself. The stage is flat; the curvature is a field \(h_{\mu\nu}\) on the stage. <em>The formulation and the implementation have the same shape.</em></p>
+
+  <h3>That said, the hard parts are not the lattice</h3>
+
+  <p>Honestly, here is what is hard. The point is that <strong>none of it is caused by "the lattice not distorting."</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">hard part</th><th>content</th></tr>
+    <tr><td><strong>① foliation (gauge)</strong></td><td>To take differences you must slice spacetime into "space × time." How you slice is free, but <em>slice it wrong and the lattice points fall into the black hole and the computation blows up</em>. Techniques like 1+log slicing, gamma-driver shift and moving punctures are needed.</td></tr>
+    <tr><td><strong>② constraint violation</strong></td><td>The Einstein equations split into "evolution equations" and "constraints." Finite differences always violate the constraints slightly, and that error <em>grows exponentially</em>. It was only solved by constraint-damping formulations like BSSN, Z4c and generalized harmonic.</td></tr>
+    <tr><td><strong>③ singularities</strong></td><td>The numbers diverge at the centre of a black hole. Either cut it out (excision) or dodge it with clever coordinates (punctures).</td></tr>
+  </table>
+
+  <div class="aside">
+    <span class="tag">WHY IT WAS STUCK FOR FORTY YEARS</span>
+    Numerical relativity began in the 1960s, but <strong>it only became possible to compute a black-hole binary all the way through in 2005</strong>. It took about forty years.<br>What held it up was ② constraint violation, and <em>neither the lattice nor the finite differences</em>. The very idea of putting a field on a flat lattice was right from the start.
+  </div>
+
+  <h3>Why this is safe ── Episode 2's distinction does the work</h3>
+
+  <p>Recall the table from Episode 2. A lattice had two distinct roles: <strong>(a) computational tool</strong> and <strong>(b) basic structure of spacetime</strong>.</p>
+
+  <p>The lattice of numerical relativity is entirely <strong>(a)</strong>. The spacing \(\Delta x\) is artificial; you refine it and check convergence. <em>Not one word claims "spacetime is made of a lattice."</em></p>
+
+  <p>So Episode 2's eighteen-order fine-tuning problem does not arise at all. Because no preferred frame has been introduced as physics.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CORE OF THIS SECTION</div>
+    <p style="margin:6px 0 0"><strong>"Space does not distort," therefore it can be solved by finite differences ── this is correct, and it is what people actually do.</strong><br>What is not distorting is the <em>computational lattice</em>; nobody is claiming spacetime is discrete. Which is why it is safe.</p>
+  </div>
+
+  <h2><span class="n">07</span>The stronger version ── holography</h2>
+
+  <p>So far the story has been "rewrite curvature as a field." The flat background remains, merely invisible.</p>
+
+  <p>There is a more thoroughgoing position: that <strong>neither curvature nor curved spacetime exists as a basic element at all</strong>.</p>
+
+  <p>In AdS/CFT, <em>the boundary theory has no gravity. And no curvature.</em> It is an ordinary field theory sitting on a fixed flat background. And ──</p>
+
+  <div class="keybox">
+    <div class="lbl">EMERGENT SPACETIME</div>
+    <p style="margin:6px 0 0"><strong>The curved bulk spacetime emerges from the entanglement structure of the boundary.</strong><br>Curvature is not a basic existent but one form of the description of a flat field theory.</p>
+  </div>
+
+  <p>This is the strongest version of "no warping of space is needed." In §03 the stage remained, flat; here <em>the very concept of a curved stage</em> disappears from the basic description.</p>
+
+  <p>And a lot lines up.</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">what we wanted</th><th>in the boundary theory</th></tr>
+    <tr><td>no warping of space</td><td class="ok">○ a flat fixed background</td></tr>
+    <tr><td>no spacing of space (Episode 2)</td><td class="ok">○ a continuum field theory</td></tr>
+    <tr><td>exact Lorentz invariance</td><td class="ok">○ conformally invariant, even</td></tr>
+    <tr><td>a finite amount of information</td><td class="ok">○ the holographic bound</td></tr>
+    <tr><td>computable</td><td class="ok">○ an ordinary field theory</td></tr>
+  </table>
+
+  <p>This position <strong>never touches</strong> Episode 2's \(6\times10^{-20}\), nor the eighteen orders of fine-tuning. Because it creates no preferred frame and introduces no spacing.</p>
+
+  <h2><span class="n">08</span>The honest line</h2>
+
+  <p>Finally, what this position is paying.</p>
+
+  <p><strong>The only controlled example is AdS.</strong> \(\Lambda<0\). But our universe has \(\Lambda>0\). Holography in de Sitter is unsolved, and that is this route's greatest weakness.</p>
+
+  <p><strong>"The boundary is flat" is also, in a sense, a choice.</strong> The background the boundary theory sits on is fixed, but the reason we may call it "flat" is conformal invariance; in reality only the conformal class is fixed. Here too we are back to bookkeeping.</p>
+
+  <p><strong>And the derivations of \(1/4\) and of the Page curve are for special settings.</strong> Three-dimensional gravity, JT gravity, supersymmetric and extremal black holes. It is not that the same thing has been done for a general Schwarzschild black hole. We are at the stage of having got through the wall at one spot.</p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>State in one line why "flat spacetime + a scalar variable speed of light" cannot write Schwarzschild.
+        <details><summary>show the answer</summary><div class="ans">A scalar factor is a conformal transformation, so it can only produce a conformally flat metric. The condition for conformal flatness is that the Weyl tensor \(=0\), but Schwarzschild is a vacuum solution (\(R_{\mu\nu}=0\)) with \(R_{abcd}R^{abcd}=48G^2M^2/c^4r^6\ne0\) ── all of its curvature is Weyl, so it is impossible.</div></details>
+      </li>
+      <li>Why, nonetheless, does the refractive-index picture get light bending right?
+        <details><summary>show the answer</summary><div class="ans">Because <strong>null geodesics are conformally invariant</strong>. The path of light is determined by the conformal class of the metric alone and does not change when multiplied by \(\Omega^2\). So merely tuning the conformal factor is bound to hit for light ── and bound not to hit for anything <em>but</em> light.</div></details>
+      </li>
+      <li>In Deser's construction, why does the equivalence principle come out of "a spin-2 field on a flat background"? Give just the thread of it.
+        <details><summary>show the answer</summary><div class="ans">A spin-2 field couples to the conserved energy-momentum tensor. And the field itself carries energy, so it has no choice but to couple to itself with the same strength. "Couples to all energy in the same way" is precisely the equivalence principle, and it is forced by the structure of the iteration. A consequence of consistency, not an assumption.</div></details>
+      </li>
+      <li>The flat background \(\eta_{\mu\nu}\) looks like a preferred frame, yet it does not cause Episode 2's fine-tuning problem. Why?
+        <details><summary>show the answer</summary><div class="ans">Episode 2's problem was that a <strong>physically detectable</strong> preferred frame gets amplified by loop corrections. Nothing couples to \(\eta_{\mu\nu}\) on its own, and every observable goes through \(g=\eta+h\). A structure that cannot be detected does not appear in the renormalization either, so there is nothing to amplify.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>A scalar gets stuck. The criterion is the Weyl tensor.</strong> The expanding universe has Weyl \(=0\), so it can be written exactly as "flat spacetime × a scale factor," while a star has Weyl \(\ne0\) and cannot be written in principle. The reason light alone comes out right is that null geodesics are conformally invariant.</p>
+    <p><strong>What was missing was the single word "direction-dependent."</strong> Something that gives a speed per direction at each point ── that is a tensor field. Frame dragging and gravitational waves can both be written with it.</p>
+    <p><strong>Put a tensor field on a flat stage and general relativity stands up.</strong> Iterate the self-interaction of a massless spin-2 field and the series closes into the Einstein equations (Gupta–Feynman–Deser). \(g=\eta+h\) is a result, not an assumption. And <em>the equivalence principle comes out as a conclusion</em> (Weinberg).</p>
+    <p><strong>There are two prices.</strong> The flat background cannot be observed in principle (= which is exactly why it does not cause Episode 2's eighteen-order problem). And it does not reach global structure ── horizons, topology.</p>
+    <p style="margin-bottom:0"><strong>And the limit of this is holography.</strong> The boundary theory has neither gravity nor curvature, and curved spacetime emerges from entanglement. With no warping, no spacing and no preferred frame, you get a finite amount of information and computability. But the only controlled example has \(\Lambda<0\), and our universe has \(\Lambda>0\).</p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-04-kagami.html">The mirror does not come back</a> ── if the stage may stay flat, <em>how much symmetry does that stage have?</em> The answer was not the Poincaré group but <strong>infinite-dimensional</strong>. And it can be measured, in the form of LIGO's mirrors not returning to where they started after a gravitational wave passes.
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 3 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: the equivalence of conformal flatness and the vanishing of the Weyl tensor, the conformal flatness of FRW, the Kretschmann invariant of Schwarzschild, the conformal invariance of null geodesics, the reconstruction of general relativity from a spin-2 field on flat spacetime (Gupta 1954, Deser 1970), and that the equivalence principle follows from a massless spin-2 particle (Weinberg). <strong>On the other hand, the holographic reading that "curvature is emergent" is a position under research, not an established conclusion</strong>. Controlled examples of the duality are limited to asymptotically AdS, and the \(\Lambda>0\) case is unsolved. The figure is schematic: the way the background lattice is distorted is not a quantitative rendering of a metric, and only the light path is a numerical integration using the weak-field refractive index \(n=1+2\mu/r\).</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜bonus: <a href="butsuri-tsukuru-bangai1-scale.html">① Could physics be written more simply?</a>／<a href="butsuri-tsukuru-bangai2-ct.html">② How far does "ct = constant" get you?</a> ｜ sister series: <a href="../wakaru-soutai-en/index.html">Relativity That Clicks</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). With the slider in the figure you can confirm that the same path can be booked two ways.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'),
+      vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  var B=0.55;          // impact parameter
+  var X0=-2.6, X1=2.6; // range the light travels over
+
+  // ray equation for the weak-field refractive index n(r) = 1 + 2μ/r
+  //   dv/ds = ∇⊥ ln n ≈ (∇n)⊥      （n ≈ 1）
+  //   ∇n = -(2μ/r²) r̂
+  function rayPath(mu){
+    var p=[X0,B], v=[1,0], ds=0.012, pts=[[p[0],p[1]]];
+    for(var k=0;k<900 && p[0]<X1;k++){
+      var r=Math.hypot(p[0],p[1]); if(r<0.18) r=0.18;
+      var gx=-(2*mu/(r*r))*(p[0]/r), gy=-(2*mu/(r*r))*(p[1]/r);
+      var dot=gx*v[0]+gy*v[1];
+      v[0]+=(gx-dot*v[0])*ds; v[1]+=(gy-dot*v[1])*ds;
+      var nv=Math.hypot(v[0],v[1]); v[0]/=nv; v[1]/=nv;
+      p[0]+=v[0]*ds; p[1]+=v[1]*ds;
+      pts.push([p[0],p[1]]);
+    }
+    return pts;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var mu=parseInt(sm.value,10)/1000; vm.textContent=mu.toFixed(3);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, pw=(w-gap)/2, top=26, bot=h-34, ph=bot-top;
+    var path=rayPath(mu);
+
+    function panel(x0,title,warped){
+      var cx=x0+pw/2, cy=(top+bot)/2, S=Math.min(pw/(2*2.7), ph/(2*1.25));
+      function PX(x){ return cx+x*S; }
+      function PY(y){ return cy-y*S; }
+
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x0+6,top,pw-12,ph); ctx.clip();
+      ctx.fillStyle='#fff'; ctx.fillRect(x0+6,top,pw-12,ph);
+
+      // right panel: shading of the refractive index (showing that there is a field)
+      if(!warped){
+        for(var k=16;k>=1;k--){
+          var rr=k*0.09;
+          ctx.beginPath(); ctx.arc(PX(0),PY(0), rr*S, 0, 6.2832);
+          ctx.fillStyle='rgba(47,93,107,'+(0.055*mu/0.03*(1-k/17)).toFixed(4)+')';
+          ctx.fill();
+        }
+      }
+
+      // the lattice
+      ctx.strokeStyle = warped ? '#c4d2cf' : '#dde6e4';
+      ctx.lineWidth=1;
+      var GS=0.32, NG=11;
+      // curvature picture: displace lattice points radially (schematic)
+      function warp(x,y){
+        if(!warped) return [x,y];
+        var r=Math.hypot(x,y); if(r<0.12) r=0.12;
+        var f=1+(3.2*mu)/(r+0.22);
+        return [x*f, y*f];
+      }
+      for(var i=-NG;i<=NG;i++){
+        ctx.beginPath();
+        for(var j=-NG*2;j<=NG*2;j++){
+          var q=warp(i*GS, j*GS*0.5);
+          if(j===-NG*2) ctx.moveTo(PX(q[0]),PY(q[1])); else ctx.lineTo(PX(q[0]),PY(q[1]));
+        }
+        ctx.stroke();
+        ctx.beginPath();
+        for(var j2=-NG*2;j2<=NG*2;j2++){
+          var q2=warp(j2*GS*0.5, i*GS);
+          if(j2===-NG*2) ctx.moveTo(PX(q2[0]),PY(q2[1])); else ctx.lineTo(PX(q2[0]),PY(q2[1]));
+        }
+        ctx.stroke();
+      }
+
+      // the body
+      ctx.fillStyle='#3c4a4e';
+      ctx.beginPath(); ctx.arc(PX(0),PY(0), Math.max(3, 60*mu), 0, 6.2832); ctx.fill();
+
+      // the straight line it would have taken with no mass
+      ctx.strokeStyle='#b3c0bd'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(PX(X0),PY(B)); ctx.lineTo(PX(X1),PY(B)); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // the light path (exactly the same array on both sides)
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+      for(var t=0;t<path.length;t++){
+        var px=PX(path[t][0]), py=PY(path[t][1]);
+        if(t===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1; ctx.strokeRect(x0+6,top,pw-12,ph);
+      ctx.fillStyle='#1f6f74';
+      ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='left'; ctx.fillText(title, x0+8, top-9);
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(warped?'the lattice itself is distorted':'the lattice stays square. there is a field (shading)', cx, bot+20);
+    }
+
+    panel(0, '① booked as curvature', true);
+    panel(pw+gap, '② booked as flat spacetime + a field', false);
+
+    // deflection angle
+    var n=path.length-1;
+    var vx=path[n][0]-path[n-1][0], vy=path[n][1]-path[n-1][1];
+    var defl=Math.atan2(vy,vx)*180/Math.PI;
+    ro.innerHTML = (mu<0.001)
+      ? 'Zero mass. The light goes straight and the two pictures are identical. <b>Now raise the mass.</b>'
+      : 'μ = <b>'+mu.toFixed(3)+'</b> ｜ deflection <b>'+Math.abs(defl).toFixed(1)+'°</b>'
+        +' (weak-field first order 4μ/b = '+(4*mu/B*180/Math.PI).toFixed(1)+'°. the numerical integration includes higher orders, so it comes out a little larger) ｜ '
+        +'<b>The red path is a completely identical array on both sides.</b> The only difference is how the background is drawn ── and only the red line is observable.';
+  }
+
+  sm.addEventListener('input', draw);
+  document.getElementById('b0').addEventListener('click', function(){ sm.value=0; draw(); });
+  document.getElementById('b1').addEventListener('click', function(){ sm.value=55; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

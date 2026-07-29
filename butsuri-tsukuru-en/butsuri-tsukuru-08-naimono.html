@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What exactly is missing ── The Lattice We Build, Episode 8</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 8 ／ What exactly is missing</span></div>
+  <p class="eyebrow">Six episodes have said "there is no independent definition" ── now we pin down what that demands, as a specification</p>
+  <h1>What exactly is missing
+    <span class="sub">This series has kept repeating "not yet." But that is a <em>label</em>, not a diagnosis.<br>This episode breaks <strong>what "defining a theory" concretely amounts to</strong> into four,<br>and writes, for each, <em>how far Carrollian holography has come and what has stopped it</em>.<br>And one corner is already closed ── and the way it closed was this series' own theme.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episodes 5, 6, 7 and Bonus ③</span>
+    <span>The core of this episode: write down what is missing, as a specification</span>
+  </div>
+
+  <p class="lead">"There is no independent definition" ── in Episodes 5, 6, 7 and Bonus ③ I wrote the same sentence over and over. As an honest line it is correct, but it amounts to <em>sticking a note on the problem</em>. This series' discipline #5 was "write the falsification condition first." Then "what would have to be in place for it to count as defined" should also be written first.<br>This episode writes that specification. And then looks at what is currently happening for each item on it. <strong>One of them is already satisfied.</strong></p>
+
+  <h2><span class="n">01</span>What does "defining a theory" consist of?</h2>
+
+  <p>When physics says "this theory is properly defined," there are in fact at least four meanings.</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">method of definition</th><th>what you do</th></tr>
+    <tr><td><strong>① an action</strong></td><td>list the fields and write a Lagrangian. Everything is derived from it</td></tr>
+    <tr><td><strong>② a constructive definition</strong></td><td>define it on a finite system such as a lattice and take the continuum limit. Existence is mathematically guaranteed</td></tr>
+    <tr><td><strong>③ bootstrap</strong></td><td>use no action; narrow the theory down using consistency alone (crossing symmetry, unitarity, associativity of the OPE)</td></tr>
+    <tr><td><strong>④ identification with a known theory</strong></td><td>be able to say "this is theory X." Match it against something already defined in another context</td></tr>
+  </table>
+
+  <p>AdS/CFT is strong because the boundary side, \(\mathcal{N}=4\) supersymmetric Yang–Mills, <strong>has all four</strong>. An action can be written. It can be approximated on a lattice. Bootstrap runs on it. And it can be identified as "an \(SU(N)\) gauge theory."</p>
+
+  <p>Which is why both sides can be computed <em>separately</em> and cross-checked. That is what "an independent definition" means.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE SPECIFICATION</div>
+    <p style="margin:6px 0 0">Carrollian CFT can be said to be "defined" <strong>when any one of ①–④ is satisfied without reference to the gravity side</strong>.</p>
+  </div>
+
+  <p>So what is happening now? In order.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>① The action ── it can be written. But two of them can</h2>
+
+  <p>This may be surprising, but <strong>the action of a Carrollian field theory can be written.</strong> Just take the \(c\to0\) limit of a relativistic theory. Carrollian scalars, Carrollian electromagnetism, Carrollian Yang–Mills ── all have been constructed.</p>
+
+  <p>But here lies <em>the most concrete open problem of this route</em>.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE ELECTRIC / MAGNETIC BRANCHING</div>
+    <p style="margin:6px 0 0">There are <strong>two ways</strong> to take \(c\to0\), because in the Hamiltonian formulation the canonical variables can be rescaled in two ways.</p>
+    <p style="margin:8px 0 0">By analogy with Maxwell theory having electric-dominant and magnetic-dominant limits, they are called <strong>the "electric limit" and the "magnetic limit."</strong></p>
+    <p style="margin:8px 0 0"><em>And in general the two are different theories.</em></p>
+  </div>
+
+  <p>So saying "the Carrollian scalar field theory" does <strong>not determine which one you mean</strong>. And which one the gravity dual should be (or whether both are needed) is unsettled.</p>
+
+  <p>① is stuck not in the form of "it cannot be written" but of <strong>"too many can be written to choose between them."</strong></p>
+
+  <h3>While we are here, let us look at ultra-locality</h3>
+
+  <p>Episode 5 said "Carrollian dynamics is ultra-local," but only asserted it without showing it. Let us look now.</p>
+
+  <p>Imposing Carroll boost invariance puts a strong constraint on solutions ── <em>the energy density must be static and the momentum density must vanish</em>. As a result <strong>fields cannot propagate</strong>.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── \(c\to0\) of the wave equation</span>
+    <p style="margin:8px 0 0">A relativistic scalar field: \(\partial_t^2\varphi=c^2\,\partial_x^2\varphi\)</p>
+    <p class="lbl">taking \(c\to0\)</p>
+    $$\partial_t^2\varphi=0\qquad\Longrightarrow\qquad \varphi(t,x)=\varphi_0(x)+t\,\pi_0(x)$$
+    <p style="margin:8px 0 8px">There is no \(x\) derivative on the right. <strong>Each point evolves in time without consulting its neighbours at all.</strong></p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: starting from the same initial condition (a field at rest given a Gaussian initial velocity), evolve a relativistic field and a Carrollian field side by side</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>time t = <span class="val" id="vt">0.00</span>
+        <input type="range" id="st" min="0" max="100" value="0">
+      </label>
+      <button id="bp">▶ play</button>
+      <button id="br">reset</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>On the left (relativistic) the hill of initial velocity <em>spreads left and right into a plateau</em> ── because the signal propagates at \(\pm c\). On the right (Carroll) <strong>the hill merely grows in place</strong>. Its width does not change at all.</p>
+
+  <p>This is what Episode 5's "the light cone collapses and you can go nowhere" looks like in the language of fields. <em>Two events are causally connected only when they are at the same point.</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>③ Bootstrap ── the tool's premises have collapsed</h2>
+
+  <p>(② the constructive definition sits in a delicate position, since ultra-locality can make putting it on a lattice either trivial or difficult, so we take ③ first.)</p>
+
+  <p>Bootstrap is a powerful method. It uses no action at all and narrows the theory down by consistency alone. In two dimensions it can even <em>classify</em> the minimal models.</p>
+
+  <p>But in celestial / Carrollian CFT the standard machinery loses its premises.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">what bootstrap presupposes</th><th>in celestial CFT</th></tr>
+    <tr><td>a <strong>discrete</strong> operator spectrum</td><td class="bad">continuous (principal series \(\Delta\in1+i\mathbb{R}\))</td></tr>
+    <tr><td>correlation functions are <strong>smooth</strong></td><td class="bad">distributional (Bonus ③: \(\delta(z-\bar z)\))</td></tr>
+    <tr><td><strong>positivity</strong> from unitarity</td><td class="bad">does not hold in the usual form</td></tr>
+    <tr><td>convergence of the OPE</td><td class="bad">with a continuous spectrum it is an integral, not a sum</td></tr>
+  </table>
+
+  <p>Arguments that rely on "the sum converges" over a discrete spectrum <em>cannot be used as they stand</em> with a continuous one. The same goes for inequalities from positivity.</p>
+
+  <p><strong>③ is not "we tried and failed" but "the tool does not fit."</strong></p>
+
+  <h2><span class="n">04</span>Even so, one corner is closed</h2>
+
+  <p>The story has been dark so far, but <strong>there is one place that has reached an independent definition.</strong></p>
+
+  <p>Costello–Paquette's programme. They built machinery to compute four-dimensional gauge-theory amplitudes from <em>a six-dimensional holomorphic theory on twistor space</em>.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CLOSED CORNER</div>
+    <p style="margin:6px 0 0">Four-dimensional amplitudes (integrands of form factors) can be written as <strong>a sum of products of correlation functions of a 2d chiral algebra</strong>.<br>And that chiral algebra is tied to the asymptotic-symmetry algebra found in celestial holography.</p>
+    <p style="margin:8px 0 0">They further identified the class of 4d massless gauge theories that <strong>lift to twistor space locally and without gauge anomaly</strong> (<em>twistorial theories</em>). In that class, the tower of soft modes forms a 2d chiral algebra <strong>even at the quantum level</strong>.</p>
+  </div>
+
+  <p>This is both ① and ④ ── there is an action, as a theory on twistor space, and it can be identified as "this is X." <strong>It is defined without reference to the gravity side.</strong></p>
+
+  <h3>And the way it closed was this series' own theme</h3>
+
+  <p>What is notable is what selects the theory. <strong>Anomaly cancellation.</strong></p>
+
+  <p>This is the third time.</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">episode</th><th style="width:30%">the target</th><th>character</th></tr>
+    <tr><td>Episode 1</td><td class="bad">the value is near "a cute number"</td><td>targets can be added afterwards → eaten by look-elsewhere</td></tr>
+    <tr><td>Episode 2</td><td class="ok">the anomaly cancels</td><td class="ok"><strong>binary</strong>: satisfied or not</td></tr>
+    <tr><td>Episode 6</td><td class="ok">the algebra closes</td><td class="ok"><strong>binary</strong></td></tr>
+    <tr><td><strong>this episode</strong></td><td class="ok">it lifts to twistor space without anomaly</td><td class="ok"><strong>binary</strong></td></tr>
+  </table>
+
+  <p>The reason the brute force of Episode 1 struck out was "because it aimed at coefficients." The flip side of that has appeared again ── <em>only a target with no room to tune carries information.</em></p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── how big a corner is a corner</span>
+    This result is aimed at the <strong>self-dual sector</strong>. The same restriction as Episode 6's \(w_{1+\infty}\) applies ── self-dual gravity is a solvable special part, not full gravity.<br>The specification for "an independent definition" was satisfied <em>in that corner</em>. Not overall, not yet.<br>Still, showing that it is not "impossible in principle" is significant. <strong>The difference between one example and zero examples is decisive.</strong>
+  </div>
+
+  <h2><span class="n">05</span>The rest of the list of what is missing</h2>
+
+  <p>Leaving the specification aside, let us list what is unsolved on this route. Including what Episodes 5 and 7 touched on, gathered in one place.</p>
+
+  <table class="tbl">
+    <tr><th style="width:28%">unsolved</th><th>status</th></tr>
+    <tr><td><strong>the electric / magnetic choice</strong></td><td>there are two ways to take \(c\to0\), generally giving different theories. Which one the gravity dual is remains undecided (it has been pointed out that they can coincide when there is no mass parameter)</td></tr>
+    <tr><td><strong>the celestial central charge</strong></td><td>the stress tensor has been identified, yet what the central charge is (or whether it is zero) is unknown. The quantity a 2d CFT fixes first will not be fixed</td></tr>
+    <tr><td><strong>is the state count \(=e^{A/4G}\)?</strong></td><td>Episode 7. Whether the state count of the horizon's Carrollian theory gives Bekenstein–Hawking is unsolved. <em>The central question of this route</em></td></tr>
+    <tr><td><strong>identifying the near-horizon algebra</strong></td><td>BMS-type, Heisenberg-type, or Virasoro. Several claims in the literature, unsettled</td></tr>
+    <tr><td><strong>massive particles</strong></td><td>massless works cleanly, but with mass they live on the hyperboloid \(H^3\) in momentum space. partial</td></tr>
+    <tr><td><strong>loops and IR divergences</strong></td><td>loop amplitudes are IR divergent, so a prescription for dressed states is needed. \(w_{1+\infty}\) also deforms at loop level</td></tr>
+    <tr><td><strong>de Sitter</strong></td><td class="bad">the main prize. \(\Lambda>0\) is still unsolved</td></tr>
+  </table>
+
+  <h2><span class="n">06</span>How to read this list</h2>
+
+  <p>Laid out, the items split into three kinds.</p>
+
+  <table class="tbl">
+    <tr><th style="width:24%">kind</th><th style="width:32%">example</th><th>outlook</th></tr>
+    <tr><td><strong>technical</strong></td><td>mass, loops, IR divergences</td><td class="ok">tooling. slow, but no obstruction of principle is in sight</td></tr>
+    <tr><td><strong>a matter of choice</strong></td><td>electric / magnetic, the near-horizon algebra</td><td>candidates exist. <em>What selects among them</em> is not understood</td></tr>
+    <tr><td><strong>essential</strong></td><td class="bad">the state count, de Sitter</td><td class="bad">even what is missing is not clear</td></tr>
+  </table>
+
+  <p>In this series' discipline, <strong>only the third row is a real blank</strong>. The two rows above are "not done yet," not "cannot be done."</p>
+
+  <p>And as Episode 7 showed, the state-count problem lies on <em>the inner of the two Carroll surfaces</em>. If the outer one (holography for flat spacetime) is solved, the inner one (entropy) is likely to move ── because it is the same mathematics.</p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>Which of §01's four does \(\mathcal{N}=4\) supersymmetric Yang–Mills satisfy, such that it counts as "independently defined"?
+        <details><summary>show the answer</summary><div class="ans">All four. An action can be written (①), it can be approximated on a lattice (②), bootstrap runs on it (③), and it can be identified as "an \(SU(N)\) gauge theory" (④). Which is why it can be computed <strong>separately</strong> from the gravity side and cross-checked.</div></details>
+      </li>
+      <li>Why does the field stop propagating when you take the \(c\to0\) limit of the relativistic wave equation?
+        <details><summary>show the answer</summary><div class="ans">Taking \(c\to0\) in \(\partial_t^2\varphi=c^2\partial_x^2\varphi\) gives \(\partial_t^2\varphi=0\). The <strong>spatial derivative disappears</strong> from the right-hand side, so each point's time evolution no longer consults its neighbours. The solution is \(\varphi=\varphi_0(x)+t\pi_0(x)\): the shape of the initial data is preserved while each point moves independently.</div></details>
+      </li>
+      <li>Give two reasons why bootstrap cannot be used in celestial CFT.
+        <details><summary>show the answer</summary><div class="ans">(1) The operator spectrum is <strong>continuous</strong> (principal series \(\Delta\in1+i\mathbb{R}\)), so arguments using the convergence of sums over a discrete spectrum cannot be used as they stand. (2) The correlation functions are <strong>distributional</strong> (supported on \(\delta(z-\bar z)\)), so crossing-symmetry analysis premised on smooth functions does not work. In addition, positivity from unitarity does not hold in the usual form.</div></details>
+      </li>
+      <li>In one line: the difference between Episode 1's brute-force target and the "targets" that appeared in Episodes 2, 6 and 8.
+        <details><summary>show the answer</summary><div class="ans">Episode 1's target could be <strong>added to afterwards</strong> (add \(p/q\) or \(\pi^k\) and the coverage rises), so it was eaten by look-elsewhere. Anomaly cancellation, an algebra closing, and lifting to twistor space are all <strong>binary — satisfied or not</strong>, with no room to tune. <em>Only a binary target carries information.</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>"There is no independent definition" was rewritten as a specification.</strong> There are four roads to defining a theory ── an action, a constructive definition, bootstrap, and identification with a known theory. AdS/CFT is strong because its boundary side has all four. Carrollian CFT need only satisfy one of them <em>without reference to gravity</em>.</p>
+    <p><strong>① The action can be written. But two of them can.</strong> There are two ways to take \(c\to0\), electric and magnetic, generally giving different theories. A dead end of the form <em>"cannot choose"</em> rather than "cannot write."</p>
+    <p><strong>③ Bootstrap: the tool does not fit.</strong> Because of the continuous spectrum (\(\Delta\in1+i\mathbb{R}\)) and distributional correlators, the premises of discreteness, smoothness and positivity all collapse. Not a failure but an inapplicable machine.</p>
+    <p><strong>Even so, one corner is closed.</strong> In Costello–Paquette's construction from twistor space, the 2d chiral algebra closes even at the quantum level and is defined without reference to gravity. And what selects the theory is <strong>anomaly cancellation</strong> ── the third "binary target," after Episodes 2 and 6. But restricted to the self-dual sector.</p>
+    <p style="margin-bottom:0"><strong>And the remainder splits into three kinds.</strong> Technical (mass, loops), a matter of choice (electric/magnetic, the near-horizon algebra), and essential (<em>is the state count \(e^{A/4G}\)</em>, <em>de Sitter</em>). The real blanks are only the last two.</p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-09-hitotsu.html">Were the two blanks one and the same?</a> ── this episode left two essential unsolved items. But those two may be <em>the same question</em>. The decider is that "a de Sitter horizon is also a null surface." And the object that Episode 1 stopped at — writing that "filling in the \(1/4\) requires <em>something to count</em>" — acquires a candidate.
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 8 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: that the action of a Carrollian field theory can be constructed as a \(c\to0\) limit; that the electric and magnetic limits arise from different rescalings of the canonical variables and are generally inequivalent; that Carroll boost invariance forbids propagation (ultra-locality); that the wave equation becomes \(\partial_t^2\varphi=0\) at \(c\to0\); the principal series \(\Delta\in1+i\mathbb{R}\) of celestial operators; and Costello–Paquette's representation of 4d amplitudes as correlation functions of a 2d chiral algebra together with the identification of anomaly-free "twistorial theories" (arXiv:2201.02595, Comm. Math. Phys. 2023).<br><strong>On the other hand, whether the gravity dual should be the electric or the magnetic one is undecided</strong> (it has been pointed out that the two can coincide when there is no mass parameter). <strong>The celestial central charge, whether the horizon state count gives \(A/4G\), the identification of the near-horizon symmetry algebra, and \(\Lambda>0\) are all unsolved</strong>. Costello–Paquette's result is aimed at the self-dual sector, and the extension to full gravity is unsolved. The figure is a schematic of a 1d scalar field: the relativistic side draws d'Alembert's formula and the Carroll side draws \(\varphi=\varphi_0+t\pi_0\) directly.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). Press "play" in the figure to watch only one of them fail to spread.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), ro=document.getElementById('ro'),
+      bp=document.getElementById('bp'), br=document.getElementById('br');
+  var playing=false, raf=null;
+
+  // initial condition: φ0 = 0, initial velocity π0(x) = a Gaussian
+  var SIG=0.16, C=1.0, XMAX=1.0;
+  function pi0(x){ return Math.exp(-x*x/(2*SIG*SIG)); }
+
+  // prepare the antiderivative of π0 numerically (used in d'Alembert's formula)
+  var NG=2400, XL=-3.0, XR=3.0, dx=(XR-XL)/NG, F=new Float64Array(NG+1);
+  (function(){ var acc=0; F[0]=0;
+    for(var i=1;i<=NG;i++){ var xa=XL+(i-1)*dx, xb=XL+i*dx;
+      acc += 0.5*(pi0(xa)+pi0(xb))*dx; F[i]=acc; } })();
+  function Fint(x){
+    if(x<=XL) return F[0]; if(x>=XR) return F[NG];
+    var u=(x-XL)/dx, i=Math.floor(u), f=u-i;
+    return F[i]*(1-f)+F[i+1]*f;
+  }
+  // relativistic: φ(t,x) = (1/2c)[F(x+ct) - F(x-ct)]   (d'Alembert with φ0=0)
+  function phiRel(t,x){ return (Fint(x+C*t)-Fint(x-C*t))/(2*C); }
+  // Carroll：  φ(t,x) = t·π0(x)
+  function phiCar(t,x){ return t*pi0(x); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var t=parseInt(st.value,10)/100; vt.textContent=t.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=22, pw=(w-gap)/2, T=26, B=h-38;
+    var YMAX=0.62;
+
+    function panel(x0,title,fn,col){
+      var L=x0+36, R=x0+pw-10, base=B-14, top=T+6;
+      function X(x){ return L+(R-L)*(x+XMAX)/(2*XMAX); }
+      function Y(v){ return base-(base-top)*(v/YMAX); }
+
+      ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+      for(var g=0;g<=4;g++){ var yy=top+(base-top)*g/4; ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke(); }
+      ctx.strokeStyle='#7a8785';
+      ctx.beginPath(); ctx.moveTo(L,base); ctx.lineTo(R,base); ctx.stroke();
+
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.fillText(title, x0+6, T-9);
+
+      // measure by full width at half maximum (exactly constant for Carroll, since the shape is fixed)
+      var M=420, vals=[], vmax=0;
+      for(var k0=0;k0<=M;k0++){ var xx0=-XMAX+2*XMAX*k0/M, vv=fn(t,xx0); vals.push(vv); if(vv>vmax) vmax=vv; }
+      var wmin=99, wmax=-99;
+      if(vmax>1e-6) for(var k1=0;k1<=M;k1++){
+        if(vals[k1]>=vmax/2){ var xx1=-XMAX+2*XMAX*k1/M; if(xx1<wmin) wmin=xx1; if(xx1>wmax) wmax=xx1; }
+      }
+      ctx.strokeStyle=col; ctx.lineWidth=2.4; ctx.beginPath();
+      var first=true;
+      for(var k=0;k<=M;k++){
+        var x=-XMAX+2*XMAX*k/M, v=vals[k];
+        var px=X(x), py=Y(Math.min(v,YMAX));
+        if(first){ ctx.moveTo(px,py); first=false; } else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.lineTo(X(XMAX),base); ctx.lineTo(X(-XMAX),base); ctx.closePath();
+      ctx.globalAlpha=0.13; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
+
+      ctx.fillStyle='#4c545c'; ctx.font='11px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='center'; ctx.fillText('x', (L+R)/2, base+18);
+      return (wmax>wmin)? (wmax-wmin) : 0;
+    }
+
+    var wR=panel(0, '① relativistic (∂ₜ²φ = c²∂ₓ²φ)', phiRel, '#1f6f74');
+    var wC=panel(pw+gap, '② Carroll (∂ₜ²φ = 0)', phiCar, '#a83a22');
+
+    ro.innerHTML = (t<0.02)
+      ? '\\(t=0\\). Both start from the same initial condition (a field at rest with a Gaussian initial velocity). <b>Advance the time.</b>'
+      : 'full width at half maximum ── relativistic <b>'+wR.toFixed(3)+'</b> ／ Carroll <b>'+wC.toFixed(3)+'</b> (constant in t for Carroll)　'
+        +'On the left the signal propagates at \\(\\pm c\\), so it <b>spreads into a plateau</b>. On the right the <b>width never changes</b> ── '
+        +'each point simply grows independently without consulting its neighbours. That is <b>ultra-locality</b>.';
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  function step(){
+    if(!playing) return;
+    var v=parseInt(st.value,10)+1;
+    if(v>=100){ v=100; playing=false; bp.textContent='▶ play'; }
+    st.value=v; draw();
+    if(playing) raf=requestAnimationFrame(step);
+  }
+  bp.addEventListener('click', function(){
+    if(playing){ playing=false; bp.textContent='▶ play'; if(raf) cancelAnimationFrame(raf); return; }
+    if(parseInt(st.value,10)>=100) st.value=0;
+    playing=true; bp.textContent='⏸ pause'; step();
+  });
+  br.addEventListener('click', function(){ playing=false; bp.textContent='▶ play'; st.value=0; draw(); });
+  st.addEventListener('input', function(){ playing=false; bp.textContent='▶ play'; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

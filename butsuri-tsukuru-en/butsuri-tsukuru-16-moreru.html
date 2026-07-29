@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matter can be saved. Gravity leaks ── The Lattice We Build, Episode 16</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#f4e9e2;color:#6b3526;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--bad);border-radius:3px;background:#fbf0ec;}
+  .verdict .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--bad);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.good{border-color:var(--ok);background:#eef6f1;}
+  .verdict.good .lbl{color:var(--ok);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 16 ／ Matter can be saved. Gravity leaks</span></div>
+  <p class="eyebrow">Emergent Lorentz invariance from strong coupling ── it works for matter. And on gravity it sends us back to Episode 2</p>
+  <h1>Matter can be saved. Gravity leaks
+    <span class="sub">We dig escape route ② of <a href="butsuri-tsukuru-02-koushi.html">Episode 2</a> all the way down.<br>At strong coupling the violation is suppressed <em>as a power</em> ── this is real, and beautiful.<br><strong>Chiral fermions come out of a UV that is not Lorentz invariant.</strong> Because an SO(3) spinor happens to have the same component count as a Weyl spinor.<br>But every one of the authors puts gravity on a <em>fixed background</em>. And violation in gravity leaks into matter via radiative corrections.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 2 (the 18 orders, the list of escape routes), powers and logarithms</span>
+    <span>The core of this episode: the window for \(\Lambda_{\rm conf}\) is 10 TeV to \(3\times10^9\) GeV</span>
+  </div>
+
+  <p class="lead">Episode 2 dismissed escape route ② (Lorentz invariance as an IR fixed point of the RG) as "logarithmic, hence not enough." That was <em>the weak-coupling story</em>; at strong coupling it becomes a power ── correcting that was last time's work.<br>This episode goes to look at the substance. The conclusion splits in two.<br><strong>For the matter sector, it really works.</strong> And the mechanism is a pleasure. <em>But for gravity, nobody has done it.</em> Not "has not" so much as "doing it breaks things" ── and the way it breaks is exactly Episode 2, §06.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>Why it becomes a power</h2>
+
+  <p>At weak coupling the Lorentz-violating couplings flow <em>logarithmically</em> under the RG. So no number of decades is enough ── twenty decades gives a factor \(1/\log(10^{20})=1/46\).</p>
+
+  <p>At strong coupling things change. Operators acquire <strong>anomalous dimensions</strong>, so the flow becomes a power. Bednik–Pujolàs–Sibiryakov built a concrete holographic example.</p>
+
+  <div class="keybox">
+    <div class="lbl">SUPPRESSION AT STRONG COUPLING (BPS, JHEP 11 (2013) 064)</div>
+    $$\delta\;\sim\;\left(\frac{\Lambda_{\rm conf}}{\Lambda_*}\right)^{\epsilon},
+    \qquad \epsilon=2(1-\nu),\qquad \nu=\sqrt{\frac{d^2}{4}+(\mu L)^2}$$
+    <p style="margin:8px 0 0">In the correlated case \(0\le\nu&lt;1\), \(\epsilon\in(0,2]\). In the marginal case \(\nu=1\), \(\epsilon=0\) and we are <em>back to logarithms</em>.</p>
+  </div>
+
+  <p>Only particular operators are dangerous. BPS identify <strong>vector operators of dimension \(d-1\le\dim\mathcal{O}_\mu\le d\)</strong> as "dangerous" ── marginal, or slightly irrelevant. These flow to zero most slowly. <em>The least irrelevant Lorentz-violating operator (LILVO)</em> sets the speed of the suppression.</p>
+
+  <p>Kharuk–Sibiryakov obtain the same suppression in the form \((l/L)^{1-2Ml}\) and state that <strong>the maximum achievable suppression is \((l/L)^2\)</strong>. The two papers give the same upper bound ── <em>\(\epsilon\) cannot exceed 2.</em> That 2 will matter later.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>The most pleasing part ── chiral fermions</h2>
+
+  <p>This is slightly off the main thread, but I want to write it down.</p>
+
+  <p>The Standard Model is made of <strong>chiral fermions</strong>. But the very definition of "chiral" relies on Weyl representations of the Lorentz group. <em>How can chiral fermions come out of a UV that is not Lorentz invariant?</em> Naively this looks impossible.</p>
+
+  <p>Kharuk–Sibiryakov's answer was just counting.</p>
+
+  <div class="keybox">
+    <div class="lbl">COUNT THE COMPONENTS</div>
+    <p style="margin:6px 0 0">The UV theory is not Lorentz invariant, so all it has is spatial rotations, <strong>SO(3)</strong>. And <strong>its spinor has two independent components</strong>.</p>
+    <p style="margin:8px 0 0">Meanwhile a four-dimensional <strong>Weyl spinor also has two components</strong>.</p>
+    <p style="margin:8px 0 0"><em>They match exactly.</em> So an SO(3) spinor can behave as a Weyl spinor in the infrared.</p>
+  </div>
+
+  <p>Episode 2 treated the Nielsen–Ninomiya no-go (chiral symmetry cannot be kept on a lattice). That is about a <em>regular lattice</em>. In emergence from strong coupling, chirality is <strong>generated</strong> in the infrared in the first place, so it falls outside the no-go's premises.</p>
+
+  <p>This series' refrain that "only a binary target carries information" appears here as <em>a coincidence of component counts</em>. Two and two. Off by one and it would not work.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>Measuring the window</h2>
+
+  <p>Knowing it works, we ask <strong>over what range it works</strong>. There are two conditions.</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">condition</th><th>content</th></tr>
+    <tr><td><strong>from above</strong></td><td>the mechanism's ceiling \(\epsilon\le2\) (BPS and KS agree)</td></tr>
+    <tr><td><strong>from below</strong></td><td>the residual violation must pass observation: \((\Lambda_{\rm conf}/M_P)^{\epsilon}\le6\times10^{-20}\) (the Crab Nebula)</td></tr>
+    <tr><td><strong>from the side</strong></td><td>in this mechanism the Standard Model fields emerge from strong coupling, so \(\Lambda_{\rm conf}\) is <em>also the compositeness scale of the electron and so on</em>. LHC compositeness bounds give \(\Lambda_{\rm conf}\gtrsim10\) TeV</td></tr>
+  </table>
+
+  <div class="lab">
+    <span class="tag">CALCULATION ── the power required</span>
+<pre><span class="cm"># solve (Lambda_conf/M_P)^eps &lt;= 6e-20. M_P = 1.2209e19 GeV</span>
+
+  Lambda_conf     log10(ratio)  eps required  corresponding nu
+ <span class="hi">--------------------------------------------------------</span>
+  1 TeV           -16.09        1.19          0.40
+  10 TeV          -15.09        <span class="st">1.27</span>          0.36
+  100 TeV         -14.09        1.36          0.32
+  1e9 GeV         -10.09        1.91          0.05
+  <span class="hi">3e9 GeV          -9.61        2.00          0.00  &lt;- ceiling reached</span>
+  1e10 GeV         -9.09        2.11          <span class="bd">negative ── impossible</span>
+
+  <span class="cm"># conversely, lowering eps</span>
+  eps = 1.0  ->  Lambda_conf &lt;= 0.73 GeV   <span class="bd">sub-GeV. excluded by compositeness</span>
+  eps = 0.5  ->  Lambda_conf &lt;= 4.4e-20 GeV <span class="bd">out of the question</span>
+
+  <span class="st">=> usable window:  10 TeV &lt;= Lambda_conf &lt;= 3e9 GeV
+                     1.27 &lt;= eps &lt;= 2       (the top 36% of the full range (0,2])</span></pre>
+  </div>
+
+  <p><strong>There is a window. But it is narrow.</strong> Last time I wrote in Episode 2 that "\(\epsilon\simeq1\) suffices," but adding the compositeness bound pushes it up to <em>\(\epsilon\gtrsim1.27\)</em>. The power has to be used nearly to its maximum.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the horizontal axis is the strong-coupling scale, the vertical axis the power \(\epsilon\). <b>Only the green region is usable</b> ── above the curve (passes observation), below \(\epsilon=2\) (the mechanism's ceiling), right of \(10\) TeV (compositeness). It closes at the right edge, \(3\times10^9\) GeV</div>
+    <canvas id="cv" width="1120" height="420"></canvas>
+    <div class="controls">
+      <label>\(\log_{10}(\Lambda_{\rm conf}/\mathrm{GeV})\) = <span class="val" id="vl">6.0</span>
+        <input type="range" id="sl" min="20" max="180" step="1" value="60"></label>
+      <label>power \(\epsilon\) = <span class="val" id="ve">1.60</span>
+        <input type="range" id="se" min="0" max="220" step="2" value="160"></label>
+      <button id="bw">put it inside the window</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#cfe3d6"></span>usable region</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>lower bound required by observation (the curve)</span>
+      <span><span class="swatch" style="background:#a83a22"></span>the mechanism's ceiling \(\epsilon=2\)</span>
+    </div>
+  </div>
+
+  <p>Move the sliders and you find it surprisingly easy to leave the green. <em>Still, the window is open</em> ── so far, a win for escape route ②.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>But gravity is not included</h2>
+
+  <p>Here the story changes. <strong>Rereading the papers, every one of the authors puts gravity out of scope.</strong> And they do not hide it.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE AUTHORS' OWN WORDS</div>
+    <p style="margin:6px 0 0"><strong>BPS</strong>: in both models (Randall–Sundrum, Lifshitz-type) gravity is a <em>fixed background</em>. They state that extending to dynamical gravity would require <strong>"an additional degree of freedom defining a preferred frame"</strong>, and do not pursue it.</p>
+    <p style="margin:8px 0 0"><strong>Kharuk–Sibiryakov</strong>: "in this scenario it is <em>sufficient that the strong coupling occur in the matter sector alone</em> … <strong>gravity may remain weakly coupled at all energies</strong>"</p>
+  </div>
+
+  <p>This is not a confession of weakness but a <em>design choice</em>. Confine the strong coupling to matter and you avoid gravity's troubles ── clever.</p>
+
+  <p><strong>But there is a price.</strong> If gravity stays weakly coupled, <em>gravity's own Lorentz violation gets no power suppression</em>. Only logarithms. Which means the eighteen orders of Episode 2, §06 remain in the gravity sector unchanged.</p>
+
+  <p>One wants to think "the bounds on gravitational violation are looser, surely." They are indeed looser ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:48%">whose speeds are being compared</th><th>bound</th></tr>
+    <tr><td>photon vs electron (Crab synchrotron)</td><td class="num">\(6\times10^{-20}\)</td></tr>
+    <tr class="mark"><td>gravitational waves vs light (GW170817 + GRB 170817A)</td><td class="num">\(-3\times10^{-15}\) to \(+7\times10^{-16}\)</td></tr>
+  </table>
+
+  <p>Gravity is about five orders looser. <em>Still not enough.</em> Logarithmic suppression buys only a factor \(1/46\) over twenty decades, so five orders of slack does not get you there.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>And it leaks</h2>
+
+  <p>This is the decider. "Even if violation remains in gravity, matter is protected, so what is the harm?" ── <strong>that does not hold.</strong></p>
+
+  <div class="verdict">
+    <div class="lbl">IT LEAKS</div>
+    <p style="font-size:19px"><strong>The matter sector cannot be protected from symmetry breaking in the gravity sector.</strong></p>
+    <p>Radiative corrections from quantum gravity generate Lorentz-violating couplings for abelian gauge fields (arXiv:1911.10066). <em>Lorentz violation in quantum gravity necessarily permeates the matter sector.</em></p>
+    <p style="margin-bottom:0">What the mechanism protected was "the violation matter has in <strong>its own</strong> UV." <em>It does not protect against "the violation gravity has."</em> And the leakage path is exactly the radiative corrections of Episode 2, §06.</p>
+  </div>
+
+  <p>There is worse news. Work scrutinizing Hořava gravity (arXiv:1805.10299) points out <strong>fine-tuning between species</strong> ── the degree of tuning of the squared sound speeds of a U(1) gauge field and a scalar becomes more severe as the dimension rises. And it concludes that <em>not only the gravity sector but the matter sector too must cross over to Lifshitz scaling above some scale, and the two crossover scales cannot be widely separated</em>.</p>
+
+  <p>So the convenient separation "matter strongly coupled at a low scale, gravity weakly coupled far above" is <strong>structurally forbidden.</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>Another theorem closing off the escape</h2>
+
+  <p>Then why not make gravity itself Lorentz violating and install emergence from strong coupling there too? There is a general obstruction here.</p>
+
+  <div class="keybox">
+    <div class="lbl">EXPLICIT BREAKING IS INCOMPATIBLE WITH RIEMANNIAN GEOMETRY</div>
+    <p style="margin:6px 0 0"><strong>Explicit</strong> Lorentz violation is incompatible with general Riemannian geometry (and hence with general relativity).</p>
+    <p style="margin:8px 0 0">So ── if Lorentz symmetry is broken, it is broken <strong>spontaneously</strong>, or <em>gravity needs a new geometric framework</em>.</p>
+  </div>
+
+  <p>Choose spontaneous breaking and you need something to do the breaking: a field with a vacuum expectation value that picks out a preferred frame ── an <strong>aether field</strong>. Which is exactly what BPS wrote would be needed: "an additional degree of freedom defining a preferred frame."</p>
+
+  <p>Here the circle closes. <em>We used emergence in order not to create a preferred frame, and carrying it to gravity brings a preferred frame back in.</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>The accounts</h2>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>result</th></tr>
+    <tr><td><strong>matter sector</strong></td><td class="ok">works. power suppression. window \(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV, \(1.27\le\epsilon\le2\)</td></tr>
+    <tr><td><strong>chiral fermions</strong></td><td class="ok">they emerge. the SO(3) spinor's two components match Weyl</td></tr>
+    <tr><td><strong>gravity sector</strong></td><td class="bad">untouched. the authors themselves say explicitly that it "stays weakly coupled" and put it aside</td></tr>
+    <tr><td><strong>leakage from gravity into matter</strong></td><td class="bad">cannot be stopped. radiative corrections always permeate</td></tr>
+    <tr><td><strong>separating the scales</strong></td><td class="bad">not possible. the two crossover scales cannot be widely separated</td></tr>
+    <tr><td><strong>if you break gravity</strong></td><td class="bad">explicit breaking is incompatible with Riemannian geometry. make it spontaneous and you need an aether = a preferred frame</td></tr>
+  </table>
+
+  <p>For Episode 2's question "is spacetime itself a lattice," the main event is gravity. <strong>That is not filled in.</strong></p>
+
+  <div class="verdict good">
+    <div class="lbl">STILL, THE PRICE TAG IS NOW CLEAR</div>
+    <p>Escape route ② is upgraded from "not enough" to "<strong>works for matter; gravity is left over</strong>." Last time's revision was correct ── but the range where it works is narrower than expected.</p>
+    <p>And for the position of <em>a universe computable locally</em>, the options have shrunk again:</p>
+    <p style="margin-bottom:0">
+      <strong>① (high-scale SUSY)</strong> ── forbids dimensions 3 and 4 including in the gravity sector. locality survives. price: SUSY.<br>
+      <strong>② (emergence from strong coupling)</strong> ── matter can be saved but gravity leaks. <em>not enough on its own</em>.<br>
+      <strong>③ (causal set)</strong> ── structurally no preferred frame. price: non-locality ── it will not become a finite difference.
+    </p>
+  </div>
+
+  <p>If ② is not enough on its own, what remains is <strong>① or ①＋②</strong>. That ① was the front-runner back in Episode 2 turns out, in the event, to have been right.</p>
+
+  <div class="prob">
+    <div class="lbl">WORK IT BY HAND</div>
+    <ol>
+      <li>Solve \((\Lambda_{\rm conf}/M_P)^{\epsilon}\le6\times10^{-20}\) for \(\epsilon=2\) and give the upper bound on \(\Lambda_{\rm conf}\). Use \(M_P=1.22\times10^{19}\) GeV.
+        <details><summary>show the answer</summary><div class="ans">\(\Lambda_{\rm conf}/M_P\le\sqrt{6\times10^{-20}}=2.45\times10^{-10}\). Hence \(\Lambda_{\rm conf}\le2.45\times10^{-10}\times1.22\times10^{19}=\mathbf{3.0\times10^{9}}\) GeV. <strong>This is the right edge of the window.</strong> Since \(\epsilon\) cannot exceed 2, no strong-coupling scale above this can pass, however you arrange it.</div></details>
+      </li>
+      <li>What happens if you solve the same relation for \(\epsilon=1\)?
+        <details><summary>show the answer</summary><div class="ans">\(\Lambda_{\rm conf}\le6\times10^{-20}\times1.22\times10^{19}=\mathbf{0.73}\) GeV. <em>Sub-GeV.</em> That would mean the electron is composite at 1 GeV, flatly contradicting compositeness bounds (TeV scale). <strong>So \(\epsilon=1\) is effectively no good, and the power has to be used nearly to its maximum</strong> ── which corrects last time's "\(\epsilon\simeq1\) suffices."</div></details>
+      </li>
+      <li>"The bound on gravitational violation is five orders looser than for matter, so surely gravity alone can stay weakly coupled" ── what is wrong?
+        <details><summary>show the answer</summary><div class="ans">Two things. <strong>(1) Logarithmic suppression does not cover five orders</strong> ── twenty decades gives \(1/46=0.022\), while what is needed is of order \(10^{-15}\): thirteen orders short. <strong>(2) They are not independent in the first place</strong> ── violation in gravity leaks into matter via radiative corrections, so leaving \(10^{-15}\) in gravity goes on to break the matter side's \(6\times10^{-20}\). <em>The structure does not let you dump the problem on the looser side.</em></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>At strong coupling the violation dies as a power.</strong> \(\delta\sim(\Lambda_{\rm conf}/\Lambda_*)^{\epsilon}\), \(\epsilon=2(1-\nu)\). At the marginal \(\nu=1\) we return to logarithms, but in the correlated case \(0\le\nu&lt;1\), \(\epsilon\) can run from 0 to 2. The dangerous ones are vector operators of dimension \(d-1\le\dim\mathcal{O}_\mu\le d\) (LILVO). <em>Two papers independently give the same ceiling \(\epsilon\le2\).</em></p>
+    <p><strong>Chiral fermions emerge.</strong> A non-Lorentz-invariant UV has only SO(3), and <em>its spinor has two independent components</em>. A 4d Weyl spinor also has two. <strong>The counts match exactly</strong>, so it can behave as a Weyl spinor in the infrared. Episode 2's Nielsen–Ninomiya is a theorem about regular lattices and does not bite here.</p>
+    <p><strong>We measured the window ── it exists but is narrow.</strong> From above the mechanism's \(\epsilon\le2\), from below the Crab's \(6\times10^{-20}\), from the side compositeness's \(\Lambda_{\rm conf}\gtrsim10\) TeV. The result is <strong>\(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV, \(1.27\le\epsilon\le2\)</strong> ── the top 36% of the full range \((0,2]\). <em>Last time's "\(\epsilon\simeq1\) suffices" was too generous; compositeness pushes it to \(1.27\).</em></p>
+    <p><strong>Gravity is not included. And deliberately so.</strong> BPS puts gravity on a fixed background and states that making it dynamical requires "an additional degree of freedom defining a preferred frame," which they do not pursue. Kharuk–Sibiryakov state explicitly that "gravity may remain weakly coupled at all energies." <em>Clever as design, but gravity's own violation gets no power suppression.</em></p>
+    <p><strong>And it leaks.</strong> "The matter sector cannot be protected from symmetry breaking in the gravity sector" ── radiative corrections from quantum gravity generate Lorentz-violating couplings for gauge fields (arXiv:1911.10066). What was protected was <em>only the violation matter has in its own UV</em>; gravity's violation comes in by the same path as Episode 2, §06. In addition, the two crossover scales cannot be widely separated (arXiv:1805.10299).</p>
+    <p><strong>Turning to break gravity instead runs into a no-go.</strong> Explicit Lorentz violation is incompatible with general Riemannian geometry. So it must be spontaneous, which means bringing in an aether field = a preferred frame. <em>We used emergence in order not to create a preferred frame, and going all the way to gravity brings it back.</em></p>
+    <p style="margin-bottom:0"><strong>Accounts: ② is not enough on its own.</strong> But last time's revision ("not enough" → "works for matter") was correct. <em>For the position of a locally computable universe, what remains is ① (high-scale SUSY) or ①＋②.</em> Putting ① as the front-runner back in Episode 2 turns out to have been right.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">READ NEXT</span>
+    <a href="butsuri-tsukuru-02-koushi.html">Spacetime cannot be made into a lattice</a> ── the episode with the list of escape routes. Look again at §08's ①–④ with this episode in mind and every one of them now has a price tag. <em>Why ③ (causal set) was called "structurally the most beautiful" also becomes clear on rereading</em> ── because it is the only road that creates no preferred frame.<br>That the cutoff does not appear in observation is in <a href="butsuri-tsukuru-14-kazoenai.html">Episode 14</a>; that a quantity with dimensions cannot be predicted is in <a href="butsuri-tsukuru-15-kabe.html">Episode 15</a>.
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-17-suisei.html">Mercury precesses on a flat lattice</a> ── that one is about <em>when the spacing is numerical</em>. It gets Mercury's perihelion advance of 42.9807 arcsec/century without warping the coordinates even once. <strong>There, there was no obstacle at all</strong> ── except one condition on the finite differences that cannot be skipped.
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 16 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself ── including the correction that the previous episode's estimate was too generous.</p>
+    <p>Established material: the power suppression \((\Lambda_{\rm conf}/\Lambda_*)^{2(1-\nu)}\) at strong coupling; the return to logarithms at \(\nu=1\); that the dangerous operators are vector operators of dimension \(d-1\le\dim\mathcal{O}_\mu\le d\); and that gravity is treated as a fixed background with the authors stating that dynamical gravity requires an additional degree of freedom defining a preferred frame (Bednik–Pujolàs–Sibiryakov, JHEP 11 (2013) 064, arXiv:1305.0011). That the number of independent components of an SO(3) spinor matches a 4d Weyl spinor, that the maximum suppression is \((l/L)^2\), and the statement that gravity may remain weakly coupled (Kharuk–Sibiryakov, TMP 189 (2016) 1755, arXiv:1505.04130). That the matter sector cannot be protected from breaking in the gravity sector (arXiv:1911.10066). The fine-tuning of sound speeds between species and the inability to separate the crossover scales (arXiv:1805.10299). The incompatibility of explicit Lorentz violation with Riemannian geometry (Kostelecký's no-go). The \(6\times10^{-20}\) from the Crab Nebula and the \(-3\times10^{-15}\) to \(+7\times10^{-16}\) from GW170817 + GRB 170817A.<br>This article's window calculation (the required \(\epsilon\), the upper bound \(3\times10^9\) GeV on \(\Lambda_{\rm conf}\), and \(\epsilon\ge1.27\) when the lower bound is set at \(10\) TeV from compositeness) was computed by the author from the suppression form above and the observational limits. <strong>Setting the compositeness bound at \(10\) TeV is a rule of thumb and depends on the model.</strong> Also, "36% of the window" is a ratio of intervals in \(\epsilon\) and carries no probabilistic meaning.<br><strong>The accounting that "② is not enough on its own, and taking locality leaves ① or ①＋②" is this series' author's framing.</strong> It has not been shown that installing strong-coupling emergence in the gravity sector is impossible in principle ── the accurate statement is that nobody has succeeded so far.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a>｜<a href="butsuri-tsukuru-12-menseki.html">Episode 12</a>｜<a href="butsuri-tsukuru-13-omomi.html">Episode 13</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">Episode 14</a>｜<a href="butsuri-tsukuru-15-kabe.html">Episode 15</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). The figure lets you see how narrow the usable window is.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sl=document.getElementById('sl'), se=document.getElementById('se'),
+      vl=document.getElementById('vl'), ve=document.getElementById('ve'), ro=document.getElementById('ro');
+
+  var MP=1.2209e19, LOGMP=Math.log10(MP), CRAB=6e-20, LOGCRAB=Math.log10(CRAB);
+  var EPS_MAX=2.0, LOG_COMP=4.0;              // compositeness bound 10 TeV = 1e4 GeV
+
+  // the eps needed to pass observation: (L/MP)^eps <= CRAB  ->  eps >= logCRAB / log10(L/MP)
+  function epsReq(logL){ return LOGCRAB/(logL-LOGMP); }
+
+  function draw(){
+    var logL=parseInt(sl.value,10)/10, eps=parseInt(se.value,10)/100;
+    vl.textContent=logL.toFixed(1); ve.textContent=eps.toFixed(2);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=70,R=W-28,T=28,B=H-60;
+    var XMIN=2, XMAX=18, YMAX=2.3;
+    function X(x){ return L+(x-XMIN)/(XMAX-XMIN)*(R-L); }
+    function Y(y){ return B-y/YMAX*(B-T); }
+
+    // shade the usable region: x >= LOG_COMP, epsReq(x) <= y <= EPS_MAX
+    ctx.fillStyle='#cfe3d6';
+    ctx.beginPath();
+    var first=true, xx;
+    for(xx=LOG_COMP; xx<=XMAX; xx+=0.02){
+      var r=epsReq(xx);
+      if(r>EPS_MAX) break;
+      if(first){ ctx.moveTo(X(xx),Y(r)); first=false; } else ctx.lineTo(X(xx),Y(r));
+    }
+    var xEnd=xx;
+    ctx.lineTo(X(Math.min(xEnd,XMAX)),Y(EPS_MAX));
+    ctx.lineTo(X(LOG_COMP),Y(EPS_MAX));
+    ctx.closePath(); ctx.fill();
+
+    // ticks
+    ctx.font='13px "Helvetica Neue",Arial,sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=0;y<=YMAX;y+=0.5){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText(y.toFixed(1),L-9,Y(y)+5);
+    }
+    for(var x=XMIN;x<=XMAX;x+=2){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText('10^'+x,X(x),B+20);
+    }
+
+    // the curve required by observation
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.5;
+    ctx.beginPath(); first=true;
+    for(xx=XMIN; xx<=XMAX; xx+=0.02){
+      var v=epsReq(xx);
+      if(v<0||v>YMAX){ first=true; continue; }
+      if(first){ ctx.moveTo(X(xx),Y(v)); first=false; } else ctx.lineTo(X(xx),Y(v));
+    }
+    ctx.stroke();
+
+    // the mechanism's ceiling
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([7,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(EPS_MAX)); ctx.lineTo(R,Y(EPS_MAX)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.textAlign='left';
+    ctx.fillText('mechanism ceiling ε = 2',L+6,Y(EPS_MAX)-7);
+
+    // the compositeness bound
+    ctx.strokeStyle='#8a9694'; ctx.setLineDash([3,3]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(X(LOG_COMP),T); ctx.lineTo(X(LOG_COMP),B); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#5d6a68'; ctx.textAlign='left';
+    ctx.fillText('compositeness 10 TeV',X(LOG_COMP)+6,T+14);
+
+    // the right edge
+    if(xEnd<XMAX){
+      ctx.strokeStyle='#8a9694'; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(xEnd),T); ctx.lineTo(X(xEnd),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='right'; ctx.fillStyle='#5d6a68';
+      ctx.fillText('3×10⁹ GeV',X(xEnd)-6,T+14);
+    }
+
+    // the selected point
+    var inWin = (logL>=LOG_COMP) && (eps<=EPS_MAX) && (eps>=epsReq(logL)) && (epsReq(logL)>0);
+    ctx.fillStyle = inWin ? '#2f7d5a' : '#a83a22';
+    ctx.beginPath(); ctx.arc(X(logL),Y(Math.min(eps,YMAX)),7,0,6.284); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('power ε',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('strong-coupling scale Λ_conf [GeV]',(L+R)/2,H-14);
+
+    var need=epsReq(logL);
+    var supp=Math.pow(Math.pow(10,logL-LOGMP),eps);
+    ro.className = inWin ? 'readout hit' : 'readout';
+    ro.innerHTML='Λ_conf = <b>10<sup>'+logL.toFixed(1)+'</sup> GeV</b>、ε = <b>'+eps.toFixed(2)+'</b> ｜ '
+      + 'residual violation ≈ <b>'+supp.toExponential(2)+'</b> (limit 6×10⁻²⁰)<br>'
+      + 'the ε required at this Λ_conf is <b>'+(need>0?need.toFixed(2):'—')+'</b>'
+      + (inWin
+          ? ' <span style="color:#1d5236">← inside the window. the matter sector can be saved (gravity is separate)</span>'
+          : ' <span style="color:#a83a22">← outside the window: '
+            + (logL<LOG_COMP ? 'below the compositeness bound'
+              : need>EPS_MAX ? 'the required ε exceeds the mechanism ceiling of 2'
+              : 'ε is too small and it contradicts observation') + '</span>');
+  }
+
+  sl.addEventListener('input',draw); se.addEventListener('input',draw);
+  document.getElementById('bw').addEventListener('click',function(){ sl.value=60; se.value=160; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

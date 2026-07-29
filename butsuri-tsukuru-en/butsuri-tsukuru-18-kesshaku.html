@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One photon settles it ── The Lattice We Build, Episode 18</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ink);border-radius:3px;background:#f2f5f3;}
+  .verdict .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.target{border-color:#8a3b5c;background:#f7edf1;}
+  .verdict.target .lbl{color:#8a3b5c;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 18 ／ One photon settles it</span></div>
+  <p class="eyebrow">Is the spacing real, or can it be taken to zero ── putting numbers on the branch that only waiting can move</p>
+  <h1>One photon settles it
+    <span class="sub"><a href="butsuri-tsukuru-17-suisei.html">Episode 17</a> found no obstacle whatsoever to a flat lattice <em>for computing</em>.<br>What remains is <strong>whether the spacing \(a\) is real</strong> ── if it is, <a href="butsuri-tsukuru-16-moreru.html">Episode 16</a>'s price applies; if it can be taken to zero, it does not.<br>This is a branch that only waiting can move. <em>So how does it get settled?</em><br><strong>One photon of about 112 PeV arriving unbroken decides it.</strong></span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episodes 2 and 16 (Lorentz violation), threshold calculations</span>
+    <span>The core of this episode: 112 PeV. Eighty times the current record</span>
+  </div>
+
+  <p class="lead">So far we have split the lattice thread in two ── <strong>if the spacing is numerical there is no problem</strong> (Episode 17 got Mercury precessing at 42.9807 arcsec/century), <strong>if the spacing is physical there is a price</strong> (Episode 16: supersymmetry, or gravity leaks).<br>The branch is one question: "can \(a\) be taken to zero?" And this is not a matter of opinion but <em>a question observation answers</em>.<br>This episode puts numbers on what that observation is. Killing off the unusable tools in order leaves exactly one at the end ── and what is left comes with <strong>a definite target value</strong>.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>First, kill off the unusable tools</h2>
+
+  <h3>Entropy is blind to this question</h3>
+
+  <p>Start with the tool that looks most natural. <em>If the spacing is real, the horizon's cells exist, so \(N=A/a^2\) is a genuine count</em> ── which makes it look as though black-hole entropy could tell the difference.</p>
+
+  <p><strong>It cannot.</strong> As Episode <a href="butsuri-tsukuru-14-kazoenai.html">14</a> showed, the cutoff-dependent divergence is absorbed entirely into the renormalization of Newton's constant. The entanglement side's \(A/48\pi\epsilon^2\) and the \(\delta(1/G)=1/12\pi\epsilon^2\) obtained independently from the heat kernel agree down to the factor of \(A/4\) ── so</p>
+
+  $$S=\frac{A}{4G_{\text{ren}}}$$
+
+  <p>has <em>the same form</em> whether \(a\) is real or the theory is continuous. <strong>Entropy is not looking at whether there is a spacing.</strong></p>
+
+  <div class="aside">
+    <span class="tag">THIS IS EPISODE 14'S CONCLUSION TURNED OVER</span>
+    Episode 14 read it as "the density of degrees of freedom never had to be determined." <em>Apply the same fact to this episode's question and it becomes "the value of the cutoff does not appear in observation."</em><br>On one side a strength (the divergence disappears), on the other a weakness (you cannot tell the difference). <strong>One and the same property.</strong>
+  </div>
+
+  <h3>Interferometers have already tried and struck out</h3>
+
+  <p>If spacetime were grainy, positions should jitter "by a Planck length every Planck time" ── holographic noise. Fermilab's <strong>Holometer</strong> looked for this directly: two independent 40 m interferometers, correlating their outputs up to 25 MHz.</p>
+
+  <p>The result was a <strong>strikeout</strong>. Noise at the level Hogan predicts is excluded at high significance.</p>
+
+  <div class="caveat">
+    <span class="tag">BUT WHAT DIED WAS ONE MODEL</span>
+    What the Holometer excluded is <em>a particular noise amplitude predicted by a particular model</em>. It did not exclude the whole idea of "spacetime having a spacing." <strong>How graininess manifests depends on the model, so killing one leaves the next.</strong>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>What remains is ultra-high-energy photons</h2>
+
+  <p>If the spacing is real, the dispersion relation changes. As Episode <a href="butsuri-tsukuru-16-moreru.html">16</a> showed, after imposing supersymmetry and CPT what remains is \(n=2\) (dimension 6).</p>
+
+  $$E^2=p^2\left[1+\left(\frac{p}{E_{\rm LV}}\right)^2\right]$$
+
+  <p>On the superluminal side (the plus sign) the photon acquires an <strong>effective mass</strong>.</p>
+
+  $$m_{\rm eff}^2=\frac{p^4}{E_{\rm LV}^2}$$
+
+  <p>Once this exceeds \((2m_e)^2\), <em>a photon becomes able to decay into an electron pair in vacuum</em>. The threshold that opens is</p>
+
+  <div class="keybox">
+    <div class="lbl">THE PHOTON-DECAY THRESHOLD</div>
+    $$\frac{p^4}{E_{\rm LV}^2}>(2m_e)^2\qquad\Longleftrightarrow\qquad p>\sqrt{2m_eE_{\rm LV}}$$
+    <p style="margin:8px 0 0">Turned around ── <strong>if a photon of energy \(E\) arrived unbroken, then</strong></p>
+    $$\boxed{\;E_{\rm LV}>\frac{E^2}{2m_e}\;}$$
+    <p style="margin:8px 0 0"><em>There is no coefficient to tune.</em> It is fixed by the electron mass and the observed photon energy alone.</p>
+  </div>
+
+  <p>Here is the pleasing part. <strong>It goes as \(E\) squared.</strong> So raising the photon energy stretches the bound quadratically.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>Time-of-flight will not get there</h2>
+
+  <p>For comparison, let us set the other commonly used method alongside. It measures the time difference from <em>higher-energy photons arriving later</em>. For \(n=2\),</p>
+
+  $$\Delta t\simeq\frac{3D}{2c}\left(\frac{E}{E_{\rm LV}}\right)^2
+  \qquad\Longrightarrow\qquad
+  E_{\rm LV}>E\sqrt{\frac{3D}{2c\,\Delta t}}$$
+
+  <p><strong>This one stretches only linearly in \(E\).</strong> That difference decides the contest.</p>
+
+  <div class="lab">
+    <span class="tag">THE TWO METHODS SIDE BY SIDE</span>
+<pre><span class="cm"># photon decay: E_LV > E^2/(2 m_e)                   ── coefficient-free, E squared</span>
+<span class="cm"># time-of-flight: anchored on LHAASO's published GRB221009A value  ── linear in E</span>
+<span class="cm">#           at E=18 TeV, E_LV > 1.2e21 eV (n=2, 95%CL)</span>
+
+  photon E      decay bound       M_Pl ratio  time-of-flight bound  M_Pl ratio
+ <span class="hi">-------------------------------------------------------------------------</span>
+  18 TeV      3.17e20 eV      2.6e-08     1.20e21 eV      9.8e-08
+  1.4 PeV     1.92e24 eV      <span class="st">1.6e-04</span>     9.33e22 eV      7.6e-06
+  10 PeV      9.78e25 eV      8.0e-03     6.67e23 eV      5.5e-05
+  <span class="hi">112 PeV     1.22e28 eV      1.00        7.45e24 eV      6.1e-04</span>
+  1 EeV       9.78e29 eV      80.1        6.67e25 eV      5.5e-03
+
+<span class="cm"># photon energy needed to reach M_Pl</span>
+  photon decay :  <span class="st">1.117e17 eV = 112 PeV</span>   (80× LHAASO's record of 1.4 PeV)
+  time-of-flight: <span class="bd">1.831e20 eV = 183 EeV</span>   (beyond the GZK cutoff ~5e19 eV)
+
+<span class="cm"># crossing point</span>
+  E = 2 m_e L0/E0 = 68.1 TeV. above this, decay is always stronger (squared vs linear).</pre>
+  </div>
+
+  <p>For time-of-flight to reach the Planck scale you need a <strong>183 EeV</strong> photon. But a photon at that energy reacts with the cosmic background radiation and <em>cannot propagate over cosmological distances</em> (the GZK cutoff is at the \(5\times10^{19}\) eV scale).</p>
+
+  <div class="keybox">
+    <div class="lbl">THIS IS THE DIFFERENCE BETWEEN "HARD" AND "IMPOSSIBLE"</div>
+    <p style="margin:6px 0 0"><strong>Time-of-flight: impossible.</strong> The photon you would need does not arrive at all.</p>
+    <p style="margin:8px 0 0"><strong>Photon decay: 80 times.</strong> Hard, but not impossible.</p>
+  </div>
+
+  <p>To confirm with numbers ── for a 100 PeV photon propagating 1 Gpc, \(\delta v/c=(E/M_{\rm Pl})^2=6.7\times10^{-23}\) gives a time difference of <strong>\(6.9\times10^{-6}\) seconds</strong>. GRB time structure is at the millisecond scale, so it falls short by more than a factor of 100.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>The target value</h2>
+
+  <div class="verdict target">
+    <div class="lbl">THE SETTLEMENT CONDITION FOR THE BRANCH THAT ONLY WAITING CAN MOVE</div>
+    <p style="font-size:20px"><strong>One photon of about 112 PeV arriving unbroken decides it.</strong></p>
+    <p>\(E=\sqrt{2m_eM_{\rm Pl}}=1.117\times10^{17}\) eV. <strong>Eighty times</strong> LHAASO's current record of 1.4 PeV.</p>
+    <p><strong>But the title's "settles" overstates it.</strong> What gets decided is one cell of the table ── <em>superluminal side, \(n=2\), \(O(1)\) coefficient, scale \(\le M_{\rm Pl}\)</em> ── and it does not touch the subluminal side, \(n\ge3\), small coefficients, or discreteness that produces no dispersion (causal sets and the like). <em>The range that need not be decided is overwhelmingly the larger.</em></p>
+    <p style="margin-bottom:0">If it is observed, <em>a physical Planck-scale spacing (\(n=2\), superluminal side) dies.</em> Until it is, it survives inside Episode 16's window (\(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV).</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: the lower bound on \(E_{\rm LV}\) from an observed photon energy. <b>Decay has slope 2, time-of-flight slope 1</b> (log-log). So the gap widens as you go up. The horizontal line is the Planck scale; the vertical lines are the current record, the target, and the GZK cutoff</div>
+    <canvas id="cv" width="1120" height="440"></canvas>
+    <div class="controls">
+      <label>observed photon energy = <span class="val" id="ve">1.4 PeV</span>
+        <input type="range" id="se" min="130" max="190" step="1" value="152"></label>
+      <button id="bn">the current record (1.4 PeV)</button>
+      <button id="bt">the target (112 PeV)</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#8a3b5c"></span>photon decay (\(E^2/2m_e\))</span>
+      <span><span class="swatch" style="background:#2f5d6b"></span>time-of-flight (\(\propto E\))</span>
+      <span><span class="swatch" style="background:#a83a22"></span>the Planck scale</span>
+    </div>
+  </div>
+
+  <p>The decay line has slope 2, the time-of-flight line slope 1. <strong>They cross at 68.1 TeV, and above that decay always wins.</strong> Already at 1.4 PeV there is more than a factor of 20 between them.</p>
+
+  <div class="caveat">
+    <span class="tag">ABOUT THIS 112 PeV</span>
+    This is <strong>not a new prediction.</strong> It is the known photon-decay bound solved backwards for \(E_{\rm LV}=M_{\rm Pl}\).<br>And this article's threshold calculation is a straightforward two-body-decay estimate, so it differs by a coefficient from the literature's strongest value (\(>10^{-3}M_{\rm Pl}\) for \(n=2\), Episode 16) ── because the literature combines several channels, such as the suppression of shower formation (subluminal side). <strong>Read 112 PeV as an order-of-magnitude guide.</strong> A real analysis could reach it at somewhat lower energy.
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>But it is not symmetric</h2>
+
+  <p>Here is a part that has to be written honestly. <strong>This question cannot be answered with equal force on both sides.</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th>possible?</th></tr>
+    <tr><td><strong>discover graininess</strong></td><td class="ok">yes. raise \(E\) and, if it is there, it must show up eventually</td></tr>
+    <tr><td><strong>prove continuity</strong></td><td class="bad">no. whatever you measure, zeros just keep coming</td></tr>
+    <tr><td><strong>exclude graininess by striking out</strong></td><td class="bad">no. it only pushes the scale up</td></tr>
+  </table>
+
+  <p>So the answerable question is "is \(a\) <em>below this scale</em>?", not "is \(a\) zero?". <strong>The current boundary is \(\sim10^{-3}M_{\rm Pl}\).</strong></p>
+
+  <p>And this is one of the shapes this series keeps meeting ── <em>fix a question into well-posed form and it splits into an answerable part and an unanswerable one.</em> The same operation as Episode <a href="butsuri-tsukuru-15-kabe.html">15</a>'s fixing of "where does \(G\) come from" into \(\alpha_G\).</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>Where the lattice thread stands</h2>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th style="width:37%">spacing numerical (\(a\to0\))</th><th>spacing physical (a minimum length)</th></tr>
+    <tr><td>does GR stand up?</td><td class="ok">yes. 42.9807″/century (<a href="butsuri-tsukuru-17-suisei.html">Episode 17</a>)</td><td class="ok">yes (the same at low energy)</td></tr>
+    <tr><td>solvable by finite differences?</td><td class="ok">yes (with the deviation as the variable)</td><td class="ok">yes</td></tr>
+    <tr><td>Lorentz violation</td><td class="ok">does not occur (the background is unobservable)</td><td class="bad">occurs. needs SUSY + CPT (<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>)</td></tr>
+    <tr><td>can emergence save it?</td><td>—</td><td class="bad">matter can be saved but gravity leaks (<a href="butsuri-tsukuru-16-moreru.html">Episode 16</a>)</td></tr>
+    <tr><td>does it say anything new?</td><td class="bad">no. a choice of coordinates</td><td class="ok"><strong>yes. \(n=2\) dispersion</strong></td></tr>
+    <tr class="mark"><td><strong>settlement</strong></td><td colspan="2" class="c"><strong>one photon of 112 PeV</strong></td></tr>
+  </table>
+
+  <p>The last two rows form a pair. <em>A numerical lattice is safe but says nothing. A physical lattice costs something but has something to say.</em> And <strong>only the side with something to say can be measured.</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">THE ONE LINE THIS EPISODE LEAVES</div>
+    <p style="margin:6px 0 0">The position "space does not warp" <strong>becomes falsifiable the moment you say the spacing is physical.</strong></p>
+    <p style="margin:8px 0 0">Until then it is safe, and correspondingly empty ── <em>that the safety and the emptiness come from one and the same fact</em> is a restatement of Episode <a href="butsuri-tsukuru-03-heitan.html">3</a>'s "the flat background cannot be observed in principle."</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">WORK IT BY HAND</div>
+    <ol>
+      <li>Put \(E=1.4\) PeV and \(m_e=5.11\times10^5\) eV into \(E_{\rm LV}>E^2/(2m_e)\) and give the ratio to \(M_{\rm Pl}=1.22\times10^{28}\) eV.
+        <details><summary>show the answer</summary><div class="ans">\(E_{\rm LV}>(1.4\times10^{15})^2/(2\times5.11\times10^5)=1.96\times10^{30}/1.02\times10^6=\mathbf{1.92\times10^{24}}\) eV. The ratio to \(M_{\rm Pl}\) is \(1.92\times10^{24}/1.22\times10^{28}=\mathbf{1.6\times10^{-4}}\). <strong>Just under four orders short of Planck.</strong> (The literature's strongest value reaches about \(10^{-3}\) by adding channels.)</div></details>
+      </li>
+      <li>Solve the same relation for \(E_{\rm LV}=M_{\rm Pl}\) and give the required photon energy.
+        <details><summary>show the answer</summary><div class="ans">\(E=\sqrt{2m_eM_{\rm Pl}}=\sqrt{2\times5.11\times10^5\times1.22\times10^{28}}=\sqrt{1.25\times10^{34}}=\mathbf{1.12\times10^{17}}\) eV \(=\) <strong>112 PeV</strong>. <em>Because of the square root, closing a four-order shortfall in the bound needs only two orders in photon energy</em> ── that is the practical payoff of "going as the square."</div></details>
+      </li>
+      <li>Why is time-of-flight "impossible" rather than "hard"?
+        <details><summary>show the answer</summary><div class="ans">Because the bound stretches only <strong>linearly</strong> in \(E\). Scaling proportionally from the published value (\(1.2\times10^{21}\) eV at 18 TeV), reaching \(M_{\rm Pl}\) needs \(18\,\mathrm{TeV}\times(1.22\times10^{28}/1.2\times10^{21})=\mathbf{183}\) <strong>EeV</strong>. <em>But photons at the \(10^{20}\) eV scale react with the cosmic background radiation and cannot propagate over cosmological distances</em> (the GZK cutoff at \(\sim5\times10^{19}\) eV). The required tool is unobtainable in principle ── hence "impossible."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>Entropy is blind to this question.</strong> If the spacing were real, \(N=A/a^2\) would be a genuine count, which makes it look distinguishable; but as Episode <a href="butsuri-tsukuru-14-kazoenai.html">14</a> showed, the cutoff-dependent divergence is absorbed into the renormalization of \(1/G\). <em>Whether \(a\) is real or the theory continuous, \(S=A/4G_{\rm ren}\) has the same form.</em> The property that was a strength in Episode 14 is a weakness here.</p>
+    <p><strong>Interferometers have struck out, but on one model.</strong> Fermilab's Holometer correlated two 40 m interferometers up to 25 MHz and excluded holographic noise at the level Hogan predicts, at high significance. <em>What died is a particular model, not graininess itself.</em></p>
+    <p><strong>What remains is ultra-high-energy photons. And the threshold has no coefficient to tune.</strong> On the \(n=2\) superluminal side the photon has effective mass \(m_{\rm eff}^2=p^4/E_{\rm LV}^2\), and once it exceeds \((2m_e)^2\) it decays into an electron pair in vacuum. If a photon of energy \(E\) arrived, then <strong>\(E_{\rm LV}>E^2/(2m_e)\)</strong> ── fixed by the electron mass and the observed value alone.</p>
+    <p><strong>The target is 112 PeV. Eighty times the current record.</strong> \(E=\sqrt{2m_eM_{\rm Pl}}=1.117\times10^{17}\) eV. LHAASO's 1.4 PeV gives \(E_{\rm LV}>1.6\times10^{-4}M_{\rm Pl}\) (the literature's strongest reaches \(10^{-3}M_{\rm Pl}\) by adding channels). <em>Since it goes as the square, closing a four-order shortfall needs only two orders in photon energy.</em></p>
+    <p><strong>Time-of-flight is impossible.</strong> Its bound stretches only linearly in \(E\), so \(M_{\rm Pl}\) needs <strong>183 EeV</strong> ── beyond the GZK cutoff (\(\sim5\times10^{19}\) eV), and such a photon cannot propagate over cosmological distances. The two cross at 68.1 TeV, above which decay always wins. <em>At 100 PeV over 1 Gpc the time difference is \(6.9\times10^{-6}\) s, more than a factor of 100 short of GRBs' millisecond structure.</em></p>
+    <p><strong>But it is not symmetric.</strong> Graininess can be <em>discovered</em>; continuity cannot be <em>proved</em>. A strikeout does not exclude graininess; it only pushes the scale up. <strong>What is answerable is "is \(a\) below this scale," and the current boundary is \(\sim10^{-3}M_{\rm Pl}\).</strong> The same reshaping of a question as Episode 15's fixing of "where does \(G\) come from" into \(\alpha_G\).</p>
+    <p style="margin-bottom:0"><strong>And the lattice thread closed.</strong> A numerical spacing is <em>safe but says nothing</em> (a choice of coordinates). A physical spacing <em>costs something but has something to say</em> (\(n=2\) dispersion). <strong>Only the side with something to say can be measured.</strong> The position "space does not warp" becomes falsifiable the moment you say the spacing is physical ── until then it is safe, and correspondingly empty. <em>That the safety and the emptiness come from one and the same fact</em> is a restatement of Episode 3's "the flat background cannot be observed in principle."</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">READ NEXT</span>
+    <a href="butsuri-tsukuru-19-raku.html">This way the arithmetic is easier</a> (final episode) ── taking stock of eighteen episodes. <em>New physics was zero, but a ledger of the ways I got things wrong remains.</em> That this episode's title, "settles," is broader than its content is also collected there.<br><a href="butsuri-tsukuru-16-moreru.html">Episode 16</a> measured the price if the spacing were physical. This episode's 112 PeV is "the side coming to close the window," and Episode 16's \(10\) TeV \(\le\Lambda_{\rm conf}\le3\times10^9\) GeV is "the window side." <em>Whichever moves first settles it.</em><br>For the case where the spacing is numerical see <a href="butsuri-tsukuru-17-suisei.html">Episode 17</a>; the lattice story began in <a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>.
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 18 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself ── including the process of killing off the unusable tools.</p>
+    <p>Established material: the \(n=2\) (dimension-6) Lorentz-violating dispersion relation and that the photon acquires an effective mass on the superluminal side; the threshold for photon decay \(\gamma\to e^+e^-\) in vacuum; LHAASO's \(n=2\) time-of-flight bound from GRB 221009A (arXiv:2312.09079, 95% CL, maximum likelihood); LHAASO's \(n=2\) constraint \(>10^{-3}M_{\rm Pl}\) from PeV photons (arXiv:2105.07967); the GZK cutoff and the propagation-distance limit for ultra-high-energy photons; the configuration of the Fermilab Holometer and its negative result for the Hogan model; and the absorption of the entanglement-entropy divergence into the renormalization of Newton's constant (Episode 14).<br><strong>The 112 PeV figure in this article is not a new prediction; it is the known photon-decay bound solved backwards for \(E_{\rm LV}=M_{\rm Pl}\).</strong> And the threshold calculation is a straightforward two-body-decay estimate, differing by a coefficient from the literature's strongest values (which combine several channels, such as the suppression of shower formation on the subluminal side) ── we state explicitly that <em>112 PeV is an order-of-magnitude guide and a real analysis could reach it at lower energy</em>. The extrapolation of the time-of-flight bound is a simple proportional extrapolation from the published value and does not account for instrument details (effective area, timing resolution, redshift distribution).<br><strong>The framings "only the side with something to say can be measured" and "the safety and the emptiness come from the same fact" are this series' author's.</strong> Neither that a physical spacing is undetectable in principle, nor that it must eventually be detected, has been shown.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a>｜<a href="butsuri-tsukuru-12-menseki.html">Episode 12</a>｜<a href="butsuri-tsukuru-13-omomi.html">Episode 13</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">Episode 14</a>｜<a href="butsuri-tsukuru-15-kabe.html">Episode 15</a>｜<a href="butsuri-tsukuru-16-moreru.html">Episode 16</a>｜<a href="butsuri-tsukuru-17-suisei.html">Episode 17</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can compare how the two bounds grow.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), se=document.getElementById('se'),
+      ve=document.getElementById('ve'), ro=document.getElementById('ro');
+
+  var ME=5.10999e5, MPL=1.2209e28;        // eV
+  var E0=1.8e13, L0=1.2e21;               // the time-of-flight anchor (LHAASO GRB221009A)
+  var E_REC=1.4e15, E_TGT=Math.sqrt(2*ME*MPL), E_GZK=5e19;
+
+  function decay(E){ return E*E/(2*ME); }
+  function tof(E){ return L0*(E/E0); }
+  function fmtE(E){
+    if(E>=1e18) return (E/1e18).toPrecision(3)+' EeV';
+    if(E>=1e15) return (E/1e15).toPrecision(3)+' PeV';
+    return (E/1e12).toPrecision(3)+' TeV';
+  }
+
+  function draw(){
+    var lg=parseInt(se.value,10)/10;       // log10(E/eV)
+    var E=Math.pow(10,lg);
+    ve.textContent=fmtE(E);
+
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=76,R=W-26,T=28,B=H-58;
+    var XMIN=13, XMAX=19;                  // log10(E/eV)
+    var YMIN=-9, YMAX=3;                   // log10(E_LV/M_Pl)
+    function X(x){ return L+(x-XMIN)/(XMAX-XMIN)*(R-L); }
+    function Y(y){ return B-(y-YMIN)/(YMAX-YMIN)*(B-T); }
+
+    ctx.font='13px "Helvetica Neue",Arial,sans-serif';
+    ctx.strokeStyle='#eef3f2'; ctx.lineWidth=1;
+    for(var y=YMIN;y<=YMAX;y+=2){
+      ctx.beginPath(); ctx.moveTo(L,Y(y)); ctx.lineTo(R,Y(y)); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right'; ctx.fillText('10^'+y,L-9,Y(y)+5);
+    }
+    for(var x=XMIN;x<=XMAX;x++){
+      ctx.strokeStyle='#eef3f2';
+      ctx.beginPath(); ctx.moveTo(X(x),T); ctx.lineTo(X(x),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center';
+      ctx.fillText(fmtE(Math.pow(10,x)),X(x),B+20);
+    }
+
+    // the Planck scale
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2; ctx.setLineDash([7,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(R,Y(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.textAlign='left';
+    ctx.fillText('the Planck scale',L+6,Y(0)-8);
+
+    // the two bounds
+    function curve(fn,col){
+      ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+      var first=true;
+      for(var xx=XMIN;xx<=XMAX;xx+=0.02){
+        var v=Math.log10(fn(Math.pow(10,xx))/MPL);
+        if(v<YMIN||v>YMAX){ first=true; continue; }
+        if(first){ ctx.moveTo(X(xx),Y(v)); first=false; } else ctx.lineTo(X(xx),Y(v));
+      }
+      ctx.stroke();
+    }
+    curve(decay,'#8a3b5c');
+    curve(tof,'#2f5d6b');
+
+    // vertical markers
+    function mark(Ev,label,col,dy){
+      var xx=Math.log10(Ev);
+      if(xx<XMIN||xx>XMAX) return;
+      ctx.strokeStyle=col; ctx.setLineDash([3,3]); ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(X(xx),T); ctx.lineTo(X(xx),B); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText(label,X(xx),T+dy);
+    }
+    mark(E_REC,'current record','#5d6a68',14);
+    mark(E_TGT,'target 112 PeV','#8a3b5c',30);
+    mark(E_GZK,'GZK','#a83a22',46);
+
+    // the selected point
+    var d=decay(E), t=tof(E);
+    ctx.fillStyle='#8a3b5c';
+    ctx.beginPath(); ctx.arc(X(lg),Y(Math.min(YMAX,Math.log10(d/MPL))),6,0,6.284); ctx.fill();
+    ctx.fillStyle='#2f5d6b';
+    ctx.beginPath(); ctx.arc(X(lg),Y(Math.min(YMAX,Math.log10(t/MPL))),6,0,6.284); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('lower bound on E_LV / M_Pl',L+4,T+2);
+    ctx.textAlign='center'; ctx.fillText('energy of a photon that arrived unbroken',(L+R)/2,H-14);
+
+    var reach = d>=MPL;
+    ro.className = reach ? 'readout hit' : 'readout';
+    ro.innerHTML='photon arriving unbroken <b>'+fmtE(E)+'</b> ｜ '
+      + 'from decay <b>E_LV > '+d.toExponential(2)+' eV</b> (M_Pl ratio <b>'+(d/MPL).toExponential(2)+'</b>)<br>'
+      + 'from time-of-flight <b>'+t.toExponential(2)+' eV</b> (M_Pl ratio '+(t/MPL).toExponential(2)+') ── '
+      + 'decay is <b>'+(d/t).toPrecision(3)+'×</b> stronger<br>'
+      + (reach
+          ? '<span style="color:#1d5236">→ the Planck scale is reached. a physical spacing (n=2 superluminal side) is excluded</span>'
+          : '<span style="color:#8a3b5c">→ still <b>'+(MPL/d).toExponential(2)+'</b>× from Planck. the photon needed is <b>'
+            + fmtE(E_TGT)+'</b></span>');
+  }
+
+  se.addEventListener('input',draw);
+  document.getElementById('bn').addEventListener('click',function(){ se.value=Math.round(Math.log10(E_REC)*10); draw(); });
+  document.getElementById('bt').addEventListener('click',function(){ se.value=Math.round(Math.log10(E_TGT)*10); draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

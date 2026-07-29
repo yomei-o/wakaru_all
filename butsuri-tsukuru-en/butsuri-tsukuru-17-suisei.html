@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercury precesses on a flat lattice ── The Lattice We Build, Episode 17</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eef5f4;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 17 ／ Mercury precesses on a flat lattice</span></div>
+  <p class="eyebrow">Turning Episode 3's homework from argument into calculation ── no warping needed. But the finite differences have one condition</p>
+  <h1>Mercury precesses on a flat lattice
+    <span class="sub"><a href="butsuri-tsukuru-03-heitan.html">Episode 3</a> wrote that "what was missing was a single word, <em>direction-dependent</em>."<br>That was an argument, and it <strong>did not compute anything</strong>. Its figure used a weak-field scalar and dodged the discrepancy with a note about "first order."<br>This time we do it ── get Mercury's perihelion advance without warping the coordinates even once.<br><strong>42.9807 arcsec/century.</strong> Agreeing with observation and with general relativity.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 3 (a flat stage), Bonus ② (ct = constant), numerical integration</span>
+    <span>The core of this episode: without the deviation as the variable, finite differences will not solve it</span>
+  </div>
+
+  <p class="lead">There is a position this series' readers have taken consistently ── <em>space does not warp; instead the way light travels changes. And the universe can be computed by finite differences.</em><br>Episode 3 answered that "with a tensor it stands up," but <strong>never stood it up</strong>. This episode does. It uses only flat Euclidean coordinates, and the lattice stays orthogonal to the end.<br>The result splits in two. <em>The physics goes through completely</em> ── 42.9807 arcsec/century, ratio to GR 1.0000.<br>And <strong>the finite differences turned out to have one condition that cannot be skipped.</strong> Not a matter of taste but the boundary between solvable and unsolvable in double precision.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>Build the stage ── do not warp it</h2>
+
+  <p>These are the only coordinates. They never change.</p>
+
+  $$dx^2+dy^2+dz^2\qquad\text{(Euclidean. an orthogonal lattice. no warping)}$$
+
+  <p>Instead of warping, put <strong>two functions</strong> at each point.</p>
+
+  <div class="keybox">
+    <div class="lbl">SCHWARZSCHILD IN ISOTROPIC COORDINATES (EXACT)</div>
+    $$ds^2=-A(\rho)^2\,dt^2+B(\rho)^4\,(dx^2+dy^2+dz^2)$$
+    $$A=\frac{1-u}{1+u},\qquad B=1+u,\qquad u=\frac{m}{2\rho},\qquad m=\frac{GM}{c^2}$$
+    <p style="margin:8px 0 0">\(\rho=\sqrt{x^2+y^2+z^2}\) is just Euclidean distance. <em>This is not an approximation</em> ── it is the Schwarzschild solution rewritten, exactly.</p>
+  </div>
+
+  <p>Here is the point. <strong>The spatial part stays \(dx^2+dy^2+dz^2\)</strong>, with only a number \(B^4\) multiplying it. The lattice is not warped. What looks like warping is that <em>the "resistance to travel" sitting on the lattice differs from place to place</em>.</p>
+
+  <p>That there are two functions will matter later. <strong>The time-side \(A\) and the space-side \(B\) are different functions.</strong> That was what Episode 3's "one word" really was.</p>
+
+  <div class="aside">
+    <span class="tag">CONSISTENCY WITH BONUS ②</span>
+    <a href="butsuri-tsukuru-bangai2-ct.html">Bonus ②</a> wrote that "read as '\(c\) varies' it dies ── \(c\) carries dimensions, so it has no observer-independent meaning." That is correct, and here too \(c\) is not being moved.<br>What is being moved is <strong>how light travels in the coordinates</strong>, \(|d\vec x/dt|=A/B^2\). That is a dimensionless ratio, so it carries meaning. <em>In the language of optics, a refractive index.</em>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>Integrate</h2>
+
+  <p>Written in Hamiltonian form, it lands in a shape easy to discretize. With \(c=1\), \(F=A^{-2}\), \(G=B^{-4}\) ──</p>
+
+  <div class="keybox">
+    <div class="lbl">EQUATIONS OF MOTION (\(\lambda\) is proper time)</div>
+    $$H=\tfrac12\bigl(-E^2F+|\vec p\,|^2G\bigr)=-\tfrac12$$
+    $$\frac{dx_i}{d\lambda}=p_i\,G,\qquad
+    \frac{dp_i}{d\lambda}=-\tfrac12\Bigl(-E^2F'+|\vec p\,|^2G'\Bigr)\frac{x_i}{\rho}$$
+  </div>
+
+  <p>\(E\) is a conserved quantity (the momentum in the time direction). Launch tangentially from perihelion, orbit with RK4, and record the azimuth each time perihelion is passed. <em>The azimuth is not folded into \(2\pi\) along the way; it is accumulated from the start</em> ── I actually got this wrong once (see below).</p>
+
+  <div class="lab">
+    <span class="tag">RUN ── MERCURY</span>
+<pre><span class="cm"># Sun m = GM/c^2 = 1476.6250 m</span>
+<span class="cm"># Mercury a = 5.790905e10 m, e = 0.2056302, T = 87.9691 days</span>
+<span class="cm"># weakness measure  m/a = 2.550e-08</span>
+
+general relativity prediction  6 pi m /(a(1-e^2)) = 5.018663e-07 rad/orbit
+                                     = <span class="hi">42.9807 arcsec/century</span>
+
+<span class="cm"># step-size convergence (exact Schwarzschild, 4 orbits)</span>
+  steps/orbit = 2000     42.9860   GR ratio 1.000124   (0.1 s)
+  steps/orbit = 5000     42.9808   GR ratio 1.000004   (0.2 s)
+  steps/orbit = 10000    <span class="st">42.9807   GR ratio 1.000000</span>   (0.4 s)
+  steps/orbit = 20000    42.9806   GR ratio 0.999999   (0.9 s)
+
+<span class="cm"># the real run (10000 steps/orbit, 6 orbits)</span>
+  exact Schwarzschild (isotropic coords)   <span class="st">42.9807 arcsec/century   GR ratio 1.0000</span></pre>
+  </div>
+
+  <p><strong>There it is.</strong> The coordinates were never warped. All we did was put \(A\) and \(B\) on a Euclidean lattice and integrate the geodesic.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>What happens if you drop the "one word"?</h2>
+
+  <p>Let us verify Episode 3's claim ── <em>how far off do you land if you drop the space-side function?</em></p>
+
+  <p>Written in PPN form it becomes exactly one knob. With \(U=m/\rho\),</p>
+
+  $$ds^2=-\bigl(1-2U+2\beta U^2\bigr)dt^2+\bigl(1+2\gamma U\bigr)\bigl(dx^2+dy^2+dz^2\bigr)$$
+
+  <p><strong>\(\gamma\) is "the space-side word."</strong> \(\gamma=0\) means <em>returning space to plain Euclidean</em> ── the most naive reading of "variable speed of light," where only the rate of time varies with place. General relativity has \(\gamma=1\).</p>
+
+  <div class="lab">
+    <span class="tag">RUN ── SWEEP \(\gamma\)</span>
+<pre>  model                        perihelion advance   GR ratio
+ <span class="hi">-----------------------------------------------------</span>
+  exact Schwarzschild         42.9807 arcsec/century  1.0000
+  PPN  gamma = 1              42.9807                 1.0000
+  PPN  gamma = 0.5            28.6538                 <span class="st">0.6667</span>
+  PPN  gamma = 0              <span class="bd">14.3269</span>                 <span class="bd">0.3333</span>
+
+  analytic formula (2 + 2 gamma - beta)/3 :
+    gamma=1   -> 1.0000    42.9807
+    gamma=0.5 -> 0.6667    28.6538
+    gamma=0   -> 0.3333    14.3269      <span class="st">agrees to all digits</span></pre>
+  </div>
+
+  <p><strong>Drop the space side and the answer becomes a third.</strong> 14.33 arcsec/century. Mercury's perihelion advance has been measured since the nineteenth century, with a history of every explanation other than general relativity failing ── <em>a third is on the failure side.</em></p>
+
+  <p>And \(\gamma\) has been measured independently. From Cassini's radio delay,</p>
+
+  $$\gamma-1=(2.1\pm2.3)\times10^{-5}$$
+
+  <p>Measured against that error, \(\gamma=0\) is <strong>more than 40,000σ</strong> away. <em>The reading "only time varies and space stays plain" is crushed by observation.</em> Episode 3's "one word" was a genuinely necessary word.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the lattice stays straight and unwarped. Instead of warping, the orbit rotates. Lower \(\gamma\) and the rotation slows; at \(\gamma=0\) it is <b>a third</b>. <b>\(m/a\) is exaggerated to make the effect visible</b> (Mercury's actual value is \(2.55\times10^{-8}\), i.e. \(0.1\) arcsec per orbit). The readout's "ratio" departing from 1 by a few percent is <em>because PPN is a first-order approximation</em>, and it returns to 1 as you weaken the exaggeration ── at Mercury's actual value it is 1.0000 (§02)</div>
+    <canvas id="cv" width="1120" height="480"></canvas>
+    <div class="controls">
+      <label>the space-side word \(\gamma\) = <span class="val" id="vg">1.00</span>
+        <input type="range" id="sg" min="0" max="100" step="1" value="100"></label>
+      <label>strength of the exaggeration \(m/a\) = <span class="val" id="vm">0.0050</span>
+        <input type="range" id="sm" min="5" max="120" step="1" value="50"></label>
+      <button id="b1">γ = 1 (general relativity)</button>
+      <button id="b0">γ = 0 (space stays plain)</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#dde6e4"></span>the unwarped orthogonal lattice</span>
+      <span><span class="swatch" style="background:#1f6f74"></span>the orbit</span>
+      <span><span class="swatch" style="background:#a83a22"></span>the position of perihelion</span>
+    </div>
+  </div>
+
+  <p>Look closely at the lattice lines. <strong>Not one of them is bent.</strong> What is rotating is only the orbit.</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>Can light decide it? ── a correction</h2>
+
+  <p>When planning this episode I thought "light only sees the ratio \(F/G\), so it cannot decide \(\gamma\)." <strong>That was wrong.</strong> Compute it and light sees \(\gamma\) too.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%"></th><th style="width:33%">light bending (solar limb)</th><th>Mercury's perihelion</th></tr>
+    <tr><td>form of the weight</td><td>\(\dfrac{1+\gamma}{2}\)</td><td>\(\dfrac{2+2\gamma-\beta}{3}\)</td></tr>
+    <tr class="mark"><td>\(\gamma=1\) (GR)</td><td class="num">1.75120″<span style="font-size:12px;color:var(--ink-soft)">(theory 1.75119)</span></td><td class="num">42.98″</td></tr>
+    <tr><td>\(\gamma=0\)</td><td class="num bad">0.87560″ (<b>exactly half</b>)</td><td class="num bad">14.33″ (<b>exactly a third</b>)</td></tr>
+  </table>
+
+  <p>Both respond to \(\gamma\), but <em>with different weights</em>. And <strong>light does not see \(\beta\) at all</strong> ── \(\beta\) does not appear in the light formula. So separating \(\gamma\) from \(\beta\) requires <em>both light and Mercury</em>. Why there are two kinds of observation falls out of the formulae.</p>
+
+  <div class="caveat">
+    <span class="tag">HOW THIS DIFFERS FROM EPISODE 3'S "LIGHT HAPPENS TO HIT"</span>
+    Episode 3 wrote that "the reason light alone comes out right is that null geodesics are conformally invariant." That is <strong>about the expanding universe (FRW)</strong>. FRW is conformally flat, so multiplying everything by a conformal factor is invisible to light ── which is why "flat spacetime × a scale factor" gets light exactly right.<br>\(\gamma\), by contrast, is not a conformal factor. It multiplies time and space by <em>different</em> coefficients, so light sees it too. <strong>The two were different stories.</strong> I had conflated them, so I note it here.
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>The main subject ── can it be solved by finite differences?</h2>
+
+  <p>This is the most practical part of the episode.</p>
+
+  <p>The equations of motion above contain \(F'\) and \(G'\). We have already seen that it goes through with analytic derivatives. <em>So what happens if we replace them with central differences?</em> That is the most straightforward test of the claim "the universe can be computed by finite differences."</p>
+
+  <div class="lab">
+    <span class="tag">TRY IT NAIVELY ── central-difference \(F,G\) directly</span>
+<pre>  frac (step / rho)       perihelion advance   GR ratio
+ <span class="hi">-------------------------------------------------</span>
+  1e-08              -135214.89 arcsec  <span class="bd">-3145.94</span>
+  1e-06                 9168.33         <span class="bd">  213.31</span>
+  1e-04                 -153.46         <span class="bd">   -3.57</span>
+  1e-03                   22.49         <span class="bd">    0.52</span>
+  1e-02                   18.28         <span class="bd">    0.42</span>
+
+  <span class="bd">No step size works. Not even the sign is right.</span></pre>
+  </div>
+
+  <p>Broken to the point of flipping sign. <strong>This is not physics but precision.</strong> Estimate the reason and it becomes clear.</p>
+
+  <div class="calc">
+    <span class="tag">WHY IT BREAKS</span>
+    <div class="lbl">① the perihelion advance is a very small correction</div>
+    <p style="margin:4px 0">A relative correction of \(m/a=2.55\times10^{-8}\) against the main term (Newtonian gravity). To get it to 1%, the relative error of the derivative must be \(\eta\lesssim2.5\times10^{-10}\).</p>
+    <div class="lbl">② but \(F\) is close to 1</div>
+    <p style="margin:4px 0">\(F-1\simeq2m/\rho=5.1\times10^{-8}\). Differencing numbers of order 1 in double precision carries an absolute error \(\varepsilon\simeq2.2\times10^{-16}\), so</p>
+    $$\eta\;\simeq\;\frac{\varepsilon}{4\,(m/\rho)\,\mathrm{frac}}\;=\;\frac{2.2\times10^{-9}}{\mathrm{frac}}$$
+    <div class="lbl">③ the two requirements are incompatible</div>
+    <p style="margin:4px 0">Rounding demands \(\mathrm{frac}>8.5\). Truncation (\(\sim2\,\mathrm{frac}^2\)) demands \(\mathrm{frac}<1.1\times10^{-5}\).</p>
+    <p style="margin:8px 0 4px"><strong>The step must be both 8.5 times and \(10^{-5}\) times the radius ── impossible.</strong></p>
+  </div>
+
+  <div class="verdict warn">
+    <div class="lbl">THE DOUBLE-PRECISION WALL</div>
+    <p style="font-size:18px"><strong>With the naive approach of differencing the metric directly, Mercury's perihelion advance cannot be computed in double precision.</strong></p>
+    <p style="margin-bottom:0">No choice of step works. What is needed is about six extra digits of precision ── go to <em>quadruple precision</em> and it goes through, but that is a price.</p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>How to get past it ── make the deviation the variable</h2>
+
+  <p>The fix is what numerical relativity actually does. <strong>Write "the deviation from 1" in a closed form with no cancellation.</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">SUBTRACT THE 1 ALGEBRAICALLY, IN ADVANCE</div>
+    $$F-1=\frac{4u}{(1-u)^2},\qquad
+    G-1=\frac{-u\,(4+6u+4u^2+u^3)}{(1+u)^4},\qquad u=\frac{m}{2\rho}$$
+    <p style="margin:8px 0 0">Neither right-hand side contains "a subtraction of two nearly equal ones." So even when \(u\) is \(10^{-8}\), all the significant digits survive.</p>
+  </div>
+
+  <p>Difference these and the rounding error becomes relative not to "1" but to "\(F-1\simeq5\times10^{-8}\)" ── <em>a gain of 8 digits</em>.</p>
+
+  <div class="lab">
+    <span class="tag">DIFFERENCE THE DEVIATION</span>
+<pre>  frac (step / rho)       perihelion advance   GR ratio
+ <span class="hi">-------------------------------------------------</span>
+  1e-09                    42.9533       0.999361
+  1e-07                    42.9826       1.000042
+  1e-06                    42.9812       1.000010
+  1e-05                    <span class="st">42.9808       1.000000</span>
+  1e-04                    42.9807       0.999999
+  1e-03                    42.9811       1.000009
+
+  <span class="st">It goes through. And stable across four decades of step size.</span>
+  <span class="cm">(the estimate gave a window of 4e-7 to 1e-5, 1.4 decades, so the estimate was conservative)</span></pre>
+  </div>
+
+  <div class="verdict">
+    <div class="lbl">CONCLUSION</div>
+    <p style="font-size:19px"><strong>A flat lattice + two refractive-index functions = general relativity. Exactly.</strong></p>
+    <p>No warping needed. It can be solved by finite differences. Mercury precesses at 42.9807 arcsec/century.</p>
+    <p style="margin-bottom:0"><strong>But make "the deviation from 1" the variable.</strong> This is not a stylistic preference but <em>the boundary between solvable and unsolvable in double precision</em>. That numerical relativity uses deviation variables (carrying \(h_{ij}\) in \(\gamma_{ij}=\delta_{ij}+h_{ij}\), and so on) is for exactly this reason.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">THE HOLE I FELL INTO IN THIS EPISODE</span>
+    My first implementation gave \(-5.4\times10^{8}\) arcsec/century. The cause was folding the perihelion azimuth into \(\pi\), so <em>a whole \(2\pi\) per orbit was being dropped</em>.<br>I could catch it because <strong>light bending already matched 1.75119</strong> ── knowing the integrator and the metric were right narrowed the rest to the recording side. <em>This is when a positive control earns its keep.</em> (The same tool that caught the \(\sqrt{12}\) in <a href="butsuri-tsukuru-11-basho.html">Episode 11</a>.)
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">07</span>What can be shown, and what remains</h2>
+
+  <table class="tbl">
+    <tr><th style="width:36%"></th><th>result</th></tr>
+    <tr><td><strong>does GR come out on an unwarped lattice?</strong></td><td class="ok">yes. 42.9807″/century, GR ratio 1.0000. the coordinates stay Euclidean to the end</td></tr>
+    <tr><td><strong>is the "one word" really needed?</strong></td><td class="ok">yes. drop it and you get a third (14.33″). more than 40,000σ from Cassini's \(\gamma-1=(2.1\pm2.3)\times10^{-5}\)</td></tr>
+    <tr><td><strong>can finite differences solve it?</strong></td><td class="ok">yes, provided the deviation is the variable (naively it is impossible in double precision)</td></tr>
+    <tr><td><strong>global structure</strong></td><td class="bad">out of reach. horizons and topology cannot be written by re-covering with coordinates (<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>'s price, unchanged)</td></tr>
+    <tr><td><strong>can the flat background be observed?</strong></td><td class="bad">no. so <em>it cannot serve as a preferred frame</em> ── it does not cause Episode 2's 18-order problem either, but it is not a physical lattice</td></tr>
+  </table>
+
+  <p>The last row is the heart of this position. <strong>A flat lattice works perfectly as "a lattice for computing" and never becomes "a lattice as the basic structure of the world."</strong> And if computing is all you want, that suffices ── <em>numerical relativity does it every day.</em></p>
+
+  <p>What <a href="butsuri-tsukuru-16-moreru.html">Episode 16</a> investigated was the case where the spacing is physical. There Lorentz violation appears and a symmetry mechanism is required. <strong>What this episode did is the case where the spacing is numerical.</strong> There, there was no obstacle at all.</p>
+
+  <div class="prob">
+    <div class="lbl">WORK IT BY HAND</div>
+    <ol>
+      <li>Put \(\gamma=0,\beta=1\) into \((2+2\gamma-\beta)/3\) and compute what 42.98 arcsec/century becomes.
+        <details><summary>show the answer</summary><div class="ans">\((2+0-1)/3=1/3\). Hence \(42.9807/3=\mathbf{14.3269}\) arcsec/century. <strong>Agreeing to all digits with the numerical integration in the text.</strong> With "only time varies and space stays plain," Mercury's answer becomes a third ── nowhere near the 43 arcsec nineteenth-century observers were chasing.</div></details>
+      </li>
+      <li>With \(u=m/2\rho\), compute \(A^{-2}-1\) by hand and verify it equals \(4u/(1-u)^2\).
+        <details><summary>show the answer</summary><div class="ans">\(A^{-2}=\left(\frac{1+u}{1-u}\right)^2\), so \(A^{-2}-1=\frac{(1+u)^2-(1-u)^2}{(1-u)^2}=\frac{4u}{(1-u)^2}\). <strong>The point is that the \(1\) has cancelled in the numerator.</strong> Computing \((1+u)^2\) and \((1-u)^2\) separately and subtracting loses digits, but in this form \(4u\) comes out directly and the significant digits survive. <em>Doing the subtraction algebraically in advance</em> — that alone separated solvable from unsolvable in double precision.</div></details>
+      </li>
+      <li>From the relative smallness of the perihelion advance \(m/a=2.55\times10^{-8}\) and double precision's \(\varepsilon=2.2\times10^{-16}\), derive the lower bound on the step needed for a naive difference (1% accuracy, \(\eta\simeq\varepsilon/(4(m/\rho)\,\mathrm{frac})\)).
+        <details><summary>show the answer</summary><div class="ans">The required accuracy is \(\eta<0.01\times2.55\times10^{-8}=2.55\times10^{-10}\). From the formula, \(\mathrm{frac}>\frac{2.2\times10^{-16}}{4\times2.55\times10^{-8}\times2.55\times10^{-10}}\simeq\mathbf{8.5}\). <strong>A step 8.5 times the radius.</strong> Meanwhile truncation error demands \(\mathrm{frac}<1.1\times10^{-5}\). <em>Incompatible</em> ── that is the content of "a naive difference is impossible in principle in double precision."</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>General relativity stands up as it is on an unwarped lattice.</strong> The coordinates stay \(dx^2+dy^2+dz^2\) throughout. All we put on them were the two functions \(A(\rho)\) and \(B(\rho)\) (Schwarzschild in isotropic coordinates, exact). Integrating the geodesic with RK4 gives <strong>42.9807 arcsec/century, GR ratio 1.0000</strong>. Convergence confirmed from 2000 to 20000 steps/orbit.</p>
+    <p><strong>Episode 3's "one word" really was necessary.</strong> PPN's \(\gamma\) is the space-side word. Drop it (\(\gamma=0\), space back to plain Euclidean) and you get <strong>14.3269 arcsec/century = exactly 1/3</strong>. \(\gamma=0.5\) gives 2/3. Agreeing to all digits with the analytic \((2+2\gamma-\beta)/3\). <em>From Cassini's \(\gamma-1=(2.1\pm2.3)\times10^{-5}\), \(\gamma=0\) is more than 40,000σ away.</em></p>
+    <p><strong>Light can decide it too ── my planning assumption was wrong.</strong> I thought "light only sees \(F/G\), so it cannot decide \(\gamma\)," but light bending is 1.75120″ at \(\gamma=1\) and 0.87560″ at \(\gamma=0\) (exactly half). <em>Only the weights differ, \(\frac{1+\gamma}{2}\) versus \(\frac{2+2\gamma-\beta}{3}\).</em> But <strong>light does not see \(\beta\)</strong>, so separating \(\gamma\) from \(\beta\) needs both light and Mercury. Episode 3's "light hits because it is conformally invariant" was about FRW and was a different story.</p>
+    <p><strong>Finite differences do solve it. But naively it is impossible in double precision.</strong> Central-differencing \(F,G\) directly gets not even the sign right at any step size. The reason: the perihelion advance is a correction of \(m/a=2.55\times10^{-8}\) against the main term while \(F-1\) is only \(5.1\times10^{-8}\). <em>Rounding demands \(\mathrm{frac}>8.5\), truncation demands \(\mathrm{frac}<1.1\times10^{-5}\) ── incompatible.</em></p>
+    <p><strong>The way past is "make the deviation the variable."</strong> Write \(F-1=\frac{4u}{(1-u)^2}\) and \(G-1=\frac{-u(4+6u+4u^2+u^3)}{(1+u)^4}\), <em>subtracting the 1 algebraically in advance</em>. Rounding then becomes relative to \(5\times10^{-8}\), a gain of 8 digits, and the GR ratio stays within 1.00001 over the wide range frac \(10^{-7}\)–\(10^{-3}\). <strong>Not a stylistic preference but the boundary between solvable and unsolvable.</strong> This is why numerical relativity uses deviation variables.</p>
+    <p style="margin-bottom:0"><strong>And what remains.</strong> Global structure (horizons, topology) is out of reach ── Episode 3's price, unchanged. And the flat background <em>cannot be observed</em>, so it cannot serve as a preferred frame. Which is to say this lattice is <strong>perfect as "a lattice for computing" and never becomes "a lattice as the basic structure of the world"</strong>. What <a href="butsuri-tsukuru-16-moreru.html">Episode 16</a> investigated was the latter (the spacing being physical), which needs a symmetry mechanism. <em>For the former, there was no obstacle at all.</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">READ NEXT</span>
+    <a href="butsuri-tsukuru-03-heitan.html">The stage may stay flat</a> ── where the homework this episode filled in by calculation came from. "What was missing was a single word, direction-dependent" now reads as the single letter \(\gamma\). <em>And so does the line "the flat background cannot be observed in principle," which is why it states a strength and a weakness at once.</em><br>For the case where the spacing is physical see <a href="butsuri-tsukuru-16-moreru.html">Episode 16</a>; for why reading \(c\) as "varying" dies, see <a href="butsuri-tsukuru-bangai2-ct.html">Bonus ②</a>.
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-18-kesshaku.html">One photon settles it</a> ── so how is it decided <em>whether the spacing is physical</em>? Killing off the unusable tools leaves exactly one, and it comes with a target value ── <strong>a single photon of about 112 PeV</strong>. Eighty times the current record.
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 17 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself ── including the bugs I stepped in and where my planning assumptions were wrong.</p>
+    <p>Established material: the Schwarzschild solution in isotropic coordinates; the PPN formalism and \(\gamma,\beta\); the \(\frac{1+\gamma}{2}\) dependence of light bending and the \(\frac{2+2\gamma-\beta}{3}\) dependence of the perihelion advance; general relativity's perihelion advance \(6\pi GM/(c^2a(1-e^2))\); Mercury's orbital elements; Cassini's \(\gamma-1=(2.1\pm2.3)\times10^{-5}\) (Bertotti–Iess–Tortora 2003); and light bending at the solar limb, \(4GM/c^2R_\odot=1.751''\).<br>The numbers in this article (42.9807 arcsec/century, 28.6538 and 14.3269 at \(\gamma=0.5,0\), the light values 1.75120 and 0.87560, the step-convergence table, and the finite-difference tables) are the output of an RK4 integration code written by the author. <strong>Comparisons with the analytic formulae are given alongside throughout, and those are the arbiters.</strong> The estimates of the \(\eta\) and frac needed for 1% accuracy are order-of-magnitude arguments, with the coefficients 4 and 2 approximate (as the text shows, the measured tolerance window is wider than the estimate).<br><strong>The statement "a flat lattice + two functions = general relativity" is not this article's original claim</strong> ── isotropic coordinates have been known for a century, and numerical relativity routinely solves on orthogonal lattices. What this article did was actually run the part Episode 3 left as an argument, confirm it numerically, and quantify the <em>cancellation condition</em> that shows up when you do.<br>That global structure is out of reach and that the flat background cannot be observed are as in Episode 3, and this episode does not improve on them.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a>｜<a href="butsuri-tsukuru-12-menseki.html">Episode 12</a>｜<a href="butsuri-tsukuru-13-omomi.html">Episode 13</a>｜<a href="butsuri-tsukuru-14-kazoenai.html">Episode 14</a>｜<a href="butsuri-tsukuru-15-kabe.html">Episode 15</a>｜<a href="butsuri-tsukuru-16-moreru.html">Episode 16</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can confirm that only the orbit rotates while the lattice stays unwarped.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sg=document.getElementById('sg'), sm=document.getElementById('sm'),
+      vg=document.getElementById('vg'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+
+  var ECC=0.40, BETA=1.0, A_SEMI=1.0;
+
+  // PPN:  F = 1/(1-2U+2 beta U^2),  G = 1/(1+2 gamma U),  U = m/rho
+  function FG(rho, mm, gam){
+    var U=mm/rho, dU=-mm/(rho*rho);
+    var g00=1-2*U+2*BETA*U*U, gij=1+2*gam*U;
+    return { F:1/g00, G:1/gij,
+             dF:-(-2+4*BETA*U)*dU/(g00*g00),
+             dG:-(2*gam)*dU/(gij*gij) };
+  }
+  function rhs(x,y,px,py,E,mm,gam){
+    var rho=Math.sqrt(x*x+y*y), q=FG(rho,mm,gam), p2=px*px+py*py;
+    var k=-0.5*(-E*E*q.dF + p2*q.dG)/rho;
+    return [px*q.G, py*q.G, k*x, k*y];
+  }
+  function step(s,h,E,mm,gam){
+    var k1=rhs(s[0],s[1],s[2],s[3],E,mm,gam);
+    var k2=rhs(s[0]+0.5*h*k1[0],s[1]+0.5*h*k1[1],s[2]+0.5*h*k1[2],s[3]+0.5*h*k1[3],E,mm,gam);
+    var k3=rhs(s[0]+0.5*h*k2[0],s[1]+0.5*h*k2[1],s[2]+0.5*h*k2[2],s[3]+0.5*h*k2[3],E,mm,gam);
+    var k4=rhs(s[0]+h*k3[0],s[1]+h*k3[1],s[2]+h*k3[2],s[3]+h*k3[3],E,mm,gam);
+    var o=[]; for(var i=0;i<4;i++) o.push(s[i]+h*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+    return o;
+  }
+
+  function orbit(mm,gam,nOrbit){
+    var rp=A_SEMI*(1-ECC);
+    var vp=Math.sqrt(mm*(1+ECC)/(A_SEMI*(1-ECC)));
+    var q=FG(rp,mm,gam), A2=1/q.F, B4=1/q.G;
+    var E=A2/Math.sqrt(A2 - vp*vp*B4);
+    var py=vp*B4*E/A2;
+    var s=[rp,0,0,py];
+    var T=2*Math.PI*Math.sqrt(A_SEMI*A_SEMI*A_SEMI/mm);
+    var N=2600, h=T/N;
+    var pts=[], peri=[], theta=0, prev=Math.atan2(s[1],s[0]);
+    var r3=[Math.sqrt(s[0]*s[0]+s[1]*s[1])], t3=[0], p3=[[s[0],s[1]]];
+    for(var i=0;i<N*nOrbit;i++){
+      s=step(s,h,E,mm,gam);
+      var raw=Math.atan2(s[1],s[0]), d=raw-prev;
+      if(d> Math.PI) d-=2*Math.PI;
+      if(d<-Math.PI) d+=2*Math.PI;
+      theta+=d; prev=raw;
+      var r=Math.sqrt(s[0]*s[0]+s[1]*s[1]);
+      if(i%3===0) pts.push([s[0],s[1]]);
+      r3.push(r); t3.push(theta); p3.push([s[0],s[1]]);
+      if(r3.length>3){ r3.shift(); t3.shift(); p3.shift(); }
+      if(r3.length===3 && r3[1]<r3[0] && r3[1]<r3[2]) peri.push([t3[1],p3[1][0],p3[1][1]]);
+    }
+    var per=null;
+    if(peri.length>=2) per=((peri[peri.length-1][0]-peri[0][0])-2*Math.PI*(peri.length-1))/(peri.length-1);
+    return {pts:pts, peri:peri, per:per};
+  }
+
+  function draw(){
+    var gam=parseInt(sg.value,10)/100, mm=parseInt(sm.value,10)/10000;
+    vg.textContent=gam.toFixed(2); vm.textContent=mm.toFixed(4);
+
+    var res=orbit(mm,gam,9);
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var cx=W/2, cy=H/2, S=Math.min(W,H)/(2*A_SEMI*(1+ECC)*1.18);
+    function X(x){ return cx+x*S; }
+    function Y(y){ return cy-y*S; }
+
+    // the unwarped orthogonal lattice ── only straight lines are ever drawn
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    var g=0.2;
+    for(var v=-3;v<=3;v+=g){
+      ctx.beginPath(); ctx.moveTo(X(v),0); ctx.lineTo(X(v),H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,Y(v)); ctx.lineTo(W,Y(v)); ctx.stroke();
+    }
+    ctx.strokeStyle='#c3ceca'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(0,Y(0)); ctx.lineTo(W,Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),0); ctx.lineTo(X(0),H); ctx.stroke();
+
+    // the orbit
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=1.6; ctx.beginPath();
+    for(var i=0;i<res.pts.length;i++){
+      var p=res.pts[i];
+      if(i===0) ctx.moveTo(X(p[0]),Y(p[1])); else ctx.lineTo(X(p[0]),Y(p[1]));
+    }
+    ctx.stroke();
+
+    // the centre
+    ctx.fillStyle='#8a6d1f'; ctx.beginPath(); ctx.arc(X(0),Y(0),5,0,6.284); ctx.fill();
+
+    // perihelion
+    ctx.fillStyle='#a83a22';
+    for(var k=0;k<res.peri.length;k++){
+      ctx.beginPath(); ctx.arc(X(res.peri[k][1]),Y(res.peri[k][2]),3.6,0,6.284); ctx.fill();
+    }
+
+    var analytic=6*Math.PI*mm/(A_SEMI*(1-ECC*ECC))*(2+2*gam-BETA)/3;
+    var ratio=(res.per!==null&&analytic!==0)?res.per/analytic:NaN;
+    var frac=(2+2*gam-BETA)/3;
+
+    ro.className = 'readout' + (gam>0.99 ? ' hit' : '');
+    ro.innerHTML='\\(\\gamma\\) = <b>'+gam.toFixed(2)+'</b>, \\(m/a\\) = <b>'+mm.toFixed(4)+'</b> (exaggerated) ｜ '
+      + 'measured rotation <b>'+(res.per!==null?(res.per*180/Math.PI).toFixed(4):'—')+'°/orbit</b>, '
+      + 'analytic <b>'+(analytic*180/Math.PI).toFixed(4)+'°/orbit</b> (ratio '+(isNaN(ratio)?'—':ratio.toFixed(4))+')<br>'
+      + 'weight \\((2+2\\gamma-\\beta)/3\\) = <b>'+frac.toFixed(4)+'</b> ｜ '
+      + 'converted to Mercury, <b>'+(42.9807*frac).toFixed(4)+' arcsec/century</b>'
+      + (gam>0.99 ? ' <span style="color:#1d5236">← general relativity. the observed value</span>'
+                  : ' <span style="color:#a83a22">← '+frac.toFixed(4)+' times GR. contradicts observation</span>');
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+
+  sg.addEventListener('input',draw); sm.addEventListener('input',draw);
+  document.getElementById('b1').addEventListener('click',function(){ sg.value=100; draw(); });
+  document.getElementById('b0').addEventListener('click',function(){ sg.value=0; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Could physics be written more simply? ── The Lattice We Build, Bonus ①</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button.off{background:#9fb0ae;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  #termbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:0;}
+  #termbar button{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;font-weight:700;
+    letter-spacing:0;cursor:pointer;background:var(--acc);color:#fff;border:none;border-radius:5px;
+    padding:9px 12px;white-space:nowrap;}
+  #termbar button.off{background:#9fb0ae;}
+  #termbar button:active{transform:translateY(1px);}
+  .tpanel{display:none;margin-top:12px;padding:15px 20px 6px;background:#fff;
+    border:1px solid var(--grid);border-left:3px solid var(--acc);border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:1.72;}
+  .tpanel.on{display:block;}
+  .tpanel .th{font-size:11px;letter-spacing:.2em;font-weight:700;color:var(--acc);margin-bottom:6px;}
+  .tpanel .kill{margin-top:10px;padding:9px 13px;background:#f4e9e2;border-radius:3px;color:#3d271d;font-size:13.5px;}
+  .tpanel .kill b{color:#8a3a20;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.mono{font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.fig,.verdict,.tpanel,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} #termbar{display:none;} .no-print{display:none;}
+    .tpanel{display:block !important;margin-top:10px;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Bonus ① ／ Could physics be written more simply?</span></div>
+  <p class="eyebrow">All of known physics fits in six terms ── we open those six one at a time and pin down where the complexity is actually kept</p>
+  <h1>Could physics be written more simply?
+    <span class="sub">To give the conclusion first: <em>it is already written simply</em>. Short enough to print on a T-shirt.<br>This episode first <strong>opens that formula one term at a time and reads it</strong>, then pins down, place by place, where the complexity actually sits.<br>And at the end ── <strong>only two terms carry dimensions.</strong></span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: the action and the principle of least action, dimensional analysis, a feel for log scales</span>
+    <span>The core of this episode: only two terms carry dimensions</span>
+  </div>
+
+  <p class="lead">Study physics and the formulae never stop multiplying. Four Maxwell equations, the Schrödinger equation, the Einstein equations, the Dirac equation, the Standard Model's particle table… <em>surely it could be written more simply than this</em> ── plenty of people have thought so.<br>That intuition is in fact <strong>correct</strong>. All of known physics fits into just six terms. Or rather, not even six: it is generated from <em>a four-line procedure</em>.<br>This episode first <strong>opens those six terms one at a time and reads them</strong> (for each, "what it is doing" and "what disappears from the world if you delete it"). Then it pins down <em>why it looks complicated</em>, by where the complexity is kept. Finally we check whether the laws themselves could get any shorter.</p>
+
+  <h2><span class="n">01</span>All of known physics</h2>
+
+  <p>Let us write all of it. That is the whole thing.</p>
+
+  <div class="keybox">
+    <div class="lbl">ALL OF KNOWN PHYSICS</div>
+    $$Z=\int\mathcal{D}\phi\;e^{iS[\phi]/\hbar},\qquad S=\int d^4x\,\sqrt{-g}\,\mathcal{L}$$
+    $$\mathcal{L}=\underbrace{\frac{R}{16\pi G}}_{\text{gravity}}\;-\;\underbrace{\tfrac14 F_{\mu\nu}F^{\mu\nu}}_{\text{forces}}\;+\;\underbrace{i\bar\psi\,{\not}D\,\psi}_{\text{matter}}\;+\;\underbrace{|D\phi|^2-V(\phi)}_{\text{Higgs}}\;+\;\underbrace{\bar\psi_i\,y_{ij}\,\psi_j\,\phi+\text{h.c.}}_{\text{mass}}$$
+  </div>
+
+  <p>Gravity, electromagnetism, the strong force, the weak force, all of matter. Six terms. The formula above merely says "weight every history by \(e^{iS/\hbar}\) and add them up," and after that you just look at \(\mathcal{L}\).</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── the T-shirt is a bit of a cheat</span>
+    Inside the symbol \(\not D\), the entire structure of the gauge group is folded up. Expand it and all of \(SU(3)\times SU(2)\times U(1)\) comes out, and of course it gets longer. <strong>"It can be written short" means a compressed notation exists, not that the contents are small.</strong> Though as we will see, the <em>rules behind the compression</em> really are short.
+  </div>
+
+  <h2><span class="n">02</span>Opening the six terms, one at a time</h2>
+
+  <p>Just looking is no fun, so let us open them. <strong>The order means something</strong> ── two outer shells (how to add, and where to add), and then the five terms inside.</p>
+
+  <h3>Outer shell ① \(Z=\int\mathcal{D}\phi\,e^{iS/\hbar}\) ── how to add</h3>
+
+  <p>"Weight <strong>every possible history</strong> by \(e^{iS/\hbar}\) and add." That is all. When a particle goes from A to B it takes every path at once ── and their sum is the answer.</p>
+
+  <div class="calc">
+    <span class="tag">WHY AN EXPONENTIAL, AND WHY THE \(i\)</span>
+    <p style="margin:2px 0 0;"><strong>Why an exponential:</strong> with two independent subsystems, we want probabilities to <em>multiply</em>. Meanwhile the action \(S\), being a spacetime integral, <em>adds</em>. <strong>The only function turning addition into multiplication is the exponential.</strong></p>
+    <p style="margin:8px 0 0;"><strong>Why the \(i\) is there:</strong> \(|e^{iS/\hbar}|=1\). That is, <em>no history is "more likely" in advance</em>. All of them carry the same weight. What selects is not magnitude but <strong>interference</strong>.</p>
+    <p class="lbl">classical mechanics falls out of here</p>
+    <p style="margin:2px 0 14px;">When \(S\gg\hbar\), changing the path slightly turns the phase \(S/\hbar\) through many revolutions and neighbours cancel. What survives is where the phase is stationary ── <strong>\(\delta S=0\)</strong>, the principle of least action. <em>All of Newtonian mechanics is in that one line.</em><br>
+    \(\hbar\)'s job is to be the ruler that judges "large," and what acts is only the dimensionless ratio \(S/\hbar\) (sister series "Quantum That Clicks").</p>
+  </div>
+
+  <h3>Outer shell ② \(S=\int d^4x\,\sqrt{-g}\,\mathcal{L}\) ── where to add</h3>
+
+  <p>There are two claims in here.</p>
+
+  <ul style="margin:15px 0;line-height:1.76;">
+    <li><strong>\(\int d^4x\) = locality.</strong> The action can be written as <em>a sum of contributions from each point</em>. There is no term in which distant places influence each other directly. For a force to travel, a field has to connect the gap (sister series "Fields That Click").</li>
+    <li><strong>\(\sqrt{-g}\) = not caring about coordinates.</strong> This is the invariant volume element. Without this factor, "integrate over spacetime" would <em>depend on the choice of coordinates</em>. <strong>This one symbol is the entire content of "physics does not pick a coordinate system."</strong> (\(g=\det g_{\mu\nu}\). With Lorentzian signature it is negative, hence \(-g\) under the root.)</li>
+  </ul>
+
+  <p>And \(\mathcal{L}\) is a scalar. So the whole action takes the same value no matter who looks, in whatever coordinates.</p>
+
+  <h3>Term 1 \(\dfrac{R}{16\pi G}\) ── gravity</h3>
+
+  <p>\(R\) is the Ricci scalar, <em>the simplest scalar you can build from second derivatives of the metric</em>. Vary it and out come the <strong>Einstein equations</strong>. This one term is all of general relativity.</p>
+
+  <div class="aside">
+    <span class="tag">EINSTEIN GRAVITY IS NOT A "CHOICE"</span>
+    A scalar with no derivatives is a constant (= the cosmological constant). With one derivative no scalar can be built. <strong>With two derivatives, up to total derivatives, the only scalar you can build is \(R\)</strong>.<br>
+    So Einstein gravity is not an equation somebody chose but <em>the first non-trivial term of a derivative expansion</em>. <strong>The answer to "why this form" is "because nothing else can be written"</strong>, which anticipates the generating rules of §03.
+  </div>
+
+  <h3>Term 2 \(-\tfrac14 F_{\mu\nu}F^{\mu\nu}\) ── forces</h3>
+
+  <p>\(F_{\mu\nu}=\partial_\mu A_\nu-\partial_\nu A_\mu\) (with \(+\,ig[A_\mu,A_\nu]\) added in the non-abelian case). <strong>All four Maxwell equations come out of this one term.</strong> Two of them (\(\nabla\!\cdot\!\vec B=0\) and Faraday's law) hold automatically the moment \(F\) is built from \(A\) (the Bianchi identity), and the other two come from the variation.</p>
+
+  <div class="keybox">
+    <div class="lbl">ELECTROMAGNETISM, THE WEAK FORCE AND THE STRONG FORCE ARE ALL THIS SAME ONE TERM</div>
+    <p style="margin:0;">All that differs is the <strong>gauge group</strong> ── \(U(1)\) gives light, \(SU(2)\) gives W and Z, \(SU(3)\) gives gluons.</p>
+    <p style="margin:8px 0 0;">Non-abelian means \(F\) contains \([A_\mu,A_\nu]\), so expanding \(F^2\) produces \(A^3\) and \(A^4\) terms. <strong>That single difference is why gluons interact with each other directly and photons do not.</strong> (And that is the entrance to confinement.)</p>
+  </div>
+
+  <h3>Term 3 \(i\bar\psi\,{\not}D\,\psi\) ── matter</h3>
+
+  <p>\(\psi\) is the quarks and leptons. \({\not}D=\gamma^\mu D_\mu\) (Feynman slash notation). <strong>This is where the gauge group is folded up.</strong></p>
+
+  $$D_\mu=\partial_\mu-ig_3G^a_\mu T^a-ig_2W^i_\mu\tau^i-ig_1YB_\mu$$
+
+  <div class="keybox" style="border-color:var(--acc);">
+    <div class="lbl" style="color:var(--acc);">THE DEEPEST LINE IN THIS FORMULA</div>
+    <p style="margin:0;"><strong>The gauge field was not put in by hand. It was forced.</strong></p>
+    <p style="margin:8px 0 0;">Try demanding that \(\psi\)'s phase <em>may be chosen freely at each point</em> (local gauge symmetry). Then the transformation of \(\partial_\mu\psi\) picks up a discrepancy. The only way to cancel it is to add a field carrying the same discrepancy with the opposite sign ── and that is \(A_\mu\).</p>
+    <p style="margin:10px 0 0;"><strong>Forces exist because we allowed the freedom to choose the phase place by place.</strong> <em>A force is the invoice for a symmetry.</em></p>
+  </div>
+
+  <p>Note that there is <strong>no</strong> mass term \(m\bar\psi\psi\) here. Because it cannot be written even if one wanted to, for a reason that appears in term 5.</p>
+
+  <h3>Term 4 \(|D\phi|^2-V(\phi)\) ── the Higgs</h3>
+
+  <p>\(\phi\) is a complex scalar doublet. Its kinetic term is written with <strong>the same \(D\)</strong> ── so the Higgs feels the gauge fields too. And</p>
+
+  $$V(\phi)=\mu^2|\phi|^2+\lambda|\phi|^4$$
+
+  <p>With \(\mu^2<0\) this shape makes the origin a <em>hill</em> and the valley a ring (the Mexican hat). Then the lowest-energy state is not \(\phi=0\) but \(|\phi|=v\neq0\) ── <strong>the vacuum itself carries a field value.</strong> The equations still have the symmetry; the ground state does not. That is spontaneous symmetry breaking.</p>
+
+  <div class="calc">
+    <span class="tag">THE W AND Z MASSES DO NOT COME FROM A MASS TERM</span>
+    <p style="margin:2px 0 0;">Expand \(|D\phi|^2\) and put in \(\phi\to v\), and from the gauge fields inside \(D_\mu\) you get</p>
+    $$|D_\mu\phi|^2\ \supset\ g^2v^2\,A_\mu A^\mu$$
+    <p style="margin:6px 0 14px;">which is a <strong>mass term for the gauge fields</strong>. <em>The W and Z masses welled up out of the Higgs kinetic term.</em> No term "to give" mass is written anywhere.</p>
+  </div>
+
+  <h3>Term 5 \(\bar\psi_i\,y_{ij}\,\psi_j\,\phi+\text{h.c.}\) ── mass</h3>
+
+  <p>The Yukawa coupling. <strong>The only route by which a fermion can have mass.</strong></p>
+
+  <p>Why the only one? \(\bar\psi\psi=\bar\psi_L\psi_R+\bar\psi_R\psi_L\) multiplies left-handed by right-handed, but in the Standard Model the left-handed field is an \(SU(2)\) doublet and the right-handed a singlet ── <em>their gauge charges differ, so multiplying them breaks gauge invariance on the spot</em>. The only writable form has one \(\phi\) inserted. And putting in \(\phi\to v\) gives \(y v\,\bar\psi\psi\), i.e. <strong>\(m=yv\)</strong>.</p>
+
+  <div class="aside">
+    <span class="tag">THE 25-ODD CONSTANTS MOSTLY LIVE HERE</span>
+    \(y_{ij}\) is a \(3\times3\) matrix in generation space. Diagonalize it and you get the <strong>masses</strong>; the part that cannot be diagonalized away becomes the <strong>mixing angles and CP phase</strong> (the CKM matrix). Most of what §04 ① calls the "config file" is the contents of this matrix.<br>
+    The trailing <strong>h.c.</strong> (Hermitian conjugate) is not decoration. Without it \(\mathcal{L}\) would not be real, and <em>probability would not be conserved</em>.
+  </div>
+
+  <h3>Try it ── delete one term at a time</h3>
+
+  <p>The quickest way to understand is <strong>to delete things</strong>. The buttons below show what each term is holding up in the world.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: open the six terms one at a time. "What this term does," and "what disappears from the world if you delete it." In the print version all terms are expanded</div>
+    <div id="termbar">
+      <button data-k="Z">Z = ∫Dφ e^(iS/h)</button>
+      <button data-k="S" class="off">S = ∫d⁴x √−g L</button>
+      <button data-k="R" class="off">R / 16πG</button>
+      <button data-k="F" class="off">−¼ F²</button>
+      <button data-k="P" class="off">i ψ̄ D ψ</button>
+      <button data-k="H" class="off">|Dφ|² − V(φ)</button>
+      <button data-k="Y" class="off">y ψ̄ψφ</button>
+      <button data-k="X" class="off">expand D</button>
+    </div>
+
+    <div class="tpanel on" data-k="Z">
+      <div class="th">Outer shell ①: the path integral</div>
+      <p style="margin:0;">Weight every history by \(e^{iS/\hbar}\), the same magnitude for all, and add. What selects is not magnitude but <strong>interference</strong>. For \(S\gg\hbar\) the phases cancel and only the neighbourhood of \(\delta S=0\) survives ── that is classical mechanics.</p>
+      <div class="kill"><b>Delete it (\(\hbar\to0\)):</b> quantum mechanics goes and histories collapse to one classical solution. Electrons fall into nuclei and atoms are not stable. No chemistry, no hardness in matter. <em>"There are things" stops holding at all.</em></div>
+    </div>
+
+    <div class="tpanel" data-k="S">
+      <div class="th">Outer shell ②: locality and coordinate independence</div>
+      <p style="margin:0;">\(\int d^4x\) is <strong>locality</strong> (the action is a sum over points), \(\sqrt{-g}\) is <strong>coordinate independence</strong> (the invariant volume element). \(\mathcal{L}\) being a scalar, \(S\) takes the same value in anyone's coordinates.</p>
+      <div class="kill"><b>Delete \(\sqrt{-g}\):</b> the integral's value changes with the choice of coordinates, so <em>physics depends on who looked</em>. It does not work as a theory.<br><b>Give up \(\int d^4x\):</b> action at a distance becomes allowed; you no longer need the concept of a field, but nothing guarantees causality.</div>
+    </div>
+
+    <div class="tpanel" data-k="R">
+      <div class="th">Term 1: gravity</div>
+      <p style="margin:0;">\(R\) is the only scalar buildable from second derivatives of the metric (up to total derivatives). Vary it and you get the Einstein equations. <strong>Not a term that was chosen, but the term nothing else could replace.</strong></p>
+      <div class="kill"><b>Delete it:</b> spacetime does not curve. Planets do not orbit, stars do not collapse under their own weight and ignite, and there are no galaxies, black holes or cosmic expansion. <em>What is left is a flat, dull world with only special relativity.</em></div>
+    </div>
+
+    <div class="tpanel" data-k="F">
+      <div class="th">Term 2: forces</div>
+      <p style="margin:0;">All four Maxwell equations from this one term; two of them automatic once \(F=dA\) (the Bianchi identity). <strong>Electromagnetism, the weak and the strong force are all this</strong>, differing only in the gauge group. Non-abelian gives \(A^3,A^4\) terms and gluons interact with each other.</p>
+      <div class="kill"><b>Delete it:</b> gauge fields do not propagate. <em>Light does not exist.</em> No electromagnetic waves, no gluon exchange, and no force travels anywhere. Two charged particles pass each other and nothing happens.</div>
+    </div>
+
+    <div class="tpanel" data-k="P">
+      <div class="th">Term 3: matter</div>
+      <p style="margin:0;">The kinetic term for quarks and leptons, with the gauge group folded into \(D_\mu\). <strong>The gauge field was not put in by hand but forced, as the price of allowing the phase to be chosen at each point.</strong> There is no \(m\bar\psi\psi\) here because it cannot be written.</p>
+      <div class="kill"><b>Delete it:</b> matter does not exist. A world with fields only and no particles to carry them. <em>Nobody comes to look.</em></div>
+    </div>
+
+    <div class="tpanel" data-k="H">
+      <div class="th">Term 4: the Higgs</div>
+      <p style="margin:0;">With \(\mu^2<0\) the vacuum picks \(|\phi|=v\neq0\) and the symmetry is broken in the ground state alone. Put \(\phi\to v\) into \(|D\phi|^2\) and you get \(g^2v^2A_\mu A^\mu\) ── <strong>the W and Z masses well up out of the kinetic term.</strong></p>
+      <div class="kill"><b>Delete it:</b> electroweak symmetry is unbroken and <em>W and Z become massless</em>. The weak force becomes long-range and beta decay speeds up by orders of magnitude. Since the weak interaction is the rate-limiting step in solar fusion, <b>stars do not burn at anything like their present pace.</b> And all fermion masses vanish too (term 5 depends on \(\phi\)).</div>
+    </div>
+
+    <div class="tpanel" data-k="Y">
+      <div class="th">Term 5: mass</div>
+      <p style="margin:0;">The Yukawa coupling. Chiral gauge symmetry forbids \(m\bar\psi\psi\), so <strong>this is the only route to fermion mass</strong>. \(m=yv\). \(y_{ij}\) is \(3\times3\), and what is left after diagonalization becomes the mixing angles and CP phase.</p>
+      <div class="kill"><b>Delete it:</b> all quarks and leptons become massless and travel at the speed of light. The electron losing its mass makes the Bohr radius \(a_0=\hbar/(m_ec\alpha)\) diverge ── <em>atoms cannot be built.</em><br><b>But there is an interesting exception:</b> about 99% of the proton and neutron masses comes from the energy of the QCD gluon field (\(\Lambda_{\rm QCD}\)), so <b>nucleons survive as they are.</b> A world with nuclei and no atoms.</div>
+    </div>
+
+    <div class="tpanel" data-k="X">
+      <div class="th">Undoing the compression ── inside \(\not D\)</div>
+      <p style="margin:0;">$$D_\mu=\partial_\mu-ig_3G^a_\mu T^a-ig_2W^i_\mu\tau^i-ig_1YB_\mu$$</p>
+      <p style="margin:6px 0 0;">Open this one letter and you get gauge fields numbering <strong>8 (gluons) + 3 (W) + 1 (B) = 12</strong>, carrying three generations of quarks and leptons.</p>
+      <p style="margin:8px 0 0;"><strong>Number of free parameters:</strong> 3 (gauge couplings) + 2 (Higgs) + 9 (charged-fermion masses) + 4 (CKM) + 1 (\(\theta_{\rm QCD}\)) = <b>19</b>. Include neutrino masses and it is 26–28. Plus \(G\) and \(\Lambda\) on the gravity side. <em>In the text we lump these together as "about 25."</em></p>
+      <div class="kill"><b>That is:</b> "it fits on a T-shirt" means <em>a compressed notation exists</em>, not that the contents are small. <b>What is short is the structure; what is long is the config file.</b></div>
+    </div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── what this formula does not write</span>
+    <p style="margin:0;">I wrote "all of known physics," but four things are dropped by the conventions of the standard notation.</p>
+    <p style="margin:8px 0 0;"><strong>① The \(\theta\) term.</strong> \(\theta\,\frac{g^2}{32\pi^2}F\tilde F\) is allowed by the symmetries yet is not written. Experiment gives \(|\bar\theta|<10^{-10}\) ── <em>writable, and yet almost exactly zero</em>. That is the strong CP problem.<br>
+    <strong>② Neutrino masses.</strong> Either add right-handed neutrinos or use the dimension-5 operator \((LH)(LH)/\Lambda\); neither fits in the six terms above. <em>The first sign of going past dimension 4</em>, and the entrance to physics beyond the Standard Model.<br>
+    <strong>③ The cosmological constant.</strong> It can be hidden as the constant part of \(V(\phi)\), but <em>it is an independent parameter</em>. When §05 counts "two terms carry dimensions," this one is not in the count.<br>
+    <strong>④ Gauge-fixing terms and ghosts.</strong> Needed to define the path integral in practice, but they are not physical degrees of freedom, so they are conventionally omitted.</p>
+  </div>
+
+  <h2><span class="n">03</span>Not even a formula, but a procedure</h2>
+
+  <p>It shrinks further. The \(\mathcal{L}\) above was in fact <strong>chosen by nobody</strong>. It is generated automatically from the following four lines.</p>
+
+  <div class="calc">
+    <span class="tag">THE GENERATING RULES OF PHYSICS</span>
+    <p style="margin:8px 0 0">
+      <strong>1.</strong> Fix the symmetry group (Lorentz \(\times\ SU(3)\times SU(2)\times U(1)\))<br>
+      <strong>2.</strong> Write <em>every</em> term that symmetry allows<br>
+      <strong>3.</strong> Weight every history by \(e^{iS/\hbar}\) and add<br>
+      <strong>4.</strong> The terms surviving at low energy are the physics you see
+    </p>
+  </div>
+
+  <p>Rephrased for programmers ── <strong>the Standard Model is not a program but the output of a code generator</strong>. The input is one symmetry group. The generator is four lines. Only the output is long.</p>
+
+  <p>Step 4 is doing particular work (this is the story of the sister series "Renormalization That Clicks"). Most of the terms written in step 2 disappear at low energy. <em>What remains is the Standard Model</em>, and nobody chose it. So the answer to "why this form" is <strong>"because the others went away."</strong></p>
+
+  <div class="aside">
+    <span class="tag">CHECKING §02'S ANSWERS</span>
+    Reading term by term, the same line kept coming up ── <em>"nothing else could be written."</em> With two derivatives the only scalar is \(R\). The only gauge-invariant quadratic term is \(F^2\). Fermion mass can only be written via \(\phi\).<br>
+    <strong>That was no accident but the result of step 2 of the generating rules.</strong> Lay out all the "terms allowed by symmetry, of dimension 4 or less" and <em>the list is short</em>. The formula fits on a T-shirt not because the author was clever but <strong>because there were only ever a handful of candidates</strong>.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>So where is the complexity?</h2>
+
+  <p>In three places. And <em>none of them is complexity of the laws</em>. Without separating these, the feeling that "physics is complicated" has nowhere to go.</p>
+
+  <h3>① Data ── about 25 numbers</h3>
+  <p>The contents of \(y_{ij}\), the mixing angles, the mass ratios. This is not structure but a <strong>config file</strong>. The source is short; the config is long.<br>Episode 1 of the main series brute-forced 160,000-odd dimensionless quantities looking for a way to compress that config. The result was \(p=0.67\), <em>indistinguishable from coincidence</em>. The config cannot be compressed, at least not in a world of multiplication.</p>
+
+  <h3>② Runtime ── a short formula and a simple solution are unrelated</h3>
+  <p>\(F=ma\) is three characters, and the three-body problem is chaotic. Navier–Stokes is one line, and turbulence is unsolved. Exactly the same structure as a five-line cellular automaton spitting out infinite complexity.<br><strong>A law's shortness guarantees nothing whatsoever about the shortness of what comes out of it.</strong></p>
+
+  <h3>③ Compiling the hierarchy ── what makes textbooks thick</h3>
+  <p>Most of studying physics is not memorizing new laws. It is memorizing the <em>effective description</em> at each scale. QCD → nucleons → atoms → chemistry → condensed matter. Each stage is an irreversible compression of the one below.<br>What is complicated is the <strong>build pipeline</strong>, not the source.</p>
+
+  <table class="tbl">
+    <tr><th style="width:36%">physics</th><th>programming</th></tr>
+    <tr><td>the Lagrangian \(\mathcal{L}\)</td><td>source code (short)</td></tr>
+    <tr><td>the 25 constants</td><td>the config file (not derivable)</td></tr>
+    <tr><td>the universe</td><td>runtime (no shortcuts)</td></tr>
+    <tr><td>effective field theory</td><td>build artifacts at each optimization level</td></tr>
+    <tr><td>the renormalization group</td><td>the build pipeline</td></tr>
+    <tr><td>symmetry</td><td>the input to the generator</td></tr>
+  </table>
+
+  <p>That settles where the complexity is kept. <strong>So can the laws themselves get any shorter?</strong> Let us look at \(\mathcal{L}\) once more ── this time hunting only for "quantities with dimensions."</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>Only two terms carry dimensions</h2>
+
+  <p>Here it is again. This time read it hunting for "quantities with dimensions."</p>
+
+  $$\mathcal{L}=\frac{R}{16\pi G}-\tfrac14 F^2+i\bar\psi\,{\not}D\,\psi+|D\phi|^2-V(\phi)+\bar\psi_i y_{ij}\psi_j\phi$$
+
+  <p><strong>The gauge couplings \(g\), the Yukawa couplings \(y\) and the Higgs self-coupling \(\lambda\) are all dimensionless.</strong> The \(F^2\) term and the \(\bar\psi\not D\psi\) term are conformally invariant in four dimensions. Which is to say those terms bring in no unit of length.</p>
+
+  <p>Quantities with dimensions number <em>only two</em> in the whole theory.</p>
+
+  <div class="keybox">
+    <div class="lbl">EVERYTHING THAT BRINGS "SIZE" INTO PHYSICS</div>
+    $$\underbrace{\mu^2|\phi|^2}_{\text{the Higgs mass term}}\qquad\text{and}\qquad\underbrace{\frac{1}{16\pi G}}_{\text{Newton's constant}}$$
+  </div>
+
+  <p>Delete these two and the whole theory becomes scale invariant. The unit of length itself loses meaning. <em>The "simpler formula" you are after is the one with these two terms deleted.</em></p>
+
+  <p>And this is not a fantasy but a live research programme (Weyl-invariant formulations, agravity, and so on). The position is consistent ── <strong>the fundamental theory has no scale, and every scale is generated from quantum anomalies and spontaneous breaking</strong>.</p>
+
+  <div class="aside">
+    <span class="tag">A LINK TO THE SISTER SERIES ── the fixed point of asymptotic safety</span>
+    The UV fixed point of "asymptotic safety," one candidate for quantum gravity, is <strong>precisely the point at which the theory becomes scale invariant</strong>. At the fixed point the couplings become pure numbers and the cutoff \(k\) drops out. Quantities with dimensions lose their meaning.<br>
+    So the direction "surely it gets simpler if we delete those two terms" is a sound line ── <em>a naive but correct way of saying what actually happens at high energy</em>.<br>
+    <strong>But what happens if you do delete them?</strong> We check honestly in the next section.
+  </div>
+
+  <h2><span class="n">06</span>And still the formula does not get shorter</h2>
+
+  <p>Here comes the honest line.</p>
+
+  <p>Delete \(\mu^2\) and \(G\) and you get a <strong>universe with no mass</strong>. The electron has no mass, protons do not bind, and there are no atoms, no stars and no you. <em>Those two terms are not "extra complexity" but the price of the world existing.</em></p>
+
+  <p>What is more, they come back even when deleted, because quantum effects break scale invariance (the conformal anomaly = the running of couplings). \(\Lambda_{\rm QCD}\) is born by that mechanism, and ──</p>
+
+  <div class="calc">
+    <span class="tag">A SCALE WELLS UP BY ITSELF OUT OF A SCALELESS THEORY</span>
+    $$\Lambda_{\rm QCD}=\mu\,\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(\mu)}\right)$$
+    <p class="lbl">a mass with dimensions comes out of a single dimensionless coupling</p>
+    <p style="margin:8px 0 8px">This is called <strong>dimensional transmutation</strong>. Most of the proton's mass comes from here ── not from quark masses but <em>from the running of a dimensionless number</em>.<br>That is exactly why §02 said "delete the Yukawa coupling and nucleons survive."</p>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">Summary of this episode</h2>
+    <p><strong>Physics is already written simply.</strong> Six terms, or four lines of generating rules. Your intuition was right.</p>
+    <p><strong>And those six terms can be read once opened.</strong> The outer \(e^{iS/\hbar}\) says "add every history with interference" (classical mechanics is its \(\hbar\to0\)), and \(\sqrt{-g}\,d^4x\) says "locally, independent of coordinates." Inside: \(R\) (the only writable scalar), \(F^2\) (three forces in one term), \(\bar\psi\not D\psi\) (<em>the gauge field forced as the price of choosing the phase at each point</em>), \(|D\phi|^2-V\) (the vacuum carries a value, and the W and Z masses well up out of the kinetic term), and Yukawa (the only route to fermion mass).</p>
+    <p><strong>It is short not because the author was clever.</strong> Because when you lay out all "terms allowed by symmetry, of dimension 4 or less," <em>the list is short to begin with</em>. The repeated "nothing else could be written" is what that really is.</p>
+    <p><strong>The complexity is in three places, and none of them is the laws.</strong> ① the 25 constants (config), ② the effort of solving (runtime), ③ the translation between scales (the build pipeline).</p>
+    <p><strong>And the core is this ── only two terms carry dimensions.</strong> The Higgs mass and Newton's constant. Physics has a notion of "size" because of those two. This is the shortest form of the question "why does the world have a size?"</p>
+    <p style="margin-bottom:0">What is complicated is not physics. <em>It is the universe.</em></p>
+  </div>
+
+  <div class="foot">
+    <p>This document is Bonus ① of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>The \(\mathcal{L}\) in the text is a compression of the usual notation for the Standard Model plus general relativity, with the gauge structure folded into \(\not D\). The path-integral weight \(e^{iS/\hbar}\) and the principle of least action as \(\hbar\to0\); that \(\sqrt{-g}\,d^4x\) is the invariant volume element; that the only scalar buildable from two derivatives is \(R\) up to total derivatives; that all four Maxwell equations come from the single \(F^2\) term (two of them as the Bianchi identity); that local gauge symmetry requires a gauge field; that the W and Z masses arise from \(|D\phi|^2\); that chiral gauge symmetry forbids \(m\bar\psi\psi\) making the Yukawa coupling the only route; that the Standard Model has 19 free parameters (26–28 including neutrino masses); that most of the nucleon mass comes from \(\Lambda_{\rm QCD}\); and that "Maxwell's equations are conformally invariant in four dimensions" and "the only dimensionful parameter in the Standard Model is the Higgs mass term" ── all of these are established material.</p>
+    <p>On the other hand, the picture that "every scale is generated from a scaleless fundamental theory" is <strong>a position under research, not an established conclusion</strong>. And since breaking by the conformal anomaly is unavoidable, whether exact scale invariance can hold as a quantum theory is unsolved. The descriptions of "delete one term and the world becomes like this" are naive consequences of dropping one term while leaving the others, not constructions of consistent alternative universes. That the \(\theta\) term, neutrino masses, the cosmological constant and gauge-fixing terms are not contained in the six terms above is stated explicitly in §02's "honest line."</p>
+    <p>Sister series: <a href="../README.en.md">the "That Clicks" collection</a> ／ main series Episode 1: <a href="butsuri-tsukuru-01-hi.html">Let a machine hunt for the ratios nobody has taken yet</a> ── to print, use your browser's "Print" → "Save as PDF" (in the print version all terms are expanded).</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). The buttons in the figure open the six terms one at a time. Reading "what disappears if you delete it" first makes it quicker to see what each term holds up.</p>
+
+<script>
+(function(){
+  "use strict";
+  var bar=document.getElementById('termbar');
+  if(!bar) return;
+  var btns=[], pans=[], i;
+  var nb=bar.getElementsByTagName('button');
+  for(i=0;i<nb.length;i++) btns.push(nb[i]);
+  var np=document.getElementsByClassName('tpanel');
+  for(i=0;i<np.length;i++) pans.push(np[i]);
+
+  function show(k){
+    for(var a=0;a<pans.length;a++){
+      pans[a].className = 'tpanel' + (pans[a].getAttribute('data-k')===k ? ' on' : '');
+    }
+    for(var b=0;b<btns.length;b++){
+      btns[b].className = (btns[b].getAttribute('data-k')===k ? '' : 'off');
+    }
+  }
+  for(i=0;i<btns.length;i++){
+    (function(el){
+      el.addEventListener('click', function(){ show(el.getAttribute('data-k')); });
+    })(btns[i]);
+  }
+  show('Z');
+})();
+</script>
+</body>
+</html>

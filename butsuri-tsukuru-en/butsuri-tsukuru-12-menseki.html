@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The area law comes out for free ── The Lattice We Build, Episode 12</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 12 ／ The area law comes out for free</span></div>
+  <p class="eyebrow">Ultra-locality generates \(S\propto A\) automatically ── and all that remains is the wall we measured in Episode 1</p>
+  <h1>The area law comes out for free
+    <span class="sub">Last time we re-placed the question as "is there a central charge in the supertranslation sector?"<br>So what is actually needed to get the coefficient? Pinning it down turns up something odd ──<br><strong>the area law \(S\propto A\) falls out of the structure automatically for a Carrollian theory.</strong><br>It comes for free. And all that remains is the coefficient ── <em>that wall whose position we measured in Episode 1</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episodes 5 and 8 (ultra-locality), logarithms</span>
+    <span>The core of this episode: 2.773 Planck areas per bit</span>
+  </div>
+
+  <p class="lead">So far we have been chasing "how to show that it has \(e^{A/4G}\) states." Episode 10 found the template for the proof, Episode 11 re-placed the question.<br>This episode steps back and decomposes <em>what actually has to be shown</em>. The claim splits into two ── <strong>that it is proportional to the area</strong>, and <strong>that the constant of proportionality is \(1/4G\)</strong>.<br>And the former comes out <em>almost automatically</em> from the properties of a Carrollian theory. Only the latter is hard. And that latter turned out to be the same wall this series has run into again and again since Episode 1.</p>
+
+  <h2><span class="n">01</span>Ultra-locality, once more</h2>
+
+  <p>We use what Episodes 5 and 8 confirmed.</p>
+
+  <p>In Carroll geometry the light cone is collapsed, so no signal propagates. As the figure in Episode 8 showed, the field equation becomes \(\partial_t^2\varphi=0\), with no spatial derivative on the right ── <strong>each point evolves in time without consulting its neighbours at all</strong>.</p>
+
+  <div class="keybox">
+    <div class="lbl">ULTRA-LOCALITY</div>
+    <p style="margin:6px 0 0">In a Carrollian theory, two events are causally connected <strong>only when they are at the same point</strong>. Each point of space is an independent system.</p>
+  </div>
+
+  <h2><span class="n">02</span>If they are independent, the partition function is a product</h2>
+
+  <p>Statistical mechanics 101. Line up independent systems and the partition function is a <em>product</em>.</p>
+
+  $$Z=\prod_{x}Z_x\qquad\Longrightarrow\qquad \log Z=\sum_x \log Z_x$$
+
+  <p>And in an ultra-local theory this \(x\) is <strong>each point of space</strong>. So \(\log Z\) is proportional to <em>the number of points</em>.</p>
+
+  <p>Now recall where a Carrollian theory lives. As Episode 7 confirmed ── <strong>on a null hypersurface</strong>. For a horizon, its spatial section is a <em>two-dimensional surface</em>.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CONCLUSION COMES IN TWO LINES</div>
+    <p style="margin:6px 0 0">ultra-local \(\Longrightarrow\) the entropy is <strong>proportional to the number of points</strong></p>
+    <p style="margin:6px 0 0">the points lie on a surface \(\Longrightarrow\) the number of points is <strong>proportional to the area</strong></p>
+    <p style="margin:10px 0 0;font-size:18px;text-align:center"><strong>Hence \(S\propto A\).</strong></p>
+  </div>
+
+  <p>That is what "comes out for free" means. No counting of black-hole microstates, no Cardy formula. The area law follows from nothing but <em>an ultra-local theory living on a two-dimensional surface</em>.</p>
+
+  <div class="aside">
+    <span class="tag">WHY THIS IS STRANGE</span>
+    In an ordinary (local, relativistic) field theory the entropy is proportional to the <strong>volume</strong>. The information you can pack into three-dimensional space is \(V/\epsilon^3\).<br>The area law was long a puzzle precisely as a departure from that ── the property that grounds the claim, seen in Episode 2, that "gravity is not a QFT."<br>But in a Carrollian theory, <em>the place the theory lives is a surface to begin with</em>, so there is no way to produce a volume law. <strong>Not a departure but the default.</strong>
+  </div>
+
+  <h2><span class="n">03</span>So what does the coefficient mean?</h2>
+
+  <p>The area law is out, so the remainder is the coefficient. In formulae: cut the surface into cells of side \(a\), and let the number of states per cell be \(q\) ──</p>
+
+  $$S=N\log q,\qquad N=\frac{A}{a^2}\qquad\Longrightarrow\qquad S=\frac{\log q}{a^2}\,A$$
+
+  <p>For this to match Bekenstein–Hawking \(S=A/4\ell_P^2\) ──</p>
+
+  $$\frac{\log q}{a^2}=\frac{1}{4\ell_P^2}$$
+
+  <p>The important point here is that <strong>\(a\) and \(q\) are not determined individually</strong>. Only the combination is. Make the cells finer and the number of states per cell drops; coarser and it rises ── and <em>the entropy does not change</em>. Move it and check.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: cutting the surface into cells. Change the cell size and the entropy does not change (the states per cell cancel it exactly). <em>The drawn grid rounds to whole cells, but the numbers use the exact \(N=A/a^2\)</em></div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>cell side &nbsp;a / ℓ<sub>P</sub> = <span class="val" id="va">1.00</span>
+        <input type="range" id="sa" min="60" max="320" value="100">
+      </label>
+      <button id="b1">a = ℓ_P</button>
+      <button id="b2">1 cell = 1 bit</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>Move the cells and the cell count \(N\) and the states per cell \(q\) both change, yet the product \(N\log q\) does not. <strong>The area law is robust, and what is fixed is a single number: the information per unit area.</strong></p>
+
+  <h3>That single number, concretely</h3>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── how many bits are packed in</span>
+    <p style="margin:8px 0 0">Convert \(S/k_B=A/4\ell_P^2\) into bits (divide by \(\log_2\))</p>
+    $$\text{number of bits}=\frac{A}{4\ell_P^2\ln 2}=\frac{A}{2.773\,\ell_P^2}$$
+    <p class="lbl">that is</p>
+    <p style="margin:8px 0 8px"><strong>\(4\ln2=2.773\) Planck areas per bit.</strong> Per unit area, \(1.381\times10^{69}\) bit/m².</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:34%">null surface</th><th class="num">area [m²]</th><th class="num">bits</th></tr>
+    <tr><td>solar-mass black hole</td><td class="num">\(1.10\times10^{8}\)</td><td class="num">\(1.51\times10^{77}\)</td></tr>
+    <tr><td>Sgr A*</td><td class="num">\(2.03\times10^{21}\)</td><td class="num">\(2.80\times10^{90}\)</td></tr>
+    <tr><td><strong>de Sitter horizon</strong></td><td class="num">\(2.35\times10^{53}\)</td><td class="num"><strong>\(3.24\times10^{122}\)</strong></td></tr>
+  </table>
+
+  <p>Restating Episode 9's state count of the universe \(e^{2.25\times10^{122}}\) in bits gives this ── <strong>the universe is a \(3.24\times10^{122}\)-bit machine</strong>.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>And back to Episode 1 again</h2>
+
+  <p>Let us put this episode into one line.</p>
+
+  <p style="text-align:center;font-size:18px;margin:24px 0"><strong>\(S\propto A\) came out of the structure. All that remained was the \(1/4\).</strong></p>
+
+  <p>Section 08 of Episode 1 said this.</p>
+
+  <div class="keybox">
+    <div class="lbl">FROM EPISODE 1, §08 (QUOTED FOR THE THIRD TIME)</div>
+    <p style="margin:6px 0 0">For black-hole entropy: <strong>dimensions get you as far as \(S\propto A\), and only the \(1/4\) refuses to come</strong>. Filling that in requires the thing being counted itself ── states, a mechanism, a symmetry.</p>
+  </div>
+
+  <p>We have arrived at exactly the same place. And this time \(S\propto A\) came out of a structure, <em>not even from dimensional analysis</em>. And still the \(1/4\) does not come.</p>
+
+  <p>The \(O(1)\) wall this series has been measuring since Episode 1 <strong>stands at the same height even when you change route</strong>.</p>
+
+  <h2><span class="n">05</span>But what comes for free has a price</h2>
+
+  <p>This has to be written honestly. §02's argument has a hidden hole.</p>
+
+  <p><strong>A continuum has infinitely many points.</strong></p>
+
+  <p>We said "proportional to the number of points," but a continuous surface has uncountably many. So the moment we wrote \(N=A/a^2\), <em>we put in a cutoff \(a\) by hand</em>. And \(\log q/a^2\) can diverge as \(a\to0\).</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── this is the same disease as ordinary QFT</span>
+    In ordinary field theory too, the <strong>entanglement entropy</strong> across a surface is proportional to the area ── \(S\sim A/\epsilon^2\). But the coefficient depends on the cutoff \(\epsilon\) and diverges.<br>§02's argument carries <em>a divergence of exactly the same form</em>. "The area law came for free" is true, but <strong>the coefficient did not come for free</strong>.
+  </div>
+
+  <h3>Even so, there is a difference</h3>
+
+  <p>The divergence of entanglement entropy comes from tracing out <em>the degrees of freedom outside the surface (in the bulk)</em>. Erase the outside and infinity accumulates at the seam.</p>
+
+  <p>The Carrollian case is different. <strong>The theory itself is defined on the surface</strong> (Episodes 7 and 8). There is no "outside" to trace out.</p>
+
+  <p>Then the coefficient \(\log q/a^2\) should be fixed not by an external cutoff but by <em>the theory's own density of degrees of freedom</em>. And that is ──</p>
+
+  <div class="keybox">
+    <div class="lbl">WE HAVE GONE FULL CIRCLE</div>
+    <p style="margin:6px 0 0">density of degrees of freedom per unit area = density of states = <strong>Episode 11's "central charge" question</strong>.</p>
+  </div>
+
+  <p>The problem has not disappeared. It has <em>merely moved</em> ── the same shape as Episode 3's "the curvature did not vanish; it moved into the conformal factor."</p>
+
+  <p>But it has moved somewhere better. From "cutoff-dependent and undetermined in principle" to "should be fixed as data of the theory, but we cannot compute it yet." <strong>From a question with no answer to a question with one.</strong></p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>Why does the area law come out automatically in an ultra-local theory? State it in two steps.
+        <details><summary>show the answer</summary><div class="ans">(1) Each point being independent, the partition function is a product, so \(\log Z\) is <strong>proportional to the number of points</strong>. (2) A Carrollian theory lives on a null hypersurface whose spatial section is a two-dimensional surface, so <strong>the number of points is proportional to the area</strong>. Hence \(S\propto A\).</div></details>
+      </li>
+      <li>If you double the cell side \(a\), what happens to the number of states per cell \(q\)?
+        <details><summary>show the answer</summary><div class="ans">Since \(\log q=a^2/4\ell_P^2\), doubling \(a\) makes \(\log q\) <strong>four times</strong> larger (\(q\) to the fourth power). The cell count \(N=A/a^2\) becomes a quarter, so the product \(N\log q\) is unchanged. <em>The entropy does not depend on the choice of \(a\).</em></div></details>
+      </li>
+      <li>If one cell is one bit (\(q=2\)), how many Planck lengths is the cell side?
+        <details><summary>show the answer</summary><div class="ans">From \(\ln 2=a^2/4\ell_P^2\), \(a^2=4\ell_P^2\ln2=2.773\,\ell_P^2\), so \(a=1.665\,\ell_P\). Which is to say <strong>about 2.77 Planck areas per bit</strong>.</div></details>
+      </li>
+      <li>The area law "came for free," so why is nothing solved yet?
+        <details><summary>show the answer</summary><div class="ans">Because what came out is only <strong>that it is proportional</strong>, not <strong>the constant of proportionality</strong>. And since a continuum has infinitely many points, writing \(N=A/a^2\) already puts in a cutoff by hand. The coefficient \(\log q/a^2\) carries the same divergence as the entanglement entropy \(S\sim A/\epsilon^2\) of ordinary QFT.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>The area law comes out of the structure automatically.</strong> If ultra-local, the partition function is a product over points and \(\log Z\) is proportional to the number of points. And a Carrollian theory lives on a null surface, so the number of points is proportional to the area ── \(S\propto A\). <em>No counting of microstates, no Cardy.</em></p>
+    <p><strong>Whereas ordinary field theory gives a volume law.</strong> The area law was long a puzzle because it was a departure from the volume law. In the Carrollian case <em>the place the theory lives is a surface to begin with</em>, so it is the default rather than a departure.</p>
+    <p><strong>The coefficient condenses into a single number.</strong> The cell size \(a\) and the states per cell \(q\) are not determined individually; only \(\log q/a^2\) is. That it equals \(1/4\ell_P^2\) means ── <strong>\(4\ln2=2.773\) Planck areas per bit</strong>, \(1.381\times10^{69}\) bit/m². For the de Sitter horizon, \(3.24\times10^{122}\) bits.</p>
+    <p><strong>And back to Episode 1 for the third time.</strong> "Dimensions get you as far as \(S\propto A\), and only the \(1/4\) refuses" ── this time \(S\propto A\) came out of a structure rather than dimensional analysis, and the wall still stood at the same height.</p>
+    <p style="margin-bottom:0"><strong>But only the form came for free.</strong> A continuum has infinitely many points, so \(N=A/a^2\) puts in a cutoff by hand ── the same divergence as the entanglement entropy \(S\sim A/\epsilon^2\) of ordinary QFT. <em>Though in the Carrollian case there is no "outside" to trace out, so the coefficient should be fixed by the theory's own density of degrees of freedom</em>. That is exactly Episode 11's central-charge question, so <strong>we have gone full circle.</strong></p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-13-omomi.html">There is no central charge</a> ── we actually ran Episode 11's procedure table. <em>The positive control failed once, and the answer to step 1 is NO</em>. No central term can enter the mixed bracket of BMS₄. The reason is that the supertranslation weight was the awkward number \(1/2\).
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 12 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: the ultra-locality of Carrollian theories; that the partition function of independent systems is a product; the Bekenstein–Hawking entropy \(S=A/4\ell_P^2\) and the numbers computed from it (\(4\ln2=2.773\,\ell_P^2\) per bit, \(1.381\times10^{69}\) bit/m², the bit counts of each null surface); and the area law and UV divergence of entanglement entropy in ordinary field theory.<br><strong>On the other hand, §02's argument that "the black-hole area law is derived from the ultra-locality of a Carrollian theory" is this series' author's structural framing, not an established derivation</strong>. Indeed, as §05 states, a continuum has infinitely many points and cutting into cells amounts to introducing a cutoff. The coefficient \(1/4\) is not derived by this argument, and whether the density of degrees of freedom that would give it is fixed as data of the theory is also unsolved. That the horizon's Carrollian theory itself is unconstructed is as stated in Episodes 8 and 11.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a>｜<a href="butsuri-tsukuru-05-carroll.html">Episode 5</a>｜<a href="butsuri-tsukuru-06-daisuu.html">Episode 6</a>｜<a href="butsuri-tsukuru-07-chiheimen.html">Episode 7</a>｜<a href="butsuri-tsukuru-08-naimono.html">Episode 8</a>｜<a href="butsuri-tsukuru-09-hitotsu.html">Episode 9</a>｜<a href="butsuri-tsukuru-10-sanjigen.html">Episode 10</a>｜<a href="butsuri-tsukuru-11-basho.html">Episode 11</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">①</a>／<a href="butsuri-tsukuru-bangai2-ct.html">②</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). In the figure you can confirm that changing the cells does not move the entropy.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sa=document.getElementById('sa'),
+      va=document.getElementById('va'), ro=document.getElementById('ro');
+
+  // cut the surface into cells of side a. S = N ln q, N = A/a^2.
+  // to satisfy S = A/(4 lP^2) we need ln q = a^2/(4 lP^2)  ── S is invariant under changing a
+  var SIDE=12;   // side of the surface (in units of lP) ── schematic in the figure
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var a=parseInt(sa.value,10)/100; va.textContent=a.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var T=26, B=h-34, S=Math.min((B-T), (w-40)*0.42);
+    var x0=24, y0=(T+B)/2-S/2;
+
+    // the surface (a square patch)
+    ctx.fillStyle='#f2f7f6'; ctx.fillRect(x0,y0,S,S);
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,S,S);
+
+    // cell subdivision
+    var n=Math.max(1,Math.round(SIDE/a));       // cells per side
+    var cs=S/n;
+    ctx.strokeStyle='rgba(31,111,116,.35)'; ctx.lineWidth=n>60?0.4:1;
+    for(var i=1;i<n;i++){
+      ctx.beginPath(); ctx.moveTo(x0+i*cs,y0); ctx.lineTo(x0+i*cs,y0+S); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x0,y0+i*cs); ctx.lineTo(x0+S,y0+i*cs); ctx.stroke();
+    }
+    ctx.fillStyle='#1f6f74'; ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='left'; ctx.fillText('cutting the null surface (area A) into cells', x0, T-8);
+
+    // numeric panel ── the drawing uses whole cells, but the numbers use the exact N = A/a^2
+    var N=(SIDE/a)*(SIDE/a);
+    var lnq=a*a/4;                 // ln q = a^2/(4 lP^2)   (in units where lP=1)
+    var q=Math.exp(lnq);
+    var Stot=N*lnq;                // = SIDE^2/4, should be constant
+    var Sexact=SIDE*SIDE/4;
+
+    var px=x0+S+34, py=y0+8, lh=30;
+    function row(lab,val,col){
+      ctx.fillStyle='#4c545c'; ctx.font='12.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='left'; ctx.fillText(lab, px, py);
+      ctx.fillStyle=col||'#191d22'; ctx.font='600 17px "Helvetica Neue",Arial,sans-serif';
+      ctx.fillText(val, px, py+20);
+      py+=lh+16;
+    }
+    row('cell count N = A / a²', N.toFixed(1));
+    row('states per cell q', q.toFixed(4));
+    row('entropy S = N ln q', Stot.toFixed(4), '#a83a22');
+
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(px-10, py-14); ctx.lineTo(w-18, py-14); ctx.stroke();
+    ctx.fillStyle='#2f7d5a'; ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('A / 4ℓ_P² = '+Sexact.toFixed(4)+' (invariant)', px, py+6);
+
+    ro.innerHTML='cell side <b>a = '+a.toFixed(2)+' ℓ_P</b> ｜ cell count <b>'+N.toFixed(1)+'</b> ｜ '
+      +'states per cell <b>q = '+q.toFixed(4)+'</b> ｜ '
+      +'S = N ln q = <b>'+Stot.toFixed(4)+'</b>　'
+      +'── <b>exactly equal to A/4ℓ_P² = '+Sexact.toFixed(4)+'. Changing a does not move it.</b>'
+      + (Math.abs(q-2)<0.02 ? '　★ exactly <b>1 cell = 1 bit</b>.' : '');
+  }
+
+  sa.addEventListener('input', draw);
+  document.getElementById('b1').addEventListener('click', function(){ sa.value=100; draw(); });
+  document.getElementById('b2').addEventListener('click', function(){ sa.value=Math.round(Math.sqrt(4*Math.log(2))*100); draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

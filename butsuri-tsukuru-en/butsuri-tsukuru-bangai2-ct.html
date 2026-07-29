@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How far does "ct = constant" get you? ── The Lattice We Build, Bonus ②</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .verdict{margin:26px 0;padding:0;border:1.5px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .verdict .hd{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.08em;padding:10px 20px;color:#fff;}
+  .verdict.no .hd{background:#a06050;} .verdict.ok .hd{background:#3d7f86;} .verdict.deep .hd{background:#1f6f74;}
+  .verdict .bd{padding:14px 22px 4px;background:#fdfdfb;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:260px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 12px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Bonus ② ／ How far does "ct = constant" get you?</span></div>
+  <p class="eyebrow">It reads three ways ── one is dead, one is correct, and one is deep</p>
+  <h1>How far does "ct = constant" get you?
+    <span class="sub">If you pin the speed of light times time to a constant, surely space need not warp.<br>A naive but good question, and it <strong>reads three ways</strong>. And the answer is completely different for each.<br>Read as "\(c\) varies," it <em>dies</em>; read as "a choice of coordinates," it <em>genuinely does make things simpler</em>;<br>read as "a symmetry," it reaches <em>the core of the theory</em>. We take them in turn, as far as each goes.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: dimensional analysis, log scales, a feel for light cones</span>
+    <span>The core of this episode: coordinates are free; curvature is an invariant</span>
+  </div>
+
+  <p class="lead">Studying relativity, everyone thinks it at least once ── <em>"the speed of light being constant is what forces spacetime to warp. So if the speed of light varies instead, can't space stay flat?"</em><br>And in particular \(ct=\) constant — measuring time so that light travels a fixed distance — looks as though it would simplify things.<br>This intuition <strong>contains something too good to throw away</strong>. Indeed one of the readings is completely correct and dramatically simplifies cosmological calculations. But another reading is a dead road the sister series already killed. <em>Let us clearly separate which is which.</em></p>
+
+  <h2><span class="n">01</span>First, split it three ways</h2>
+
+  <p>The single phrase "\(ct=\) constant" can mean at least one of the following three claims. Mix them and the argument is guaranteed to spin its wheels.</p>
+
+  <table class="tbl">
+    <tr><th style="width:28%">reading</th><th style="width:34%">content of the claim</th><th>result</th></tr>
+    <tr><td><strong>① a varying speed of light</strong></td><td>\(c\) changes with time (\(c\propto1/t\))</td><td class="bad">dead</td></tr>
+    <tr><td><strong>② a choice of coordinates</strong></td><td>choose coordinates in which light travels at \(45^\circ\)</td><td class="ok">correct. genuinely simplifies things</td></tr>
+    <tr><td><strong>③ scale invariance</strong></td><td>demand that the universe has no intrinsic length</td><td class="ok">deep. reaches the core of the theory</td></tr>
+  </table>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">02</span>Reading ① ── this one dies</h2>
+
+  <p>If \(ct=\) constant and \(t\) grows, then \(c\propto1/t\): the claim that light gradually slows. It is called a varying speed of light (VSL).</p>
+
+  <p>But it <strong>is not a physical claim</strong>. The reason is the sister series' spine, verbatim.</p>
+
+  <div class="keybox">
+    <div class="lbl">WHY IT DIES</div>
+    <p style="margin:6px 0 0">\(c\) <strong>carries dimensions</strong>, so "it changed" has no observer-independent meaning.</p>
+    <p style="margin:8px 0 0">No experiment <em>can even in principle</em> distinguish "\(c\) halved" from "the definition of the metre doubled."</p>
+  </div>
+
+  <p>\(c\) is not a physical constant but a <strong>unit-conversion factor</strong>. Exactly the structure the sister series "Temperature That Clicks" identified for \(k_B\) ── just as \(k_B\) disappears if you measure temperature in energy, \(c\) disappears if you measure time in length. What can be eliminated cannot vary.</p>
+
+  <p>Only dimensionless quantities can vary. So to make VSL a physical claim, you have to say that</p>
+
+  $$\alpha=\frac{e^2}{4\pi\varepsilon_0\hbar c}$$
+
+  <p>has changed. And the moment you say that, the story is not about "\(c\)" but about <em>"\(\alpha\)"</em>. Not one line of the formulae gets simpler.</p>
+
+  <div class="aside">
+    <span class="tag">A LINK TO THE SISTER SERIES</span>
+    This point is treated in "Relativity That Clicks," Episode 7 (variable \(c\) ≡ curvature) and its bonus (one line if dimensionless, a nightmare once you put units in). The conclusion is the same ── the accurate statement is not "gravity = a varying speed of light" but <strong>"the two are different coordinate descriptions of the same geometry."</strong>
+  </div>
+
+  <h2><span class="n">03</span>Reading ② ── this one is correct, and genuinely simplifies things</h2>
+
+  <p>Now take \(ct=\) constant to mean <em>choose coordinates in which light travels at \(45^\circ\)</em>. This is the standard and powerful tool called <strong>conformal time</strong>.</p>
+
+  <p>Write the metric of the expanding universe in these coordinates ──</p>
+
+  $$ds^2=a(\eta)^2\left(-d\eta^2+d\vec x^{\,2}\right)$$
+
+  <p>Inside the bracket is <em>just a flat metric</em>. All information about the expansion has been pushed into the overall scale factor \(a(\eta)\).</p>
+
+  <p>And in four dimensions <strong>Maxwell's equations are conformally invariant</strong>. That is, the electromagnetic field does not feel an overall scale factor. Which means ──</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CORE OF THIS SECTION</div>
+    <p style="margin:6px 0 0">In these coordinates, <strong>the expansion of the universe drops out of the equations as far as light is concerned.</strong><br>A photon behaves as if in flat spacetime. The expansion is quarantined inside \(a(\eta)\) and does not appear in the electromagnetic equations of motion.</p>
+  </div>
+
+  <p>In the figure below, see the same light path in two coordinate systems.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: the same light path drawn in two coordinate systems. Left = cosmic time \(t\), right = conformal time \(\eta\). Change the strength of the expansion with the slider</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>strength of the expansion &nbsp;\(a\propto t^{p}\), &nbsp;p = <span class="val" id="vp">0.67</span>
+        <input type="range" id="sp" min="0" max="90" value="67">
+      </label>
+      <button id="b0">no expansion</button>
+      <button id="br">radiation p=1/2</button>
+      <button id="bm">matter p=2/3</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>On the left the light path bends. Because of the expansion, the comoving distance coverable in a given time keeps shrinking. Move to the right and ── it becomes a <em>straight \(45^\circ\) line</em>. The expansion has been absorbed into the coordinates and has vanished from the motion of light.</p>
+
+  <div class="aside">
+    <span class="tag">WHY EXACTLY \(45^\circ\)</span>
+    For light \(ds^2=0\), i.e. \(d\eta=dx\). Integrate and \(x=\eta+\)constant ── <strong>comoving distance and conformal time become the same quantity</strong>. So it must be a line of slope 1. It does not matter what function \(a(\eta)\) is.<br>This is the technically correct version of the "\(ct=\) constant" intuition.
+  </div>
+
+  <h2><span class="n">04</span>So how far does it get? ── the wall has a name</h2>
+
+  <p>So far, good news. The universe could be written as "a flat metric × one scalar." So how far can this go?</p>
+
+  <p>The form "flat spacetime × a scalar" is called <strong>conformally flat</strong>, and there is an exact criterion.</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CRITERION</div>
+    <p style="margin:6px 0 0;text-align:center;font-size:18px">the metric is conformally flat \(\iff\) <strong>the Weyl tensor vanishes</strong></p>
+  </div>
+
+  <p>That draws the boundary sharply.</p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">spacetime</th><th style="width:22%">Weyl tensor</th><th>writable with a scalar alone?</th></tr>
+    <tr><td><strong>FRW (expanding universe)</strong></td><td>\(=0\)</td><td class="ok">yes. and exactly</td></tr>
+    <tr><td><strong>Schwarzschild (a star)</strong></td><td>\(\ne0\)</td><td class="bad">impossible in principle</td></tr>
+  </table>
+
+  <p>Section 03 working was no accident. <strong>FRW really is conformally flat.</strong> As far as cosmology goes, "space is not warped" is <em>correct as a theorem</em>.</p>
+
+  <p>A star is different. Being a vacuum solution, \(R_{\mu\nu}=0\), so all of its curvature is Weyl curvature.</p>
+
+  <div class="calc">
+    <span class="tag">TRY IT ── curvature that will not vanish</span>
+    $$R_{abcd}R^{abcd}=\frac{48G^2M^2}{c^4r^6}\neq 0$$
+    <p class="lbl">this is the tidal force itself</p>
+    <p style="margin:8px 0 8px">Ricci is zero yet the curvature invariant is not. What remains is all Weyl. So it <strong>cannot be made conformally flat</strong> ── however you choose the scalar \(\Omega(x)\), you cannot write down a single star.</p>
+  </div>
+
+  <h3>And yet, why does "light alone" come out right?</h3>
+
+  <p>Posit the refractive-index picture \(n(x)\approx1-2\Phi/c^2\) and light bending, gravitational redshift and the Shapiro delay all come out correctly. It should not be writable ── so why?</p>
+
+  <p>The answer is one line. <strong>Because null geodesics are conformally invariant.</strong></p>
+
+  <p>The path of light is determined by the <em>conformal class</em> of the metric alone and does not change when multiplied by \(\Omega^2\). So a picture that merely tunes the conformal factor is built so as to hit light <strong>structurally, without fail</strong>. And it does not hit anything <em>but</em> light ── not Weyl curvature, not the rate of clocks, not the orbits of matter.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── the hit was neither accident nor necessity of the theory</span>
+    "Light bending was reproduced" is <em>not</em> evidence that the refractive-index picture is correct. Since null geodesics are conformally invariant, any picture that tinkers with the conformal factor is bound to hit light.<br><strong>A hit from something that was bound to hit carries zero information</strong> ── exactly the structure of Episode 1 of the main series, where complicated formulae hit anything.
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>Reading ③ ── here is the depth</h2>
+
+  <p>The third reading takes \(ct=\) constant not as <em>a constraint imposed</em> but as a <strong>symmetry</strong>: that \(x^\mu\to\lambda x^\mu\) may be done freely. That is, it demands "the universe has no intrinsic scale."</p>
+
+  <p>Follow that direction all the way and you find something striking ── of the entire Lagrangian of known physics, <strong>only two terms carry dimensions</strong>: the Higgs mass term and Newton's constant. Delete those two and the whole theory becomes scale invariant.</p>
+
+  <p>For details see §05–06 of <a href="butsuri-tsukuru-bangai1-scale.html">Bonus ①</a>. Here let us note only what happens beyond that.</p>
+
+  <div class="aside">
+    <span class="tag">AT HIGH ENERGY IT ACTUALLY HAPPENS</span>
+    The UV fixed point of "asymptotic safety," one candidate for quantum gravity, is <strong>precisely the point at which the theory becomes scale invariant</strong>. At the fixed point the couplings become pure numbers, the cutoff drops out, and dimensionful quantities lose their meaning.<br>So the intuition "surely putting in \(ct=\) constant simplifies things" is a naive but directionally correct way of saying <em>what actually happens at high energy</em>.
+  </div>
+
+  <h2><span class="n">06</span>But coordinates cannot erase curvature</h2>
+
+  <p>Finally, let us draw the most important line.</p>
+
+  <p>\(ct=\) constant is <strong>a choice of coordinates</strong>. And <em>curvature is a tensor</em>, so if it is non-zero in one coordinate system it is non-zero in all of them. "Choosing coordinates in which space does not warp" is impossible in principle.</p>
+
+  <p>The figure in §03 shows exactly this. Move to conformal time and light became exactly 45° ── the coordinate description became maximally simple. <strong>But \(a(\eta)\) is still sitting there.</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">THE CONCLUSION OF THIS EPISODE</div>
+    <p style="margin:6px 0 0">The curvature did not <em>vanish</em>; it merely <strong>moved into the conformal factor</strong>.<br>Coordinates may be chosen freely. But invariants do not depend on the choice.</p>
+  </div>
+
+  <p>So is the position "space is not warped" completely wrong? <em>No.</em> A scalar was simply not enough, and supplying what was missing lets you build the whole of general relativity on a flat stage. That is Episode 3 of the main series.</p>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>Could a "universe where the speed of light halved" be detected experimentally? If not, what should be measured instead?
+        <details><summary>show the answer</summary><div class="ans">It cannot be detected. \(c\) carries dimensions, so a change in its value is indistinguishable from a redefinition of the units. What should be measured is a dimensionless quantity ── for example \(\alpha=e^2/4\pi\varepsilon_0\hbar c\). In fact the time variation of \(\alpha\) is tightly constrained from absorption lines in distant quasars.</div></details>
+      </li>
+      <li>Why is the light path exactly \(45^\circ\) in conformal time? Why does it not depend on the form of \(a(\eta)\)?
+        <details><summary>show the answer</summary><div class="ans">Light has \(ds^2=0\). In conformal coordinates \(ds^2=a^2(-d\eta^2+dx^2)\), so as long as \(a\ne0\) the \(a^2\) divides out and \(d\eta=dx\). Integrating, \(x=\eta+\)constant. <strong>The scale factor drops out of the equation entirely</strong>, so its form is irrelevant.</div></details>
+      </li>
+      <li>The refractive-index picture gets light bending right, so why is that not evidence for "gravity = a varying speed of light"?
+        <details><summary>show the answer</summary><div class="ans">Because null geodesics are conformally invariant. Any picture that tinkers with the conformal factor is built so as to <strong>necessarily</strong> hit the path of light. A hit from something bound to hit carries no information. What distinguishes them is everything other than light (clocks, matter orbits, tidal forces).</div></details>
+      </li>
+      <li>FRW is conformally flat and Schwarzschild is not. State that difference in terms of one quantity.
+        <details><summary>show the answer</summary><div class="ans">The Weyl tensor. FRW has \(C_{abcd}=0\), Schwarzschild has \(C_{abcd}\ne0\) (with \(R_{\mu\nu}=0\), all of \(R_{abcd}R^{abcd}=48G^2M^2/c^4r^6\) is Weyl). The condition for conformal flatness is precisely the vanishing of Weyl.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">Summary of this episode</h2>
+    <p><strong>① Read as "\(c\) varies," it dies.</strong> \(c\) carries dimensions, so "it changed" has no observer-independent meaning. It is a unit-conversion factor, not a physical constant. Only dimensionless quantities like \(\alpha\) can vary.</p>
+    <p><strong>② Read as coordinates, it genuinely simplifies things.</strong> In conformal time the expanding-universe metric becomes "flat × a scale factor," and since Maxwell's equations are conformally invariant, <em>the expansion vanishes as far as light is concerned</em>. That light travels exactly \(45^\circ\) follows from \(ds^2=0\) and does not depend on the form of \(a(\eta)\).</p>
+    <p><strong>③ The wall has a name ── the Weyl tensor.</strong> FRW has \(C=0\) and can be written exactly, but a star has \(C\ne0\) and cannot be written in principle. That light alone still comes out right is because <em>null geodesics are conformally invariant</em>. A hit from something bound to hit carries zero information.</p>
+    <p><strong>④ Read as a symmetry, it reaches the core of the theory.</strong> Only two terms carry dimensions: the Higgs mass and Newton's constant. And at high-energy fixed points, scale does in fact lose its meaning.</p>
+    <p style="margin-bottom:0"><strong>And coordinates cannot erase curvature.</strong> Because curvature is a tensor. Make light 45° in conformal time and \(a(\eta)\) remains ── the curvature did not vanish, it merely moved.</p>
+    <div class="next">
+      <span class="lbl">CONTINUED IN EPISODE 3 OF THE MAIN SERIES</span>
+      <a href="butsuri-tsukuru-03-heitan.html">The stage may stay flat</a> ── what a scalar was missing turned out to be <em>a single word</em>. Supply it and the whole of general relativity stands up on a flat stage, with <strong>the equivalence principle coming out as a conclusion</strong>. And since the lattice does not warp, it <em>can be solved by finite differences</em> ── which is exactly what numerical relativity does.
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Bonus ② of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: that a change in a dimensionful constant has no observer-independent meaning; the conformal flatness of the FRW metric; the conformal invariance of Maxwell's equations in four dimensions; the conformal invariance of null geodesics; the equivalence of conformal flatness and the vanishing of the Weyl tensor; and the Kretschmann invariant of Schwarzschild. <strong>On the other hand, the scale-invariance picture of §05 (that all scales are generated from quantum anomalies and spontaneous breaking) is a position under research, not an established conclusion</strong>. And because of the conformal anomaly, exact scale invariance is generally broken as a quantum theory. The figure is schematic: the real universe is not described by a single power \(a\propto t^p\) (\(p\) shifts across radiation, matter and dark-energy domination).</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a> ｜ Bonus ①: <a href="butsuri-tsukuru-bangai1-scale.html">Could physics be written more simply?</a> ｜ sister series: <a href="../wakaru-soutai-en/index.html">Relativity That Clicks</a>／<a href="../wakaru-ondo-en/index.html">Temperature That Clicks</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). The slider in the figure lets you watch the expansion being absorbed into the coordinates.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sp=document.getElementById('sp'),
+      vp=document.getElementById('vp'), ro=document.getElementById('ro');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  // a(t) = (t/t0)^p, t0 = 1. the comoving distance of light x(t) = ∫dt/a = t^(1-p)/(1-p)
+  // conformal time η(t) is the same integral, so in (η, x) we have exactly x = η (slope 1).
+  function xOf(t,p){ return (1-p<1e-6) ? Math.log(Math.max(t,1e-9)) : Math.pow(t,1-p)/(1-p); }
+
+  function draw(){
+    var p=parseInt(sp.value,10)/100; vp.textContent=p.toFixed(2);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var gap=26, pw=(w-gap)/2, T0=24, B=h-40;
+    var xmax=xOf(1,p)*1.06 || 1;
+
+    function panel(x0,title,mode){
+      var L=x0+42, R=x0+pw-12;
+      ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+      for(var i=0;i<=4;i++){ var y=T0+(B-T0)*i/4; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(R,y); ctx.stroke(); }
+      ctx.strokeStyle='#7a8785';
+      ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,T0); ctx.lineTo(L,B); ctx.stroke();
+
+      ctx.fillStyle='#1f6f74'; ctx.textAlign='left';
+      ctx.font='600 12.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.fillText(title, L, T0-8);
+
+      ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4; ctx.beginPath();
+      var N=260;
+      for(var k=0;k<=N;k++){
+        var t=1e-4+(1-1e-4)*k/N;
+        var xx=xOf(t,p);
+        var hh = (mode===0) ? t : xx/xmax;
+        var px=L+(R-L)*hh, py=B-(B-T0)*(xx/xmax);
+        if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+
+      if(mode===1){
+        ctx.strokeStyle='rgba(31,111,116,.35)'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+        ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,T0); ctx.stroke(); ctx.setLineDash([]);
+      }
+
+      ctx.fillStyle='#4c545c'; ctx.font='11.5px "Helvetica Neue",Arial,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(mode===0?'cosmic time t':'conformal time η', (L+R)/2, B+22);
+      ctx.save(); ctx.translate(x0+13,(T0+B)/2); ctx.rotate(-Math.PI/2);
+      ctx.fillText('comoving distance x', 0, 0); ctx.restore();
+    }
+
+    panel(0, '① seen in cosmic time ── it bends', 0);
+    panel(pw+gap, '② seen in conformal time ── a 45° straight line', 1);
+
+    ro.innerHTML = (p<0.01)
+      ? 'No expansion (<b>p = 0</b>). Here both coordinate systems are the same and light was already straight.'
+      : 'With expansion (<b>p = '+p.toFixed(2)+'</b>). On the left the light path <b>bends</b>, '
+        +'while on the right it is exactly a <b>45° straight line</b> ── the expansion has been absorbed into the coordinates and has vanished from the equation of motion for light. '
+        +'But <b>a(η) is still there</b>.';
+  }
+
+  sp.addEventListener('input', draw);
+  document.getElementById('b0').addEventListener('click', function(){ sp.value=0; draw(); });
+  document.getElementById('br').addEventListener('click', function(){ sp.value=50; draw(); });
+  document.getElementById('bm').addEventListener('click', function(){ sp.value=67; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

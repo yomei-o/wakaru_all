@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The boundary was three-dimensional ── The Lattice We Build, Episode 5</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f6f74;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    line-height:1.82;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.24;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.64;}
+  .byline{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.36;}
+  h2 .n{font-family:'Helvetica Neue',Arial,sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.76;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #bfe0dd 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14.5px;line-height:1.72;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .calc .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1d2b2e;color:#dbe9e7;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#7fc3bd;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.6;white-space:pre;}
+  .lab .cm{color:#7f9a97;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:250px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.64;background:#e7eff0;color:#1d4c52;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:'Helvetica Neue',Arial,sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f4;}
+  .prob .lbl{font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1d4c52;line-height:1.68;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e9f0ef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7eff0;border-radius:2px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#1d4c52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.64;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f2f4f4;color:#1d2b2e;border:1px solid #ccc;}
+    .lab .cm{color:#5c6f6c;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>The Lattice We Build</span><span class="ep">Episode 5 ／ The boundary was three-dimensional</span></div>
+  <p class="eyebrow">Celestial CFT was throwing away too much information ── a geometry with zero speed of light gets it back</p>
+  <h1>The boundary was three-dimensional
+    <span class="sub">In the previous bonus episode we watched holography for flat spacetime <em>break at the four-point function</em>.<br>The diagnosis was "the correlation function becomes a distribution." So how do we fix it?<br>The answer lay in an unexpected direction ── <strong>thinking the boundary was two-dimensional was the mistake</strong>.<br>And the correct three-dimensional boundary carries a strange geometry: <em>a world where the speed of light is zero</em>.</span>
+  </h1>
+  <div class="byline">
+    <span>Tools needed: Episode 4, Bonus ③, group contraction (we build it in the text)</span>
+    <span>The core of this episode: BMS = the 3d conformal Carroll group</span>
+  </div>
+
+  <p class="lead">In Bonus ③ we actually computed and confirmed that celestial CFT's four-point function becomes a distribution supported on \(\delta(z-\bar z)\). The cause was "2→2 scattering is planar" ── elementary kinematics.<br>There I wrote that "a breakage whose mode of breaking is understood can be handled." This episode is that <em>handling</em>.<br>And the fix was not a repair to some detail. <strong>The dimension of the boundary itself was wrong.</strong> The correct boundary is three-dimensional, and it carries "a geometry with zero speed of light" ── a world, named after Lewis Carroll, in which nothing can move.</p>
+
+  <h2><span class="n">01</span>The real suspect ── the codimension does not match</h2>
+
+  <p>First, let us reread Bonus ③'s diagnosis one level deeper.</p>
+
+  <p>The standard form of holography is AdS/CFT. There, <strong>a \(d+1\)-dimensional bulk ↔ a \(d\)-dimensional boundary</strong>. The boundary is at <em>codimension 1</em> in the bulk. But ──</p>
+
+  <table class="tbl">
+    <tr><th style="width:36%"></th><th>bulk</th><th>boundary</th><th>codim</th></tr>
+    <tr><td>AdS/CFT</td><td>AdS\(_{d+1}\)</td><td>CFT\(_d\)</td><td class="c ok">1</td></tr>
+    <tr><td>celestial</td><td>4d flat spacetime</td><td>2d celestial sphere \(S^2\)</td><td class="c bad">2</td></tr>
+  </table>
+
+  <p><strong>Celestial alone has codimension 2.</strong> That is anomalous, and it is no accident. Recall what the Mellin transform did.</p>
+
+  $$\tilde{\mathcal{M}}(\Delta,z,\bar z)=\int_0^\infty d\omega\;\omega^{\Delta-1}\,\mathcal{M}(\omega,z,\bar z)$$
+
+  <p>It <em>integrates the energy \(\omega\) away</em>. One dimension's worth of the four-dimensional information was crushed by the transform. That is why the boundary came out two-dimensional.</p>
+
+  <div class="keybox">
+    <div class="lbl">RE-DIAGNOSIS</div>
+    <p style="margin:6px 0 0">The distributional behaviour is not "because it is a weird CFT."<br><strong>The container is one dimension short, so the leftover information overflows as a delta function.</strong></p>
+  </div>
+
+  <p>Then the prescription is obvious ── <em>do not delete \(\omega\).</em></p>
+
+  <h2><span class="n">02</span>Keep \(\omega\) ── the boundary becomes three-dimensional</h2>
+
+  <p>Instead of the Mellin transform, move \(\omega\) to its Fourier conjugate, the <strong>retarded time \(u\)</strong>. No information is discarded.</p>
+
+  <p>Then the place the operators live becomes this.</p>
+
+  $$\mathcal{O}(u,z,\bar z)\qquad\text{──}\qquad \mathscr{I}^+ \cong \mathbb{R}_u\times S^2$$
+
+  <p>Null infinity \(\mathscr{I}^+\) is a <strong>three-dimensional</strong> manifold: the celestial sphere \(S^2\) times the \(u\) direction. The sphere was only a "slice" of it.</p>
+
+  <table class="tbl">
+    <tr><th style="width:26%"></th><th>celestial</th><th>Carrollian</th></tr>
+    <tr><td>boundary</td><td>celestial sphere \(S^2\)</td><td><strong>all of \(\mathscr{I}\)</strong></td></tr>
+    <tr><td>dimension</td><td>2</td><td><strong>3</strong></td></tr>
+    <tr><td>codimension</td><td class="bad">2 (anomalous)</td><td class="ok">1 (standard)</td></tr>
+    <tr><td>\(\omega\) is</td><td>integrated away</td><td><strong>kept as \(u\)</strong></td></tr>
+  </table>
+
+  <p>The codimension is back to 1. What remains is "what theory sits on a three-dimensional boundary?" <em>This is the strange and interesting part.</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>The geometry of \(\mathscr{I}\) ── the metric is degenerate</h2>
+
+  <p>Let us try putting a metric on \(\mathscr{I}^+\). Something awkward happens.</p>
+
+  <p>The \(u\) direction is <strong>null</strong>. It is the direction light runs, so its length is zero. Hence the metric on \(\mathscr{I}\) is ──</p>
+
+  $$ds^2\Big|_{\mathscr{I}}=\underbrace{0\cdot du^2}_{\text{zero length in the time direction}}+\;d\Omega^2$$
+
+  <p><strong>Degenerate.</strong> There is no inverse. Neither ordinary Riemannian nor Lorentzian geometry applies.</p>
+
+  <p>So what is it? It has a name.</p>
+
+  <h3>Carroll geometry ── a world with the speed of light set to zero</h3>
+
+  <p>The Poincaré group has <em>two limits</em>. Both are group contractions (Inönü–Wigner contractions).</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%">limit</th><th style="width:22%">group obtained</th><th>form of the boost</th><th>what is absolute</th></tr>
+    <tr><td>\(c\to\infty\)</td><td>Galilei group</td><td>\(x'=x-vt,\quad t'=t\)</td><td><strong>time</strong></td></tr>
+    <tr><td>\(c\to 0\)</td><td><strong>Carroll group</strong></td><td>\(t'=t-b\!\cdot\!x,\quad x'=x\)</td><td><strong>space</strong></td></tr>
+  </table>
+
+  <p>Neatly <em>dual</em>. In Galilei, time is absolute and space mixes. In Carroll it is the reverse ── <strong>space is absolute, and it is time that mixes</strong>.</p>
+
+  <p>Lévy-Leblond named it (1965), taking it from the Red Queen in Lewis Carroll's <em>Through the Looking-Glass</em> ── <em>"you have to run as fast as you can just to stay in the same place."</em></p>
+
+  <p>Why that quotation? See the figure.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: how the light cone changes as you change the speed of light. Try swinging the slider to both extremes</div>
+    <canvas id="cv" width="720" height="330"></canvas>
+    <div class="controls">
+      <label>speed of light &nbsp;log₁₀ c = <span class="val" id="vc">0.00</span>
+        <input type="range" id="sc" min="-200" max="200" value="0">
+      </label>
+      <button id="bg">Galilei c→∞</button>
+      <button id="bl">Lorentz c=1</button>
+      <button id="bc">Carroll c→0</button>
+    </div>
+    <div class="readout" id="ro"></div>
+  </div>
+
+  <p>At \(c\to\infty\) the light cone <em>opens out flat</em> and surfaces of simultaneity become absolute (Galilei). Conversely at \(c\to0\) ──</p>
+
+  <div class="keybox">
+    <div class="lbl">CARROLL'S COUNTRY</div>
+    <p style="margin:6px 0 0">The light cone <strong>collapses onto the time axis</strong>. The set of reachable places shrinks to the single point you are at.<br><em>However much time passes, you can go nowhere.</em></p>
+  </div>
+
+  <p>That is the meaning of the Red Queen. And an important physical consequence follows ── <strong>Carrollian dynamics is "ultra-local"</strong>. Since no signal propagates, each point of space evolves in time <em>independently</em>.</p>
+
+  <h2><span class="n">04</span>And BMS turned out to be exactly that</h2>
+
+  <p>Now back to Episode 4. What was a supertranslation?</p>
+
+  $$u\;\longrightarrow\;u-f(\theta,\phi)$$
+
+  <p><strong>Shift \(u\) independently in each direction on the celestial sphere.</strong></p>
+
+  <p>Read it again. This <em>is</em> "each point of space evolves in time independently." An ultra-local time translation ── precisely the form Carroll geometry demands.</p>
+
+  <p>And in fact an exact isomorphism holds (Duval–Gibbons–Horvathy and others).</p>
+
+  <div class="keybox">
+    <div class="lbl">THE CORE OF THIS EPISODE</div>
+    $$\text{BMS}_4\;\cong\;\text{the 3d conformal Carroll group}$$
+    <p style="margin:8px 0 0">What surprised us in Episode 4 — "the symmetry of flat spacetime is infinite-dimensional" — turns out to be <strong>the conformal group at zero speed of light</strong>. It is infinite-dimensional because of ultra-locality ── each point being independent, there is one generator per point.</p>
+  </div>
+
+  <p>And back to the distributions. <strong>In an ultra-local theory, a delta function in the correlator of separated points is not pathology.</strong> Since no signal propagates, of course the points are not connected.</p>
+
+  <p>The delta function that looked like "something weird" in the celestial picture becomes, in Carrollian language, <em>a basic property of the theory</em>. The same formula stopped being an anomaly the moment it was put in the right container.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>The two frameworks are not in conflict</h2>
+
+  <p>Let us head off a misunderstanding. The celestial computation done in Bonus ③ is not wasted.</p>
+
+  <p>What "Bridging Carrollian and Celestial Holography" (2022–23) showed is that the two are <strong>related by an integral transform</strong>. Not different theories but <em>a change of basis for the scattering amplitude</em>.</p>
+
+  <div class="calc">
+    <span class="tag">THE RELATION</span>
+    $$\underbrace{\mathcal{O}(u,z,\bar z)}_{\text{Carrollian}}\;\xrightarrow[\;\;u\to\Delta\;\;]{\text{transform}}\;\underbrace{\mathcal{O}_\Delta(z,\bar z)}_{\text{celestial}}$$
+    <p class="lbl">what has been confirmed</p>
+    <p style="margin:8px 0 8px">Map Carrollian operators to celestial ones and <strong>the Carrollian Ward identities reproduce those of the 2d celestial CFT</strong>. Furthermore, the Carrollian-side Ward identities are precisely <strong>the BMS flux-balance laws</strong>.</p>
+  </div>
+
+  <p>So ── it is not that one is right and the other wrong. It is only that <em>the Carrollian side has not thrown information away</em>. Celestial is the "projection" obtained by integrating out \(u\).</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%"></th><th>celestial</th><th>Carrollian</th></tr>
+    <tr><td>ease of use</td><td class="ok">the toolkit of 2d CFT applies</td><td>3d; the tools are still developing</td></tr>
+    <tr><td>codimension</td><td class="bad">2</td><td class="ok">1</td></tr>
+    <tr><td>delta functions</td><td class="bad">look anomalous</td><td class="ok">natural, as ultra-locality</td></tr>
+    <tr><td>identity of the symmetry</td><td>\(SL(2,\mathbb{C})\) is visible</td><td class="ok"><strong>BMS, directly</strong></td></tr>
+  </table>
+
+  <h2><span class="n">06</span>One more piece of good news ── \(w_{1+\infty}\)</h2>
+
+  <p>The story so far has been all "not enough," so here is one piece of <strong>strong positive evidence</strong>.</p>
+
+  <p>Episode 4 dealt with the soft theorem, but in fact only its leading term. There is an infinite tower.</p>
+
+  $$\underbrace{q^{-1}}_{\text{supertranslations}},\quad\underbrace{q^{0}}_{\text{superrotations}},\quad\underbrace{q^{1}}_{?},\quad\underbrace{q^{2}}_{?},\quad\cdots$$
+
+  <p>What Strominger (2021) showed is that <strong>the entire tower of positive-helicity soft gravitons organizes into a single chiral 2d Kac–Moody symmetry based on the wedge subalgebra of \(w_{1+\infty}\)</strong>. And the towers of soft photons and gluons transform irreducibly under it.</p>
+
+  <p>Why does this matter? <strong>\(w_{1+\infty}\) is not an algebra built for this purpose.</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:34%">where \(w_{1+\infty}\) had already appeared</th><th></th></tr>
+    <tr><td><strong>area-preserving diffeomorphisms</strong> of a 2d surface</td><td>pure geometry</td></tr>
+    <tr><td>the symmetry of <strong>self-dual gravity</strong></td><td>a solvable sector of gravity</td></tr>
+    <tr><td>twistor theory</td><td>Penrose's programme</td></tr>
+    <tr><td>2d solvable systems</td><td>integrability</td></tr>
+  </table>
+
+  <p>From an entirely different entrance — the soft limit of scattering amplitudes — out came <em>a known infinite-dimensional algebra with a name and a representation theory</em>. Bonus ③ wrote that "there is not enough content"; this is evidence in the opposite direction ── <strong>a sign that there is content</strong>.</p>
+
+  <div class="caveat">
+    <span class="tag">THE HONEST LINE ── how far is it established</span>
+    What is established is mainly the <strong>tree-level, self-dual sector</strong>. Self-dual gravity is a solvable special sector, not full gravity. The extension to loops and to the non-self-dual case is unsolved.<br>"An algebra came out" is not "a theory has been constructed" ── in this series' discipline, this is <em>strong circumstantial evidence</em>, not a proof.
+  </div>
+
+  <h2><span class="n">07</span>What still remains</h2>
+
+  <p>The codimension is fixed. The meaning of the delta functions is understood. Strong algebraic evidence has appeared. So is it finished?</p>
+
+  <p><strong>No. The central gap remains exactly as it was.</strong></p>
+
+  <div class="keybox">
+    <div class="lbl">WHAT IS STILL MISSING</div>
+    <p style="margin:6px 0 0"><strong>An independent definition of the boundary theory.</strong></p>
+    <p style="margin:8px 0 0">What makes AdS/CFT strong is that the boundary side, \(\mathcal{N}=4\) supersymmetric Yang–Mills, is <em>a theory defined with no reference to gravity</em>, so both sides can be computed separately and cross-checked.<br>Carrollian CFT has no such "independent definition" yet. No action, no lattice, no other construction.</p>
+  </div>
+
+  <p>That the object of the search has changed from "a weird 2d CFT" to "a 3d Carrollian CFT" is progress. <em>The place we are looking has become the right one.</em> But it has not been found.</p>
+
+  <p>In addition, let us list the technical holes that remain.</p>
+
+  <table class="tbl">
+    <tr><th style="width:30%">what remains</th><th>status</th></tr>
+    <tr><td><strong>massive particles</strong></td><td>massless works cleanly, but with mass they live on the hyperboloid \(H^3\) in momentum space and need separate treatment. partial</td></tr>
+    <tr><td><strong>loops and IR divergences</strong></td><td>loop amplitudes are IR divergent, so a prescription for dressed states is needed. active</td></tr>
+    <tr><td><strong>the central charge</strong></td><td>there is a stress tensor, yet what the central charge is (or whether it is zero) is unknown</td></tr>
+    <tr><td><strong>the flat limit of AdS</strong></td><td>the conservative route of deriving it as \(\ell\to\infty\). the limit is singular and the CFT has not been identified</td></tr>
+    <tr><td><strong>de Sitter</strong></td><td>still the main prize. \(\Lambda>0\) is unsolved</td></tr>
+  </table>
+
+  <div class="prob">
+    <div class="lbl">EXERCISES</div>
+    <ol>
+      <li>State, in the language of the transform, why celestial CFT ends up with codimension 2.
+        <details><summary>show the answer</summary><div class="ans">Because the Mellin transform \(\int_0^\infty d\omega\,\omega^{\Delta-1}\) <strong>integrates the energy \(\omega\) away</strong>. One dimension's worth of the four-dimensional information is crushed, and the remaining celestial sphere \(S^2\) is two-dimensional. Keep \(\omega\) as its Fourier conjugate \(u\) and you get the three-dimensional \(\mathscr{I}\cong\mathbb{R}_u\times S^2\), returning the codimension to 1.</div></details>
+      </li>
+      <li>What limits of the Poincaré group are the Galilei and Carroll groups? And what becomes "absolute" in each?
+        <details><summary>show the answer</summary><div class="ans">Both are group contractions. \(c\to\infty\) gives Galilei, with boosts \(x'=x-vt,\ t'=t\) ── <strong>time is absolute</strong>. \(c\to0\) gives Carroll, with \(t'=t-b\cdot x,\ x'=x\) ── <strong>space is absolute</strong>. The two limits are dual to each other.</div></details>
+      </li>
+      <li>Why can nothing move in Carroll geometry? And how does that connect to supertranslations?
+        <details><summary>show the answer</summary><div class="ans">Because at \(c\to0\) the light cone collapses onto the time axis and the reachable region shrinks to the point you are at. Hence no signal propagates and the dynamics is <strong>ultra-local</strong> (each point of space evolves independently).<br>A supertranslation \(u\to u-f(\theta,\phi)\) is the operation "shift time independently in each direction on the celestial sphere," which is exactly an ultra-local time translation. That is why BMS is the conformal Carroll group.</div></details>
+      </li>
+      <li>Why is the \(\delta(z-\bar z)\) seen in Bonus ③ not anomalous from the Carrollian standpoint?
+        <details><summary>show the answer</summary><div class="ans">In an ultra-local theory separated points are not dynamically connected, so a correlator supported on a delta function is <strong>a basic property of the theory</strong>. It looked "weird" in the celestial picture because the container (2d) was smaller than the true 3d, and ultra-locality showed up as an anomaly.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">What we learned in this episode</h2>
+    <p><strong>The diagnosis was wrong.</strong> Bonus ③'s distributional behaviour was not "because it is a weird CFT" but <em>because the container is one dimension short</em>. The Mellin transform was integrating the energy away, making the codimension 2 ── anomalous against AdS/CFT's 1.</p>
+    <p><strong>Keep \(\omega\) as \(u\) and the boundary becomes three-dimensional.</strong> \(\mathscr{I}\cong\mathbb{R}_u\times S^2\). The codimension returns to 1. The celestial sphere was only a slice of it.</p>
+    <p><strong>That three-dimensional boundary carries a geometry with zero speed of light.</strong> The \(u\) direction being null, the metric degenerates and becomes Carroll geometry. At \(c\to0\) the light cone collapses and you can go nowhere (the Red Queen). Hence the dynamics is <strong>ultra-local</strong>.</p>
+    <p><strong>And BMS's identity came out.</strong> \(\text{BMS}_4\cong\) the 3d conformal Carroll group. That a supertranslation is "shift time independently in each direction" is ultra-locality itself. The infinite-dimensionality that surprised us in Episode 4 meant "one generator per point." <em>And the delta function became a basic property rather than an anomaly.</em></p>
+    <p><strong>Strong positive evidence has appeared too.</strong> The infinite tower of soft theorems organizes into \(w_{1+\infty}\) ── an algebra that had already shown up in area-preserving diffeomorphisms, self-dual gravity and twistors came out of an entirely different entrance. But only at tree level, in the self-dual sector.</p>
+    <p style="margin-bottom:0"><strong>Even so, the centre is still empty.</strong> There is no independent definition of the boundary theory. What advanced is that <em>the place we are looking became the right one</em>, not that anything was found.</p>
+    <div class="next">
+      <span class="lbl">READ NEXT</span>
+      <a href="butsuri-tsukuru-06-daisuu.html">An algebra I had seen before</a> ── the story has been all "not enough," but this is the opposite episode. The infinite tower of soft theorems closes into an algebra, and that algebra <em>had already appeared in area-preserving geometry, self-dual gravity and twistors</em> ── discovery, not fitting.
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>This document is Episode 5 of the "Lattice We Build" series, a reading piece for high-school and university students who love physics. Where the sister series "That Clicks" explains known physics, this series shows the work itself.</p>
+    <p>Established material: that the metric on \(\mathscr{I}\) is degenerate; that the Galilei and Carroll groups are the \(c\to\infty\) / \(c\to0\) contractions of the Poincaré group; the naming of the Carroll group (Lévy-Leblond 1965); the isomorphism between the BMS group and the 3d conformal Carroll group; that Carrollian and celestial are related by an integral transform (Donnay–Fiorucci–Herfray–Ruzziconi 2022, and the Bridging papers 2022–23); that the Carrollian Ward identities reproduce the BMS flux-balance laws; and that the tower of soft gravitons forms the wedge subalgebra of \(w_{1+\infty}\) (Strominger 2021).<br><strong>Carrollian holography is an ongoing research programme, and an independent construction of the boundary theory does not yet exist</strong>. The \(w_{1+\infty}\) results are established mainly at tree level in the self-dual sector; the extension to full gravity and to loops is unsolved. The figure is a schematic of how the light cone opens, and the contraction limits hold exactly only at the two ends of the slider.</p>
+    <p>Main series: <a href="butsuri-tsukuru-01-hi.html">Episode 1</a>｜<a href="butsuri-tsukuru-02-koushi.html">Episode 2</a>｜<a href="butsuri-tsukuru-03-heitan.html">Episode 3</a>｜<a href="butsuri-tsukuru-04-kagami.html">Episode 4</a> ｜ bonus: <a href="butsuri-tsukuru-bangai1-scale.html">① Could physics be written more simply?</a>／<a href="butsuri-tsukuru-bangai2-ct.html">② How far does "ct = constant" get you?</a>／<a href="butsuri-tsukuru-bangai3-genzaichi.html">③ Not a CFT yet</a> ── to print, use your browser's "Print" → "Save as PDF."</p>
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). Swing the slider in the figure all the way left to see Carroll's country.</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sc=document.getElementById('sc'),
+      vc=document.getElementById('vc'), ro=document.getElementById('ro');
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var lg=parseInt(sc.value,10)/100; vc.textContent=lg.toFixed(2);
+    var c=Math.pow(10,lg);
+    var dd=setupHiDPI(cv), ctx=dd.ctx, w=dd.w, h=dd.h;
+    ctx.clearRect(0,0,w,h);
+
+    var L=54, R=w-16, T=24, B=h-38;
+    var cx=(L+R)/2, cy=(T+B)/2;
+    var SX=(R-L)/2*0.92, SY=(B-T)/2*0.92;
+
+    // axes
+    ctx.strokeStyle='#dde6e4'; ctx.lineWidth=1;
+    for(var g=-4;g<=4;g++){
+      ctx.beginPath(); ctx.moveTo(cx+g*SX/4,T); ctx.lineTo(cx+g*SX/4,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,cy+g*SY/4); ctx.lineTo(R,cy+g*SY/4); ctx.stroke();
+    }
+    ctx.strokeStyle='#7a8785'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,cy); ctx.lineTo(R,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,T); ctx.lineTo(cx,B); ctx.stroke();
+
+    // light cone x = ±c t (t is upward on screen)
+    // per 1 unit up, go c units across. on screen the slope is scaled by SX/SY
+    var slope = c*SX/SY;             // "across per 1 up" on screen
+    var half  = Math.min(slope*(SY), SX*40);
+
+    // fill the interior of the future cone
+    ctx.fillStyle='rgba(31,111,116,.13)';
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx-half, cy-SY); ctx.lineTo(cx+half, cy-SY); ctx.closePath(); ctx.fill();
+    // past
+    ctx.fillStyle='rgba(76,84,92,.09)';
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx-half, cy+SY); ctx.lineTo(cx+half, cy+SY); ctx.closePath(); ctx.fill();
+
+    // the cone boundaries
+    ctx.strokeStyle='#1f6f74'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    ctx.moveTo(cx-half, cy-SY); ctx.lineTo(cx,cy); ctx.lineTo(cx+half, cy-SY);
+    ctx.moveTo(cx-half, cy+SY); ctx.lineTo(cx,cy); ctx.lineTo(cx+half, cy+SY);
+    ctx.stroke();
+
+    // the origin
+    ctx.fillStyle='#a83a22';
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,6.2832); ctx.fill();
+
+    ctx.fillStyle='#4c545c'; ctx.font='12px "Helvetica Neue",Arial,sans-serif';
+    ctx.textAlign='center'; ctx.fillText('space x', (L+R)/2, B+20);
+    ctx.save(); ctx.translate(20,(T+B)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('time t', 0, 0); ctx.restore();
+    ctx.textAlign='left'; ctx.fillStyle='#1f6f74';
+    ctx.font='600 12px "Helvetica Neue",Arial,sans-serif';
+    ctx.fillText('region reachable in the future', L+6, T+16);
+
+    var msg;
+    if(lg>1.2){
+      msg='<b>The Galilean world (c→∞).</b> The light cone has opened out flat, and '
+        +'<b>you can get anywhere instantly</b>. Surfaces of simultaneity become absolute, and time becomes a quantity common to everyone.';
+    }else if(lg<-1.2){
+      msg='<b>Carroll\'s country (c→0).</b> The light cone has collapsed onto the time axis ── '
+        +'<b>however much time passes, you cannot move from the point you are at</b>. '
+        +'No signal propagates, so each point of space evolves in time independently (<b>ultra-locality</b>). '
+        +'This is the geometry of \\(\\mathscr{I}\\).';
+    }else{
+      msg='<b>The Lorentzian world (c ≈ 1).</b> The familiar light cone. '
+        +'The reachable region is confined to the interior of the cone.';
+        +'｜ c = <b>'+c.toFixed(3)+'</b>';
+    }
+    ro.innerHTML=msg;
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([ro]).catch(function(){});
+  }
+
+  sc.addEventListener('input', draw);
+  document.getElementById('bg').addEventListener('click', function(){ sc.value=200; draw(); });
+  document.getElementById('bl').addEventListener('click', function(){ sc.value=0; draw(); });
+  document.getElementById('bc').addEventListener('click', function(){ sc.value=-200; draw(); });
+  window.addEventListener('resize', draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
