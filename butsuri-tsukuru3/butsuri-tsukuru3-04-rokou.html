@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>露光は、もう存在していた ── 物理を作る 第3部 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#191d22; --ink-soft:#4c545c;
+    --paper:#f8f8f5; --paper-edge:#dbe2e0;
+    --side:#2f5d6b; --side-bg:#e8f0f1;
+    --warn:#7a3b2a;
+    --calc:#245a63; --calc-bg:#e7eff0;
+    --rule:#cdd6d4; --hair:#b3c0bd;
+    --acc:#1f5f8a;
+    --grid:#dde6e4;
+    --ok:#2f7d5a; --bad:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:770px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:38px;line-height:1.3;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:18px;color:var(--ink-soft);font-weight:400;margin-top:14px;
+    letter-spacing:.05em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:26px;padding-top:18px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:23px;font-weight:600;margin:54px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13.5px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17.5px;font-weight:600;margin:32px 0 2px;letter-spacing:.02em;color:#26333a;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c9dcea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3439;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f4e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3d271d;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cfdedf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .lab{margin:26px 0;background:#1b2836;color:#dce7f0;border-radius:4px;padding:16px 20px;overflow-x:auto;}
+  .lab .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;color:#8fb6d0;}
+  .lab pre{margin:0;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:1.65;white-space:pre;}
+  .lab .cm{color:#7f95a6;} .lab .hi{color:#ffd479;} .lab .st{color:#9fd6a0;} .lab .bd{color:#f2907e;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfdfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+    background:var(--acc);color:#fff;border:none;border-radius:5px;padding:8px 13px;white-space:nowrap;}
+  .controls button:active{transform:translateY(1px);}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.7;background:#e6eef4;color:#1f3b52;}
+  .readout.hit{background:#e4f0e8;color:#1d5236;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;}
+
+  table.tbl{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  table.tbl th,table.tbl td{border-bottom:1px solid var(--rule);padding:9px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.06em;border-bottom:2px solid var(--acc);}
+  table.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  table.tbl td.ok{color:var(--ok);font-weight:700;} table.tbl td.bad{color:var(--bad);font-weight:700;}
+  table.tbl td.c{text-align:center;}
+  table.tbl tr.mark td{background:#eaf1f6;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .verdict{margin:34px 0;padding:24px 28px;border:2px solid var(--ok);border-radius:3px;background:#eef6f1;}
+  .verdict .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ok);font-weight:700;margin-bottom:8px;}
+  .verdict p{margin:8px 0;} .verdict p:last-child{margin-bottom:0;}
+  .verdict.warn{border-color:var(--bad);background:#fbf0ec;}
+  .verdict.warn .lbl{color:var(--bad);}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eaf1f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1f3b52;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefc,#e7eef3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e6eef4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1f3b52;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .next a{color:var(--acc);}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+  .foot a{color:var(--acc);text-decoration:none;} .foot a:hover{text-decoration:underline;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.lab,.verdict,table.tbl{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .lab{background:#f3f0f5;color:#1b2836;border:1px solid #ccc;}
+    .lab .cm{color:#6a5f73;} .lab .hi{color:#8a5a10;} .lab .st{color:#2f6b3a;} .lab .bd{color:#a83a22;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:770px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6a68;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+
+
+<body>
+<div class="sheet">
+
+  <div class="series"><span>物理を作る 第3部 ── まだ、測られていない</span><span class="ep">第 4 回 ／ 露光は、もう存在していた</span></div>
+  <p class="eyebrow">陽子崩壊の78本を全部並べたら、46本が終了した検出器の上限だった</p>
+  <h1>露光は、もう存在していた
+    <span class="sub">④の物差し（止まった理由は強度待ちか背景の床か）で、陽子崩壊へ行きました。<br>PDG 2025 の核子崩壊は<strong>78本</strong>（親核ごとに数えて）。うち<strong>46本 ── 59% ── がすでに終了した検出器の上限</strong>です。<br>IMB-3 が24本、Frejus が13本、IMB が5本。中央値で<strong>27年</strong>凍っています。<br>そして調べたら、<strong>スーパーカミオカンデはその46本を一度も出していません。</strong><em>不採用の欄にすら現れません。</em></span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：PDG の Listings 一本、割り算</span>
+    <span>この回の芯：検出器も露光もある。無いのは解析だけ</span>
+  </div>
+
+  <p class="lead">第3回で条件④を足しました ── <strong>止まった理由が「強度待ち」か「背景の床」か</strong>。カオンの LFV は床だったので土地が狭い。ミューオンの LFV は強度待ちで、三つ全部が同時に再開中だから空いていない。<br><em>残っているのは、そのどちらでもないセクターです。</em>陽子崩壊はモードごとに出どころが違うので、④がいちばん効くはずでした。<br>やったことは前回と同じで、一次資料を1本開いただけです ── <strong>PDG 2025 の陽子 Listings</strong>。ただし今回は<em>全モードを機械的に読ませました。</em></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">01</span>78本、機械的に分類する</h2>
+
+  <p>PDG の Listings は各モードについて<strong>採用（いまの上限）と不採用（超えられた古い上限）を両方載せ、必ず実験名と年を付けています</strong>。だから「いまの上限を出したのはどの検出器か」は読み取るだけで決まります。第2回で見つけた代理変数が、そのまま使えます。</p>
+
+  <table class="tbl">
+    <tr><th style="width:44%">いまの上限を持っている検出器</th><th style="width:16%">本数</th><th>状態</th></tr>
+    <tr><td>スーパーカミオカンデ</td><td class="num">32</td><td class="ok">稼働中。1996年から同じ検出器で走り続けている</td></tr>
+    <tr class="mark"><td><strong>すでに終了した検出器</strong></td><td class="num bad"><strong>46</strong></td><td class="bad"><strong>凍結。20〜45年、中央値27年</strong></td></tr>
+    <tr><td style="padding-left:2.2em">　IMB-3（MCGREW 1999）</td><td class="num">24</td><td>1991年終了</td></tr>
+    <tr><td style="padding-left:2.2em">　Frejus（BERGER 1991）</td><td class="num">13</td><td>1988年〜、終了</td></tr>
+    <tr><td style="padding-left:2.2em">　IMB（SEIDEL 1988 など）</td><td class="num">5</td><td>終了</td></tr>
+    <tr><td style="padding-left:2.2em">　カミオカンデ／Homestake／KamLAND</td><td class="num">4</td><td>最古は Homestake の <strong>1981年</strong>（45年）</td></tr>
+  </table>
+
+  <p><strong>59% が凍っています。</strong>第2回のカオンでは9本中1本でしたが、陽子崩壊では過半数です。</p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">02</span>ここが、第2回の逆になっている</h2>
+
+  <div class="verdict warn">
+    <div class="lbl">凍っている側の上限が、弱い</div>
+    <p>第2回のカオンでは、<em>凍っているモードにこそ最良の上限</em>が付いていました（専用実験が16年あったから）。</p>
+    <p>陽子崩壊は逆です ──</p>
+    <p style="margin-bottom:0">上限の中央値：スーパーカミオカンデ側 <strong>1600</strong> ／ 凍っている側 <strong>65</strong>（単位 \(10^{30}\) 年）── <strong>25倍の差</strong></p>
+  </div>
+
+  <p>理由は明らかです。<em>これらは専用実験の成果ではありません。</em>IMB-3 も Frejus も、陽子崩壊全般を狙った汎用検出器の<strong>副産物</strong>としてこれらのモードを解析しました。だから第2回の分類でいうと「広いモード」側の道具で出た数字です。<br><strong>そして次の世代の検出器が、同じモードを解析しなかった。</strong></p>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">03</span>では、解析したらどれだけ伸びるのか</h2>
+
+  <p>外から露光量を持ち込まずに、<strong>同じ表の中だけで校正できます。</strong>スーパーカミオカンデが上限を持っているモードについて、PDG は<em>不採用の欄に旧検出器の値も載せている</em>からです。割ればいい。</p>
+
+  <div class="calc">
+    <span class="tag">計算</span>
+    <div class="lbl">同じモードで、スーパーカミオカンデは旧検出器に何倍勝ったか</div>
+    <p style="margin:4px 0">両方が解析した <strong>20モード</strong>で比を取ると ──</p>
+    $$ \text{中央値}\ \mathbf{29.7}\ \text{倍},\qquad \text{幾何平均}\ 34.5\ \text{倍},\qquad \text{範囲}\ 5.2\text{〜}1833\ \text{倍} $$
+    <p style="margin:4px 0">この中央値を、凍っている46本の中央値 \(65\times10^{30}\) 年に当てると</p>
+    $$ 65\times29.7 = \mathbf{1932}\times10^{30}\ \text{年} $$
+    <p style="margin:4px 0">スーパーカミオカンデがすでに解析した32本の中央値は <strong>1600</strong>。その <strong>1.21倍</strong>。</p>
+  </div>
+
+  <div class="verdict">
+    <div class="lbl">校正が自己整合している</div>
+    <p style="font-size:19px">凍っている46本に「同じ検出器で解析した場合の伸び」を当てると、<strong>すでに解析された32本と同じ水準に着地します。</strong></p>
+    <p>同じ検出器・同じ露光なので当たり前です。<em>けれど当たり前であることが結論になります</em> ──</p>
+    <p style="margin-bottom:0"><strong>凍っている理由に「解析されていないから」以外の説明が要りません。</strong></p>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">04</span>念のため：見て、負けたのではないか</h2>
+
+  <p>ここは疑うべきところです。「スーパーカミオカンデは解析したが背景が重くて旧上限に負け、PDG が旧い方を採用した」なら、話は逆になります。<em>それも同じ表で確かめられます</em> ── 負けた解析なら、PDG の<strong>不採用の欄に載っているはず</strong>だからです。</p>
+
+  <div class="verdict warn">
+    <div class="lbl">確かめた結果</div>
+    <p style="font-size:19px">凍っている39ブロックのうち、スーパーカミオカンデが不採用の欄に現れるものは <strong>0件</strong>。</p>
+    <p style="margin-bottom:0"><em>見て負けたのではありません。一度も出していません。</em></p>
+  </div>
+
+  <p><strong>これが、第3部が第1回から探していた形です。</strong></p>
+
+  <table class="tbl">
+    <tr><th style="width:26%">場合</th><th style="width:24%">足りないもの</th><th>値段</th></tr>
+    <tr><td>\(\mu\to eee\)（38年凍結）</td><td>ビーム強度と検出器</td><td class="bad">Mu3e ＝ 新しい実験ひとつ</td></tr>
+    <tr><td>\(K_L\to\mu e\)（28年凍結）</td><td class="bad">背景を \(10^{-13}\) より下げる手段</td><td class="bad">誰も持っていない</td></tr>
+    <tr class="mark"><td><strong>陽子崩壊の46本</strong></td><td class="ok"><strong>解析だけ</strong></td><td class="ok"><strong>検出器も露光もすでにある</strong></td></tr>
+  </table>
+
+  <div class="fig">
+    <div class="cap">図：PDG 2025 の核子崩壊 78本。<b>縦軸は上限（対数）、横軸は公表年</b>。<b>ボタンで切り替え</b>ます ── 「出どころ」で塗ると、右上（新しくて強い）がスーパーカミオカンデ、<b>左下に固まっているのが凍っている46本</b>。「解析したら」を押すと、凍っている側に中央値 29.7倍を当てた位置が矢印で出ます</div>
+    <canvas id="cv" width="1120" height="470"></canvas>
+    <div class="controls">
+      <button id="b1">いまの上限</button>
+      <button id="b2">解析したら（中央値 29.7倍）</button>
+    </div>
+    <div class="readout" id="ro"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#2f7d5a"></span>スーパーカミオカンデ（稼働中・32本）</span>
+      <span><span class="swatch" style="background:#a83a22"></span>終了した検出器（凍結・46本）</span>
+      <span><span class="swatch" style="background:#c9a227"></span>解析したらの見積り</span>
+    </div>
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">05</span>それでも、選択は合理的か</h2>
+
+  <p>四度目です。第1回・第2回・第3回はいずれも「選択は合理的だった」に着地しました。<em>ここでも同じことをやります。</em></p>
+
+  <div class="caveat">
+    <span class="tag">合理的である側の理由</span>
+    <strong>①背景。</strong>校正した伸びが 5.2倍〜1833倍とばらついたのは、モードごとに背景の量が違うからです。<em>水チェレンコフ検出器で多体・低運動量の終状態は大気ニュートリノ背景に埋まります。</em>凍っている46本には、そういうモードが多く含まれているはずです ── だから「46本すべてが中央値どおり伸びる」とは言えません。<br>
+    <strong>②模型の狭さ。</strong>凍っている側には \(pp\to e^+e^+\)、\(nn\to\pi^0\pi^0\)、\(n\to e^-\pi^+\) のような、通常の大統一理論が予言しない量子数の組み合わせが並びます。<em>第1回の基準（選ばれるのは安さではなく広さ）でいちばん狭い側です。</em><br>
+    <strong>③人手は無料ではない。</strong>「解析だけ」と書きましたが、水チェレンコフの多体事象再構成は<em>モードごとに選択条件を設計し直す作業</em>で、大学院生1人の学位論文1本ぶんの規模です。無料ではありません。
+  </div>
+
+  <div class="caveat">
+    <span class="tag">それでも、ここまでの三回と違う点がある</span>
+    第1回〜第3回で落ちていたものは、いずれも<strong>新しい実験</strong>か<strong>誰も持っていない技術</strong>が必要でした。<em>だから「合理的」の重みが大きかった。</em><br>
+    ここは違います ── 必要なのは<strong>解析1本</strong>。第1回で見つけた基準（広さで選ぶ）は正しいのですが、<em>広さの閾値は値段に比例して下がるべきです。</em>1億ドルの実験を建てるかどうかの閾値と、学位論文1本を書くかどうかの閾値は、同じではありません。<br>
+    <strong>そしてスーパーカミオカンデは、伸びが 5.2倍しかないモード（\(N\to\mu^+\rho\)）も 10倍のモード（\(p\to e^+\nu\nu\)）も解析して公表しています。</strong>背景の重さだけでは、46本を出さない理由を説明できません。
+  </div>
+
+  <div class="divider">◆ ◆ ◆</div>
+
+  <h2><span class="n">06</span>この回で第3部が手にしたもの</h2>
+
+  <p>第1回の建前は「安いのに残っている測定を探す。ただし『安い』と『もったいない』は別だと数えてから言う」でした。四回かけて、初めて<strong>両方を満たす候補</strong>が出ました。</p>
+
+  <table class="tbl">
+    <tr><th style="width:22%"></th><th style="width:26%">安いか</th><th>もったいないか</th></tr>
+    <tr><td>第1回 \(K^+\to\pi^+\mu^+e^-\)</td><td class="ok">露光 1.8倍で安い</td><td class="bad">×　\(\mu\)-\(e\) 転換が全空間を覆う</td></tr>
+    <tr><td>第2回 狭いモード一般</td><td class="c">—</td><td class="bad">×　落ちるのではなく凍る</td></tr>
+    <tr><td>第3回 \(K_L\to\mu e\)</td><td class="bad">×　背景の床がある</td><td class="bad">×　残る土地が質量で2.6倍</td></tr>
+    <tr class="mark"><td><strong>第4回 陽子崩壊46本</strong></td><td class="ok"><strong>○　解析だけ</strong></td><td class="c"><strong>△　模型は狭い。ただし値段も安い</strong></td></tr>
+  </table>
+
+  <p>△です。○にはしません ── <em>模型の狭さは第1回の基準でちゃんと減点されるべきだからです。</em>けれど第3部が四回で初めて、<strong>「値段の側で明確に安い」を満たす候補</strong>に届きました。</p>
+
+  <div class="prob">
+    <div class="lbl">手を動かす</div>
+    <ol>
+      <li>PDG の表だけで「スーパーカミオカンデが旧検出器に何倍勝つか」を校正できるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">PDG は各モードについて<strong>採用（いまの上限）と不採用（超えられた古い上限）を両方、実験名と年つきで載せている</strong>から。<br>だからスーパーカミオカンデが上限を持つモードでは、同じモードの旧検出器の値がすぐ下に書いてあります。<em>割るだけで「同じモードで何倍勝ったか」が出る</em> ── 露光量や有効体積を外から持ち込む必要がありません。20モードで取れて、中央値 <strong>29.7倍</strong>、幾何平均 34.5倍。</div></details>
+      </li>
+      <li>その中央値を凍っている46本に当てると \(65\times29.7=1932\)。すでに解析された32本の中央値は 1600。この一致は何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans"><strong>校正が自己整合している</strong>ということ。同じ検出器・同じ露光なのだから、同じ水準に着地するのが当然です。<br>そして当然であることが結論になります ── <em>凍っている理由に「解析されていないから」以外の説明が要らない。</em>露光の不足でも、検出器の性能でも、物理の壁でもありません。<br>もし「背景が重いから伸びない」が主因なら、この一致は起きません（凍っている側だけ大きく下振れするはず）。</div></details>
+      </li>
+      <li>「スーパーカミオカンデは解析したが負けた」という可能性を、同じ表でどう排除したか。
+        <details><summary>答えを見る</summary><div class="ans">負けた解析なら<strong>PDG の不採用の欄に載る</strong>から。載っていなければ、出していない。<br>凍っている39ブロックを全部見て、スーパーカミオカンデが不採用の欄に現れるものは <strong>0件</strong>でした。<em>見て負けたのではなく、一度も出していません。</em><br><strong>これは反証しようとして反証できなかった、という形の確認です</strong> ── 第2部のフィルタ②（陽性対照）と同じ役割を果たしています。</div></details>
+      </li>
+      <li>この回はなぜ「もったいない」を○ではなく△にしたのか。
+        <details><summary>答えを見る</summary><div class="ans">凍っている46本には \(pp\to e^+e^+\)、\(nn\to\pi^0\pi^0\)、\(n\to e^-\pi^+\) のように<em>通常の大統一理論が予言しない量子数</em>の組み合わせが並びます。第1回の基準（選ばれるのは安さではなく広さ）で、いちばん狭い側です。<br>それでも<strong>値段が違います</strong> ── 第1回〜第3回で落ちていたものは新しい実験か未知の技術が必要でしたが、ここは解析1本。<em>広さの閾値は値段に比例して下がるべきです。</em><br>だから○でも×でもなく△。<strong>そして第3部が四回かけて初めて、値段の側で明確に安い候補に届きました。</strong></div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;padding:0">この回で分かったこと</h2>
+    <p><strong>PDG 2025 の核子崩壊 78本を機械的に分類した。</strong> 親核（\(p\) / 束縛 \(n\)）ごとに数えて 78行。<em>Listings が各上限に実験名と年を必ず付けている</em>ので、第2回の代理変数（専用か副産物か、稼働中か終了か）がそのまま機械判定できます。照合できなかった3ブロックは集計から除外しました。</p>
+    <p><strong>59% が凍っていた。</strong> スーパーカミオカンデが 32本、<strong>すでに終了した検出器が 46本</strong>。内訳は IMB-3 が24本（MCGREW 1999）、Frejus が13本（BERGER 1991）、IMB が5本、カミオカンデ／Homestake／KamLAND が4本 ── 最古は <strong>Homestake の1981年、45年凍結</strong>。中央値で27年。</p>
+    <p><strong>そして第2回の逆になっていた。</strong> カオンでは凍っているモードにこそ最良の上限が付いていました（専用実験が16年あったから）。陽子崩壊は逆で、上限の中央値はスーパーカミオカンデ側 <strong>1600</strong>、凍っている側 <strong>65</strong>（\(10^{30}\) 年）── <strong>25倍弱い</strong>。IMB-3 も Frejus も専用実験ではなく汎用検出器の副産物だったからです。</p>
+    <p><strong>伸びを、表の中だけで校正できた。</strong> 両方が解析した20モードで比を取ると、スーパーカミオカンデは同じモードで旧検出器に<strong>中央値 29.7倍</strong>（幾何平均 34.5倍、範囲 5.2〜1833倍）勝っています。<em>露光量を外から持ち込む必要がありません。</em>この中央値を凍っている46本の中央値に当てると \(65\times29.7=\mathbf{1932}\)、すでに解析された32本の中央値 1600 の <strong>1.21倍</strong> ── <strong>校正が自己整合しており、凍っている理由に「解析されていないから」以外の説明が要りません。</strong></p>
+    <p><strong>「見て負けた」を排除した。</strong> 負けた解析なら PDG の<em>不採用の欄</em>に載ります。凍っている39ブロックを全部確認して、スーパーカミオカンデが不採用の欄に現れるものは <strong>0件</strong>。<em>見て負けたのではなく、一度も出していません。</em></p>
+    <p><strong>だからこれが、第3部が第1回から探していた形です。</strong> \(\mu\to eee\) には新しい実験（Mu3e）が必要で、\(K_L\to\mu e\) には誰も持っていない背景抑制が必要でした。<strong>ここに必要なのは解析だけ</strong> ── 検出器も露光もすでに存在しています。</p>
+    <p style="margin-bottom:0"><strong>ただし判定は △。</strong> 凍っている側には \(pp\to e^+e^+\)、\(nn\to\pi^0\pi^0\)、\(n\to e^-\pi^+\) のように<em>通常の大統一理論が予言しない量子数</em>が並び、第1回の基準（広さ）でいちばん狭い側です。背景も重い（伸びのばらつきがその指標）。人手も無料ではない（モードごとに選択条件を設計し直す＝学位論文1本の規模）。<em>それでも第1回〜第3回と決定的に違うのは値段です</em> ── <strong>広さの閾値は値段に比例して下がるべきで、1億ドルの実験と学位論文1本で同じ閾値を使う理由がありません。</strong>そしてスーパーカミオカンデは伸びが 5.2倍のモード（\(N\to\mu^+\rho\)）も公表しているので、背景の重さだけでは46本を出さない理由になりません。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次に読む（予定）</span>
+    <strong>\(\tau\) は、副産物で押されている</strong> ── この回は陽子崩壊が決定的だったので1回ぶんになり、\(\tau\) が持ち越しになりました。<em>予定どおり④の物差しで \(\tau\) の LFV に行きます。</em>Belle／BaBar／Belle II が副産物で押している側のはずなので、第2回の分類では「広いモード」── ならば \(\tau\) に凍っている枝は無いのか。<br>そして陽子崩壊側の宿題も残っています ── <strong>46本のうち、背景が軽くて実際に伸びそうなのはどれか。</strong>この回で出せたのは中央値だけで、モードごとの見積りはしていません。<br>第1回：<a href="butsuri-tsukuru3-01-6500bai.html">6500倍高い道が、選ばれていた</a> ｜ 第2回：<a href="butsuri-tsukuru3-02-kooru.html">最強の上限が、放置されているモードだった</a> ｜ 第3回：<a href="butsuri-tsukuru3-03-kabe.html">止めた理由は、書いてあった</a>
+  </div>
+
+  <div class="foot">
+    <p>この文書は「物理を作る 第3部 ── まだ、測られていない」第4回です。第3回で足した④の物差しを、陽子崩壊に当てた回になります。</p>
+    <p>確立した内容：PDG 2025 update（S. Navas et al., Phys. Rev. D 110, 030001 (2024)）の陽子 Listings に収録された核子崩壊の部分平均寿命の下限、およびその各値に付されている実験名・公表年・検出器種別（TECN）。本稿はこの Listings の PDF をそのまま機械読みしています。<br><strong>78本という数え方、46/32 の内訳、公表年の中央値・凍結年数、上限の中央値（1600 と 65）、20モードでの伸びの中央値 29.7倍・幾何平均 34.5倍・範囲 5.2〜1833倍、\(65\times29.7=1932\)、そして「凍っている39ブロックに Super-K が不採用の欄でも現れない」という確認は、すべて本稿の計算です。</strong>検算コード：<code>pdecay.py</code>（分類）と <code>pdecay2.py</code>（伸びの校正）── PDF のテキスト抽出に PyMuPDF を使うだけで、集計は純 Python です。</p>
+    <p><strong>ここは慎重に読んでください。</strong>「78本」は PDG の行を親核ごとに数えた数で、PDG 自身がそう数えているわけではありません（PDG は \(N\to e^+\pi\) のように \(p\) と \(n\) をまとめた見出しで書きます）。<em>照合できなかった3ブロックは除外しています</em>ので、母数はこの記事の定義での78本です。<br><strong>「解析すれば 29.7倍」は、20モードの中央値を外挿した数字にすぎません。</strong>伸びが 5.2〜1833倍とばらつくのは背景の量が違うからで、<em>凍っている46本のモードごとの見積りはしていません</em>。背景が重いモードは中央値どおりには伸びません。<br><strong>「スーパーカミオカンデが一度も出していない」は、PDG 2025 の Listings に現れないという意味です。</strong>PDG の収録には遅れがあるので、<em>この確認は「PDG に載っていない」までで、「論文が存在しない」ではありません</em>。<br><strong>「解析だけ」という言い方は値段を軽く見せます。</strong>水チェレンコフでの多体事象再構成はモードごとに選択条件を設計し直す作業で、学位論文1本ぶんの規模です。<em>そして46本を出していない理由は、公表資料で確認していません</em> ── 第2部第8回の NA62 と同じで、この回で分かったのは「出していない」という事実だけです。<br><strong>「広さの閾値は値段に比例して下がるべき」は私の主張です。</strong>実験計画の決定過程を調べたものではありません。</p>
+    <p><a href="index.html">第3部の目次</a> ｜ 第2部：<a href="../butsuri-tsukuru2/index.html">その数は、偶然か</a> ｜ 第1部：<a href="../butsuri-tsukuru/index.html">物理を作る（全19話・完結）</a></p>
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。図で、凍っている46本が左下に固まっていることを確かめられます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ro=document.getElementById('ro');
+  var MODE=0;   // 0 いまの上限, 1 解析したら
+  var GAIN=29.7;
+
+  // PDG 2025 陽子 Listings（pdecay.py の出力から）: [公表年, 上限(1e30yr), 出どころ, モード名]
+  // PDG 2025 陽子 Listings。pdecay.py --js が集計とまったく同じ rows から書き出した配列。
+  // [公表年, 上限(×1e30年), 出どころ, モード名]
+  var D=[
+    [2020,24000,'SK','N → e+ π [p]'],
+    [2017,5300,'SK','N → e+ π [n]'],
+    [2020,16000,'SK','N → µ+ π [p]'],
+    [2017,3500,'SK','N → µ+ π [n]'],
+    [2014,390,'SK','N → ν π [p]'],
+    [2014,1100,'SK','N → ν π [n]'],
+    [2024,14000,'SK','p → e+ η [p]'],
+    [2024,7300,'SK','p → µ+ η [p]'],
+    [1999,158,'old','n → ν η [n]'],
+    [2017,720,'SK','N → e+ ρ [p]'],
+    [1999,217,'old','N → e+ ρ [n]'],
+    [2017,570,'SK','N → µ+ ρ [p]'],
+    [1999,228,'old','N → µ+ ρ [n]'],
+    [1999,162,'old','N → ν ρ [p]'],
+    [1988,19,'old','N → ν ρ [n]'],
+    [2017,1600,'SK','p → e+ ω [p]'],
+    [2017,2800,'SK','p → µ+ ω [p]'],
+    [1999,108,'old','n → ν ω [n]'],
+    [2005,1000,'SK','N → e+ K [p]'],
+    [1999,17,'old','N → e+ K [n]'],
+    [2022,4500,'SK','N → µ+ K [p]'],
+    [1999,26,'old','N → µ+ K [n]'],
+    [2014,5900,'SK','N → ν K [p]'],
+    [1989,86,'old','N → ν K [n]'],
+    [2005,260,'SK','n → ν K0 [n]'],
+    [1999,84,'old','p → e+ K∗(892)0 [p]'],
+    [1999,51,'old','N → ν K∗(892) [p]'],
+    [1999,78,'old','N → ν K∗(892) [n]'],
+    [1999,82,'old','p → e+ π+π− [p]'],
+    [1999,147,'old','p → e+ π0π0 [p]'],
+    [1999,52,'old','n → e+ π−π0 [n]'],
+    [1999,133,'old','p → µ+ π+π− [p]'],
+    [1999,101,'old','p → µ+ π0π0 [p]'],
+    [1999,74,'old','n → µ+ π−π0 [n]'],
+    [1991,18,'old','n → e+ K0π− [n]'],
+    [1988,65,'old','n → e−π+ [n]'],
+    [1988,49,'old','n → µ−π+ [n]'],
+    [1988,62,'old','n → e−ρ+ [n]'],
+    [1988,7,'old','n → µ−ρ+ [n]'],
+    [1991,32,'old','n → e−K+ [n]'],
+    [1991,57,'old','n → µ−K+ [n]'],
+    [1991,30,'old','p → e−π+π+ [p]'],
+    [1991,29,'old','n → e−π+π0 [n]'],
+    [1991,17,'old','p → µ−π+π+ [p]'],
+    [1991,34,'old','n → µ−π+π0 [n]'],
+    [1999,75,'old','p → e−π+K+ [p]'],
+    [1999,245,'old','p → µ−π+K+ [p]'],
+    [1999,670,'old','p → e+ γ [p]'],
+    [1999,478,'old','p → µ+ γ [p]'],
+    [2015,550,'SK','n → ν γ [?]'],
+    [1991,100,'old','p → e+ γ γ [p]'],
+    [1999,219,'old','n → ν γ γ [n]'],
+    [2020,34000,'SK','p → e+ e+ e− [p]'],
+    [2020,9200,'SK','p → e+ µ+ µ− [p]'],
+    [2014,170,'SK','p → e+ ν ν [p]'],
+    [1999,257,'old','n → e+ e−ν [n]'],
+    [1999,83,'old','n → µ+ e−ν [n]'],
+    [1999,79,'old','n → µ+ µ−ν [n]'],
+    [2020,23000,'SK','p → µ+ e+ e− [p]'],
+    [2020,19000,'SK','p → µ−e+ e+ [p]'],
+    [2020,10000,'SK','p → µ+ µ+ µ− [p]'],
+    [2014,220,'SK','p → µ+ ν ν [p]'],
+    [2020,11000,'SK','p → e−µ+ µ+ [p]'],
+    [1993,0.00049,'old','n → 3ν [n]'],
+    [1981,12,'old','N → µ+ anything [n]'],
+    [2015,72.2,'SK','pp → π+ π+ [?]'],
+    [2015,170,'SK','pn → π+π0 [?]'],
+    [1991,0.7,'old','nn → π+π− [?]'],
+    [2015,404,'SK','nn → π0π0 [?]'],
+    [2014,170,'SK','pp → K+ K+ [?]'],
+    [1991,5.8,'old','pp → e+ e+ [?]'],
+    [1991,3.6,'old','pp → e+ µ+ [?]'],
+    [1991,1.7,'old','pp → µ+ µ+ [?]'],
+    [2015,260,'SK','pn → e+ ν [?]'],
+    [2015,200,'SK','pn → µ+ ν [?]'],
+    [2015,29,'SK','pn → τ+ ντ [?]'],
+    [2006,1.4,'old','nn → invisible [?]'],
+    [1991,1.2e-05,'old','nn → νe νe [?]']
+  ];
+  var COL={SK:'#2f7d5a', old:'#a83a22'}, PROJ='#c9a227';
+
+  function draw(){
+    var ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.clearRect(0,0,W,H);
+    var L=74,R=W-30,T=42,B=H-58;
+    var X0=1978,X1=2028, Y0=-5.2, Y1=5.2;      // 縦は log10(1e30yr)
+    function X(y){ return L+(y-X0)/(X1-X0)*(R-L); }
+    function Y(v){ return B-(Math.log(v)/Math.LN10-Y0)/(Y1-Y0)*(B-T); }
+
+    ctx.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    for(var e=-4;e<=5;e++){
+      var yy=Y(Math.pow(10,e));
+      ctx.strokeStyle=(e===0?'#dde5e3':'#f2f6f5'); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='right';
+      ctx.fillText('10^'+e, L-8, yy+4);
+    }
+    for(var yr=1980;yr<=2025;yr+=5){
+      ctx.strokeStyle='#f2f6f5'; ctx.beginPath(); ctx.moveTo(X(yr),T); ctx.lineTo(X(yr),B); ctx.stroke();
+      ctx.fillStyle='#8a9694'; ctx.textAlign='center'; ctx.fillText(yr,X(yr),B+20);
+    }
+    ctx.strokeStyle='#cdd6d4'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+
+    // 中央値の線
+    var msk=1600, mold=65;
+    ctx.setLineDash([5,4]); ctx.lineWidth=1.6;
+    ctx.strokeStyle=COL.SK;  ctx.beginPath(); ctx.moveTo(L,Y(msk));  ctx.lineTo(R,Y(msk));  ctx.stroke();
+    ctx.strokeStyle=COL.old; ctx.beginPath(); ctx.moveTo(L,Y(mold)); ctx.lineTo(R,Y(mold)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.textAlign='left'; ctx.fillStyle=COL.SK;  ctx.fillText('解析済みの中央値 1600', R-190, Y(msk)-7);
+    ctx.fillStyle=COL.old; ctx.fillText('凍っている側の中央値 65', R-190, Y(mold)+16);
+
+    for(var i=0;i<D.length;i++){
+      var yr=D[i][0], v=D[i][1], g=D[i][2];
+      if(MODE===1 && g==='old'){
+        var v2=v*GAIN;
+        ctx.strokeStyle=PROJ; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(X(yr),Y(v)); ctx.lineTo(X(yr),Y(v2)+5); ctx.stroke();
+        ctx.fillStyle=PROJ;
+        ctx.beginPath(); ctx.moveTo(X(yr),Y(v2)); ctx.lineTo(X(yr)-4,Y(v2)+7); ctx.lineTo(X(yr)+4,Y(v2)+7); ctx.closePath(); ctx.fill();
+      }
+      ctx.fillStyle=COL[g];
+      ctx.globalAlpha=0.82;
+      ctx.beginPath(); ctx.arc(X(yr),Y(v),5,0,6.284); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    if(MODE===1){
+      var m2=mold*GAIN;
+      ctx.setLineDash([2,3]); ctx.strokeStyle=PROJ; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(L,Y(m2)); ctx.lineTo(R,Y(m2)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=PROJ; ctx.textAlign='left';
+      ctx.fillText('見積り 65×29.7 = 1932', L+8, Y(m2)-7);
+    }
+    ctx.fillStyle='#4c545c'; ctx.textAlign='left';
+    ctx.fillText('部分平均寿命の下限（×10³⁰ 年・対数）',L,T-16);
+    ctx.textAlign='center'; ctx.fillText('公表年',(L+R)/2,H-14);
+
+    ro.className='readout';
+    ro.innerHTML = MODE===0
+      ? '<b>いまの上限。</b><span style="color:#1f5a42">緑＝スーパーカミオカンデ 32本</span>が右上に、'
+        + '<span style="color:#8a2f18">赤＝終了した検出器 46本</span>が左下に固まります。'
+        + '中央値は <b>1600 と 65 ── 25倍の差</b>。'
+        + '<b>そして赤の46本は、スーパーカミオカンデが一度も出していません</b>（PDG の不採用欄にも0件）'
+      : '<b>解析したら。</b>赤の46本に、同じモードで校正した中央値 <b>29.7倍</b>を当てた位置が矢印の先です。'
+        + '中央値は <b>65×29.7 = 1932</b> ── <span style="color:#1f5a42">解析済み側の 1600</span> の 1.21倍で、'
+        + '<b>ほぼ同じ水準に着地します</b>。校正が自己整合しているということ ── '
+        + '<b>凍っている理由に「解析されていないから」以外の説明が要りません</b>。'
+        + 'ただし伸びは 5.2〜1833倍とばらつくので、モードごとには保証されません';
+    if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ro]);
+  }
+  document.getElementById('b1').addEventListener('click',function(){ MODE=0; draw(); });
+  document.getElementById('b2').addEventListener('click',function(){ MODE=1; draw(); });
+  window.addEventListener('resize',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
