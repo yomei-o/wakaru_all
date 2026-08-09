@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>どのフレームが本物か ── わかる共形変換 第10回（最終回）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f8fc; --paper-edge:#d5e2f0;   /* 最終回：藍の紙 */
+    --side:#1f4772; --side-bg:#e7eff8;
+    --warn:#8a4b2f;
+    --calc:#1a4a80; --calc-bg:#e3edf8;
+    --rule:#c5d7ea; --hair:#adc4dd;
+    --acc:#1f5c9e;    /* 最終回アクセント＝藍 */
+    --grid:#dbe7f3;
+    --ledger:#a83a22; /* 帳簿＝赤茶 */
+    --phys:#1f6b45;   /* 物理＝緑 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d3e2f2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1d2f42;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c2d6ea;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e3edf8;color:#1a4a80;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.sum{border-collapse:collapse;width:100%;min-width:580px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;line-height:1.65;}
+  table.sum th,table.sum td{border:1px solid var(--rule);padding:9px 12px;text-align:left;vertical-align:top;}
+  table.sum thead th{background:#e3edf8;color:#1a4a80;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.sum tbody th{background:#eef4fb;font-weight:600;white-space:nowrap;text-align:center;}
+  table.sum td.led{color:#7d2c19;} table.sum td.phy{color:#175134;}
+  table.sum tr.fin td,table.sum tr.fin th{background:#f7f0e6;}
+
+  .stance{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .stance .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .stance .row:last-child{border-bottom:none;background:#eef4fb;}
+  .stance .mk{flex-shrink:0;width:26px;font-weight:700;font-size:15px;color:var(--acc);}
+  .stance .txt strong{display:block;margin-bottom:2px;}
+  .stance .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2f7fd;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c3a55;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e7eff8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3edf8;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c3a55;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.stance{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d6b7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 10 回（最終回）／ 10回分を、一枚の表に畳む</span></div>
+  <p class="eyebrow">「どれが本物か」── 10回かけて、この問いに答えられる形を作ってきました</p>
+  <h1>どのフレームが本物か
+    <span class="sub">第3回で三つの絵を並べ、第4回でそれをゲージだと示し、<br>第8回・第9回で量子には破れがあることも見ました。では、結局どれが本物なのか。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：ここまでの9回、それだけ</span>
+    <span>答えられるのは、無次元不変量だけ</span>
+  </div>
+
+  <p class="lead">「膨張しているのか、光が遅くなっているのか、原子が縮んでいるのか」── 第3回で三つの絵を並べたとき、たぶん誰もが思ったはずです。<em>で、本当はどれなの？</em> このシリーズはずっと「どれでもいい、ゲージだから」と答えてきました。でもそれは、逃げているのでしょうか。最終回では、この問いをまじめに扱っている二つの立場を並べ、そのうえでシリーズの答えを出します。結論を先に言えば ── <strong>問いに答える資格があるのは、無次元不変量だけです。</strong> そして、それは逃げではありません。</p>
+
+  <h2><span class="n">01</span>立場A ── 「その問い自体が、誤りである」</h2>
+
+  <p>フラナガンに代表される立場は、はっきりしています ── <em>どのフレームが正しいかを決めようとする努力は、少なくとも古典物理の範囲では的外れだ。</em> なぜなら、<strong>観測できる量はすべて共形フレーム不変量だから</strong>。</p>
+
+  <p>これは、このシリーズが実演してきたことそのものです。第3回で三つの絵の赤方偏移を計算したら、全部 \(1+z=t_0/t_e\) でした。再結合の無次元比は、どちらの絵でも 52.6 でした。第4回では「銀河間距離 ÷ 原子半径」がゲージに依らないことを見た。第6回では \(N=mc^2t/\hbar\) が二つの絵で厳密に同じ式になった。<em>測れるものが全部一致するなら、「どちらが本物か」を決める実験は存在しません。</em></p>
+
+  <div class="keybox">
+    <div class="lbl">立場A</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    観測量＝共形フレーム不変量。<br>ゆえに「どのフレームが物理的か」という問いには、<strong>内容がない</strong>。</p>
+  </div>
+
+  <h2><span class="n">02</span>立場B ── 「物質を入れたら、選ばざるを得ない」</h2>
+
+  <p>ところが、ファラオーニらはこう反論します ── <em>物質を入れると、話はそんなに簡単ではない。</em></p>
+
+  <p>理由は具体的です。共形変換をすると、質量次元を持つ量は<strong>すべて</strong>変換されます（第3回のウェイト表）。すると何が起きるか ── もとのフレームで自由落下していた粒子、つまり<em>測地線</em>に沿って動いていた粒子は、変換後のフレームでは測地線に乗りません。ディラトンの勾配から力を受けるからです。</p>
+
+  <div class="calc">
+    <span class="tag">何が起きているか</span>
+    <p class="lbl">もとのフレーム</p>
+    <p style="margin-top:8px;">質量は一定。粒子は「曲がった時空をまっすぐ進む」＝測地線。</p>
+    <p class="lbl">変換後のフレーム</p>
+    <p style="margin-top:8px;">時空は平ら。でも質量が \(\tilde m=\phi m\) で場所ごとに変わるので、粒子は<strong>質量の勾配から力を受けて曲がる</strong>。</p>
+    <p style="margin-bottom:14px;">同じ運動を、「まっすぐな道を曲がった床の上で」見るか、「平らな床の上を力を受けながら」見るか。<em>どちらの言い方でも軌跡は同じ</em>ですが、「自由落下とは何か」の定義は、フレームごとに違ってしまう。</p>
+  </div>
+
+  <p>だからファラオーニらは言います ── 少なくとも「自由落下」や「等価原理」を素直に語りたいなら、どちらか一方を物理的なフレームだと宣言せざるを得ない。</p>
+
+  <h2><span class="n">03</span>二つは、矛盾していない</h2>
+
+  <p>ここが今回のいちばん大事なところです。AとBは、実は喧嘩していません。<strong>争点は「何を観測量と呼ぶか」だけ</strong>です。</p>
+
+  <div class="stance">
+    <div class="row"><span class="mk">A</span><div class="txt"><strong>「観測量」＝実際に測る無次元比</strong><span>時計の刻み ÷ 原子の周期、銀河までの角度、色のずれ。これらは全フレームで一致する → 問いは無内容。</span></div></div>
+    <div class="row"><span class="mk">B</span><div class="txt"><strong>「観測量」＝理論の構造も含む</strong><span>何が測地線か、何が自由落下か、何が「力なし」か。これらはフレームごとに違う → 選ばざるを得ない。</span></div></div>
+    <div class="row"><span class="mk">◎</span><div class="txt"><strong>どちらも正しい</strong><span>実験室から出てくる数字は一致する（A）。その数字を説明する言葉づかいは一致しない（B）。前シリーズの言い方なら ── <em>数字は物理、言葉づかいは帳簿</em>。</span></div></div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>量子では、まだ誰も決着させていない</h2>
+
+  <p>古典の話はここまで。量子にすると、話は本当にわからなくなります。第8回と第9回で理由は出そろっています。</p>
+
+  <p><strong>第8回のアノマリー。</strong> 量子化には「細かさの基準 \(\mu\)」が必要でした。ところがフレームを取り替えると、その基準も一緒に変換される。二つのフレームの計算が、アノマリー項のぶんだけ食い違いうる ── <em>古典では完全に同じだった二つの記述が、量子では同じでなくなるかもしれない</em>。</p>
+
+  <p><strong>第9回のゴースト。</strong> 経路積分で「どの場を積分変数に選ぶか」は、フレームの選択そのものです。そして共形因子の逆符号のせいで、その選択が積分の収束性を左右してしまう。</p>
+
+  <p>文献の状況は、正直に言えば混沌としています ── 「量子レベルでも同値だ」と結論する論文と、「破れる」と報告する論文が、どちらも複数あります。<strong>これは開いた問題です。</strong></p>
+
+  <h2><span class="n">05</span>このシリーズの答え</h2>
+
+  <p>10回かけて用意してきた答えを出します。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">わかる共形変換の結論</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.9;">
+    「どのフレームが本物か」に答える資格があるのは、<strong>無次元不変量だけ</strong>。<br>
+    それが動くなら物理、動かないなら帳簿。<br>
+    <em>そして、その判定は必ず下せる。</em></p>
+  </div>
+
+  <p>これは逃げではありません。<strong>判定手続きだから</strong>です。どんな主張が来ても、同じ手順で処理できます ── 「宇宙は膨張していない、原子が縮んでいるのだ」（第2回）？ 無次元比を作れ。「特異点は座標のせいだ」（第6回）？ 無次元比を作れ。「\(\alpha\) が時間変化している」（前シリーズ番外編③）？ 無次元比を作れ。答えは毎回、機械的に出ます。</p>
+
+  <div class="fig">
+    <div class="cap">図：最後のツマミ。ゲージを動かすと左の四つは激しく動き、右の四つは<strong>一つも動かない</strong>（\(t=0.5t_0\)、\(a=0.5\) での値）</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>ゲージ s（左端＝空間が伸びる　／　右端＝質量が育つ）<span class="val" id="vs">0.00</span>
+        <input type="range" id="ss" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">s = 0.00（標準の絵）　左の四つは動き、右の四つは動かない ── 右だけが物理</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>帳簿（ゲージで動く）</span>
+      <span><i class="swatch" style="background:#1f6b45;"></i>物理（ゲージで動かない）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>10回分を、一枚の表に</h2>
+
+  <div class="tblwrap">
+    <table class="sum">
+      <thead><tr><th>回</th><th>動かしたもの（帳簿）</th><th>残ったもの（物理）</th></tr></thead>
+      <tbody>
+        <tr><th>3</th><td class="led">時間座標の選択（\(t\leftrightarrow\eta\)）── 光速が変わるのはこれ</td><td class="phy">\(1+z=t_0/t_e\)、再結合の比 52.6、\(\alpha\)</td></tr>
+        <tr><th>4</th><td class="led">ゲージ \(s\)（膨張を計量と場に配分）</td><td class="phy">\(\tilde a\cdot\phi\)＝銀河間距離 ÷ 原子半径</td></tr>
+        <tr><th>5</th><td class="led">ポテンシャルの見かけ（実効ポテンシャル）</td><td class="phy">状態方程式 \(w\)、\(w=-1/3\) の三重の境目</td></tr>
+        <tr><th>6</th><td class="led">曲率 \(R\)（次元付き。\(\tilde R=0\) にもできる）</td><td class="phy">\(N=mc^2t/\hbar\)、プランク時間</td></tr>
+        <tr><th>7</th><td class="led">物差しの目盛り（計量10成分のうち1個）</td><td class="phy">光円錐＝因果構造（残り9個）</td></tr>
+        <tr><th>8</th><td class="led">──</td><td class="phy">\(\beta\) 関数、\(1/137\to1/128\)、陽子質量の99%</td></tr>
+        <tr class="fin"><th>9</th><td class="led">──</td><td class="phy"><strong>共形因子問題（どのゲージでも消せない）</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>右の列だけが、宇宙について何かを言っています。左の列は、私たちがどう記述するかの話。<em>10回かけてやったのは、この二列を正確に分けることでした。</em></p>
+
+  <div class="aside">
+    <span class="tag">前シリーズとの合流</span>
+    「わかる宇宙論」の背骨は<strong>「次元付きは帳簿、無次元だけが物理」</strong>でした。このシリーズは、その一文を定理に昇格させただけとも言えます ── 共形変換とは「次元付きの量を動かし、無次元の量を動かさない操作」であり、番外編⑨「固定していい定数の地図」も番外編⑤「固定できるのは3つまで」も、全部この一つの操作の言い換えでした。前シリーズが直観で掴んでいたものに、名前と式が付いた。それが今回の10回です。
+  </div>
+
+  <h2><span class="n">07</span>開いたままの扉</h2>
+
+  <p>正直に、まだ閉まっていないものを並べて終わります。</p>
+
+  <div class="stance">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>量子でフレームは同値か</strong><span>第8回のアノマリーと第9回のゴーストが絡む。文献は割れている。</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>共形因子問題</strong><span>1978年から未解決。積分路を回す処方の非線形な一般化がない。</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>共形対称性は「本物」か</strong><span>'t Hooft は自発的に破れた厳密な対称性だと主張する。第4回で見た通り、後付けでも作れてしまうので、区別する証拠が要る。</span></div></div>
+    <div class="row"><span class="mk">④</span><div class="txt"><strong>\(c\cdot t=\text{一定}\) は物理的に正しいのか</strong><span>語り方としては完璧に等価。でもモデルとしては別問題 ── 次の番外編で、正面から判決を受けます。</span></div></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">立場AとBの整理は、このシリーズによる<strong>読み方</strong>です。両陣営が「争点は観測量の定義だ」で握手しているわけではありません ── 実際の論争はもっと込み入っていて、特に非最小結合を持つ物質を含む場合の扱いや、量子補正の効き方については、いまも意見が分かれています。</p>
+    <p style="margin-bottom:0;">そして 05 節の結論も、万能ではありません。「無次元不変量を作れ」は<em>判定手続き</em>であって、<strong>どんな無次元量を作るべきかは教えてくれない</strong>。第6回で \(N=mc^2t/\hbar\) を選んだのは、そこに物理的な意味があると知っていたからです。手続きは答えを機械的に出しますが、良い問いを立てるところは、いつも人間の仕事のままです。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">最終回の練習問題</div>
+    <ol>
+      <li>「宇宙は膨張しておらず、原子が縮んでいる」と主張する人がいる。どう判定するか。
+        <details><summary>答えを見る</summary><div class="ans">無次元比を作る。「銀河間距離 ÷ 原子半径」は両方の絵で同じ \(a\) に比例する（第4回）。よって<strong>区別できない＝同じ物理</strong>。この主張は反証も証明もできず、ゲージの選択にすぎません。</div></details>
+      </li>
+      <li>「共形変換したら曲率がゼロになったので、特異点はなかった」。どう判定するか。
+        <details><summary>答えを見る</summary><div class="ans">曲率は次元付きなので判定に使えない。無次元比 \(N=mc^2t/\hbar\) を作ると、どちらの絵でも \(t\to0\) で壊れる（第6回）。よって<strong>この主張は成立しない</strong>。消えたのは幾何、残ったのは比。</div></details>
+      </li>
+      <li>「\(\alpha\) が時間変化している」。これは帳簿か、物理か。
+        <details><summary>答えを見る</summary><div class="ans">\(\alpha\) は<strong>無次元</strong>なので、動けば本物の物理。だから原子時計で判定できる（前シリーズ番外編③のVSL批判はこれ）。一方「\(c\) が変化している」は次元付きなので、それ単独では帳簿にすぎません。</div></details>
+      </li>
+      <li>（やや難）第9回の共形因子問題は、なぜ「ゲージを選び直せば済む」で解決しないのか。
+        <details><summary>答えを見る</summary><div class="ans">経路積分は<strong>すべての</strong>場の値を足し上げる操作で、特定のゲージを選ぶことと両立しないから。古典では「\(\phi\) はゲージだから固定してよい」で済んだが、量子では \(\phi\) の全ての値が和に入ってくる。つまりこれは<em>どのフレームを選んでも消えない</em>困難で、上の表で第9回だけ「帳簿」の欄が空白なのは、そのためです。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>二つの列を、正確に分けること</h2>
+    <p>「どのフレームが本物か」には、二つの立場があります。<strong>A（フラナガンら）</strong>：観測量はすべて共形フレーム不変量だから、問い自体に内容がない。<strong>B（ファラオーニら）</strong>：物質を入れると測地線が移らないので、どちらかを物理的だと宣言せざるを得ない。二つは矛盾していません ── <em>争点は「何を観測量と呼ぶか」だけ</em>。実験室から出る数字は一致し（A）、それを説明する言葉づかいは一致しない（B）。量子レベルでは、アノマリーとゴーストが絡んで、いまも決着していません。</p>
+    <p>このシリーズの答えは判定手続きです ── <strong>問いに答える資格があるのは無次元不変量だけ。動けば物理、動かなければ帳簿。</strong> 10回でやったのは、この二列を正確に分けることでした。時間座標も、ゲージ \(s\) も、曲率 \(R\) も、物差しの目盛りも左の列。\(1+z\) も、\(N=mc^2t/\hbar\) も、光円錐も、\(\beta\) 関数も右の列。そして第9回の共形因子問題だけは、<em>どのゲージを選んでも左に移せない</em> ── 帳簿の書き換えでは消せないものが、確かに存在します。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">番外編に続きます</span>
+    ここまで一貫して「\(c\cdot t=\text{一定}\) は語り方として完璧に等価だ」と言ってきました。<strong>では、モデルとしてはどうなのか。</strong> 額面どおり \(a\propto t\) を初期宇宙まで走らせると、何が起きるか ── 冷却が遅すぎて中性子が枯渇し、ヘリウムがほとんど作られません（ルイスら 2016）。共形変換の絵で言い直すと「質量差が育つのが遅すぎる」。そして「\(R_h=ct\) は真空の偽装だ」という、さらに厳しい批判もあります。<em>三つの絵のどれで語っても、判決は同じ</em> ── それを見届けて、シリーズを閉じます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第10回（最終回）、物理好きの高校生・大学生向け読み物です。共形フレームの物理的同等性をめぐる論争は実在する未決着の論点で、古典レベルで観測量が共形フレーム不変量であるとする立場は Flanagan (2004) に、物質を含む場合に測地線方程式がフレーム間で移らないため一方を物理的と宣言する必要があるとする立場は Faraoni &amp; Gunzig ほかに代表されます。本文 03 節の「争点は観測量の定義である」という整理は本シリーズによる読み方であり、両陣営の合意事項ではありません。量子レベルでの同等性については、同等とする結果と破れるとする結果が文献に併存しており、決着していません。表中の各値（\(1+z=t_0/t_e\)、再結合の無次元比 52.6、\(\tilde a\cdot\phi\)、\(N=mc^2t/\hbar\)、\(\alpha^{-1}(M_Z)=127.95\)、陽子質量に占めるクォーク質量約1%）は第3〜8回で導出・検算したものです。図はゲージ \(\tilde a=a^{1-s},\ \phi=a^{s}\) による配分で、\(a=t/t_0=0.5\) における値を表示しています。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーでゲージを変え、右の四つが動かないことが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ss=document.getElementById('ss'),
+      vs=document.getElementById('vs'), rd=document.getElementById('rd');
+  var A=0.5;   // a = t/t0 = 0.5 のスナップショット
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var s=parseFloat(ss.value); vs.textContent=s.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    var ledger=[
+      ['空間の伸び  ã',            Math.pow(A,1-s).toFixed(3)],
+      ['質量  m̃ / m',              Math.pow(A,s).toFixed(3)],
+      ['温度  T̃ / T(今)',          Math.pow(A,s-1).toFixed(3)],
+      ['ボーア半径  ã_B / a_B',     Math.pow(A,-s).toFixed(3)]
+    ];
+    var phys=[
+      ['微細構造定数  α',           '1 / 137.04'],
+      ['赤方偏移  1 + z',           (1/A).toFixed(2)],
+      ['銀河間距離 ÷ 原子半径',      (Math.pow(A,1-s)*Math.pow(A,s)).toFixed(3)],
+      ['N = m c² t / ℏ（電子）',    '1.7 × 10³⁸']
+    ];
+
+    var colW=(W-60)/2, x1=24, x2=x1+colW+12, y0=30, rowH=54;
+
+    function panel(x,title,items,color,bg,border){
+      ctx.fillStyle=bg; ctx.strokeStyle=border; ctx.lineWidth=1.5;
+      var h=rowH*items.length+34;
+      ctx.beginPath(); ctx.rect(x,y0,colW,h); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=color; ctx.font='bold 13px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(title, x+16, y0+22);
+      for(var i=0;i<items.length;i++){
+        var yy=y0+40+i*rowH;
+        ctx.fillStyle='#6b7280'; ctx.font='12px sans-serif';
+        ctx.fillText(items[i][0], x+16, yy+12);
+        ctx.fillStyle=color; ctx.font='bold 19px sans-serif';
+        ctx.fillText(items[i][1], x+16, yy+34);
+        if(i<items.length-1){
+          ctx.strokeStyle=border; ctx.lineWidth=0.7;
+          ctx.beginPath(); ctx.moveTo(x+12,yy+44); ctx.lineTo(x+colW-12,yy+44); ctx.stroke();
+        }
+      }
+    }
+
+    panel(x1,'帳簿 ── ゲージで動く',   ledger,'#a83a22','#fdf3f0','#e6c3b8');
+    panel(x2,'物理 ── ゲージで動かない',phys,  '#1f6b45','#f1f8f4','#bcdcc9');
+
+    ctx.fillStyle='#8b93a1'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('t = 0.5 t₀（a = 0.5）でのスナップショット', W/2, H-10);
+    ctx.textAlign='left';
+
+    var name = s<0.02 ? '（標準の絵：空間が伸びる）'
+             : (s>0.98 ? '（ミンコフスキーの絵：質量が育つ）' : '（途中のゲージ）');
+    rd.textContent='s = '+s.toFixed(2)+name+'　左の四つは動き、右の四つは一つも動かない ── 右だけが物理';
+  }
+
+  ss.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

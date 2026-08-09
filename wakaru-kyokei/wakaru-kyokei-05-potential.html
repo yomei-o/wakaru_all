@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>状態方程式は、ポテンシャルだった ── わかる共形変換 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdfaf3; --paper-edge:#ece1cc;   /* 第5回：琥珀の紙（丘とポテンシャル） */
+    --side:#6d5424; --side-bg:#f6efe1;
+    --warn:#8a4b2f;
+    --calc:#7a5410; --calc-bg:#f5eddc;
+    --rule:#e0d3ba; --hair:#cdbb9a;
+    --acc:#a5701a;    /* 第5回アクセント＝琥珀 */
+    --grid:#eae0cd;
+    --rad:#2166a0;    /* 放射＝青 */
+    --mat:#2f7d5a;    /* 物質＝緑 */
+    --ct:#a83a22;     /* c·t=一定＝赤茶 */
+    --lam:#5a3f9c;    /* Λ＝菫 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0dfb8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#382c17;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f7e9e2;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #dfd0ae;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdf8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f5eddc;color:#7a5410;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdf8;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.eos{border-collapse:collapse;width:100%;min-width:560px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.eos th,table.eos td{border:1px solid var(--rule);padding:10px 12px;text-align:left;vertical-align:middle;}
+  table.eos thead th{background:#f5eddc;color:#7a5410;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.eos tbody th{background:#faf5ea;font-weight:600;white-space:nowrap;}
+  table.eos td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.eos tr.hi td,table.eos tr.hi th{background:#f9ece4;}
+  table.eos tr.hi{outline:2px solid var(--ct);outline-offset:-2px;}
+  .c-rad{color:var(--rad);font-weight:700;} .c-mat{color:var(--mat);font-weight:700;}
+  .c-ct{color:var(--ct);font-weight:700;}   .c-lam{color:var(--lam);font-weight:700;}
+
+  .three{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .three .row{display:flex;gap:14px;padding:14px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .three .row:last-child{border-bottom:none;}
+  .three .mk{flex-shrink:0;width:24px;font-weight:700;font-size:15px;color:var(--ct);}
+  .three .txt strong{display:block;margin-bottom:2px;}
+  .three .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#fdf7ea;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5a3f14;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdf8,#f6efe1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f5eddc;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5a3f14;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.three{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6f6350;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 5 回 ／ シリーズの山場 ── 宇宙論の表が、素粒子論の言葉になる</span></div>
+  <p class="eyebrow">物質を入れると、ディラトンはゲージでいられなくなり、坂を転がりはじめる</p>
+  <h1>状態方程式は、<br>ポテンシャルだった
+    <span class="sub">第4回で重力はスカラー場ひとつになりました。今回はそこに物質を入れます。<br>すると、宇宙論の教科書の最初の表が、まるごと別の言葉に翻訳されます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：微分ひとつ、指数と対数、「加速度 ＝ −ポテンシャルの傾き」</span>
+    <span>\(U(\phi)\propto-\phi^{\,1-3w}\)</span>
+  </div>
+
+  <p class="lead">第4回の結論はこうでした ── 重力を共形変換すると、スケール因子はディラトン場 \(\phi\) になり、「膨張をどこに持たせるか」は<strong>ゲージの選び方</strong>にすぎない。物理の自由度は増えていない。<em>ただしそれは、重力だけを見ていたからです。</em> 宇宙には物質があります。物質を入れた瞬間、\(\phi\) は「どうとでも選べるゲージ」でいられなくなり、<strong>ポテンシャルを背負って動きはじめる</strong>。そしてそのポテンシャルの形は、物質の性質ひとつで完全に決まってしまいます。</p>
+
+  <h2><span class="n">01</span>ディラトンを動かすのは、エネルギー運動量テンソルのトレース</h2>
+
+  <p>まず、物質のどんな性質が効くのかを見当つけましょう。第4回で手に入れた対称性は \(\tilde g\to\Omega^2\tilde g,\ \phi\to\phi/\Omega\) でした。この対称性を物質が壊さなければ、\(\phi\) はゲージのままでいられます。</p>
+
+  <p>物質が共形変換を壊すかどうかを測る量が、<strong>エネルギー運動量テンソルのトレース</strong> \(T^\mu{}_\mu\) です。宇宙論では物質を「密度 \(\rho\)、圧力 \(p\)、状態方程式 \(p=w\rho c^2\)」で表しますから、</p>
+
+  <div class="keybox">
+    <div class="lbl">共形対称性を、どれだけ壊しているか</div>
+    $$T^\mu{}_\mu = -\rho c^2+3p = (3w-1)\,\rho c^2$$
+  </div>
+
+  <p>これがゼロになるのは \(w=1/3\) のときだけ。つまり<strong>放射（光）だけが共形変換を壊さない</strong>。光は質量を持たず、大きさの基準を何も持ち込まないからです ── 物差しを取り替えても、光には区別がつかない。</p>
+
+  <p>逆に言えば、\(w\ne1/3\) の物質はどれも共形対称性を壊し、その破れ具合 \((3w-1)\rho\) がそのまま <em>ディラトンを押す力</em> になります。ここから先は、その力の正体を式で取り出す作業です。</p>
+
+  <h2><span class="n">02</span>フリードマン方程式を、力学の問題として読む</h2>
+
+  <p>膨張宇宙の基本式（フリードマン方程式）を、第4回の舞台 ── 共形時間 \(\eta\) と場 \(\phi=a\) ── の言葉に翻訳します。以下 \(' = d/d\eta\) です。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 三行</span>
+    <p class="lbl">① フリードマン方程式を共形時間で書く</p>
+    <p style="margin-top:8px;">宇宙時間での \(H=\dot a/a\) は、\(dt=a\,d\eta\) より \(H=a'/a^2\)。これを \(H^2=\tfrac{8\pi G}{3}\rho\) に入れて整理すると</p>
+    $$(\phi')^2=\frac{8\pi G}{3}\,\rho\,\phi^4$$
+    <p class="lbl">② 物質の薄まり方 \(\rho\propto\phi^{-3(1+w)}\) を入れる</p>
+    $$(\phi')^2=K\,\phi^{\,1-3w},\qquad K\equiv\frac{8\pi G\rho_0}{3}$$
+    <p class="lbl">③ 「運動エネルギー ＋ ポテンシャル」の形に並べ替える</p>
+    $$\tfrac12(\phi')^2\;+\;\underbrace{\Big(-\tfrac{K}{2}\phi^{\,1-3w}\Big)}_{U(\phi)}\;=\;0$$
+    <p style="margin-bottom:14px;">左辺は、質量1の粒子がポテンシャル \(U\) の中を \(\phi\) 軸上で走っているときの<strong>力学的エネルギー</strong>そのもの。フリードマン方程式は、<em>それがぴったりゼロだ</em>と言っています。</p>
+  </div>
+
+  <p>ここは味わってください。膨張宇宙の方程式が、<strong>一次元の玉ころがし</strong>になりました。しかも全エネルギーがちょうどゼロ ── 「宇宙の全エネルギーはゼロである」という有名な言い回しは、正確にはこの式のことです。</p>
+
+  <p>エネルギー保存の式を \(\eta\) で微分すれば（\(\phi'\phi''+U'\phi'=0\)）、見慣れた形が出ます。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">この回の結論</div>
+    $$\phi''=-\,U'(\phi),\qquad\qquad \boxed{\;U(\phi)=-\frac{K}{2}\,\phi^{\,1-3w}\;}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>加速度 ＝ −ポテンシャルの傾き。物質の状態方程式 \(w\) は、ディラトンのポテンシャルの「べき」だった。</strong></p>
+  </div>
+
+  <p>指数に注目してください ── \(1-3w\)。01節で出てきたトレース \((3w-1)\rho\) と、符号違いの同じ数です。偶然ではありません。<em>共形対称性の破れ具合が、そのままポテンシャルの形になっている。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>表を作る ── 宇宙論の四人が、四つの形になる</h2>
+
+  <p>あとは \(w\) を入れるだけです。宇宙論でおなじみの四人を並べます。</p>
+
+  <div class="tblwrap">
+    <table class="eos">
+      <thead>
+        <tr><th>物質</th><th class="mid">\(w\)</th><th class="mid">\(\rho\propto\)</th><th>ポテンシャル \(U(\phi)\)</th><th class="mid">\(\phi(\eta)\)</th><th class="mid">\(a(t)\)</th></tr>
+      </thead>
+      <tbody>
+        <tr><th class="c-rad">放射</th><td class="mid">\(1/3\)</td><td class="mid">\(a^{-4}\)</td><td><strong>平ら（力ゼロ）</strong> \(U=-K/2\)</td><td class="mid">\(\propto\eta\)</td><td class="mid">\(t^{1/2}\)</td></tr>
+        <tr><th class="c-mat">物質</th><td class="mid">\(0\)</td><td class="mid">\(a^{-3}\)</td><td>一定の傾きの坂 \(U\propto-\phi\)</td><td class="mid">\(\propto\eta^2\)</td><td class="mid">\(t^{2/3}\)</td></tr>
+        <tr class="hi"><th class="c-ct">\(c\cdot t=\)一定</th><td class="mid">\(-1/3\)</td><td class="mid">\(a^{-2}\)</td><td><strong>質量項</strong> \(U=-\dfrac{\phi^2}{2t_0^{2}}\)</td><td class="mid">\(e^{\eta/t_0}\)</td><td class="mid">\(t\)</td></tr>
+        <tr><th class="c-lam">宇宙定数 Λ</th><td class="mid">\(-1\)</td><td class="mid">一定</td><td>自己結合 \(U\propto-\phi^4\)</td><td class="mid">\(-1/(H_0\eta)\)</td><td class="mid">\(e^{H_0t}\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>左半分は宇宙論の教科書の最初のページ、右半分は素粒子論の言葉です。<em>放射はポテンシャルを持たない自由な場、物質は一定の力に押される場、宇宙定数は \(\phi^4\) の自己結合</em> ── どれも場の理論では毎日見る顔ぶれ。そして真ん中の赤い行が、このシリーズの主役です。</p>
+
+  <div class="fig">
+    <div class="cap">図：\(w\) のツマミを回すと、左のポテンシャルの形と右の膨張のしかたが同時に変わる。右のカーブは左の丘を転がった結果を計算したもの</div>
+    <canvas id="cv" width="680" height="320"></canvas>
+    <div class="controls">
+      <label>状態方程式 w<span class="val" id="vw">-0.333</span>
+        <input type="range" id="sw" min="-0.95" max="0.3333333" step="0.0016667" value="-0.3333333">
+      </label>
+    </div>
+    <div class="readout" id="rd">w = −0.333（c·t=一定）　U ∝ −φ²（質量項）　→　a ∝ t^1.00</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a5701a;"></i>ポテンシャル U(φ)</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>いまの位置（φ = 1）</span>
+      <span><i class="swatch" style="background:#2166a0;"></i>膨張 a(t)</span>
+    </div>
+  </div>
+
+  <p>ツマミを右端（放射）に振ると丘は<strong>真っ平ら</strong>になり、左へ動かすほど急な下り坂になっていきます。玉は必ず \(\phi=0\)（ビッグバン）から出発して右へ転がる ── 全エネルギーがゼロなので、頂上では必ず速度ゼロです。</p>
+
+  <h2><span class="n">04</span>\(c\cdot t=\text{一定}\) だけが、三重に特別だった</h2>
+
+  <p>表の赤い行をよく見てください。\(w=-1/3\) は、三つのまったく別に見える意味で境目に立っています ── <em>そして三つは、同じ一つの事実です。</em></p>
+
+  <div class="three">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>ポテンシャルがちょうど二次形式 ── つまり質量項</strong><span>四人の中で \(U\propto\phi^2\) になるのはここだけ。二次だと運動方程式 \(\phi''=K\phi\) が<em>線形</em>になり、解が指数関数一択で決まる。いちばん単純な場の理論です。</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>共形時間がちょうど無限になる境目</strong><span>頂上 \(\phi=0\) まで戻るのにかかる時間は \(\displaystyle\int_0\frac{d\phi}{\phi'}=\frac{1}{\sqrt K}\int_0\phi^{-\frac{1-3w}{2}}d\phi\)。これが発散するのは指数が 1 以上、つまり \(w\le-1/3\)。<strong>\(w=-1/3\) がちょうど対数発散の境目</strong>で、ここからビッグバンが無限の彼方へ退きます。</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>加速がちょうどゼロ</strong><span>\(\ddot a\propto-(1+3w)\) なので、宇宙が加速するのは \(w&lt;-1/3\)。\(w=-1/3\) は加速も減速もしない、まっすぐ膨張。地平線問題が解けるかどうかの、まさに分水嶺です。</span></div></div>
+  </div>
+
+  <p>第3回で「\(a\propto t\) だと共形時間 \(\eta\) が \(-\infty\) まで取れて、ミンコフスキー全体を覆う」と書きました。あれの理由が、いまはっきりします ── <strong>ポテンシャルが二次だから</strong>です。二次の丘の頂上は、無限の時間をかけないと登れない。放物線の頂点で速度がゼロになる、あの感覚そのものです。</p>
+
+  <div class="aside">
+    <span class="tag">この理論に現れる、唯一のスケール</span>
+    \(w=-1/3\) では \(K=1/t_0^2\) となり（\(\rho_0=3/8\pi Gt_0^2\) を入れれば出ます）、ポテンシャルは \(U=-\phi^2/2t_0^2\)。曲がり具合を決める数は \(1/t_0=H_0\) ただ一つです。エネルギーに直すと
+    $$\hbar H_0 = 6.58\times10^{-16}\,\mathrm{eV\cdot s}\times2.30\times10^{-18}\,\mathrm{s^{-1}}\approx 1.5\times10^{-33}\ \mathrm{eV}$$
+    共形変換したあとの \(c\cdot t=\text{一定}\) 宇宙は、<strong>平らな時空に、質量 \(10^{-33}\) eV の場が一個あるだけ</strong>の理論だった、ということになります。
+  </div>
+
+  <h2><span class="n">05</span>なぜポテンシャルは、全部「丘」なのか</h2>
+
+  <p>表をもう一度見ると、気になることがあるはずです。\(U\) の頭に、どれもマイナスが付いている。谷ではなく<strong>丘</strong>ばかり。玉は転がり落ちる一方で、戻ってきません。</p>
+
+  <p>これは第4回の宿題の回収です。あのとき、ディラトンの運動項の符号が逆を向いていること（ゴースト）を見ました。健全な場なら \(-\tfrac12(\partial\phi)^2\) となるところが \(+6(\partial\phi)^2\) だった。<em>運動項の符号が逆なら、ポテンシャルの効き方も逆になります。</em> 健全な場が谷に落ち着くところで、この場は丘を下る。</p>
+
+  <div class="keybox">
+    <div class="lbl">第4回のゴーストが、ここに顔を出す</div>
+    $$\underbrace{+6(\partial\phi)^2}_{\text{符号が逆}}\qquad\Longrightarrow\qquad \underbrace{U\propto-\phi^{\,1-3w}}_{\text{丘ばかり}}$$
+  </div>
+
+  <p>そして丘の上を転がり続けるということは、<strong>止まらない</strong>ということ。膨張が終わらないのは、この符号のせいだ ── と読むこともできます。もちろんこれは書き換えた側の言い方で、もとの絵では単に「宇宙が膨張し続けている」と言うだけのこと。同じ事実が、別の言葉では別の顔をする、というだけです。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">今回の \(U(\phi)\) は、フリードマン方程式を書き換えて取り出した<strong>実効ポテンシャル</strong>です。「宇宙にこういうポテンシャルを持つ場が実在する」と言っているのではありません ── <em>物質の状態方程式を、ディラトンの言葉に翻訳するとこう見える</em>、という辞書です。第4回の数え上げ（場＋1、対称性−1、差引ゼロ）は、ここでも生きています。</p>
+    <p style="margin-bottom:0;">そして、\(w=-1/3\) を<strong>誰が作るのか</strong>は、この回では一切答えていません。放射も物質もダークエネルギーも \(w=-1/3\) ではないので、宇宙全体の総和がぴったり \(-1/3\) になる必要があります（\(R_h=ct\) 宇宙が要求しているのは、まさにこれ）。それが自然に実現するかは未解決で、しかも額面で初期宇宙まで走らせると元素合成が壊れます ── 番外編で正面から扱います。<strong>ポテンシャルが美しいことと、そのモデルが正しいことは、別の話です。</strong></p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（今回の式だけで解けます）</div>
+    <ol>
+      <li>放射（\(w=1/3\)）のとき \(U\) はどんな形か。玉はどう動くか。そこから \(a(t)\) を出せ。
+        <details><summary>答えを見る</summary><div class="ans">\(1-3w=0\) なので \(U=-K/2\) の<strong>定数</strong>、つまり真っ平ら。傾きゼロ＝力ゼロなので \(\phi'\) は一定、\(\phi\propto\eta\)。宇宙時間は \(t=\int a\,d\eta\propto\eta^2\) だから \(\eta\propto t^{1/2}\)、よって \(a\propto t^{1/2}\)。放射優勢期そのものです。</div></details>
+      </li>
+      <li>トレース \(T^\mu{}_\mu=(3w-1)\rho c^2\) がゼロになる \(w\) と、\(U\) の傾きがゼロになる \(w\) が一致するのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">ディラトンを押す力の源が、まさにそのトレースだから。トレースがゼロ＝物質が共形変換を壊さない＝ディラトンに何も伝わらない＝力ゼロ。同じことを二通りに言っているだけです。</div></details>
+      </li>
+      <li>\(c\cdot t=\text{一定}\)（\(U=-\phi^2/2t_0^2\)）で、玉が頂上 \(\phi=0\) に戻るのに共形時間はどれだけかかるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\phi'=\phi/t_0\) なので \(d\eta=t_0\,d\phi/\phi\)。\(\int_0 d\phi/\phi\) は対数発散するので<strong>無限</strong>。第3回の「\(\eta\to-\infty\) でビッグバン」は、この一行と同じ事実です。</div></details>
+      </li>
+      <li>（やや難）地平線問題が解けるのは \(w&lt;-1/3\)。\(c\cdot t=\text{一定}\) がちょうど境界に立つ理由を、04節の三つの言い方で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">①ポテンシャルの指数 \(1-3w\) が 2 になる（二次形式）。②過去向きの共形時間 \(\int_0\phi^{-(1-3w)/2}d\phi\) の指数が 1 になり、収束から対数発散へ切り替わる。③\(\ddot a\propto-(1+3w)\) がゼロになる。三つとも \(w=-1/3\) で同時に起きる ── 別々の現象ではなく、一つの事実の三つの顔です。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>宇宙論の表が、素粒子論の表になった</h2>
+    <p>物質を入れるとディラトンはゲージでいられなくなる。押すのは<strong>エネルギー運動量テンソルのトレース</strong> \((3w-1)\rho c^2\) で、これがゼロの放射だけが共形変換を壊さない。フリードマン方程式を共形時間で書き直すと \(\tfrac12(\phi')^2+U(\phi)=0\) という<em>全エネルギーゼロの玉ころがし</em>になり、ポテンシャルは \(U(\phi)=-\tfrac{K}{2}\phi^{1-3w}\) ── <strong>状態方程式が、そのままポテンシャルのべきになる</strong>。</p>
+    <p>放射は平ら（自由場）、物質は一定の坂、宇宙定数は \(\phi^4\)、そして \(c\cdot t=\text{一定}\) は<strong>ちょうど質量項</strong> \(U=-\phi^2/2t_0^2\)。この \(w=-1/3\) は、①ポテンシャルが二次になる ②共形時間が無限になる ③加速がゼロになる、の三つが同時に起きる分水嶺で、三つは同じ一つの事実の別の顔でした。ポテンシャルが全部「丘」なのは、第4回で見たゴーストの符号がそのまま効いているからです。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第6回</span>
+    ②が効いてきます。\(c\cdot t=\text{一定}\) では共形時間が \(-\infty\) まで取れ、変換後の時空はミンコフスキーを<strong>まるごと</strong>覆う ── つまり<em>ビッグバン特異点が消える</em>。ヴェッテリヒは「ビッグバン特異点は、場の座標の特異な選び方に由来する」と書き、バース＝スタインハート＝トゥロックは Weyl ゲージを使って<strong>測地的に完備な宇宙</strong>を作りました。では、特異点は座標のせいだったのか？ ── 答えは「半分だけ」。無次元の比を作ると、消えなかったものが顔を出します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第5回、物理好きの高校生・大学生向け読み物です。共形時間でのフリードマン方程式 \((a')^2=\frac{8\pi G}{3}\rho a^4\)、完全流体の \(\rho\propto a^{-3(1+w)}\)、およびそこから従う \(a\propto t^{2/3(1+w)}\) は標準的な結果です。本稿の \(U(\phi)=-\frac{K}{2}\phi^{1-3w}\) は、フリードマン方程式（ハミルトニアン拘束）を \(\frac12(\phi')^2+U=0\) の形に書き直して読み取った<strong>実効ポテンシャル</strong>であり、新たな物理を仮定するものではありません。符号（\(U\le0\)）は第4回で見た共形因子の逆符号運動項に由来します。エネルギー運動量テンソルのトレース \(T^\mu{}_\mu=(3w-1)\rho c^2\) が \(w=1/3\) で消えること、加速条件が \(w&lt;-1/3\) であることも標準です。\(w=-1/3\)（線形膨張、\(R_h=ct\)）は宇宙全体の実効的な状態方程式に対する要請であり、既知の物質成分の単純な和では実現しません。また線形膨張を初期宇宙まで適用した場合の元素合成との不整合は Lewis, Barnes &amp; Kaushik (2016, MNRAS 460, 291) を参照。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。図は \(K=1\) に規格化した模式図で、右のカーブは \(a\propto t^{2/3(1+w)}\) を描いています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで状態方程式 w を変え、ポテンシャルの形と膨張のしかたが連動して変わる様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sw=document.getElementById('sw'),
+      vw=document.getElementById('vw'), rd=document.getElementById('rd');
+
+  var LAND=[{w:1/3,name:'放射',pot:'平ら（力ゼロ）'},
+            {w:0,name:'物質',pot:'U ∝ −φ'},
+            {w:-1/3,name:'c·t=一定',pot:'U ∝ −φ²（質量項）'},
+            {w:-1,name:'宇宙定数 Λ',pot:'U ∝ −φ⁴'}];
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var w=parseFloat(sw.value); vw.textContent=w.toFixed(3);
+    var q=1-3*w;                      // ポテンシャルのべき
+    var p=2/(3*(1+w));                // a ∝ t^p
+    ctx.clearRect(0,0,W,H);
+
+    var padT=34, padB=40;
+    var L={x0:48, x1:W*0.44}, R={x0:W*0.56, x1:W-14};
+
+    // 仕切り
+    ctx.strokeStyle='#eae0cd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W*0.50,padT-14); ctx.lineTo(W*0.50,H-padB+8); ctx.stroke();
+
+    ctx.font='12px sans-serif'; ctx.textAlign='left';
+    ctx.fillStyle='#7a5410'; ctx.fillText('ポテンシャル U(φ)', L.x0, padT-16);
+    ctx.fillStyle='#2166a0'; ctx.fillText('膨張のしかた a(t)', R.x0, padT-16);
+
+    // ---------- 左：U(φ) ----------
+    var PHIMAX=1.5, UMIN=-2.7, UMAX=0.35;
+    function LX(f){ return L.x0 + f/PHIMAX*(L.x1-L.x0); }
+    function LY(u){ return (H-padB) - (u-UMIN)/(UMAX-UMIN)*(H-padB-padT); }
+    ctx.strokeStyle='#cdbb9a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L.x0,padT); ctx.lineTo(L.x0,H-padB); ctx.lineTo(L.x1,H-padB); ctx.stroke();
+    ctx.strokeStyle='#eee6d6'; ctx.beginPath(); ctx.moveTo(L.x0,LY(0)); ctx.lineTo(L.x1,LY(0)); ctx.stroke();
+    ctx.fillStyle='#9a8c72'; ctx.font='11px sans-serif';
+    ctx.fillText('φ →', L.x1-24, H-padB+16); ctx.fillText('U=0', L.x0+4, LY(0)-4);
+
+    ctx.strokeStyle='#a5701a'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var k=0;k<=200;k++){
+      var f=PHIMAX*k/200, u=-0.5*Math.pow(f,q);
+      if(u<UMIN) u=UMIN;
+      var px=LX(f), py=LY(u);
+      if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    // いまの位置 φ=1
+    var u1=-0.5;
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(LX(1),LY(u1),6,0,7); ctx.fill();
+    ctx.fillStyle='#a83a22'; ctx.font='11px sans-serif';
+    ctx.fillText('いま φ=1', LX(1)-24, LY(u1)-12);
+    // 転がる向き
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.beginPath();
+    ctx.moveTo(LX(1)+12,LY(u1)+10); ctx.lineTo(LX(1)+32,LY(u1)+16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(LX(1)+32,LY(u1)+16); ctx.lineTo(LX(1)+25,LY(u1)+11);
+    ctx.lineTo(LX(1)+25,LY(u1)+19); ctx.closePath(); ctx.fillStyle='#a83a22'; ctx.fill();
+
+    // ---------- 右：a(t) ----------
+    var AMAX=1.08;
+    function RX(t){ return R.x0 + t*(R.x1-R.x0); }
+    function RY(a){ return (H-padB) - a/AMAX*(H-padB-padT); }
+    ctx.strokeStyle='#cdbb9a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(R.x0,padT); ctx.lineTo(R.x0,H-padB); ctx.lineTo(R.x1,H-padB); ctx.stroke();
+    ctx.fillStyle='#9a8c72'; ctx.font='11px sans-serif';
+    ctx.fillText('t →', R.x1-22, H-padB+16); ctx.fillText('t₀', R.x1-14, H-padB+16-14);
+
+    // 参考：まっすぐ膨張（a=t）
+    ctx.strokeStyle='#e6cfc6'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(RX(0),RY(0)); ctx.lineTo(RX(1),RY(1)); ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var j=0;j<=240;j++){
+      var t=j/240, a=Math.pow(t,p);
+      var px=RX(t), py=RY(a);
+      if(j===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.fillStyle='#2166a0'; ctx.beginPath(); ctx.arc(RX(1),RY(1),5,0,7); ctx.fill();
+    ctx.fillStyle='#c0a89a'; ctx.font='11px sans-serif';
+    ctx.fillText('a = t（まっすぐ）', RX(0.30), RY(0.30)-10);
+
+    // ---------- 読み出し ----------
+    var nm='', pot='';
+    for(var i=0;i<LAND.length;i++){
+      if(Math.abs(w-LAND[i].w)<0.006){ nm='（'+LAND[i].name+'）'; pot=LAND[i].pot; }
+    }
+    if(!pot) pot='U ∝ −φ^'+q.toFixed(2);
+    rd.textContent='w = '+w.toFixed(3)+nm+'　'+pot+'　→　a ∝ t^'+p.toFixed(2)
+                 +(w<-0.3333 ? '　（加速：地平線問題が解ける側）' : (Math.abs(w+1/3)<0.006 ? '　（加速ゼロ：ちょうど分水嶺）' : '　（減速）'));
+  }
+
+  sw.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

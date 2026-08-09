@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>額面で走らせると、どうなるか ── わかる共形変換 番外編</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fdf6f3; --paper-edge:#eed6cc;   /* 番外編：赤茶の紙（判決） */
+    --side:#7a3520; --side-bg:#f8ebe5;
+    --warn:#8a4b2f;
+    --calc:#8a3418; --calc-bg:#f7e9e2;
+    --rule:#e6cabd; --hair:#d4ac9b;
+    --acc:#a83a22;    /* 番外編アクセント＝赤茶 */
+    --grid:#f0dcd3;
+    --obs:#1f6b45;    /* 観測＝緑 */
+    --std:#2166a0;    /* 標準＝青 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f3d7c9 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a1f14;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f2f0e4;border-left:3px solid #6b6a3a;padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#33321c;}
+  .caveat .tag{color:#6b6a3a;}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e5c6b8;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffcfa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f7e9e2;color:#8a3418;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.bb{border-collapse:collapse;width:100%;min-width:500px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.bb th,table.bb td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:middle;}
+  table.bb thead th{background:#f7e9e2;color:#8a3418;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.bb tbody th{background:#fbf1ec;font-weight:600;white-space:nowrap;}
+  table.bb td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.bb tr.ok td,table.bb tr.ok th{background:#eef7f1;}
+  table.bb tr.bad td,table.bb tr.bad th{background:#f9e6e0;}
+
+  .ver{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .ver .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .ver .row:last-child{border-bottom:none;}
+  .ver .mk{flex-shrink:0;width:24px;font-weight:700;font-size:17px;}
+  .ver .ok{color:#1f6b45;} .ver .no{color:#b03a2e;} .ver .q{color:#8a6a12;}
+  .ver .txt strong{display:block;margin-bottom:2px;}
+  .ver .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#fdf2ee;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#63220f;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfc,#f8ebe5);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f7e9e2;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#63220f;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.ver{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#71574c;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ／ 語り方ではなく、モデルとして裁く</span></div>
+  <p class="eyebrow">10回かけて「等価だ」と言い続けてきた。では、額面で走らせたらどうなるのか</p>
+  <h1>額面で走らせると、<br>どうなるか
+    <span class="sub">共形変換は、\(c\cdot t=\text{一定}\) の<strong>語り方</strong>を三通りに増やしました。<br>でも、語り方が三つあることと、そのモデルが正しいことは、まったく別の話です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：指数関数、比を作ること</span>
+    <span>\(n/p=e^{-Q/k_BT_f}\)</span>
+  </div>
+
+  <p class="lead">このシリーズは一貫して、こう言ってきました ── <em>「空間が伸びる」も「光が遅くなる」も「原子が縮む」も、同じ物理の三つの語り方だ。</em> 正しい主張です。でも第5回の正直な線で書いた通り、<strong>\(a\propto t\) という膨張則そのものが正しいかどうかは、まったく別の問題</strong>でした。今回は、そこに判決を受けに行きます。裁判所はビッグバン元素合成。そして結論を先に言えば ── <em>額面では、負けます。</em> しかも、三つの絵のどれで弁護しても、判決は同じです。</p>
+
+  <h2><span class="n">01</span>なぜ元素合成が裁判所なのか</h2>
+
+  <p>宇宙が生まれて数分のあいだに、陽子と中性子が結びついてヘリウムができました。その量は観測でよく分かっていて、質量比で <strong>\(Y_p\simeq0.245\)</strong> ── 宇宙の物質の約4分の1がヘリウムです。標準宇宙論はこれを見事に説明します。</p>
+
+  <p>そして元素合成は、膨張のしかたに<em>極端に敏感</em>です。理由は、こういう競争になっているから。</p>
+
+  <div class="keybox">
+    <div class="lbl">元素合成を決める競争</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    <strong>弱い相互作用</strong>（中性子 ⇄ 陽子 を行き来させる、レート \(\Gamma\)）<br>
+    　　　　　　　　　　vs<br>
+    <strong>宇宙の膨張</strong>（引き離して反応を止める、レート \(H\)）</p>
+  </div>
+
+  <p>\(\Gamma\) が勝っているあいだ、中性子と陽子の数の比は温度で決まる平衡値をとります。膨張が勝った瞬間（\(\Gamma=H\)）に比が<strong>凍結</strong>し、あとはその中性子が全部ヘリウムになる ── 前シリーズ第10回で「ビットが凍る」と呼んだ、あれです。</p>
+
+  <h2><span class="n">02</span>\(a\propto t\) だと、冷却が遅すぎる</h2>
+
+  <p>凍結がいつ起きるかは、\(\Gamma\) と \(H\) の温度依存性の勝負で決まります。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 凍結温度の見積もり</span>
+    <p class="lbl">弱い相互作用のレート（どちらの宇宙でも同じ）</p>
+    $$\Gamma\;\propto\;T^5$$
+    <p class="lbl">標準宇宙論（放射優勢、\(a\propto t^{1/2}\)）</p>
+    <p style="margin-top:8px;">\(T\propto t^{-1/2}\)、\(H\propto1/t\) なので \(H\propto T^2\)。凍結条件は</p>
+    $$T^5\sim T^2\;\Longrightarrow\;T_f\sim0.8\ \mathrm{MeV}$$
+    <p class="lbl">\(c\cdot t=\text{一定}\)（\(a\propto t\)）</p>
+    <p style="margin-top:8px;">\(T\propto1/a\propto1/t\)、\(H=1/t\) なので <strong>\(H\propto T\)</strong>。凍結条件は</p>
+    $$T^5\sim T\;\Longrightarrow\;\text{凍結がずっと低温まで起きない}$$
+    <p style="margin-bottom:14px;">温度の指数が 2 から 1 に落ちただけで、勝負がひっくり返ります。膨張が弱すぎて、弱い相互作用がいつまでも勝ち続ける ── 文献の見積もりでは、凍結温度は標準より<strong>約2桁低い</strong>ところまで下がります。</p>
+  </div>
+
+  <h2><span class="n">03</span>凍結が遅れると、中性子が消える</h2>
+
+  <p>ここが致命傷です。平衡での中性子・陽子比は、質量差 \(Q=1.293\) MeV を使ってこう書けます。</p>
+
+  $$\frac{n}{p}=e^{-Q/k_BT}$$
+
+  <p>指数関数です。温度が下がるほど、中性子は<em>指数関数的に</em>減る。凍結が遅れれば、その減少に最後まで付き合わされることになります。</p>
+
+  <div class="tblwrap">
+    <table class="bb">
+      <thead><tr><th class="mid">凍結温度 \(T_f\)</th><th class="mid">\(n/p\)</th><th class="mid">ヘリウム \(Y_p\)</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="ok"><td class="mid">0.8 MeV（標準）</td><td class="mid">0.199</td><td class="mid">0.33 → 0.25<sup>※</sup></td><td>観測 0.245 と一致</td></tr>
+        <tr><td class="mid">0.5 MeV</td><td class="mid">0.075</td><td class="mid">0.14</td><td>足りない</td></tr>
+        <tr><td class="mid">0.3 MeV</td><td class="mid">0.013</td><td class="mid">0.027</td><td>ぜんぜん足りない</td></tr>
+        <tr class="bad"><td class="mid">0.1 MeV</td><td class="mid">\(2.4\times10^{-6}\)</td><td class="mid">\(4.8\times10^{-6}\)</td><td><strong>ヘリウムが作れない</strong></td></tr>
+        <tr class="bad"><td class="mid">0.05 MeV</td><td class="mid">\(5.9\times10^{-12}\)</td><td class="mid">\(1.2\times10^{-11}\)</td><td><strong>壊滅</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="font-size:14px;color:var(--ink-soft);">※ 標準では凍結後に中性子が一部β崩壊して \(n/p\) が 1/6 から 1/7 に落ち、\(Y_p=2(1/7)/(1+1/7)=0.25\) になります。</p>
+
+  <p>凍結温度がたった 8 倍下がるだけで、ヘリウムは 5 桁消えます。<strong>これが \(c\cdot t=\text{一定}\) を額面で走らせたときに起きること</strong>です。ルイス、バーンズ、カウシク（2016）は実際の計算をして、ヘリウム質量分率が観測の 0.245 に対して \(10^{-3}\) のオーダーにしかならないと結論しました。論文のタイトルは「\(R_h=ct\) 宇宙のとろ火に、冷や水を浴びせる」。</p>
+
+  <div class="fig">
+    <div class="cap">図：凍結温度 \(T_f\) を下げると、ヘリウムの量が指数関数的に消えていく。緑の線が観測値 0.245</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>凍結温度 T_f [MeV]<span class="val" id="vt">0.80</span>
+        <input type="range" id="st" min="0.05" max="1.2" step="0.01" value="0.8">
+      </label>
+    </div>
+    <div class="readout" id="rd">T_f = 0.80 MeV　n/p = 0.199　→　Y_p = 0.331（標準の凍結温度）</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>ヘリウム質量分率 Y_p</span>
+      <span><i class="swatch" style="background:#1f6b45;"></i>観測値 0.245</span>
+      <span><i class="swatch" style="background:#2166a0;"></i>標準の凍結温度 0.8 MeV</span>
+    </div>
+  </div>
+
+  <p>スライダーを左へ動かしてください。0.8 から 0.3 へ下げるだけで曲線は崖から落ち、0.1 では画面の底に張り付きます。<em>指数関数は容赦がありません。</em></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>三つの絵のどれで弁護しても、同じ判決</h2>
+
+  <p>ここでシリーズの成果が効きます。この判決は、どの絵で語っても変わりません。</p>
+
+  <div class="tblwrap">
+    <table class="bb">
+      <thead><tr><th>絵</th><th>何が起きていると言うか</th></tr></thead>
+      <tbody>
+        <tr><th>① 空間が伸びる</th><td>温度が \(1/t\) で下がる。下がり方が遅すぎて凍結が間に合わない。</td></tr>
+        <tr><th>② 光が遅くなる</th><td>同上（時間座標を変えただけ、第3回）。</td></tr>
+        <tr><th>③ 質量が育つ</th><td>温度は一定。<strong>質量差 \(Q\) が \(\propto t\) で育つのが遅すぎて</strong>、\(Q/k_BT\) が 1 を超えるころには弱い相互作用が中性子を消し尽くしている。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>③の言い方が、とくに気持ちいい。第3回で見た通り、共形変換した絵では宇宙は冷えず、代わりに質量が育ちました。ヘリウムができるかどうかを決めるのは、どちらの絵でも<strong>無次元比 \(Q/k_BT\)</strong> です。分子が育つか分母が減るかの違いだけで、比の値は同じ ── <em>だから判決も同じ</em>。</p>
+
+  <div class="keybox">
+    <div class="lbl">最終回の判定手続きを、そのまま使う</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    \(Q/k_BT\) は<strong>無次元</strong>　→　ゲージで動かない　→　<strong>物理</strong><br>
+    ゆえに、どの絵で弁護しても無罪にはならない。</p>
+  </div>
+
+  <h2><span class="n">05</span>もう一つの、もっと厳しい批判</h2>
+
+  <p>元素合成とは別に、より根本的な批判もあります。ミトラ（2014）は、\(R_h=ct\) 宇宙は座標変換で静的な形に書けてしまい、平坦な場合は<strong>密度ゼロ＝真空</strong>を意味する ── つまりミルン宇宙と同じ「真空の偽装」だ、と主張しました。</p>
+
+  <div class="aside">
+    <span class="tag">ミルン宇宙との違い（ここは大事）</span>
+    ミルン宇宙（\(a\propto t\)、曲率 \(k=-1\)、物質なし）は、<strong>純粋な座標変換だけ</strong>でミンコフスキー時空になります ── 共形変換すら要りません。中身が空っぽだからです。一方 \(R_h=ct\)（\(a\propto t\)、\(k=0\)、物質あり）をミンコフスキーにするには、このシリーズでやった<em>共形変換が必要</em>でした（第3回）。<strong>座標変換で済むか、共形変換が要るか</strong> ── この違いが、両者が同じものかどうかの争点そのものです。ミトラの主張は反論もされており、決着していません。
+  </div>
+
+  <h2><span class="n">06</span>判決</h2>
+
+  <div class="ver">
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>語り方としては、無罪 ── どころか優秀</strong><span>共形変換は厳密で、三つの絵は観測的に区別できない（第3回〜第7回）。「光が遅くなる」という補助線は、正当なゲージ選択でした。</span></div></div>
+    <div class="row"><span class="mk no">✗</span><div class="txt"><strong>初期宇宙のモデルとしては、棄却</strong><span>\(a\propto t\) を元素合成の時代まで額面で適用すると、ヘリウムが 2 桁以上足りない（Lewis ら 2016）。追加の新しい物理なしには成立しません。</span></div></div>
+    <div class="row"><span class="mk q">?</span><div class="txt"><strong>「真空の偽装」かどうかは、係争中</strong><span>ミトラ（2014）の主張と、メリアらの反論が対立したまま。少なくとも、ミルン宇宙とは共形変換が要るか否かで区別されます。</span></div></div>
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>道具としては、残る</strong><span>\(w=-1/3\) が「ポテンシャルが二次になる／共形時間が無限になる／加速がゼロになる」の三重の境目である（第5回）という構造は、モデルの当否と無関係に正しい。境界に立つ点は、いつでも数学的に特別です。</span></div></div>
+  </div>
+
+  <p>前シリーズ第7回の判決文は「額面は棄却、\(\alpha\) 不変ゲージなら無罪だが観測不能」でした。共形変換の言葉で言い直すと、こうなります ── <em>ゲージとしては完璧、モデルとしては失格。</em> そして今回はっきりしたのは、<strong>その二つを混同しないための道具を、このシリーズが作った</strong>ということです。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">02節の \(T_f\) の見積もりは<strong>桁の議論</strong>です。\(\Gamma\propto T^5\) と \(H\) の比較で凍結温度を出すのは標準的な見積もり方ですが、正確な \(Y_p\) を得るには反応ネットワーク全体を数値で解く必要があります（それをやったのが Lewis ら 2016）。03節の表も、凍結時の平衡値から求めた<em>目安</em>で、その後の中性子崩壊や核反応の詳細は入っていません。</p>
+    <p style="margin-bottom:0;">また、\(R_h=ct\) 側にも反論はあります。メリアらは、モデル非依存の距離測定では \(R_h=ct\) のほうが好まれると主張しています。ここで「棄却」と言っているのは<strong>初期宇宙（元素合成期）まで額面で外挿した場合</strong>の話で、低赤方偏移の観測適合をめぐる議論とは別です。どの論争も、片方の言い分だけ聞いて閉じないでください。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>\(T_f=0.3\) MeV のときの \(n/p\) を求めよ。\(Q=1.293\) MeV。
+        <details><summary>答えを見る</summary><div class="ans">\(n/p=e^{-1.293/0.3}=e^{-4.31}=0.0134\)。標準（0.199）の約 15 分の 1。ヘリウムは \(Y_p=2(0.0134)/(1.0134)=0.026\) で、観測 0.245 の10分の1しかありません。</div></details>
+      </li>
+      <li>なぜ \(a\propto t\) では膨張が「弱すぎる」のか。温度の指数で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">標準（放射優勢）は \(H\propto T^2\)、\(a\propto t\) では \(H\propto T\)。凍結条件 \(\Gamma\propto T^5=H\) を解くと、指数が 2 のときより 1 のときのほうが解 \(T_f\) が小さくなる ── つまり、より低温になるまで弱い相互作用が勝ち続けてしまう。</div></details>
+      </li>
+      <li>「質量が育つ絵」で語れば元素合成の問題を回避できるか。
+        <details><summary>答えを見る</summary><div class="ans">できない。ヘリウム生成を決めるのは無次元比 \(Q/k_BT\) で、これはゲージで動かない（最終回の判定手続き）。温度が下がるか質量差が育つかは言い方の違いで、比の値もその時間変化も同じです。</div></details>
+      </li>
+      <li>（やや難）ミルン宇宙と \(R_h=ct\) は、どこが決定的に違うか。
+        <details><summary>答えを見る</summary><div class="ans">ミルン（\(k=-1\)、真空）は<strong>座標変換だけ</strong>でミンコフスキーになります。\(R_h=ct\)（\(k=0\)、物質あり）は座標変換では足りず、<strong>共形変換（＝物差しの取り替え）が必要</strong>でした（第3回）。前者は同じ時空の別の書き方、後者は別の時空を無次元量が同じになるように写したもの ── 第7回の「計量 10 成分 = 光円錐 9 + 目盛り 1」でいえば、後者は 1 個ぶん動かしています。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>ゲージとしては完璧、モデルとしては失格</h2>
+    <p>元素合成は膨張則に極端に敏感です。弱い相互作用 \(\Gamma\propto T^5\) と膨張 \(H\) の競争で中性子・陽子比が凍結し、それがヘリウム量を決める。標準（\(H\propto T^2\)）では \(T_f\simeq0.8\) MeV で凍結して \(Y_p=0.25\)。ところが \(a\propto t\) では \(H\propto T\) となり、凍結が約2桁低温まで遅れる。\(n/p=e^{-Q/k_BT_f}\) は指数関数なので、そのあいだに中性子が消え尽くし、<strong>ヘリウムがほとんど作られません</strong>（Lewis ら 2016）。</p>
+    <p>そして重要なのは、<em>三つの絵のどれで弁護しても判決が同じ</em>だということ。決めているのは無次元比 \(Q/k_BT\) で、これはゲージで動きません ── 最終回の判定手続きが、そのまま働きます。共形変換は \(c\cdot t=\text{一定}\) に三つの語り方を与えましたが、<strong>語り方を増やしても、モデルの成績は一点も上がらない</strong>。それを混同しないための道具を作ったことが、この10回の一番の成果でした。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">シリーズを閉じます</span>
+    「わかる宇宙論」は「光は昔、もっと速かった」から始まりました。「わかる共形変換」は、その補助線が<strong>何だったのか</strong>を突き止める10回でした ── 答えは、Weyl 変換した計量を宇宙時間で読んだもの。そして共形変換とは、次元付きの量を動かし無次元の量を動かさない操作、つまり<em>物差しの取り替え</em>です。前シリーズの合言葉「次元付きは帳簿、無次元だけが物理」は、こうして定理になりました。開いたままの扉は、第9回のゴーストと、第10回に並べた四つ。どれも、まだ誰も閉めていません。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編、物理好きの高校生・大学生向け読み物です。中性子・陽子比の凍結が \(\Gamma_{\rm weak}\sim H\) で起き、\(\Gamma\propto T^5\)、標準の放射優勢期で \(H\propto T^2\) から \(T_f\simeq0.8\) MeV となること、平衡比が \(n/p=e^{-Q/k_BT}\)（\(Q=1.293\) MeV）で与えられること、\(Y_p=2(n/p)/(1+n/p)\)、および観測値 \(Y_p\simeq0.245\) は標準的な結果です。線形膨張（\(a\propto t\)、\(R_h=ct\)）では \(T\propto1/t\)、\(H=1/t\) より \(H\propto T\) となり凍結が大幅に遅れること、その結果ヘリウム生成が壊滅的に不足することは Lewis, Barnes &amp; Kaushik (2016, MNRAS 460, 291) による数値計算の結論で、同論文はヘリウム質量分率が \(10^{-3}\) オーダーになると報告しています。本文02–03節および図は<strong>桁を示す見積もり</strong>であり、反応ネットワークを解いた結果ではありません。\(R_h=ct\) が真空の偽装であるとする主張は Mitra (2014, MNRAS 442, 382) によりますが、Melia らによる反論があり決着していません。ミルン宇宙（\(k=-1\)、真空）が座標変換のみでミンコフスキー時空になるのに対し、\(R_h=ct\)（\(k=0\)、物質あり）は共形変換を要する点は本シリーズ第3回で示した通りです。低赤方偏移の観測適合をめぐっては Melia らによる \(R_h=ct\) 支持の主張もあり、本稿の「棄却」は初期宇宙まで外挿した場合に限定されます。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで凍結温度を変え、ヘリウムが消えていく様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), rd=document.getElementById('rd');
+  var Q=1.293, OBS=0.245, TSTD=0.8;
+  var TMIN=0.05, TMAX=1.2, LYMIN=-12, LYMAX=0.4;
+
+  function np(T){ return Math.exp(-Q/T); }
+  function Yp(T){ var r=np(T); return 2*r/(1+r); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var padL=60, padR=18, padT=20, padB=44;
+    var T=parseFloat(st.value); vt.textContent=T.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    function X(t){ return padL+(t-TMIN)/(TMAX-TMIN)*(W-padL-padR); }
+    function Y(ly){ return (H-padB)-(ly-LYMIN)/(LYMAX-LYMIN)*(H-padB-padT); }
+
+    ctx.strokeStyle='#f5e2da'; ctx.lineWidth=1;
+    for(var g=-12;g<=0;g+=2){ ctx.beginPath(); ctx.moveTo(padL,Y(g)); ctx.lineTo(W-padR,Y(g)); ctx.stroke(); }
+    ctx.strokeStyle='#d4ac9b'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+
+    ctx.font='11px sans-serif'; ctx.fillStyle='#9b7a6c'; ctx.textAlign='right';
+    var LBL={0:'1',"-2":'10⁻²',"-4":'10⁻⁴',"-6":'10⁻⁶',"-8":'10⁻⁸',"-10":'10⁻¹⁰',"-12":'10⁻¹²'};
+    for(var gy=-12;gy<=0;gy+=2){ ctx.fillText(LBL[String(gy)]||String(gy), padL-6, Y(gy)+4); }
+    ctx.textAlign='center';
+    for(var tx=0.2;tx<=1.2001;tx+=0.2){ ctx.fillText(tx.toFixed(1), X(tx), H-padB+16); }
+    ctx.fillText('凍結温度 T_f [MeV]　←　遅く凍る', X((TMIN+TMAX)/2), H-padB+32);
+    ctx.textAlign='left';
+    ctx.fillStyle='#71574c'; ctx.fillText('Y_p', padL-46, padT+4);
+
+    // 観測値
+    ctx.strokeStyle='#1f6b45'; ctx.lineWidth=1.8; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(padL,Y(Math.log10(OBS))); ctx.lineTo(W-padR,Y(Math.log10(OBS))); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#1f6b45'; ctx.font='11px sans-serif';
+    ctx.fillText('観測 Y_p = 0.245', X(0.28), Y(Math.log10(OBS))-7);
+
+    // 標準の凍結温度
+    ctx.strokeStyle='#a9c6e0'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(X(TSTD),padT); ctx.lineTo(X(TSTD),H-padB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2166a0'; ctx.textAlign='center';
+    ctx.fillText('標準 0.8 MeV', X(TSTD), padT-4);
+    ctx.textAlign='left';
+
+    // Y_p 曲線
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.8; ctx.beginPath();
+    var started=false;
+    for(var k=0;k<=300;k++){
+      var t=TMIN+(TMAX-TMIN)*k/300, ly=Math.log10(Yp(t));
+      if(ly<LYMIN){ started=false; continue; }
+      var px=X(t), py=Y(ly);
+      if(!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    var y=Yp(T), ly=Math.log10(y);
+    if(ly>=LYMIN){
+      ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(X(T),Y(ly),6,0,7); ctx.fill();
+    }
+
+    var verdict = (y>0.15) ? '（観測とほぼ整合）'
+                : (y>0.01 ? '（足りない）' : (y>1e-5 ? '（ぜんぜん足りない）' : '（壊滅）'));
+    rd.textContent='T_f = '+T.toFixed(2)+' MeV　n/p = '+np(T).toExponential(2)
+                 +'　→　Y_p = '+y.toExponential(2)+'　'+verdict
+                 +(Math.abs(T-TSTD)<0.006?'　← 標準の凍結温度':'');
+  }
+
+  st.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

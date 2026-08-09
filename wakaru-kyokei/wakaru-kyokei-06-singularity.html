@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特異点は、座標のせいか ── わかる共形変換 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f8f9; --paper-edge:#d8e2e6;   /* 第6回：鉄紺の紙（始まりの縁） */
+    --side:#2f4858; --side-bg:#e9eff2;
+    --warn:#8a4b2f;
+    --calc:#1f4152; --calc-bg:#e4edf1;
+    --rule:#c8d5da; --hair:#b0c1c8;
+    --acc:#2f4858;    /* 第6回アクセント＝鉄紺 */
+    --grid:#d7e2e6;
+    --geo:#2166a0;    /* 幾何のスケール＝青 */
+    --qm:#2f7d5a;     /* 量子のスケール＝緑 */
+    --cross:#a83a22;  /* 交差＝赤茶 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe0e6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1f2f38;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c2d4da;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e4edf1;color:#1f4152;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcfefe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.tc{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.tc th,table.tc td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:middle;}
+  table.tc thead th{background:#e4edf1;color:#1f4152;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.tc tbody th{background:#f2f7f8;font-weight:600;white-space:nowrap;}
+  table.tc td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.tc tr.hi td,table.tc tr.hi th{background:#f6ece7;}
+
+  .verdict{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .verdict .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .verdict .row:last-child{border-bottom:none;}
+  .verdict .mk{flex-shrink:0;width:24px;font-weight:700;font-size:17px;}
+  .verdict .ok{color:#1f6b45;} .verdict .no{color:#b03a2e;}
+  .verdict .txt strong{display:block;margin-bottom:2px;}
+  .verdict .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2f7f8;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1e3542;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcfefe,#e9eff2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e4edf1;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1e3542;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.verdict{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6d73;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 6 回 ／ 変換で消えるもの、消えないもの</span></div>
+  <p class="eyebrow">ビッグバン特異点は、時空の性質か ── それとも、帳簿の付け方の問題か</p>
+  <h1>特異点は、座標のせいか
+    <span class="sub">第5回で分かったのは、\(c\cdot t=\text{一定}\) では共形時間が無限に取れること。<br>ということは、変換後の時空にビッグバンはありません。では、特異点は消えたのでしょうか。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：対数、割り算、無次元の比を作ること</span>
+    <span>消えるのは幾何、消えないのは比</span>
+  </div>
+
+  <p class="lead">ビッグバン特異点 ── 時間をさかのぼると密度も曲率も無限大に発散し、物理が意味を失う地点。宇宙論のいちばん深い問題のひとつです。ところが第3回から第5回でやってきた共形変換は、\(c\cdot t=\text{一定}\) の宇宙を<em>厳密なミンコフスキー時空</em>に変えてしまいました。平らな時空に特異点はありません。<strong>変換ひとつで、宇宙最大の難問が消えた</strong>ように見える。これは本当でしょうか。今回の答えは「半分だけ本当」です。そして、消えなかった半分のほうが、たぶん面白い。</p>
+
+  <h2><span class="n">01</span>まず、消えたように見えることを確認する</h2>
+
+  <p>もとの絵で、曲がり具合を測る量（スカラー曲率）を計算します。\(a\propto t\) の平らな宇宙では、\(\ddot a=0\)、\(\dot a/a=1/t\) なので</p>
+
+  <div class="keybox">
+    <div class="lbl">もとの絵での曲率</div>
+    $$R=\frac{6}{c^2}\Big(\frac{\ddot a}{a}+\frac{\dot a^2}{a^2}\Big)=\frac{6}{c^2t^2}\qquad\xrightarrow{\;t\to0\;}\;\infty$$
+  </div>
+
+  <p>今日の値を入れれば \(R=3.5\times10^{-52}\ \mathrm{m^{-2}}\) というごく小さな数ですが、\(t\to0\) では無限大。これがビッグバン特異点です。ところが第3回で作った変換後の計量は</p>
+
+  $$d\tilde s^2=-c_0^2d\eta^2+dx^2\qquad\Longrightarrow\qquad \tilde R=0\ \ (\text{どこでも、いつでも})$$
+
+  <p>ぺったり平ら。おまけに第5回で見た通り、\(w=-1/3\) のときだけ共形時間は \(\eta\to-\infty\) まで取れます。つまり ──</p>
+
+  <div class="calc">
+    <span class="tag">確認 ── 変換後の時空は、ミンコフスキーを「まるごと」覆う</span>
+    <p class="lbl">\(c\cdot t=\text{一定}\)（\(w=-1/3\)）</p>
+    $$\eta=t_0\ln\frac{t}{t_0}:\qquad t\in(0,\infty)\ \longrightarrow\ \eta\in(-\infty,+\infty)\quad\text{（全部）}$$
+    <p class="lbl">比較：放射優勢（\(w=1/3,\ a\propto t^{1/2}\)）</p>
+    $$\eta\propto t^{1/2}:\qquad t\in(0,\infty)\ \longrightarrow\ \eta\in[0,+\infty)\quad\text{（半分だけ）}$$
+    <p style="margin-bottom:14px;">放射の場合は \(\eta=0\) に端が残り、そこから先へは行けません ── 特異点は「時空の縁」として居座ります。\(c\cdot t=\text{一定}\) だけが、縁を無限の彼方へ押しやる。第5回の「ポテンシャルが二次だから頂上に無限の時間がかかる」の、これが姿です。</p>
+  </div>
+
+  <p>ミンコフスキー時空は<strong>測地的に完備</strong>です ── どの粒子も、どの光も、有限の時間で「時空の外」に落ちることがない。共動観測者は \(x=\text{一定}\) の直線を、無限の過去から無限の未来まで走り続ける。<em>始まりが、ない。</em></p>
+
+  <h2><span class="n">02</span>これは、まじめに主張されている</h2>
+
+  <p>「特異点は座標の選び方のせいだ」という考えは、思いつきではありません。第2回で紹介したヴェッテリヒの2013年の論文は、抄録の最後をこう締めています。</p>
+
+  <div class="aside">
+    <span class="tag">ヴェッテリヒ（2013）の結論部</span>
+    「宇宙論に、ビッグバン特異点は存在しない。（…）宇宙が通常どおり膨張して見えるような、あるいは輻射期・物質期に静的に見えるような、<strong>同等な場の変数の選び方</strong>も存在する。そうした『場の座標』では、ビッグバンは特異になる。<em>したがってビッグバン特異点とは、場の座標の特異な選び方に由来するものだ、ということになる。</em>」
+  </div>
+
+  <p>さらに 2014 年、バース＝スタインハート＝トゥロックは、理論を Weyl 不変な形に持ち上げると <strong>測地的に完備な宇宙論</strong>が構成でき、ビッグクランチからビッグバンへの遷移を解析的に貫通できることを示しました。ゲージの取り方を変えて「縁」を消す ── 今回やったのと、同じ手口です。</p>
+
+  <p>ここまでは、気持ちよく話が進みます。問題はこの先です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>落とし穴 ── 曲率は、共形不変ではない</h2>
+
+  <p>もう一度、二つの式を並べてください。</p>
+
+  $$R=\frac{6}{c^2t^2}\ \ (\text{発散する})\qquad\text{と}\qquad \tilde R=0\ \ (\text{どこまでも平ら})$$
+
+  <p><em>同じ宇宙の、同じ瞬間の話です。</em> 曲率という「時空の性質そのもの」に見える量が、物差しを取り替えただけで無限大からゼロに変わってしまった。</p>
+
+  <p>これは矛盾ではありません。<strong>曲率は共形不変ではない</strong>からです。第4回で使った変換公式を思い出してください ──</p>
+
+  $$R=\phi^{-2}\Big[\tilde R-6\tilde\Box\ln\phi-6(\tilde\partial\ln\phi)^2\Big]$$
+
+  <p>右辺には \(\tilde R\) 以外の項がずらりと並んでいる。だから \(\tilde R=0\) でも \(R\ne0\) になれる。<em>曲率は、次元を持った量</em>（長さの \(-2\) 乗）なのだから、当然です。次元を持つ量は物差し次第 ── 前シリーズが最初から言い続けてきたことが、ここでも効いています。</p>
+
+  <div class="keybox">
+    <div class="lbl">だから、こう言ってはいけない</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.8;">
+    ✗「変換したら \(\tilde R=0\) だった。だから特異点はない」<br>
+    ✓「特異点があるかどうかは、<strong>無次元の量</strong>で判定しなければならない」</p>
+  </div>
+
+  <h2><span class="n">04</span>では、無次元の比を作ってみる</h2>
+
+  <p>特異点とは何だったのかを、言い直します。曲率が無限大になること自体が問題なのではありません。問題は <em>「時空の曲がりのスケールが、物質の量子的な大きさより小さくなってしまう」</em> こと ── そうなると、古典的な時空も古典的な粒子も、記述として意味を失います。</p>
+
+  <p>だから作るべき比は、これです。</p>
+
+  <div class="keybox">
+    <div class="lbl">判定に使う無次元量</div>
+    $$N=\frac{\text{時空のスケール}}{\text{粒子のコンプトン波長}}$$
+  </div>
+
+  <p>二つの絵で、それぞれ計算します。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 二つの絵で、同じ比を作る</span>
+    <p class="lbl">① 膨張の絵</p>
+    <p style="margin-top:8px;">時空のスケールはハッブル半径 \(c_0/H=c_0t\)。コンプトン波長 \(\hbar/(mc_0)\) は一定。よって</p>
+    $$N=\frac{c_0t}{\hbar/(mc_0)}=\frac{mc_0^2\,t}{\hbar}$$
+    <p class="lbl">② 変換後の絵（ミンコフスキー）</p>
+    <p style="margin-top:8px;">幾何は平らなので、長さの基準を持ちません。代わりに<strong>ディラトンの勾配</strong>が唯一のスケールを与えます ── \(\phi=e^{\eta/t_0}\) なので \(\tilde L=c_0|\phi/(d\phi/d\eta)|=c_0t_0\)（一定）。一方コンプトン波長は質量が育つぶん縮んでいく：\(\tilde\lambda_C=\hbar/(\tilde mc_0)=\hbar t_0/(t\,mc_0)\)。よって</p>
+    $$N=\frac{c_0t_0}{\hbar t_0/(t\,mc_0)}=\frac{mc_0^2\,t}{\hbar}$$
+    <p style="margin-bottom:14px;"><strong>まったく同じ式</strong>。片方は「時空が縮む」、もう片方は「原子が膨れる」と言っているのに、比を取れば区別がつきません。</p>
+  </div>
+
+  <p>そして \(t\to0\) で \(N\to0\)。<em>比は、どちらの絵でも壊れます。</em> 変換後の時空がどれだけ平らでも、この事実は動かせません。</p>
+
+  <div class="fig">
+    <div class="cap">図：ゲージのツマミ（第4回と同じ）。二本の直線は激しく傾きを変えるのに、交差する<strong>時刻</strong>だけは動かない ── 縦の破線に釘付けになっています</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>ゲージ s（左端＝膨張の絵　／　右端＝ミンコフスキーの絵）<span class="val" id="vs">0.00</span>
+        <input type="range" id="ss" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">s = 0.00（膨張の絵）　時空のスケール ∝ t、コンプトン波長 = 一定　→　交差は t = 1.29×10⁻²¹ s</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>時空のスケール</span>
+      <span><i class="swatch" style="background:#2f7d5a;"></i>電子のコンプトン波長</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>交差する時刻（動かない）</span>
+    </div>
+  </div>
+
+  <p>\(N=1\) になる時刻は \(t=\hbar/(mc_0^2)\)、その粒子の<strong>コンプトン時間</strong>です。三つの質量で計算してみましょう。</p>
+
+  <div class="tblwrap">
+    <table class="tc">
+      <thead>
+        <tr><th>質量</th><th class="mid">\(mc^2\)</th><th class="mid">\(N=1\) になる時刻</th><th>変換後の絵での言い方</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>電子</th><td class="mid">511 keV</td><td class="mid">\(1.29\times10^{-21}\) s</td><td>電子のコンプトン波長が 138 億光年に達する</td></tr>
+        <tr><th>陽子</th><td class="mid">938 MeV</td><td class="mid">\(7.0\times10^{-25}\) s</td><td>同上（陽子で）</td></tr>
+        <tr class="hi"><th>プランク質量</th><td class="mid">\(1.22\times10^{19}\) GeV</td><td class="mid">\(5.39\times10^{-44}\) s</td><td><strong>＝プランク時間、ぴったり</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>最後の行を見てください。プランク質量で \(N=1\) になる時刻を計算すると \(\hbar/(M_{\rm Pl}c^2)=5.39\times10^{-44}\) 秒 ── <em>プランク時間そのもの</em>です。つまりこの無次元判定は、「量子重力が必要になる時刻」を正しく指しています。そして<strong>その時刻は、どちらの絵で計算しても同じ</strong>。</p>
+
+  <h2><span class="n">05</span>答え ── 消えたのは幾何、残ったのは比</h2>
+
+  <div class="verdict">
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>本当に消えたもの：幾何の特異点</strong><span>変換後の計量はミンコフスキーで、測地的に完備。「時空の縁」は存在しない。これはゲージを選び直しただけで得られる、正真正銘の帰結です。</span></div></div>
+    <div class="row"><span class="mk no">✗</span><div class="txt"><strong>消えなかったもの：無次元の比 \(N=mc^2t/\hbar\)</strong><span>幾何から物質側へ引っ越しただけ。変換後は「時空が壊れる」のではなく「原子が宇宙より大きくなる」という言い方になりますが、起きる時刻も、その深刻さも同じ。</span></div></div>
+    <div class="row"><span class="mk ok">✓</span><div class="txt"><strong>得られたもの：問いの立て直し</strong><span>「時空はどこで壊れるか」ではなく「<strong>古典的な記述が、どの無次元量で破綻するか</strong>」。共形変換は答えを与えませんが、問いの形を正しくしてくれます。</span></div></div>
+  </div>
+
+  <p>前シリーズ番外編②の「絶対値は帳簿、差だけが物理」を、もう一段強く言い直すとこうなります ── <em>特異点かどうかは、時空に書いてあるのではなく、無次元の比に書いてある。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">04節で示したのは、\(c\cdot t=\text{一定}\) という<strong>素朴なモデル</strong>での話です。ヴェッテリヒのモデルは物質の中身が違い（特定のポテンシャルを持つ「コスモン」場）、彼はそこで曲率スカラーが全時代を通じてほぼ一定にとどまると主張しています。<em>彼の結論をここでの計算で否定したことにはなりません。</em> ここで示したのは方法のほう ── 「変換で平らになった」だけでは足りず、無次元量まで下りて確かめる必要がある、ということです。</p>
+    <p style="margin-bottom:0;">また、\(N\to0\) は「特異点がある」ことの証明でもありません。証明しているのは「<strong>その領域では古典的な記述が使えない</strong>」ことだけ。そこで本当に何が起きるかは、量子重力の問題として開いたままです ── 前シリーズ最終回で見た、あの開いた扉のままの場所。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（今回の式だけで解けます）</div>
+    <ol>
+      <li>放射優勢（\(a\propto t^{1/2}\)）では共形時間はどこまで取れるか。ミンコフスキーのどれだけを覆うか。
+        <details><summary>答えを見る</summary><div class="ans">\(\eta=\int dt/a\propto t^{1/2}\) なので \(\eta\in[0,\infty)\)。\(\eta=0\) に端が残るので、覆えるのはミンコフスキーの<strong>半分</strong>。特異点が「時空の縁」として残ります。全部を覆えるのは \(w\le-1/3\) のときだけ。</div></details>
+      </li>
+      <li>\(\tilde R=0\) なのに \(R=6/c^2t^2\) が発散する。矛盾していないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">曲率は長さの \(-2\) 乗という<strong>次元を持つ量</strong>で、共形変換（＝物差しの取り替え）で不変ではないから。変換公式 \(R=\phi^{-2}[\tilde R-6\tilde\Box\ln\phi-6(\tilde\partial\ln\phi)^2]\) の右辺には \(\tilde R\) 以外の項があり、\(\tilde R=0\) でも \(R\ne0\) になれます。</div></details>
+      </li>
+      <li>陽子（\(m c^2=938\) MeV）で \(N=1\) になる時刻を求めよ。\(\hbar=6.58\times10^{-16}\) eV·s。
+        <details><summary>答えを見る</summary><div class="ans">\(t=\hbar/(mc^2)=6.58\times10^{-16}/9.38\times10^{8}=7.0\times10^{-25}\) 秒。電子（\(1.29\times10^{-21}\) 秒）より 3 桁ほど早い ── 重い粒子ほど、古典的な記述が長持ちします。</div></details>
+      </li>
+      <li>（やや難）図で、二本の直線の傾きがどれだけ変わっても交差する時刻が動かないのはなぜか。指数で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">ゲージ \(s\) では時空のスケール \(\propto t^{1-s}\)、コンプトン波長 \(\propto t^{-s}\)。比を取ると \(t^{1-s}/t^{-s}=t^{1}\) で \(s\) が消える ── 第4回の練習問題4と<strong>まったく同じ仕掛け</strong>（指数の足し算が 1 に揃う）。だから \(N=1\) となる \(t\) はゲージに依りません。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>半分だけ、本当だった</h2>
+    <p>\(c\cdot t=\text{一定}\) を共形変換すると、時空はミンコフスキーになり <strong>\(\tilde R=0\)、測地的に完備</strong>。しかも \(w=-1/3\) のときだけ共形時間が \(-\infty\) まで取れて、ミンコフスキーを<em>まるごと</em>覆う（放射なら半分）。ビッグバンという「時空の縁」は、確かに消えます。ヴェッテリヒが「特異点は場の座標の特異な選び方に由来する」と書き、バースらが Weyl ゲージで測地的完備な宇宙を作ったのは、この事実の上に立っています。</p>
+    <p>しかし曲率は次元を持つ量で、<strong>共形不変ではない</strong>。だから \(\tilde R=0\) は何も証明しない。無次元の比 \(N=mc^2t/\hbar\)（時空のスケール ÷ コンプトン波長）を作ると、二つの絵で<em>厳密に同じ式</em>になり、どちらでも \(t\to0\) で壊れる。プランク質量で \(N=1\) となるのは \(5.39\times10^{-44}\) 秒 ── プランク時間ぴったり。<strong>消えたのは幾何、残ったのは比。</strong> 共形変換は答えではなく、問いを正しい形に立て直す道具でした。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第7回</span>
+    今回、共形変換を邪魔したのは<strong>質量</strong>でした（比 \(N\) に \(m\) が入っている）。第5回でも、共形対称性を壊さないのは放射だけ。つまり <em>光は共形変換を素通りし、質量だけがひっかかる</em>。次回はこの一点を正面から扱います ── 4次元のマクスウェル作用がなぜぴったり共形不変なのか、そしてロジャー・ペンローズが、この性質だけを頼りに宇宙の終わりと始まりを縫い合わせようとした話（共形サイクリック宇宙論）。宇宙の遠い未来で静止質量が消えれば、そこは若い宇宙と区別がつかなくなる、という発想です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第6回、物理好きの高校生・大学生向け読み物です。平坦 FLRW で \(a\propto t\) のときスカラー曲率が \(R=6/c^2t^2\) となること、共形変換後の計量が厳密にミンコフスキーとなり \(\tilde R=0\) であること、および曲率が共形不変でないことはいずれも標準的な結果です。共形時間の到達範囲は \(w\le-1/3\) で \((-\infty,\infty)\)、\(w&gt;-1/3\) で片側有界となります。「ビッグバン特異点は場の座標の特異な選び方に由来する」という主張は Wetterich (2013, Phys. Dark Univ. 2, 184; arXiv:1303.6878) の原文 "the big bang singularity turns out to be related to a singular choice of field coordinates" によります。Weyl 不変化による測地的完備な宇宙論の構成は Bars, Steinhardt &amp; Turok (2014, PRD 89, 043515) を参照。本文の無次元量 \(N=mc^2t/\hbar\) は「時空のスケール ÷ コンプトン波長」であり、二つのゲージで同一の式になることは本文で示した通りです。\(N=1\) がプランク質量に対してプランク時間 \(5.391\times10^{-44}\) s と一致するのは、両者の定義から従う恒等式です。\(N\to0\) は古典的記述の破綻を示すもので、特異点の存在証明ではありません。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーでゲージを変え、交差時刻が動かない様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ss=document.getElementById('ss'),
+      vs=document.getElementById('vs'), rd=document.getElementById('rd');
+
+  // 電子：log10(λ_C / (c t0)) = log10(t_C / t0) = -38.529
+  var LC=-38.529, XMIN=-42, XMAX=2, YMIN=-44, YMAX=6;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var padL=64, padR=18, padT=22, padB=44;
+    var s=parseFloat(ss.value); vs.textContent=s.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    function X(x){ return padL+(x-XMIN)/(XMAX-XMIN)*(W-padL-padR); }
+    function Y(y){ return (H-padB)-(y-YMIN)/(YMAX-YMIN)*(H-padB-padT); }
+
+    // グリッド
+    ctx.strokeStyle='#e9f0f2'; ctx.lineWidth=1;
+    for(var gx=-40;gx<=0;gx+=10){ ctx.beginPath(); ctx.moveTo(X(gx),padT); ctx.lineTo(X(gx),H-padB); ctx.stroke(); }
+    for(var gy=-40;gy<=0;gy+=10){ ctx.beginPath(); ctx.moveTo(padL,Y(gy)); ctx.lineTo(W-padR,Y(gy)); ctx.stroke(); }
+
+    // 軸
+    ctx.strokeStyle='#b0c1c8'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#7d8f96';
+    ctx.textAlign='center';
+    for(var tx=-40;tx<=0;tx+=10){ ctx.fillText('10'+String(tx).replace('-','⁻').replace(/[0-9]/g,function(c){return '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c];}), X(tx), H-padB+16); }
+    ctx.fillText('t / t₀', X(XMAX)-16, H-padB+32);
+    ctx.textAlign='right';
+    for(var ty=-40;ty<=0;ty+=20){ ctx.fillText('10'+String(ty).replace('-','⁻').replace(/[0-9]/g,function(c){return '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c];}), padL-6, Y(ty)+4); }
+    ctx.textAlign='left';
+    ctx.fillStyle='#5f6d73'; ctx.font='11px sans-serif';
+    ctx.fillText('長さ ÷ (c₀t₀)', padL-52, padT-8);
+
+    // 交差の縦線（固定）
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X(LC),padT); ctx.lineTo(X(LC),H-padB); ctx.stroke(); ctx.setLineDash([]);
+
+    function line(f,color,wid){
+      ctx.strokeStyle=color; ctx.lineWidth=wid; ctx.beginPath();
+      // 枠外をクリップしながら描く
+      for(var k=0;k<=120;k++){
+        var x=XMIN+(XMAX-XMIN)*k/120, y=f(x);
+        if(y>YMAX) y=YMAX; if(y<YMIN) y=YMIN;
+        if(k===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y));
+      }
+      ctx.stroke();
+    }
+
+    var geo = function(x){ return (1-s)*x; };        // 時空のスケール
+    var qm  = function(x){ return LC - s*x;  };      // コンプトン波長
+    line(geo,'#2166a0',2.6);
+    line(qm ,'#2f7d5a',2.6);
+
+    // 交差点
+    var yc=(1-s)*LC;
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(X(LC),Y(yc),6,0,7); ctx.fill();
+
+    // ラベル
+    ctx.font='12px sans-serif';
+    ctx.fillStyle='#2166a0'; ctx.fillText('時空のスケール', X(-14), Y(geo(-14))-9);
+    ctx.fillStyle='#2f7d5a'; ctx.fillText('コンプトン波長', X(-26), Y(qm(-26))+18);
+    ctx.fillStyle='#a83a22'; ctx.font='11px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('t = 1.29×10⁻²¹ s', X(LC)+2, padT-6);
+    ctx.textAlign='left';
+
+    var name = s<0.02 ? '（膨張の絵）' : (s>0.98 ? '（ミンコフスキーの絵）' : '（途中のゲージ）');
+    var desc = s<0.02 ? '時空のスケール ∝ t、コンプトン波長 = 一定'
+             : (s>0.98 ? '時空のスケール = 一定（c₀t₀）、コンプトン波長 ∝ 1/t' : '両方が同時に傾く');
+    rd.textContent='s = '+s.toFixed(2)+name+'　'+desc+'　→　交差は t = 1.29×10⁻²¹ s（動かない）';
+  }
+
+  ss.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

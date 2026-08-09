@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物差しは、場所ごとに変えていい ── わかる共形変換 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf9f2; --paper-edge:#e2e0cd;   /* 第1回：苔色の紙（1918年のドイツ） */
+    --side:#4e4d28; --side-bg:#f0efe2;
+    --warn:#8a4b2f;
+    --calc:#5a5822; --calc-bg:#eeecdb;
+    --rule:#dcd9c2; --hair:#c6c2a5;
+    --acc:#6b6a3a;    /* 第1回アクセント＝苔色 */
+    --grid:#e6e3d0;
+    --p1:#2166a0;     /* 経路1＝青 */
+    --p2:#a83a22;     /* 経路2＝赤茶 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e3e0be 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#2e2d16;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d6d2b4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffef9;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#eeecdb;color:#5a5822;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffefa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.hy{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.hy th,table.hy td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.hy thead th{background:#eeecdb;color:#5a5822;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.hy tbody th{background:#f5f3e6;font-weight:600;white-space:nowrap;}
+  table.hy tr.hi td,table.hy tr.hi th{background:#eef3ea;}
+
+  .story{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .story .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .story .row:last-child{border-bottom:none;}
+  .story .mk{flex-shrink:0;width:52px;font-weight:700;font-size:13px;color:var(--acc);letter-spacing:.02em;}
+  .story .txt strong{display:block;margin-bottom:2px;}
+  .story .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f7f6ea;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#454422;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffefa,#f0efe2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eeecdb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#454422;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.story{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6a55;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 1 回 ／ シリーズの出発点は、1918年のベルリンにあります</span></div>
+  <p class="eyebrow">「ゲージ」という言葉は、もともと物差しの目盛りのことでした</p>
+  <h1>物差しは、<br>場所ごとに変えていい
+    <span class="sub">このシリーズが使い倒す道具 ── 共形変換は、100年前に一度<strong>失敗した理論</strong>から生まれました。<br>殺したのはアインシュタイン。それでも生き残った部分が、いま私たちの手元にあります。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：かけ算、経路をたどること。式は一本だけ</span>
+    <span>\(\tilde g_{\mu\nu}=\Omega(x)^2\,g_{\mu\nu}\)</span>
+  </div>
+
+  <p class="lead">前シリーズ「わかる宇宙論」は、最初から最後まで一つの合言葉で走りました ── <em>次元付きは帳簿、無次元だけが物理。</em> 光速を変えてもいい、空間を伸ばしてもいい、比さえ守れば観測は変わらない。あれは正しかったのですが、<strong>なぜ正しいのか</strong>は説明されていませんでした。理由には名前があります。共形変換（Weyl 変換）。そしてその名前は、ある失敗した統一理論に由来します。</p>
+
+  <h2><span class="n">01</span>1918年、ワイルが気づいた「不公平」</h2>
+
+  <p>一般相対性理論ができて数年。ヘルマン・ワイルは、その理論に<em>ひとつだけ不公平な点</em>があると考えました。</p>
+
+  <p>曲がった時空では、離れた二点で「向き」を比べることができません。矢印を平行移動させて持っていく必要があり、しかも<strong>どの道を通ったかで結果が変わる</strong>（地球儀の上でやってみると分かります）。これが曲率の正体です。</p>
+
+  <p>ところが「長さ」はどうか。一般相対論では、どんなに離れた二点でも、長さは無条件に比べられることになっている。<em>向きは経路に依存するのに、長さだけは絶対</em>。ワイルはここを不自然だと思いました。</p>
+
+  <div class="keybox">
+    <div class="lbl">ワイルの提案（1918）</div>
+    <p style="margin:0 0 10px;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    長さの基準も、各点で自由に選べるようにしよう。</p>
+    $$g_{\mu\nu}(x)\;\longrightarrow\;\Omega(x)^2\,g_{\mu\nu}(x)$$
+  </div>
+
+  <p>この「基準の選び直し」を、ワイルはドイツ語で <strong>Eichung</strong> と呼びました ── 計量器を校正すること、物差しに目盛りを刻むこと。英語に訳されたとき、この語は <strong>gauge</strong> になりました。<em>そう、あのゲージです。</em></p>
+
+  <div class="aside">
+    <span class="tag">語源</span>
+    「ゲージ理論」「ゲージ対称性」「ゲージ場」── 素粒子物理の中心にある言葉ですが、もとの意味は<strong>物差しの目盛り</strong>です。いまではもっぱら量子力学の位相について使われるので、語源はほとんど忘れられています。でもこのシリーズが扱う共形変換は、<em>言葉が生まれたときの意味そのもの</em>で「ゲージ」を使う、めずらしい場所です。
+  </div>
+
+  <p>そしてワイルは、ここから一気に進みます。場所ごとに物差しが違うなら、離れた点の長さを比べるには<strong>補正場</strong>が要る ── 向きを運ぶのに接続が要るのと同じように。その補正場をベクトル場 \(\phi_\mu\) とすると、基準の選び直し \(\Omega=e^{\lambda}\) に対して \(\phi_\mu\to\phi_\mu-\partial_\mu\lambda\) と変換しなければならない。</p>
+
+  <p>この変換則に、ワイルは見覚えがありました。<em>電磁ポテンシャルとまったく同じ形</em>だったのです。そこで彼はこう結論します ── <strong>電磁場とは、長さの物差しを運ぶための接続である。</strong> 重力と電磁気の、最初の統一理論でした。</p>
+
+  <h2><span class="n">02</span>アインシュタインの反論 ── 原子が壊れる</h2>
+
+  <p>ワイルの論文は、アインシュタインの<strong>反論を付録として付けたまま</strong>出版されました。反論は、たった一つの観察に基づいています。</p>
+
+  <div class="calc">
+    <span class="tag">アインシュタインの指摘</span>
+    <p style="margin-top:8px;">物差しが場所ごとに違い、しかもその違いを運ぶのに経路が要るなら ── <strong>同じ二点を、違う道で結ぶと、答えが変わる</strong>。</p>
+    <p class="lbl">具体的には</p>
+    <p style="margin-top:8px;">同じ原子時計を二つ用意し、別々の道を通らせてから再会させる。すると、二つの時計の刻む周期が<em>ずれてしまう</em>。時計の歩みが、歩いてきた道の履歴に依存する ── これを<strong>第二時計効果</strong>といいます。</p>
+    <p class="lbl">ところが</p>
+    <p style="margin-bottom:14px;">現実の原子は、どこにあっても、どんな歴史を経ても、まったく同じ波長の光を出します。水素は宇宙のどこで見ても水素の色をしている。<strong>スペクトル線が鋭い</strong>という、当時すでに確立していた事実が、ワイルの理論を即座に否定していました。</p>
+  </div>
+
+  <p>ワイルの反論は苦しいものでした ── 「物差しや時計が実際にどうふるまうかは、物質の力学理論からしか導けない」。つまり、原子が本当に履歴を覚えないかどうかは、まだ分からないではないか、と。<em>言い分としては筋が通っていますが、証拠がない。</em> ワイルは最終的に理論を撤回します。</p>
+
+  <div class="fig">
+    <div class="cap">図：A から B へ、二つの道で物差しを運ぶ。ワイルの非可積分性 \(k\) を上げると、着いたときの物差しの長さが道によって食い違う ── これが第二時計効果</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>非可積分性 k（左端＝現代の共形変換　／　右＝ワイル 1918）<span class="val" id="vk">0.00</span>
+        <input type="range" id="sk" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">k = 0.00　経路1 の物差し = 1.000　経路2 の物差し = 1.000　→　ずれなし（原子は無事）</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>経路1（先に横、あとで縦）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>経路2（先に縦、あとで横）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">03</span>11年後、位相として復活する</h2>
+
+  <p>1929年、ワイルは同じアイデアを<strong>別の量に付け替えました</strong> ── 長さではなく、量子力学の波動関数の<em>位相</em>に。</p>
+
+  $$\psi(x)\;\longrightarrow\;e^{i\theta(x)}\psi(x)$$
+
+  <p>各点で位相を自由に選べるようにすると、補正場が要る。その変換則は \(A_\mu\to A_\mu+\partial_\mu\theta\) ── <strong>1918年とまったく同じ形</strong>です。そして今度はうまくいきました。<em>前シリーズ第8回「i の曖昧さが、力を生む」でやったのが、これです。</em></p>
+
+  <p>なぜ位相なら大丈夫だったのか。理由は単純です。</p>
+
+  <div class="tblwrap">
+    <table class="hy">
+      <thead><tr><th>　</th><th>1918：長さのゲージ</th><th>1929：位相のゲージ</th></tr></thead>
+      <tbody>
+        <tr><th>運ぶもの</th><td>物差しの目盛り</td><td>波動関数の位相</td></tr>
+        <tr><th>ずれると</th><td>時計の周期が変わる</td><td>位相が回るだけ</td></tr>
+        <tr><th>観測にかかるか</th><td><strong>かかる</strong>（スペクトル線がぼける）</td><td>直接はかからない（位相は測れない）</td></tr>
+        <tr class="hi"><th>結末</th><td>アインシュタインに反証された</td><td><strong>素粒子物理の土台になった</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>そして名前だけが、そのまま残りました。<em>「ゲージ」という語が「物差し」を意味していた時代の痕跡</em>が、いまも量子場の理論の中心に残っている ── 物理学でいちばん有名な、名前の化石です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>では、生き残った部分とは何か</h2>
+
+  <p>ここが今回の核心です。<strong>ワイルの理論は全部が死んだわけではありません。</strong> 殺されたのは「経路に依存する部分」だけでした。</p>
+
+  <p>もう一度、図のツマミを思い出してください。\(k=0\) のとき、二つの経路の物差しは<em>ぴったり一致しました</em>。このとき、長さの変化は経路に依らず、行き先の座標だけで決まります ── <strong>可積分</strong>といいます。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">このシリーズが使う操作</div>
+    $$\tilde g_{\mu\nu}(x)=\Omega(x)^2\,g_{\mu\nu}(x)\qquad(\Omega\ \text{は、ただの一価関数})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    \(\Omega\) が各点で一つの値に決まっているので、<strong>どの道を通っても同じ</strong>。第二時計効果は起きません。</p>
+  </div>
+
+  <p>つまり現代の共形変換は、<em>ワイル幾何から非可積分な部分を落として、可積分な場合だけを残したもの</em>です。アインシュタインの反論をかわしたのではなく、<strong>反論が当たった部分を、はじめから持っていない</strong>。</p>
+
+  <div class="story">
+    <div class="row"><span class="mk">1918</span><div class="txt"><strong>ワイル、長さのゲージ理論を提案</strong><span>物差しを各点で選び直せるとし、補正場を電磁ポテンシャルと同一視。重力と電磁気の統一を試みる。</span></div></div>
+    <div class="row"><span class="mk">1918</span><div class="txt"><strong>アインシュタイン、第二時計効果で反論</strong><span>同じ論文の付録として掲載。原子スペクトルが鋭いことと矛盾する、と指摘。</span></div></div>
+    <div class="row"><span class="mk">1929</span><div class="txt"><strong>ワイル、位相のゲージとして復活させる</strong><span>長さではなく波動関数の位相に適用。これが今日のゲージ理論の直系の祖先になる。</span></div></div>
+    <div class="row"><span class="mk">現在</span><div class="txt"><strong>可積分な部分だけが「共形変換」として残る</strong><span>\(\tilde g=\Omega^2g\)。物差しの取り替えという意味はそのまま、経路依存性だけを外した形。<strong>このシリーズが 10 回かけて使い倒すのが、これです。</strong></span></div></div>
+  </div>
+
+  <h2><span class="n">05</span>この操作で、何が起きて何が起きないか</h2>
+
+  <p>これから 9 回かけて確かめることを、先に一行ずつ並べておきます。</p>
+
+  <div class="tblwrap">
+    <table class="hy">
+      <thead><tr><th>共形変換で</th><th>結果</th><th>詳しくは</th></tr></thead>
+      <tbody>
+        <tr><th>光円錐</th><td>動かない（因果構造は不変）</td><td>第7回</td></tr>
+        <tr><th>\(\alpha\) などの無次元量</th><td>動かない</td><td>第3回</td></tr>
+        <tr><th>長さ・質量・温度・曲率</th><td>動く（次元付きだから）</td><td>第3回・第6回</td></tr>
+        <tr><th>膨張のしかた</th><td>動く ── なんなら消せる</td><td>第3回</td></tr>
+        <tr class="hi"><th>アノマリーとゴースト</th><td><strong>量子では、消せないものが残る</strong></td><td>第8回・第9回</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>前シリーズの合言葉「次元付きは帳簿、無次元だけが物理」は、この表の 2 行目と 3 行目のことでした。<em>直観で掴んでいたものに、名前と式が付いた</em> ── それがこのシリーズです。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">ワイルの1918年理論を「失敗」と切って捨てるのは、少し乱暴です。非可積分な長さ接続を持つ幾何（ワイル幾何）は、いまも重力理論の研究対象として生きていますし、第4回で紹介する 't Hooft のように、局所共形対称性を基本原理に格上げしようという現代の提案もあります。<em>死んだのは「電磁場＝長さの接続」という同一視であって、幾何そのものではありません。</em></p>
+    <p style="margin-bottom:0;">また、アインシュタインの反論は<strong>物理的には決定的</strong>でしたが、論理的にはワイルの言い分（「物質のふるまいは力学から導くべきだ」）にも一理あります。実際、原子時計が \(\alpha\) の変化を \(10^{-18}\)/年の精度で否定しているという<em>現代の測定</em>があってはじめて、この議論は完全に閉じます ── 前シリーズ番外編③でやったのが、まさにそれでした。100年前の論争が、いまの精密測定で決着している。
+    </p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>物差しの運び方が経路に依存すると、観測上どんな困ったことが起きるか。
+        <details><summary>答えを見る</summary><div class="ans">同じ原子でも、たどってきた履歴によって出す光の波長が変わってしまう（第二時計効果）。実際にはスペクトル線は鋭く、宇宙のどこでも同じ ── だから即座に反証されます。</div></details>
+      </li>
+      <li>現代の共形変換 \(\tilde g=\Omega(x)^2g\) が第二時計効果を起こさないのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">\(\Omega(x)\) が各点で一つの値に決まる<strong>一価関数</strong>だから。長さの変化が到着点の座標だけで決まり、経路に依らない（可積分）。ワイルの理論は、この可積分性を要求しなかったところが違います。</div></details>
+      </li>
+      <li>ワイルのアイデアは、どこで生き残ったか。
+        <details><summary>答えを見る</summary><div class="ans">1929年、量子力学の<strong>位相</strong>のゲージ対称性として。今日のゲージ理論（前シリーズ第8回）の直系の祖先です。名前だけが「物差し」の意味を残しました。</div></details>
+      </li>
+      <li>（やや難）ワイル幾何と、このシリーズの共形変換の関係を一行で述べよ。
+        <details><summary>答えを見る</summary><div class="ans">共形変換は、<strong>ワイル幾何の長さ接続を可積分な場合に制限したもの</strong>。非可積分な部分（アインシュタインの反論が当たった部分）を最初から持たないので、原子スペクトルと矛盾しません。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>名前の化石と、生き残った操作</h2>
+    <p>1918年、ワイルは「長さの基準も各点で選べるべきだ」として \(g_{\mu\nu}\to\Omega(x)^2g_{\mu\nu}\) を導入しました。ドイツ語の <strong>Eichung</strong>（物差しの校正）が、英語の <strong>gauge</strong> になった瞬間です。基準を運ぶ補正場の変換則が電磁ポテンシャルと同じだったことから、彼はそれを電磁場と同一視し、重力と電磁気の統一を宣言しました。</p>
+    <p>アインシュタインは同じ論文の付録で反論します ── 物差しの運び方が経路に依存するなら、時計の歩みが履歴に依存する（第二時計効果）。でも原子スペクトルは鋭い。ワイルは撤回し、11年後に同じアイデアを<em>位相</em>に付け替えて成功させました。そして残った可積分な部分 ── \(\Omega\) がただの一価関数である場合 ── が、いま私たちが<strong>共形変換</strong>と呼ぶ操作です。反論をかわしたのではなく、反論の当たる部分を持っていない。この 10 回は、その操作で宇宙を書き換え続ける話になります。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第2回</span>
+    道具ができたので、いきなり使ってみます。<strong>「宇宙は膨張していない。原子が縮んでいるだけだ」</strong> ── これは冗談ではなく、2013年に出た実在の論文（ヴェッテリヒ）の主張です。宇宙は膨張せず、全粒子質量が育ち、原子が縮む。そして<em>それは観測と矛盾しません</em>。矛盾しようがない、と言ったほうが正確です。なぜなら私たちが望遠鏡で測っているのは「銀河間距離 ÷ 原子半径」という比だけだから。分母を動かしても、分子を動かしても、比は同じです。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第1回、物理好きの高校生・大学生向け読み物です。Weyl (1918, "Gravitation und Elektrizität") が長さの局所的な再スケール（Eichung＝gauge）を提案し、その補正場を電磁ポテンシャルと同一視したこと、Einstein の反論が同論文の付録として掲載されたこと、その反論が「長さ接続の非可積分性は時計の歩みを履歴依存にする（第二時計効果）が、原子スペクトルは鋭い」という趣旨であったこと、Weyl が「物差しと時計のふるまいは物質の力学理論からしか導けない」と応答したこと、および 1929年に同じ着想を量子力学の位相に適用して今日のゲージ理論の祖となったことは、いずれも科学史上確立した事実です。現代の共形（Weyl）変換 \(\tilde g_{\mu\nu}=\Omega(x)^2g_{\mu\nu}\) は \(\Omega\) が一価関数である可積分な場合にあたり、第二時計効果を生じません。非可積分な長さ接続を持つ Weyl 幾何は現在も研究対象であり、本稿の「失敗」はもっぱら「電磁場＝長さ接続」という同一視についての評価です。原子時計による \(\dot\alpha/\alpha\) の制約は Lange et al. (2021, PRL 126, 011102) で \(1.0(1.1)\times10^{-18}\)/年。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで非可積分性を変え、二つの経路の物差しがずれる様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'),
+      vk=document.getElementById('vk'), rd=document.getElementById('rd');
+
+  // φ_x = k*y, φ_y = 0 とすると
+  //   経路1（先に横 y=0、あとで縦 x=1）: ∫φ·dl = 0
+  //   経路2（先に縦 x=0、あとで横 y=1）: ∫φ·dl = k
+  // 物差しの倍率 = exp(∫φ·dl)
+  function m1(){ return 1; }
+  function m2(k){ return Math.exp(k); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var k=parseFloat(sk.value); vk.textContent=k.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    var padL=54, padT=28, padB=44;
+    var boxW=Math.min(W*0.44, H-padT-padB), x0=padL, y1=H-padB, y0=y1-boxW;
+    function X(u){ return x0+u*boxW; }
+    function Y(v){ return y1-v*boxW; }
+
+    // 格子
+    ctx.strokeStyle='#eeecdb'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){
+      ctx.beginPath(); ctx.moveTo(X(g/4),Y(0)); ctx.lineTo(X(g/4),Y(1)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(0),Y(g/4)); ctx.lineTo(X(1),Y(g/4)); ctx.stroke();
+    }
+    ctx.strokeStyle='#c6c2a5'; ctx.lineWidth=1;
+    ctx.strokeRect(X(0),Y(1),boxW,boxW);
+
+    // 経路1（青）：先に横、あとで縦
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(1),Y(0)); ctx.lineTo(X(1),Y(1)); ctx.stroke();
+    // 経路2（赤茶）：先に縦、あとで横
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(1)); ctx.lineTo(X(1),Y(1)); ctx.stroke();
+
+    // A, B
+    ctx.fillStyle='#4a4e5a';
+    ctx.beginPath(); ctx.arc(X(0),Y(0),6,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(1),Y(1),6,0,7); ctx.fill();
+    ctx.font='13px sans-serif'; ctx.fillStyle='#3a3a30';
+    ctx.fillText('A', X(0)-18, Y(0)+6);
+    ctx.fillText('B', X(1)+10, Y(1)+6);
+
+    ctx.font='11px sans-serif'; ctx.fillStyle='#8a8770';
+    ctx.fillText('物差しを運ぶ', X(0), Y(1)-10);
+
+    // 右側：到着した二つの物差し
+    var rx=X(1)+64, top=padT+18, barMax=W-24-rx;
+    var v1=m1(), v2=m2(k), vmax=Math.max(v1,v2,1);
+    ctx.font='12px sans-serif'; ctx.fillStyle='#3a3a30';
+    ctx.fillText('B に着いたときの物差しの長さ', rx, top-8);
+
+    function bar(y,val,color,label){
+      var w=barMax*(val/Math.max(vmax,2.72));
+      ctx.fillStyle=color; ctx.fillRect(rx,y,w,16);
+      ctx.fillStyle='#3a3a30'; ctx.font='12px sans-serif';
+      ctx.fillText(label+' = '+val.toFixed(3), rx, y-5);
+    }
+    bar(top+18, v1, '#2166a0', '経路1');
+    bar(top+68, v2, '#a83a22', '経路2');
+
+    // ずれの表示
+    var ratio=v2/v1;
+    ctx.font='13px sans-serif';
+    ctx.fillStyle = (k<0.005) ? '#2f6b45' : '#a83a22';
+    ctx.fillText((k<0.005 ? '一致 ── 物差しは経路に依らない' : 'ずれ ×'+ratio.toFixed(3)+' ── 原子が壊れる'),
+                 rx, top+118);
+    ctx.font='11px sans-serif'; ctx.fillStyle='#8a8770';
+    ctx.fillText((k<0.005 ? '（現代の共形変換：可積分）' : '（ワイル 1918：非可積分）'), rx, top+138);
+
+    rd.textContent='k = '+k.toFixed(2)+'　経路1 の物差し = '+v1.toFixed(3)
+                 +'　経路2 の物差し = '+v2.toFixed(3)
+                 +(k<0.005 ? '　→　ずれなし（原子は無事）'
+                           : '　→　'+ratio.toFixed(3)+' 倍のずれ（第二時計効果）');
+  }
+
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

@@ -15,6 +15,7 @@
 
 | シリーズ | 内容 | 読む（公開サイト）|
 |---|---|---|
+| **わかる共形変換**〔※「わかる宇宙論」続編〕| 物差しを場所ごとに取り替える操作で、宇宙を書き換え続ける。ワイル1918とアインシュタインの反論（gauge は物差しだった）・膨張は原子が縮んでいるだけかも・**「光が遅くなる」の正体**（c·t=一定 を Weyl 変換すると、同じ計量を宇宙時間で読んだものだと分かる）・重力はスカラー1個になる（ディラトン）・状態方程式はポテンシャルだった（V∝φ^(1−3w)、c·t=一定 はちょうど質量項）・特異点は座標のせいか（答えは半分だけ）・光は共形不変で質量はそうでない（ペンローズCCC）・共形対称性は量子で壊れる（トレースアノマリー＝結合の running。あなたの体重の99%）・共形因子はゴーストだった・どのフレームが本物か。前シリーズの合言葉「次元付きは帳簿、無次元だけが物理」が**判定手続き**になる（全10話・完結＋番外1「額面で走らせると、どうなるか＝元素合成の判決」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-kyokei/index.html) |
 | **わかる場** | なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
 | **わかる相対論** | すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力=曲率・可変c≡曲率（全7話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
 | **わかる量子** | ℏ の物語。S/ℏ で古典と量子を分ける。粒と波・波動関数・経路和・シュレディンガー・不確定性・測定（全6話・完結＋番外）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) |
@@ -33,7 +34,7 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`wakaru-kyokei/`・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🔧 「つくる格子」だけは、立場が逆
 

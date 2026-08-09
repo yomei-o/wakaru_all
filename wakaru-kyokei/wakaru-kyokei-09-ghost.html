@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共形因子は、ゴーストだった ── わかる共形変換 第9回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f7f9; --paper-edge:#dcdce1;   /* 第9回：鈍色の紙（量子重力の泣きどころ） */
+    --side:#3d4046; --side-bg:#ececed;
+    --warn:#8a4b2f;
+    --calc:#2e3138; --calc-bg:#e8e8ea;
+    --rule:#cfcfd6; --hair:#b6b6bf;
+    --acc:#3d4046;    /* 第9回アクセント＝鈍色 */
+    --grid:#e2e2e7;
+    --bad:#a83a22;    /* 発散＝赤茶 */
+    --ok:#2166a0;     /* 健全＝青 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dcdce4 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#26282d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cdcdd3;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfcfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e8e8ea;color:#2e3138;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.gh{border-collapse:collapse;width:100%;min-width:500px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.gh th,table.gh td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:middle;}
+  table.gh thead th{background:#e8e8ea;color:#2e3138;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.gh tbody th{background:#f3f3f5;font-weight:600;white-space:nowrap;}
+  table.gh td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.gh tr.hi td,table.gh tr.hi th{background:#f7e8e4;}
+
+  .roads{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .roads .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .roads .row:last-child{border-bottom:none;}
+  .roads .mk{flex-shrink:0;width:26px;font-weight:700;font-size:15px;color:var(--acc);}
+  .roads .txt strong{display:block;margin-bottom:2px;}
+  .roads .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f4f6;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2c2f36;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,#ececed);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e8e8ea;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2c2f36;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.roads{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#666870;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 9 回 ／ 帳簿だったはずのものが、牙をむく</span></div>
+  <p class="eyebrow">第4回で見つけ、第5回で回収した「逆符号」── その本当の請求書が、ここで届きます</p>
+  <h1>共形因子は、<br>ゴーストだった
+    <span class="sub">古典では無害でした。\(\phi\) はまるごとゲージだったからです。<br>でも量子の経路積分は「ゲージだから見ないでおく」を許してくれません。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：符号を見ること、指数関数が爆発するのを想像すること</span>
+    <span>作用が下に非有界になる</span>
+  </div>
+
+  <p class="lead">第4回で重力を書き換えたとき、ディラトン \(\phi\) の運動項の符号が逆を向いていました。第5回では、その符号のせいでポテンシャルが全部「丘」になることも見ました。どちらのときも「古典では無害です」と付け加えて、先へ進んだ。<em>今回はその請求書です。</em> 1978年、ギボンズ・ホーキング・ペリーは、この符号ひとつのせいで<strong>重力の量子論がそもそも定義できない</strong>ことを指摘しました。共形因子問題 ── 量子重力のいちばん古い泣きどころを、正面から見ます。</p>
+
+  <h2><span class="n">01</span>復習 ── どこが逆だったか</h2>
+
+  <p>第4回で出た形をもう一度。</p>
+
+  $$S=\frac{c^4}{16\pi G}\int\!\sqrt{-\tilde g}\,\Big[\phi^2\tilde R+6(\tilde\partial\phi)^2\Big]d^4x$$
+
+  <p>健全なスカラー場なら、運動項は \(-\tfrac12(\partial\phi)^2\) というマイナスで始まります。ところがここは \(+6\)。符号が逆です。</p>
+
+  <div class="tblwrap">
+    <table class="gh">
+      <thead><tr><th>　</th><th>健全なスカラー場</th><th>共形因子 \(\phi\)</th></tr></thead>
+      <tbody>
+        <tr><th>運動項</th><td class="mid">\(-\tfrac12(\partial\phi)^2\)</td><td class="mid">\(+6(\partial\phi)^2\)</td></tr>
+        <tr><th>運動エネルギー</th><td class="mid">正</td><td class="mid"><strong>負</strong></td></tr>
+        <tr><th>激しく動くと</th><td class="mid">エネルギーが上がる（抑制される）</td><td class="mid"><strong>エネルギーが下がる（促進される）</strong></td></tr>
+        <tr class="hi"><th>呼び名</th><td class="mid">ふつうの場</td><td class="mid"><strong>ゴースト</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>ゴーストのまずさは、一行で言えます ── <em>激しく振動するほど得をする</em>。ふつうの場は動けば動くほどエネルギーを食うので落ち着きますが、この場は逆で、暴れれば暴れるほどエネルギーが下がる。止まる理由がありません。</p>
+
+  <h2><span class="n">02</span>なぜ古典では困らなかったのか</h2>
+
+  <p>第4回05節で見た通り、\(\phi\) は<strong>まるごとゲージ</strong>でした。共形変換ひとつで好きな値に固定できてしまう。\(\phi=1\) と決めれば標準の絵、\(\tilde g=\) ミンコフスキーと決めれば質量が育つ絵 ── どちらでも同じ物理です。</p>
+
+  <p>動く自由がないものは、暴走のしようがない。だから古典では、この符号は「気持ち悪いけれど実害なし」で済みました。第5回で玉が丘を転がったときも、転がり方はフリードマン方程式で一意に決まっていて、勝手に加速したりはしなかった。</p>
+
+  <div class="aside">
+    <span class="tag">数え上げが効いていた</span>
+    第4回の「場＋1、対称性−1、差引ゼロ」── ゴーストである \(\phi\) はちょうど対称性に食べられて、物理的な自由度として残らない。<strong>ゴーストがいるのに安全だったのは、それがゲージだったから</strong>です。ここが崩れると、話が変わります。
+  </div>
+
+  <h2><span class="n">03</span>量子では「見ないでおく」が通らない</h2>
+
+  <p>量子重力を作るとき、いちばん素直な方法は<strong>経路積分</strong>です ── 考えうるすべての時空の形について、重み \(e^{-S_E}\) を付けて足し上げる。</p>
+
+  $$Z=\int\!\mathcal{D}g\;e^{-S_E[g]}$$
+
+  <p>ここで \(S_E\) はユークリッド化した作用（時間を虚軸に回したもの。前シリーズ第9回でやったウィック回転です）。この積分が意味を持つには、<em>\(S_E\) が下に有界</em>でなければなりません。下限がなければ \(e^{-S_E}\) がいくらでも大きくなり、和が発散してしまう。</p>
+
+  <p>ところが ── ユークリッド化した重力の作用には、あの逆符号がそのまま入っています。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── いくらでも負にできることを確かめる</span>
+    <p class="lbl">① ユークリッド作用の共形因子の部分</p>
+    $$S_E\;\supset\;-\frac{6}{16\pi G}\int\!(\partial\phi)^2\,d^4x\qquad(\text{ユークリッドでは }(\partial\phi)^2\ge0)$$
+    <p class="lbl">② 共形因子を、細かく振動させてみる</p>
+    $$\phi(x)=1+\varepsilon\sin(2\pi k x)\qquad\Longrightarrow\qquad \int_0^1\!(\partial_x\phi)^2dx=2\pi^2k^2\varepsilon^2$$
+    <p class="lbl">③ したがって</p>
+    $$S_E\;\propto\;-2\pi^2k^2\varepsilon^2\qquad\xrightarrow{\;k\to\infty\;}\;-\infty$$
+    <p style="margin-bottom:14px;"><strong>振動を細かくするだけで、作用はいくらでも負にできる。</strong> 重み \(e^{-S_E}\) はいくらでも大きくなり、経路積分は発散します。しかも \(\varepsilon\) は小さいままでいい ── ほんの少しさざ波を立てるだけで、細かくしさえすれば勝ててしまう。</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：上は共形因子のさざ波 \(\phi=1+0.15\sin(2\pi kx)\)。下はそのときのユークリッド作用。細かくするだけで作用は落ち、経路積分の重みは爆発する</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>さざ波の細かさ k<span class="val" id="vk">1</span>
+        <input type="range" id="sk" min="1" max="20" step="1" value="1">
+      </label>
+    </div>
+    <div class="readout" id="rd">k = 1　S_E = −0.44　→　経路積分の重み e^(−S_E) = 10^0.2</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#3d4046;"></i>共形因子 φ(x)</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>ユークリッド作用 S_E（下へ落ちる）</span>
+    </div>
+  </div>
+
+  <p>ツマミを右へ動かしていくと、上のさざ波は<em>ほんの少ししか大きくならない</em>のに、下の作用はまっさかさまに落ちていきます。\(k=20\) で重みは \(10^{77}\)。もっと細かくすれば、いくらでも。<strong>これでは「すべての時空を足し上げる」が定義できません。</strong></p>
+
+  <h2><span class="n">04</span>ギボンズ・ホーキング・ペリーの処方と、その限界</h2>
+
+  <p>1978年、ギボンズ・ホーキング・ペリーはこの問題を明確にし、応急処置も提案しました ── <strong>共形因子の積分路を、実軸ではなく虚軸に沿って取る</strong>（\(\phi\to i\phi\) の向きに回す）。すると符号がひっくり返り、少なくとも1ループの近似では積分が収束します。</p>
+
+  <p>ただし、これは処方であって解決ではありません。</p>
+
+  <div class="roads">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>非線形な一般化が確立していない</strong><span>ゆらぎが小さいときの処方としては機能するが、それを厳密かつ非摂動的にどう定義するかは未確立。「正作用予想」という未証明の仮定に頼る部分が残ります。</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>いまも計算の現場で顔を出す</strong><span>ブラックホールのエントロピーに量子補正を入れようとすると、必ずこの逆符号にぶつかります。40年以上たっても、迂回しながら進んでいる状態です。</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>いくつもの別の道が試されている</strong><span>共形セクターの繰り込み群を真面目に追う、漸近安全性の枠組みで扱う、ユニモジュラー重力のように共形因子を最初から力学から外す ── どれも決定打には至っていません。</span></div></div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>このシリーズにとっての意味</h2>
+
+  <p>ここで、少し立ち止まってください。<strong>いま暴れているのは、私たちがこのシリーズでずっと動かしてきた場です。</strong></p>
+
+  <p>第3回では、\(\phi=a\) を動かして「光が遅くなる」の正体を突き止めました。第4回では、それがゲージだと示しました。第5回では、ポテンシャルの上を転がらせました。第6回では、その勾配で無次元比を作りました。<em>あの \(\phi\) が、量子重力でいちばん扱いにくい自由度だった</em>のです。</p>
+
+  <div class="keybox">
+    <div class="lbl">今回の一行</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    「膨張は帳簿にすぎない」── そう言えたのは古典まで。<br>
+    量子重力では、<strong>その帳簿こそが、いちばん先に壊れる。</strong></p>
+  </div>
+
+  <p>前シリーズ最終回「重力を、この絵に入れられるか」は、重力が繰り込めないところで終わっていました。今回はその同じ壁を、別の角度から見たことになります ── 繰り込みの問題以前に、<em>足し上げるべき和が定義できない</em>。そしてその原因は、シリーズがずっと「自由に選んでいい」と言ってきた、まさにその自由度でした。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">共形因子問題は、<strong>重力を経路積分で量子化しようとしたときに現れる問題</strong>です。「重力の量子論が存在しない」ことの証明ではありません。実際、この困難を迂回する枠組み（弦理論、ループ量子重力、漸近安全性など）はいくつも提案されています ── どれもまだ、決着していないというだけです。</p>
+    <p style="margin-bottom:0;">また、逆符号そのものは<em>アインシュタイン重力を書き換えたから現れた病</em>ではありません。第4回の書き換えをしなくても、共形因子は最初からアインシュタイン・ヒルベルト作用の中でこの符号を持っています。<strong>書き換えは病気を作ったのではなく、見えるようにしただけ。</strong> これはこのシリーズの、たぶんいちばん誠実な成果です。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>ゴーストが「激しく動くほど得をする」のはなぜか、運動項の符号から説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">運動エネルギーの符号が負だから。ふつうの場は速く動くほどエネルギーが上がって抑制されるが、ゴーストは速く動くほどエネルギーが下がるので、止まる理由がない。</div></details>
+      </li>
+      <li>\(\phi=1+0.15\sin(2\pi kx)\) で \(k\) を 1 から 10 にすると、\(\int(\partial_x\phi)^2dx\) は何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(2\pi^2k^2\varepsilon^2\) は \(k^2\) に比例するので <strong>100 倍</strong>。さざ波の高さ（\(\varepsilon\)）はそのままでも、細かくするだけで作用は 100 倍負になります。</div></details>
+      </li>
+      <li>古典では \(\phi\) のゴーストが無害だったのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">\(\phi\) が<strong>まるごとゲージ</strong>で、共形変換ひとつで好きな値に固定できたから（第4回05節）。物理的な自由度として残らないので、暴走する余地がない。量子の経路積分は全部の値を足し上げるので、この逃げ道が使えません。</div></details>
+      </li>
+      <li>（やや難）第4回の書き換えをしなければ、この問題は避けられるか。
+        <details><summary>答えを見る</summary><div class="ans">避けられない。共形因子は書き換えの有無にかかわらず、もとのアインシュタイン・ヒルベルト作用に最初から含まれています。第4回の書き換えは<strong>問題を作ったのではなく、はっきり見える形にしただけ</strong>。だからこの困難は、共形変換という道具の欠陥ではなく、重力そのものの性質です。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>帳簿こそが、いちばん先に壊れる</h2>
+    <p>共形因子 \(\phi\) の運動項は \(+6(\partial\phi)^2\) ── 健全な場の \(-\tfrac12(\partial\phi)^2\) と符号が逆で、これを<strong>ゴースト</strong>と呼びます。古典では \(\phi\) がまるごとゲージだったので無害でした。しかし量子の経路積分は全部の場の値を足し上げるので、この逃げ道が使えません。ユークリッド作用に \(-\!\int(\partial\phi)^2\) が入っている以上、共形因子を細かく振動させるだけで作用はいくらでも負になり（\(S_E\propto-k^2\)）、重み \(e^{-S_E}\) が爆発して積分が発散します ── <strong>共形因子問題</strong>（ギボンズ・ホーキング・ペリー 1978）。</p>
+    <p>積分路を虚軸に回す処方は1ループでは効きますが、非線形な一般化は未確立で、ブラックホールのエントロピーの量子補正などでいまも顔を出します。そして重要なのは、暴れているのが<em>このシリーズでずっと動かしてきた場そのもの</em>だということ。「膨張は帳簿にすぎない」と言えたのは古典まで ── 量子重力では、その帳簿がいちばん先に壊れます。ただし書き換えが病気を作ったのではありません。<strong>書き換えは、もとから中にあった符号を、見えるようにしただけ</strong>です。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第10回（最終回）</span>
+    ここまで来て、最初の問いに戻ります ── <strong>結局、どのフレームが本物なのか。</strong> 古典では「その問い自体が誤りだ」という立場（フラナガン：観測量はすべて共形フレーム不変量）と、「物質を入れれば片方を選ばざるを得ない」という立場（ファラオーニら）がぶつかります。量子では、第8回のアノマリーと第9回のゴーストが効いてきて、いまも決着していない。最終回では両論を並べ、このシリーズの答えを出します ── <em>問いに答えられるのは、無次元不変量だけだ</em>、と。10回分の帳簿と物理を、一枚の表に畳んで終わります。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第9回、物理好きの高校生・大学生向け読み物です。アインシュタイン・ヒルベルト作用における共形因子の運動項が逆符号を持つこと、その結果ユークリッド重力作用が下に非有界となり経路積分が発散すること（共形因子問題）は、Gibbons, Hawking &amp; Perry (1978, Nucl. Phys. B138, 141) 以来知られた標準的な問題です。共形因子の積分路を虚軸方向に取る処方が少なくとも1ループで機能すること、およびそれが「正作用予想」に依存し非線形な一般化が未確立であることも、同論文以来の認識です。本文の \(\int_0^1(\partial_x\phi)^2dx=2\pi^2k^2\varepsilon^2\)（\(\phi=1+\varepsilon\sin2\pi kx\)）は初等的な計算で、図の数値もこの式によります。図は共形因子セクターのみを取り出した模式的な計算であり、完全な重力作用の評価ではありません。共形因子問題は経路積分による量子化に固有の困難であり、量子重力が存在しないことの証明ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーでさざ波を細かくし、作用が落ちていく様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'),
+      vk=document.getElementById('vk'), rd=document.getElementById('rd');
+  var EPS=0.15, KMAX=20;
+  function SE(k){ return -2*Math.PI*Math.PI*k*k*EPS*EPS; }   // 規格化した S_E
+  var SEMIN=SE(KMAX);
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var k=parseInt(sk.value,10); vk.textContent=k;
+    ctx.clearRect(0,0,W,H);
+    var padL=58, padR=18;
+    var TOP={y0:18,y1:H*0.44}, BOT={y0:H*0.54,y1:H-38};
+
+    function X(u){ return padL+u*(W-padL-padR); }
+
+    // ---- 上：φ(x) ----
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('共形因子 φ(x) ＝ わずかなさざ波', padL, TOP.y0+2);
+    var cy=(TOP.y0+TOP.y1)/2+6, amp=(TOP.y1-cy)*0.72;
+    ctx.strokeStyle='#dcdce4'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(padL,cy); ctx.lineTo(W-padR,cy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#9a9aa4'; ctx.font='11px sans-serif';
+    ctx.fillText('φ = 1', padL-44, cy+4);
+    ctx.strokeStyle='#3d4046'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var i=0;i<=600;i++){
+      var u=i/600, y=cy-amp*Math.sin(2*Math.PI*k*u);
+      if(i===0) ctx.moveTo(X(u),y); else ctx.lineTo(X(u),y);
+    }
+    ctx.stroke();
+
+    // ---- 下：S_E vs k ----
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif';
+    ctx.fillText('ユークリッド作用 S_E（規格化）', padL, BOT.y0-4);
+    function Y2(s){ return BOT.y0 + (s-0)/(SEMIN-0)*(BOT.y1-BOT.y0); }
+    ctx.strokeStyle='#cfcfd6'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,BOT.y0); ctx.lineTo(padL,BOT.y1); ctx.lineTo(W-padR,BOT.y1); ctx.stroke();
+    ctx.strokeStyle='#e4e4ea'; ctx.beginPath(); ctx.moveTo(padL,Y2(0)); ctx.lineTo(W-padR,Y2(0)); ctx.stroke();
+    ctx.fillStyle='#9a9aa4'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+    ctx.fillText('0', padL-6, Y2(0)+4);
+    ctx.fillText(SEMIN.toFixed(0), padL-6, Y2(SEMIN)-2);
+    ctx.textAlign='left';
+
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.6; ctx.beginPath();
+    for(var j=1;j<=KMAX*8;j++){
+      var kk=j/8, px=X((kk-1)/(KMAX-1)), py=Y2(SE(kk));
+      if(j===1) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    var mx=X((k-1)/(KMAX-1)), my=Y2(SE(k));
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(mx,my,6,0,7); ctx.fill();
+    ctx.fillStyle='#8a8a94'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('k = 1', X(0), BOT.y1+16);
+    ctx.fillText('k = '+KMAX, X(1)-14, BOT.y1+16);
+    ctx.fillText('さざ波を細かくする →', X(0.5), BOT.y1+30);
+    ctx.textAlign='left';
+
+    var s=SE(k), lg=(-s)/Math.LN10;
+    rd.textContent='k = '+k+'　S_E = '+s.toFixed(2)
+                 +'　→　経路積分の重み e^(−S_E) = 10^'+lg.toFixed(1)
+                 +(k>=12?'　── もう手がつけられない':'');
+  }
+
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

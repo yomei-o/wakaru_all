@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「光が遅くなる」の正体 ── わかる共形変換 第3回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f8fc; --paper-edge:#dfe0ee;   /* 第3回：紺の紙（座標の付け替え） */
+    --side:#3a4270; --side-bg:#eeeff7;
+    --warn:#8a4b2f;
+    --calc:#2a3378; --calc-bg:#e9ebf6;
+    --rule:#d0d2e2; --hair:#bcbfd4;
+    --acc:#3a46a0;    /* 第3回アクセント＝紺 */
+    --grid:#dcdeec;
+    --space:#2166a0;  /* 空間が伸びる＝青 */
+    --light:#b06a12;  /* 光速が遅くなる＝琥珀 */
+    --mass:#2f7d5a;   /* 質量が育つ＝緑 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6d9f0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#23263a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ccd0e6;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfcff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e9ebf6;color:#2a3378;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  /* 三つの絵の表 */
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.frames{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.frames th,table.frames td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.frames thead th{background:#eeeff7;color:#2a3378;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.frames tbody th{background:#f6f6fb;font-weight:600;white-space:nowrap;}
+  table.frames .f1{color:var(--space);font-weight:700;}
+  table.frames .f2{color:var(--light);font-weight:700;}
+  table.frames .f3{color:var(--mass);font-weight:700;}
+  table.frames td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f5f6fc;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#252a55;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdff,#eeeff7);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9ebf6;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#252a55;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#66687a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 3 回 ／ 前シリーズ「わかる宇宙論」の合言葉を、変換の言葉で書き直す</span></div>
+  <p class="eyebrow">「光速が遅くなる」は、いったい何をした結果なのか ── 正体を、一本の式で押さえる</p>
+  <h1>「光が遅くなる」の正体
+    <span class="sub">前シリーズが最初から最後まで使い倒した \(c\cdot t=\text{一定}\)。<br>あれに共形変換をかけると、「光速が遅くなる」がどこから来たのかが、はっきり見えます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算、指数と対数、微分ひとつ</span>
+    <span>\(d\tilde s^2=-c_B(t)^2dt^2+dx^2\)</span>
+  </div>
+
+  <p class="lead">前シリーズ「わかる宇宙論」は、第1回から最終回まで <em>「宇宙が膨張している」を「光速がゆっくり遅くなっている」と読み替える</em> という一本の補助線で走りました。番外編④では、その読み替えが成り立つ条件を二つ挙げた ── \(c_B\cdot a=\text{一定}\) と \(\alpha\) 不変。正しい答えでしたが、<strong>なぜその二つなのか</strong>は、はっきりしないままでした。第1回・第2回で用意した共形変換を使うと、二つとも同じ一つの操作から出てきます。しかも「光速が遅くなる」の正体が、たった一行で言えるようになる。</p>
+
+  <h2><span class="n">01</span>共形変換とは、物差しを場所ごとに変えること</h2>
+
+  <p>第1回で見た通り、共形変換（Weyl 変換）は一行で書けます。時空の各点で、長さの物差しを \(\Omega\) 倍する ── それだけです。</p>
+
+  <div class="keybox">
+    <div class="lbl">この回でやる操作は、これ一つ</div>
+    $$\tilde g_{\mu\nu} = \Omega^2\, g_{\mu\nu}\qquad(\Omega \text{ は場所と時刻の関数})$$
+  </div>
+
+  <p>座標変換（同じ地図に別の目盛りを振る）とは<strong>違います</strong>。座標変換では時空の形は変わりませんが、共形変換は<em>長さそのものを引き伸ばす</em>。ただし各点で全方向いちように伸ばすので、角度は変わらない ── だから「共形（形を共にする）」と呼ばれます。</p>
+
+  <p>そして第1回で強調した通り、この操作は「時空を変えた」のではなく「<strong>物差しを取り替えた</strong>」と読むこともできます。単位系の変更を、場所ごとにやっているだけ。この二通りの読み方の間を行き来するのが、このシリーズ全体のテーマです。</p>
+
+  <h2><span class="n">02</span>\(c\cdot t=\text{一定}\) の宇宙を、二手で平らにする</h2>
+
+  <p>舞台を用意します。平らな膨張宇宙（FLRW）の計量は、伸びない格子（共動座標 \(x\)）とスケール因子 \(a(t)\) を使って</p>
+
+  $$ds^2 = -c_0^2\,dt^2 + a(t)^2\,dx^2$$
+
+  <p>と書けます。前シリーズの \(c\cdot t=\text{一定}\) は、正体を明かせば \(a(t)=t/t_0\)（まっすぐ膨張）でした。これを共形変換で<strong>完全に平らな時空</strong>に持っていきます。二手で済みます。</p>
+
+  <h3>第一手：時間の目盛りを取り替える（共形時間）</h3>
+
+  <p>まず座標変換だけ。時間の刻みを \(a\) で割った新しい時間 \(\eta\) を使います。</p>
+
+  <div class="calc">
+    <span class="tag">共形時間 η を作る</span>
+    <p class="lbl">定義</p>
+    $$d\eta = \frac{dt}{a(t)} = \frac{t_0}{t}\,dt$$
+    <p class="lbl">積分すると</p>
+    $$\eta = t_0\ln\!\frac{t}{t_0}\qquad\Longleftrightarrow\qquad t = t_0e^{\eta/t_0},\quad a(\eta)=e^{\eta/t_0}$$
+    <p style="margin-bottom:14px;">面白いことが起きています。宇宙時間で「まっすぐ」だった膨張 \(a\propto t\) は、共形時間で見ると<strong>指数関数</strong> \(a\propto e^{\eta/t_0}\) になる。そして計量は、全体をくくり出せる形になります。</p>
+  </div>
+
+  $$ds^2 = e^{2\eta/t_0}\Big[-c_0^2\,d\eta^2 + dx^2\Big]$$
+
+  <p>角括弧の中は、もう膨張していません。ただのミンコフスキー（平らな時空）です。膨張はぜんぶ、前についた一個の係数 \(e^{2\eta/t_0}\) に押し込まれました。</p>
+
+  <h3>第二手：その係数を、共形変換で消す</h3>
+
+  <p>係数が一個くくり出せたなら、共形変換の出番です。\(\Omega = 1/a = e^{-\eta/t_0}\) を選べば、きれいに割り切れます。</p>
+
+  <div class="keybox">
+    <div class="lbl">\(c\cdot t=\text{一定}\) の宇宙を、共形変換した姿</div>
+    $$d\tilde s^2 = \Omega^2 ds^2 = -c_0^2\,d\eta^2 + dx^2$$
+  </div>
+
+  <p><em>厳密なミンコフスキー時空</em>です。膨張は、跡形もありません。ここまでは、共形変換の教科書に載っている標準的な手続き ── FLRW 宇宙が「共形平坦」であることの、いちばん素直な確認です。</p>
+
+  <div class="aside">
+    <span class="tag">ここで気づいてほしいこと</span>
+    共形時間 \(\eta\) を使った瞬間、光は \(dx/d\eta = c_0\) で<strong>一定の速さ</strong>になります。時空図の上で、光の道は 45 度のまっすぐな線。── つまり「共形時間に移る」と、光速は<strong>変わらなくなる</strong>。前シリーズの「光速が遅くなる」は、共形時間の話では<em>なかった</em>のです。では、あれは何だったのか。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>核心 ── 同じ計量を、宇宙時間で読み直す</h2>
+
+  <p>いま作った \(\tilde g\) は、\(\eta\) という時間座標で書いてあります。でも計量は、どの座標で書いても同じ計量です。もとの宇宙時間 \(t\) に戻して書いてみましょう。\(d\eta = (t_0/t)\,dt\) を代入するだけです。</p>
+
+  <div class="calc">
+    <span class="tag">同じ \(\tilde g\) を、t で書く</span>
+    <p class="lbl">代入</p>
+    $$-c_0^2\,d\eta^2 = -c_0^2\Big(\frac{t_0}{t}\Big)^2 dt^2 = -\Big(\frac{c_0t_0}{t}\Big)^2 dt^2$$
+    <p class="lbl">つまり</p>
+    $$d\tilde s^2 = -\Big(\frac{c_0t_0}{t}\Big)^2 dt^2 + dx^2$$
+    <p style="margin-bottom:14px;">この係数、見覚えがあるはずです。前シリーズ第1回の、唯一のルールそのもの。</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">前シリーズ第1回のルール</div>
+    $$c(t) = \frac{c_0t_0}{t}\qquad\Longleftrightarrow\qquad c\cdot t = c_0t_0 = \text{一定}$$
+  </div>
+
+  <p>並べれば、答えが出ています。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">この回の結論</div>
+    $$d\tilde s^2 = -c_B(t)^2\,dt^2 + dx^2,\qquad c_B(t)=\frac{c_0t_0}{t}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>「光速が遅くなる」とは、共形変換したあとの計量を、宇宙時間座標で読んだものだった。</strong></p>
+  </div>
+
+  <p>同じ一つの \(\tilde g\) を、\(\eta\) で読めば光速は一定、\(t\) で読めば光速は \(c_0t_0/t\) で落ちていく。<em>共形変換が「膨張を消す」仕事をし、時間座標の選び方が「その代償をどこに払うか」を決めている</em>。前シリーズが「わかりやすい」と言って使い続けた見方は、この二段構えの産物でした。</p>
+
+  <div class="fig">
+    <div class="cap">図：時間座標のツマミを回す。同じ光の世界線が、宇宙時間 \(t\) では曲がり（＝速さが変わる）、共形時間 \(\eta\) ではまっすぐになる（＝速さが一定）</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>時間座標 λ（左＝宇宙時間 t　／　右＝共形時間 η）<span class="val" id="vl">0.00</span>
+        <input type="range" id="sl" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">λ = 0.00（宇宙時間 t）　放出時 t=0.05t₀ の座標光速 = 20.00 c₀　→　世界線は大きく曲がる</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b06a12;"></i>光の世界線</span>
+      <span><i class="swatch" style="background:#9aa0c0;"></i>等・宇宙時間の線（t = 一定）</span>
+      <span><i class="swatch" style="background:#3a46a0;"></i>いま（t = t₀）</span>
+    </div>
+  </div>
+
+  <p>ツマミを右に回していくと、下のほう（宇宙の初期）の目盛りがどんどん引き伸ばされ、それにつれて光の道がまっすぐになっていくのが見えます。<strong>膨張を時間側に押し込む</strong>とは、文字どおりこの引き伸ばしのこと。そして引き伸ばしきった右端（共形時間）では、光は最初から最後まで同じ速さで進んでいます。</p>
+
+  <div class="aside">
+    <span class="tag">ツマミの中身（読み飛ばし可）</span>
+    途中の目盛りも、ちゃんとした時間座標です。\(T_\lambda\) を \(dT_\lambda=\big[(1-\lambda)+\lambda\,t_0/t\big]dt\) で定めると、\(\lambda=0\) で宇宙時間、\(\lambda=1\) で共形時間。このとき座標光速は
+    \(\;c_\lambda = c_0t_0/\big[(1-\lambda)t+\lambda t_0\big]\;\) で、両端がちょうど \(c_0t_0/t\) と \(c_0\) になります。図の数字はこの式そのものです。
+  </div>
+
+  <h2><span class="n">04</span>物質の側 ── 質量が育つ</h2>
+
+  <p>ここまでは計量、つまり「入れ物」の話でした。共形変換は物質にも効きます。第2回で見た通り、\(\tilde g=\Omega^2g\) のもとで質量は</p>
+
+  $$\tilde m = \Omega^{-1}m = a\,m$$
+
+  <p>と変換します（質量項 \(\int\sqrt{-g}\,m\bar\psi\psi\) が形を保つには、こう動くしかない）。\(c\cdot t=\text{一定}\) では \(a=t/t_0\) ですから ──</p>
+
+  <div class="keybox">
+    <div class="lbl">変換後の世界で起きていること</div>
+    $$\tilde m(t) = m\,\frac{t}{t_0}\qquad(\text{質量は、宇宙の年齢に比例して増える})$$
+  </div>
+
+  <p>質量が増えるということは、ボーア半径 \(\hbar/(m c\alpha)\) は縮む ── <em>宇宙は膨張しておらず、原子のほうが縮んでいる</em>。これが第2回で紹介した Wetterich の絵です。そして \(c\cdot t=\text{一定}\) では、その縮み方が「\(1/t\) に比例」という、いちばん簡単な形になります。</p>
+
+  <p>同じ変換を温度にかけると、もっと驚くことが起こります。温度もエネルギーなので \(\tilde T = aT\)。ところが膨張宇宙では \(T\propto 1/a\) ですから、</p>
+
+  $$\tilde T = a\cdot\frac{{\rm const}}{a} = \text{一定}$$
+
+  <p><strong>変換後の宇宙は、冷えません。</strong> 宇宙マイクロ波背景放射は、いつの時代も 2.725 K。では前シリーズ第7回・第9回・第10回が全部使っていた「宇宙の冷却」はどこへ行ったのか ── <em>質量の増加のほうに移った</em>のです。温度が下がって束縛エネルギーに追い抜かれるのではなく、束縛エネルギーが育って温度を追い抜く。同じすれ違いを、逆から見ている。</p>
+
+  <div class="calc">
+    <span class="tag">検算 ── 水素の再結合（z = 1100）</span>
+    <p style="margin-top:8px;">「同じ物理」なら、無次元の比は一致するはずです。再結合が起きる条件は「リュードベリ \(\div\) 熱エネルギー」で決まるので、両方の絵で計算して比べます。</p>
+    <p class="lbl">膨張の絵（標準）</p>
+    $$\frac{13.6\ \mathrm{eV}}{k_B\!\cdot\!(2.725\times1101\,\mathrm{K})} = \frac{13.6}{0.2586\ \mathrm{eV}} = 52.6$$
+    <p class="lbl">共形変換した絵（温度一定・質量が育つ）</p>
+    $$\frac{13.6/1101\ \mathrm{eV}}{k_B\!\cdot\!2.725\,\mathrm{K}} = \frac{0.01235}{2.348\times10^{-4}\ \mathrm{eV}} = 52.6$$
+    <p style="margin-bottom:14px;">分子と分母が両方 1101 倍ずれて、比だけが残る。<strong>観測が変わらない</strong>とは、こういうことです。</p>
+  </div>
+
+  <h2><span class="n">05</span>番外編④の回収 ── 「\(\alpha\) 不変」は条件ではなく、定理だった</h2>
+
+  <p>前シリーズ番外編④は、等価が成り立つ条件を二つ挙げました。共形変換の言葉で見ると、二つとも別々の要請ではありません。</p>
+
+  <p><strong>条件1（\(c_B\cdot a=\text{一定}\)）</strong>は、\(\Omega=1/a\) を選んだこと、そのものです。変換の中身を書き下しただけ。</p>
+
+  <p><strong>条件2（\(\alpha\) 不変）</strong>のほうが面白い。\(\alpha=e^2/4\pi\varepsilon_0\hbar c\) を作る \(e,\hbar,c\) は、共形変換のもとで<em>どれも動きません</em>。電磁場の作用 \(\int\sqrt{-g}\,F_{\mu\nu}F^{\mu\nu}\) は 4 次元では共形不変で、\(\Omega\) が完全に打ち消し合うからです。だから</p>
+
+  <div class="keybox">
+    <div class="lbl">条件2の正体</div>
+    $$e,\ \hbar,\ c\ \text{はウェイト }0\ \Longrightarrow\ \alpha\ \text{は自動的に不変}$$
+  </div>
+
+  <p>つまり <em>\(\alpha\) 不変は「守らなければいけない条件」ではなく、共形変換をきちんとやれば勝手に成り立つ定理</em>だった。番外編④が二つの条件を並べたのは正しかったけれど、二つ目は一つ目の帰結だったわけです。</p>
+
+  <div class="aside">
+    <span class="tag">では VSL は何を間違えたのか</span>
+    前シリーズ番外編③の光速可変理論（VSL）は、\(c\) だけを動かし \(e,\hbar\) を固定しました。共形変換の言葉で言うと ── <strong>\(c\) にウェイトを割り当て、\(e,\hbar\) には割り当てなかった</strong>。それは共形変換に<em>なっていない</em>。だから「単なる書き換え」にならず、観測（原子時計）に衝突した。「守るべきは \(\alpha\)」という診断は、「その操作を共形変換にせよ」と言い換えられます。
+  </div>
+
+  <div class="tblwrap">
+    <table class="frames">
+      <thead>
+        <tr><th>　</th><th class="f1">① 空間が伸びる</th><th class="f2">② 光が遅くなる</th><th class="f3">③ 質量が育つ</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>計量</th><td>もとの \(g\)</td><td colspan="2" style="text-align:center;">共形変換した \(\tilde g=g/a^2\)（同じもの）</td></tr>
+        <tr><th>時間座標</th><td>宇宙時間 \(t\)</td><td>宇宙時間 \(t\)</td><td>共形時間 \(\eta\)</td></tr>
+        <tr><th>光速</th><td class="mid">\(c_0\) 一定</td><td class="mid">\(c_0t_0/t\)</td><td class="mid">\(c_0\) 一定</td></tr>
+        <tr><th>質量</th><td class="mid">一定</td><td class="mid">\(\propto t\)</td><td class="mid">\(\propto t\)</td></tr>
+        <tr><th>温度</th><td class="mid">\(\propto 1/t\)</td><td class="mid">一定</td><td class="mid">一定</td></tr>
+        <tr><th>赤方偏移の説明</th><td>波長が伸びる</td><td>昔の光は速かった</td><td>昔の原子は軽かった</td></tr>
+        <tr><th>\(1+z\)</th><td class="mid">\(a_0/a_e=t_0/t_e\)</td><td class="mid">\(c(t_e)/c(t_0)=t_0/t_e\)</td><td class="mid">\(\tilde m_0/\tilde m_e=t_0/t_e\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>三つとも、最後の行が同じです。②と③は<strong>同じ計量を違う時間座標で読んだ姉妹</strong>、①はそこから共形変換一つ分だけ離れた場所にいる。前シリーズが「レコードとCD」と呼んだ二枚の盤は、実は三枚あったのでした。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">共形変換は<strong>書き換え</strong>です。書き換えただけで新しい予言は生まれません。ですからこの回は「\(c\cdot t=\text{一定}\) が正しい」と主張してはいません ── <em>もし \(a\propto t\) なら、その姿はこうなる</em>、と言っているだけです。膨張のしかたが本当に \(a\propto t\) かどうかは、観測が決める別の問題。</p>
+    <p style="margin-bottom:0;">そして、その別の問題の答えは、いまのところ厳しい。\(a\propto t\) を初期宇宙まで額面で走らせると、冷却が遅すぎて元素合成が壊れます（Lewis ら 2016：ヘリウムの質量分率が観測の 0.25 に対して \(10^{-3}\) オーダー）。番外編で正面から扱いますが、<strong>共形変換で見方が三つに増えても、判決は三つとも同じ</strong>です。無次元の比は、どの絵でも同じ値になるのだから。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（今回の式だけで解けます）</div>
+    <ol>
+      <li>\(z=1\) の銀河（\(t_e=t_0/2\)）について、上の表の三つの絵はそれぞれ「何が起きた」と言うか。数値もつけて答えよ。
+        <details><summary>答えを見る</summary><div class="ans">①空間が2倍に伸びて波長が2倍になった。②当時の光速は今の2倍（\(c_0t_0/t_e=2c_0\)）で、その落ち幅がそのまま赤み。③当時の電子質量は今の半分で、原子の出す光の振動数が半分だった。三つとも \(1+z=2\)。</div></details>
+      </li>
+      <li>共形変換 \(\Omega=1/a\) のもとで、ボーア半径 \(a_B=\hbar/(m c\alpha)\) は何倍になるか。宇宙が若いほど大きいか、小さいか。
+        <details><summary>答えを見る</summary><div class="ans">\(\hbar,c,\alpha\) は不変、\(\tilde m=am\) なので \(\tilde a_B=a_B/a\)。\(a\) が小さい（若い）ほど大きい ── 昔ほど原子が大きく、時代とともに縮んでいく。これが「膨張＝原子が縮む」の中身です。</div></details>
+      </li>
+      <li>「共形時間で読むと光速が一定になる」のはなぜか、一行で説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">\(d\eta=dt/a\) と定義したので、光の条件 \(c_0dt=a\,dx\) が \(dx/d\eta=c_0\) になるから。\(a\) による目減りを、あらかじめ時間の目盛りのほうに吸わせてある。</div></details>
+      </li>
+      <li>（やや難）変換後の宇宙は冷えない。では第7回で使った「ビッグバン元素合成は温度が下がって起きる」という話は、この絵でどう言い換わるか。
+        <details><summary>答えを見る</summary><div class="ans">温度は 2.725 K で固定のまま、核子の質量差や束縛エネルギーが \(\propto t\) で育っていき、あるとき熱エネルギー \(k_BT\) を追い越す。「温度が閾値を下回る」ではなく「閾値が温度を追い越す」。すれ違う時刻も、そのときの無次元比も、標準の絵とまったく同じ。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>正体は、二段構えだった</h2>
+    <p>\(c\cdot t=\text{一定}\) の宇宙は、共形時間 \(\eta=t_0\ln(t/t_0)\) に移してから \(\Omega=1/a\) の共形変換をかけると、<strong>厳密なミンコフスキー時空</strong>になる。膨張は跡形もなく消える。そして同じ計量を宇宙時間 \(t\) で読み直すと \(d\tilde s^2=-c_B(t)^2dt^2+dx^2\)、\(c_B=c_0t_0/t\) ── <em>これが「光速が遅くなる」の正体</em>。共形変換が膨張を消し、時間座標の選択が代償の払い先を決めていた。</p>
+    <p>物質の側では質量が \(\propto t\) で育ち、温度は一定になる。冷却は質量の増加に化ける。そして \(e,\hbar,c\) がどれも共形変換で動かないおかげで、\(\alpha\) は<strong>条件を課すまでもなく不変</strong> ── 前シリーズ番外編④の「条件2」は、実は「条件1」の帰結でした。VSL がつまずいたのは、その操作を共形変換にし損ねたから。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第4回</span>
+    計量の書き換えは済みました。次は<strong>作用</strong>に手を入れます。アインシュタイン・ヒルベルト作用を \(g=a^2\tilde g\) で書き直すと \(\;\phi^2\tilde R+6(\partial\phi)^2\;\) という形になり、重力が<em>スカラー場ひとつ</em>に化ける。スケール因子 \(a\) の正体は、共形因子の役を引き受けたディラトン場だった、という話です（'t Hooft が「重力の小距離構造を暴く」と呼んだ書き換え）。そこから第5回で、状態方程式がポテンシャルの形に化ける \(V\propto\phi^{1-3w}\) の表へ進みます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第3回、物理好きの高校生・大学生向け読み物です。FLRW 宇宙が共形平坦であること、共形時間 \(\eta=\int dt/a\) で光の世界線が直線になることは標準的な事実です。共形（Weyl）変換 \(\tilde g=\Omega^2g\) のもとで長さはウェイト \(+1\)、質量・エネルギー・温度はウェイト \(-1\)、\(e,\hbar,c\) および 4 次元の Maxwell 作用はウェイト \(0\) であり、したがって \(\alpha\) は不変です。共形変換を「座標に依存した単位の変換」と読む定式化は Dicke (1962) に、質量が増大する描像で膨張を記述する宇宙論は Wetterich (2013) によります。次元付き定数の時間変化が操作的意味を持たないことは Ellis &amp; Uzan (2005) を参照。局所的に測る光速は、どの記述でも常に \(c_0\) です。本稿の「同じ物理」は語り方（座標・単位の選択）どうしの等価であり、\(a\propto t\)（\(R_h=ct\)、線形膨張）というモデル自体の正当性を主張するものではありません ── 額面での元素合成との不整合は Lewis, Barnes &amp; Kaushik (2016, MNRAS 460, 291) を参照。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで時間座標を宇宙時間から共形時間へ連続的に変えられます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sl=document.getElementById('sl'),
+      vl=document.getElementById('vl'), rd=document.getElementById('rd');
+  var TE=0.05;                    // 放出時刻 t_e / t0
+  var XMAX=Math.log(1/TE);        // 光が稼ぐ共動距離の最大値 / (c0 t0)
+  var MARKS=[0.05,0.1,0.2,0.4,0.7,1.0];
+
+  function Tl(tt,lam){ return (1-lam)*tt + lam*Math.log(tt); }      // 時間座標 T_λ（t0=1 単位）
+  function V(tt,lam){ var lo=Tl(TE,lam), hi=Tl(1,lam); return (Tl(tt,lam)-lo)/(hi-lo); }
+  function Xn(tt){ return Math.log(tt/TE)/XMAX; }                   // 光の共動位置（正規化）
+  function cCoord(tt,lam){ return 1/((1-lam)*tt + lam); }           // 座標光速 / c0
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, w=d.w, h=d.h;
+    var padL=80, padR=16, padT=16, padB=40;
+    var lam=parseFloat(sl.value); vl.textContent=lam.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+
+    function X(u){ return padL + u*(w-padL-padR); }        // u: 0..1 共動座標
+    function Y(v){ return (h-padB) - v*(h-padB-padT); }    // v: 0..1 時間座標（上が今）
+
+    // 枠
+    ctx.strokeStyle='#bcbfd4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,h-padB); ctx.lineTo(w-padR,h-padB); ctx.stroke();
+
+    // 等・宇宙時間の線
+    ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle';
+    for(var i=0;i<MARKS.length;i++){
+      var tt=MARKS[i], yy=Y(V(tt,lam));
+      var isNow=(Math.abs(tt-1)<1e-9);
+      ctx.strokeStyle = isNow ? '#3a46a0' : '#e0e2ef';
+      ctx.lineWidth = isNow ? 1.6 : 1;
+      ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(w-padR,yy); ctx.stroke();
+      ctx.fillStyle = isNow ? '#3a46a0' : '#8b8fa6';
+      ctx.fillText(isNow ? 'いま t₀' : ('t = '+tt+'t₀'), padL-8, yy);
+    }
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+
+    // 光の世界線
+    ctx.strokeStyle='#b06a12'; ctx.lineWidth=2.6; ctx.beginPath();
+    var first=true;
+    for(var k=0;k<=300;k++){
+      var t=TE*Math.pow(1/TE, k/300);        // 対数等分でなめらかに
+      var px=X(Xn(t)), py=Y(V(t,lam));
+      if(first){ ctx.moveTo(px,py); first=false; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    // 参考：45度の直線（共形時間での理想形）
+    ctx.strokeStyle='#d8c4a0'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(1),Y(1)); ctx.stroke(); ctx.setLineDash([]);
+
+    // 端点
+    ctx.fillStyle='#b06a12';
+    ctx.beginPath(); ctx.arc(X(0),Y(0),5,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(1),Y(1),5,0,7); ctx.fill();
+
+    // ラベル
+    ctx.font='12px sans-serif'; ctx.fillStyle='#6b6f80';
+    ctx.fillText('共動座標 x →', w-padR-104, h-padB+24);
+    ctx.save(); ctx.translate(16,(h-padB+padT)/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillText('時間座標 T_λ →', 0, 0); ctx.restore();
+    ctx.fillStyle='#a08050'; ctx.font='11px sans-serif';
+    ctx.fillText('45°（まっすぐ）', X(0.62), Y(0.62)+16);
+
+    var ce=cCoord(TE,lam);
+    var tail = lam<0.02 ? '世界線は大きく曲がる'
+             : (lam>0.98 ? '世界線はまっすぐ ── 光は最初から最後まで同じ速さ' : '曲がりがほどけていく');
+    var name = lam<0.02 ? '（宇宙時間 t）' : (lam>0.98 ? '（共形時間 η）' : '（途中の時間座標）');
+    rd.textContent = 'λ = '+lam.toFixed(2)+name+'　放出時 t=0.05t₀ の座標光速 = '+ce.toFixed(2)+' c₀　→　'+tail;
+  }
+
+  sl.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

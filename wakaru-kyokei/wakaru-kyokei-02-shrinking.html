@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>膨張は、原子が縮んでいるだけかもしれない ── わかる共形変換 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6faf4; --paper-edge:#d8e8dc;   /* 第2回：若草の紙（原子が縮む） */
+    --side:#245c3f; --side-bg:#e9f3ec;
+    --warn:#8a4b2f;
+    --calc:#1e5638; --calc-bg:#e4efe8;
+    --rule:#c7dccd; --hair:#aec9b6;
+    --acc:#2f7d5a;    /* 第2回アクセント＝緑 */
+    --grid:#dcebe1;
+    --gal:#2166a0;    /* 銀河＝青 */
+    --atom:#a83a22;   /* 原子＝赤茶 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe7d8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1d3529;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c2d9ca;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e4efe8;color:#1e5638;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.tw{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.tw th,table.tw td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.tw thead th{background:#e4efe8;color:#1e5638;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.tw tbody th{background:#f0f7f2;font-weight:600;white-space:nowrap;}
+  table.tw td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.tw tr.hi td,table.tw tr.hi th{background:#eef4fb;}
+
+  .claims{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .claims .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .claims .row:last-child{border-bottom:none;}
+  .claims .mk{flex-shrink:0;width:26px;font-weight:700;font-size:15px;color:var(--acc);}
+  .claims .txt strong{display:block;margin-bottom:2px;}
+  .claims .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3faf5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c4632;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfffd,#e9f3ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e4efe8;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c4632;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.claims{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f7066;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">第 2 回 ／ 道具ができたので、いきなり使ってみる</span></div>
+  <p class="eyebrow">「宇宙は膨張していない」── これは冗談ではなく、2013年に出た実在の論文の主張です</p>
+  <h1>膨張は、原子が<br>縮んでいるだけかもしれない
+    <span class="sub">望遠鏡が測っているのは「銀河間の距離 ÷ 原子の半径」という比だけ。<br>だったら、分子を大きくしても、分母を小さくしても、同じことです。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算。それだけです</span>
+    <span>\(\tilde m = a\,m\)</span>
+  </div>
+
+  <p class="lead">第1回で、共形変換 \(\tilde g=\Omega^2g\) という道具を手に入れました ── 各点で物差しの目盛りを取り替える操作です。いきなり、いちばん過激な使い方をしてみましょう。<em>宇宙の膨張を、まるごと消してしまいます。</em> 消えたぶんはどこへ行くのか ── 原子のほうへ行きます。この回で見るのは、「宇宙は膨張しておらず、むしろ原子が縮んでいる」という描像が、<strong>観測とまったく矛盾しない</strong>ということ。そしてそれが、まじめな論文として存在するということです。</p>
+
+  <h2><span class="n">01</span>望遠鏡は、いったい何を測っているのか</h2>
+
+  <p>「銀河が遠ざかっている」と言うとき、私たちは距離を測っています。では、距離とは何で測るのか。</p>
+
+  <p>メートルです。では 1 メートルとは何か。前シリーズ番外編②でやった通り、いまや「光が \(1/299792458\) 秒で進む距離」と定義されています。では 1 秒とは。セシウム原子が出す光の振動 9192631770 回ぶん。<em>結局、すべての物差しは原子に行き着きます。</em></p>
+
+  <div class="keybox">
+    <div class="lbl">望遠鏡が実際に測っている量</div>
+    $$\frac{\text{銀河と銀河の距離}}{\text{原子の大きさ}}$$
+  </div>
+
+  <p>この比が時代とともに増えている ── それが「宇宙が膨張している」という観測事実の、いちばん正確な言い方です。<strong>分子と分母を別々に測る方法は、ありません。</strong> 原子の外に、原子と無関係な物差しは存在しないからです。</p>
+
+  <h2><span class="n">02</span>だったら、分母を動かしてもいい</h2>
+
+  <p>比が増える理由は、二つあります。</p>
+
+  <div class="claims">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>分子が増えている</strong><span>原子の大きさは変わらず、銀河が遠ざかる。── これが標準の描像「宇宙が膨張している」。</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>分母が減っている</strong><span>銀河の間隔は変わらず、原子のほうが縮んでいく。── 宇宙は膨張していない。</span></div></div>
+  </div>
+
+  <p>①と②を区別する観測は、原理的に存在しません。測れるのが比だけなら、比が同じなら同じです。</p>
+
+  <p>そして②を実現するのが、まさに共形変換です。第1回の \(\Omega\) を \(1/a(t)\)（\(a\) はスケール因子）に取ると、膨張はきれいに割り切れて消えます。消えた代わりに、質量が動きます。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">共形変換すると、質量が動く</div>
+    $$\tilde m = a\,m$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    質量が \(a\) に比例して<strong>増える</strong>。ボーア半径は \(\hbar/(m c\alpha)\) だから、原子は \(1/a\) で<strong>縮む</strong>。</p>
+  </div>
+
+  <p>なぜ質量がこう動くかは、第3回で式から出します（質量項が形を保つには、こう動くしかない）。いまは結果だけ受け取ってください ── <em>膨張を消したぶんが、そっくり質量に移った。</em></p>
+
+  <div class="fig">
+    <div class="cap">図：左が「昔（\(a=0.5\)）」、右が「今」。ツマミを回すと、昔の絵で銀河の間隔と原子の大きさが入れ替わる。でも下に出る<strong>比だけは、まったく動きません</strong></div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>どちらの絵で語るか<span class="val" id="vs">0.00</span>
+        <input type="range" id="ss" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">① 宇宙が膨張している：昔は銀河の間隔が半分、原子の大きさは今と同じ　→　比 = 0.500</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>銀河</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>原子（大幅に拡大して描いています）</span>
+    </div>
+  </div>
+
+  <p>左端では銀河が寄り集まり、右端では原子がふくらみます。見た目はまったく違うのに、<strong>「銀河間距離 ÷ 原子半径 = 0.500」だけが、びくとも動かない</strong>。望遠鏡が読み取れるのは、この数字だけです。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>これは、実在する論文です</h2>
+
+  <p>「宇宙は膨張していない」を本気でやった人がいます。クリストフ・ヴェッテリヒ、2013年。論文の題は、そのまま <em>“A Universe without expansion”</em>（膨張のない宇宙）。抄録の書き出しを訳すと、こうです。</p>
+
+  <div class="aside">
+    <span class="tag">ヴェッテリヒ（2013）抄録より</span>
+    「輻射期・物質期を通じて、宇宙は膨張するのではなく<strong>収縮する</strong>ような宇宙モデルを議論する。代わりに、プランク質量とすべての粒子の質量が指数関数的に増大し、それに応じて原子の大きさが縮む。観測できるのは<em>銀河間の距離を原子半径で割った比</em>のような無次元量だけであり、この比の宇宙論的な増大は、原子が縮んでいるためだと考えることもできる。」
+  </div>
+
+  <p>ただの思考実験ではありません。ヴェッテリヒは具体的なモデルまで作っています ── ヒッグス場に似たスカラー場「<strong>コスモン</strong>」があり、すべての粒子の質量はそこから生じる。そのポテンシャルがインフレーションと現在のダークエネルギーの両方を担う。そして彼はこう書きます ── <em>「我々のモデルは、現在のすべての観測と両立する」</em>。</p>
+
+  <p>両立するのは当然です。<strong>矛盾のしようがないから</strong>。測れるのが比だけである以上、比を再現するモデルは全部通ってしまいます。</p>
+
+  <h2><span class="n">04</span>では、赤方偏移はどうなるのか</h2>
+
+  <p>いちばん気になるのはここでしょう。膨張していないなら、なぜ遠くの銀河の光は赤いのか。</p>
+
+  <div class="calc">
+    <span class="tag">二つの絵での説明</span>
+    <p class="lbl">① 膨張の絵</p>
+    <p style="margin-top:8px;">空間が伸びるので、飛んでいる光の波長も一緒に伸びる。届いたときには \(1/a\) 倍に間延びしている。</p>
+    <p class="lbl">② 原子が縮む絵</p>
+    <p style="margin-top:8px;">空間は伸びないので、<strong>光は出たときのまま、何も変わらずに届く</strong>。変わったのは受け取る側 ── 実験室の水素原子が、当時より重くなっている。原子が出す光の振動数はおよそ質量に比例するので、</p>
+    $$\frac{\nu_{\text{届いた光}}}{\nu_{\text{いまの実験室の水素}}}=\frac{\tilde m(\text{昔})}{\tilde m(\text{今})}=a$$
+    <p style="margin-bottom:14px;">つまり \(1+z=1/a\)。<strong>①とまったく同じ式</strong>です。「光が伸びた」のではなく「<em>基準のほうが育った</em>」── どちらでも、分光器の目盛りの読みは同じになります。</p>
+  </div>
+
+  <p>前シリーズで「光は昔もっと速かった」という第三の言い方も見ました。並べると、こうなります。</p>
+
+  <div class="tblwrap">
+    <table class="tw">
+      <thead><tr><th>絵</th><th>赤方偏移の説明</th><th class="mid">\(1+z\)</th></tr></thead>
+      <tbody>
+        <tr><th>① 空間が伸びる</th><td>飛んでいる光の波長が引き伸ばされる</td><td class="mid">\(1/a\)</td></tr>
+        <tr class="hi"><th>② 光が遅くなる</th><td>昔の光は速く、その落ち幅がそのまま赤み</td><td class="mid">\(1/a\)</td></tr>
+        <tr><th>③ 原子が縮む</th><td>光は変わらない。実験室の基準線が育った</td><td class="mid">\(1/a\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>三つとも同じ数字が出ます。<em>このシリーズが 10 回かけてやるのは、この三行がなぜ一致するのかを、根っこから理解することです。</em></p>
+
+  <h2><span class="n">05</span>で、これは新しい物理なのか</h2>
+
+  <p>ここは正直に行きましょう。答えは <strong>「いいえ」</strong> です。そしてそれは、ヴェッテリヒ自身が抄録に書いています。同じ抄録の、最後の三文。</p>
+
+  <div class="aside">
+    <span class="tag">同じ抄録の、最後</span>
+    「宇宙論に、ビッグバン特異点は存在しない。<strong>宇宙が通常どおり膨張して見えるような、あるいは輻射期・物質期に静的に見えるような、同等な場の変数の選び方も存在する。</strong>そうした『場の座標』では、ビッグバンは特異になる。したがってビッグバン特異点とは、場の座標の特異な選び方に由来するものだ、ということになる。」
+  </div>
+
+  <p>「同等な場の変数の選び方も存在する」── つまり彼は最初から、これが<em>変数の取り替えである</em>ことを明言しています。膨張する絵も、収縮する絵も、静的な絵も、同じ一つの理論の別々の書き方。だから「宇宙は本当は膨張していない」という主張ではないのです。<strong>「膨張しているかどうかは、書き方の問題である」</strong>という主張です。</p>
+
+  <p>そして、それこそがこのシリーズの主題です。第1回の合言葉を、もう一度 ── <em>次元付きは帳簿、無次元だけが物理。</em> 「銀河間距離」も「原子半径」も次元付きなので帳簿、その比だけが物理。</p>
+
+  <h2><span class="n">06</span>だったら、なんのためにやるのか</h2>
+
+  <p>物理が変わらないなら、書き換える意味はあるのでしょうか。三つあります。</p>
+
+  <div class="claims">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>問いの形が変わる</strong><span>いちばん劇的なのは特異点です。膨張の絵ではビッグバンで曲率が無限大に発散しますが、収縮の絵では時空はどこまでも平ら。<em>特異点は消えるのか？</em> ── 第6回で正面から扱います（答えは「半分だけ」）。</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>計算が楽になることがある</strong><span>膨張を時間側に押し込む座標（共形時間）を使うと、光の道がまっすぐな直線になります。数値宇宙論の現場で実際に使われている技です。</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>何が本当に物理かの訓練になる</strong><span>これがいちばん大きい。「宇宙は膨張していない」のような過激な主張を、感情ではなく<strong>手続きで</strong>判定できるようになります ── 無次元の比を作れ。動けば物理、動かなければ帳簿。最終回まで、この手続きだけで通します。</span></div></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">この回で示したのは「二つの絵が観測的に区別できない」ことまでです。<strong>ヴェッテリヒのモデルが正しいと言っているのではありません</strong> ── というより、彼のモデルの<em>物理的な中身</em>（コスモンのポテンシャルの形、インフレーションとダークエネルギーの説明）は、書き換えとは別に検証されるべき本物の仮説です。書き換えの部分はただですが、モデルの部分はただではありません。</p>
+    <p style="margin-bottom:0;">また「原子が縮む」という言い方は、<em>共動座標の格子を基準にしたときの話</em>です。あなたの部屋の中で原子が縮んでいくわけではありません。局所的には、原子は今日も昨日も同じ大きさ ── 比べる相手が銀河のスケールになったときにだけ意味を持つ言い方です。この一線は、前シリーズの「局所的な光速はつねに \(c_0\)」とまったく同じ注意書きです。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題（今回の内容だけで解けます）</div>
+    <ol>
+      <li>\(z=1\) の銀河（\(a=1/2\)）について、三つの絵はそれぞれ何が起きたと言うか。
+        <details><summary>答えを見る</summary><div class="ans">①空間が2倍に伸びて波長が2倍になった。②当時の光速は今の2倍で、その落ち幅が赤み。③光は変わらず、当時の原子が今の半分の質量・2倍の大きさだった。三つとも \(1+z=2\)。</div></details>
+      </li>
+      <li>「宇宙が膨張している」と「原子が縮んでいる」を区別する観測を、一つでも思いつくか。
+        <details><summary>答えを見る</summary><div class="ans">原理的に存在しません。あらゆる長さの測定は最終的に原子に基準を置くので、測れるのは「銀河間距離 ÷ 原子半径」という比だけ。比が同じなら、どんな実験でも区別できません。</div></details>
+      </li>
+      <li>共形変換で \(\tilde m=am\) となるとき、ボーア半径 \(\hbar/(mc\alpha)\) は何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">\(\hbar,c,\alpha\) は変わらないので \(1/a\) 倍。\(a\) が小さい（昔）ほど原子は大きい ── 時代とともに縮んでいきます。</div></details>
+      </li>
+      <li>（やや難）「宇宙は膨張していない」は、反証可能な主張か。
+        <details><summary>答えを見る</summary><div class="ans">この形では<strong>反証不可能</strong>。無次元量が同じである以上、どんな観測でも否定できないからです。ただしそれは「正しい」という意味ではなく、<em>物理的な主張になっていない</em>ということ。反証可能になるのは、モデルが比の<strong>時間変化のしかた</strong>について具体的な予言をしたとき（たとえば番外編で扱う元素合成）だけです。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>測れるのが比だけなら、分母を動かしてもいい</h2>
+    <p>すべての物差しは最終的に原子に行き着くので、望遠鏡が測れるのは「銀河間距離 ÷ 原子半径」という<strong>無次元の比</strong>だけです。この比が増えるのは、分子が増えたから（膨張）でも、分母が減ったから（原子が縮む）でも構いません。共形変換 \(\Omega=1/a\) を使えば膨張はきれいに消え、代わりに質量が \(\tilde m=am\) で育ち、原子が \(1/a\) で縮みます。赤方偏移も同じ式 \(1+z=1/a\) で出る ── 光が伸びたのではなく、実験室の基準線が育った、と言い換わるだけです。</p>
+    <p>これは実在する論文の主張です（ヴェッテリヒ 2013）。ただし彼自身が抄録で「同等な場の変数の選び方も存在する」と書いている通り、<strong>新しい物理ではなく、変数の取り替え</strong>。それでも書き換える価値はあります ── 特異点のような問いの形が変わり（第6回）、計算が楽になり、そして何より <em>「何が本当に物理か」を手続きで判定する訓練</em>になるからです。無次元の比を作れ。動けば物理、動かなければ帳簿。この一手だけで、最終回まで通します。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回予告 ── 第3回</span>
+    ここまでは道具の紹介でした。次回、前シリーズの主役に刃を入れます ── <strong>\(c\cdot t=\text{一定}\)</strong>。「光速がゆっくり遅くなっている」というあの補助線に共形変換をかけると、二手で厳密なミンコフスキー時空になります。そして同じ計量を宇宙時間で読み直すと、あの \(c(t)=c_0t_0/t\) がそのまま出てくる。<em>「光が遅くなる」の正体は、共形変換した計量を、宇宙時間座標で読んだものだった</em> ── 前シリーズが最後まで言えなかった一行を、次回、式で出します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ第2回、物理好きの高校生・大学生向け読み物です。共形変換 \(\tilde g_{\mu\nu}=\Omega^2g_{\mu\nu}\)（\(\Omega=1/a\)）のもとで質量が \(\tilde m=am\) と変換されること、その結果ボーア半径が \(1/a\) 倍になり、赤方偏移が \(1+z=1/a\) として再現されることは、いずれも標準的な結果です（導出は第3回）。「宇宙は膨張せず、プランク質量と全粒子質量が指数関数的に増大し、原子が縮む」という描像および引用は C. Wetterich, "A Universe without expansion" (2013, Phys. Dark Univ. 2, 184; arXiv:1303.6878) の抄録によります。同抄録は「宇宙が通常どおり膨張して見える同等な場の変数の選び方も存在する」と明記しており、本稿はこれを<strong>場の変数の取り替え</strong>として扱っています ── したがって「宇宙は膨張していない」は、この形では反証可能な物理的主張ではありません。同モデルのコスモン場のポテンシャル、インフレーションおよびダークエネルギーの説明は、書き換えとは独立に検証されるべき仮説です。「原子が縮む」は共動座標の格子を基準にした言い方であり、局所的に測る原子の大きさ、局所的な光速、および無次元定数 \(\alpha\) はいずれも不変です。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで二つの絵を行き来でき、比が動かないことが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), ss=document.getElementById('ss'),
+      vs=document.getElementById('vs'), rd=document.getElementById('rd');
+  var A=0.5;          // 昔のスケール因子
+  var D0=64, R0=13;   // 今の銀河間隔・原子半径（px）
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function panel(ctx,cx,top,bot,title,D,R,ratio,dim){
+    ctx.font='13px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle=dim?'#8a9a90':'#1e5638';
+    ctx.fillText(title, cx, top+4);
+
+    // 銀河：4個を横一列
+    var gy=top+58;
+    ctx.fillStyle='#2166a0';
+    for(var i=-1.5;i<=1.5;i++){
+      ctx.beginPath(); ctx.arc(cx+i*D, gy, 6, 0, 7); ctx.fill();
+    }
+    // 間隔の矢印
+    ctx.strokeStyle='#7fa8ce'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx-0.5*D,gy+16); ctx.lineTo(cx+0.5*D,gy+16); ctx.stroke();
+    ctx.fillStyle='#2166a0'; ctx.font='11px sans-serif';
+    ctx.fillText('銀河の間隔', cx, gy+31);
+
+    // 原子
+    var ay=top+150;
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.arc(cx, ay, R, 0, 7); ctx.stroke();
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(cx, ay, 2.5, 0, 7); ctx.fill();
+    ctx.font='11px sans-serif';
+    ctx.fillText('原子の大きさ', cx, ay+R+16);
+
+    // 比
+    ctx.font='12px sans-serif'; ctx.fillStyle='#5f7066';
+    ctx.fillText('銀河の間隔 ÷ 原子の大きさ', cx, bot-24);
+    ctx.font='bold 22px sans-serif'; ctx.fillStyle=dim?'#8a9a90':'#1e5638';
+    ctx.fillText(ratio.toFixed(3), cx, bot);
+    ctx.textAlign='left';
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var s=parseFloat(ss.value); vs.textContent=s.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    var Dpast=D0*Math.pow(A,1-s), Rpast=R0*Math.pow(A,-s);
+    var top=24, bot=H-18;
+
+    // 仕切り
+    ctx.strokeStyle='#dcebe1'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W/2,top-6); ctx.lineTo(W/2,bot+4); ctx.stroke();
+
+    panel(ctx, W*0.26, top, bot, '昔（a = 0.5）', Dpast, Rpast, (Dpast/Rpast)/(D0/R0), false);
+    panel(ctx, W*0.75, top, bot, '今', D0, R0, 1.0, true);
+
+    var msg;
+    if(s<0.02){
+      msg='① 宇宙が膨張している：昔は銀河の間隔が半分、原子の大きさは今と同じ　→　比 = 0.500';
+    }else if(s>0.98){
+      msg='② 原子が縮んでいる：銀河の間隔は今と同じ、昔の原子は今の2倍　→　比 = 0.500';
+    }else{
+      msg='途中の言い方：間隔は '+(Dpast/D0).toFixed(3)+' 倍、原子は '+(Rpast/R0).toFixed(3)+' 倍　→　比 = 0.500';
+    }
+    rd.textContent=msg;
+  }
+
+  ss.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
