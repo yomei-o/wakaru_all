@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One cell per tick ── Conformal Transformations That Click, Bonus 3</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f5fb; --paper-edge:#ded7ec;   /* Bonus 3: deep-indigo paper (the lattice) */
+    --side:#332259; --side-bg:#efeaf8;
+    --warn:#8a4b2f;
+    --calc:#2c1d55; --calc-bg:#eae4f5;
+    --rule:#d2c9e6; --hair:#b9acd6;
+    --acc:#3f2b6b;    /* Bonus 3 accent = deep indigo */
+    --grid:#e2dbf0;
+    --light:#b06a12;  /* light = amber */
+    --cell:#5b46a0;   /* cell = wisteria */
+    --warnc:#a83a22;  /* warning = rust */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ded3f2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#281c42;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cec3e6;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfcff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#eae4f5;color:#2c1d55;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#eae4f5;color:#2c1d55;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2eefa;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#ece6f8;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f1fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2a1f4a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#efeaf8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eae4f5;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2a1f4a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6a6280;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>CONFORMAL TRANSFORMATIONS THAT CLICK</span><span class="ep">BONUS ③ (full length) ／ Arriving at the most primitive statement of all</span></div>
+  <p class="eyebrow">Bonus ② concluded that it was constraining the wrong thing. So what is the right way to say it?</p>
+  <h1>One cell per tick
+    <span class="sub">Translate \(c\cdot t=\text{const}\) into the most primitive language a computer has<br>and it becomes a startlingly short sentence. And <strong>why that sentence</strong> also has an answer.</span>
+  </h1>
+  <div class="byline">
+    <span>What you need: division, Planck units, and the intuition "acceleration = force"</span>
+    <span>\(dR_H/dt=c\)</span>
+  </div>
+
+  <p class="lead">In bonus ② we found that \(c\cdot t=\text{const}\) is the unique expansion law with a constant comoving Hubble radius — the condition that a computer's address space does not move. This time we push that down into <em>an even more primitive language</em>: nothing but cells and ticks. It becomes one line — <strong>the horizon advances one Planck length per Planck time.</strong> And the real subject of this episode is what comes next. <em>Why "one"?</em> The answer sits at the equality case of the most basic inequality in general relativity.</p>
+
+  <h2><span class="n">01</span>How many cells per tick does the horizon advance?</h2>
+
+  <p>Compute the growth rate of the Hubble radius \(R_H=c/H\). For \(a\propto t^p\) we have \(H=p/t\), hence \(R_H=ct/p\), and so</p>
+
+  $$\frac{dR_H}{dt}=\frac{c}{p}$$
+
+  <p>Measure that in Planck units (length \(\ell_P\), time \(t_P\), with \(\ell_P/t_P=c\)) and <em>every unit cancels</em>, leaving a bare number.</p>
+
+  <div class="keybox">
+    <div class="lbl">How fast the horizon advances</div>
+    $$\frac{dR_H/\ell_P}{dt/t_P}=\frac{1}{p}\qquad[\text{cells per tick}]$$
+  </div>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(p\)</th><th class="mid">cells/tick</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">1/2 (radiation)</td><td class="mid">2.000</td><td>The horizon outruns light → regions never in contact come in</td></tr>
+        <tr><td class="mid">2/3 (matter)</td><td class="mid">1.500</td><td>Likewise</td></tr>
+        <tr class="hi"><td class="mid"><strong>1 (\(c\cdot t=\)const)</strong></td><td class="mid"><strong>1.000</strong></td><td><strong>Lockstep with light. Nothing enters, nothing leaves</strong></td></tr>
+        <tr><td class="mid">2</td><td class="mid">0.500</td><td>Light is faster → regions already in contact leave</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">The one line of this bonus episode</div>
+    $$\frac{dR_H}{dt}=c\qquad\Longleftrightarrow\qquad a\propto t\qquad(\text{exactly, uniquely})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>The horizon advances one Planck length per Planck time.</strong> The lockstep of a cellular automaton, exactly.</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">The model's own name was already this</span>
+    The name Melia gave the model is \(R_h=ct\) — "the gravitational radius equals \(ct\)". Differentiate both sides and you get \(dR_h/dt=c\). <strong>The name itself was "one cell per tick"</strong> — though probably nobody has pointed out that it is a statement in the language of computers.
+  </div>
+
+  <h2><span class="n">02</span>Integrate, and the cell count equals the tick count</h2>
+
+  <p>Integrating \(dR_H/dt=c\) gives \(R_H=ct\). Measure both sides in Planck units —</p>
+
+  <div class="calc">
+    <span class="tag">Today's values</span>
+    <p class="lbl">Cells across the horizon</p>
+    $$\frac{R_H}{\ell_P}=\frac{1.306\times10^{26}\,\mathrm{m}}{1.616\times10^{-35}\,\mathrm{m}}=8.0776\times10^{60}$$
+    <p class="lbl">Ticks elapsed</p>
+    $$\frac{t_0}{t_P}=\frac{4.355\times10^{17}\,\mathrm{s}}{5.391\times10^{-44}\,\mathrm{s}}=8.0776\times10^{60}$$
+    <p class="lbl">Ratio</p>
+    $$\frac{R_H/\ell_P}{t_0/t_P}=1.000000$$
+    <p style="margin-bottom:14px;"><strong>The universe has run \(8\times10^{60}\) ticks, and its radius is \(8\times10^{60}\) cells.</strong> One cell per tick, exactly.</p>
+  </div>
+
+  <p>The memory, though, does not follow. The bit count is an area — proportional to the <em>square</em> of the radius.</p>
+
+  $$N=\frac{\pi(R_H/\ell_P)^2}{\ln2}=2.96\times10^{122}\ \text{bit},\qquad
+    \frac{dN}{d(\text{tick})}=7.3\times10^{61}\ \text{bit/tick}$$
+
+  <p>The radius gains one cell per tick while the memory gains \(10^{61}\) bits per tick. <strong>That is the origin of bonus ②'s "rich in memory, poor in clock cycles"</strong> — the area goes as the square of the radius.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: ticks across, cells up. The shaded staircase is the cells the horizon has acquired by that time; the amber line is light. Turn the knob and the staircase changes slope, matching light only at \(p=1\)</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Exponent of the expansion law, p (a ∝ t^p)<span class="val" id="vp">1.00</span>
+        <input type="range" id="sp" min="0.40" max="2.50" step="0.01" value="1.00">
+      </label>
+    </div>
+    <div class="readout" id="rd">p = 1.00　the horizon advances 1.000 cells/tick　── lockstep with light (c·t=const)</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#5b46a0;"></i>Cells acquired by the horizon</span>
+      <span><i class="swatch" style="background:#b06a12;"></i>Light (45°)</span>
+      <span><i class="swatch" style="background:#3f2b6b;"></i>Edge of the horizon</span>
+    </div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>Why "one"? The exact equality of the strong energy condition</h2>
+
+  <p>This is the heart of the episode. The "one" is not a postulate; it appears as the <em>equality case of a more basic inequality</em>.</p>
+
+  <p>What governs how a bundle of light rays or observers converges is the <strong>Raychaudhuri equation</strong>. For a congruence of comoving observers (no shear, no vorticity), the expansion \(\theta=3H\) obeys</p>
+
+  <div class="calc">
+    <span class="tag">The calculation — two lines</span>
+    <p class="lbl">The Raychaudhuri equation</p>
+    $$\frac{d\theta}{d\tau}=-\frac{\theta^2}{3}-4\pi G(\rho+3p)$$
+    <p class="lbl">Insert FLRW (\(\theta=3H\)) and a familiar equation appears</p>
+    $$\frac{\ddot a}{a}=-\frac{4\pi G}{3}(\rho+3p)$$
+    <p style="margin-bottom:14px;">The \(\rho+3p\) on the right is the <strong>active gravitational mass</strong>. Positive means pulling together (deceleration); negative means pushing apart (acceleration).</p>
+  </div>
+
+  <p>The condition \(\rho+3p\ge0\) has a name — the <strong>strong energy condition (SEC)</strong>, the requirement that ordinary matter acts to converge light rays. And</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">What the "one" really is</div>
+    $$\rho+3p=0\ \ \Longleftrightarrow\ \ w=-\frac13\ \ \Longleftrightarrow\ \ \ddot a=0\ \ \Longleftrightarrow\ \ a\propto t\ \ \Longleftrightarrow\ \ \frac{dR_H}{dt}=c$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>\(c\cdot t=\text{const}\) is the <em>exact saturation</em> of the strong energy condition</strong> — it sits on the equality of the inequality.</p>
+  </div>
+
+  <p>At saturation the second term of the Raychaudhuri equation vanishes entirely.</p>
+
+  $$\frac{d\theta}{d\tau}=-\frac{\theta^2}{3}\qquad\Longrightarrow\qquad \theta=\frac{3}{t}$$
+
+  <p><em>The expansion decays only because of itself.</em> Matter contributes <strong>nothing at all</strong> to the focusing of light rays. Melia himself calls this "zero active gravitational mass".</p>
+
+  <h2><span class="n">04</span>So the wiring is the same as an empty universe</h2>
+
+  <p>If matter contributes nothing to the focusing, the causal structure ought to be the same as with no matter at all. And it is.</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>　</th><th class="mid">scale factor</th><th class="mid">spatial curvature</th><th class="mid">density</th><th class="mid">expansion \(\theta\)</th></tr></thead>
+      <tbody>
+        <tr><th>Milne universe (empty)</th><td class="mid">\(a\propto t\)</td><td class="mid">\(k=-1\)</td><td class="mid">\(\rho=0\)</td><td class="mid">\(3/t\)</td></tr>
+        <tr class="hi"><th>\(R_h=ct\) (with matter)</th><td class="mid">\(a\propto t\)</td><td class="mid">\(k=0\)</td><td class="mid">\(\rho\ne0\)</td><td class="mid"><strong>\(3/t\)</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The expansion history of the congruence — <em>how light rays converge</em> — agrees exactly. Only the spatial curvature differs. And the amount of matter whose net gravitational effect is zero, in today's universe, is</p>
+
+  $$M=\frac{c^2R_H}{2G}=8.8\times10^{52}\ \mathrm{kg}=4.4\times10^{22}\ M_\odot$$
+
+  <p><strong>Four times \(10^{22}\) suns' worth of matter, with exactly zero net gravitational effect.</strong> Push and pull balance precisely.</p>
+
+  <div class="aside">
+    <span class="tag">Reading it as a computer — memory and addressing are separated</span>
+    The causal structure (which cell can reach which cell — the wiring) is <strong>completely unaffected</strong> by the contents (what is stored in memory). As a piece of computer design that is a very clean property. In an ordinary universe, heavier contents shrink the wiring (gravity converges light rays). Under \(c\cdot t=\text{const}\) that does not happen. It is the deeper version of bonus ②'s <em>the address space does not move</em>.
+  </div>
+
+  <div class="aside">
+    <span class="tag">Placing bonus ①'s Mitra criticism precisely</span>
+    Mitra (2014) claimed that \(R_h=ct\) is "a vacuum in disguise". Bonus ① left it as "under dispute"; now it can be said exactly — <strong>the spacetimes are not identical, the <em>focusing</em> is</strong>. The spatial curvatures differ so the spacetimes are different objects, but the way light rays converge is indistinguishable from an empty universe. The criticism overshoots, but its core was on target.
+  </div>
+
+  <h2><span class="n">05</span>Exactly on the boundary of the singularity theorems</h2>
+
+  <p>The strong energy condition carries one more heavy role — it is <strong>the hypothesis of the Hawking–Penrose singularity theorems</strong>.</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(w\)</th><th class="mid">SEC</th><th>The singularity theorems</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">\(w&gt;-1/3\)</td><td class="mid">holds</td><td>The theorems apply → the singularity is unavoidable (radiation and matter live here)</td></tr>
+        <tr class="hi"><td class="mid"><strong>\(w=-1/3\)</strong></td><td class="mid"><strong>saturated</strong></td><td><strong>sitting exactly on the boundary</strong></td></tr>
+        <tr><td class="mid">\(w&lt;-1/3\)</td><td class="mid">violated</td><td>The hypothesis fails (inflation lives here)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>In Episode 6 we wrote that after the conformal transformation the singularity appeared to vanish, and that building a dimensionless ratio showed it barely surviving, logarithmically. <em>That was no accident.</em> \(c\cdot t=\text{const}\) sits exactly on the boundary of the singularity theorems, so the singularity <strong>does not disappear, but survives in the weakest possible form</strong>.</p>
+
+  <p>Indeed the proper time of a comoving observer is \(\tau=t\), so \(t=0\) is reached in finite time — geodesically incomplete, a singularity. But every divergence is logarithmic (Episode 6's \(\eta\to-\infty\), bonus ②'s sound horizon). <strong>The weakest singularity there is.</strong></p>
+
+  <h2><span class="n">06</span>Dirac's large-number hypothesis was just an identity</h2>
+
+  <p>While we are here, a famous "coincidence" gets disposed of. In flat FLRW,</p>
+
+  <div class="calc">
+    <span class="tag">The calculation — three lines</span>
+    $$M=\rho\cdot\frac{4\pi}{3}R_H^3,\qquad \rho=\frac{3H^2}{8\pi G},\qquad R_H=\frac{c}{H}$$
+    $$\Longrightarrow\quad M=\frac{c^2R_H}{2G}\quad\Longleftrightarrow\quad R_H=\frac{2GM}{c^2}$$
+    <p class="lbl">In Planck units</p>
+    $$\frac{M}{m_P}=\frac{R_H}{2\ell_P}$$
+    <p style="margin-bottom:14px;">This is <strong>an identity for any \(p\)</strong>. The Hubble radius is always exactly the Schwarzschild radius of its contents.</p>
+  </div>
+
+  <p>So Dirac's "coincidence of large numbers", \(M/m_P\sim R/\ell_P\), is — <em>a restatement of the Friedmann equation.</em> Not a coincidence but a relation that follows from the definitions. Check: \(R/\ell_P=8.078\times10^{60}\), \(M/m_P=4.039\times10^{60}\), a ratio of exactly 1/2.</p>
+
+  <p>Put into the language of information it is more compact still.</p>
+
+  <div class="keybox">
+    <div class="lbl">Mass is the square root of the bit count</div>
+    $$\frac{M}{m_P}=\frac12\sqrt{\frac{N\ln2}{\pi}}\qquad\Longrightarrow\qquad \frac{M}{m_P}\propto\sqrt{N}$$
+  </div>
+
+  <h2><span class="n">07</span>Seven statements, all the same one thing</h2>
+
+  <p>Here are all the characterisations of \(a\propto t\) the series has produced.</p>
+
+  <div class="seven">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>The potential is exactly quadratic</strong><span>\(U=-\phi^2/2t_0^2\). Alone among the four (Episode 5)</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>Conformal time spans all of \((-\infty,\infty)\)</strong><span>It covers the whole of Minkowski space (Episode 6)</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>Zero acceleration</strong><span>\(\ddot a=0\). The watershed of the horizon problem (Episode 5)</span></div></div>
+    <div class="row"><span class="mk">④</span><div class="txt"><strong>The comoving Hubble radius is constant</strong><span>The address space does not move (bonus ②)</span></div></div>
+    <div class="row"><span class="mk">⑤</span><div class="txt"><strong>Particle and event horizons are both infinite</strong><span>Read and write access to all of memory</span></div></div>
+    <div class="row"><span class="mk">⑥</span><div class="txt"><strong>\(dR_H/dt=c\), \(R_H/\ell_P=t/t_P\)</strong><span>One cell per tick; cells = ticks (this episode)</span></div></div>
+    <div class="row"><span class="mk">⑦</span><div class="txt"><strong>Saturation of the strong energy condition</strong><span>\(\rho+3p=0\). Zero active gravitational mass. The boundary of the singularity theorems (this episode)</span></div></div>
+  </div>
+
+  <p>All seven are restatements of \(a\propto t\). What Episode 5 called a "triple boundary" has become sevenfold. <strong>That so many properties collect at a single point is itself remarkable</strong> — which is, I think, why this auxiliary line has held people's attention for so long.</p>
+
+  <h2><span class="n">08</span>And still it dies</h2>
+
+  <p>Beauty and correctness are different things — the consistent position of this series. Let us confirm the verdict one last time.</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>Verdict</th><th>Content</th><th class="mid">Source</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">✗</td><td>Nucleosynthesis makes only \(10^{-3}\) of the observed helium</td><td class="mid">bonus ①</td></tr>
+        <tr><td class="mid">✗</td><td>Radiation cannot couple, so it breaks for \(z&gt;103\); the horizon problem returns</td><td class="mid">bonus ②</td></tr>
+        <tr><td class="mid">✗</td><td>\(w_{\rm DE}=-0.476\) (18σ from the observed \(-1.03\pm0.03\)); \(\beta=0.954\) (280× Cassini)</td><td class="mid">bonus ②</td></tr>
+        <tr class="hi"><td class="mid">✗</td><td><strong>Violates the holographic bound for \(t&lt;4.4\) s</strong> (19× over at \(t=1\) s)</td><td class="mid">this episode</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The last one is this episode's calculation. Under \(a\propto t\) the comoving Hubble volume is constant, so the radiation entropy inside it is constant, while the horizon capacity grows as \(t^2\). The ratio goes as \(1/t^2\), and running back from today's \(10^{-34}\) it reaches 1 at \(t=4.4\) seconds. <strong>Before that, the universe would have held more information than its own capacity.</strong></p>
+
+  <p>Ordinary FRW also violates the Hubble-volume form of the bound at early times (the Fischler–Susskind problem). But <em>the rate of violation differs</em> — \(t^{-2}\) for \(a\propto t\) against \(t^{-1/2}\) for radiation domination. A model designed as a finite-resource computer overruns its resources the most violently of all.</p>
+
+  <div class="caveat">
+    <span class="tag">Being straight with you</span>
+    <p style="margin-top:0;">Section 01's "the horizon outruns light" (\(dR_H/dt&gt;c\) for \(p&lt;1\)) is <strong>not a violation of causality</strong>. The Hubble radius is not a causal boundary, just the length \(c/H\); nothing is moving faster than light. "Cells per tick" is a metaphor from computing, not a claim that spacetime is really a lattice.</p>
+    <p style="margin-bottom:0;">The holographic argument in section 08 uses the <strong>naive form of the bound applied to the Hubble volume</strong> (Fischler–Susskind type). Bousso's covariant entropy bound is defined on light sheets and is built precisely to avoid the problems of the naive form — which is exactly why bonus ② said "this is what should be constrained". So the last line of section 08 reads "violates the naive form of the bound", not "violates Bousso's bound".</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>In matter domination (\(p=2/3\)), how many cells per tick does the horizon advance? What does that mean?
+        <details><summary>Show answer</summary><div class="ans">\(1/p=1.5\) cells per tick. It outruns light, so <strong>regions never in causal contact keep coming into view</strong> — which is what the horizon problem is (and not a violation of causality).</div></details>
+      </li>
+      <li>Derive \(\ddot a=0\) from \(\rho+3p=0\).
+        <details><summary>Show answer</summary><div class="ans">The right-hand side of the acceleration equation \(\ddot a/a=-(4\pi G/3)(\rho+3p)\) vanishes. This is the equality case of the strong energy condition \(\rho+3p\ge0\), and it is equivalent to \(w=-1/3\), \(a\propto t\) and \(dR_H/dt=c\).</div></details>
+      </li>
+      <li>What agrees, and what differs, between the Milne universe and \(R_h=ct\)?
+        <details><summary>Show answer</summary><div class="ans">What agrees is the <strong>expansion \(\theta=3/t\)</strong> — the focusing of light rays, the causal structure. What differs is the spatial curvature (\(k=-1\) versus \(k=0\)) and the density (\(\rho=0\) versus \(\rho\ne0\)). So "a vacuum in disguise" overshoots, but on the focusing it is on target.</div></details>
+      </li>
+      <li>(Harder) Show that \(M/m_P=R_H/2\ell_P\) is an identity, and say what follows for Dirac's large-number hypothesis.
+        <details><summary>Show answer</summary><div class="ans">Put \(\rho=3H^2/8\pi G\) and \(R_H=c/H\) into \(M=\rho(4\pi/3)R_H^3\) to get \(M=c^2R_H/2G\); in Planck units \(M/m_P=R_H/2\ell_P\), independent of \(p\). So <strong>Dirac's coincidence of large numbers is not a coincidence but the Friedmann equation itself</strong>. It was never a mystery needing explanation.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">SUMMARY</span>It was sitting on the equality of an inequality</h2>
+    <p>Drop \(c\cdot t=\text{const}\) into the language of computers and it becomes one line — <strong>\(dR_H/dt=c\): the horizon advances one Planck length per Planck time</strong>. Integrate and \(R_H/\ell_P=t/t_P=8.08\times10^{60}\): the cell count and the tick count agree exactly. The name Melia gave it, \(R_h=ct\), was "one cell per tick" all along.</p>
+    <p>And the answer to "why one?" is in the Raychaudhuri equation. The right-hand side of \(\ddot a/a=-(4\pi G/3)(\rho+3p)\) vanishes — <strong>the exact saturation of the strong energy condition</strong>. Matter contributes nothing to the focusing of light rays, and the causal structure is that of an empty universe (memory and addressing separated). It also sits on the boundary of the singularity theorems, so the singularity does not vanish but survives only in the weakest form. As a bonus, Dirac's large-number hypothesis turned out to be a mere identity. Seven characterisations converging on one point — that is why the auxiliary line is beautiful. <em>And still, nucleosynthesis, radiation, observation and the holographic bound each say no, independently.</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">CLOSING THE SERIES</span>
+    "Cosmology That Clicks" began with "Light used to be faster". "Conformal Transformations That Click" tracked down what that auxiliary line was, and bonus episodes ①②③ judged it from three directions — at face value, at its motivation, and in its most primitive language. What remains are only the doors left open: Episode 9's conformal factor problem, the four listed in the finale, and where bonus ② pointed. <strong>If you want to write the universe as a computer with finite resources, what to constrain is not \(a(t)\) but the information on light sheets.</strong> That calculation has not been done by anyone yet.
+  </div>
+
+  <div class="foot">
+    This document is bonus episode ③ of the series "Conformal Transformations That Click", written for physics-minded high-school and university students. That \(dR_H/dt=c/p\) for \(a\propto t^p\), and that \(dR_H/dt=c\) is equivalent to \(a\propto t\), are elementary. The Raychaudhuri equation \(d\theta/d\tau=-\theta^2/3-\sigma^2+\omega^2-R_{\mu\nu}u^\mu u^\nu\), the FLRW acceleration equation \(\ddot a/a=-(4\pi G/3)(\rho+3p)\), the strong energy condition \(\rho+3p\ge0\), and its role as the hypothesis of the Hawking–Penrose singularity theorems are all standard. Characterising \(R_h=ct\) by \(\rho+3p=0\) (zero active gravitational mass) follows Melia's formulation. The Milne universe (\(k=-1\), vacuum) and \(R_h=ct\) (\(k=0\), with matter) share the expansion \(\theta=3/t\) but are distinct spacetimes; Mitra's (2014) "vacuum in disguise" claim remains disputed. \(M/m_P=R_H/2\ell_P\) is an identity in flat FLRW, and the observation that Dirac's large-number hypothesis is isomorphic to it is made here (similar remarks appear in the literature). The holographic bound in section 08 is the naive form applied to the Hubble volume (Fischler–Susskind type) and is distinct from Bousso's covariant entropy bound. "Cells per tick" is a computing metaphor and is not a claim that spacetime is a discrete lattice. That \(dR_H/dt&gt;c\) for \(p&lt;1\) is not a violation of causality. The academic standard is the ΛCDM model including inflation. — To print, use your browser's Print → Save as PDF (in the print version the slider is frozen and answers are hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen the slider changes the exponent of the expansion law and shows where the horizon's staircase coincides with light. "Show answer" opens the solutions.</p>
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sp=document.getElementById('sp'),
+      vp=document.getElementById('vp'), rd=document.getElementById('rd');
+  var NT=16;   // number of ticks (side of the lattice)
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var p=parseFloat(sp.value); vp.textContent=p.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+    var padL=54, padR=16, padT=18, padB=42;
+    var side=Math.min(W-padL-padR, H-padT-padB);
+    var x0=padL, y1=H-padB, y0=y1-side, cell=side/NT;
+    function X(i){ return x0+i*cell; }
+    function Y(j){ return y1-j*cell; }
+
+    // cells acquired (staircase)
+    ctx.fillStyle='#e6e0f4';
+    for(var i=0;i<NT;i++){
+      var top=Math.min(Math.floor((i+1)/p), NT);
+      if(top>0) ctx.fillRect(X(i), Y(top), cell, top*cell);
+    }
+    // lattice
+    ctx.strokeStyle='#e2dbf0'; ctx.lineWidth=1;
+    for(var g=0;g<=NT;g++){
+      ctx.beginPath(); ctx.moveTo(X(g),Y(0)); ctx.lineTo(X(g),Y(NT)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(0),Y(g)); ctx.lineTo(X(NT),Y(g)); ctx.stroke();
+    }
+    // frame
+    ctx.strokeStyle='#b9acd6'; ctx.lineWidth=1.2;
+    ctx.strokeRect(X(0),Y(NT),side,side);
+
+    // light (45 degrees)
+    ctx.strokeStyle='#b06a12'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(NT),Y(NT)); ctx.stroke();
+
+    // edge of the horizon
+    ctx.strokeStyle='#3f2b6b'; ctx.lineWidth=2.8; ctx.beginPath();
+    var yEnd=Math.min(NT/p,NT), xEnd=(NT/p>NT)? NT*p : NT;
+    ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(xEnd),Y(Math.min(xEnd/p,NT))); ctx.stroke();
+
+    // labels
+    ctx.font='12px sans-serif'; ctx.fillStyle='#6a6280'; ctx.textAlign='center';
+    ctx.fillText('ticks (Planck times) →', X(NT/2), y1+26);
+    ctx.save(); ctx.translate(18,(y0+y1)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('cells (Planck lengths) →',0,0); ctx.restore();
+    ctx.textAlign='left';
+    ctx.fillStyle='#a08050'; ctx.font='11px sans-serif';
+    ctx.fillText('light', X(NT)-30, Y(NT)+16);
+
+    var rate=1/p, tail;
+    if(Math.abs(p-1)<0.005) tail='── lockstep with light (c·t=const)';
+    else if(p<1) tail='── the horizon outruns light: regions never in contact come in';
+    else tail='── light is faster: regions already in contact leave';
+    rd.textContent='p = '+p.toFixed(2)+'　the horizon advances '+rate.toFixed(3)+' cells/tick　'+tail;
+  }
+
+  sp.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

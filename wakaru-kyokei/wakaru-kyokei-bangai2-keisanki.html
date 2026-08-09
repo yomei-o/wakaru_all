@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙は有限リソースの計算機か ── わかる共形変換 番外編②</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f2f9f9; --paper-edge:#d3e8e7;   /* 番外編②：青竹の紙（計算機） */
+    --side:#125a5e; --side-bg:#e4f2f1;
+    --warn:#8a4b2f;
+    --calc:#0f5155; --calc-bg:#dfeeed;
+    --rule:#bfdcda; --hair:#a4cbc8;
+    --acc:#14666b;    /* 番外編②アクセント＝青竹 */
+    --grid:#dbeceb;
+    --led:#a83a22;    /* 帳簿＝赤茶 */
+    --phy:#1f6b45;    /* 物理＝緑 */
+    --rad:#b06a12;    /* 放射＝琥珀 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #c9e6e3 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#17383a;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bcd8d6;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#dfeeed;color:#0f5155;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fcffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.kk{border-collapse:collapse;width:100%;min-width:540px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.kk th,table.kk td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.kk thead th{background:#dfeeed;color:#0f5155;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.kk tbody th{background:#eaf5f4;font-weight:600;white-space:nowrap;}
+  table.kk td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.kk tr.hi td,table.kk tr.hi th{background:#e8f3ec;}
+  table.kk tr.bad td,table.kk tr.bad th{background:#f7e9e4;}
+  table.kk td.led{color:#7d2c19;} table.kk td.phy{color:#175134;}
+
+  .steps{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .steps .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .steps .row:last-child{border-bottom:none;}
+  .steps .mk{flex-shrink:0;width:26px;font-weight:700;font-size:15px;color:var(--acc);}
+  .steps .ok{color:#1f6b45;} .steps .no{color:#b03a2e;}
+  .steps .txt strong{display:block;margin-bottom:2px;}
+  .steps .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff8f7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#11454a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fcffff,#e4f2f1);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#dfeeed;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#11454a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.steps{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5d716f;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ②（本編級）／ シリーズの動機そのものを裁く</span></div>
+  <p class="eyebrow">\(c\cdot t=\text{一定}\) は「宇宙は有限リソースの計算機だ」という発想から出てきた。その発想は正しかったのか</p>
+  <h1>宇宙は有限リソースの<br>計算機か
+    <span class="sub">番外編①では、モデルとしての \(c\cdot t=\text{一定}\) を元素合成が裁きました。<br>今回裁くのは、その手前 ── <strong>そもそもの動機</strong>のほうです。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：対数、割り算、そしてビットで数えること</span>
+    <span>共動ハッブル半径 \(=c/\dot a\)</span>
+  </div>
+
+  <p class="lead">\(c\cdot t=\text{一定}\) という補助線は、もともと「宇宙は資源が有限な計算機で、大きくなるほど一箇所あたりの計算が遅くなる」という情報理論的な直観から出てきたものです。第10回で作った判定手続きを、いよいよ<em>その動機そのもの</em>に当ててみます。結論を先に言うと ── <strong>動機は驚くほど的確で、実装は的を外していました</strong>。番外編③でVSLに下した診断と、まったく同じ形です。そして外し方を追いかけると、重力・量子・情報・時間が一点で交わる場所に出ます。</p>
+
+  <h2><span class="n">01</span>情報理論での正体 ── アドレス空間が動かない</h2>
+
+  <p>計算機として宇宙を見るとき、いちばん基本的な資源は「どこまで信号を届かせられるか」です。それを表すのが<strong>共動ハッブル半径</strong>。</p>
+
+  <div class="keybox">
+    <div class="lbl">計算機のアドレス空間</div>
+    $$r_H=\frac{c}{aH}=\frac{c}{\dot a}$$
+  </div>
+
+  <p>共動座標で測った「いま因果的に届く範囲」です。これが一定になる膨張則を探すと、答えは一意に決まります。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 一行</span>
+    $$r_H=\frac{c}{\dot a}=\text{一定}\quad\Longleftrightarrow\quad \dot a=\text{一定}\quad\Longleftrightarrow\quad a\propto t$$
+    <p style="margin-bottom:14px;">\(a\propto t^p\) なら \(r_H\propto t^{1-p}\)。ぴたりと止まるのは \(p=1\) だけです。</p>
+  </div>
+
+  <div class="tblwrap">
+    <table class="kk">
+      <thead><tr><th class="mid">膨張則</th><th class="mid">\(r_H\)</th><th>計算機として何が起きるか</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">\(p&lt;1\)（放射・物質）</td><td class="mid">増加</td><td>新しい共動領域が視界に入る ── <strong>一度も交信できなかった記憶が現れる</strong>（地平線問題）</td></tr>
+        <tr class="hi"><td class="mid"><strong>\(p=1\)（\(c\cdot t=\)一定）</strong></td><td class="mid"><strong>一定</strong></td><td><strong>入りも出もしない。アドレス空間が変化しない</strong></td></tr>
+        <tr><td class="mid">\(p&gt;1\)（Λ・インフレ）</td><td class="mid">減少</td><td>交信済みの領域が到達不能になる ── <strong>情報が失われる</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>つまり \(c\cdot t=\text{一定}\) とは、<em>有限リソース計算機の「アドレス空間が動かない」唯一の膨張則</em>。動機は的確でした。第5回で見た「\(w=-1/3\) の三重の境目」の、四つ目の顔です。</p>
+
+  <div class="aside">
+    <span class="tag">何を一定に保つかで、膨張則が決まる</span>
+    <strong>ビット数</strong>（地平面エントロピー \(\propto (c/H)^2\)）を一定に保つなら ── \(a\propto e^{Ht}\)、<strong>ド・ジッター</strong>。<br>
+    <strong>アドレス空間</strong>（共動ハッブル半径）を一定に保つなら ── \(a\propto t\)、<strong>\(c\cdot t=\)一定</strong>。<br>
+    資源の選び方が、そのまま宇宙のかたちを決めます。
+  </div>
+
+  <h2><span class="n">02</span>この計算機を、実際に測る</h2>
+
+  <div class="calc">
+    <span class="tag">今日の宇宙のスペック</span>
+    <p class="lbl">メモリ（地平面のビット数）</p>
+    $$N=\frac{\pi R_H^2}{\ell_P^2\ln 2}=2.96\times10^{122}\ \text{bit}$$
+    <p class="lbl">総演算数（マルゴラス＝レヴィティン限界 \(2E/\pi\hbar\) を積算）</p>
+    $$\Omega=2.1\times10^{121}\ \text{ops}\qquad(\text{ロイド 2002 の }10^{120}\text{ と一致})$$
+    <p class="lbl">クロック（地平面を光が横断した回数）</p>
+    $$\ln\frac{t_0}{t_P}=\mathbf{140}\ \text{回}$$
+    <p style="margin-bottom:14px;">メモリ \(10^{122}\) に対して、クロックは<strong>たった140回</strong>。極端にメモリ過多・クロック過少の機械です。</p>
+  </div>
+
+  <p>そしてこの計算機は、<em>熱力学の限界ぴったり</em>で動いています。</p>
+
+  <div class="keybox">
+    <div class="lbl">1ビットあたりの持ち分 ＝ ランダウアーの限界</div>
+    $$\frac{E}{N}=2.672\times10^{-53}\,\mathrm{J},\qquad k_BT_H\ln2=2.671\times10^{-53}\,\mathrm{J}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    比は <strong>1.0000</strong>。これは \(E=T_HS\) という恒等式（任意の FLRW で成立）ですが、<em>宇宙は余裕ゼロでランダウアー限界を走っている</em>と読めます。前シリーズ第10回の「1ビット消去に \(k_BT\ln2\)」が、宇宙規模で釣り合っている。</p>
+  </div>
+
+  <h2><span class="n">03</span>ここまでは良い ── 実際にモデルを組んでみる</h2>
+
+  <p>動機が的確なら、モデルにできるはずです。第3回の「質量が育つ」を、ゲージではなく<strong>物理として</strong>取ってみましょう。</p>
+
+  <div class="calc">
+    <span class="tag">一行の仮説から、w = −1/3 が自動的に出る</span>
+    <p class="lbl">仮説（これ一つだけ）</p>
+    $$\frac{m}{M_{\rm Pl}}\propto a$$
+    <p class="lbl">すると</p>
+    $$\rho_m=n\,m\propto a^{-3}\cdot a=a^{-2}$$
+    <p style="margin-bottom:14px;">これは \(w_{\rm tot}=-1/3\) が要求する \(\rho\propto a^{-2}\) そのもの。<strong>「質量が \(a\) に比例して育つ」だけで、調整なしに \(w=-1/3\) が出ます。</strong> 番外編①で見た「物質を入れると暗黒エネルギー密度が負になる」問題も、同時に消えます。</p>
+  </div>
+
+  <p>これは結合クインテッセンスそのもので、パラメータは自由になりません。</p>
+
+  <div class="keybox">
+    <div class="lbl">パラメータは \(\Omega_m\) だけで決まる（自由度ゼロ）</div>
+    $$\lambda^2=\frac{4}{2-3\Omega_m},\qquad \beta=\frac{\lambda}{2}
+    \qquad\xrightarrow{\ \Omega_m=0.30\ }\qquad \lambda=1.907,\ \ \beta=0.954$$
+  </div>
+
+  <p>しかも数値積分すると、この解は<strong>アトラクタ</strong>でした ── \(\rho_m\) や \(\dot\sigma\) を \(\pm50\%\) ずらしても \(Ht\to1\)、\(\Omega_m\to0.30\) に戻る。<em>「なぜ \(w\) が厳密に \(-1/3\) なのか」に「引力的な解だから」という答えが、初めて出ました。</em> ここまではモデルにとって good news です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>そして壊れる ── ディラトンは、光を救えない</h2>
+
+  <p>この絵には、ひとつだけ救えないものがあります。<strong>放射</strong>です。</p>
+
+  <p>ディラトンが物質と情報をやり取りする強さは、エネルギー運動量テンソルのトレース \(T^\mu{}_\mu\) に比例します（第5回）。ところが ──</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">第7回の一行が、ここで効く</div>
+    $$\text{放射は共形不変}\ \Longrightarrow\ T^\mu{}_\mu=0\ \Longrightarrow\ \text{結合ゼロ}\ \Longrightarrow\ \rho_r\propto a^{-4}\ \text{のまま}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>ディラトンは質量を救えるが、光は救えない。</strong></p>
+  </div>
+
+  <p>\(\rho_r\propto a^{-4}\) は \(\rho_{\rm tot}\propto a^{-2}\) より速く増えるので、さかのぼれば必ず放射が総和を乗っ取ります。その時刻は</p>
+
+  $$\sqrt{\Omega_r}=9.6\times10^{-3}\qquad\Longrightarrow\qquad z>103\ \text{で放射が支配}$$
+
+  <p><strong>再結合（\(z=1100\)）は完全にこの内側。</strong> \(c\cdot t=\text{一定}\) は、再結合より前には成立できません。二択になります。</p>
+
+  <div class="steps">
+    <div class="row"><span class="mk no">A</span><div class="txt"><strong>\(a\propto t\) を全時代で守る</strong><span>暗黒エネルギー密度が負でなければならない ── 再結合で \(-110\) 倍、元素合成期で \(-1.5\times10^{13}\) 倍。加えて番外編①の元素合成の判決もそのまま生きる。</span></div></div>
+    <div class="row"><span class="mk no">B</span><div class="txt"><strong>放射に \(a\propto t^{1/2}\) を許す</strong><span>\(z&gt;103\) が標準宇宙論そのものになるので、元素合成も音響ピークも合う ── <em>合うのは標準になったから</em>。そして<strong>地平線問題が戻る</strong>（下の図）。</span></div></div>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：アドレス空間（共動ハッブル半径）の履歴。放射のツマミを 0 から実際の値へ回すと、\(c\cdot t=\text{一定}\) 唯一の売りが消えていく</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>放射の量 Ω_r（右端が実際の値 9.2×10⁻⁵）<span class="val" id="vr">0</span>
+        <input type="range" id="sr" min="0" max="100" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">Ω_r = 0　アドレス空間は完全に一定　→　プランク期から今日までの増加倍率 = 1（体積でも 1）</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#14666b;"></i>共動ハッブル半径 r_H</span>
+      <span><i class="swatch" style="background:#b06a12;"></i>放射が支配し始める点</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>ΛCDM の増加倍率（比較）</span>
+    </div>
+  </div>
+
+  <p>ツマミが 0 のときだけ、線は完全に水平 ── アドレス空間が動きません。<em>ほんの少しでも放射を入れると、線は左側で折れ、水平な部分は右端に押し込まれます。</em> 実際の値では：</p>
+
+  <div class="tblwrap">
+    <table class="kk">
+      <thead><tr><th>　</th><th class="mid">\(c\cdot t=\)一定（放射なし）</th><th class="mid">放射込み（分岐B）</th><th class="mid">ΛCDM</th></tr></thead>
+      <tbody>
+        <tr><th>アドレス空間の増加（体積）</th><td class="mid"><strong>1</strong></td><td class="mid">\(1.2\times10^{89}\)</td><td class="mid">\(\sim10^{88}\)</td></tr>
+        <tr><th>因果的に切れたパッチ数</th><td class="mid"><strong>1</strong></td><td class="mid">\(1.2\times10^{4}\)</td><td class="mid">\(9.6\times10^{3}\)</td></tr>
+        <tr class="bad"><th>\(a\propto t\) が成立する範囲</th><td class="mid">全部</td><td class="mid"><strong>対数的宇宙史の 6.4%</strong></td><td class="mid">──</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>地平線問題が、ΛCDM とほぼ同じ深刻さで戻ってきます。</strong> 宇宙という計算機は、自分の放射を管理できない ── そして初期宇宙を支配するのは、まさにその放射です。アドレス空間を固定するという設計は、<em>いちばん必要な時期に効かない</em>。</p>
+
+  <h2><span class="n">05</span>メモリは、ほとんど空だった</h2>
+
+  <p>ここで一度、計算機としての宇宙を測り直します。</p>
+
+  <div class="tblwrap">
+    <table class="kk">
+      <thead><tr><th>　</th><th class="mid">エントロピー \(S/k_B\)</th><th class="mid">容量に対する割合</th></tr></thead>
+      <tbody>
+        <tr><th>地平面の容量（上限）</th><td class="mid">\(2.05\times10^{122}\)</td><td class="mid">1</td></tr>
+        <tr class="hi"><th>今日の総エントロピー</th><td class="mid">\(3.1\times10^{104}\)</td><td class="mid"><strong>\(1.5\times10^{-18}\)</strong></td></tr>
+        <tr><th>CMB 光子（初期の姿）</th><td class="mid">\(2.0\times10^{88}\)</td><td class="mid">\(1.0\times10^{-34}\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>今日の総エントロピーは超巨大ブラックホールが支配しています（イーガン＆ラインウィーバー 2010）。それでも<strong>メモリの \(10^{-18}\) しか埋まっていない。</strong></p>
+
+  <p>裏を返せば ── <em>宇宙は今も 99.9999999999999998% 共形平坦</em>。だから FLRW が効き、だからこのシリーズの道具が効くのです。</p>
+
+  <h2><span class="n">06</span>重力場そのものが、帳簿と物理に分かれていた</h2>
+
+  <p>ここが、今回いちばん深いところです。第7回で「4次元の計量10成分＝光円錐9＋物差し1」と数えました。その「9」の側には名前があります ── <strong>ワイルテンソル</strong> \(C_{\mu\nu\alpha\beta}\)。共形変換で<em>まったく動かない</em>量です。</p>
+
+  <div class="tblwrap">
+    <table class="kk">
+      <thead><tr><th class="mid">共形因子の側（1成分）</th><th class="mid">ワイルテンソルの側（9成分）</th></tr></thead>
+      <tbody>
+        <tr><td class="led">共形変換で<strong>動く</strong></td><td class="phy">共形変換で<strong>動かない</strong>（\(C\) は共形不変）</td></tr>
+        <tr><td class="led">ゲージ・帳簿（第4回：差引ゼロ）</td><td class="phy">物理</td></tr>
+        <tr><td class="led"><strong>ゴースト</strong>＝逆符号の運動項（第9回）</td><td class="phy">伝播する重力波の自由度</td></tr>
+        <tr><td class="led">重力エントロピーを<strong>持たない</strong></td><td class="phy"><strong>重力エントロピーそのもの</strong>（ペンローズ）</td></tr>
+        <tr><td class="led">膨張 \(a(t)\) を担う</td><td class="phy">構造・クランプ・ブラックホールを担う</td></tr>
+        <tr><td class="led">初期条件は何でもよい</td><td class="phy">初期に \(C=0\)（ワイル曲率仮説）</td></tr>
+        <tr class="hi"><td class="led"><strong>時間の矢を持たない</strong></td><td class="phy"><strong>★ 時間の矢はこちらにしかない</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>前シリーズの合言葉 ──「次元付きは帳簿、無次元だけが物理」── が、<em>重力場の内部構造としてそのまま実現している</em>。そして時間の矢は、物理の側にしかありません。</p>
+
+  <div class="aside">
+    <span class="tag">道具が壊れる度合いが、時間の矢</span>
+    ペンローズのワイル曲率仮説は「宇宙は \(C=0\) で始まった」と言います。\(C=0\) とはまさに、第3回でミンコフスキーへ変換できた条件（共形平坦）。<strong>このシリーズの道具は、重力エントロピーがゼロの場所で完璧に効き、それが増えた分だけ効かなくなる。</strong> 道具が壊れていく度合いそのものが、時間の矢です。そして 05節の \(10^{-18}\) は、いま道具がどれだけ壊れているかの数字でもあります。
+  </div>
+
+  <h2><span class="n">07</span>だから、縛る相手を間違えていた</h2>
+
+  <p>ようやく、なぜ予言が出なかったのかが言えます。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">この番外編の結論</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.9;">
+    \(c\cdot t=\text{一定}\) は \(a(t)\) への条件 ＝ <strong>共形因子への条件</strong> ＝ 帳簿への条件。<br>
+    帳簿を縛っても、予言は出ない。<br>
+    予言を持つには、<strong>ワイルテンソル側 ＝ 因果構造 ＝ 光シート</strong>を縛るしかない。</p>
+  </div>
+
+  <p>そして、その形の「有限リソース原理」は<em>すでに存在します</em>。</p>
+
+  <div class="keybox">
+    <div class="lbl">ブソーの共変エントロピー境界</div>
+    $$S\le \frac{A}{4\ell_P^2}\qquad(\text{光シート上})$$
+  </div>
+
+  <p>これは完全に共形不変です ── 光シート（ヌル面）は共形変換で動かず（第7回）、\(A/\ell_P^2\) は無次元（Weyl フレームでも \(A\to A/a^2\)、\(\ell_P^2\to\ell_P^2/a^2\) で不変）。<strong>ゲージに依らない「有限リソース」条件</strong>であり、だから予言を持てる形をしています。</p>
+
+  <p>動機は正しかった。宇宙を有限リソースの計算機として書くのは、まっとうな発想です。ただ ── <em>縛るべきだったのは \(a(t)\) ではなく、光シート上の情報量だった。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">04節の分岐Bの数値（パッチ数 \(1.2\times10^4\)、音響ピーク位置）は、\(H^2=H_0^2[\Omega_ra^{-4}+(1-\Omega_r)a^{-2}]\) という<strong>単純化した混成モデル</strong>での見積もりです。Boltzmann コードの計算ではありません。桁の議論として読んでください。<em>この記事を書く過程で、放射を落としたまま音響ピークを見積もって桁を間違えました</em> ── 落とした成分がいちばん効く、という今回の主題そのものを、書き手が踏んでいます。</p>
+    <p style="margin-bottom:0;">06節の表のうち「ゴースト＝重力エントロピーの逆さま」は、グロス＝ペリー＝ヤッフェのユークリッド・シュワルツシルト負モード（ブラックホールの負の比熱）と地続きですが、近年の研究では TT モードとトレースモードの混合により素朴な同一視は微妙とされています。<strong>「同じ符号を共有している」以上の主張はしていません。</strong> また重力エントロピーの定義そのもの（\(C\) をどう数えるか）は、いまも確立していません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>共動ハッブル半径が一定になる膨張則を求めよ。
+        <details><summary>答えを見る</summary><div class="ans">\(r_H=c/\dot a\) なので \(\dot a=\)一定、すなわち \(a\propto t\)。これが唯一の解です。\(a\propto t^p\) なら \(r_H\propto t^{1-p}\) で、止まるのは \(p=1\) のみ。</div></details>
+      </li>
+      <li>なぜ放射はディラトンに結合できないのか。
+        <details><summary>答えを見る</summary><div class="ans">結合が \(T^\mu{}_\mu\) に比例し、放射は共形不変なので \(T^\mu{}_\mu=0\) だから（第7回）。<strong>スケールを持たないものは、スケールを決める場と情報をやり取りできない。</strong></div></details>
+      </li>
+      <li>今日の宇宙は、地平面のメモリの何割を使っているか。
+        <details><summary>答えを見る</summary><div class="ans">\(3.1\times10^{104}/2.05\times10^{122}=1.5\times10^{-18}\)。ほぼ空です。逆に言えば宇宙はいまも極めて共形平坦で、だから FLRW もこのシリーズの道具も効きます。</div></details>
+      </li>
+      <li>（やや難）なぜ \(c\cdot t=\text{一定}\) は原理的に予言を持てないのか。第4回の数え上げを使って説明せよ。
+        <details><summary>答えを見る</summary><div class="ans">\(a(t)\) は共形因子が担う量で、第4回の数え上げ（場＋1、対称性−1、差引ゼロ）により<strong>ゲージ＝帳簿</strong>。帳簿への条件は観測量を一つも決めません。予言はワイルテンソル側（共形不変な因果構造）にしかなく、そこを縛るのがブソーの境界です。<em>ただしこの結論は「\(m/M_{\rm Pl}\propto a\) のような余分な物理仮説を足さない限り」という条件つき</em> ── 03節はまさにそれを足して、予言（と反証）を得ました。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>動機は的確、実装は的外れ</h2>
+    <p>情報理論で見ると \(c\cdot t=\text{一定}\) の正体ははっきりします ── <strong>共動ハッブル半径が一定になる唯一の膨張則</strong>。計算機のアドレス空間が増えも減りもしない。地平線問題（未交信の記憶が現れる）と情報損失（交信済みが失われる）の、ちょうど分水嶺です。今日の宇宙のスペックは、メモリ \(10^{122}\) ビット、演算 \(10^{121}\)、クロックはたった 140 回。しかも 1 ビットあたりのエネルギーはランダウアー限界ぴったり。</p>
+    <p>ところが「質量が \(\propto a\) で育つ」を物理として入れてモデルを組むと（\(\lambda,\beta\) は \(\Omega_m\) だけで決まり、しかもアトラクタ）、<strong>放射だけが救えません</strong> ── 放射は共形不変で、ディラトンと結合できないから（第7回）。\(z>103\) で放射が支配し、アドレス空間が動かないという唯一の売りは消え、地平線問題が ΛCDM 並みに戻ります。より深い理由は、重力場そのものが<em>共形因子（帳簿・ゴースト・時間の矢なし）とワイルテンソル（物理・重力エントロピー・時間の矢）</em>に分かれていること。\(c\cdot t=\text{一定}\) は帳簿の側を縛っていた。<strong>縛るべきだったのは、光シート上の情報量です。</strong></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">開いたままの扉</span>
+    ハッブル半径 \(R_H=c/H\) は、内部質量のシュワルツシルト半径 \(2GM/c^2\) と<strong>恒等的に等しい</strong>（任意の平坦 FLRW で成り立ちます）。つまり宇宙は、いつでもホログラフィック境界の<em>ちょうど上</em>にいる。ディラックの大数仮説 \(M/m_P\sim R/\ell_P\) も、実はこの恒等式を言い換えただけでした。では ── \(c\cdot t=\text{一定}\) を「\(S\le A/4\ell_P^2\) の飽和条件」として書き直せるのか。ここは、まだ誰も掘っていない場所です。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編②、物理好きの高校生・大学生向け読み物です。共動ハッブル半径 \(c/\dot a\) が一定となる膨張則が \(a\propto t\) に限られることは初等的な帰結です。地平面エントロピー \(S=k_BA/4\ell_P^2\)、マルゴラス＝レヴィティン限界 \(2E/\pi\hbar\)、宇宙の総演算数 \(\sim10^{120}\)（Lloyd 2002）は標準的です。\(E=T_HS\)（したがって1ビットあたりのエネルギーがランダウアー限界と一致すること）は任意の FLRW で成り立つ恒等式であり、\(c\cdot t=\text{一定}\) に固有ではありません。03節の結合クインテッセンスへの同定は普遍結合を仮定したもので、\(\lambda^2=4/(2-3\Omega_m)\)、\(\beta=\lambda/2\) は本稿で導出・数値検算した結果です（この解がアトラクタであることも数値的に確認）。ただし \(\beta=0.954\) は Cassini の \(|\beta|&lt;3.4\times10^{-3}\)、および結合暗黒物質に対する CMB の \(\beta\lesssim0.05\) を大きく超えます。04節の分岐Bの数値は \(H^2=H_0^2[\Omega_ra^{-4}+(1-\Omega_r)a^{-2}]\) による簡易見積もりで、Boltzmann コードの計算ではありません。エントロピー収支は Egan &amp; Lineweaver (2010, ApJ 710, 1825) の \(S_{\rm obs}=3.1\times10^{104}k\) によります。ワイル曲率仮説は Penrose による提案で、重力エントロピーの定義は未確立です。共形因子の負モードと Gross–Perry–Yaffe のユークリッド・シュワルツシルト負モードの関係は、TT モードとトレースモードの混合により素朴な同一視が成立しないことが近年指摘されています。共変エントロピー境界は Bousso (1999) によります。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで放射の量を変え、アドレス空間の一定性が壊れる様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sr=document.getElementById('sr'),
+      vr=document.getElementById('vr'), rd=document.getElementById('rd');
+  var OR_MAX=9.2e-5;                 // 実際の Omega_r（光子＋ニュートリノ）
+  var XMIN=-32, XMAX=0.5, YMIN=-31, YMAX=1.0;   // log10 スケール
+  var aP=1.92e-32;
+
+  function Or(v){ return v<=0 ? 0 : OR_MAX*Math.pow(10,(v-100)/100*6); } // 0 と 10^-6〜実値
+  function rH(a,or_){ var B=1-or_; return 1/Math.sqrt(or_/(a*a)+B); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function sup(n){ return String(n).replace('-','⁻').replace(/[0-9]/g,function(c){return '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c];}); }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var padL=62, padR=18, padT=22, padB=44;
+    var v=parseInt(sr.value,10); var or_=Or(v);
+    vr.textContent = (or_===0? '0' : or_.toExponential(1));
+    ctx.clearRect(0,0,W,H);
+
+    function X(x){ return padL+(x-XMIN)/(XMAX-XMIN)*(W-padL-padR); }
+    function Y(y){ return (H-padB)-(y-YMIN)/(YMAX-YMIN)*(H-padB-padT); }
+
+    // グリッド
+    ctx.strokeStyle='#e7f2f1'; ctx.lineWidth=1;
+    for(var gx=-30;gx<=0;gx+=10){ ctx.beginPath(); ctx.moveTo(X(gx),padT); ctx.lineTo(X(gx),H-padB); ctx.stroke(); }
+    for(var gy=-30;gy<=0;gy+=10){ ctx.beginPath(); ctx.moveTo(padL,Y(gy)); ctx.lineTo(W-padR,Y(gy)); ctx.stroke(); }
+    ctx.strokeStyle='#a4cbc8'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#6f8785'; ctx.textAlign='center';
+    for(var tx=-30;tx<=0;tx+=10){ ctx.fillText('10'+sup(tx), X(tx), H-padB+16); }
+    ctx.fillText('スケール因子 a  →', X((XMIN+XMAX)/2), H-padB+32);
+    ctx.textAlign='right';
+    for(var ty=-30;ty<=0;ty+=10){ ctx.fillText('10'+sup(ty), padL-6, Y(ty)+4); }
+    ctx.textAlign='left';
+    ctx.fillStyle='#5d716f'; ctx.fillText('r_H / (c/H₀)', padL-52, padT-6);
+
+    // ΛCDM 相当の増加（比較の水平帯）
+    ctx.strokeStyle='#e6cfc6'; ctx.setLineDash([5,4]); ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(X(XMIN),Y(0)); ctx.lineTo(X(XMAX),Y(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#b58a7a'; ctx.font='11px sans-serif';
+    ctx.fillText('今日の値', X(-8), Y(0)-7);
+
+    // r_H(a)
+    ctx.strokeStyle='#14666b'; ctx.lineWidth=2.8; ctx.beginPath();
+    for(var k=0;k<=400;k++){
+      var x=XMIN+(XMAX-XMIN)*k/400, a=Math.pow(10,x);
+      var y=Math.log(rH(a,or_))/Math.LN10;
+      if(y<YMIN) y=YMIN;
+      var px=X(x), py=Y(y);
+      if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    // 放射が支配し始める点
+    if(or_>0){
+      var at=Math.sqrt(or_/(1-or_)), xt=Math.log(at)/Math.LN10;
+      if(xt>XMIN){
+        ctx.strokeStyle='#b06a12'; ctx.setLineDash([4,3]); ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(X(xt),padT); ctx.lineTo(X(xt),H-padB); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle='#b06a12'; ctx.textAlign='center'; ctx.font='11px sans-serif';
+        ctx.fillText('放射が支配 z='+Math.round(1/at-1), X(xt), padT-6);
+        ctx.textAlign='left';
+      }
+    }
+
+    var g = rH(1.0,or_)/rH(aP,or_);
+    var msg;
+    if(or_===0){
+      msg='Ω_r = 0　アドレス空間は完全に一定　→　プランク期から今日までの増加倍率 = 1（体積でも 1）';
+    }else{
+      var at2=Math.sqrt(or_/(1-or_));
+      var frac=(-Math.log(at2))/(-Math.log(aP))*100;
+      msg='Ω_r = '+or_.toExponential(1)+'　増加倍率 = '+g.toExponential(2)
+        +'（体積 '+Math.pow(g,3).toExponential(2)+'）　a∝t は対数的宇宙史の '+frac.toFixed(1)+'% だけ';
+    }
+    rd.textContent=msg;
+  }
+
+  sr.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

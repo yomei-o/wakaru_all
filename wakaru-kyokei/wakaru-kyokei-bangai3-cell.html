@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1ティックに1セル ── わかる共形変換 番外編③</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f5fb; --paper-edge:#ded7ec;   /* 番外編③：紫紺の紙（格子） */
+    --side:#332259; --side-bg:#efeaf8;
+    --warn:#8a4b2f;
+    --calc:#2c1d55; --calc-bg:#eae4f5;
+    --rule:#d2c9e6; --hair:#b9acd6;
+    --acc:#3f2b6b;    /* 番外編③アクセント＝紫紺 */
+    --grid:#e2dbf0;
+    --light:#b06a12;  /* 光＝琥珀 */
+    --cell:#5b46a0;   /* セル＝藤 */
+    --warnc:#a83a22;  /* 警告＝赤茶 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ded3f2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#281c42;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cec3e6;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfcff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#eae4f5;color:#2c1d55;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#eae4f5;color:#2c1d55;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2eefa;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#ece6f8;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f1fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2a1f4a;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#efeaf8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eae4f5;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2a1f4a;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6a6280;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ③（本編級）／ いちばん原始的な言い方にたどり着く</span></div>
+  <p class="eyebrow">番外編②で「縛る相手を間違えていた」と結論した。では、正しく言い直すと何になるのか</p>
+  <h1>1ティックに、1セル
+    <span class="sub">\(c\cdot t=\text{一定}\) を計算機のいちばん原始的な言葉に翻訳すると、<br>驚くほど短い一文になります。そして<strong>なぜその一文なのか</strong>にも、答えが出ます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算、プランク単位、そして「加速度＝力」の直観</span>
+    <span>\(dR_H/dt=c\)</span>
+  </div>
+
+  <p class="lead">番外編②で、\(c\cdot t=\text{一定}\) は「共動ハッブル半径が一定になる唯一の膨張則」＝計算機のアドレス空間が動かない条件だと分かりました。今回はそれを<em>もっと原始的な言葉</em>に落とします。セルとティックだけの言葉に。すると一行になります ── <strong>地平面は、1プランク時間に1プランク長だけ進む。</strong> そして今回の本題は、その先です。<em>なぜ「1」なのか。</em> 答えは、一般相対論のいちばん基本的な不等式の、ちょうど等号のところにありました。</p>
+
+  <h2><span class="n">01</span>地平面は、1ティックに何セル進むか</h2>
+
+  <p>ハッブル半径 \(R_H=c/H\) の伸びる速さを計算します。\(a\propto t^p\) なら \(H=p/t\) なので \(R_H=ct/p\)、したがって</p>
+
+  $$\frac{dR_H}{dt}=\frac{c}{p}$$
+
+  <p>これをプランク単位（長さ \(\ell_P\)、時間 \(t_P\)、そして \(\ell_P/t_P=c\)）で測ると、<em>単位が全部消えて</em> ただの数になります。</p>
+
+  <div class="keybox">
+    <div class="lbl">地平面の進み方</div>
+    $$\frac{dR_H/\ell_P}{dt/t_P}=\frac{1}{p}\qquad[\text{セル／ティック}]$$
+  </div>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(p\)</th><th class="mid">セル／ティック</th><th>何が起きるか</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">1/2（放射）</td><td class="mid">2.000</td><td>地平面が光より速く進む → 未交信の領域が入ってくる</td></tr>
+        <tr><td class="mid">2/3（物質）</td><td class="mid">1.500</td><td>同上</td></tr>
+        <tr class="hi"><td class="mid"><strong>1（\(c\cdot t=\)一定）</strong></td><td class="mid"><strong>1.000</strong></td><td><strong>光とロックステップ。入りも出もしない</strong></td></tr>
+        <tr><td class="mid">2</td><td class="mid">0.500</td><td>光のほうが速い → 交信済みの領域が出ていく</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">この番外編の一行</div>
+    $$\frac{dR_H}{dt}=c\qquad\Longleftrightarrow\qquad a\propto t\qquad(\text{厳密に一意})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>地平面が、1プランク時間に1プランク長だけ進む。</strong>セルオートマトンのロックステップそのもの。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">モデルの名前が、そのままこれだった</span>
+    メリアがこのモデルに付けた名前は \(R_h=ct\) ── 「重力半径が \(ct\) に等しい」。両辺を \(t\) で微分すれば \(dR_h/dt=c\)。<strong>名前そのものが「1ティックに1セル」だった</strong>のです。ただ、その名前が計算機の言葉だとは、たぶん誰も言っていません。
+  </div>
+
+  <h2><span class="n">02</span>積分すると、セル数とティック数が一致する</h2>
+
+  <p>\(dR_H/dt=c\) を積分すれば \(R_H=ct\)。両辺をプランク単位で測ると ──</p>
+
+  <div class="calc">
+    <span class="tag">今日の値</span>
+    <p class="lbl">地平面のセル数</p>
+    $$\frac{R_H}{\ell_P}=\frac{1.306\times10^{26}\,\mathrm{m}}{1.616\times10^{-35}\,\mathrm{m}}=8.0776\times10^{60}$$
+    <p class="lbl">経過ティック数</p>
+    $$\frac{t_0}{t_P}=\frac{4.355\times10^{17}\,\mathrm{s}}{5.391\times10^{-44}\,\mathrm{s}}=8.0776\times10^{60}$$
+    <p class="lbl">比</p>
+    $$\frac{R_H/\ell_P}{t_0/t_P}=1.000000$$
+    <p style="margin-bottom:14px;"><strong>宇宙は \(8\times10^{60}\) ティック走り、その半径は \(8\times10^{60}\) セル。</strong>1ティックに1セル、ぴったり。</p>
+  </div>
+
+  <p>ところがメモリのほうは、そうはいきません。ビット数は面積、つまり半径の<em>2乗</em>に比例するからです。</p>
+
+  $$N=\frac{\pi(R_H/\ell_P)^2}{\ln2}=2.96\times10^{122}\ \text{bit},\qquad
+    \frac{dN}{d(\text{tick})}=7.3\times10^{61}\ \text{bit/tick}$$
+
+  <p>半径は1セル／ティックなのに、メモリは \(10^{61}\) ビット／ティックで増える。<strong>番外編②の「メモリ過多・クロック過少」の正体は、面積が半径の2乗だから</strong>でした。</p>
+
+  <div class="fig">
+    <div class="cap">図：横がティック、縦がセル。塗られた階段が「その時刻までに地平面が獲得したセル」。琥珀の線が光。ツマミを回すと階段の傾きが変わり、\(p=1\) でだけ光と一致する</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>膨張則の指数 p（a ∝ t^p）<span class="val" id="vp">1.00</span>
+        <input type="range" id="sp" min="0.40" max="2.50" step="0.01" value="1.00">
+      </label>
+    </div>
+    <div class="readout" id="rd">p = 1.00　地平面は 1.000 セル/ティック　── 光とロックステップ（c·t=一定）</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#5b46a0;"></i>地平面が獲得したセル</span>
+      <span><i class="swatch" style="background:#b06a12;"></i>光（45°）</span>
+      <span><i class="swatch" style="background:#3f2b6b;"></i>地平面の境界</span>
+    </div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>なぜ「1」なのか ── 強いエネルギー条件の、ちょうど等号</h2>
+
+  <p>ここが今回の本題です。「1」は要請ではなく、<em>もっと基本的な不等式の等号</em>として出てきます。</p>
+
+  <p>光線や観測者の束がどう集まっていくかを支配するのが<strong>レイチャウドゥリ方程式</strong>。共動観測者の合同（ずれも渦もない）では、膨張率 \(\theta=3H\) について</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 二行</span>
+    <p class="lbl">レイチャウドゥリ方程式</p>
+    $$\frac{d\theta}{d\tau}=-\frac{\theta^2}{3}-4\pi G(\rho+3p)$$
+    <p class="lbl">FLRW（\(\theta=3H\)）に入れると、見慣れた式になる</p>
+    $$\frac{\ddot a}{a}=-\frac{4\pi G}{3}(\rho+3p)$$
+    <p style="margin-bottom:14px;">右辺の \(\rho+3p\) は<strong>能動的重力質量</strong>。これが正なら引き寄せ（減速）、負なら押し広げ（加速）。</p>
+  </div>
+
+  <p>この \(\rho+3p\ge0\) という条件には名前があります ── <strong>強いエネルギー条件（SEC）</strong>。「ふつうの物質は、光線を集める向きに働く」という要請です。そして</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">「1」の正体</div>
+    $$\rho+3p=0\ \ \Longleftrightarrow\ \ w=-\frac13\ \ \Longleftrightarrow\ \ \ddot a=0\ \ \Longleftrightarrow\ \ a\propto t\ \ \Longleftrightarrow\ \ \frac{dR_H}{dt}=c$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>\(c\cdot t=\text{一定}\) は、強いエネルギー条件の <em>ちょうど飽和</em>。</strong>不等式の等号のところに乗っている。</p>
+  </div>
+
+  <p>飽和すると、レイチャウドゥリ方程式の第2項がまるごと消えます。</p>
+
+  $$\frac{d\theta}{d\tau}=-\frac{\theta^2}{3}\qquad\Longrightarrow\qquad \theta=\frac{3}{t}$$
+
+  <p><em>膨張が減っていくのは、自分自身のせいだけ。</em> 物質は光線の焦点化に<strong>一切寄与しません</strong>。メリア自身がこれを「能動的重力質量がゼロ」と呼んでいます。</p>
+
+  <h2><span class="n">04</span>だから配線は、空っぽの宇宙と同じ</h2>
+
+  <p>物質が焦点化に寄与しないなら、因果構造は物質がない場合と同じはずです。実際、そうなります。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>　</th><th class="mid">スケール因子</th><th class="mid">空間曲率</th><th class="mid">密度</th><th class="mid">膨張率 \(\theta\)</th></tr></thead>
+      <tbody>
+        <tr><th>ミルン宇宙（空っぽ）</th><td class="mid">\(a\propto t\)</td><td class="mid">\(k=-1\)</td><td class="mid">\(\rho=0\)</td><td class="mid">\(3/t\)</td></tr>
+        <tr class="hi"><th>\(R_h=ct\)（物質入り）</th><td class="mid">\(a\propto t\)</td><td class="mid">\(k=0\)</td><td class="mid">\(\rho\ne0\)</td><td class="mid"><strong>\(3/t\)</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>合同の膨張史 ── <em>光線がどう集まるか</em> ── が完全に一致します。違いは空間曲率だけ。そして今日の宇宙で「正味の重力効果がゼロ」になっている物質の量は</p>
+
+  $$M=\frac{c^2R_H}{2G}=8.8\times10^{52}\ \mathrm{kg}=4.4\times10^{22}\ M_\odot$$
+
+  <p><strong>太陽 \(4\times10^{22}\) 個ぶんの物質が、正味の重力効果ゼロ。</strong> 押しと引きが厳密に釣り合っている、ということです。</p>
+
+  <div class="aside">
+    <span class="tag">計算機としての読み方 ── メモリとアドレッシングの分離</span>
+    因果構造（＝どのセルがどのセルに届くか＝配線）が、中身（＝メモリに何が入っているか）に<strong>一切影響されない</strong>。これは計算機の設計として、非常にきれいな性質です。ふつうの宇宙では中身が重いほど配線が縮む（重力が光線を集める）。\(c\cdot t=\text{一定}\) では、それが起きない。<em>アドレス空間が動かない</em>（番外編②）の、より深い言い方です。
+  </div>
+
+  <div class="aside">
+    <span class="tag">番外編①のミトラ批判を、正確に位置づける</span>
+    ミトラ（2014）は「\(R_h=ct\) は真空の偽装だ」と主張しました。番外編①では「係争中」としましたが、いまなら正確に言えます ── <strong>時空が同一なのではなく、*焦点化が* 同一</strong>。空間曲率が違うので時空は別物ですが、光線の集まり方は空っぽの宇宙と区別がつかない。批判は行き過ぎですが、芯は当たっていました。
+  </div>
+
+  <h2><span class="n">05</span>特異点定理の、ちょうど境界</h2>
+
+  <p>強いエネルギー条件には、もうひとつ重い役割があります ── <strong>ホーキング＝ペンローズの特異点定理の仮定</strong>です。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(w\)</th><th class="mid">SEC</th><th>特異点定理</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">\(w&gt;-1/3\)</td><td class="mid">成立</td><td>定理が働く → 特異点は避けられない（放射・物質はここ）</td></tr>
+        <tr class="hi"><td class="mid"><strong>\(w=-1/3\)</strong></td><td class="mid"><strong>飽和</strong></td><td><strong>ちょうど境界に乗っている</strong></td></tr>
+        <tr><td class="mid">\(w&lt;-1/3\)</td><td class="mid">破れ</td><td>仮定が外れる（インフレーションはここ）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>第6回で「共形変換したら特異点が消えたように見えて、無次元比を作ったら対数的にぎりぎり残った」と書きました。<em>あれは偶然ではありません。</em> \(c\cdot t=\text{一定}\) は特異点定理の境界そのものに乗っているので、特異点は<strong>消えないが、いちばん弱い形でしか残らない</strong>。</p>
+
+  <p>実際、共動観測者の固有時は \(\tau=t\) なので \(t=0\) に有限時間で到達します ── 測地的不完全、つまり特異点はある。ただし発散はすべて対数的（第6回の \(\eta\to-\infty\)、番外編②の音響地平線）。<strong>最弱の特異点</strong>です。</p>
+
+  <h2><span class="n">06</span>ディラックの大数仮説は、ただの恒等式だった</h2>
+
+  <p>ついでに、有名な「偶然の一致」が一つ片付きます。平坦 FLRW では</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 三行</span>
+    $$M=\rho\cdot\frac{4\pi}{3}R_H^3,\qquad \rho=\frac{3H^2}{8\pi G},\qquad R_H=\frac{c}{H}$$
+    $$\Longrightarrow\quad M=\frac{c^2R_H}{2G}\quad\Longleftrightarrow\quad R_H=\frac{2GM}{c^2}$$
+    <p class="lbl">プランク単位で書くと</p>
+    $$\frac{M}{m_P}=\frac{R_H}{2\ell_P}$$
+    <p style="margin-bottom:14px;">これは<strong>どんな \(p\) でも成り立つ恒等式</strong>。ハッブル半径は、いつでも中身のシュワルツシルト半径にぴったり等しい。</p>
+  </div>
+
+  <p>ディラックが「大数の一致」と呼んだ \(M/m_P\sim R/\ell_P\) は ── <em>フリードマン方程式の言い換えにすぎませんでした。</em> 偶然ではなく、定義から出る関係です。検算：\(R/\ell_P=8.078\times10^{60}\)、\(M/m_P=4.039\times10^{60}\)、比はちょうど 1/2。</p>
+
+  <p>情報の言葉に直すと、もっと簡潔になります。</p>
+
+  <div class="keybox">
+    <div class="lbl">質量は、ビット数の平方根</div>
+    $$\frac{M}{m_P}=\frac12\sqrt{\frac{N\ln2}{\pi}}\qquad\Longrightarrow\qquad \frac{M}{m_P}\propto\sqrt{N}$$
+  </div>
+
+  <h2><span class="n">07</span>七つの言い方が、全部同じ一つのことだった</h2>
+
+  <p>ここまでシリーズで出てきた \(a\propto t\) の特徴づけを、全部並べます。</p>
+
+  <div class="seven">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>ポテンシャルが純粋な二次形式</strong><span>\(U=-\phi^2/2t_0^2\)。四人の中でここだけ（第5回）</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>共形時間が \((-\infty,\infty)\) 全体</strong><span>ミンコフスキーをまるごと覆う（第6回）</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>加速がゼロ</strong><span>\(\ddot a=0\)。地平線問題の分水嶺（第5回）</span></div></div>
+    <div class="row"><span class="mk">④</span><div class="txt"><strong>共動ハッブル半径が一定</strong><span>アドレス空間が動かない（番外編②）</span></div></div>
+    <div class="row"><span class="mk">⑤</span><div class="txt"><strong>粒子的地平線と事象の地平線が両方無限</strong><span>全メモリに読み・書き両方のアクセス</span></div></div>
+    <div class="row"><span class="mk">⑥</span><div class="txt"><strong>\(dR_H/dt=c\)、\(R_H/\ell_P=t/t_P\)</strong><span>1ティックに1セル。セル数＝ティック数（今回）</span></div></div>
+    <div class="row"><span class="mk">⑦</span><div class="txt"><strong>強いエネルギー条件の飽和</strong><span>\(\rho+3p=0\)。能動的重力質量ゼロ。特異点定理の境界（今回）</span></div></div>
+  </div>
+
+  <p>七つとも、\(a\propto t\) の言い換えです。第5回で「三重の境目」と書いたものが、七重になりました。<strong>これだけの性質が一点に集まるのは、それ自体が驚くべきこと</strong>です ── だからこの補助線は、これほど長く人を惹きつけてきたのだと思います。</p>
+
+  <h2><span class="n">08</span>それでも、死ぬ</h2>
+
+  <p>美しさと正しさは別だ、というのがこのシリーズの一貫した立場でした。最後にもう一度、判決を確認します。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>判定</th><th>内容</th><th class="mid">出典</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">✗</td><td>元素合成でヘリウムが \(10^{-3}\) しか作られない</td><td class="mid">番外編①</td></tr>
+        <tr><td class="mid">✗</td><td>放射が結合できないので \(z&gt;103\) で破綻。地平線問題が戻る</td><td class="mid">番外編②</td></tr>
+        <tr><td class="mid">✗</td><td>\(w_{\rm DE}=-0.476\)（観測 \(-1.03\pm0.03\) から18σ）、\(\beta=0.954\)（Cassini の280倍）</td><td class="mid">番外編②</td></tr>
+        <tr class="hi"><td class="mid">✗</td><td><strong>\(t&lt;4.4\) 秒でホログラフィック境界を破る</strong>（\(t=1\) 秒で19倍超過）</td><td class="mid">今回</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>最後の一つは今回の計算です。\(a\propto t\) では共動ハッブル体積が一定なので、その中の輻射エントロピーも一定。一方、地平面の容量は \(\propto t^2\) で増える。比は \(\propto1/t^2\) で、今日の \(10^{-34}\) から逆算すると \(t=4.4\) 秒で 1 に達します。<strong>それより前は、宇宙が自分の容量より多くの情報を持っていたことになる。</strong></p>
+
+  <p>ふつうの FRW でも初期にはハッブル体積版の境界は破れます（フィッシュラー＝サスキンド問題）。ただし<em>破れ方の速さが違う</em> ── \(a\propto t\) は \(t^{-2}\)、放射優勢は \(t^{-1/2}\)。有限リソース計算機を目指したモデルが、いちばん激しく資源超過を起こす。</p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">01節の「地平面が光より速く進む」（\(p&lt;1\) で \(dR_H/dt&gt;c\)）は、<strong>因果律違反ではありません</strong>。ハッブル半径は因果的な境界ではなく、単に \(c/H\) という長さです。ものが光より速く動いているわけではない。「セル／ティック」という言い方は計算機の比喩であって、時空が本当に格子だと主張しているのではありません。</p>
+    <p style="margin-bottom:0;">08節のホログラフィック境界の議論は<strong>ハッブル体積に対する素朴な形</strong>（フィッシュラー＝サスキンド型）です。ブソーの共変エントロピー境界は光シート上で定義され、この素朴な形の問題を回避するように作られています ── 番外編②で「縛るべきはこちら」と書いたのは、まさにこの理由です。したがって08節の最後の行は「素朴な形の境界を破る」であって、「ブソー境界を破る」ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>物質優勢（\(p=2/3\)）では地平面は1ティックに何セル進むか。それは何を意味するか。
+        <details><summary>答えを見る</summary><div class="ans">\(1/p=1.5\) セル／ティック。光より速く進むので、<strong>一度も交信できなかった領域が次々に視界へ入ってくる</strong> ── これが地平線問題の正体です（因果律違反ではありません）。</div></details>
+      </li>
+      <li>\(\rho+3p=0\) から \(\ddot a=0\) を導け。
+        <details><summary>答えを見る</summary><div class="ans">加速度方程式 \(\ddot a/a=-(4\pi G/3)(\rho+3p)\) の右辺がゼロになるから。これは強いエネルギー条件 \(\rho+3p\ge0\) の等号にあたり、\(w=-1/3\)、\(a\propto t\)、\(dR_H/dt=c\) と全部同値です。</div></details>
+      </li>
+      <li>ミルン宇宙と \(R_h=ct\) で、何が一致し何が違うか。
+        <details><summary>答えを見る</summary><div class="ans">一致するのは<strong>膨張率 \(\theta=3/t\)</strong>＝光線の焦点化＝因果構造。違うのは空間曲率（\(k=-1\) と \(k=0\)）と密度（\(\rho=0\) と \(\rho\ne0\)）。だから「真空の偽装」という批判は行き過ぎですが、焦点化が同じという点では芯を突いています。</div></details>
+      </li>
+      <li>（やや難）\(M/m_P=R_H/2\ell_P\) が恒等式であることを示し、ディラックの大数仮説について何が言えるか述べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(M=\rho(4\pi/3)R_H^3\) に \(\rho=3H^2/8\pi G\) と \(R_H=c/H\) を入れると \(M=c^2R_H/2G\)。プランク単位に直せば \(M/m_P=R_H/2\ell_P\) で、\(p\) に依りません。よって<strong>ディラックの大数の一致は偶然ではなく、フリードマン方程式そのもの</strong>。説明を要する謎ではありませんでした。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>不等式の、ちょうど等号に乗っていた</h2>
+    <p>\(c\cdot t=\text{一定}\) を計算機の言葉に落とすと一行になります ── <strong>\(dR_H/dt=c\)、地平面は1プランク時間に1プランク長だけ進む</strong>。積分すれば \(R_H/\ell_P=t/t_P=8.08\times10^{60}\)、セル数とティック数が厳密に一致。メリアが付けた \(R_h=ct\) という名前が、そのまま「1ティックに1セル」でした。</p>
+    <p>そして「なぜ1なのか」の答えは、レイチャウドゥリ方程式にあります。\(\ddot a/a=-(4\pi G/3)(\rho+3p)\) の右辺がゼロ ── <strong>強いエネルギー条件のちょうど飽和</strong>。物質は光線の焦点化に一切寄与せず、因果構造は空っぽの宇宙と同じ（メモリとアドレッシングの分離）。特異点定理の境界にも乗っているので、特異点は消えないが最弱の形でしか残らない。おまけにディラックの大数仮説は、ただの恒等式でした。七つの特徴づけが一点に集まる ── だからこの補助線は美しい。<em>それでも、元素合成・放射・観測・ホログラフィック境界の四つが、それぞれ独立に否と言います。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">シリーズを閉じます</span>
+    「わかる宇宙論」は「光は昔、もっと速かった」から始まりました。「わかる共形変換」はその補助線の正体を突き止め、番外編①②③はそれを額面・動機・原始的な言葉の三方向から裁きました。残るのは、開いたままの扉だけです ── 第9回の共形因子問題、第10回に並べた四つ、そして番外編②が指した先。<strong>宇宙を有限リソースの計算機として書くなら、縛るべきは \(a(t)\) ではなく光シート上の情報量。</strong> その計算は、まだ誰もやっていません。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編③、物理好きの高校生・大学生向け読み物です。\(a\propto t^p\) で \(dR_H/dt=c/p\) となること、\(dR_H/dt=c\) が \(a\propto t\) と同値であることは初等的な帰結です。レイチャウドゥリ方程式 \(d\theta/d\tau=-\theta^2/3-\sigma^2+\omega^2-R_{\mu\nu}u^\mu u^\nu\)、FLRW での加速度方程式 \(\ddot a/a=-(4\pi G/3)(\rho+3p)\)、強いエネルギー条件 \(\rho+3p\ge0\)、およびそれがホーキング＝ペンローズの特異点定理の仮定であることは、いずれも標準的です。\(\rho+3p=0\)（能動的重力質量ゼロ）を \(R_h=ct\) の特徴とすることは Melia の定式化によります。ミルン宇宙（\(k=-1\), 真空）と \(R_h=ct\)（\(k=0\), 物質入り）は膨張率 \(\theta=3/t\) を共有しますが時空としては別物であり、Mitra (2014) の「真空の偽装」という主張は係争中です。\(M/m_P=R_H/2\ell_P\) は平坦 FLRW における恒等式で、Dirac の大数仮説がこれと同型であることは本稿の指摘です（同様の指摘は文献にも見られます）。08節のホログラフィック境界はハッブル体積に対する素朴な形（Fischler–Susskind 型）で、Bousso の共変エントロピー境界とは別物です。「セル／ティック」は計算機の比喩であり、時空が離散格子であると主張するものではありません。\(p&lt;1\) で \(dR_H/dt&gt;c\) となることは因果律違反ではありません。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで膨張則の指数を変え、地平面の階段が光と一致する点が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sp=document.getElementById('sp'),
+      vp=document.getElementById('vp'), rd=document.getElementById('rd');
+  var NT=16;   // ティック数（格子の一辺）
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var p=parseFloat(sp.value); vp.textContent=p.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+    var padL=54, padR=16, padT=18, padB=42;
+    var side=Math.min(W-padL-padR, H-padT-padB);
+    var x0=padL, y1=H-padB, y0=y1-side, cell=side/NT;
+    function X(i){ return x0+i*cell; }
+    function Y(j){ return y1-j*cell; }
+
+    // 獲得したセル（階段）
+    ctx.fillStyle='#e6e0f4';
+    for(var i=0;i<NT;i++){
+      var top=Math.min(Math.floor((i+1)/p), NT);
+      if(top>0) ctx.fillRect(X(i), Y(top), cell, top*cell);
+    }
+    // 格子
+    ctx.strokeStyle='#e2dbf0'; ctx.lineWidth=1;
+    for(var g=0;g<=NT;g++){
+      ctx.beginPath(); ctx.moveTo(X(g),Y(0)); ctx.lineTo(X(g),Y(NT)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(0),Y(g)); ctx.lineTo(X(NT),Y(g)); ctx.stroke();
+    }
+    // 枠
+    ctx.strokeStyle='#b9acd6'; ctx.lineWidth=1.2;
+    ctx.strokeRect(X(0),Y(NT),side,side);
+
+    // 光（45度）
+    ctx.strokeStyle='#b06a12'; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(NT),Y(NT)); ctx.stroke();
+
+    // 地平面の境界
+    ctx.strokeStyle='#3f2b6b'; ctx.lineWidth=2.8; ctx.beginPath();
+    var yEnd=Math.min(NT/p,NT), xEnd=(NT/p>NT)? NT*p : NT;
+    ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(xEnd),Y(Math.min(xEnd/p,NT))); ctx.stroke();
+
+    // ラベル
+    ctx.font='12px sans-serif'; ctx.fillStyle='#6a6280'; ctx.textAlign='center';
+    ctx.fillText('ティック（プランク時間） →', X(NT/2), y1+26);
+    ctx.save(); ctx.translate(18,(y0+y1)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('セル（プランク長） →',0,0); ctx.restore();
+    ctx.textAlign='left';
+    ctx.fillStyle='#a08050'; ctx.font='11px sans-serif';
+    ctx.fillText('光', X(NT)-30, Y(NT)+16);
+
+    var rate=1/p, tail;
+    if(Math.abs(p-1)<0.005) tail='── 光とロックステップ（c·t=一定）';
+    else if(p<1) tail='── 地平面が光より速い：未交信の領域が入ってくる';
+    else tail='── 光のほうが速い：交信済みの領域が出ていく';
+    rd.textContent='p = '+p.toFixed(2)+'　地平面は '+rate.toFixed(3)+' セル/ティック　'+tail;
+  }
+
+  sp.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
