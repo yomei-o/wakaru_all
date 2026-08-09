@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum mechanics breaks conformal symmetry ── Conformal Transformations That Click, Episode 8</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6faf7; --paper-edge:#d6e6dc;   /* Ep.8 evergreen paper (running couplings) */
+    --side:#245a3c; --side-bg:#e8f2ec;
+    --warn:#8a4b2f;
+    --calc:#1a5537; --calc-bg:#e3efe8;
+    --rule:#c6dbcf; --hair:#aec8ba;
+    --acc:#1f6b45;    /* Ep.8 accent = evergreen */
+    --grid:#dbe9e1;
+    --run:#a83a22;    /* running line = rust */
+    --flat:#2166a0;   /* non-running line = blue */
+    --meas:#5a3f9c;   /* measured = violet */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe6d9 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1d3529;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c1d8cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e3efe8;color:#1a5537;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.mm{border-collapse:collapse;width:100%;min-width:500px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.mm th,table.mm td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:middle;}
+  table.mm thead th{background:#e3efe8;color:#1a5537;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.mm tbody th{background:#f0f7f3;font-weight:600;white-space:nowrap;}
+  table.mm td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.mm tr.hi td,table.mm tr.hi th{background:#f6ece4;}
+  table.mm tr.hi{outline:2px solid var(--run);outline-offset:-2px;}
+
+  .shake{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .shake .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .shake .row:last-child{border-bottom:none;}
+  .shake .mk{flex-shrink:0;width:26px;font-weight:700;font-size:15px;color:var(--acc);}
+  .shake .txt strong{display:block;margin-bottom:2px;}
+  .shake .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3f9f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c4632;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfffe,#e8f2ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3efe8;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c4632;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.shake{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6f66;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>CONFORMAL TRANSFORMATIONS THAT CLICK</span><span class="ep">EPISODE 8 ／ Where this series shakes hands with Episode 6 of the previous one</span></div>
+  <p class="eyebrow">"1/137 becoming 1/128" was the sound of conformal symmetry breaking</p>
+  <h1>Quantum mechanics<br>breaks conformal symmetry
+    <span class="sub">Episode 7 concluded: no mass, no problem. ── But that was the classical statement.<br>Quantise, and the symmetry dies even in a massless theory. And the way it dies should look familiar.</span>
+  </h1>
+  <div class="byline">
+    <span>What you need: logarithms, slopes, and your memory of Episode 6 of the previous series</span>
+    <span>\(T^\mu{}_\mu=\dfrac{\beta(g)}{2g}F_{\mu\nu}F^{\mu\nu}\)</span>
+  </div>
+
+  <p class="lead">For seven episodes we have treated the conformal transformation as "swapping the ruler". In Episode 7 we saw light pass straight through the swap. But — <em>quantum mechanics will not let you swap the ruler.</em> Merely defining a field theory smuggles in a standard of resolution. As a result a theory that was perfectly conformally invariant classically loses the symmetry the moment it is quantised. This is called the <strong>trace anomaly</strong> (or conformal anomaly). And the most important line of this episode is: <em>that breaking is exactly the running of \(\alpha\) we watched over and over in the previous series.</em></p>
+
+  <h2><span class="n">01</span>Quantum theory always imports a "resolution"</h2>
+
+  <p>Consider a massless theory. In Episode 7's language, a theory carrying no standard of length. Yet the moment you try to compute anything in it, you run into trouble — <strong>summing all the way down to infinitely fine detail makes the answer diverge</strong>.</p>
+
+  <p>So in field theory you first decide "how finely will I look?". That standard is written \(\mu\) (the renormalisation scale). In the language of Episode 6 of the previous series, it is the "resolution knob".</p>
+
+  <p>Something fatal has just happened.</p>
+
+  <div class="keybox">
+    <div class="lbl">The price of quantisation</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    A massless theory had no standard of length.<br>
+    But to define the theory, <strong>a standard \(\mu\) must be imported.</strong><br>
+    → Conformal symmetry is lost at the moment of quantisation.</p>
+  </div>
+
+  <p>We handed a ruler to a theory that had none. In Episode 7 we wrote that light passes through a conformal transformation because it has no ruler; quantum theory <em>forces a ruler on light as well</em>.</p>
+
+  <h2><span class="n">02</span>The size of the breaking is measured by the β function</h2>
+
+  <p>Once \(\mu\) has been imported, coupling constants depend on the \(\mu\) at which they are measured. The strength of that dependence is the β function.</p>
+
+  $$\beta(g)\equiv\frac{dg}{d\ln\mu}$$
+
+  <p>And the breaking of conformal symmetry is expressed by exactly that \(\beta\). The quantity \(T^\mu{}_\mu\), used in Episodes 5 and 7 as the indicator of whether conformal symmetry is broken, was zero classically — but quantum mechanically:</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">The trace anomaly</div>
+    $$T^\mu{}_\mu=\frac{\beta(g)}{2g}\,F_{\mu\nu}F^{\mu\nu}\qquad(\text{massless gauge theory})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>If the coupling runs (\(\beta\ne0\)), conformal symmetry is broken. If it does not run (\(\beta=0\)), it is not.</strong></p>
+  </div>
+
+  <p>This equation says that two things which look entirely unrelated are <em>one and the same</em>.</p>
+
+  <div class="tblwrap">
+    <table class="mm">
+      <thead><tr><th>How a particle physicist says it</th><th>How a conformal transformation says it</th></tr></thead>
+      <tbody>
+        <tr><td>The coupling runs (\(\beta\ne0\))</td><td>Conformal symmetry is broken quantum mechanically</td></tr>
+        <tr><td>The coupling does not run (\(\beta=0\))</td><td>Conformal symmetry is restored (a conformal field theory)</td></tr>
+        <tr class="hi"><td><strong>\(\alpha\) goes from 1/137 to 1/128</strong></td><td><strong>The size of the breaking is being measured in the laboratory</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>Episode 6 of the previous series comes back here</h2>
+
+  <p>The title of that episode's first half was "1/137 was a number that moves". Look more finely and \(\alpha\) grows, reaching about 1/128 at energies of order the Z boson mass — an established experimental fact.</p>
+
+  <p>In one-loop QED the running can be written like this.</p>
+
+  <div class="calc">
+    <span class="tag">Calculation — extracting the slope of the running</span>
+    <p class="lbl">① One-loop running (for \(N\) species of charged particle)</p>
+    $$\frac{d\alpha}{d\ln\mu}=\frac{2N}{3\pi}\alpha^2
+      \qquad\Longleftrightarrow\qquad
+      \frac{d(1/\alpha)}{d\ln\mu}=-\frac{2N}{3\pi}$$
+    <p style="margin-top:10px;">Written for the reciprocal it is <strong>simply a straight line</strong>, of slope \(-2N/3\pi=-0.212\,N\).</p>
+    <p class="lbl">② From the electron mass to the Z boson mass</p>
+    $$\ln\frac{M_Z}{m_e}=\ln\frac{91.19\ \mathrm{GeV}}{0.511\ \mathrm{MeV}}=12.09$$
+    <p class="lbl">③ With the electron alone (\(N=1\))</p>
+    $$\frac{1}{\alpha(M_Z)}=137.036-0.212\times12.09=134.5$$
+    <p style="margin-bottom:14px;">The measured value is 127.95, so this is not enough — the other charged particles (muon, tau, quarks…) each join the running once their own mass is passed. Effectively \(N\simeq3.5\). <strong>The slope of the running is counting what charged particles the universe contains.</strong></p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">Figure: the running of \(1/\alpha\). At \(N=0\) (\(\beta=0\)) the line is <strong>horizontal</strong> — that is conformal invariance. Raise \(N\) and it tilts, and that tilt is the trace anomaly</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Number of charged particles taking part in the running, N (effective)<span class="val" id="vn">1.0</span>
+        <input type="range" id="sn" min="0" max="8" step="0.1" value="1">
+      </label>
+    </div>
+    <div class="readout" id="rd">N = 1.0　β ≠ 0 → conformal symmetry is broken　1/α(M_Z) = 134.47 (measured 127.95)</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22;"></i>Running 1/α (one loop)</span>
+      <span><i class="swatch" style="background:#2166a0;"></i>The case β = 0 (conformally invariant)</span>
+      <span><i class="swatch" style="background:#5a3f9c;"></i>Measured 1/α(M_Z) = 127.95</span>
+    </div>
+  </div>
+
+  <p>Set the knob to 0 and the line goes perfectly flat. <em>That is what a conformally invariant world looks like</em> — \(\alpha\) is the same at every resolution, so the marks on the ruler have no influence on physics. Our universe is not like that. The line is tilted. <strong>That tilt is the size of the breaking of conformal symmetry.</strong></p>
+
+  <div class="aside">
+    <span class="tag">Collecting bonus episode 6 of the previous series</span>
+    There was an episode asking <em>which kind of motion</em> "1/137 becoming 1/128" is. The answer was "the energy axis, not the time axis". Restated in the language of conformal transformations it is sharper still — <strong>motion in time is a choice of gauge (Episode 4); running in energy is an anomaly (this episode)</strong>. The former is bookkeeping, the latter is physics. The two axes the previous series separated as "with freedom / without freedom" were exactly these two.
+  </div>
+
+  <h2><span class="n">04</span>The price of the breaking is 99% of your body weight</h2>
+
+  <p>"A symmetry was broken" sounds like a loss, but this breaking does <strong>an extraordinary amount of work</strong>.</p>
+
+  <p>A massless theory has no standard of length. But once a coupling runs, a standard is born in the form of <em>"the resolution at which the coupling takes some particular value"</em>. A scale wells up out of nothing — this is called <strong>dimensional transmutation</strong>. For the strong interaction that standard is an energy of a few hundred MeV, written \(\Lambda_{\rm QCD}\).</p>
+
+  <p>Now the point. Let us estimate the proton's mass from the masses of the quarks inside it.</p>
+
+  <div class="calc">
+    <span class="tag">Check — where does the proton's mass come from?</span>
+    <p class="lbl">A proton is three quarks: u, u, d</p>
+    $$2m_u+m_d=2(2.16)+4.67=8.99\ \mathrm{MeV}$$
+    <p class="lbl">Compared with the proton mass</p>
+    $$\frac{8.99\ \mathrm{MeV}}{938.27\ \mathrm{MeV}}=0.96\%$$
+    <p style="margin-bottom:14px;">The quark masses (which come from the Higgs) are <strong>only 1%</strong> of the proton's weight. The remaining 99% comes from the scale \(\Lambda_{\rm QCD}\) — <em>a scale created by the quantum breaking of conformal symmetry</em>.</p>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">What this episode most wants to say</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    About <strong>99%</strong> of your body weight comes not from the Higgs<br>
+    but from <strong>conformal symmetry breaking quantum mechanically</strong>.</p>
+  </div>
+
+  <p>A massless theory manufactured mass. This is not a by-product of symmetry breaking — it is <em>the very reason there is such a thing as size in our world</em>. Episode 7 said that mass imports a scale; the thing that first made that scale was broken conformal symmetry.</p>
+
+  <h2><span class="n">05</span>Is there anywhere the breaking stops?</h2>
+
+  <p>If \(\beta(g)=0\), conformal invariance is restored at the quantum level. Such a point is called a <strong>fixed point</strong>, and the theory realised there is a <strong>conformal field theory (CFT)</strong>.</p>
+
+  <div class="shake">
+    <div class="row"><span class="mk">①</span><div class="txt"><strong>The trivial fixed point \(g=0\)</strong><span>With zero coupling there is nothing to run. But it is a dull theory with no interactions.</span></div></div>
+    <div class="row"><span class="mk">②</span><div class="txt"><strong>Non-trivial fixed points</strong><span>Special values at which \(\beta\) vanishes even though interactions are present. Strongly interacting yet conformally invariant — the physics of critical points at phase transitions, and \(\mathcal{N}=4\) supersymmetric Yang–Mills, belong here.</span></div></div>
+    <div class="row"><span class="mk">③</span><div class="txt"><strong>The specialness of two dimensions</strong><span>As we saw in an exercise in Episode 4, the conformal coupling \(\xi=(D-2)/4(D-1)=0\) in two dimensions. On top of that, conformal symmetry becomes infinite dimensional and the theory becomes exactly solvable. That string theory and critical phenomena in statistical physics are settled by two-dimensional CFT is a consequence of this.</span></div></div>
+  </div>
+
+  <p>Our world (the four-dimensional Standard Model) sits, unfortunately, at no fixed point. So \(\alpha\) goes on running.</p>
+
+  <h2><span class="n">06</span>Even without interactions, curved spacetime breaks it</h2>
+
+  <p>There is worse news. Switch off every interaction, keep only free massless fields, and <strong>conformal symmetry still breaks if spacetime is curved</strong>.</p>
+
+  $$T^\mu{}_\mu=\frac{1}{16\pi^2}\Big(c\,C_{\mu\nu\alpha\beta}C^{\mu\nu\alpha\beta}-a\,E_4\Big)$$
+
+  <p>The right-hand side is built from curvature squared. \(a\) and \(c\) are pure numbers fixed by the kinds of field present (scalar, fermion, vector). <em>The curvature of spacetime counts how many fields there are.</em> This matters in practice — in calculations of Hawking radiation and of fluctuations during inflation.</p>
+
+  <p>So the breaking of conformal symmetry cannot be avoided. Cut the interactions and it still leaks, as long as curvature remains.</p>
+
+  <h2><span class="n">07</span>So Episodes 4 and 5 were about classical physics</h2>
+
+  <p>We must now annotate the earlier episodes.</p>
+
+  <p>In Episode 4 we counted "one field added, one symmetry added, net zero". In Episode 5 we wrote "this is a rewriting, not physics". <strong>Both were classical statements.</strong></p>
+
+  <p>Quantum mechanically, a conformal transformation is <em>no longer a mere rewriting</em>. Swapping frames generates anomaly terms and the calculations in the two frames stop agreeing exactly. The question "which frame is physical?", meaningless classically, can acquire meaning quantum mechanically — and that dispute is still unsettled, as we shall see in the finale (Episode 10).</p>
+
+  <div class="caveat">
+    <span class="tag">Being straight with you</span>
+    <p style="margin-top:0;">The straight line in the figure is <strong>a one-loop estimate that ignores thresholds</strong>. The actual value \(1/\alpha(M_Z)=127.952\) is obtained by summing the effect of each particle joining the running once its own mass is passed (thresholds), together with the hadronic contribution from the strong interaction, and cannot be represented by a single \(N\). The \(N\) in the figure is an <em>effective</em> value — "the slope that would pass through the measured point" — not the actual number of particles.</p>
+    <p style="margin-bottom:0;">Also, the value of \(\Lambda_{\rm QCD}\) depends on scheme and order and is not a unique number beyond "a few hundred MeV". The conclusion that 99% of the proton's mass comes from something other than quark masses is established by lattice QCD, but saying it "came out of a single number \(\Lambda_{\rm QCD}\)" is a simplification.</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises (solvable with this episode's equations alone)</div>
+    <ol>
+      <li>What is \(T^\mu{}_\mu\) in a theory with \(\beta(g)=0\)? What does that mean?
+        <details><summary>Show answer</summary><div class="ans">\(T^\mu{}_\mu=(\beta/2g)F^2=0\). Conformal symmetry holds <strong>even at the quantum level</strong> — a conformal field theory. The coupling does not run, so it is "the same theory at every resolution".</div></details>
+      </li>
+      <li>What is \(1/\alpha(M_Z)\) for \(N=2\)? Use \(\ln(M_Z/m_e)=12.09\) and slope \(-0.212N\).
+        <details><summary>Show answer</summary><div class="ans">\(137.036-0.212\times2\times12.09=137.036-5.13=131.9\). Still short of the measured 127.95; agreement needs the equivalent of \(N\simeq3.5\).</div></details>
+      </li>
+      <li>Of the proton's 938 MeV, what percentage comes from the Higgs (the quark masses)?
+        <details><summary>Show answer</summary><div class="ans">\((2\times2.16+4.67)/938.27=8.99/938.27\approx0.96\%\) — <strong>about 1%</strong>. The remaining 99% comes from the scale created by the quantum breaking of conformal symmetry.</div></details>
+      </li>
+      <li>(Harder) Episode 5 said "only radiation leaves conformal symmetry alone". How does this episode amend that?
+        <details><summary>Show answer</summary><div class="ans">Episode 5's statement was <strong>classical</strong>. Quantum mechanically, even massless radiation (a system of light and charged particles) has \(T^\mu{}_\mu\ne0\) whenever \(\beta\ne0\). Furthermore, if spacetime is curved, a term proportional to curvature squared survives even without interactions. <em>Only a theory sitting at a fixed point is strictly conformally invariant</em>, and our universe is not there.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">SUMMARY</span>Running and breaking were the same thing</h2>
+    <p>Quantising requires importing a standard of resolution \(\mu\), and conformal symmetry dies at that instant. The size of the breaking is measured exactly by the β function: \(T^\mu{}_\mu=(\beta/2g)F_{\mu\nu}F^{\mu\nu}\). So <strong>"the coupling runs" and "conformal symmetry is broken" are two ways of saying one fact</strong>. The \(1/137\to1/128\) of Episode 6 of the previous series was, all along, a measurement of how badly it is broken.</p>
+    <p>And the breaking is no loss. The running <em>creates a scale out of nothing</em> (dimensional transmutation), and that \(\Lambda_{\rm QCD}\) supplies 99% of the proton's mass — <strong>most of your body weight exists thanks to conformal symmetry being broken</strong>. The breaking stops only at a fixed point \(\beta=0\) (a conformal field theory), and the Standard Model is not at one. On top of that, cut the interactions and it still leaks in the form of curvature squared whenever spacetime is curved. So Episodes 4 and 5's "a rewriting, hence safe" was, all along, <em>a statement about classical physics</em>.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">NEXT — EPISODE 9</span>
+    Something else breaks when you quantise. That <strong>wrong-signed kinetic term</strong> we found in Episode 4 and collected in Episode 5 — the conformal factor is a ghost. Classically it was harmless because \(\phi\) is pure gauge, but a quantum path integral does not permit "it is gauge, so do not look". In 1978 Gibbons, Hawking and Perry pointed out that because of this sign the gravitational action is <em>unbounded below</em>. The conformal factor problem — the oldest sore spot in quantum gravity — head on.
+  </div>
+
+  <div class="foot">
+    This document is Episode 8 of the series "Conformal Transformations That Click", written for physics-minded high-school and university students. That the trace (conformal, Weyl) anomaly is proportional to the β function, \(T^\mu{}_\mu=(\beta(g)/2g)F_{\mu\nu}F^{\mu\nu}\) for a massless gauge theory, and that conformal invariance is restored at a fixed point \(\beta(g^*)=0\), are standard results. The one-loop QED running \(d\alpha/d\ln\mu=(2N/3\pi)\alpha^2\), \(\alpha^{-1}(m_e)=137.035999\) and \(\alpha^{-1}(M_Z)=127.952\) (\(\overline{\rm MS}\)) are likewise standard. The straight line in the text and figure is a <strong>one-loop estimate that ignores thresholds</strong>, and \(N\) is an effective value chosen to pass through the measured point, not a particle count. In the curved-space conformal anomaly \(T^\mu{}_\mu=(16\pi^2)^{-1}(cC^2-aE_4)\), \(a\) and \(c\) are constants fixed by the field content. The fraction of the proton mass carried by current quark masses (about 1%) is estimated with the PDG values \(m_u=2.16\) MeV and \(m_d=4.67\) MeV (\(\overline{\rm MS}\), 2 GeV); that the remainder originates in QCD dynamics is established by lattice QCD, though the numerical value of \(\Lambda_{\rm QCD}\) is scheme and order dependent. The quantum non-equivalence (frame dependence) of conformal transformations is treated in Episode 10. — To print, use your browser's Print → Save as PDF (in the print version the slider is frozen and answers are hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen the slider changes the slope of the running and shows the line going flat — conformally invariant — at β = 0. "Show answer" opens the solutions.</p>
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sn=document.getElementById('sn'),
+      vn=document.getElementById('vn'), rd=document.getElementById('rd');
+
+  var INV0=137.035999;              // 1/alpha(m_e)
+  var X0=Math.log10(0.510998950e-3);// log10(m_e / GeV) = -3.2916
+  var XZ=Math.log10(91.1876);       // log10(M_Z / GeV) =  1.9600
+  var MEAS=127.952;                 // measured 1/alpha(M_Z)
+  var C=2/(3*Math.PI)*Math.LN10;    // slope coefficient 0.48862
+  var XMIN=-3.5, XMAX=16, YMIN=55, YMAX=145;
+
+  function invA(x,N){ return INV0 - N*C*(x-X0); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var padL=56, padR=18, padT=20, padB=44;
+    var N=parseFloat(sn.value); vn.textContent=N.toFixed(1);
+    ctx.clearRect(0,0,W,H);
+
+    function X(x){ return padL+(x-XMIN)/(XMAX-XMIN)*(W-padL-padR); }
+    function Y(y){ return (H-padB)-(y-YMIN)/(YMAX-YMIN)*(H-padB-padT); }
+
+    // grid
+    ctx.strokeStyle='#e9f2ec'; ctx.lineWidth=1;
+    for(var gy=60;gy<=140;gy+=20){ ctx.beginPath(); ctx.moveTo(padL,Y(gy)); ctx.lineTo(W-padR,Y(gy)); ctx.stroke(); }
+    for(var gx=0;gx<=15;gx+=5){ ctx.beginPath(); ctx.moveTo(X(gx),padT); ctx.lineTo(X(gx),H-padB); ctx.stroke(); }
+
+    // axes
+    ctx.strokeStyle='#aec8ba'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+    ctx.font='11px sans-serif'; ctx.fillStyle='#7f9188';
+    ctx.textAlign='right';
+    for(var ty=60;ty<=140;ty+=20){ ctx.fillText(String(ty), padL-6, Y(ty)+4); }
+    ctx.textAlign='center';
+    var TICKS=[{x:X0,l:'mₑ'},{x:XZ,l:'M_Z'},{x:5,l:'10⁵'},{x:10,l:'10¹⁰'},{x:15,l:'10¹⁵ GeV'}];
+    for(var i=0;i<TICKS.length;i++){ ctx.fillText(TICKS[i].l, X(TICKS[i].x), H-padB+16); }
+    ctx.fillText('resolution you look at (energy) →', X((XMIN+XMAX)/2), H-padB+34);
+    ctx.textAlign='left';
+    ctx.fillStyle='#5f6f66'; ctx.fillText('1/α', padL-44, padT+4);
+
+    // horizontal line for beta=0 (conformally invariant)
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=1.8; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(X(XMIN),Y(INV0)); ctx.lineTo(X(XMAX),Y(INV0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2166a0'; ctx.font='11px sans-serif';
+    ctx.fillText('if β = 0 it stays flat right here (conformally invariant)', X(-3.2), Y(INV0)-8);
+
+    // the running line
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=2.8; ctx.beginPath();
+    var started=false;
+    for(var k=0;k<=200;k++){
+      var x=XMIN+(XMAX-XMIN)*k/200, y=invA(x,N);
+      if(y<YMIN||y>YMAX){ started=false; continue; }
+      var px=X(x), py=Y(y);
+      if(!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+
+    // vertical line at M_Z and the measured point
+    ctx.strokeStyle='#cbbde6'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(X(XZ),padT); ctx.lineTo(X(XZ),H-padB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#5a3f9c'; ctx.beginPath(); ctx.arc(X(XZ),Y(MEAS),6,0,7); ctx.fill();
+    ctx.fillStyle='#5a3f9c'; ctx.font='11px sans-serif';
+    ctx.fillText('measured 127.95', X(XZ)+10, Y(MEAS)+16);
+
+    // starting point
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(X(X0),Y(INV0),5,0,7); ctx.fill();
+    ctx.fillText('137.04', X(X0)+8, Y(INV0)+18);
+
+    var vZ=invA(XZ,N);
+    var head = (N<0.05) ? 'N = 0.0　β = 0 → conformally invariant (the line is flat; α does not move)'
+                        : 'N = '+N.toFixed(1)+'　β ≠ 0 → conformal symmetry is broken';
+    var tail = (N<0.05) ? '　1/α is 137.04 at every resolution'
+                        : '　1/α(M_Z) = '+vZ.toFixed(2)+' (measured 127.95'
+                          +(Math.abs(vZ-MEAS)<0.25?' — essentially agrees':'')+'）';
+    rd.textContent = head + tail;
+  }
+
+  sn.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

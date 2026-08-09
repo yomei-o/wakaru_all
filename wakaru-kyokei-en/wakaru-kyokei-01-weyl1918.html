@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You may change the ruler point by point ── Conformal Transformations That Click, Episode 1</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf9f2; --paper-edge:#e2e0cd;   /* Ep.1 moss paper (Germany, 1918) */
+    --side:#4e4d28; --side-bg:#f0efe2;
+    --warn:#8a4b2f;
+    --calc:#5a5822; --calc-bg:#eeecdb;
+    --rule:#dcd9c2; --hair:#c6c2a5;
+    --acc:#6b6a3a;    /* Ep.1 accent = moss */
+    --grid:#e6e3d0;
+    --p1:#2166a0;     /* route 1 = blue */
+    --p2:#a83a22;     /* route 2 = rust */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e3e0be 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#2e2d16;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d6d2b4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffef9;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#eeecdb;color:#5a5822;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffefa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.hy{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.hy th,table.hy td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.hy thead th{background:#eeecdb;color:#5a5822;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.hy tbody th{background:#f5f3e6;font-weight:600;white-space:nowrap;}
+  table.hy tr.hi td,table.hy tr.hi th{background:#eef3ea;}
+
+  .story{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .story .row{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .story .row:last-child{border-bottom:none;}
+  .story .mk{flex-shrink:0;width:52px;font-weight:700;font-size:13px;color:var(--acc);letter-spacing:.02em;}
+  .story .txt strong{display:block;margin-bottom:2px;}
+  .story .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f7f6ea;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#454422;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffefa,#f0efe2);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#eeecdb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#454422;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.story{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6b6a55;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>CONFORMAL TRANSFORMATIONS THAT CLICK</span><span class="ep">EPISODE 1 ／ The series begins in Berlin, 1918</span></div>
+  <p class="eyebrow">The word "gauge" originally meant the calibration marks on a ruler</p>
+  <h1>You may change the ruler<br>point by point
+    <span class="sub">The tool this series will use to death — the conformal transformation — was born from a unified theory that <strong>failed</strong> a hundred years ago.<br>Einstein killed it. What survived the killing is what we hold in our hands today.</span>
+  </h1>
+  <div class="byline">
+    <span>What you need: multiplication, and following a path. Exactly one equation</span>
+    <span>\(\tilde g_{\mu\nu}=\Omega(x)^2\,g_{\mu\nu}\)</span>
+  </div>
+
+  <p class="lead">The previous series, "Cosmology That Clicks", ran from beginning to end on a single motto — <em>quantities with units are bookkeeping; only dimensionless ones are physics.</em> You may change the speed of light, you may stretch space, and as long as the ratios hold, nothing observable moves. That was correct, but <strong>why</strong> it is correct was never explained. The reason has a name: the conformal, or Weyl, transformation. And that name comes from a unified theory that did not work.</p>
+
+  <h2><span class="n">01</span>1918: the asymmetry Weyl noticed</h2>
+
+  <p>General relativity was a few years old. Hermann Weyl thought it contained <em>exactly one unfair feature</em>.</p>
+
+  <p>In curved spacetime you cannot compare "direction" at two distant points. You have to parallel-transport an arrow there, and <strong>the answer depends on which route you took</strong> (try it on a globe). That path dependence is what curvature is.</p>
+
+  <p>But what about "length"? In general relativity, lengths at any two points, however far apart, are comparable without qualification. <em>Direction is path dependent, yet length alone is absolute.</em> Weyl found that unnatural.</p>
+
+  <div class="keybox">
+    <div class="lbl">Weyl's proposal (1918)</div>
+    <p style="margin:0 0 10px;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15px;line-height:1.85;">
+    Let the standard of length also be chosen freely at each point.</p>
+    $$g_{\mu\nu}(x)\;\longrightarrow\;\Omega(x)^2\,g_{\mu\nu}(x)$$
+  </div>
+
+  <p>Weyl called this re-choosing of the standard <strong>Eichung</strong> in German — calibrating a measuring instrument, cutting the marks into a ruler. When the word was carried into English it became <strong>gauge</strong>. <em>Yes: that gauge.</em></p>
+
+  <div class="aside">
+    <span class="tag">Etymology</span>
+    "Gauge theory", "gauge symmetry", "gauge field" — words at the very centre of particle physics, whose original meaning was <strong>the marks on a ruler</strong>. Today they are used almost exclusively for the phase in quantum mechanics, so the etymology is nearly forgotten. But the conformal transformation this series is about is one of the rare places where "gauge" still carries <em>the meaning it had when it was coined</em>.
+  </div>
+
+  <p>And from here Weyl went further in one stride. If the ruler differs from point to point, then comparing lengths at separated points requires a <strong>compensating field</strong> — exactly as transporting a direction requires a connection. Writing that field as a vector \(\phi_\mu\), a re-choice \(\Omega=e^{\lambda}\) must be accompanied by \(\phi_\mu\to\phi_\mu-\partial_\mu\lambda\).</p>
+
+  <p>Weyl recognised that transformation rule. <em>It is precisely the form the electromagnetic potential obeys.</em> So he concluded: <strong>the electromagnetic field is the connection that carries the standard of length.</strong> It was the first unified theory of gravity and electromagnetism.</p>
+
+  <h2><span class="n">02</span>Einstein's objection: atoms would fall apart</h2>
+
+  <p>Weyl's paper was published <strong>with Einstein's objection attached to it as a note</strong>. The objection rests on a single observation.</p>
+
+  <div class="calc">
+    <span class="tag">What Einstein pointed out</span>
+    <p style="margin-top:8px;">If the ruler differs from place to place, and carrying the difference requires a path, then — <strong>joining the same two points by two different routes gives different answers</strong>.</p>
+    <p class="lbl">Concretely</p>
+    <p style="margin-top:8px;">Take two identical atomic clocks, send them along different routes, and bring them back together. The periods they tick will <em>no longer agree</em>. A clock's rate would depend on the history it has travelled — this is called the <strong>second clock effect</strong>.</p>
+    <p class="lbl">But</p>
+    <p style="margin-bottom:14px;">Real atoms emit light at exactly the same wavelength wherever they are and whatever history they have had. Hydrogen looks like hydrogen everywhere in the universe. <strong>The sharpness of spectral lines</strong> — already an established fact at the time — refuted Weyl's theory on the spot.</p>
+  </div>
+
+  <p>Weyl's reply was a strained one: "how rods and clocks actually behave can only be derived from a dynamical theory of matter." In other words, we do not yet know whether atoms really fail to remember their history. <em>The argument is coherent, but there is no evidence for it.</em> Weyl eventually withdrew the theory.</p>
+
+  <div class="fig">
+    <div class="cap">Figure: carry a ruler from A to B along two routes. Turn up Weyl's non-integrability \(k\) and the ruler's length on arrival disagrees between the routes — that is the second clock effect</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>Non-integrability k (left end = the modern conformal transformation ／ right = Weyl 1918)<span class="val" id="vk">0.00</span>
+        <input type="range" id="sk" min="0" max="1" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="readout" id="rd">k = 0.00　ruler via route 1 = 1.000　ruler via route 2 = 1.000　→　no disagreement (atoms are safe)</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2166a0;"></i>Route 1 (across first, then up)</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>Route 2 (up first, then across)</span>
+    </div>
+  </div>
+
+  <h2><span class="n">03</span>Eleven years later, it returns as phase</h2>
+
+  <p>In 1929 Weyl <strong>attached the same idea to a different quantity</strong> — not to length, but to the <em>phase</em> of the quantum-mechanical wave function.</p>
+
+  $$\psi(x)\;\longrightarrow\;e^{i\theta(x)}\psi(x)$$
+
+  <p>Let the phase be chosen freely at each point and a compensating field is required, transforming as \(A_\mu\to A_\mu+\partial_\mu\theta\) — <strong>exactly the form from 1918</strong>. This time it worked. <em>It is what Episode 8 of the previous series, "The ambiguity of i creates a force", was about.</em></p>
+
+  <p>Why was phase safe when length was not? The reason is simple.</p>
+
+  <div class="tblwrap">
+    <table class="hy">
+      <thead><tr><th>　</th><th>1918: gauge of length</th><th>1929: gauge of phase</th></tr></thead>
+      <tbody>
+        <tr><th>What is carried</th><td>The marks on the ruler</td><td>The phase of the wave function</td></tr>
+        <tr><th>If it drifts</th><td>The period of a clock changes</td><td>A phase merely rotates</td></tr>
+        <tr><th>Observable?</th><td><strong>Yes</strong> (spectral lines would blur)</td><td>Not directly (phase cannot be measured)</td></tr>
+        <tr class="hi"><th>Outcome</th><td>Refuted by Einstein</td><td><strong>Became the foundation of particle physics</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>And the name stayed behind. <em>A trace of the era when "gauge" meant "ruler"</em> still sits at the centre of quantum field theory — the most famous fossil of a name in physics.</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>So what exactly survived?</h2>
+
+  <p>Here is the heart of this episode. <strong>Not all of Weyl's theory died.</strong> What was killed was only the part that depends on the path.</p>
+
+  <p>Recall the slider in the figure. At \(k=0\), the rulers carried along the two routes <em>agreed exactly</em>. In that case the change in length does not depend on the route, only on where you end up — we call this <strong>integrable</strong>.</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">The operation this series uses</div>
+    $$\tilde g_{\mu\nu}(x)=\Omega(x)^2\,g_{\mu\nu}(x)\qquad(\Omega\ \text{is just a single-valued function})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    Since \(\Omega\) has one definite value at each point, <strong>every route gives the same answer</strong>. There is no second clock effect.</p>
+  </div>
+
+  <p>So the modern conformal transformation is <em>Weyl geometry with the non-integrable part dropped, keeping only the integrable case</em>. It does not dodge Einstein's objection; <strong>it simply never had the piece the objection landed on</strong>.</p>
+
+  <div class="story">
+    <div class="row"><span class="mk">1918</span><div class="txt"><strong>Weyl proposes a gauge theory of length</strong><span>Lets the ruler be re-chosen at each point and identifies the compensating field with the electromagnetic potential — an attempted unification of gravity and electromagnetism.</span></div></div>
+    <div class="row"><span class="mk">1918</span><div class="txt"><strong>Einstein objects via the second clock effect</strong><span>Published as a note appended to the same paper: this contradicts the sharpness of atomic spectra.</span></div></div>
+    <div class="row"><span class="mk">1929</span><div class="txt"><strong>Weyl revives it as the gauge of phase</strong><span>Applied to the phase of the wave function rather than to length. This is the direct ancestor of today's gauge theories.</span></div></div>
+    <div class="row"><span class="mk">now</span><div class="txt"><strong>Only the integrable part survives, as the "conformal transformation"</strong><span>\(\tilde g=\Omega^2g\). The meaning — swapping your ruler — is unchanged; only the path dependence has been removed. <strong>This is what the series spends ten episodes using.</strong></span></div></div>
+  </div>
+
+  <h2><span class="n">05</span>What this operation does and does not move</h2>
+
+  <p>Here, one line each, is what the next nine episodes will establish.</p>
+
+  <div class="tblwrap">
+    <table class="hy">
+      <thead><tr><th>Under a conformal transformation</th><th>Result</th><th>Details in</th></tr></thead>
+      <tbody>
+        <tr><th>Light cones</th><td>Do not move (causal structure is invariant)</td><td>Episode 7</td></tr>
+        <tr><th>Dimensionless quantities such as \(\alpha\)</th><td>Do not move</td><td>Episode 3</td></tr>
+        <tr><th>Length, mass, temperature, curvature</th><td>Move (they carry units)</td><td>Episodes 3 and 6</td></tr>
+        <tr><th>The expansion history</th><td>Moves — you can even erase it</td><td>Episode 3</td></tr>
+        <tr class="hi"><th>Anomaly and ghost</th><td><strong>In the quantum theory, something remains that cannot be erased</strong></td><td>Episodes 8 and 9</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The previous series' motto — units are bookkeeping, dimensionless is physics — was rows 2 and 3 of this table. <em>What was grasped by intuition now gets a name and an equation.</em> That is what this series is.</p>
+
+  <div class="caveat">
+    <span class="tag">Being straight with you</span>
+    <p style="margin-top:0;">Calling Weyl's 1918 theory a "failure" is a little rough. Geometries with a non-integrable length connection (Weyl geometry) are still studied as gravity theories, and there are modern proposals — 't Hooft's, which we meet in Episode 4 — to promote local conformal symmetry to a fundamental principle. <em>What died was the identification "electromagnetic field = length connection", not the geometry itself.</em></p>
+    <p style="margin-bottom:0;">And while Einstein's objection was <strong>physically decisive</strong>, Weyl's reply ("the behaviour of matter should be derived from dynamics") is not logically empty. In fact the argument only closes completely because of a <em>modern</em> measurement: atomic clocks rule out variation of \(\alpha\) at the level of \(10^{-18}\) per year — which is exactly what bonus episode 3 of the previous series was about. A hundred-year-old dispute settled by precision metrology.
+    </p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">Exercises</div>
+    <ol>
+      <li>If the way a ruler is transported depends on the path, what observable trouble follows?
+        <details><summary>Show answer</summary><div class="ans">The same atom would emit light at different wavelengths depending on the history it had travelled (the second clock effect). In reality spectral lines are sharp and identical everywhere in the universe — so the idea is refuted immediately.</div></details>
+      </li>
+      <li>Why does the modern conformal transformation \(\tilde g=\Omega(x)^2g\) not produce a second clock effect?
+        <details><summary>Show answer</summary><div class="ans">Because \(\Omega(x)\) is a <strong>single-valued function</strong> with one definite value at each point. The change in length is fixed by the endpoint alone and is independent of the route (integrable). Weyl's theory differed precisely in not requiring integrability.</div></details>
+      </li>
+      <li>Where did Weyl's idea survive?
+        <details><summary>Show answer</summary><div class="ans">In 1929, as the gauge symmetry of the quantum-mechanical <strong>phase</strong> — the direct ancestor of today's gauge theories (Episode 8 of the previous series). Only the name kept its original meaning of "ruler".</div></details>
+      </li>
+      <li>(Harder) State in one line the relation between Weyl geometry and the conformal transformation used in this series.
+        <details><summary>Show answer</summary><div class="ans">The conformal transformation is <strong>Weyl geometry with its length connection restricted to the integrable case</strong>. Because it never contains the non-integrable part — the part Einstein's objection landed on — it does not conflict with atomic spectra.</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">SUMMARY</span>A fossil of a name, and the operation that survived</h2>
+    <p>In 1918 Weyl introduced \(g_{\mu\nu}\to\Omega(x)^2g_{\mu\nu}\), arguing that the standard of length should also be choosable at each point. That is the moment the German <strong>Eichung</strong> (calibration of a measure) became the English <strong>gauge</strong>. Since the compensating field that carries the standard transforms exactly like the electromagnetic potential, he identified the two and declared gravity and electromagnetism unified.</p>
+    <p>Einstein objected in a note appended to the same paper: if transport of the ruler is path dependent, a clock's rate depends on its history (the second clock effect) — yet atomic spectra are sharp. Weyl withdrew, and eleven years later re-attached the idea to <em>phase</em>, where it succeeded. What remains of the original is the integrable part — the case where \(\Omega\) is merely a single-valued function — and that is what we now call the <strong>conformal transformation</strong>. It does not dodge the objection; it lacks the piece the objection strikes. These ten episodes are the story of rewriting the universe with that operation.</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">NEXT — EPISODE 2</span>
+    We have the tool, so let us use it immediately. <strong>"The universe is not expanding. Atoms are just shrinking."</strong> — that is not a joke but the claim of a real paper published in 2013 (Wetterich). The universe does not expand, every particle mass grows, atoms shrink. And <em>it does not conflict with observation</em>. More precisely: it cannot conflict, because what our telescopes measure is only the ratio "distance between galaxies ÷ radius of an atom". Move the numerator or move the denominator — the ratio is the same.
+  </div>
+
+  <div class="foot">
+    This document is Episode 1 of the series "Conformal Transformations That Click", written for physics-minded high-school and university students. That Weyl (1918, "Gravitation und Elektrizität") proposed a local rescaling of length (Eichung = gauge) and identified the compensating field with the electromagnetic potential; that Einstein's objection appeared as a note appended to the same paper; that the objection was that a non-integrable length connection makes clock rates history dependent (the second clock effect) whereas atomic spectra are sharp; that Weyl replied that the behaviour of rods and clocks can only be derived from a dynamical theory of matter; and that in 1929 he applied the same idea to the quantum-mechanical phase, founding modern gauge theory — all of these are established points of scientific history. The modern conformal (Weyl) transformation \(\tilde g_{\mu\nu}=\Omega(x)^2g_{\mu\nu}\) is the integrable case in which \(\Omega\) is single valued, and produces no second clock effect. Weyl geometry with a non-integrable length connection remains an object of study, and the word "failure" here refers specifically to the identification "electromagnetic field = length connection". The atomic-clock constraint on \(\dot\alpha/\alpha\) is \(1.0(1.1)\times10^{-18}\)/yr (Lange et al. 2021, PRL 126, 011102). — To print, use your browser's Print → Save as PDF (in the print version the slider is frozen and answers are hidden).
+  </div>
+
+</div>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, the slider varies the non-integrability and shows the two routes' rulers drifting apart. "Show answer" opens the solutions.</p>
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sk=document.getElementById('sk'),
+      vk=document.getElementById('vk'), rd=document.getElementById('rd');
+
+  // with phi_x = k*y, phi_y = 0:
+  //   route 1 (across at y=0, then up at x=1): int phi.dl = 0
+  //   route 2 (up at x=0, then across at y=1): int phi.dl = k
+  // ruler factor = exp(int phi.dl)
+  function m1(){ return 1; }
+  function m2(k){ return Math.exp(k); }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var k=parseFloat(sk.value); vk.textContent=k.toFixed(2);
+    ctx.clearRect(0,0,W,H);
+
+    var padL=54, padT=28, padB=44;
+    var boxW=Math.min(W*0.44, H-padT-padB), x0=padL, y1=H-padB, y0=y1-boxW;
+    function X(u){ return x0+u*boxW; }
+    function Y(v){ return y1-v*boxW; }
+
+    // lattice
+    ctx.strokeStyle='#eeecdb'; ctx.lineWidth=1;
+    for(var g=0;g<=4;g++){
+      ctx.beginPath(); ctx.moveTo(X(g/4),Y(0)); ctx.lineTo(X(g/4),Y(1)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(0),Y(g/4)); ctx.lineTo(X(1),Y(g/4)); ctx.stroke();
+    }
+    ctx.strokeStyle='#c6c2a5'; ctx.lineWidth=1;
+    ctx.strokeRect(X(0),Y(1),boxW,boxW);
+
+    // route 1 (blue): across first, then up
+    ctx.strokeStyle='#2166a0'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(1),Y(0)); ctx.lineTo(X(1),Y(1)); ctx.stroke();
+    // route 2 (rust): up first, then across
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(1)); ctx.lineTo(X(1),Y(1)); ctx.stroke();
+
+    // A, B
+    ctx.fillStyle='#4a4e5a';
+    ctx.beginPath(); ctx.arc(X(0),Y(0),6,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(1),Y(1),6,0,7); ctx.fill();
+    ctx.font='13px sans-serif'; ctx.fillStyle='#3a3a30';
+    ctx.fillText('A', X(0)-18, Y(0)+6);
+    ctx.fillText('B', X(1)+10, Y(1)+6);
+
+    ctx.font='11px sans-serif'; ctx.fillStyle='#8a8770';
+    ctx.fillText('carry the ruler', X(0), Y(1)-10);
+
+    // right: the two rulers on arrival
+    var rx=X(1)+64, top=padT+18, barMax=W-24-rx;
+    var v1=m1(), v2=m2(k), vmax=Math.max(v1,v2,1);
+    ctx.font='12px sans-serif'; ctx.fillStyle='#3a3a30';
+    ctx.fillText('Length of the ruler on arrival at B', rx, top-8);
+
+    function bar(y,val,color,label){
+      var w=barMax*(val/Math.max(vmax,2.72));
+      ctx.fillStyle=color; ctx.fillRect(rx,y,w,16);
+      ctx.fillStyle='#3a3a30'; ctx.font='12px sans-serif';
+      ctx.fillText(label+' = '+val.toFixed(3), rx, y-5);
+    }
+    bar(top+18, v1, '#2166a0', 'Route 1');
+    bar(top+68, v2, '#a83a22', 'Route 2');
+
+    // report the disagreement
+    var ratio=v2/v1;
+    ctx.font='13px sans-serif';
+    ctx.fillStyle = (k<0.005) ? '#2f6b45' : '#a83a22';
+    ctx.fillText((k<0.005 ? 'Agree — the ruler is path independent' : 'disagreement x'+ratio.toFixed(3)+' — atoms fall apart'),
+                 rx, top+118);
+    ctx.font='11px sans-serif'; ctx.fillStyle='#8a8770';
+    ctx.fillText((k<0.005 ? '(modern conformal transformation: integrable)' : '(Weyl 1918: non-integrable)'), rx, top+138);
+
+    rd.textContent='k = '+k.toFixed(2)+'　ruler via route 1 = '+v1.toFixed(3)
+                 +'　ruler via route 2 = '+v2.toFixed(3)
+                 +(k<0.005 ? '　→　no disagreement (atoms are safe)'
+                           : '　→　'+ratio.toFixed(3)+'x disagreement (second clock effect)');
+  }
+
+  sk.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

@@ -34,7 +34,7 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`wakaru-kyokei/`・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`wakaru-kyokei/`（英語版 `wakaru-kyokei-en/`）・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🔧 「つくる格子」だけは、立場が逆
 
@@ -52,6 +52,7 @@
 
 | Series | Read (published site) |
 |---|---|
+| **Conformal Transformations That Click**（わかる共形変換）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kyokei-en/index.html) |
 | **Cosmology That Clicks**（わかる宇宙論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchuron-en/index.html) |
 | **Relativity That Clicks**（わかる相対論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-soutai-en/index.html) |
 | **Quantum That Clicks**（わかる量子）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi-en/index.html) |
