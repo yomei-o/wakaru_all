@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重力に、位相は見えるか ── わかる共形変換 番外編⑤</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f7fc; --paper-edge:#ccd5ea;   /* 番外編⑤：群青の紙（回転） */
+    --side:#26325e; --side-bg:#e8ecf7;
+    --warn:#8a4b2f;
+    --calc:#1d3468; --calc-bg:#e4e9f6;
+    --rule:#c8d1e6; --hair:#a8b4d2;
+    --acc:#26407a;    /* 番外編⑤アクセント＝群青 */
+    --grid:#dde3f1;
+    --pos:#b0392c;    /* 正＝緋 */
+    --neg:#26407a;    /* 負＝群青 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d3dcf2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1b2340;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c0cae4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfdff;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e4e9f6;color:#1d3468;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;border:1px solid #ccc;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#e4e9f6;color:#1d3468;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#eef1fa;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e2e8f7;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:34px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1f4fb;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1e2745;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdff,#e9edf8);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e4e9f6;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1e2745;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6780;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ⑤（本編級）／ 位相の行き先を、最後まで追う</span></div>
+  <p class="eyebrow">番外編④で質量の位相は「重力には見えない」と結論しかけた。ところが量子にすると、一箇所だけ抜け道がある</p>
+  <h1>重力に、位相は見えるか
+    <span class="sub">\(G\) は次元付き ── つまり帳簿でした。物理は粒子ごとに違う無次元数 \(\alpha_G\)。<br>そして質量の位相が映る場所は、宇宙にただ一種類しかありません。<strong>回っている時空</strong>です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算、複素数の偏角、そして「重力に単一の強さはない」という覚悟</span>
+    <span>\(\alpha_G=(m/M_{\rm Pl})^2\)</span>
+  </div>
+
+  <p class="lead">番外編④は「電子の質量に虚部はあるか」を追いかけて、位相には二つのツマミ（Weyl とカイラル）があること、単独の位相は帳簿だが位相差は物理であることを見ました。今回は<em>その位相が重力にどう映るか</em>を最後まで追います。答えは三段構えです ── <strong>古典重力は位相を見ない。量子重力はアノマリーを通して見る。そして見えるのは、時空が回っているときだけ。</strong> ついでに、そもそも「重力の強さ」という単一の数が存在しないことも分かります。</p>
+
+  <h2><span class="n">01</span>\(G\) は、帳簿だった</h2>
+
+  <p>第10回の判定手続きを、いちばん有名な定数にかけます。ニュートン定数 \(G\) の単位は \(\mathrm{m^3\,kg^{-1}\,s^{-2}}\) ── <em>思いきり次元付き</em>です。よって左の列、帳簿。</p>
+
+  <p>では物理は何か。\(G\) と \(\hbar\) と \(c\) と質量から無次元量を作ると、答えは一つしかありません。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">重力の、無次元の結合定数</div>
+    $$\alpha_G=\frac{G m^2}{\hbar c}=\left(\frac{m}{M_{\rm Pl}}\right)^2$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    微細構造定数 \(\alpha=e^2/(4\pi\varepsilon_0\hbar c)\) と、まったく同じ形。ただし<strong>質量が入っている</strong>。</p>
+  </div>
+
+  <p>ここが決定的です。\(\alpha\) は電荷が量子化されているので全粒子で同じ値ですが、<em>質量は量子化されていない</em>。だから \(\alpha_G\) は粒子ごとに違う数になります。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th></th><th class="mid">\(m/M_{\rm Pl}\)</th><th class="mid">\(\alpha_G=(m/M_{\rm Pl})^2\)</th></tr></thead>
+      <tbody>
+        <tr><th>ニュートリノ（\(m_3\)）</th><td class="mid">\(4.10\times10^{-30}\)</td><td class="mid">\(1.68\times10^{-59}\)</td></tr>
+        <tr class="hi"><th>電子</th><td class="mid">\(4.19\times10^{-23}\)</td><td class="mid">\(1.75\times10^{-45}\)</td></tr>
+        <tr><th>ミューオン</th><td class="mid">\(8.65\times10^{-21}\)</td><td class="mid">\(7.49\times10^{-41}\)</td></tr>
+        <tr><th>陽子</th><td class="mid">\(7.69\times10^{-20}\)</td><td class="mid">\(5.91\times10^{-39}\)</td></tr>
+        <tr><th>タウ</th><td class="mid">\(1.46\times10^{-19}\)</td><td class="mid">\(2.12\times10^{-38}\)</td></tr>
+        <tr><th>トップクォーク</th><td class="mid">\(1.41\times10^{-17}\)</td><td class="mid">\(2.00\times10^{-34}\)</td></tr>
+        <tr><th>プランク質量</th><td class="mid">\(1\)</td><td class="mid">\(\mathbf{1}\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>ニュートリノからトップまでで <strong>\(1.19\times10^{25}\) 倍</strong>の開き。つまり ──</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">01節の結論</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>「重力は弱い」は、粒子を指定しないと意味を持たない文です。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    重力に単一の強さは存在しない。\(G\) は帳簿で、物理は<em>粒子ごとの \(\alpha_G\)</em>。電磁気と比べれば \(\alpha/\alpha_G(e)=4.17\times10^{42}\) ですが、これも「電子に対しては」という但し書きが要ります。</p>
+  </div>
+
+  <h2><span class="n">02</span>\(\alpha_G\) は「どれだけブラックホールに近いか」</h2>
+
+  <p>この数には、はるかに直観的な意味があります。粒子には長さが二つ付いてきます ── ブラックホールとしての大きさ（シュヴァルツシルト半径）と、量子としての大きさ（コンプトン波長）。</p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 二行</span>
+    <p class="lbl">二つの長さ</p>
+    $$r_s=\frac{2Gm}{c^2},\qquad \lambda_C=\frac{\hbar}{mc}$$
+    <p class="lbl">割ると単位が全部消える</p>
+    $$\frac{r_s}{\lambda_C}=\frac{2Gm}{c^2}\cdot\frac{mc}{\hbar}=\frac{2Gm^2}{\hbar c}=2\alpha_G$$
+    <p style="margin-bottom:14px;">質量が二乗で出てくるのは、<strong>片方が \(m\) に比例し、もう片方が \(1/m\) に比例するから</strong>。</p>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">今回の一行（その1）</div>
+    $$\alpha_G=\frac12\cdot\frac{r_s}{\lambda_C}=\frac12\cdot\frac{\text{ブラックホールとしての大きさ}}{\text{量子としての大きさ}}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>\(\alpha_G\) は「その粒子がどれだけブラックホールに近いか」そのものでした。</strong></p>
+  </div>
+
+  <p>電子は \(r_s/\lambda_C=3.50\times10^{-45}\)。自分の量子的な広がりに比べて、地平面は \(10^{-45}\) しかない。逆に \(\alpha_G=1\) になる質量を探すと、それが<em>プランク質量</em>です ── 自分のコンプトン波長が自分の地平面になってしまう点。「量子重力のスケール」の定義が、この一行から出てきます。</p>
+
+  <div class="aside">
+    <span class="tag">前シリーズとつながる</span>
+    番外編③で \(M/m_P=R_H/2\ell_P\) が恒等式だと見ました。あれは宇宙全体を一個の粒子と見たときの \(\alpha_G\) の言い換えです ── 宇宙は \(\alpha_G\simeq(4\times10^{60})^2\)、つまり<strong>とっくにブラックホールの条件を満たしている</strong>。だからこそ地平面がある。
+  </div>
+
+  <h2><span class="n">03</span>電子の重力は、二つの未解決問題の積だった</h2>
+
+  <p>\(\alpha_G(e)=1.75\times10^{-45}\) という数は、どこから来たのか。第4回の作法で、質量を「無次元の結合 × スカラーの真空期待値」に分解します。\(m_e=y_e v/\sqrt2\) を入れるだけです。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">今回の一行（その2）</div>
+    $$\alpha_G(e)=\underbrace{\frac{y_e^2}{2}}_{4.31\times10^{-12}}\times\underbrace{\left(\frac{v}{M_{\rm Pl}}\right)^2}_{4.07\times10^{-34}}=1.75\times10^{-45}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    左が<strong>フレーバー問題</strong>（なぜ \(y_e\) が \(10^{-6}\) か）、右が<strong>階層問題</strong>（なぜ \(v\ll M_{\rm Pl}\) か）。<em>物理学の二大未解決問題が、掛け算で並んでいる。</em></p>
+  </div>
+
+  <p>桁で言うと <strong>11.4桁と33.4桁</strong>。電子に対して重力が弱い理由の 3/4 は階層問題、1/4 はフレーバー問題です。そして番外編④を思い出すと、左の因子には正体がありました ── <em>\(\delta\) が \(135^\circ\) のゼロ点まであと \(2.27^\circ\) のところに立っているから</em>。感度は \(d\ln m_e/d\delta=0.90\)／度でしたから、</p>
+
+  $$\frac{d\ln\alpha_G(e)}{d\delta}=1.80\ /\text{度}\qquad\Longrightarrow\qquad \delta\ \text{が}\ 1^\circ\ \text{動けば、電子に対する重力の強さは 6倍変わる}$$
+
+  <div class="aside">
+    <span class="tag">では \(M_{\rm Pl}\) も帳簿では？</span>
+    そのとおりです。第4回で見たように、Weyl 不変な書き方では \(M_{\rm Pl}^2=\xi\phi^2\) ── プランク質量もディラトンの値であって、ゲージで動きます。だから \(M_{\rm Pl}\) 単独は帳簿で、物理は \(m/M_{\rm Pl}\) という<strong>比</strong>だけ。上の式が二つの無次元数の積になっているのは偶然ではなく、<em>そう書くことしかできない</em>からです。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>古典の重力は、位相を見ない</h2>
+
+  <p>ここから本題。番外編④の質量 \(m=m_1+im_2\gamma_5\) を、重力に食わせます。重力が結合する相手はエネルギー運動量テンソル \(T_{\mu\nu}\) ただ一つです。</p>
+
+  <p>ところが 04節でやったとおり、カイラル回転 \(\psi\to e^{i\alpha\gamma_5/2}\psi\) は理論を \(|m|=\sqrt{m_1^2+m_2^2}\) の理論に完全に写します。observable は全部同じ ── \(T_{\mu\nu}\) も同じ。したがって</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">古典重力の判定</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>重力は \(|m|\) しか見ない。位相は完全に不可視。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    これは番外編④の「② カイラル位相単独＝帳簿」の、<em>まったく独立な二つ目の確認</em>です。あちらは場の理論の言葉で、こちらは幾何の言葉で、同じ結論に着きました。</p>
+  </div>
+
+  <p>02節の \(\alpha_G\) も同じことを言っています。\(\alpha_G=(|m|/M_{\rm Pl})^2\) には位相の入る隙間がない。<em>重力にとって、質量の虚部は存在しないのと同じ。</em></p>
+
+  <p>── で、終わりません。<strong>いま「カイラル回転で写せる」と言ったところに、量子が噛みます。</strong></p>
+
+  <h2><span class="n">05</span>ツケは、\(R\tilde R\) に回る</h2>
+
+  <p>第8回でやったことを思い出してください。古典的に自由に回せるツマミが、量子化すると痕跡を残す ── アノマリーです。カイラル回転にもそれがあり、しかも<em>二種類</em>あります。</p>
+
+  <div class="calc">
+    <span class="tag">カイラルアノマリー（全部入り）</span>
+    $$\partial_\mu j_5^\mu=\frac{e^2}{8\pi^2}\,F\tilde F\ +\ \frac{1}{384\pi^2}\,R\tilde R$$
+    <p style="margin-bottom:14px;">第1項が電磁場、<strong>第2項が重力場</strong>。\(R\tilde R=\tfrac12\epsilon^{\mu\nu\alpha\beta}R_{\mu\nu\rho\sigma}R_{\alpha\beta}{}^{\rho\sigma}\) はポントリャーギン密度と呼ばれます。</p>
+  </div>
+
+  <p>意味はこうです。質量の位相 \(\theta\) をカイラル回転で消したとき、その \(\theta\) は消滅したのではなく<strong>作用の \(R\tilde R\) の係数（重力版の \(\theta\) 項）に移動した</strong>。帳簿の付け替えであって、消滅ではない。</p>
+
+  <p>シリーズを通して三枚目の表になります。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>古典で自由なツマミ</th><th>量子が残す痕跡</th><th>どこで見えるか</th><th>回</th></tr></thead>
+      <tbody>
+        <tr><th>Weyl \(\Omega\)</th><td>共形アノマリー \(T^\mu_\mu=\tfrac{\beta}{2g}F^2\)</td><td>\(\beta\) 関数、陽子質量の99%</td><td>第8回</td></tr>
+        <tr><th>カイラル \(\alpha\)（電磁）</th><td>\(F\tilde F\) ＝ \(\theta_{\rm QCD}\)</td><td>中性子EDM、\(\bar\theta&lt;10^{-10}\)</td><td>番外編④</td></tr>
+        <tr class="hi"><th>カイラル \(\alpha\)（重力）</th><td>\(R\tilde R\) ＝ \(\theta_{\rm grav}\)</td><td><strong>今回</strong></td><td>番外編⑤</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>では \(R\tilde R\) は、どこで顔を出すのか。ここからが今回いちばん綺麗なところです。</p>
+
+  <h2><span class="n">06</span>\(R\tilde R\) は、時空が回っているときにしか存在しない</h2>
+
+  <p>真空解では、曲率の情報はワイル・スカラー \(\Psi_2\) という<em>複素数ひとつ</em>に凝縮します（type D と呼ばれる型の場合）。そして二つの曲率不変量は、その複素数の実部と虚部そのものです。</p>
+
+  <div class="calc">
+    <span class="tag">真空 type-D における二つの不変量</span>
+    <p class="lbl">クレッチマン不変量（おなじみの「曲率の大きさ」）</p>
+    $$R_{\mu\nu\rho\sigma}R^{\mu\nu\rho\sigma}\ \propto\ \mathrm{Re}\!\left(\Psi_2^2\right)$$
+    <p class="lbl">ポントリャーギン密度（アノマリーに出てくるほう）</p>
+    $$R\tilde R\ \propto\ \mathrm{Im}\!\left(\Psi_2^2\right)$$
+    <p style="margin-bottom:14px;">同じ複素数の、実部と虚部。<strong>片方が「曲がり具合」、もう片方が「捩れ具合」。</strong></p>
+  </div>
+
+  <p>そしてカー解（回転ブラックホール）では、この複素数が閉じた形で書けます。</p>
+
+  $$\Psi_2=-\frac{M}{(r-i\,a\cos\theta)^3}$$
+
+  <p>ここで \(a=J/Mc\) が回転パラメータ。<em>虚部は \(a\cos\theta\) からしか来ていません。</em> だから ──</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">今回の一行（その3）</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:16px;line-height:1.85;">
+    <strong>重力場に虚部があるのは、時空が回っているときだけ。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    \(a=0\)（シュヴァルツシルト）なら \(\Psi_2=-M/r^3\) は実数で、\(R\tilde R=0\)。FRW は共形平坦なのでワイル・テンソルがまるごとゼロ、やはり \(R\tilde R=0\)。<em>宇宙も、静かなブラックホールも、位相を映さない。</em></p>
+  </div>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>時空</th><th class="mid">\(\mathrm{Re}(\Psi_2^2)\)</th><th class="mid">\(\mathrm{Im}(\Psi_2^2)\)</th><th>位相は見えるか</th></tr></thead>
+      <tbody>
+        <tr><th>FRW（膨張宇宙）</th><td class="mid">0</td><td class="mid">0</td><td>見えない（共形平坦）</td></tr>
+        <tr><th>シュヴァルツシルト</th><td class="mid">\(\ne0\)</td><td class="mid">\(\mathbf{0}\)</td><td>見えない</td></tr>
+        <tr class="hi"><th>カー（回転ブラックホール）</th><td class="mid">\(\ne0\)</td><td class="mid">\(\boldsymbol{\ne0}\)</td><td><strong>見える</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>数を入れます。半径依存 \(1/r^6\) を割って規格化し、基準点 \(r=2M\)、\(\cos\theta=0.5\) で測ると：</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(a/M\)</th><th class="mid">実部（規格化）</th><th class="mid">虚部（規格化）</th><th class="mid">\(|\mathrm{Im}/\mathrm{Re}|\)</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">0（静止）</td><td class="mid">1.0000</td><td class="mid">0.0000</td><td class="mid">0</td></tr>
+        <tr><td class="mid">0.3</td><td class="mid">0.8858</td><td class="mid">0.4270</td><td class="mid">0.48</td></tr>
+        <tr class="hi"><td class="mid">0.6</td><td class="mid">0.5863</td><td class="mid">0.7289</td><td class="mid"><strong>1.24</strong></td></tr>
+        <tr><td class="mid">0.9</td><td class="mid">0.2074</td><td class="mid">0.8370</td><td class="mid">4.04</td></tr>
+        <tr><td class="mid">0.998（ほぼ極限）</td><td class="mid">0.0864</td><td class="mid">0.8298</td><td class="mid"><strong>9.60</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>\(a/M\approx0.53\) で虚部が実部を追い越します。</strong> 高速回転するブラックホールの近くでは、曲率不変量の「虚のほう」が「実のほう」の10倍あるということ。<em>質量の位相を映す鏡としては、これ以上ないほど明るい場所です。</em></p>
+
+  <div class="fig">
+    <div class="cap">図：カー時空の子午面（模式図。横が赤道方向、縦が回転軸）。左が実部、右が虚部。ツマミで \(a/M\) を上げていくと、<strong>左はほとんど変わらないのに、右が無から生えてくる</strong>。黒い領域は地平面の内側</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>回転パラメータ a/M<span class="val" id="va">0.900</span>
+        <input type="range" id="sa" min="0" max="0.999" step="0.001" value="0.900">
+      </label>
+    </div>
+    <div class="readout" id="rd">a/M = 0.900</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0392c;"></i>正</span>
+      <span><i class="swatch" style="background:#ffffff;"></i>ゼロ</span>
+      <span><i class="swatch" style="background:#26407a;"></i>負</span>
+      <span><i class="swatch" style="background:#1a1c22;"></i>地平面の内側</span>
+    </div>
+  </div>
+
+  <p>\(a\gtrsim0.9\) で右の絵に<em>符号の反転</em>が現れます。\(\Psi_2^2\) が \((r-ia\cos\theta)^{-6}\) で、偏角が \(6\) 倍されるからです ── 極方向へ向かうと偏角が \(180^\circ\) を越え、虚部の符号が裏返る。\(a/M=0.998\) では地平面のすぐ外で \(6\varphi=251^\circ\) まで回ります。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">07</span>それでも、素朴には消える</h2>
+
+  <p>ここで正直にブレーキを踏みます。上の絵は綺麗ですが、そのままでは観測量になりません。理由が二つ。</p>
+
+  <p><strong>理由①：球面平均するとゼロ。</strong> \(\mathrm{Im}(\Psi_2^2)\) は \(\cos\theta\) の奇関数です（北半球と南半球で符号が逆）。だから球面で積分すると消える。数値で確かめると</p>
+
+  $$\left\langle \mathrm{Im}(\Psi_2^2)\right\rangle_{r=3M}\ \sim\ 10^{-17}\quad(\text{数値誤差の範囲でゼロ}),\qquad \max\left|\mathrm{Im}\right|=0.837$$
+
+  <p><strong>理由②：定数の \(\theta_{\rm grav}\) は全微分。</strong> ポントリャーギン密度の積分は</p>
+
+  $$\int R\tilde R\,\sqrt{-g}\,d^4x=32\pi^2\times(\text{ポントリャーギン数})$$
+
+  <p>で、閉じた多様体では<em>整数</em>になります。つまり \(\theta_{\rm grav}\) が定数なら、効くのは時空の位相幾何だけ。ふつうの漸近平坦な時空では何も起きません。QED の \(\theta\) 項が（磁気単極子がなければ）観測不能なのと、まったく同じ事情です。</p>
+
+  <p>では、どうすれば効くのか。答えは一つしかありません ── <strong>\(\theta_{\rm grav}\) を定数ではなく場にすること。</strong></p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">効かせるための唯一の条件</div>
+    $$S\supset\int \theta(x)\,R\tilde R\qquad\Longrightarrow\qquad \partial_\mu\theta\ne0\ \text{なら部分積分で残る}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    これには名前があります ── <strong>ダイナミカル・チャーン＝サイモンズ重力</strong>（ジャッキウ＝ピ 2003）。そして、そこで起きることが劇的です。</p>
+  </div>
+
+  <div class="seven">
+    <div class="row"><div class="mk">残る</div><div class="txt"><strong>シュヴァルツシルト解は、そのまま解であり続ける</strong><span>\(R\tilde R=0\) なので、新しい項が何も寄与しない</span></div></div>
+    <div class="row"><div class="mk">壊れる</div><div class="txt"><strong>カー解は、もはや解ではない</strong><span>\(R\tilde R\ne0\) が源になり、フレーム・ドラッギングに補正が入る</span></div></div>
+  </div>
+
+  <p><em>回っていないブラックホールは無傷で、回っているブラックホールだけが壊れる。</em> 06節の \(\mathrm{Im}(\Psi_2)\) の話が、そのまま解の存在／非存在に翻訳されます。</p>
+
+  <div class="aside">
+    <span class="tag">そして、その場は誰か</span>
+    第4回で、時空のスケール因子は「時空の性質」ではなく「時空の上に乗った場」＝<strong>ディラトン \(\phi\)</strong> だと分かりました。もし \(\theta_{\rm grav}\) がその \(\phi\) と結びついているなら ── 質量の位相のツケは、ディラトンに回り、回転ブラックホールで顔を出すことになります。<em>ただしこれは本稿の語りであって、導出ではありません。</em>\(\phi R\) と \(\theta R\tilde R\) は別の結合であり、両者が同じ場だと言えるのは弦理論のアクシオ・ディラトンのような特定の枠組みの中だけです。
+  </div>
+
+  <h2><span class="n">08</span>判定 ── 位相が見える場所は、三つしかない</h2>
+
+  <p>番外編④と合わせて、質量の位相が観測に顔を出しうる場所を全部並べます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>見える場所</th><th>仕組み</th><th class="mid">現状</th></tr></thead>
+      <tbody>
+        <tr><th>電子EDM</th><td>質量と湯川の位相差 → 電荷分布の前後非対称</td><td class="mid">\(d_e/(e\lambda_C)&lt;1.1\times10^{-19}\)</td></tr>
+        <tr><th>強いCP</th><td>\(\arg\det M_q\) → \(F\tilde F\) → 中性子EDM</td><td class="mid">\(\bar\theta&lt;10^{-10}\)</td></tr>
+        <tr class="hi"><th>回転する時空</th><td>重力アノマリー → \(R\tilde R\propto\mathrm{Im}(\Psi_2^2)\)</td><td class="mid"><strong>\(\theta\) が場のときのみ</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>三つとも、<em>次元付きの量が一つも出てこない</em>のが特徴です。EDM は長さの比、\(\bar\theta\) は角度、ポントリャーギン数は整数。第10回の判定手続きどおり、位相の物理は最初から最後まで無次元でした。</p>
+
+  <div class="aside">
+    <span class="tag">おまけ ── 宇宙でいちばん小さい二つのスケール</span>
+    重力の話をしているので、ついでに真空エネルギーも無次元にしておきます。\(\rho_\Lambda^{1/4}=2.24\) meV、これを \(M_{\rm Pl}\) で割ると \(1.84\times10^{-31}\)。番外編④のニュートリノは \(m_3/M_{\rm Pl}=4.10\times10^{-30}\)。<strong>自然界でいちばん小さい二つのスケールが、たった 22倍しか離れていない</strong>（他は \(10^{25}\) 単位で開いているのに）。── ただしこれを説明する理論はありません。偶然かもしれません。
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">07節のダイナミカル・チャーン＝サイモンズ重力は<strong>修正重力の提案</strong>であって、確立した物理ではありません。「カーが解でなくなる」も、その枠組みの中での帰結です。実際に観測で押さえられている上限はまだ緩く、この効果が自然界に存在する証拠はありません。</p>
+    <p>アノマリーの係数 \(1/384\pi^2\) は<strong>規約に依存します</strong>（ディラック粒子かワイル粒子か、\(R\tilde R\) の定義に \(1/2\) を含めるか）。文献によって \(768\pi^2\) 等と書かれます。同様に \(R\tilde R\propto\mathrm{Im}(\Psi_2^2)\) の比例係数と符号も規約次第で、本稿が使ったのは「虚部から来る」という定性的な事実だけです。</p>
+    <p>\(\Psi_2\) の閉じた式は<strong>真空の type-D 解に限った話</strong>です。物質があるとワイル・スカラーは5つに増え、この単純な言い換えは成り立ちません。図の子午面はボイヤー＝リンドクイスト座標をそのまま平面に描いた<em>模式図</em>で、固有距離ではありません。</p>
+    <p style="margin-bottom:0;">07節末の「ディラトン＝\(\theta_{\rm grav}\)」は本稿の語りです。08節おまけの \(\rho_\Lambda^{1/4}\) と \(m_\nu\) の近さは、説明のない数値的一致にすぎません。そして 03節の \(\delta\) の話は、番外編④の小出の関係式（極質量でだけ成立する経験式）を前提にしています。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>「重力は電磁気より \(10^{40}\) 倍弱い」という言い方は、どこが不正確か。
+        <details><summary>答えを見る</summary><div class="ans">粒子を指定していないから。\(\alpha/\alpha_G\) は電子なら \(4.17\times10^{42}\)、陽子なら \(1.2\times10^{36}\)、トップなら \(3.6\times10^{31}\)。<strong>「弱さ」は質量比の二乗で決まるので、粒子ごとに \(10^{25}\) 違います。</strong>次元付きの \(G\) を比べようとした瞬間に意味を失うのと同じ話です。</div></details>
+      </li>
+      <li>\(\alpha_G=1\) の粒子とは何か。
+        <details><summary>答えを見る</summary><div class="ans">\(r_s=2\lambda_C\) の粒子、つまり<strong>プランク質量（\(1.22\times10^{19}\) GeV, 約 22 μg）の粒子</strong>。自分の量子的な広がりが自分の地平面と同じ大きさになる ── これがプランク質量の定義そのもので、「量子重力のスケール」という言い方の中身です。</div></details>
+      </li>
+      <li>なぜ FRW 宇宙では \(R\tilde R=0\) なのか。
+        <details><summary>答えを見る</summary><div class="ans">FRW は<strong>共形平坦</strong>だから。共形平坦ならワイル・テンソルが恒等的にゼロで、真空でなくても \(R\tilde R\) はワイル部分から作られるので消えます。<em>第6回で「共形変換で FRW を平坦にできる」と言ったことの、直接の帰結</em>です。膨張宇宙は、どれだけ膨張していても捩れていない。</div></details>
+      </li>
+      <li>\(\mathrm{Im}(\Psi_2^2)\) は球面平均するとゼロなのに、なぜ「効きうる」と言えるのか。
+        <details><summary>答えを見る</summary><div class="ans">効くのは平均値ではなく、\(\theta(x)\) との積 \(\int\theta(x)R\tilde R\) だから。\(\theta\) が場として空間依存していれば、奇関数どうしの積が偶関数になって残りえます。<strong>定数の \(\theta\) では消え、場の \(\theta\) では消えない</strong> ── これが 07節の「全微分か否か」の別の言い方です。</div></details>
+      </li>
+      <li>（やや難）\(\Psi_2=-M/(r-ia\cos\theta)^3\) から、虚部が実部を追い越す条件を出せ。
+        <details><summary>答えを見る</summary><div class="ans">\(\Psi_2^2\propto(r-ia\cos\theta)^{-6}=\rho^{-6}e^{6i\varphi}\)（\(\varphi=\arctan(a\cos\theta/r)\)）。だから実部 \(\propto\cos6\varphi\)、虚部 \(\propto\sin6\varphi\) で、\(|\tan6\varphi|&gt;1\)、つまり <strong>\(\varphi&gt;7.5^\circ\)</strong> が条件。基準点 \(r=2M,\cos\theta=0.5\) なら \(\tan\varphi=a/4\) なので \(a/M&gt;4\tan7.5^\circ=0.527\)。表の「0.53 で追い越す」はこれです。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>位相は、回っている時空にだけ映る</h2>
+    <p>まず \(G\) が帳簿でした。次元付きだからです。物理は \(\alpha_G=(m/M_{\rm Pl})^2\) で、これは粒子ごとに違い、ニュートリノからトップまで \(10^{25}\) 開いています。<strong>「重力は弱い」は粒子を指定しないと意味を持たない文だった。</strong>そして \(\alpha_G=\frac12(r_s/\lambda_C)\) ── <em>\(\alpha_G\) はその粒子がどれだけブラックホールに近いかそのもの</em>で、\(\alpha_G=1\) の点がプランク質量です。</p>
+    <p>電子の \(\alpha_G=1.75\times10^{-45}\) は、\((y_e^2/2)\times(v/M_{\rm Pl})^2\) に厳密に割れます ── フレーバー問題（11.4桁）と階層問題（33.4桁）の積。番外編④とつなげば、左因子は「\(\delta\) がゼロ点まであと \(2.27^\circ\)」でした。\(\delta\) が \(1^\circ\) 動けば、電子に対する重力の強さは 6倍変わります。</p>
+    <p>肝心の位相は、古典重力には<strong>まったく見えません</strong>。\(T_{\mu\nu}\) がカイラル回転で不変だからで、これは番外編④の結論の独立な二つ目の確認です。ところが量子にすると、そのカイラル回転がアノマリーを持つ ── ツケは \(R\tilde R\) の係数に回る。第8回（共形アノマリー）、強いCP（電磁カイラルアノマリー）に続く<em>三枚目</em>です。</p>
+    <p>そして \(R\tilde R\) が住んでいる場所を突き止めました。真空 type-D では \(R\tilde R\propto\mathrm{Im}(\Psi_2^2)\) で、カーの \(\Psi_2=-M/(r-ia\cos\theta)^3\) の虚部は \(a\cos\theta\) からしか来ない。<strong>膨張宇宙（共形平坦）でもシュヴァルツシルトでもゼロ、カーでだけ非ゼロ。</strong>しかも \(a/M\approx0.53\) で虚部が実部を追い越し、\(a/M=0.998\) では 9.6倍になります。── 質量に虚部があるかを問うと、それが映るのは重力場の虚部だけで、重力場に虚部があるのは時空が回っているときだけだった。<em>ただし球面平均するとゼロで、\(\theta\) が定数なら全微分。効かせるには \(\theta\) が場でなければならず、そのときシュヴァルツシルトは生き残り、カーだけが解でなくなります。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">残っているもの</span>
+    番外編④で「無次元量は比だけではなく位相もそうだった」と気づき、⑤でその位相の行き先を重力まで追いました。まだ空いている穴は一つ ── このシリーズはずっと Weyl 変換を「共形変換」と呼んできましたが、物理にはもう一種類あります。平坦時空の共形群 \(SO(4,2)\)。そこでは次元付きの量が一つも意味を持たず、残る観測量は<strong>スケーリング次元 \(\Delta\)</strong> という純粋な無次元数だけです。<em>「次元付きは帳簿、無次元だけが物理」が、比喩ではなく理論の定義そのものになっている世界。</em>次はそこへ行きます。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編⑤、物理好きの高校生・大学生向け読み物です。\(\alpha_G=Gm^2/(\hbar c)=(m/M_{\rm Pl})^2\) が重力の無次元結合であること、\(r_s/\lambda_C=2\alpha_G\) であることはいずれも初等的な恒等式です。表の値は \(M_{\rm Pl}=1.2209\times10^{19}\) GeV、\(v=246.22\) GeV、PDG の質量を用いて本稿で計算しました。\(\alpha_G(e)=(y_e^2/2)(v/M_{\rm Pl})^2\) の分解も恒等式です。カイラル回転が \(T_{\mu\nu}\) を不変に保つこと、したがって古典重力が質量の位相を見ないことは標準的な帰結です。重力カイラルアノマリー \(\partial_\mu j_5^\mu\supset(1/384\pi^2)R\tilde R\) は Kimura (1969)、Delbourgo &amp; Salam (1972) 以来知られていますが、<strong>係数はディラック／ワイルの別や \(R\tilde R\) の規格化の取り方に依存します</strong>。\(\int R\tilde R=32\pi^2\times\)（ポントリャーギン数）も標準的です。真空 type-D 解でクレッチマン不変量とポントリャーギン密度がそれぞれ \(\mathrm{Re}(\Psi_2^2)\)、\(\mathrm{Im}(\Psi_2^2)\) に比例すること、およびカー解で \(\Psi_2=-M/(r-ia\cos\theta)^3\) となることは標準的です（比例係数と符号は規約依存）。表と図の数値（\(a/M=0.53\) で虚部が実部を追い越す、\(a/M=0.998\) で 9.6倍、球面平均が \(10^{-17}\) でゼロ）は基準点 \(r=2M,\cos\theta=0.5\) における本稿の計算です。ダイナミカル・チャーン＝サイモンズ重力は Jackiw &amp; Pi (2003) に始まる<strong>修正重力の提案</strong>であり、確立した理論ではありません。その枠組みでシュヴァルツシルト解が保たれカー解が保たれないこと（緩慢回転解に補正が入ること）は同分野の標準的な結果ですが、観測的に確認されたものではありません。「ディラトンが \(\theta_{\rm grav}\) である」という 07節末の示唆は本稿による語りで、導出ではありません。\(\rho_\Lambda^{1/4}=2.24\) meV は \(h=0.674\)、\(\Omega_\Lambda=0.685\) から本稿で計算した値で、これがニュートリノ質量に近いことは説明のない数値的一致です。03節の \(\delta\) に関する記述は番外編④の小出の関係式（理論的導出を持たず、極質量でのみ成立する経験式）を前提にしています。図は模式図であり、ボイヤー＝リンドクイスト座標をそのまま平面に描いたもので、固有距離を表しません。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルと、修正のない一般相対論です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで回転パラメータを変え、右の絵（虚部）だけが無から生えてくるのが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sa=document.getElementById('sa'),
+      va=document.getElementById('va'), rd=document.getElementById('rd');
+  var N=180, RMAX=3.5;
+  var offRe=document.createElement('canvas'), offIm=document.createElement('canvas');
+  offRe.width=offRe.height=N; offIm.width=offIm.height=N;
+  var ctxRe=offRe.getContext('2d'), ctxIm=offIm.getContext('2d');
+  var imgRe=ctxRe.createImageData(N,N), imgIm=ctxIm.createImageData(N,N);
+
+  // 1/r^6 の半径依存を割った規格化量。範囲はおよそ [-1,1]
+  function val(r,a,u){
+    var rho=Math.hypot(r,a*u), ph=Math.atan2(a*u,r), s=Math.pow(r/rho,6);
+    return [Math.cos(6*ph)*s, Math.sin(6*ph)*s];
+  }
+  function paint(px,i,v){
+    var t=Math.max(-1,Math.min(1,v)), r,g,b;
+    if(t>=0){ r=255-(255-176)*t; g=255-(255- 57)*t; b=255-(255- 44)*t; }
+    else    { var s=-t; r=255-(255- 38)*s; g=255-(255- 64)*s; b=255-(255-122)*s; }
+    px[i]=r; px[i+1]=g; px[i+2]=b; px[i+3]=255;
+  }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var a=parseFloat(sa.value); va.textContent=a.toFixed(3);
+    var rp=1+Math.sqrt(Math.max(0,1-a*a));
+    var pr=imgRe.data, pi=imgIm.data, maxIm=0;
+
+    for(var j=0;j<N;j++){
+      var Z=RMAX-2*RMAX*(j+0.5)/N;
+      for(var i2=0;i2<N;i2++){
+        var X=-RMAX+2*RMAX*(i2+0.5)/N, k=4*(j*N+i2);
+        var r=Math.hypot(X,Z);
+        if(r<rp||r<1e-6){
+          pr[k]=pi[k]=26; pr[k+1]=pi[k+1]=28; pr[k+2]=pi[k+2]=34; pr[k+3]=pi[k+3]=255;
+          continue;
+        }
+        var v=val(r,a,Z/r);
+        paint(pr,k,v[0]); paint(pi,k,v[1]);
+        if(Math.abs(v[1])>maxIm) maxIm=Math.abs(v[1]);
+      }
+    }
+    ctxRe.putImageData(imgRe,0,0); ctxIm.putImageData(imgIm,0,0);
+
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    ctx.clearRect(0,0,W,H);
+    var lab=24, gap=16, S=Math.min((W-3*gap)/2, H-lab-gap);
+    var x1=(W-2*S-gap)/2, x2=x1+S+gap, y0=lab;
+    ctx.imageSmoothingEnabled=true;
+    ctx.drawImage(offRe,x1,y0,S,S); ctx.drawImage(offIm,x2,y0,S,S);
+    ctx.strokeStyle='#a8b4d2'; ctx.lineWidth=1;
+    ctx.strokeRect(x1,y0,S,S); ctx.strokeRect(x2,y0,S,S);
+
+    ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#1d3468';
+    ctx.fillText('実部  Re(Ψ₂²)  ── 曲がり具合', x1+S/2, 16);
+    ctx.fillText('虚部  Im(Ψ₂²)  ── 捩れ具合', x2+S/2, 16);
+    ctx.font='11px sans-serif'; ctx.fillStyle='#6b7490';
+    ctx.fillText('← 赤道方向 →', x1+S/2, y0+S+13);
+    ctx.fillText('← 赤道方向 →', x2+S/2, y0+S+13);
+    ctx.save(); ctx.translate(x1-7,y0+S/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('回転軸', 0, 0); ctx.restore();
+
+    var ref=val(2,a,0.5), ratio=Math.abs(ref[0])<1e-12? Infinity : Math.abs(ref[1]/ref[0]);
+    var tail;
+    if(a<0.001) tail='── 静止＝シュヴァルツシルト。虚部は恒等的にゼロ';
+    else if(ratio<1) tail='── 虚部は生えたが、まだ実部より小さい';
+    else tail='── 虚部が実部を追い越した';
+    rd.textContent='a/M = '+a.toFixed(3)+'　地平面 r₊ = '+rp.toFixed(3)+'M　│　基準点 r=2M, cosθ=0.5 で  Re = '
+      +ref[0].toFixed(4)+' , Im = '+ref[1].toFixed(4)+'　|Im/Re| = '+(isFinite(ratio)?ratio.toFixed(2):'∞')
+      +'　│　画面内の max|Im| = '+maxIm.toFixed(3)+'　'+tail;
+  }
+
+  sa.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
