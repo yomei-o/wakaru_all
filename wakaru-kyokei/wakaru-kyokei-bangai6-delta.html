@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>もうひとつの共形変換 ── わかる共形変換 番外編⑥</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fcf7f8; --paper-edge:#e6ccd2;   /* 番外編⑥：臙脂の紙（臨界） */
+    --side:#5e1c2c; --side-bg:#f6e9ec;
+    --warn:#8a4b2f;
+    --calc:#6b1f34; --calc-bg:#f5e7ea;
+    --rule:#e0c6cd; --hair:#c8a6b0;
+    --acc:#7a2438;    /* 番外編⑥アクセント＝臙脂 */
+    --grid:#efe0e4;
+    --ok:#1d6b52;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #f0d3da 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3b1520;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #e0c2ca;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffcfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f5e7ea;color:#6b1f34;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;border:1px solid #ccc;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#f5e7ea;color:#6b1f34;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#faf0f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#f2e2e6;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:76px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#faf2f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3b1c26;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfe,#f6e9ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f5e7ea;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3b1c26;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7a6068;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ⑥（本編級）／ シリーズ名の、残り半分</span></div>
+  <p class="eyebrow">15話かけて「共形変換」と呼んできたものは、実は二種類あるうちの片方だけだった</p>
+  <h1>もうひとつの共形変換
+    <span class="sub">Weyl 変換のウェイトには、ちゃんと名前がありました ── <strong>スケーリング次元 \(\Delta\)</strong>。<br>そしてそれだけしか観測量が存在しない世界が、実在します。水の臨界点です。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：割り算、不等式、そして「無次元しかない」という状況への慣れ</span>
+    <span>\(\mathcal{O}\to\Omega^{-\Delta}\mathcal{O}\)</span>
+  </div>
+
+  <p class="lead">このシリーズはずっと <em>Weyl 変換</em>（物差しを場所ごとに取り替える操作）を「共形変換」と呼んできました。ところが物理には、その名前で呼ばれるものがもう一つあります ── 平坦時空の<strong>共形群</strong>です。両者を並べると、シリーズがずっと計算していた「ウェイト」に正式な名前が付き、そして<em>次元付きの量が一つも意味を持たない世界</em>に出ます。そこでは観測量が \(\Delta\) という無次元数だけ。そしてその世界は思弁ではありません ── 水も、二酸化炭素も、一軸磁石も、臨界点でそこに落ちます。</p>
+
+  <h2><span class="n">01</span>共形変換は、二種類ある</h2>
+
+  <p>混乱の元なので、先に分けます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th></th><th>Weyl 変換</th><th>共形群</th></tr></thead>
+      <tbody>
+        <tr><th>やること</th><td>計量を書き換える \(g\to\Omega^2g\)</td><td>時空を動かす（座標変換）</td></tr>
+        <tr><th>自由度</th><td>関数 \(\Omega(x)\) ひとつ ＝ <strong>無限次元</strong></td><td><strong>有限次元</strong>（\(d\ne2\) なら）</td></tr>
+        <tr><th>性格</th><td>ゲージ的な書き換え（帳簿）</td><td>本物の対称性</td></tr>
+        <tr><th>本シリーズ</th><td>第1回〜番外編⑤の主役</td><td><strong>今回</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>共形群とは「平坦時空の座標変換のうち、計量を定数倍しか変えないもの」の全体です。個数を数えると、<em>次元だけの関数</em>になります。</p>
+
+  <div class="calc">
+    <span class="tag">数えてみる</span>
+    <p class="lbl">内訳</p>
+    $$\underbrace{\tfrac{d(d-1)}{2}}_{\text{回転}}+\underbrace{d}_{\text{並進}}+\underbrace{1}_{\text{拡大}}+\underbrace{d}_{\text{特殊共形}}=\frac{(d+1)(d+2)}{2}$$
+    <p class="lbl">4次元では</p>
+    $$6+4+1+4=15\qquad(\text{ポアンカレの }10\ \text{に、5つ足した})$$
+    <p style="margin-bottom:14px;">ポアンカレ対称性より <strong>5つだけ広い</strong>。増えたのは「拡大」と「特殊共形変換」です。</p>
+  </div>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">次元 \(d\)</th><th class="mid">共形対称性の個数</th><th>備考</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">1</td><td class="mid">3</td><td>共形量子力学</td></tr>
+        <tr class="hi"><td class="mid">2</td><td class="mid">6</td><td><strong>この式が返すのは「大域的な部分」だけ。実際は無限次元</strong></td></tr>
+        <tr><td class="mid">3</td><td class="mid">10</td><td>臨界現象の舞台</td></tr>
+        <tr><td class="mid">4</td><td class="mid">15</td><td>私たちの時空</td></tr>
+        <tr><td class="mid">6</td><td class="mid">28</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>2次元だけが例外です。</strong> \(d=2\) では局所的な共形変換が無限にあり（正則関数の分だけある）、そのおかげで理論が厳密に解けてしまう。<em>弦の世界面が2次元なのは、これが理由です。</em></p>
+
+  <h2><span class="n">02</span>\(\Delta\) は、シリーズがずっと計算していた量だった</h2>
+
+  <p>共形場理論の主役は<strong>スケーリング次元 \(\Delta\)</strong> です。定義はこう ──</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">\(\Delta\) の定義</div>
+    $$\mathcal{O}(x)\ \longrightarrow\ \Omega^{-\Delta}\,\mathcal{O}(x)$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>これは Weyl ウェイトそのものです。</strong></p>
+  </div>
+
+  <p>つまり第3回のウェイト表も、第7回の \(\Omega^{D-4}\) も、番外編④の \(\tilde m=\Omega^{-1}m\) も、全部 \(\Delta\) を計算していました。名前を知らないまま。<em>「もうひとつの共形変換」は、実はずっと同じ部屋にいた</em>のです。</p>
+
+  <p>そして \(\Delta\) には二つの部分があります。</p>
+
+  <div class="calc">
+    <span class="tag">古典と量子</span>
+    $$\Delta=\underbrace{\Delta_{\text{古典}}}_{\text{工学的次元}}+\underbrace{\gamma}_{\text{異常次元}}$$
+    <p style="margin-bottom:14px;">\(\gamma\ne0\) は「古典的に計算したウェイトが間違っている」ということ ── <strong>第8回のアノマリーの、演算子ごとの姿</strong>です。</p>
+  </div>
+
+  <p>第8回では、アノマリーを \(\beta\) 関数で測りました（\(1/137\to1/128\)）。演算子のレベルでは、それが \(\gamma\) になります。そして \(\gamma\) は<em>実験で測れます</em>。それが 05節です。</p>
+
+  <h2><span class="n">03</span>\(\Delta\) しか存在しない世界</h2>
+
+  <p>共形対称性が厳密に成り立つ理論（＝共形場理論、CFT）では、次元付きの量が原理的に存在できません。長さの基準がないからです。では何が残るのか ── <strong>\(\Delta\) の一覧と、演算子どうしの掛け算の係数だけ</strong>。どちらも無次元です。</p>
+
+  <p>しかも \(\Delta\) は自由に選べません。ユニタリー性（確率が負にならないこと）が下限を与えます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>演算子</th><th class="mid">\(\Delta\) の制約</th><th class="mid">4次元で</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><th>スカラー</th><td class="mid">\(\Delta\ge\dfrac{d-2}{2}\)</td><td class="mid">\(\ge1\)</td><td>等号は自由場</td></tr>
+        <tr><th>保存カレント \(J_\mu\)</th><td class="mid">\(\Delta=d-1\)</td><td class="mid">\(=3\)</td><td><strong>厳密</strong>（保存則が効く）</td></tr>
+        <tr class="hi"><th>応力テンソル \(T_{\mu\nu}\)</th><td class="mid">\(\Delta=d\)</td><td class="mid">\(=4\)</td><td><strong>厳密</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="aside">
+    <span class="tag">第8回が、ここに出てくる</span>
+    「\(\Delta(T_{\mu\nu})=d\) が厳密」というのは、\(T^\mu_\mu=0\) の言い換えです ── トレースがゼロなら、応力テンソルの次元は動かない。第8回でやった<strong>共形アノマリー</strong>とは、まさにこれが破れる話でした。同じ一つの事実を、片方は「トレースが残る」、もう片方は「次元がずれる」と言っている。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">04</span>ブートストラップ ── 無次元だけを入力する</h2>
+
+  <p>ここからが本題です。CFT には、<em>ラグランジアンを一切使わずに \(\Delta\) を決める</em>方法があります。共形ブートストラップと呼ばれます。</p>
+
+  <div class="seven">
+    <div class="row"><div class="mk">入力1</div><div class="txt"><strong>クロッシング対称性</strong><span>4点関数を二通りの順序で展開したら、同じ答えになれ</span></div></div>
+    <div class="row"><div class="mk">入力2</div><div class="txt"><strong>ユニタリー性</strong><span>確率は負にならない ── 展開係数がすべて正</span></div></div>
+    <div class="row"><div class="mk">入力3</div><div class="txt"><strong>対称性（例：\(\mathbb{Z}_2\)）</strong><span>スピンを反転しても同じ、という条件だけ</span></div></div>
+  </div>
+
+  <p>これだけです。<strong>結合定数もカットオフも格子間隔も、次元付きの量は一つも入りません。</strong> 出てくるのは「この \(\Delta\) の組み合わせはあり得ない」という<em>禁止領域</em>で、その境界に折れ曲がり（キンク）が現れる。</p>
+
+  <p>そして 3次元イジング模型は、そのキンクの<strong>上に乗っています</strong>。純粋に数学的な排除領域の角に、自然が座っている。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">3次元イジング CFT（ブートストラップ 2016）</div>
+    $$\Delta_\sigma=0.5181489(10),\qquad \Delta_\varepsilon=1.412625(10)$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    この<strong>二つの数</strong>から、臨界現象のすべてが出ます。</p>
+  </div>
+
+  <p>まず異常次元を読み取ります。3次元の自由スカラーは \(\Delta=(d-2)/2=0.5\) ちょうどですから</p>
+
+  $$\gamma_\sigma=\Delta_\sigma-0.5=0.0181489$$
+
+  <p><strong>「Weyl ウェイトがどれだけ間違っているか」が、7桁の精度で分かっている</strong>ということです。そしてこれには、統計物理でおなじみの名前が付いています ── \(\eta=2\gamma_\sigma=0.0362978\)。</p>
+
+  <h2><span class="n">05</span>六つの臨界指数が、二つの数から出る</h2>
+
+  <p>統計物理の教科書に出てくる臨界指数は、全部 \(\Delta_\sigma\) と \(\Delta_\varepsilon\) の翻訳です。</p>
+
+  <div class="calc">
+    <span class="tag">辞書（\(d=3\)）</span>
+    $$\eta=2\Delta_\sigma-d+2,\qquad \nu=\frac{1}{d-\Delta_\varepsilon}$$
+    $$\alpha=2-d\nu,\quad \beta=\frac{\nu(d-2+\eta)}{2},\quad \gamma=\nu(2-\eta),\quad \delta=\frac{d+2-\eta}{d-2+\eta}$$
+    <p style="margin-bottom:14px;">独立なのは最初の二つだけ。<strong>残りの四つは従属</strong>です。</p>
+  </div>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">指数</th><th class="mid">ブートストラップ</th><th class="mid">実験・モンテカルロ</th><th>何を測る量か</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">\(\eta\)</td><td class="mid">0.036298</td><td class="mid">0.0363(2)</td><td>相関の減り方</td></tr>
+        <tr class="hi"><td class="mid">\(\nu\)</td><td class="mid">0.629971</td><td class="mid">0.6300(17)</td><td>相関距離の発散</td></tr>
+        <tr><td class="mid">\(\alpha\)</td><td class="mid">0.110087</td><td class="mid">0.110(5)</td><td>比熱の発散</td></tr>
+        <tr><td class="mid">\(\beta\)</td><td class="mid">0.326419</td><td class="mid">0.3265(15)</td><td>共存曲線の形</td></tr>
+        <tr><td class="mid">\(\gamma\)</td><td class="mid">1.237075</td><td class="mid">1.2372(5)</td><td>感受率の発散</td></tr>
+        <tr><td class="mid">\(\delta\)</td><td class="mid">4.789841</td><td class="mid">4.789(2)</td><td>臨界等温線</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>そして、どんな \((\Delta_\sigma,\Delta_\varepsilon)\) を入れても必ず成り立つ関係が一つあります。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">動かない量</div>
+    $$\alpha+2\beta+\gamma=2.000000\qquad(\Delta_\sigma,\ \Delta_\varepsilon\ \text{に依らず、恒等的に})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    六つの指数は激しく動くのに、この組み合わせだけは <strong>2 から動かない</strong>。番外編④の \(Q=2/3\) と、まったく同じ構造です。</p>
+  </div>
+
+  <p>ここが今回のいちばん大事なところです。<strong>水も、二酸化炭素も、一軸磁石も、二元合金も、臨界点で同じこの数に従います。</strong> 分子の形も結合の強さも、何ひとつ効かない。物質は舞台装置で、無次元数だけが物理 ── シリーズがずっと言ってきたことが、比喩ではなく<em>実験事実として存在している</em>。</p>
+
+  <div class="fig">
+    <div class="cap">図：左が \((\Delta_\sigma,\Delta_\varepsilon)\) 平面（灰色はユニタリー性が禁じる領域、★がイジング点）。右は六つの臨界指数のバーで、細い縦線が実験値。ツマミを動かすと六本とも動き、<strong>実験の目盛りに六本そろって重なるのはイジング点だけ</strong>。それでも \(\alpha+2\beta+\gamma\) は 2 から動かない</div>
+    <canvas id="cv" width="680" height="360"></canvas>
+    <div class="controls">
+      <label>Δ_σ（イジングは 0.518149）<span class="val" id="v1">0.518149</span>
+        <input type="range" id="s1" min="0.50" max="0.58" step="0.0005" value="0.518149">
+      </label>
+      <label>Δ_ε（イジングは 1.412625）<span class="val" id="v2">1.412625</span>
+        <input type="range" id="s2" min="1.20" max="1.80" step="0.002" value="1.412625">
+      </label>
+    </div>
+    <div class="readout" id="rd">Δ_σ = 0.518149</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#7a2438;"></i>いまの値</span>
+      <span><i class="swatch" style="background:#1d6b52;"></i>実験値の目盛り</span>
+      <span><i class="swatch" style="background:#d8d2d4;"></i>ユニタリー性が禁じる領域</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>なぜ臨界点は「面」ではなく「点」なのか</h2>
+
+  <p>\(\Delta\) には、もう一つ決定的な役目があります。<em>その演算子を放っておいてよいかどうか</em>の判定です。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">判定基準は、\(d\) との大小だけ</div>
+    $$\Delta&lt;d\ \Rightarrow\ \text{relevant（効いてくる。ツマミを回して打ち消す必要がある）}$$
+    $$\Delta&gt;d\ \Rightarrow\ \text{irrelevant（勝手に消える。放っておいてよい）}$$
+  </div>
+
+  <p>3次元イジングで数を入れます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>演算子</th><th class="mid">\(\Delta\)</th><th class="mid">\(d=3\) との大小</th><th>対応するツマミ</th></tr></thead>
+      <tbody>
+        <tr><th>\(\sigma\)（\(\mathbb{Z}_2\) 奇）</th><td class="mid">0.518149</td><td class="mid">relevant</td><td>磁場（対称性を保てば禁止）</td></tr>
+        <tr class="hi"><th>\(\varepsilon\)（\(\mathbb{Z}_2\) 偶）</th><td class="mid">1.412625</td><td class="mid">relevant</td><td><strong>温度</strong></td></tr>
+        <tr><th>\(\varepsilon'\)（\(\mathbb{Z}_2\) 偶）</th><td class="mid">3.829510</td><td class="mid">irrelevant</td><td>不要</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>対称性を保つ限り、relevant な演算子は \(\varepsilon\) <strong>ちょうど1個</strong>。だからツマミも1個 ── 温度だけ。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">06節の結論</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>臨界点に届くのに何個ツマミを回すかは、無次元数の大小比較だけで決まっている。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    \(\Delta_\varepsilon=1.41\ &lt;\ 3\ &lt;\ \Delta_{\varepsilon'}=3.83\) ── この一本の不等式が、<em>臨界点が「面」ではなく「点」である理由</em>です。そして \(\varepsilon'\) が \(d\) より大きいことが、<strong>普遍性そのもの</strong>：細かい違いは全部 irrelevant として流れ落ちる。</p>
+  </div>
+
+  <h2><span class="n">07</span>質量の符号には、意味がない</h2>
+
+  <p>最後に、シリーズの結論のいちばん過激な実例を出します。ホログラフィー（AdS/CFT）の辞書です。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">帳簿と物理が、同じものの二つの読み方だった</div>
+    $$\Delta(\Delta-d)=m^2R^2\qquad\Longleftrightarrow\qquad \Delta=\frac{d}{2}+\sqrt{\frac{d^2}{4}+m^2R^2}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    左辺は境界の<strong>無次元量 \(\Delta\)</strong>、右辺はバルクの<strong>次元付きの質量</strong>。同じ一つのものを、内側から見るか外側から見るか。</p>
+  </div>
+
+  <p>そして、ここから信じがたい結論が出ます。\(\Delta\) が実数であるためには \(m^2R^2\ge-d^2/4\) であればよく、<em>\(m^2\) は負でも構わない</em>。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(d\)</th><th class="mid">BF 限界 \(m^2R^2\ge\)</th><th class="mid">そこでの \(\Delta\)</th><th class="mid">\(m^2R^2=0\) なら</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">2</td><td class="mid">\(-1\)</td><td class="mid">1.0</td><td class="mid">\(\Delta=2\)</td></tr>
+        <tr><td class="mid">3</td><td class="mid">\(-2.25\)</td><td class="mid">1.5</td><td class="mid">\(\Delta=3\)</td></tr>
+        <tr class="hi"><td class="mid">4</td><td class="mid">\(-4\)</td><td class="mid">2.0</td><td class="mid">\(\Delta=4\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>平坦時空なら \(m^2&lt;0\) はタキオン＝不安定の代名詞でした。ところが AdS では違う。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">今回の一行</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:16px;line-height:1.85;">
+    <strong>安定かどうかを決めるのは \(m^2\) の符号ではなく、\(\Delta\) が実数かどうか。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    次元付きの量の符号には、それ単独では意味がない。判定できるのは無次元量だけ ── <em>第10回の判定手続きが、そのまま安定性の定理になっている。</em></p>
+  </div>
+
+  <h2><span class="n">08</span>開いた扉 ── ヘリウムの 6σ</h2>
+
+  <p>ここまで綺麗な話をしてきたので、合っていないものも出しておきます。イジングの隣、3次元 XY 普遍性クラス ── <strong>液体ヘリウム4の λ点</strong>です。</p>
+
+  <div class="calc">
+    <span class="tag">合っていない</span>
+    <p class="lbl">理論（ブートストラップ、モンテカルロも一致）</p>
+    $$\Delta_s=1.51136(22)\ \Rightarrow\ \nu=0.671754,\qquad \alpha=2-3\nu=-0.01526(30)$$
+    <p class="lbl">実験（Lipa ら 2003、スペースシャトルで重力を消して測定）</p>
+    $$\alpha=-0.0127(3)$$
+    <p style="margin-bottom:14px;">差 0.00256、<strong>およそ 6σ</strong>。どちらも精密なのに、合いません。</p>
+  </div>
+
+  <p>比熱の指数がゼロにごく近いので対数的な補正の扱いが難しく、実験側の解析にも理論側の外挿にも議論があります。<em>いまも決着していない食い違いです。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">01節の「Weyl 変換と共形群は別物」という整理は、教育的な切り分けです。実際には両者は密接で、「平坦時空を保つ diffeo と Weyl の組み合わせ」が共形群になります。また「Weyl 不変なら共形不変」は一般には成り立たず（逆は成り立つ）、条件付きの命題です。</p>
+    <p>04節のブートストラップは<strong>数値的な手法</strong>です。「イジングがキンクに乗る」ことは、キンクの位置がモンテカルロの値と一致するという意味であって、キンクがイジングであることの証明ではありません（近年は厳密な island 法で高精度に閉じ込められています）。表の \(\Delta\) の誤差は数値的なもので、系統誤差の見積もりを含みます。</p>
+    <p>05節の「実験・モンテカルロ」欄はさまざまな測定・計算のおおよその代表値で、単一の実験値ではありません。実在の流体や磁石は厳密な CFT ではなく、臨界点に十分近いときだけ指数が現れます（補正項があります）。</p>
+    <p style="margin-bottom:0;">07節の \(\Delta(\Delta-d)=m^2R^2\) はスカラー場についての関係で、スピンがあると形が変わります。AdS/CFT 自体は<strong>予想</strong>であって、一般には証明されていません。08節の食い違いは実在の未解決問題ですが、実験・理論のどちらに原因があるかは定まっていません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>4次元の共形対称性は 15個。ポアンカレの 10個より 5つ多い。増えた 5つは何か。
+        <details><summary>答えを見る</summary><div class="ans"><strong>拡大（ディラテーション）1個と、特殊共形変換 4個</strong>。前者が「全体を一様に伸ばす」、後者が「反転してから並進してもう一度反転する」操作です。一般に \(d\) 次元では \(1+d\) 個増えるので、合計 \(d(d-1)/2+d+1+d=(d+1)(d+2)/2\)。</div></details>
+      </li>
+      <li>\(\eta\) と異常次元の関係を述べよ。
+        <details><summary>答えを見る</summary><div class="ans">\(\eta=2\gamma_\sigma\)。3次元の自由スカラーは \(\Delta=(d-2)/2=0.5\) なので、\(\gamma_\sigma=\Delta_\sigma-0.5=0.0181489\)、よって \(\eta=0.0362978\)。<strong>\(\eta\) は「古典的な Weyl ウェイトがどれだけ間違っているか」の 2倍</strong>で、第8回のアノマリーを演算子ごとに測ったものです。</div></details>
+      </li>
+      <li>なぜ臨界点に届くのに温度というツマミが1個だけで済むのか。
+        <details><summary>答えを見る</summary><div class="ans">\(\mathbb{Z}_2\) 対称性を保つ演算子のうち relevant（\(\Delta&lt;d=3\)）なものが \(\varepsilon\) の1個しかないから。次の \(\varepsilon'\) は \(\Delta=3.83&gt;3\) で irrelevant。<strong>ツマミの数＝relevant な演算子の数</strong>で、それは無次元数と \(d\) の大小比較だけで決まります。ついでに、\(\varepsilon'\) が irrelevant であることが普遍性の理由でもあります。</div></details>
+      </li>
+      <li>\(\alpha+2\beta+\gamma=2\) が恒等的に成り立つことを示せ。
+        <details><summary>答えを見る</summary><div class="ans">代入するだけです。\(\alpha+2\beta+\gamma=(2-d\nu)+\nu(d-2+\eta)+\nu(2-\eta)=2-d\nu+d\nu-2\nu+\nu\eta+2\nu-\nu\eta=2\)。<strong>\(\nu\) も \(\eta\) も \(d\) も全部消えます。</strong>だから図でツマミをどう回しても 2 から動きません ── これは物理ではなく、六つの指数が二つの数の関数であることの帰結です。</div></details>
+      </li>
+      <li>（やや難）AdS で \(m^2&lt;0\) が許されるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">安定性の条件は「\(m^2&gt;0\)」ではなく「\(\Delta\) が実数」だから。\(\Delta=d/2+\sqrt{d^2/4+m^2R^2}\) なので、\(m^2R^2\ge-d^2/4\) までは \(\Delta\) が実数のままで、揺らぎは増幅されません。AdS の負の曲率が「箱」として働き、負の \(m^2\) をある程度まで支えます。<strong>次元付きの量（\(m^2\)）の符号だけでは判定できず、無次元量（\(\Delta\)）の実数性が本当の基準</strong> ── これが Breitenlohner–Freedman 限界です。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>ウェイトには、名前があった</h2>
+    <p>「共形変換」には二種類あります。このシリーズが 15話かけて扱ってきた <strong>Weyl 変換</strong>（無限次元、ゲージ的な書き換え）と、平坦時空の<strong>共形群</strong>（有限次元、本物の対称性、4次元で 15個）。ただし \(d=2\) だけは共形群も無限次元で、それが弦の世界面が 2次元である理由です。</p>
+    <p>そして両者はつながっていました。共形場理論の主役 \(\Delta\) の定義は \(\mathcal{O}\to\Omega^{-\Delta}\mathcal{O}\) ── <strong>\(\Delta\) は Weyl ウェイトそのもの</strong>。第3回のウェイト表も第7回の \(\Omega^{D-4}\) も、名前を知らずに \(\Delta\) を計算していたのでした。古典的なウェイトとの差 \(\gamma\) が異常次元で、それは<em>第8回のアノマリーを演算子ごとに測ったもの</em>です。</p>
+    <p>共形ブートストラップは、次元付きの入力を一つも使いません ── クロッシング対称性とユニタリー性と対称性だけ。それで 3次元イジングの \(\Delta_\sigma=0.5181489\)、\(\Delta_\varepsilon=1.412625\) が決まり、そこから六つの臨界指数が全部出て、<strong>水も二酸化炭素も一軸磁石も同じ数に従う</strong>。\(\gamma_\sigma=0.0181489\)、つまり「Weyl ウェイトの間違い」が 7桁で測られている。そして \(\alpha+2\beta+\gamma\) は、どんな \(\Delta\) を入れても 2 から動きません。</p>
+    <p>さらに \(\Delta\) は、臨界点に届くのに<strong>ツマミが何個要るか</strong>まで決めます。\(\Delta_\varepsilon=1.41&lt;3&lt;\Delta_{\varepsilon'}=3.83\) ── この一本の不等式が、臨界点が点である理由であり、普遍性そのものでもある。最後にホログラフィーの辞書 \(\Delta(\Delta-d)=m^2R^2\) が、帳簿（バルクの質量）と物理（境界の \(\Delta\)）を同一物として結び、<em>安定性を決めるのは \(m^2\) の符号ではなく \(\Delta\) が実数かどうか</em>だと告げます。第10回の判定手続きが、そのまま安定性の定理になっていました。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">次回・最終回</span>
+    残るは第8回の宿題です。共形アノマリーには4次元で二つの係数 \(c\) と \(a\) があり、この二つに<strong>まったく違う二つの使い道</strong>があります。<em>ゼロにしろと要求すると、時空の次元が決まる</em>（ボソン弦で 26、超弦で 10）。<em>正であれと要求すると、繰り込み群に向きが出る</em>（a定理）。しかも a定理の証明に使う道具は、第4回でやった「\(\Omega\) を場に格上げする」操作そのもので、\(a\) の正体は<strong>エンタングルメント・エントロピー</strong>でした ── 番外編②の「有限リソースの計算機」と、そこで合流します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編⑥、物理好きの高校生・大学生向け読み物です。\(d\) 次元の共形代数の次元が \((d+1)(d+2)/2\) であること、\(d=2\) でのみ局所共形代数が無限次元（Virasoro）になることは標準的です。スケーリング次元 \(\Delta\) が Weyl 変換における重み（\(\mathcal{O}\to\Omega^{-\Delta}\mathcal{O}\)）であること、\(\Delta=\Delta_{\text{古典}}+\gamma\) で \(\gamma\) が異常次元であることも標準的です。スカラーのユニタリー限界 \(\Delta\ge(d-2)/2\)、保存カレントの \(\Delta=d-1\)、応力テンソルの \(\Delta=d\) はいずれも標準的な結果です。3次元イジング CFT の \(\Delta_\sigma=0.5181489(10)\)、\(\Delta_\varepsilon=1.412625(10)\)、\(\Delta_{\varepsilon'}=3.82951(61)\) は共形ブートストラップ（El-Showk, Paulos, Poland, Rychkov, Simmons-Duffin, Vichi ら 2012–2016）による値です。臨界指数への変換式（\(\eta=2\Delta_\sigma-d+2\)、\(\nu=1/(d-\Delta_\varepsilon)\) ほか）は標準的で、表の指数の値および \(\alpha+2\beta+\gamma=2\) が恒等式であることは本稿での計算です。「実験・モンテカルロ」欄は複数の測定・数値計算のおおよその代表値であり、単一の出典による値ではありません。3次元 XY の \(\Delta_s=1.51136(22)\) は Chester らのブートストラップによる値、\(\alpha=-0.0127(3)\) は Lipa らによる宇宙実験（2003）の値で、両者の食い違いは<strong>未解決の問題</strong>です。AdS/CFT のスカラーに対する関係式 \(\Delta(\Delta-d)=m^2R^2\) と Breitenlohner–Freedman 限界 \(m^2R^2\ge-d^2/4\) は標準的ですが、AdS/CFT 対応そのものは<strong>証明されていない予想</strong>です。ブートストラップは数値的手法であり、「イジング模型がキンクに乗る」ことはモンテカルロとの一致を意味しますが、それ自体が証明ではありません。実在の物質は厳密な CFT ではなく、臨界点近傍でのみこれらの指数が現れます。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では二つのスライダーで \(\Delta\) を動かし、六本のバーが実験値に重なる点を探せます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), s1=document.getElementById('s1'), s2=document.getElementById('s2'),
+      v1=document.getElementById('v1'), v2=document.getElementById('v2'), rd=document.getElementById('rd');
+  var D=3, IS=[0.5181489,1.412625];
+  var EXP={eta:0.0363, nu:0.6300, alpha:0.110, beta:0.3265, gamma:1.2372, delta:4.789};
+  var RANGE={eta:[0,0.16], nu:[0.55,0.84], alpha:[-0.50,0.34], beta:[0.27,0.49],
+             gamma:[1.00,1.67], delta:[4.15,5.02]};
+  var ORDER=['eta','nu','alpha','beta','gamma','delta'];
+  var GLYPH={eta:'η', nu:'ν', alpha:'α', beta:'β', gamma:'γ', delta:'δ'};
+
+  function exps(ds,de){
+    var eta=2*ds-D+2, nu=1/(D-de);
+    return {eta:eta, nu:nu, alpha:2-D*nu, beta:nu*(D-2+eta)/2,
+            gamma:nu*(2-eta), delta:(D+2-eta)/(D-2+eta)};
+  }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var ds=parseFloat(s1.value), de=parseFloat(s2.value);
+    v1.textContent=ds.toFixed(6); v2.textContent=de.toFixed(6);
+    var E=exps(ds,de);
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    ctx.clearRect(0,0,W,H);
+
+    /* ---- 左：(Δσ, Δε) 平面 ---- */
+    var L=42, T=34, PW=Math.min(250,W*0.38), PH=H-T-46;
+    var xs=[0.485,0.585], ys=[1.15,1.85];
+    function PX(x){ return L+(x-xs[0])/(xs[1]-xs[0])*PW; }
+    function PY(y){ return T+PH-(y-ys[0])/(ys[1]-ys[0])*PH; }
+    ctx.fillStyle='#d8d2d4';
+    ctx.fillRect(PX(xs[0]),T,PX(0.5)-PX(xs[0]),PH);
+    ctx.strokeStyle='#efe0e4'; ctx.lineWidth=1;
+    for(var gx=0.50; gx<=0.581; gx+=0.02){ ctx.beginPath(); ctx.moveTo(PX(gx),T); ctx.lineTo(PX(gx),T+PH); ctx.stroke(); }
+    for(var gy=1.2; gy<=1.81; gy+=0.2){ ctx.beginPath(); ctx.moveTo(L,PY(gy)); ctx.lineTo(L+PW,PY(gy)); ctx.stroke(); }
+    ctx.strokeStyle='#c8a6b0'; ctx.lineWidth=1.2; ctx.strokeRect(L,T,PW,PH);
+    ctx.strokeStyle='#8a7f83'; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.moveTo(PX(0.5),T); ctx.lineTo(PX(0.5),T+PH); ctx.stroke();
+
+    ctx.font='10.5px sans-serif'; ctx.fillStyle='#8a7f83'; ctx.textAlign='center';
+    for(var gx2=0.50; gx2<=0.581; gx2+=0.02) ctx.fillText(gx2.toFixed(2), PX(gx2), T+PH+14);
+    ctx.textAlign='right';
+    for(var gy2=1.2; gy2<=1.81; gy2+=0.2) ctx.fillText(gy2.toFixed(1), L-5, PY(gy2)+3.5);
+    ctx.textAlign='center'; ctx.font='11.5px sans-serif'; ctx.fillStyle='#6b1f34';
+    ctx.fillText('Δ_σ →', L+PW/2, T+PH+30);
+    ctx.save(); ctx.translate(13,T+PH/2); ctx.rotate(-Math.PI/2); ctx.fillText('Δ_ε →',0,0); ctx.restore();
+    ctx.font='10.5px sans-serif'; ctx.fillStyle='#7a7276';
+    ctx.save(); ctx.translate(PX(0.4925),T+PH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('禁止',0,0); ctx.restore();
+
+    // イジング点（★）
+    ctx.fillStyle='#1d6b52';
+    (function(){
+      var x=PX(IS[0]), y=PY(IS[1]), R=7;
+      ctx.beginPath();
+      for(var i=0;i<10;i++){
+        var ang=-Math.PI/2+i*Math.PI/5, rr=(i%2===0)?R:R*0.45;
+        if(i===0) ctx.moveTo(x+rr*Math.cos(ang), y+rr*Math.sin(ang));
+        else ctx.lineTo(x+rr*Math.cos(ang), y+rr*Math.sin(ang));
+      }
+      ctx.closePath(); ctx.fill();
+    })();
+    ctx.font='10.5px sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#1d6b52';
+    ctx.fillText('3次元イジング', PX(IS[0])+10, PY(IS[1])-6);
+    // 現在地
+    ctx.fillStyle='#7a2438';
+    ctx.beginPath(); ctx.arc(PX(ds),PY(de),5.5,0,6.284); ctx.fill();
+
+    /* ---- 右：六つの指数バー ---- */
+    var BX=L+PW+52, BW=W-BX-58, rowH=(H-T-30)/6;
+    ctx.textAlign='left';
+    for(var i=0;i<6;i++){
+      var k=ORDER[i], r=RANGE[k], y=T+i*rowH+rowH*0.42;
+      var f=Math.max(0,Math.min(1,(E[k]-r[0])/(r[1]-r[0])));
+      var fe=(EXP[k]-r[0])/(r[1]-r[0]);
+      ctx.fillStyle='#f2e6e9'; ctx.fillRect(BX,y-8,BW,16);
+      ctx.fillStyle='#7a2438'; ctx.fillRect(BX,y-8,BW*f,16);
+      ctx.strokeStyle='#1d6b52'; ctx.lineWidth=2.4;
+      ctx.beginPath(); ctx.moveTo(BX+BW*fe,y-12); ctx.lineTo(BX+BW*fe,y+12); ctx.stroke();
+      ctx.fillStyle='#4a4e5a'; ctx.font='bold 13px sans-serif'; ctx.textAlign='right';
+      ctx.fillText(GLYPH[k], BX-8, y+5);
+      ctx.font='11px sans-serif'; ctx.textAlign='left';
+      ctx.fillStyle=(Math.abs(E[k]-EXP[k])/Math.abs(EXP[k])<0.005)?'#1d6b52':'#8a7f83';
+      ctx.fillText(E[k].toFixed(4), BX+BW+6, y+4);
+    }
+    ctx.fillStyle='#6b1f34'; ctx.font='11.5px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('臨界指数（縦線＝実験値）', BX-14, 20);
+
+    var chk=E.alpha+2*E.beta+E.gamma;
+    var worst=0;
+    ORDER.forEach(function(k){ worst=Math.max(worst, Math.abs(E[k]-EXP[k])/Math.abs(EXP[k])); });
+    rd.textContent='Δ_σ = '+ds.toFixed(6)+'　Δ_ε = '+de.toFixed(6)+'　│　α+2β+γ = '+chk.toFixed(6)
+      +'（どこでも 2 のまま）　│　実験値との最大ずれ = '+(worst*100).toFixed(2)+'%'
+      +(worst<0.005?'　── 六本そろって重なった。ここがイジング点':'');
+  }
+
+  [s1,s2].forEach(function(el){ el.addEventListener('input',draw); });
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
