@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電子は、なぜ軽いのか ── わかる共形変換 番外編④</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f9f8; --paper-edge:#cddedb;   /* 番外編④：緑青の紙（位相） */
+    --side:#1c4a44; --side-bg:#e6f0ee;
+    --warn:#8a4b2f;
+    --calc:#124a52; --calc-bg:#e1eef0;
+    --rule:#c3d9d5; --hair:#a3c3bd;
+    --acc:#17554f;    /* 番外編④アクセント＝緑青 */
+    --grid:#dcebe8;
+    --el:#b0392c;     /* 電子＝緋 */
+    --mu:#a97514;     /* ミュー＝琥珀 */
+    --ta:#17554f;     /* タウ＝緑青 */
+    --nu:#4b3f8f;     /* ニュートリノ＝菫 */
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe6df 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#16332f;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bdd6d9;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfefd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e1eef0;color:#124a52;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfffe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#e1eef0;color:#124a52;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#edf5f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e3f0ec;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:34px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f7f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c3b37;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfffe,#e8f2f0);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e1eef0;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c3b37;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5c6d6a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ④（本編級）／ 閉じたはずの帳簿に、一列だけ残っていた</span></div>
+  <p class="eyebrow">10回かけて「無次元だけが物理」と結論した。ところが、まだ一度も扱っていない無次元量がある ── 位相</p>
+  <h1>電子は、なぜ軽いのか
+    <span class="sub">質量に虚数成分があるからではないか ── その疑いを、最後まで追いかけます。<br>素朴な形では<strong>否</strong>。でも位相を追い続けると、<strong>いま実験が現に探している量</strong>に出ます。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：平方根、複素数の足し算、そして「位相は無次元だ」という一行</span>
+    <span>\(m=|m|\,e^{i\theta\gamma_5}\)</span>
+  </div>
+
+  <p class="lead">電子の湯川結合は \(y_e=2.94\times10^{-6}\)、トップは \(y_t=0.99\)。同じ形をした結合が、片方は 1 で片方は 100万分の3。<em>なぜ電子だけこんなに軽いのか。</em> 「質量に虚数成分があって、それで小さく見えているのでは」── この疑いから始めます。結論を先に言うと、いちばん素朴な形では<strong>否</strong>です。虚部は質量を<em>重く</em>する。でも、位相を最後まで追いかけると話は終わりません。ニュートリノでは、位相のせいで質量が打ち消し合う現象が<strong>実際に起こりうる</strong>し、実験がそれを探している。そして荷電レプトンの側にも、位相で説明できてしまう関係式が一つ残っています。</p>
+
+  <h2><span class="n">01</span>閉じたはずの帳簿に、一列だけ残っていた</h2>
+
+  <p>第10回で、このシリーズはこう結論しました ── <strong>答える資格があるのは無次元不変量だけ。動けば物理、動かなければ帳簿。</strong></p>
+
+  <p>ところが、10回のあいだ一度も使わなかった無次元量があります。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">見落としていたもの</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.8;">
+    <strong>位相は、最初から無次元です。</strong>ラジアンは単位ではない。</p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    つまりシリーズ自身の判定手続きによれば、質量の位相は最初から<em>「物理」の列の候補</em>だった。なのに私たちは \(|m|\) の話しかしてこなかった。</p>
+  </div>
+
+  <p>質量項をいちばん一般的に書くと、実は成分が二つあります。</p>
+
+  $$\mathcal{L}_{\rm mass}=-\bar\psi\,(m_1+i\,m_2\gamma_5)\,\psi$$
+
+  <p>\(m_1\) がふつうの質量（スカラー）、\(m_2\) が擬スカラーの質量。まとめて複素数 \(m=m_1+im_2\) と書けば、<strong>質量は最初から複素数の形をしている</strong>のです。教科書が \(m_2=0\) と書くのは、そう選べるからであって、そうでなければいけないからではありません。</p>
+
+  <p>ではこの \(m_2\) は、帳簿なのか物理なのか。判定手続きにかけます。</p>
+
+  <h2><span class="n">02</span>共形変換は、位相に指一本触れられない</h2>
+
+  <p>まず、このシリーズの主役にやらせてみます。第7回で見たとおり、質量の Weyl ウェイトは</p>
+
+  $$\tilde m=\Omega^{-1}m$$
+
+  <p>でした。ここで大事なのは、<em>\(\Omega\) が実の正の関数だ</em>ということです。これは選択ではなく定義です ── \(\tilde g_{\mu\nu}=\Omega^2 g_{\mu\nu}\) で \(\Omega\) が複素だったら、計量が実でなくなって符号数（時間1・空間3）が壊れてしまう。だから \(\Omega&gt;0\)。すると、</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">一行の定理</div>
+    $$\arg\tilde m=\arg m\qquad(\text{Weyl 変換の下で厳密に不変})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>共形変換は、質量の絶対値を好きなだけ動かせる。でも位相には指一本触れられない。</strong></p>
+  </div>
+
+  <p>これは強い結果です。第4回で見たとおり、Weyl 変換のツマミ \(s\) を回せば質量の大きさは何倍にでもできました ── だから \(|m|\) は帳簿でした。ところが位相は、どのゲージを選んでも同じ値のまま。<strong>シリーズの判定表に入れると、位相は「物理」の列に落ちる。</strong></p>
+
+  <div class="aside">
+    <span class="tag">ここまではあなたの読み筋の勝ち</span>
+    「質量に虚数成分がある」という疑いは、少なくともこの段階では殺せていません。共形変換という、10回かけて磨いた道具では、位相を消せないからです。── ただし、消せる道具が<strong>別に</strong>あります。
+  </div>
+
+  <h2><span class="n">03</span>質量には、ツマミが二つある</h2>
+
+  <p>複素数を極形式に書き直します。</p>
+
+  $$m=m_1+im_2=|m|\,e^{i\theta},\qquad \theta=\arctan\frac{m_2}{m_1}$$
+
+  <p>すると、質量には<em>独立に回せるツマミが二つ</em>あることが見えてきます。絶対値のツマミと、位相のツマミです。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>ツマミ</th><th>変換</th><th class="mid">動くもの</th><th class="mid">動かないもの</th><th>消せない残り</th></tr></thead>
+      <tbody>
+        <tr><th>Weyl \(\Omega\)</th><td>\(g\to\Omega^2g\)</td><td class="mid">\(|m|\)</td><td class="mid">位相 \(\theta\)、比</td><td>共形アノマリー（第8回）</td></tr>
+        <tr><th>カイラル \(\alpha\)</th><td>\(\psi\to e^{i\alpha\gamma_5/2}\psi\)</td><td class="mid">位相 \(\theta\)</td><td class="mid">\(|m|\)</td><td>カイラルアノマリー（強いCP）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>この二つは互いに独立で、しかもどちらも<strong>ゲージ的</strong>です。そして構造まで同じ ── 古典的には自由に回せるのに、<em>量子にすると片方だけ痕跡が残る</em>。第8回でやったことが、位相の側でもう一度起きます。</p>
+
+  <div class="aside">
+    <span class="tag">求められていた「式の変換」は、これです</span>
+    質量の虚部を消す変換は、共形変換ではなく<strong>カイラル回転</strong>です。\(\psi\to e^{i\alpha\gamma_5/2}\psi\) を質量項に入れると、\(\bar\psi\to\bar\psi\,e^{i\alpha\gamma_5/2}\)（\(\gamma_5\) が \(\gamma^0\) と反交換するため符号が反転しない）なので、二つが打ち消さずに<em>足し算</em>になり、質量が回ります。
+  </div>
+
+  <h2><span class="n">04</span>素朴版は、ここで死ぬ</h2>
+
+  <div class="calc">
+    <span class="tag">計算 ── 三行</span>
+    <p class="lbl">カイラル回転をかける</p>
+    $$-\bar\psi(m_1+im_2\gamma_5)\psi\ \xrightarrow{\ \psi\to e^{i\alpha\gamma_5/2}\psi\ }\ m_1+im_2\ \longrightarrow\ (m_1+im_2)\,e^{i\alpha}$$
+    <p class="lbl">\(\alpha=-\arctan(m_2/m_1)\) と選べば虚部は消える</p>
+    $$m_{\rm phys}=|m|=\sqrt{m_1^2+m_2^2}$$
+    <p class="lbl">分散関係で確かめる</p>
+    $$E^2=p^2c^2+(m_1^2+m_2^2)c^4$$
+    <p style="margin-bottom:14px;">虚部は、必ず<strong>正の寄与</strong>として入る。</p>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">素朴版の判決</div>
+    $$\sqrt{m_1^2+m_2^2}\ \ \ge\ \ |m_1|$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>虚部を足すと、物理的な質量は必ず重くなる。軽くはならない。</strong>しかも位相はカイラル回転で消せるので、そもそも帳簿。<em>フェルミオン1個では、符号が逆です。</em></p>
+  </div>
+
+  <p>もう一つの読み方 ── 「複素質量＝不安定粒子の極」\(m\to m-i\Gamma/2\) も、電子では即死します。電子は電荷保存で厳密に安定だからです。ボレキシーノの実験は \(e\to\nu\gamma\) の寿命に \(\tau&gt;6.6\times10^{28}\) 年という下限を置いていて、これを幅に直すと</p>
+
+  $$\Gamma_e&lt;3.2\times10^{-52}\ \mathrm{eV}\qquad\Longrightarrow\qquad \frac{\Gamma_e}{2m_e}&lt;3.1\times10^{-58}$$
+
+  <p><strong>物理でいちばん精密に測られた「ゼロ」のひとつ</strong>です。この意味の虚部は、ありません。</p>
+
+  <p>── ここで諦めるなら、これは「否」だけの回になります。でも終わりません。<em>いま殺したのは「1個のとき」だけ</em>だからです。</p>
+
+  <h2><span class="n">05</span>二つ以上あると、位相は消せなくなる</h2>
+
+  <p>カイラル回転のツマミは、粒子の種類ごとに1個ずつ。位相が \(n\) 個あってツマミが \(n\) 個なら全部消せる ── と思いきや、質量が<em>行列</em>になっていると、消せる数は足りません。全体の位相を回すことしかできない場合、<strong>残る \(n-1\) 個の位相差は消えない</strong>。</p>
+
+  <p>そしてこれは、シリーズがずっとやってきたことの<em>二枚目</em>です。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th></th><th>帳簿（ゲージで動く）</th><th>物理（動かない）</th><th>測られている値</th></tr></thead>
+      <tbody>
+        <tr><th>大きさ</th><td>個々の \(m_i\)</td><td>比 \(m_i/m_j\)</td><td>\(m_\mu/m_e=206.768\)</td></tr>
+        <tr class="hi"><th>位相</th><td>個々の \(\theta_i\)</td><td>差 \(\theta_i-\theta_j\ \ (=\arg\det M)\)</td><td>\(\bar\theta&lt;10^{-10}\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>右下の \(\bar\theta=\theta_{\rm QCD}+\arg\det M_{\rm quark}\) には名前があります ── <strong>強いCP問題</strong>。中性子の電気双極子能率が測られていて、位相はゼロから \(10^{-10}\) 以内。なぜこんなにゼロに近いのかは、いまも未解決です。</p>
+
+  <p>電子の位相も、実は直接測られています。位相があると電荷分布が前後非対称になり、<em>電気双極子能率</em>として現れる。JILA の HfF⁺ 実験（2023）が</p>
+
+  <div class="calc">
+    <span class="tag">電子の「虚部」の実測上限</span>
+    <p class="lbl">生の値</p>
+    $$|d_e|&lt;4.1\times10^{-30}\ e\cdot\mathrm{cm}$$
+    <p class="lbl">無次元化する（コンプトン波長で割る）</p>
+    $$\frac{|d_e|}{e\,\lambda_C}&lt;1.1\times10^{-19}$$
+    <p style="margin-bottom:14px;">電子の電荷の重心は、<strong>自分のコンプトン波長の \(10^{-19}\) 未満しかずれていない</strong>。</p>
+  </div>
+
+  <p>これを位相に翻訳すると ── 位相が電弱スケールに乗っていて木レベルで効くなら \(\sin\varphi&lt;2.5\times10^{-8}\)、逆に \(O(1)\) の位相を許すなら新物理は \(\Lambda&gt;1.6\times10^{3}\) TeV（1ループ抑制を入れても 125 TeV）より上にいなければならない。<strong>虚部は測れる。そして測った結果、ほぼゼロ。</strong></p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>種明かし ── 位相は、\(\sqrt{m}\) の空間にいた</h2>
+
+  <p>ここからが今回の本題です。もとの問い ── <em>電子はなぜ軽いのか</em> ── を無次元で書き直します。</p>
+
+  $$y_e=\frac{\sqrt2\,m_e}{v}=2.935\times10^{-6},\qquad y_t=0.9919,\qquad \frac{y_e}{y_t}=2.96\times10^{-6}$$
+
+  <p>これが謎の全部です。次元付きの MeV も GeV も舞台装置で、残るのはこの数だけ。</p>
+
+  <p>で、ここで質量の<em>平方根</em>を取ってみます。1982年に小出義夫が見つけた関係式です。</p>
+
+  <div class="calc">
+    <span class="tag">検算 ── PDG の値で</span>
+    <p class="lbl">小出の関係式</p>
+    $$Q=\frac{m_e+m_\mu+m_\tau}{\left(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\right)^2}$$
+    <p class="lbl">代入する（\(m_e=0.51099895\)、\(m_\mu=105.6583755\)、\(m_\tau=1776.86\) MeV）</p>
+    $$Q=\frac{1883.029}{2824.570}=0.66666051\qquad\text{vs}\qquad \frac23=0.66666667$$
+    <p style="margin-bottom:14px;">相対的なずれ <strong>\(9.2\times10^{-6}\)</strong>。\(m_\tau\) の実験誤差 \(\pm0.12\) MeV の中に、余裕で収まっています。</p>
+  </div>
+
+  <p>幾何で言い直すともっと鮮やかです。ベクトル \((\sqrt{m_e},\sqrt{m_\mu},\sqrt{m_\tau})\) と対角線 \((1,1,1)\) のなす角を計算すると</p>
+
+  $$\theta=44.99974^\circ\qquad(45^\circ\text{ からのずれ }0.00026^\circ)$$
+
+  <p>そして \(45^\circ\) という条件は、次の形と<strong>厳密に同値</strong>です。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">今回の一行</div>
+    $$\sqrt{m_k}=M\left(1+\sqrt2\,\cos\!\left(\delta+\frac{2\pi k}{3}\right)\right),\qquad k=0,1,2$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>\(\sqrt{m}\) は、ある複素数の実部。</strong>三世代は、\(120^\circ\) ずつずれた三つの射影。</p>
+  </div>
+
+  <p>なぜこれで \(Q=2/3\) が自動的に出るのか。\(\sum_k\cos(\delta+2\pi k/3)=0\) と \(\sum_k\cos^2(\cdots)=3/2\) を使うだけです。分子は \(M^2\sum(1+\sqrt2\cos)^2=M^2(3+0+3)=6M^2\)、分母は \(\left(M\sum(1+\sqrt2\cos)\right)^2=9M^2\)。よって \(Q=6/9=2/3\)、<em>\(\delta\) にも \(M\) にも依らず、常に</em>。</p>
+
+  <p>実測から \(M\) と \(\delta\) を解きます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th></th><th class="mid">\(\sqrt{m}/M\)</th><th class="mid">角度 \(\theta_k\)</th><th>位置</th></tr></thead>
+      <tbody>
+        <tr><th>\(\tau\)</th><td class="mid">2.379423</td><td class="mid">12.7352°</td><td>\(\cos\) の山のてっぺん近く</td></tr>
+        <tr><th>\(\mu\)</th><td class="mid">0.580226</td><td class="mid">107.2670°（\(\tau-120.0022^\circ\)）</td><td>下り坂の途中</td></tr>
+        <tr class="hi"><th>\(e\)</th><td class="mid">0.040351</td><td class="mid">132.7323°（\(\tau+119.9972^\circ\)）</td><td><strong>ゼロ点のすぐ手前</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>\(M=17.7156\,\sqrt{\rm MeV}\)、\(\delta=12.7352^\circ\)。<em>\(120^\circ\) 間隔が3桁で合っています。</em></p>
+
+  <p>そして、電子が軽い理由がここで一行になります。\(1+\sqrt2\cos\theta\) がゼロになるのは \(\theta=135^\circ\)。電子は \(132.73^\circ\) にいる。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">電子が軽い理由</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:16px;line-height:1.85;">
+    <strong>電子が質量ゼロになるまで、あと \(2.27^\circ\)。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    感度は \(d\ln m_e/d\delta=0.90\)／度 ── <em>\(\delta\) が \(1^\circ\) ずれれば、電子の質量は 2.5倍変わる</em>。\(\tau\) は山の上（\(12.7^\circ\)）に、電子は谷の縁に立っている。同じ \(M\)、同じ式、違うのは \(120^\circ\) だけ。</p>
+  </div>
+
+  <p><strong>「電子が軽いのは位相のせい」── これは正しい。</strong> ただしその位相は \(\gamma_5\) のカイラル位相ではなく、\(\sqrt{m}\) 空間の回転角でした。住所が違っただけで、疑いの筋は当たっていたことになります。</p>
+
+  <div class="fig">
+    <div class="cap">図1：横軸が角度、曲線が \(1+\sqrt2\cos\theta\)。三つの点が \(120^\circ\) 間隔で乗っている。ツマミ \(\delta\) を回すと三つの質量が激しく動くのに、<strong>無次元量 \(Q\) だけは \(2/3\) に貼りついて一切動かない</strong>。灰色の縦線がゼロ点（\(135^\circ\)）</div>
+    <canvas id="cv1" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>位相 δ（実測値は 12.735°）<span class="val" id="v1">12.735°</span>
+        <input type="range" id="s1" min="0" max="30" step="0.005" value="12.735">
+      </label>
+    </div>
+    <div class="readout" id="r1">δ = 12.735°</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0392c;"></i>電子</span>
+      <span><i class="swatch" style="background:#a97514;"></i>ミューオン</span>
+      <span><i class="swatch" style="background:#17554f;"></i>タウ</span>
+      <span><i class="swatch" style="background:#9aa8a5;"></i>ゼロ点（135°）</span>
+    </div>
+  </div>
+
+  <h2><span class="n">07</span>ニュートリノ ── ここで位相が本物になる</h2>
+
+  <p>荷電レプトンの位相は、結局のところ経験式の中の数でした。ところがニュートリノに移ると、位相が<em>理論的に消せなくなる</em>。理由がはっきりしています。</p>
+
+  <p>まず軽さの桁を見ておきます。振動実験から最も重いニュートリノは \(m_3\gtrsim\sqrt{\Delta m^2_{31}}=0.0501\) eV、湯川に直すと</p>
+
+  $$y_\nu=2.9\times10^{-13},\qquad \frac{y_\nu}{y_e}=9.8\times10^{-8}$$
+
+  <p>電子ですら「軽すぎる」と言っていたのに、ニュートリノはさらに1億分の1。ここで小さい結合を手で書くのは、さすがに諦めが要ります。<strong>代わりに使うのが、比の構造です。</strong></p>
+
+  <div class="calc">
+    <span class="tag">シーソー機構 ── 二行</span>
+    <p class="lbl">質量行列（左が軽い成分、右が重い右巻き成分）</p>
+    $$M=\begin{pmatrix}0 &amp; m_D\\ m_D &amp; M_R\end{pmatrix},\qquad \det M=-m_D^2$$
+    <p class="lbl">\(M_R\gg m_D\) で対角化すると</p>
+    $$\lambda_+\simeq M_R,\qquad \lambda_-\simeq-\frac{m_D^2}{M_R}$$
+    <p style="margin-bottom:14px;">行列式が固定されているので、片方を重くすると<strong>もう片方が必ず軽くなる</strong>。シーソー。</p>
+  </div>
+
+  <p>ここが無次元で言うと美しいところです。\(m_\nu=m_D^2/M_R\) を書き直すと</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">軽さの正体は、比例中項</div>
+    $$\frac{m_\nu}{m_D}=\frac{m_D}{M_R}=2.9\times10^{-13}\qquad\Longleftrightarrow\qquad m_D=\sqrt{m_\nu M_R}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>ディラック質量は、ニュートリノ質量と重いスケールの相乗平均。</strong></p>
+  </div>
+
+  <p>数を入れてみます。\(m_\nu=0.0501\) eV、\(M_R=5.95\times10^{14}\) GeV とすると相乗平均は</p>
+
+  $$\sqrt{m_\nu M_R}=\sqrt{5.01\times10^{-11}\,\mathrm{GeV}\times5.95\times10^{14}\,\mathrm{GeV}}=172.7\ \mathrm{GeV}$$
+
+  <p><em>トップクォークの質量ぴったり。</em> 逆に言えば、\(m_D\) が電弱スケールなら \(M_R\sim10^{15}\) GeV ── 大統一の目盛りです。<strong>いちばん軽いものが、いちばん重いスケールを教えてくれる。</strong>（ちなみに \(M_R\) をプランク質量にすると \(m_\nu=v^2/M_{\rm Pl}=5.0\times10^{-6}\) eV で、小さすぎて合いません。プランクではなく大統一。）</p>
+
+  <div class="aside">
+    <span class="tag">共形の側から見ると</span>
+    標準模型に許される<strong>次元5の演算子はただ一つ</strong>で、それがニュートリノ質量を作るものです（ワインバーグ演算子 \(\mathcal{O}=(LH)(LH)/\Lambda\)）。次元4までの標準模型はスケール不変性を「ほぼ」保っていて、それを最初に破る演算子が、いちばん軽い粒子の質量を作る ── 第7回の「質量はコンプトン波長という具体的な長さを持ち込む」の、いちばん端の例です。
+  </div>
+
+  <h3>そして固有値の符号が、負になる</h3>
+
+  <p>上のシーソーの式をもう一度見てください。軽いほうの固有値は</p>
+
+  $$\lambda_-\simeq-\frac{m_D^2}{M_R}\qquad\text{（マイナス）}$$
+
+  <p>質量が負 ── これは \(|m|e^{i\pi}\)、つまり<strong>位相 \(\pi\)</strong> です。ディラック粒子なら、カイラル回転で符号を吸って終わりでした。ところがニュートリノがマヨラナ粒子（粒子＝反粒子）だと、質量項が \(\nu^T C\nu\) の形で、場の位相を回すと質量項の位相が<em>2倍で</em>動いてしまい、回転の自由度が足りなくなる。<strong>位相が消せなくなるのです。</strong></p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>3世代の混合行列</th><th class="mid">角度</th><th class="mid">位相</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><th>ディラック型</th><td class="mid">3</td><td class="mid">1</td><td>CP位相 \(\delta_{\rm CP}\) だけ</td></tr>
+        <tr class="hi"><th>マヨラナ型</th><td class="mid">3</td><td class="mid"><strong>3</strong></td><td>\(\delta_{\rm CP}\) ＋ <strong>マヨラナ位相2個</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>一般に \(n\) 世代で、ディラックなら位相は \((n-1)(n-2)/2\) 個、マヨラナなら \(n(n-1)/2\) 個。<em>差の \(n-1\) 個が、消せずに残った位相</em>です。</p>
+
+  <p>ディラック位相のほうは測定が進んでいて、無次元不変量としては<strong>ヤールスコグ不変量</strong>で測ります ── 個々の位相は位相の取り替え（帳簿）で動くけれど、これだけは動かない。</p>
+
+  $$J_{\rm PMNS}=0.0330\,\sin\delta_{\rm CP}\approx-0.026\qquad\text{vs}\qquad J_{\rm CKM}=3.08\times10^{-5}$$
+
+  <p><strong>レプトンの CP 位相は、クォークの約 845 倍効く。</strong>（ただし \(\delta_{\rm CP}\) の実測値はまだ動いていて、\(200^\circ\)〜\(250^\circ\) あたりで揺れています。）</p>
+
+  <h2><span class="n">08</span>位相のせいで、質量が消える</h2>
+
+  <p>ここが今回の山場です。マヨラナ位相が観測にどう出るか ── ニュートリノを伴わない二重ベータ崩壊（\(0\nu\beta\beta\)）の速さが、次の量で決まります。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">有効マヨラナ質量</div>
+    $$m_{\beta\beta}=\left|\,m_1c_{12}^2c_{13}^2+m_2s_{12}^2c_{13}^2\,e^{i\alpha_{21}}+m_3s_{13}^2\,e^{i\alpha_{31}}\,\right|$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    三つの質量を<strong>複素平面で足し算</strong>する。位相がそろっていなければ、打ち消し合う。</p>
+  </div>
+
+  <p>これはまさに、あなたの疑いの形そのものです ── <em>位相のせいで、質量が小さく見える。</em> しかもこれは思考実験ではなく、実際に起こりうる。順階層（\(m_1&lt;m_2&lt;m_3\)）で \(m_1\) を振って、位相を動かしたときの \(m_{\beta\beta}\) の範囲を出します。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th class="mid">\(m_1\) [meV]</th><th class="mid">\(m_{\beta\beta}\) の最小 [meV]</th><th class="mid">最大 [meV]</th><th>位相をそろえない効果</th></tr></thead>
+      <tbody>
+        <tr><td class="mid">1.0</td><td class="mid">0.78</td><td class="mid">4.36</td><td>5倍以上の抑制</td></tr>
+        <tr><td class="mid">2.0</td><td class="mid">0.15</td><td class="mid">5.09</td><td>30倍以上</td></tr>
+        <tr class="hi"><td class="mid"><strong>3.0</strong></td><td class="mid"><strong>0.01</strong></td><td class="mid">5.85</td><td><strong>ほぼ完全に消える</strong></td></tr>
+        <tr><td class="mid">6.0</td><td class="mid">0.02</td><td class="mid">8.31</td><td>ほぼ完全に消える</td></tr>
+        <tr><td class="mid">10.0</td><td class="mid">1.78</td><td class="mid">11.85</td><td>7倍</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>\(m_1\approx2\)〜\(6\) meV のあたりで、三つのニュートリノがどれも質量を持っているのに \(m_{\beta\beta}\) がゼロになる。</strong> この谷は「順階層のファンネル」と呼ばれていて、実験屋にとっては悪夢の領域です ── ニュートリノがマヨラナでも、崩壊が見えない。</p>
+
+  <div class="fig">
+    <div class="cap">図2：複素平面での足し算。三本のベクトルを継ぎ足していき、原点から先端までの長さが \(m_{\beta\beta}\)。マヨラナ位相を回すとベクトルが折れ曲がり、<strong>質量があるのに合計がゼロに近づく</strong></div>
+    <canvas id="cv2" width="680" height="340"></canvas>
+    <div class="controls">
+      <label>いちばん軽い質量 m₁ <span class="val" id="v2a">2.30 meV</span>
+        <input type="range" id="s2a" min="0.1" max="20" step="0.05" value="2.30">
+      </label>
+      <label>マヨラナ位相 α₂₁ <span class="val" id="v2b">180°</span>
+        <input type="range" id="s2b" min="0" max="360" step="1" value="180">
+      </label>
+      <label>マヨラナ位相 α₃₁ <span class="val" id="v2c">0°</span>
+        <input type="range" id="s2c" min="0" max="360" step="1" value="0">
+      </label>
+    </div>
+    <div class="readout" id="r2">m_ββ = 0.00 meV</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#b0392c;"></i>\(m_1\) の寄与</span>
+      <span><i class="swatch" style="background:#a97514;"></i>\(m_2\)（位相 α₂₁）</span>
+      <span><i class="swatch" style="background:#17554f;"></i>\(m_3\)（位相 α₃₁）</span>
+      <span><i class="swatch" style="background:#4b3f8f;"></i>合計＝\(m_{\beta\beta}\)</span>
+    </div>
+  </div>
+
+  <p>現在の最良の上限は KamLAND-Zen の \(m_{\beta\beta}&lt;28\)〜\(122\) meV（核行列要素の不定性で幅がある）。まだファンネルの遥か上です。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">09</span>小出をニュートリノに当てると、符号を裏返さないと解がない</h2>
+
+  <p>最後に、06節の関係式をニュートリノに外挿してみます。ここからは<em>完全に経験則の外挿</em>なので、そのつもりで読んでください。ただ、出てくるものが面白い。</p>
+
+  <p>振動実験は質量そのものではなく差の2乗を測ります（\(\Delta m^2_{21}=7.41\times10^{-5}\)、\(\Delta m^2_{31}=2.51\times10^{-3}\ \mathrm{eV}^2\)）。だから未知数は「いちばん軽い質量」1個だけ。そこに \(Q=2/3\) を課して解きます。</p>
+
+  <div class="calc">
+    <span class="tag">やってみた結果</span>
+    <p class="lbl">\(\sqrt{m}\) を全部プラスに取ると（順階層）</p>
+    $$Q\ \text{は}\ 0.582\to0.333\ \text{を動くだけ}\qquad\Longrightarrow\qquad \boxed{\text{解なし}}$$
+    <p class="lbl">\(\sqrt{m_1}\) の符号を一つだけ裏返すと</p>
+    $$m=(0.360,\ 8.616,\ 50.101)\ \mathrm{meV},\qquad \sum m_\nu=59.08\ \mathrm{meV}$$
+    <p style="margin-bottom:14px;">逆階層でも事情は同じです ── 全部プラスでは \(Q\) が \(0.498\to0.333\) を動くだけで届かず、符号を一つ裏返した場合にだけ解が出ます（\(\sum m_\nu=103.9\) meV）。</p>
+  </div>
+
+  <p>ここが今回いちばん気持ちのいいところです。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">なぜ符号を裏返せるのか</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    そのマイナスこそ、<strong>マヨラナ位相 \(\pi\)</strong> です。</p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    荷電レプトンではこれは許されません ── ディラック粒子なので、位相はカイラル回転で消える（04節）。<em>ニュートリノでだけ、消せない。</em> そしてニュートリノでだけ、関係式が閉じる。</p>
+  </div>
+
+  <p>つまり、07節で「マヨラナだと位相が消せない」と言ったことと、09節で「符号を裏返さないと解がない」ことが、同じ一点を指しています。位相を許さない粒子では小出の式がそのまま成立し、位相を許す粒子では位相込みでないと成立しない。</p>
+
+  <p>この解の位相を測ってみると \(\delta_\nu=27.38^\circ\)。荷電レプトンの \(\delta_\ell=12.74^\circ\) との差は \(0.2558\) rad で、<em>\(\pi/12=0.2618\) rad から 2.3% しかずれていない</em>。ブラネン（2006）はこれを厳密に \(\delta_\nu=\delta_\ell+\pi/12\) と仮定して質量を予言しました。その版を検算すると ──</p>
+
+  <div class="calc">
+    <span class="tag">ブラネン版（\(\pi/12\) を厳密に課す）の予言と検算</span>
+    <p class="lbl">\(\Delta m^2_{31}\) だけでスケールを合わせると</p>
+    $$m=(0.379,\ 8.808,\ 50.101)\ \mathrm{meV},\qquad \sum m_\nu=59.29\ \mathrm{meV}$$
+    <p class="lbl">残りの \(\Delta m^2_{21}\) は予言になる。実測と比べる</p>
+    $$\Delta m^2_{21}\big|_{\text{予言}}=7.74\times10^{-5}\ \mathrm{eV}^2\qquad\text{vs}\qquad (7.41\pm0.21)\times10^{-5}$$
+    <p style="margin-bottom:14px;">ずれ <strong>+4.5%、\(1.6\sigma\)</strong>。── 確認でもないし、排除でもない。</p>
+  </div>
+
+  <p>どちらの版でも、そして振動パラメータを誤差の端から端まで振っても、答えは同じところに落ちます。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">この番外編の予言</div>
+    $$\sum m_\nu\ \simeq\ 59\ \mathrm{meV}\qquad(58.7\text{〜}59.5\ \mathrm{meV})$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    宇宙論の上限は \(\sum m_\nu&lt;120\) meV（Planck＋BAO）。<strong>内側だが、余裕はもうない。</strong>最近の銀河サーベイは上限をさらに押し下げつつあり、この予言は近い将来に<em>白黒がつく</em>側にいます。</p>
+  </div>
+
+  <p>ついでに、この解が \(0\nu\beta\beta\) に何を言うかも計算できます。\(m_1\) の CP パリティが負（位相 \(\pi\)）なので、</p>
+
+  $$m_{\beta\beta}=1.20\ \mathrm{meV}\qquad(\text{位相をそろえた場合は }3.90\ \mathrm{meV})$$
+
+  <p><strong>位相が \(0\nu\beta\beta\) を 3.2倍だけ抑える。</strong>そして 1.2 meV は、次世代実験（目標 \(\sim10\) meV）でも届きません。── 予言としては、ちょっと悲しい向きに出ます。</p>
+
+  <h2><span class="n">10</span>判定 ── 四つの「虚部」を、帳簿と物理に分ける</h2>
+
+  <p>第10回の作法で、今回出てきたものを二列に分けます。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>「質量の虚部」の意味</th><th>判定</th><th class="mid">値</th></tr></thead>
+      <tbody>
+        <tr><th>① 不安定性 \(m-i\Gamma/2\)</th><td>物理だが、電子ではゼロ</td><td class="mid">\(\Gamma/2m&lt;3.1\times10^{-58}\)</td></tr>
+        <tr><th>② カイラル位相（単独）</th><td><strong>帳簿</strong>。回転で消せる。しかも \(|m|\) を重くする</td><td class="mid">\(\sqrt{m_1^2+m_2^2}\ge|m_1|\)</td></tr>
+        <tr><th>③ 位相の差 \(\arg\det M\)</th><td><strong>物理</strong>。消せない。測定済み</td><td class="mid">\(\bar\theta&lt;10^{-10}\)、\(J\)、\(d_e\)</td></tr>
+        <tr class="hi"><th>④ \(\sqrt{m}\) 空間の位相 \(\delta\)</th><td>経験則。だが<strong>軽さを説明し、予言を出す</strong></td><td class="mid">\(\delta_\ell=12.74^\circ\)、\(\sum m_\nu\simeq59\) meV</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>そして共形変換がどこに効いたかというと、02節の一行です ── <strong>\(\Omega\) は実の正関数なので、Weyl 変換は位相に触れない。</strong> 大きさの側の帳簿を10回かけて全部剥がした結果、剥がしても残るものとして位相が浮かび上がった。第10回の表に一行足すなら、こうなります。</p>
+
+  <div class="seven">
+    <div class="row"><div class="mk">帳簿</div><div class="txt"><strong>個々の質量 \(m_i\)、個々の位相 \(\theta_i\)</strong><span>Weyl のツマミとカイラルのツマミで、それぞれ自由に動く</span></div></div>
+    <div class="row"><div class="mk">物理</div><div class="txt"><strong>質量比 \(m_i/m_j\)、位相差 \(\arg\det M\)、\(J\)</strong><span>どちらのツマミでも動かない。だから測れる</span></div></div>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">06節・09節の小出の関係式は、<strong>説明のない経験式</strong>です。なぜ \(\sqrt{m}\) なのか、なぜ \(2/3\) なのか、誰も導けていません。\(m_\tau\) の誤差 \(\pm0.12\) MeV の中に収まっている、という以上のことは言えない。「\(45^\circ\)」も「\(120^\circ\) 間隔」も \(Q=2/3\) の言い換えであって、独立な証拠ではありません（3つの質量を2つのパラメータ \(M,\delta\) で書く＝制約は1個ぶん、それが \(Q=2/3\)）。</p>
+    <p>そして<strong>06節の位相と 03節の位相は別物です</strong>。前者は \(\sqrt{m}\) 空間の回転角、後者は \(\gamma_5\) のカイラル位相。同じ「位相」という語でつないではいけません。両者を結ぶ模型（住野のゲージ模型など）は提案されていますが、確立していません。09節でマヨラナ位相 \(\pi\) と \(\sqrt{m}\) の符号を同一視したのは<em>本稿による読み方</em>で、標準的な主張ではありません。</p>
+    <p>09節はさらに外挿の外挿です。ニュートリノがマヨラナかどうかは<strong>未確認</strong>（\(0\nu\beta\beta\) はまだ見つかっていない）。\(\delta_{\rm CP}\) も確定していない。\(\sum m_\nu\simeq59\) meV は「小出の式がニュートリノにも成り立つなら」という条件付きの予言であって、標準的な理論の予言ではありません。</p>
+    <p style="margin-bottom:0;">05節の \(\Lambda&gt;1.6\times10^3\) TeV は \(d_e\sim e\,m_e/\Lambda^2\) という<strong>次元解析だけ</strong>の見積もりで、係数は模型に強く依存します。08節の表は \(\theta_{12}=33.41^\circ\)、\(\theta_{13}=8.54^\circ\) と現在の \(\Delta m^2\) を使った計算で、これらの誤差ぶんは動きます。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>「質量に虚部を足せば軽くなる」はなぜ間違いか、一行で。
+        <details><summary>答えを見る</summary><div class="ans">物理的な質量は \(|m|=\sqrt{m_1^2+m_2^2}\) で、これは \(|m_1|\) 以上だから。虚部は分散関係 \(E^2=p^2+m_1^2+m_2^2\) に<strong>正</strong>で入ります。軽くしたければ足すのではなく、<em>打ち消させる</em>必要がある ── そのためには質量が2個以上（行列）でなければなりません。</div></details>
+      </li>
+      <li>共形変換は質量の位相を動かせない。では位相は「物理」か。
+        <details><summary>答えを見る</summary><div class="ans">まだ言えません。共形変換で動かないことは<strong>必要条件</strong>にすぎない。位相にはもう一つのゲージ（カイラル回転）があり、単独の位相はそれで消せるので帳簿です。物理なのは<strong>位相差</strong> \(\arg\det M\) のほう。「あるゲージ群で不変」は「全部のゲージ群で不変」を意味しない ── 第10回の判定手続きを使うときの落とし穴です。</div></details>
+      </li>
+      <li>\(\sqrt{m_\nu M_R}=m_D\) を使って、\(m_D\) がトップ質量なら \(M_R\) がいくつになるか。
+        <details><summary>答えを見る</summary><div class="ans">\(M_R=m_D^2/m_\nu=(172.7\,\mathrm{GeV})^2/(5.01\times10^{-11}\,\mathrm{GeV})=5.95\times10^{14}\) GeV。大統一スケール（\(\sim10^{16}\) GeV）の少し下。<strong>いちばん軽い粒子の質量が、いちばん高いエネルギーを指している</strong>のがシーソーの面白さです。</div></details>
+      </li>
+      <li>順階層で \(m_{\beta\beta}\) がゼロになりうるのに、逆階層ではならない。なぜか。
+        <details><summary>答えを見る</summary><div class="ans">\(m_{\beta\beta}\) は三つのベクトルの和。順階層では \(m_1c_{12}^2c_{13}^2\)、\(m_2s_{12}^2c_{13}^2\)、\(m_3s_{13}^2\) の三つが同じくらいの大きさになる領域（\(m_1\sim2\)〜\(6\) meV）があり、位相を選べば三角形が閉じます。逆階層では \(m_1,m_2\) がどちらも \(\sim50\) meV で \(c_{12}^2&gt;s_{12}^2\) のため、最大の寄与が他の合計を常に上回り、\(|m_{\beta\beta}|\gtrsim15\) meV より下がらない。<strong>だから逆階層は次世代実験で決着がつきます。</strong></div></details>
+      </li>
+      <li>（やや難）\(\sqrt{m_k}=M(1+\sqrt2\cos(\delta+2\pi k/3))\) から \(Q=2/3\) を導け。
+        <details><summary>答えを見る</summary><div class="ans">\(\sum_k\cos(\delta+2\pi k/3)=0\)（120°ずつずれた三つのベクトルの和はゼロ）と \(\sum_k\cos^2(\delta+2\pi k/3)=3/2\)（\(\cos^2=(1+\cos2\theta)/2\) を使い、\(\sum\cos2\theta_k=0\)）だけを使います。分子 \(=M^2\sum(1+\sqrt2\cos)^2=M^2(3+2\sqrt2\cdot0+2\cdot\tfrac32)=6M^2\)、分母 \(=(M\cdot3)^2=9M^2\)。よって \(Q=2/3\)、<strong>\(\delta\) にも \(M\) にも依らない</strong>。図1でツマミを回しても \(Q\) が動かないのはこのためです。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>位相は、住所が違っただけだった</h2>
+    <p>「電子の質量に虚数成分があるから軽いのでは」── この疑いを最後まで追いました。素朴な形では否です。カイラル回転で \(m_1+im_2\to\sqrt{m_1^2+m_2^2}\) と回せてしまうので位相は帳簿だし、しかも虚部は質量を<em>重く</em>する。不安定性の意味の虚部も \(\Gamma/2m&lt;3.1\times10^{-58}\) でゼロ。<strong>フェルミオン1個では、符号が逆でした。</strong></p>
+    <p>ところが 02節の一行 ── <strong>\(\Omega\) は実の正関数だから、共形変換は位相に触れない</strong> ── が、位相を最後まで生かします。ツマミは二つあった。Weyl が大きさを動かし、カイラルが位相を動かす。そしてどちらにも量子の破れがある（共形アノマリーと強いCP）。大きさの側で「個々の \(m_i\) は帳簿、比が物理」だったのと完全に平行に、位相の側では「個々の \(\theta_i\) は帳簿、差 \(\arg\det M\) が物理」でした。<em>10回でやった仕事の、二枚目の写しです。</em></p>
+    <p>そして軽さの正体。\(\sqrt{m}\) を取ると荷電レプトンは \(45^\circ\) にぴたりと乗り（\(44.99974^\circ\)）、三つの質量が \(120^\circ\) 間隔の射影として書ける。<strong>電子は \(\cos\) のゼロ点まであと \(2.27^\circ\) のところに立っている</strong> ── だから軽い。\(\delta\) が \(1^\circ\) 動けば質量は 2.5倍変わる。位相が質量の大きさを決めていた、という意味では、疑いの筋は当たっていました。<em>住所が \(\gamma_5\) ではなく \(\sqrt{m}\) 空間だった</em>だけです。</p>
+    <p>ニュートリノに移ると、位相が理論的に消せなくなります（マヨラナ）。軽さの正体は小さい結合ではなく比例中項 \(m_D=\sqrt{m_\nu M_R}\) で、実際に \(\sqrt{0.05\,\mathrm{eV}\times5.95\times10^{14}\,\mathrm{GeV}}=172.7\) GeV＝トップ質量。そして \(0\nu\beta\beta\) では<strong>位相のせいで質量が打ち消し合ってゼロになる</strong>領域が実在する ── あなたの疑いの形が、そのまま実験の対象になっている。小出の式をニュートリノに当てると、符号を一つ裏返さないと解がなく、その符号こそマヨラナ位相 \(\pi\) でした。出てくる予言は \(\sum m_\nu\simeq59\) meV。<em>宇宙論の上限 120 meV の内側、しかも余裕はもうない。</em></p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">扉は、まだ閉まらない</span>
+    番外編③で「シリーズを閉じます」と書きました。閉じたつもりだったのに、判定手続きのほうから穴が開いた ── <strong>無次元量は比だけではなく、位相もそうだった。</strong> 同じ穴がもう一つ空いています。このシリーズはずっと Weyl 変換（物差しを場所ごとに取り替える）を「共形変換」と呼んできましたが、物理にはもう一種類あります ── 平坦時空の共形群 \(SO(4,2)\)、そこで残る唯一の観測量は<strong>スケーリング次元 \(\Delta\)</strong> という、これも純粋な無次元数です。<em>「次元付きは帳簿、無次元だけが物理」が比喩ではなく理論の定義そのものになっている世界</em>が、実在します。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編④、物理好きの高校生・大学生向け読み物です。質量項が一般に \(m_1+im_2\gamma_5\) の形を取りうること、カイラル回転 \(\psi\to e^{i\alpha\gamma_5/2}\psi\) がこれを \(|m|=\sqrt{m_1^2+m_2^2}\) に回せること、したがって単独のディラック場では質量の位相が物理的でないことは、いずれも標準的です。Weyl 変換における \(\Omega\) が実正値であることから \(\arg m\) が Weyl 不変であるという 02節の指摘は初等的な帰結ですが、本稿の言い方によります。強いCP問題（\(\bar\theta=\theta_{\rm QCD}+\arg\det M_q&lt;10^{-10}\)）、ヤールスコグ不変量、マヨラナ位相の数え上げ（\(n\) 世代でディラック \((n-1)(n-2)/2\) 個、マヨラナ \(n(n-1)/2\) 個）はすべて標準的です。電子の寿命下限 \(\tau&gt;6.6\times10^{28}\) 年は Borexino (2015)、電子EDM の上限 \(|d_e|&lt;4.1\times10^{-30}\,e\)cm は JILA の HfF\(^+\) 実験 (2023) によります。05節の新物理スケールの見積もりは \(d_e\sim e\,m_e/\Lambda^2\) という次元解析のみに基づく粗い評価です。小出の関係式 \(Q=2/3\) は Koide (1982)、その \(45^\circ\) 幾何解釈は Foot (1994)、\(\sqrt{m_k}=M(1+\sqrt2\cos(\delta+2\pi k/3))\) というパラメータ化と \(\delta_\nu=\delta_\ell+\pi/12\) によるニュートリノ質量の予言は Brannen (2006) によります。<strong>小出の関係式は理論的な導出を持たない経験式であり、標準模型の予言ではありません。</strong>本稿の数値は \(m_e=0.51099895\)、\(m_\mu=105.6583755\)、\(m_\tau=1776.86\pm0.12\) MeV（PDG）、\(\Delta m^2_{21}=7.41\times10^{-5}\)、\(\Delta m^2_{31}=2.51\times10^{-3}\,\mathrm{eV}^2\)、\(\theta_{12}=33.41^\circ\)、\(\theta_{13}=8.54^\circ\)、\(\theta_{23}=49.1^\circ\)（NuFIT 系の値）を用いて本稿で計算したものです。09節の「\(\sqrt{m}\) の符号反転＝マヨラナ位相 \(\pi\)」という同一視は本稿による読み方であり、標準的な主張ではありません。\(\sum m_\nu\simeq59\) meV は「小出の関係式がニュートリノにも成立する」という未検証の仮定に立つ条件付きの予言です。宇宙論の上限 \(\sum m_\nu&lt;120\) meV は Planck 2018＋BAO によるもので、より新しい銀河サーベイはさらに強い上限を示唆しています。\(0\nu\beta\beta\) の上限 \(m_{\beta\beta}&lt;28\)〜\(122\) meV は KamLAND-Zen によるもので、幅は核行列要素の不定性です。ニュートリノがマヨラナ粒子であるかどうかは未確認です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では図1のスライダーで位相 δ を、図2でマヨラナ位相を動かせます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var RAD=Math.PI/180, R2=Math.sqrt(2);
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function arrow(ctx,x1,y1,x2,y2,col,lw){
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=lw;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    var a=Math.atan2(y2-y1,x2-x1), h=7+lw;
+    if(Math.hypot(x2-x1,y2-y1)<3) return;
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-h*Math.cos(a-0.4), y2-h*Math.sin(a-0.4));
+    ctx.lineTo(x2-h*Math.cos(a+0.4), y2-h*Math.sin(a+0.4));
+    ctx.closePath(); ctx.fill();
+  }
+
+  /* ===== 図1：√m の位相 ===== */
+  var cv1=document.getElementById('cv1'), s1=document.getElementById('s1'),
+      v1=document.getElementById('v1'), r1=document.getElementById('r1');
+  var ML=17.71556;                         // √MeV （実測から決めたスケール）
+  var COL=['#b0392c','#a97514','#17554f']; // e, mu, tau
+
+  function draw1(){
+    var d=setupHiDPI(cv1), ctx=d.ctx, W=d.w, H=d.h;
+    var dg=parseFloat(s1.value); v1.textContent=dg.toFixed(3)+'°';
+    ctx.clearRect(0,0,W,H);
+    var padL=56,padR=18,padT=20,padB=48;
+    var X=function(t){ return padL+(t/360)*(W-padL-padR); };
+    var ymin=-0.6, ymax=2.6;
+    var Y=function(y){ return (H-padB)-((y-ymin)/(ymax-ymin))*(H-padT-padB); };
+
+    ctx.strokeStyle='#dcebe8'; ctx.lineWidth=1; ctx.font='11px sans-serif';
+    ctx.fillStyle='#8a9794'; ctx.textAlign='right';
+    for(var yv=-0.5; yv<=2.5001; yv+=0.5){
+      ctx.beginPath(); ctx.moveTo(padL,Y(yv)); ctx.lineTo(W-padR,Y(yv)); ctx.stroke();
+      ctx.fillText(yv.toFixed(1), padL-7, Y(yv)+4);
+    }
+    ctx.textAlign='center';
+    for(var tv=0; tv<=360; tv+=60){
+      ctx.strokeStyle='#eef5f3'; ctx.beginPath(); ctx.moveTo(X(tv),Y(ymin)); ctx.lineTo(X(tv),Y(ymax)); ctx.stroke();
+      ctx.fillText(tv+'°', X(tv), H-padB+18);
+    }
+    ctx.strokeStyle='#9aa8a5'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(padL,Y(0)); ctx.lineTo(W-padR,Y(0)); ctx.stroke();
+    ctx.strokeStyle='#9aa8a5'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+    [135,225].forEach(function(t){ ctx.beginPath(); ctx.moveTo(X(t),Y(ymin)); ctx.lineTo(X(t),Y(ymax)); ctx.stroke(); });
+    ctx.setLineDash([]);
+    ctx.fillStyle='#8a9794'; ctx.textAlign='left';
+    ctx.fillText('質量ゼロ', X(135)+5, Y(2.45));
+
+    ctx.strokeStyle='#17554f'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var t=0;t<=360;t+=1){
+      var y=1+R2*Math.cos(t*RAD);
+      if(t===0) ctx.moveTo(X(t),Y(y)); else ctx.lineTo(X(t),Y(y));
+    }
+    ctx.stroke();
+
+    var pts=[];
+    for(var k=0;k<3;k++){
+      var th=(dg+120*k)%360; if(th<0) th+=360;
+      var val=1+R2*Math.cos(th*RAD);
+      pts.push({th:th, val:val, m:Math.pow(ML*val,2)});
+    }
+    var byMass=pts.slice().sort(function(a,b){return b.m-a.m;});
+    var lab={}, colOf={};
+    lab[byMass[0].th]='τ'; lab[byMass[1].th]='μ'; lab[byMass[2].th]='e';
+    colOf[byMass[0].th]=COL[2]; colOf[byMass[1].th]=COL[1]; colOf[byMass[2].th]=COL[0];
+
+    pts.forEach(function(p){
+      var c=colOf[p.th];
+      ctx.strokeStyle=c; ctx.lineWidth=2.4; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(X(p.th),Y(0)); ctx.lineTo(X(p.th),Y(p.val)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=c; ctx.beginPath(); ctx.arc(X(p.th),Y(p.val),5.2,0,6.284); ctx.fill();
+      ctx.font='bold 13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(lab[p.th], X(p.th), Y(p.val)-11);
+    });
+
+    ctx.fillStyle='#8a9794'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('角度 θ = δ + 120°k  →', (padL+W-padR)/2, H-10);
+    ctx.save(); ctx.translate(15,(padT+H-padB)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('√m / M', 0, 0); ctx.restore();
+
+    var sum=pts.reduce(function(a,p){return a+p.m;},0);
+    var sroot=pts.reduce(function(a,p){return a+ML*p.val;},0);
+    var Q=sum/(sroot*sroot);
+    var eTh=byMass[2].th, gap=Math.min(Math.abs(eTh-135), Math.abs(eTh-225));
+    r1.textContent='δ = '+dg.toFixed(3)+'°　m = ('+byMass[2].m.toFixed(3)+', '+byMass[1].m.toFixed(2)+', '
+      +byMass[0].m.toFixed(1)+') MeV　｜　Q = '+Q.toFixed(6)
+      +'（2/3 = 0.666667 に貼りついたまま）　｜　いちばん軽いものはゼロ点まで '
+      +gap.toFixed(2)+'°';
+  }
+
+  /* ===== 図2：0νββ の複素平面 ===== */
+  var cv2=document.getElementById('cv2'),
+      s2a=document.getElementById('s2a'), s2b=document.getElementById('s2b'), s2c=document.getElementById('s2c'),
+      v2a=document.getElementById('v2a'), v2b=document.getElementById('v2b'), v2c=document.getElementById('v2c'),
+      r2=document.getElementById('r2');
+  var D21=7.41e-5, D31=2.51e-3;                  // eV^2
+  var c12=Math.cos(33.41*RAD), s12=Math.sin(33.41*RAD),
+      c13=Math.cos(8.54*RAD),  s13=Math.sin(8.54*RAD);
+  var W1=c12*c12*c13*c13, W2=s12*s12*c13*c13, W3=s13*s13;
+
+  function draw2(){
+    var d=setupHiDPI(cv2), ctx=d.ctx, W=d.w, H=d.h;
+    var m1=parseFloat(s2a.value), a21=parseFloat(s2b.value), a31=parseFloat(s2c.value);
+    v2a.textContent=m1.toFixed(2)+' meV'; v2b.textContent=a21.toFixed(0)+'°'; v2c.textContent=a31.toFixed(0)+'°';
+    var m1e=m1*1e-3;
+    var m2=Math.sqrt(m1e*m1e+D21)*1e3, m3=Math.sqrt(m1e*m1e+D31)*1e3;   // meV
+    var v=[{x:m1*W1, y:0, c:COL[0]},
+           {x:m2*W2*Math.cos(a21*RAD), y:m2*W2*Math.sin(a21*RAD), c:COL[1]},
+           {x:m3*W3*Math.cos(a31*RAD), y:m3*W3*Math.sin(a31*RAD), c:COL[2]}];
+    var sx=0, sy=0; v.forEach(function(q){sx+=q.x; sy+=q.y;});
+    var mbb=Math.hypot(sx,sy);
+
+    ctx.clearRect(0,0,W,H);
+    var cx=W*0.42, cy=H*0.52;
+    var span=Math.max(m1*W1+m2*W2+m3*W3, 3)*1.15;
+    var sc=Math.min(W*0.40, H*0.40)/span;
+    var PX=function(x){return cx+x*sc;}, PY=function(y){return cy-y*sc;};
+
+    ctx.strokeStyle='#e6f0ee'; ctx.lineWidth=1;
+    var step=span<6?1:(span<15?2:5);
+    for(var rr=step; rr<=span; rr+=step){
+      ctx.beginPath(); ctx.arc(cx,cy,rr*sc,0,6.284); ctx.stroke();
+    }
+    ctx.strokeStyle='#cddedb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PX(-span),cy); ctx.lineTo(PX(span),cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,PY(-span)); ctx.lineTo(cx,PY(span)); ctx.stroke();
+    ctx.fillStyle='#8a9794'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('実部 [meV]', PX(span)-64, cy-6);
+    ctx.fillText('虚部', cx+6, PY(span)+12);
+
+    var px=0, py=0;
+    v.forEach(function(q){
+      arrow(ctx, PX(px), PY(py), PX(px+q.x), PY(py+q.y), q.c, 2.6);
+      px+=q.x; py+=q.y;
+    });
+    arrow(ctx, PX(0), PY(0), PX(sx), PY(sy), '#4b3f8f', 3.4);
+    ctx.fillStyle='#4b3f8f'; ctx.beginPath(); ctx.arc(PX(0),PY(0),4,0,6.284); ctx.fill();
+
+    ctx.fillStyle='#4b3f8f'; ctx.font='bold 13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('mββ = '+mbb.toFixed(3)+' meV', W*0.74, 26);
+    ctx.fillStyle='#4a4e5a'; ctx.font='12px sans-serif';
+    ctx.fillText('m₁ = '+m1.toFixed(2), W*0.74, 50);
+    ctx.fillText('m₂ = '+m2.toFixed(2), W*0.74, 68);
+    ctx.fillText('m₃ = '+m3.toFixed(2), W*0.74, 86);
+    ctx.fillText('Σ = '+(m1+m2+m3).toFixed(2)+' meV', W*0.74, 108);
+
+    var msg;
+    if(mbb<0.3) msg='── 三つとも質量があるのに、位相で完全に打ち消し合っている';
+    else if(mbb<1.5) msg='── 強く抑制されている（順階層のファンネル付近）';
+    else msg='── 位相がそろってきて、打ち消しが弱い';
+    r2.textContent='m_ββ = '+mbb.toFixed(3)+' meV　｜　m = ('+m1.toFixed(2)+', '+m2.toFixed(2)+', '+m3.toFixed(2)
+      +') meV　Σ = '+(m1+m2+m3).toFixed(2)+' meV　'+msg;
+  }
+
+  function drawAll(){ draw1(); draw2(); }
+  [s1,s2a,s2b,s2c].forEach(function(el){ el.addEventListener('input', drawAll); });
+  window.addEventListener('resize', drawAll);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(drawAll);}
+  setTimeout(drawAll,60); window.addEventListener('load',drawAll);
+})();
+</script>
+</body>
+</html>
