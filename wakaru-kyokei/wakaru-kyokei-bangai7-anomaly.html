@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アノマリーが、次元と向きを決める ── わかる共形変換 番外編⑦（完結）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf8f0; --paper-edge:#e2d6ba;   /* 番外編⑦：古銅の紙（完結） */
+    --side:#5c4212; --side-bg:#f3ecdd;
+    --warn:#8a4b2f;
+    --calc:#6b4a14; --calc-bg:#f2e9d7;
+    --rule:#ddd0b4; --hair:#c4b491;
+    --acc:#7a5518;    /* 番外編⑦アクセント＝金茶 */
+    --grid:#eee5d2;
+    --ok:#1f6b45;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ecdfc0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3a2c0e;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #dccdac;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fffdf8;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#f2e9d7;color:#6b4a14;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:10px;border-radius:2px;display:inline-block;border:1px solid #ccc;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffefa;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#f2e9d7;color:#6b4a14;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f8f2e6;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#efe4cd;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .mk{flex-shrink:0;width:96px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f8f3e7;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3a2c14;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffefa,#f3ecdd);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#f2e9d7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3a2c14;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#736548;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>わかる共形変換</span><span class="ep">番外編 ⑦（完結）／ 第8回の宿題を、二通りに使う</span></div>
+  <p class="eyebrow">共形アノマリーには、まったく違う二つの使い道があった ── ゼロにしろと言えば次元が、正であれと言えば向きが出る</p>
+  <h1>アノマリーが、次元と向きを決める
+    <span class="sub">第8回で「対称性は量子で壊れる」と見ました。その壊れ具合に<br><strong>ゼロを要求すると時空の次元</strong>が、<strong>正を要求すると繰り込み群の向き</strong>が出ます。<br>そして証明の道具は、第4回で作ったディラトンでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：足し算、不等式、そして「情報は減る」という感覚</span>
+    <span>\(a_{\rm UV}&gt;a_{\rm IR}\)</span>
+  </div>
+
+  <p class="lead">第8回で、共形対称性は量子化すると壊れると見ました。破れの大きさは \(\beta\) 関数で測れて、それが「\(1/137\) が \(1/128\) になる」の正体でした。今回は、その<em>壊れ具合そのもの</em>を主役にします。4次元ではアノマリーに係数が二つあり、その二つに二つの使い道がある ── <strong>ゼロにしろと要求すれば時空の次元が決まり、正であれと要求すれば繰り込み群に向きが出る。</strong>そして後者の証明に使う道具は、第4回で「スケール因子を場に格上げする」と言ったときに作ったディラトンそのものでした。最後に、その量の正体がエンタングルメント・エントロピーだと分かり、番外編②の「有限リソースの計算機」と合流します。シリーズを、ここで閉じます。</p>
+
+  <h2><span class="n">01</span>アノマリーには、係数が二つある</h2>
+
+  <p>第8回では、共形対称性の破れを「応力テンソルのトレースが残る」と書きました。曲がった時空で、4次元では次の形になります。</p>
+
+  <div class="calc">
+    <span class="tag">4次元の共形アノマリー</span>
+    $$T^\mu{}_\mu = c\,W_{\mu\nu\rho\sigma}W^{\mu\nu\rho\sigma}\ -\ a\,E_4$$
+    <p style="margin-bottom:14px;">\(W\) はワイル・テンソル（番外編⑤の主役）、\(E_4\) はオイラー密度（位相幾何の量）。<strong>係数が \(c\) と \(a\) の二つ</strong>あります。</p>
+  </div>
+
+  <p>2次元だと、係数は一つだけ。それが<strong>中心電荷 \(c\)</strong> です ── 弦理論と 2次元臨界現象の主役。番外編⑥で見たとおり、2次元は共形対称性が無限次元になる特別な次元で、そのぶん \(c\) が強い意味を持ちます。</p>
+
+  <p>この \(c\) と \(a\) に、まったく違う二つの使い方があります。順に。</p>
+
+  <h2><span class="n">02</span>ゼロにしろ ── すると時空の次元が決まる</h2>
+
+  <p>弦は、時空を1次元の紐が掃いていく <em>2次元の世界面</em>で記述されます。ここで一つ問題が起きます。世界面の座標の取り方（＝どう目盛りを振るか）は物理に影響してはいけない。ところが量子化すると、そこにアノマリーが出る。</p>
+
+  <p><strong>だから、アノマリーがゼロでなければならない。</strong> それが弦理論の無矛盾性の条件です。</p>
+
+  <div class="calc">
+    <span class="tag">数えるだけ ── 二行</span>
+    <p class="lbl">ボソン弦：時空の座標 \(D\) 個（各 \(c=1\)）＋ ゴースト（\(c=-26\)）</p>
+    $$c_{\rm total}=D-26=0\qquad\Longrightarrow\qquad \boxed{D=26}$$
+    <p class="lbl">超弦：ボソン \(D\) 個 ＋ フェルミオン \(D\) 個（各 \(c=1/2\)）＋ ゴースト（\(-26\) と \(+11\)）</p>
+    $$c_{\rm total}=\frac{3D}{2}-15=0\qquad\Longrightarrow\qquad \boxed{D=10}$$
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">02節の結論</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>アノマリー ＝ 0 という一本の式が、時空の次元を決めてしまう。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    第8回で「99% の質量の出どころ」だった量が、ここでは<em>次元の方程式</em>になっている。同じ \(c\) です。</p>
+  </div>
+
+  <div class="aside">
+    <span class="tag">2次元では、\(c\) が理論の名札になる</span>
+    2次元の解ける CFT（極小模型）は \(c=1-\dfrac{6}{m(m+1)}\) という離散列に並びます。
+    <br>\(m=3\): \(c=1/2\)（2次元イジング）　／　\(m=4\): \(c=7/10\)（三重臨界イジング）　／　\(m=5\): \(c=4/5\)（3状態ポッツ）。
+    <br><strong>理論の名前が、一つの無次元数で付いている</strong>のです。番外編⑥の \(\Delta\) の一覧と合わせて、これが 2次元 CFT の全情報。
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>正であれと要求しろ ── すると繰り込み群に向きが出る</h2>
+
+  <p>もう一つの使い道。こちらは <strong>ゼロではなく大小</strong>を問います。</p>
+
+  <p>繰り込み群とは「細かいところを見ないことにして、粗い記述に移る」操作でした（第8回）。紫外（細かい）から赤外（粗い）へ流れる。この流れに<em>向きがあるか</em>── つまり戻れないのか ── は、長らく分かっていませんでした。</p>
+
+  <div class="seven">
+    <div class="row"><div class="mk">2次元</div><div class="txt"><strong>c定理（ザモロチコフ、1986）</strong><span>\(c_{\rm UV}&gt;c_{\rm IR}\)。中心電荷は流れに沿って必ず減る</span></div></div>
+    <div class="row"><div class="mk">4次元</div><div class="txt"><strong>a定理（コマルゴツキ＝シュヴィマー、2011）</strong><span>\(a_{\rm UV}&gt;a_{\rm IR}\)。25年越しに証明された</span></div></div>
+    <div class="row"><div class="mk">3次元</div><div class="txt"><strong>F定理（カシーニ＝ウエルタら）</strong><span>球面上の自由エネルギーが減る</span></div></div>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">03節の結論</div>
+    $$a_{\rm UV}\ &gt;\ a_{\rm IR}$$
+    <p style="margin:12px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    <strong>繰り込み群には向きがある。</strong>粗くする方向にしか流れない。<em>そしてその向きを測る目盛りが、第8回のアノマリー係数だった。</em></p>
+  </div>
+
+  <p>面白いのは \(c\) のほうです。4次元では \(c\) には単調性がありません ── 減ることもあれば増えることもある。<strong>二つある係数のうち、片方だけが向きを持つ。</strong></p>
+
+  <h2><span class="n">04</span>証明の道具は、第4回のディラトンだった</h2>
+
+  <p>ここが今回いちばん気持ちのいいところです。a定理はどうやって証明されたのか。</p>
+
+  <p>手口はこうです。繰り込み群の流れの上では共形対称性が破れている ── だったら、<em>破れを補償する場を一つ足してしまえ</em>。すなわち、\(\Omega\) を場に格上げする。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">これは、第4回でやった操作そのもの</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    共形因子 \(\Omega\) を、時空の性質ではなく<strong>時空の上に乗った場（ディラトン）</strong>として扱う。</p>
+  </div>
+
+  <p>そうすると理論全体が形式的に Weyl 不変になり、破れの情報はすべてディラトンの相互作用に押し込まれます。そこでディラトン同士の 2体散乱を計算すると ──</p>
+
+  <div class="calc">
+    <span class="tag">証明の骨</span>
+    <p class="lbl">前方散乱振幅の \(s^2\) の係数に、ちょうど差が出る</p>
+    $$\mathcal{A}(s)\ \supset\ \frac{a_{\rm UV}-a_{\rm IR}}{f^4}\,s^2$$
+    <p class="lbl">ユニタリー性（光学定理）から、この係数は正でなければならない</p>
+    $$a_{\rm UV}-a_{\rm IR}\ &gt;\ 0$$
+    <p style="margin-bottom:14px;">確率が負にならない、というだけで<strong>繰り込み群の向きが出てしまう</strong>。</p>
+  </div>
+
+  <p>第4回で「スケール因子は時空の性質ではなく、時空の上に乗った場だった」と書きました。あれは絵解きのつもりでしたが、<em>まったく同じ操作が、4次元の繰り込み群に向きがあることの証明技術</em>でした。番外編⑤で「重力アノマリーを効かせるには \(\theta\) を場にするしかない」と言ったのも、同じ形です。<strong>このシリーズは、無自覚に一つの手口だけを繰り返していた</strong>ことになります。</p>
+
+  <h2><span class="n">05</span>標準模型で数える ── \(a\) の階段</h2>
+
+  <p>自由場では \(a\) が単純な足し算で数えられます。比は</p>
+
+  $$\text{実スカラー}:\text{ワイル・フェルミオン}:\text{ベクトル}\ =\ 1:\tfrac{11}{2}:62$$
+
+  <div class="aside">
+    <span class="tag">規格化の検算</span>
+    この比が正しいかは、\(\mathcal{N}=4\) 超対称ヤン＝ミルズで確かめられます。この理論は \(a=c\) が厳密に成り立つことが知られていて、内容は（各生成子あたり）実スカラー6・ワイル4・ベクトル1。上の比で数えると \(6+5.5\times4+62=90\)、\(c\) の比（\(1:6:12\) をディラック数えで、係数 3倍）でも \((6+12+12)\times3=90\)。<strong>一致します。</strong>
+  </div>
+
+  <p>標準模型を数えます。実スカラー 4（複素二重項）、ワイル 45、ベクトル 12（グルーオン8＋W3＋B1）。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>エネルギー</th><th class="mid">\(a\) ∝</th><th>そこで抜けるもの</th></tr></thead>
+      <tbody>
+        <tr class="hi"><th>プランク 〜 173 GeV</th><td class="mid"><strong>995.5</strong></td><td>標準模型ぜんぶ（スカラー 0.4% ／ フェルミオン 24.9% ／ <strong>ゲージ場 74.7%</strong>）</td></tr>
+        <tr><th>173 GeV 以下</th><td class="mid">772.5</td><td>トップ、ヒッグス、W・Z</td></tr>
+        <tr><th>4.2 GeV 以下</th><td class="mid">739.5</td><td>ボトム</td></tr>
+        <tr><th>1.3 GeV 以下</th><td class="mid">695.5</td><td>タウ、チャーム</td></tr>
+        <tr class="hi"><th>0.2 GeV 以下</th><td class="mid"><strong>89.5</strong></td><td><strong>QCD の閉じ込め</strong>（グルーオン8個と軽いクォーク）</td></tr>
+        <tr><th>0.511 MeV 以下</th><td class="mid">78.5</td><td>電子</td></tr>
+        <tr><th>0.05 eV 以下</th><td class="mid">62.0</td><td>ニュートリノ ── 残るのは光子だけ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>全体で \(a_{\rm UV}/a_{\rm IR}=16.06\)。そして<strong>いちばん大きな段差は QCD の閉じ込め</strong>で、そこだけで 7.77分の1 に落ちます。グルーオン8個ぶん \(8\times62=496\) ── これは<em>標準模型の \(a\) の 49.8%</em>。</p>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">読み取れること</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:15.5px;line-height:1.85;">
+    <strong>宇宙が失った自由度の半分は、QCD が閉じ込めた瞬間に消えた。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    第8回で「あなたの体重の99%はアノマリーの産物」と言いました。その質量を作った同じ閉じ込めが、<em>アノマリー係数の半分を消した</em>のでもあります。</p>
+  </div>
+
+  <div class="fig">
+    <div class="cap">図：横軸がエネルギースケール（プランクから \(10^{-12}\) GeV まで、対数）。縦軸が \(a\)。ツマミを右から左へ動かすと、粒子が一つずつ抜けて<strong>階段が落ちていく</strong>。段は決して上がりません（それが a定理）。いちばん深い段が QCD の閉じ込め</div>
+    <canvas id="cv" width="680" height="330"></canvas>
+    <div class="controls">
+      <label>エネルギースケール log₁₀(μ/GeV)<span class="val" id="vm">2.50</span>
+        <input type="range" id="sm" min="-12" max="19" step="0.05" value="2.50">
+      </label>
+    </div>
+    <div class="readout" id="rd">log₁₀ μ = 2.50</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#7a5518;"></i>a（残っている自由度）</span>
+      <span><i class="swatch" style="background:#a83a22;"></i>いまのスケール</span>
+      <span><i class="swatch" style="background:#1f6b45;"></i>QCD 閉じ込め</span>
+    </div>
+  </div>
+
+  <h2><span class="n">06</span>\(a\) の正体は、エンタングルメント・エントロピーだった</h2>
+
+  <p>では \(a\) は、いったい何を数えているのか。答えが出ています ── <strong>球をひとつ描いて、その内と外を切り分けたときの、もつれの量</strong>です。</p>
+
+  <div class="calc">
+    <span class="tag">エンタングルメント・エントロピーの普遍部分</span>
+    <p class="lbl">2次元（長さ \(\ell\) の区間）</p>
+    $$S=\frac{c}{3}\log\frac{\ell}{\epsilon}+\text{定数}$$
+    <p class="lbl">4次元（半径 \(R\) の球）</p>
+    $$S\ \supset\ -4a\,\log\frac{R}{\epsilon}$$
+    <p style="margin-bottom:14px;">領域の形にも切り方の細かさ \(\epsilon\) にも依らない部分の係数が、<strong>そのまま \(c\) と \(a\)</strong>。</p>
+  </div>
+
+  <div class="keybox" style="border-width:2.5px;">
+    <div class="lbl">最終回の一行</div>
+    <p style="margin:0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:16px;line-height:1.85;">
+    <strong>繰り込み群の向きは、情報の減少で決まっている。</strong></p>
+    <p style="margin:10px 0 0;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;">
+    \(a_{\rm UV}&gt;a_{\rm IR}\) は「粗視化するとエンタングルメントが減る」の言い換え。<em>「細かいところを見ないことにする」とは、文字どおり情報を捨てることだった</em> ── それが定理として証明されている。</p>
+  </div>
+
+  <h2><span class="n">07</span>番外編②と、ここで合流する</h2>
+
+  <p>番外編②で、宇宙を有限リソースの計算機として書こうとしました。メモリ \(10^{122}\) ビット、クロック 140回、ランダウアー限界ぴったり。そのときの結論は「縛る相手を間違えていた ── 縛るべきは \(a(t)\) ではなく光シート上の情報量」でした。</p>
+
+  <p>いま、その「情報量」に定理が付きました。</p>
+
+  <div class="seven">
+    <div class="row"><div class="mk">番外編②</div><div class="txt"><strong>宇宙のメモリは有限だ、という<em>見積もり</em></strong><span>ホログラフィック境界、ランダウアー限界、ビット数 \(2.96\times10^{122}\)</span></div></div>
+    <div class="row"><div class="mk">番外編⑦</div><div class="txt"><strong>粗くすると情報は減る、という<em>定理</em></strong><span>a定理。\(a\) は球面をまたぐエンタングルメント・エントロピーの係数</span></div></div>
+  </div>
+
+  <p>片方は「宇宙に何ビットあるか」、もう片方は「見方を粗くすると何ビット失うか」。<strong>どちらも次元付きの量を一切使いません。</strong>ビットは無次元です。第10回の判定手続きどおり、情報は最初から右の列にいました。</p>
+
+  <h2><span class="n">08</span>全16話を、一枚の表に</h2>
+
+  <p>シリーズを閉じるにあたって、二列に分ける作業をもう一度、最後までやります。</p>
+
+  <div class="tblwrap">
+    <table class="ce">
+      <thead><tr><th>回</th><th>動かしたもの（帳簿）</th><th>残ったもの（物理）</th></tr></thead>
+      <tbody>
+        <tr><th>3</th><td>時間座標の選択（光速が変わるのはこれ）</td><td>\(1+z=t_0/t_e\)、再結合の比 52.6、\(\alpha\)</td></tr>
+        <tr><th>4</th><td>ゲージ \(s\)（膨張を計量と場に配分）</td><td>銀河間距離 ÷ 原子半径</td></tr>
+        <tr><th>5</th><td>ポテンシャルの見かけ</td><td>状態方程式 \(w\)、\(w=-1/3\) の三重の境目</td></tr>
+        <tr><th>6</th><td>曲率 \(R\)（\(\tilde R=0\) にもできる）</td><td>\(N=mc^2t/\hbar\)、プランク時間</td></tr>
+        <tr><th>7</th><td>物差しの目盛り（計量10成分のうち1個）</td><td>光円錐＝因果構造（残り9個）</td></tr>
+        <tr><th>8</th><td>──</td><td>\(\beta\) 関数、\(1/137\to1/128\)、陽子質量の99%</td></tr>
+        <tr><th>9</th><td>──</td><td>共形因子問題（どのゲージでも消せない）</td></tr>
+        <tr><th>番外④</th><td>質量の大きさ \(|m|\)、個々の位相 \(\theta_i\)</td><td>質量比、位相差 \(\arg\det M\)、\(\bar\theta&lt;10^{-10}\)</td></tr>
+        <tr><th>番外⑤</th><td>ニュートン定数 \(G\)、プランク質量 \(M_{\rm Pl}\)</td><td>\(\alpha_G=(m/M_{\rm Pl})^2\)、\(R\tilde R\propto\mathrm{Im}(\Psi_2^2)\)</td></tr>
+        <tr><th>番外⑥</th><td>次元付きの量が、そもそも存在しない</td><td>\(\Delta\)、臨界指数、\(\alpha+2\beta+\gamma=2\)</td></tr>
+        <tr class="hi"><th>番外⑦</th><td>──</td><td><strong>\(c\) と \(a\)。次元 \(D=10,26\) と、繰り込み群の向き</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>左の列は、私たちがどう書くかの話。右の列だけが、世界について何かを言っています。<em>16話でやったのは、この二列を正確に分けることでした。</em></p>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:0;">01節の \(T^\mu{}_\mu=cW^2-aE_4\) は<strong>符号と規格化の約束が文献によって違います</strong>。02節の \(c\) の数え方（ゴーストの \(-26\)、\(+11\)）は共変量子化での標準的な値ですが、これは弦理論という<strong>未検証の枠組み</strong>の内部での無矛盾性条件であって、時空が実際に10次元だという観測はありません。</p>
+    <p>03節の三つの定理はいずれも実在の結果ですが、a定理の証明は「UV と IR がどちらも CFT である流れ」についてのものです。4次元で \(c\) に単調性がないことも標準的な認識です。</p>
+    <p>05節の階段は<strong>自由場勘定による模式図</strong>です。厳密に言えば \(a\) は共形不変な固定点でしか定義されず、途中のエネルギーで「いまの \(a\)」を語ることはできません。また質量を持つベクトル（W・Z）や閉じ込めの扱いは、この数え方では乱暴です。段が必ず下がるのは場を取り除いているからで、a定理の検証にはなっていません ── <em>あくまで「どこで何がどれだけ落ちるか」の見取り図</em>です。</p>
+    <p style="margin-bottom:0;">06節のエンタングルメント・エントロピーの式は係数の規約に依存し、4次元では領域の形や切り方の処方によって非普遍的な項が混ざります。07節の番外編②との「合流」は<strong>本稿による読み方</strong>で、a定理が宇宙のビット数について何かを言うわけではありません。08節の表は本シリーズの整理であり、標準的な教科書の分類ではありません。</p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>ボソン弦の次元が 26 になる理由を、一行で。
+        <details><summary>答えを見る</summary><div class="ans">世界面の共形アノマリーがゼロでなければならず、時空座標 \(D\) 個が \(c=D\)、ゴーストが \(c=-26\) だから \(D=26\)。<strong>第8回のアノマリーを消す条件が、そのまま次元の方程式になっている</strong>。超弦ではフェルミオンが \(c=1/2\) ずつ加わり、ゴーストも変わって \(3D/2-15=0\)、すなわち \(D=10\)。</div></details>
+      </li>
+      <li>\(c\) と \(a\) の違いを述べよ。
+        <details><summary>答えを見る</summary><div class="ans">どちらも4次元の共形アノマリーの係数だが、<strong>単調性を持つのは \(a\) だけ</strong>。\(a_{\rm UV}&gt;a_{\rm IR}\) が a定理で、\(c\) は流れに沿って増えることも減ることもある。2次元では係数が一つしかなく、それが中心電荷 \(c\) で、ザモロチコフの c定理により単調に減ります。</div></details>
+      </li>
+      <li>a定理の証明で、なぜディラトンを導入するのか。
+        <details><summary>答えを見る</summary><div class="ans">繰り込み群の流れの上では共形対称性が破れているので、そのままでは「対称性の言葉」で議論できない。そこで<strong>破れを補償する場を足して、形式的に Weyl 不変にする</strong>。すると破れの情報が全部ディラトンの相互作用に入り、その散乱振幅を調べればよくなる。<em>第4回で「スケール因子は時空の上に乗った場だ」とやった操作と、まったく同じ</em>です。</div></details>
+      </li>
+      <li>標準模型で、\(a\) がいちばん大きく落ちるのはどこか。またその割合は。
+        <details><summary>答えを見る</summary><div class="ans"><strong>QCD の閉じ込め</strong>（\(\sim0.2\) GeV）。695.5 から 89.5 へ、7.77分の1。グルーオン8個ぶんだけで \(8\times62=496\) で、これは標準模型全体の \(a\) の 49.8%。<strong>宇宙が失った自由度の半分が、この一段で消えています。</strong></div></details>
+      </li>
+      <li>（やや難）\(a\) が「情報」だとして、繰り込み群に向きがあることはどう言い換えられるか。
+        <details><summary>答えを見る</summary><div class="ans">\(a\) は球面をまたぐエンタングルメント・エントロピーの普遍部分の係数なので、\(a_{\rm UV}&gt;a_{\rm IR}\) は<strong>「粗視化するともつれが減る」</strong>ということ。つまり「細かいところを見ないことにする」とは文字どおり情報を捨てる操作で、捨てた情報は戻ってこない。<em>繰り込み群が不可逆なのは、それが忘却だから</em>です。ランダウアーの原理（情報を消すには代償が要る）と同じ側の話 ── 番外編②との合流点。</div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2 style="border:none;"><span class="n">まとめ</span>ひとつの量に、二つの使い道があった</h2>
+    <p>第8回で測った「対称性の壊れ具合」には、4次元で二つの係数 \(c\) と \(a\) があります。そして二通りの使い道がありました。<strong>ゼロを要求すれば時空の次元が決まる</strong> ── ボソン弦で \(D-26=0\)、超弦で \(3D/2-15=0\)、すなわち 26 と 10。<strong>正を要求すれば繰り込み群に向きが出る</strong> ── \(a_{\rm UV}&gt;a_{\rm IR}\)、これが a定理です。二つある係数のうち、向きを持つのは \(a\) だけでした。</p>
+    <p>そして a定理の証明の道具が、第4回のディラトンでした。破れた共形対称性を補償する場を足して形式的に Weyl 不変にし、その場の散乱振幅の \(s^2\) 係数に \(a_{\rm UV}-a_{\rm IR}\) が現れ、ユニタリー性から正だと分かる。<em>「\(\Omega\) を場に格上げする」という、このシリーズが第4回でやり番外編⑤でも繰り返した一つの手口が、実は繰り込み群の向きを証明する技術だった</em>のです。</p>
+    <p>標準模型で数えると \(a_{\rm UV}\propto995.5\)、深い赤外は光子だけで 62、比は 16.06。いちばん深い段は QCD の閉じ込めで、グルーオン8個ぶん 496 ── <strong>宇宙が失った自由度の半分が、この一段で消えています</strong>。第8回で「あなたの体重の99%はアノマリーの産物」と言ったその閉じ込めが、同時にアノマリー係数の半分を消したのでした。</p>
+    <p>最後に \(a\) の正体。それは球をまたぐ<strong>エンタングルメント・エントロピー</strong>の係数でした。だから \(a_{\rm UV}&gt;a_{\rm IR}\) は「粗視化するともつれが減る」の言い換えで、<em>繰り込み群が不可逆なのは、それが忘却だから</em>。番外編②で「宇宙を有限リソースの計算機として書くなら、縛るべきは光シート上の情報量」と書きました。その情報量に、いま定理が付いています。ビットは無次元です ── 最初から、右の列にいました。</p>
+  </div>
+
+  <div class="next">
+    <span class="lbl">シリーズを閉じます</span>
+    「わかる宇宙論」は「光は昔、もっと速かった」から始まりました。「わかる共形変換」はその補助線の正体を突き止め、番外編①②③が \(c\cdot t=\text{一定}\) を三方向から裁き、④が質量に位相を探し、⑤がそれを重力まで追い、⑥がシリーズ名の残り半分（\(\Delta\)）を埋め、⑦で第8回の宿題を閉じました。<strong>16話でやったのは、帳簿と物理という二列を正確に分けること、それだけです。</strong> 動くなら物理、動かないなら帳簿 ── 手続きは単純で、機械的に下せます。ただ、第10回でも書いたとおり、<em>どんな無次元量を作るべきかは、手続きは教えてくれません。</em>良い問いを立てるところは、いつまでも人間の仕事のままです。
+  </div>
+
+  <div class="foot">
+    この文書は「わかる共形変換」シリーズ番外編⑦（完結）、物理好きの高校生・大学生向け読み物です。4次元の共形アノマリーが \(T^\mu{}_\mu=cW^2-aE_4\) の形を取ること（符号・規格化の約束は文献により異なります）、2次元では係数が中心電荷 \(c\) 一つになることは標準的です。弦の世界面の共形アノマリー相殺条件からボソン弦で \(D=26\)、超弦で \(D=10\) が出ることは共変量子化における標準的な結果ですが、弦理論は<strong>観測的に検証されていない枠組み</strong>です。2次元極小模型の \(c=1-6/(m(m+1))\) も標準的です。c定理は Zamolodchikov (1986)、4次元の a定理は Komargodski &amp; Schwimmer (2011)、3次元の F定理は Casini &amp; Huerta らによります。a定理の証明がディラトンの有効作用と 2→2 散乱振幅の \(s^2\) 係数の正値性（分散関係・光学定理）に基づくことも、同論文の内容です。自由場の \(a\) の比が 実スカラー : ワイル : ベクトル ＝ \(1:11/2:62\) であることは標準的で、本稿では \(\mathcal{N}=4\) 超対称ヤン＝ミルズで \(a=c\) となることを用いて規格化を検算しました（どちらも 90）。05節の階段と \(a_{\rm UV}/a_{\rm IR}=16.06\)、QCD 閉じ込めでの 7.77分の1、グルーオン寄与 49.8% はいずれも<strong>自由場勘定による本稿の模式的な計算</strong>で、\(a\) は本来 CFT 固定点でのみ定義される量です。質量を持つベクトルや閉じ込めの扱いも粗いものです。エンタングルメント・エントロピーの普遍部分の係数が 2次元で \(c/3\)、4次元で \(a\) に比例することは標準的ですが、規格化と符号は約束に依存し、4次元では領域の形状に依存する非普遍項が混ざります。07節の番外編②との接続は本稿による読み方であり、a定理が宇宙の総ビット数について何かを主張するものではありません。08節の表は本シリーズによる整理です。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルと標準模型です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーでエネルギースケールを下げ、\(a\) の階段が落ちていくのが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('cv'), sm=document.getElementById('sm'),
+      vm=document.getElementById('vm'), rd=document.getElementById('rd');
+  // [このスケールより上なら, a の値, ラベル, 抜けるもの]
+  var STEP=[
+    {lo: 2.238, a:995.5, name:'標準模型ぜんぶ',         drop:''},
+    {lo: 0.621, a:772.5, name:'トップ・ヒッグス・W・Z が抜けた', drop:'トップ, ヒッグス, W, Z'},
+    {lo: 0.114, a:739.5, name:'ボトムが抜けた',         drop:'ボトム'},
+    {lo:-0.699, a:695.5, name:'タウ・チャームが抜けた',  drop:'タウ, チャーム'},
+    {lo:-3.291, a: 89.5, name:'QCD が閉じ込めた',        drop:'グルーオン8個, 軽いクォーク'},
+    {lo:-10.301,a: 78.5, name:'電子が抜けた',           drop:'電子'},
+    {lo:-99,    a: 62.0, name:'光子だけ',               drop:'ニュートリノ'}
+  ];
+  var XL=[-12,19], YL=[0,1080];
+
+  function aOf(x){ for(var i=0;i<STEP.length;i++) if(x>=STEP[i].lo) return STEP[i]; return STEP[STEP.length-1]; }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var mu=parseFloat(sm.value); vm.textContent=mu.toFixed(2);
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    ctx.clearRect(0,0,W,H);
+    var L=54,R=16,T=22,B=46;
+    function X(v){ return L+(v-XL[0])/(XL[1]-XL[0])*(W-L-R); }
+    function Y(v){ return H-B-(v-YL[0])/(YL[1]-YL[0])*(H-T-B); }
+
+    ctx.strokeStyle='#eee5d2'; ctx.lineWidth=1; ctx.font='10.5px sans-serif';
+    ctx.fillStyle='#9a8f78'; ctx.textAlign='right';
+    for(var yv=0; yv<=1000; yv+=200){
+      ctx.beginPath(); ctx.moveTo(L,Y(yv)); ctx.lineTo(W-R,Y(yv)); ctx.stroke();
+      ctx.fillText(String(yv), L-6, Y(yv)+3.5);
+    }
+    ctx.textAlign='center';
+    for(var xv=-12; xv<=19; xv+=4){
+      ctx.strokeStyle='#f5efe2'; ctx.beginPath(); ctx.moveTo(X(xv),T); ctx.lineTo(X(xv),H-B); ctx.stroke();
+      ctx.fillStyle='#9a8f78'; ctx.fillText(String(xv), X(xv), H-B+15);
+    }
+    ctx.strokeStyle='#c4b491'; ctx.lineWidth=1.2; ctx.strokeRect(L,T,W-L-R,H-T-B);
+
+    // 階段（右＝高エネルギーから左へ）
+    ctx.strokeStyle='#7a5518'; ctx.lineWidth=2.6; ctx.beginPath();
+    ctx.moveTo(X(XL[1]),Y(STEP[0].a));
+    for(var i=0;i<STEP.length;i++){
+      var xEdge=Math.max(STEP[i].lo, XL[0]);
+      ctx.lineTo(X(xEdge),Y(STEP[i].a));
+      if(i+1<STEP.length) ctx.lineTo(X(xEdge),Y(STEP[i+1].a));
+    }
+    ctx.lineTo(X(XL[0]),Y(STEP[STEP.length-1].a));
+    ctx.stroke();
+
+    // QCD の段を強調
+    ctx.strokeStyle='#1f6b45'; ctx.lineWidth=3.2;
+    ctx.beginPath(); ctx.moveTo(X(STEP[4].lo),Y(STEP[3].a)); ctx.lineTo(X(STEP[4].lo),Y(STEP[4].a)); ctx.stroke();
+    ctx.fillStyle='#1f6b45'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('QCD 閉じ込め（−606）', X(STEP[4].lo)+6, Y(400));
+
+    // 現在のスケール
+    var s=aOf(mu);
+    ctx.strokeStyle='#a83a22'; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X(mu),T); ctx.lineTo(X(mu),H-B); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(X(mu),Y(s.a),5.5,0,6.284); ctx.fill();
+
+    ctx.fillStyle='#6b4a14'; ctx.font='11.5px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('← 赤外（粗い）　　log₁₀(μ/GeV)　　紫外（細かい）→', (L+W-R)/2, H-8);
+    ctx.save(); ctx.translate(15,(T+H-B)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('a （自由場勘定）', 0, 0); ctx.restore();
+
+    var lost=(995.5-s.a)/995.5;
+    rd.textContent='log₁₀ μ = '+mu.toFixed(2)+'　（μ ≈ '+Math.pow(10,mu).toPrecision(3)+' GeV）　│　a = '
+      +s.a.toFixed(1)+'　'+s.name+'　│　プランク期から失った割合 = '+(lost*100).toFixed(1)+'%'
+      +(s.drop?'　直前に抜けたもの：'+s.drop:'');
+  }
+
+  sm.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
