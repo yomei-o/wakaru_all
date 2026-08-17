@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>どの仮説がいちばん矛盾していないか ── 量子重力自由研究 第4回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f8fb; --paper-edge:#ddd8e4;
+    --side:#5a3f9c; --side-bg:#eeeaf6;
+    --warn:#8a4b2f;
+    --calc:#2e2440; --calc-bg:#eae6f1;
+    --rule:#d2ccdc; --hair:#b9b2c6;
+    --acc:#5a3f9c;
+    --grid:#e6e1ee;
+    --bad:#a83a22;
+    --ok:#1f6b45;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ddd4ee 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#26282d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d1cbdb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:170px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  .controls button{font-family:inherit;font-size:13px;padding:8px 14px;border:1px solid var(--acc);
+    border-radius:4px;background:#fff;color:var(--acc);cursor:pointer;font-weight:600;}
+  .controls button.on{background:var(--acc);color:#fff;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--side-bg);color:#2e2440;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.gh{border-collapse:collapse;width:100%;min-width:560px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;line-height:1.7;}
+  table.gh th,table.gh td{border:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top;}
+  table.gh thead th{background:#eae6f1;color:#2e2440;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.gh tbody th{background:#f3f0f7;font-weight:600;white-space:nowrap;}
+  table.gh td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.gh tr.hi td,table.gh tr.hi th{background:#f7e4e0;}
+  table.gh tr.ok td,table.gh tr.ok th{background:#e8f0ea;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4f1f9;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2c2f36;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdff,#ece8f3);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--side-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2c2f36;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#666870;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>量子重力自由研究</span><span class="ep">第 4 回 ／ 横に並べる</span></div>
+  <p class="eyebrow">ここまでは一つの模型を最後まで。今回は候補を横に並べて、判定に使える数字を探します</p>
+  <h1>どの仮説が<br>いちばん矛盾していないか
+    <span class="sub">「共形モードをどう始末したか」で並べると、それぞれの代償が一本の軸に乗ります。<br>そして判定に本当に使える数字は、いまのところ一つしかありませんでした。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：無次元量で比べる癖、そして「規約を揃えてから比べる」という作法</span>
+    <span>自由研究 ／ 手を動かした記録</span>
+  </div>
+
+  <p class="lead">
+    量子重力の候補はいくつもあります。弦理論、ループ量子重力、漸近安全性、CDT、Hořava 重力 ──
+    どれも「これが正しい」とは言えていない。<br>
+    では<em>比べようがないのか</em>。そんなことはありません。並べる軸を選べば、
+    それぞれが何を捨てたのかが見えます。そして<strong>判定に使える数字</strong>も、少ないけれど、あります。
+  </p>
+
+  <h2><span class="n">01</span>並べる軸を選ぶ</h2>
+
+  <p>
+    このシリーズは「わかる共形変換」第9回 ── <strong>共形因子はゴーストだった</strong> ──
+    の続きから始まりました。重力の作用には、宇宙の大きさ（共形モード）の運動項が
+    逆符号で入っていて、そのせいでユークリッド作用が下に非有界になり、
+    経路積分が定義できない。
+  </p>
+  <p>
+    量子重力の候補は、結局<strong>この一点をどう処理するか</strong>で分かれます。
+    そして面白いことに、<em>それぞれが払っている代償も、この軸で説明がつきます</em>。
+    「弦か、ループか」と並べるより、この軸のほうが読者にとって意味があります。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>仮説</th><th>共形モードの始末</th><th>代償</th><th>数で言えること</th></tr></thead>
+    <tbody>
+      <tr><th>摂動的 EFT</th><td>何もしない。低エネルギーでは問題化しない</td><td><strong>2ループで発散が復活</strong>（Goroff–Sagnotti 1985）</td><td>展開パラメータ \((E/M_{\rm Pl})^2\)。LHC で \(1.3\times10^{-30}\)。<strong>低エネルギーで矛盾がないのは本当</strong></td></tr>
+      <tr><th>高階微分（Stelle）</th><td>高階微分で押さえ込み、繰り込み可能にする</td><td><strong>質量つきスピン2ゴースト</strong>。ユニタリ性を失う</td><td>繰り込み可能性とユニタリ性を交換した、という一点だけがはっきり</td></tr>
+      <tr><th>漸近安全性</th><td>非摂動の固定点で治ることに期待</td><td>固定点の存在が<strong>切り捨て依存</strong>。BRST の破れという批判も</td><td>UV で引き寄せる方向は「多くても3つ」。パラメータ化を変えると2になる系列も ── <strong>予言の個数が定まっていない</strong></td></tr>
+      <tr class="ok"><th>CDT</th><td><strong>エントロピーが符号を直す。実際に起きる</strong>（第1回で厳密に確認）</td><td><strong>選ばれた葉層</strong>を最初から入れる＝ローレンツ対称性は創発扱い</td><td>2次元で \(\lambda_c=\ln2\)、\(\langle l(t)\rangle=t+1\)、\(d_H=2\)。4次元では de Sitter 相と \(d_s:4\to2\)</td></tr>
+      <tr><th>Hořava–Lifshitz</th><td>時間微分を2階に保つので共形ゴーストが出ない</td><td><strong>ローレンツ対称性を明示的に壊す</strong>。スカラーモードの不安定性と低エネルギー強結合</td><td>光子の LIV：\(E_{\rm QG,1}>7.6\,M_{\rm Pl}\)（Fermi GRB 090510）＝速度ずれ \(<3.3\times10^{-19}\)。重力波 GW170817 で \(|c_{gw}/c-1|<10^{-15}\)</td></tr>
+      <tr class="ok"><th>弦理論</th><td>世界面の Weyl 不変性を要求して次元を決める（\(D=26,10\)）</td><td>\(D=10\)、ランドスケープ、低エネルギーの予言力</td><td><strong>BH エントロピーの微視的計数が対数補正まで一致</strong>（BPS 極限）。これは本物の成功</td></tr>
+      <tr class="hi"><th>ループ量子重力</th><td>正準量子化。経路積分をそもそも使わない</td><td>古典極限の再現が課題</td><td><strong>BH エントロピーの対数補正が合わない</strong>（下で詳しく）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2><span class="n">02</span>実験は、何も言ってくれない</h2>
+
+  <p>
+    先に絶望的な事実を置いておきます。摂動的な量子重力の展開パラメータは
+  </p>
+  $$\left(\frac{E}{M_{\rm Pl}}\right)^2,\qquad M_{\rm Pl}=1.22\times10^{19}\ {\rm GeV}$$
+  <p>
+    これを実験のエネルギーで評価すると：
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>どこで</th><th class="mid">エネルギー</th><th class="mid">\((E/M_{\rm Pl})^2\)</th></tr></thead>
+    <tbody>
+      <tr><td>LHC</td><td class="mid">14 TeV</td><td class="mid">\(1.3\times10^{-30}\)</td></tr>
+      <tr><td>観測された最高エネルギーの宇宙線</td><td class="mid">\(\sim10^{11}\) GeV</td><td class="mid">\(6.7\times10^{-17}\)</td></tr>
+      <tr><td>GRB で使う光子</td><td class="mid">31 GeV</td><td class="mid">\(6.4\times10^{-36}\)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    <strong>この一つの数が、量子重力の状況を全部説明します。</strong>
+    実験室でも宇宙線でも、量子重力の効きは \(10^{-17}\) 以下。
+    だから「どの仮説が正しいか」を実験で決めることは、いまのところできません。
+    ── <em>では何で判定するのか。</em>
+  </p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">03</span>使える数字が、ひとつだけある</h2>
+
+  <p>
+    観測ではなく<strong>計算</strong>で判定できる場所があります。
+    ブラックホールのエントロピーの<strong>対数補正</strong>です。
+  </p>
+  $$S = \frac{A}{4G} \;+\; C\,\ln A \;+\;\cdots$$
+  <p>
+    面積則 \(A/4G\) はどの理論も再現します（そこは勝負になりません）。
+    しかし係数 \(C\) は<em>理論の中身を映します</em> ── どんな場が何枚あるか、
+    どう数え上げるか。だから<strong>独立に計算した結果が合うかどうか</strong>が、
+    本物の検算になります。
+  </p>
+
+  <h3>まず自分で計算する</h3>
+
+  <p>
+    Sen（2012）の式を自分で確かめました。massless な場の中身から
+  </p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 純粋重力の \(C_{\rm local}\)</span>
+    $$C_{\rm local}=\frac{1}{90}\Big(2n_S-26(n_V-1)+7n_F-\tfrac{233}{2}n_{3/2}+398\Big)$$
+    <div class="lbl">純粋重力（場は何も無い）を入れると</div>
+    $$C_{\rm local}=\frac{1}{90}\big(26+398\big)=\frac{424}{90}=\boxed{\frac{212}{45}}=4.7111\ldots$$
+    <div class="lbl">場を足すと動く（＝観測量ではなく、理論の中身を映す量）</div>
+    <p style="margin:6px 0">
+      ＋光子で \(199/45\)、＋3世代のニュートリノで \(817/180\)。
+    </p>
+  </div>
+
+  <h2><span class="n">04</span>比べる前に、規約を揃える</h2>
+
+  <div class="caveat">
+    <span class="tag">ここで一度、私が間違えました</span>
+    最初この節を書いたとき、「マクロ計算 \(+167/45\) vs LQG \(-1/2\)」と並べました。
+    <strong>これは集団（アンサンブル）が揃っていない比較です。</strong>
+    同じ量を比べていなかった。訂正します。
+  </div>
+
+  <p>罠は2つあります。</p>
+
+  <h3>罠その1 ── 集団を揃える</h3>
+  <p>
+    エントロピーは「何を固定して数えるか」で変わります。質量だけ固定（ミクロカノニカル）か、
+    角運動量まで固定して回転不変な状態だけ数える（シングレット）か。
+    係数はそれぞれ違います。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>集団</th><th class="mid">\(\ln a\) の係数</th><th class="mid">数値</th></tr></thead>
+    <tbody>
+      <tr><td>ミクロカノニカル</td><td class="mid">\(212/45-1=167/45\)</td><td class="mid">+3.711</td></tr>
+      <tr class="ok"><td>シングレット</td><td class="mid">\(212/45-3=77/45\)</td><td class="mid"><strong>+1.711</strong></td></tr>
+      <tr class="hi"><td><strong>LQG（同じシングレット）</strong></td><td class="mid">\(-2\)</td><td class="mid"><strong>−2.000</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>罠その2 ── \(\ln a\) か \(\ln A\) か</h3>
+  <p>
+    面積は \(A\sim a^{D-2}=a^2\) なので \(\ln a=\tfrac12\ln A\)。
+    <strong>どちらで書くかで係数の絶対値が2倍変わります。</strong>
+    文献の数字を並べるときは、まずここを揃えること。
+    ── ただし<em>符号の食い違いだけは、取り方に依りません</em>。
+  </p>
+
+  <div class="fig">
+    <div class="cap">図：規約を切り替えても、2つの計算は逆を向いたまま。棒の向きが揃うことはありません</div>
+    <canvas id="cv" width="700" height="300"></canvas>
+    <div class="controls">
+      <button id="bens" class="on">集団：シングレット</button>
+      <button id="bvar" class="on">変数：ln a</button>
+      <label>場を足す（光子 → ＋ニュートリノ → ＋スカラー） <span class="val" id="vf">純粋重力</span>
+        <input type="range" id="sf" min="0" max="3" step="1" value="0">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f6b45"></i>マクロ計算（ユークリッド重力の1ループ）</span>
+      <span><i class="swatch" style="background:#a83a22"></i>ループ量子重力</span>
+    </div>
+    <div class="readout" id="rd">計算中…</div>
+  </div>
+
+  <h3>LQG 側の数字の系譜も追う</h3>
+
+  <p>
+    文献には \(-1/2\)、\(-3/2\)、\(-2\)、\(0\) といろいろ流通しています。全部追いました。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>出どころ</th><th>元の書き方</th><th class="mid">\(\ln a\) に直すと</th></tr></thead>
+    <tbody>
+      <tr><td>Kaul–Majumdar (2000)</td><td>\(S=S_{\rm BH}-\tfrac32\ln S_{\rm BH}\)</td><td class="mid">\(\ln S_{\rm BH}=\ln A=2\ln a\) なので <strong>−3</strong></td></tr>
+      <tr><td>↑を面積区間→質量区間へ換算</td><td>シングレット集団</td><td class="mid"><strong>−2</strong></td></tr>
+      <tr><td>U(1) Chern–Simons 版</td><td>\(S_{mc}=S_{\rm BH}\)</td><td class="mid"><strong>0</strong>（対数補正なし）</td></tr>
+      <tr class="ok"><td>マクロ計算（同じシングレット）</td><td>\(S_{\rm BH}+(212/45-3)\ln a\)</td><td class="mid"><strong>+77/45 ≈ +1.71</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">取り方によらず言えること</div>
+    <p style="margin-top:6px;text-align:center;font-size:18px">
+      <strong>マクロ側は正、LQG 側はどれも 0 以下。</strong>
+    </p>
+    <p style="margin-top:12px">
+      Sen 自身は食い違いの原因を「<em>ループ量子重力の結果には、質量ゼロの重力子ループからの寄与が
+      抜けているように見える</em>」と書いています。つまりこれは
+      <strong>どちらかが間違っているという、決着のつく問い</strong>です ──
+      観測を待たずに、計算だけで。
+    </p>
+  </div>
+
+  <h2><span class="n">05</span>判定</h2>
+
+  <p>できるだけ正直に書きます。</p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>観点</th><th>いま言えること</th></tr></thead>
+    <tbody>
+      <tr class="ok"><th>内部整合で強い</th><td><strong>弦理論</strong>（極限的 BH で微視的計数と対数補正まで一致する、他にない検証済みの成功）と<strong>CDT</strong>（有限な経路積分が実際に構成でき、数値で確かめられる）。ただし性格が違う ── 弦は「解けた例がある」、CDT は「定義できることが示せた」</td></tr>
+      <tr class="hi"><th>計算が食い違っている</th><td><strong>ループ量子重力 vs ユークリッド重力の1ループ</strong>。対数補正の符号が逆。どちらかが間違っている</td></tr>
+      <tr><th>観測に押されている</th><td><strong>Hořava 型</strong>。LIV の上限が厳しく、効果を隠すために「プランク質量よりずっと小さい第2のスケール」を入れる必要が出ている</td></tr>
+      <tr><th>予言の個数が定まらない</th><td><strong>漸近安全性</strong>。切り捨ての取り方で relevant な方向が 2 にも 3 にもなる</td></tr>
+      <tr><th>全部に共通</th><td><strong>決定的な観測予言に届いていない。</strong>\((E/M_{\rm Pl})^2=10^{-30}\) がすべてを説明する</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:2px">
+      この表は<strong>順位表ではありません。</strong>「いちばん矛盾していない」を一つ選べ、と言われても
+      選べない ── 各仮説が答えようとしている問いが違うからです。弦理論は「重力を含む
+      無矛盾な量子論はあるか」、CDT は「経路積分は定義できるか」、LQG は「時空の量子状態とは何か」。
+      同じ土俵にいません。
+    </p>
+    <p>
+      できるのは、<strong>どの仮説が何を捨てたかを言葉ではなく数で書き出すこと</strong>、そして
+      <strong>計算どうしが食い違っている場所を指すこと</strong>までです。
+      対数補正の食い違いは、その数少ない「指せる場所」です。
+    </p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>純粋重力（\(n_S=n_V=n_F=n_{3/2}=0\)）で \(C_{\rm local}=212/45\) になることを確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(C_{\rm local}=\frac{1}{90}(2\cdot0-26(0-1)+7\cdot0-\frac{233}{2}\cdot0+398)
+          =\frac{1}{90}(26+398)=\frac{424}{90}=\frac{212}{45}\)。
+          \(n_V=0\) のとき \(-26(n_V-1)=+26\) になるところが引っかけ。
+        </div></details>
+      </li>
+      <li>\(\ln a\) で書いた係数を \(\ln A\) に直すと何倍になるか。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(A\sim a^{D-2}\)、4次元なら \(A\sim a^2\) なので \(\ln A=2\ln a\)、
+          したがって \(\ln A\) で書いた係数は <strong>1/2 倍</strong>。
+          マクロ +1.711 → +0.856、LQG −2 → −1。<strong>符号は変わらない。</strong>
+        </div></details>
+      </li>
+      <li>展開パラメータ \((E/M_{\rm Pl})^2\) が LHC で \(10^{-30}\) であることは、
+        「量子重力を実験で決められない」ことをどう説明するか。
+        <details><summary>答えを見る</summary><div class="ans">
+          摂動的な重力の補正は \((E/M_{\rm Pl})^2\) で入るので、LHC のエネルギーでは
+          \(10^{-30}\) の効果。どんな精密測定でも届かない。だから
+          <strong>「低エネルギーでは EFT で十分」という予言は当たっているが、
+          そのぶん高エネルギーの仮説を実験で区別できない</strong>。
+        </div></details>
+      </li>
+      <li>（やや難）対数補正の食い違いが「観測を待たずに決着する」と言えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">
+          両者とも<strong>同じ物理量</strong>（同じブラックホール、同じ集団でのエントロピーの
+          対数補正）を計算しているから。観測とは無関係に、片方が計算を間違えているか、
+          片方の理論が間違っている。<strong>物理学で「計算だけで決着する食い違い」は貴重</strong>で、
+          だからこの数字が判定に使える。
+        </div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>まとめ ── 順位はつかないが、指せる場所はある</h2>
+    <p>
+      量子重力の候補を「<strong>共形モードをどう始末したか</strong>」で並べると、それぞれの代償が
+      一本の軸に乗ります ── EFT は2ループで発散、Stelle はゴースト、漸近安全性は切り捨て依存、
+      CDT は選ばれた葉層、Hořava はローレンツ対称性、弦は \(D=10\) とランドスケープ、
+      LQG は古典極限。
+    </p>
+    <p>
+      <strong>実験は何も言ってくれません。</strong>\((E/M_{\rm Pl})^2\) は LHC で \(1.3\times10^{-30}\)、
+      最高エネルギーの宇宙線でも \(6.7\times10^{-17}\)。
+    </p>
+    <p>
+      それでも判定に使える数字がひとつあります ── <strong>ブラックホールエントロピーの対数補正</strong>。
+      自分で計算すると純粋重力で \(C_{\rm local}=212/45\)、同じシングレット集団で
+      マクロ側 <strong>+77/45 ≈ +1.71</strong> に対し LQG は <strong>−2</strong>。
+      <em>符号が逆</em>です。比べる前に集団と \(\ln a/\ln A\) を揃える必要があり、
+      そこで私は一度間違えました。
+    </p>
+    <p>
+      順位表は作れません。各仮説が答えようとしている問いが違うからです。
+      できるのは<strong>何を捨てたかを数で書くこと</strong>と、
+      <strong>計算どうしが食い違っている場所を指すこと</strong>まで。
+    </p>
+
+    <div class="next">
+      <span class="lbl">次回予告 ── <a href="ryoushi-juryoku-05-kabe.html" style="color:inherit">第5回「c=1 の壁を、自分で叩く」</a></span>
+      表の中に、ひとつだけ<strong>自分で叩ける</strong>ものがあります。
+      2次元ユークリッド重力は、物質を載せていくと<strong>中心電荷 \(c\) が 1 を超えたところで壊れます</strong>
+      ── 幾何が枝分かれポリマーに潰れる。これがユークリッド路線が行き詰まった直接の原因です。
+      CDT にはこの壁が無いとされる。<em>本当か、自分の手で確かめます。</em>
+      そのために「体積が変わる CDT」を書きました ── そして4つの罠を踏みました。
+    </div>
+  </div>
+
+  <div class="foot">
+    この文書は「量子重力自由研究」シリーズ第4回です。表に挙げた各仮説の性質はいずれも文献で
+    知られたものです（Goroff &amp; Sagnotti 1985 の2ループ発散、Stelle 重力のゴースト、
+    漸近安全性の relevant 方向の数と切り捨て依存性、Hořava–Lifshitz のスカラーモード問題、
+    Fermi GRB 090510 による \(E_{\rm QG,1}>7.6\,M_{\rm Pl}\)、GW170817 による重力波速度の制限、
+    弦理論における BPS ブラックホールの微視的計数）。
+    対数補正の式 \(C_{\rm local}=\frac{1}{90}(2n_S-26(n_V-1)+7n_F-\frac{233}{2}n_{3/2}+398)\) と
+    集団ごとの係数は Sen (arXiv:1205.0971) によるもので、本文の数値は筆者が独立に再計算し、
+    純粋重力で \(424/90=212/45\) となることを確認しています。LQG 側の \(-3\to-2\) の換算も
+    Kaul–Majumdar (2000) の \(-\frac32\ln S_{\rm BH}\) から筆者が追いました。
+    本文中の「集団を揃えていなかった」という訂正は、実際に筆者が犯した誤りです。
+    ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では規約のボタンを切り替えても、2本の棒が逆向きのままなのが見えます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), bens=document.getElementById('bens'),
+      bvar=document.getElementById('bvar'), sf=document.getElementById('sf'),
+      vf=document.getElementById('vf'), rd=document.getElementById('rd');
+  if(!cv) return;
+  var singlet=true, useLnA=false;
+  // 場の中身： [nS, nV, nF]  （nF は Dirac の枚数）
+  var FIELDS=[["純粋重力",0,0,0],["＋光子",0,1,0],["＋3世代ニュートリノ",0,1,1.5],["＋スカラー1",1,1,1.5]];
+
+  function Clocal(nS,nV,nF){ return (2*nS - 26*(nV-1) + 7*nF + 398)/90; }
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var i=parseInt(sf.value,10), f=FIELDS[i];
+    vf.textContent=f[0];
+    var C=Clocal(f[1],f[2],f[3]);
+    var macro = singlet ? (C-3) : (C-1);
+    var lqg   = singlet ? -2 : 0;          // シングレット:-2 / ミクロカノニカル:U(1)版で 0
+    if(useLnA){ macro/=2; lqg/=2; }
+
+    ctx.clearRect(0,0,W,H);
+    var padL=120, padR=24, padT=26, padB=40;
+    var cx = padL + (W-padL-padR)*0.42;         // 0 の位置
+    var scale = (W-padL-padR)*0.16;             // 1 あたりの長さ
+    // 0 線
+    ctx.strokeStyle='#b9b2c6'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(cx,padT-6); ctx.lineTo(cx,H-padB+6); ctx.stroke();
+    ctx.fillStyle='#8a8a94'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('0', cx, H-padB+20);
+    for(var v=-4;v<=6;v++){ if(v===0) continue;
+      var x=cx+v*scale; if(x<padL-30||x>W-4) continue;
+      ctx.strokeStyle='#eae6f1'; ctx.beginPath(); ctx.moveTo(x,padT-6); ctx.lineTo(x,H-padB+6); ctx.stroke();
+      ctx.fillStyle='#b0aab8'; ctx.fillText(String(v), x, H-padB+20); }
+    ctx.textAlign='left';
+
+    function bar(y,val,col,label,sub){
+      var x0=cx, x1=cx+val*scale;
+      ctx.fillStyle=col; ctx.globalAlpha=.85;
+      ctx.fillRect(Math.min(x0,x1), y, Math.abs(x1-x0), 40);
+      ctx.globalAlpha=1;
+      ctx.fillStyle='#3a3346'; ctx.font='13px sans-serif'; ctx.textAlign='right';
+      ctx.fillText(label, padL-12, y+18);
+      ctx.fillStyle='#8a8a94'; ctx.font='11px sans-serif';
+      ctx.fillText(sub, padL-12, y+34);
+      ctx.textAlign=(val>=0)?'left':'right';
+      ctx.fillStyle=col; ctx.font='bold 14px sans-serif';
+      ctx.fillText((val>=0?'+':'')+val.toFixed(3), x1+(val>=0?8:-8), y+25);
+      ctx.textAlign='left';
+    }
+    bar(padT+8,  macro, '#1f6b45', 'マクロ計算', 'ユークリッド重力の1ループ');
+    bar(padT+96, lqg,   '#a83a22', 'ループ量子重力', singlet?'シングレット集団':'U(1) 版');
+
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText((useLnA?'ln A':'ln a')+' の係数', W/2, H-6);
+    ctx.textAlign='left';
+
+    rd.textContent = 'C_local = '+C.toFixed(4)
+      +'　'+(singlet?'シングレット':'ミクロカノニカル')+'集団'
+      +'　'+(useLnA?'ln A':'ln a')+' で書くと'
+      +'　マクロ '+(macro>=0?'+':'')+macro.toFixed(3)
+      +'　vs　LQG '+(lqg>=0?'+':'')+lqg.toFixed(3)
+      +'　── '+((macro>0&&lqg<=0)?'符号が逆のまま':'（同符号）');
+  }
+
+  bens.addEventListener('click',function(){ singlet=!singlet;
+    bens.textContent = singlet?'集団：シングレット':'集団：ミクロカノニカル';
+    bens.classList.toggle('on',singlet); draw(); });
+  bvar.addEventListener('click',function(){ useLnA=!useLnA;
+    bvar.textContent = useLnA?'変数：ln A':'変数：ln a';
+    bvar.classList.toggle('on',!useLnA); draw(); });
+  sf.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>

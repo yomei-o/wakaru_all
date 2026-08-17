@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>c=1 の壁を、自分で叩く ── 量子重力自由研究 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf7f9; --paper-edge:#e2d6dc;
+    --side:#9a3b4a; --side-bg:#f6eaec;
+    --warn:#8a4b2f;
+    --calc:#3a232a; --calc-bg:#f0e5e8;
+    --rule:#d9ccd1; --hair:#c0b0b6;
+    --acc:#9a3b4a;
+    --grid:#eadfe3;
+    --bad:#a83a22;
+    --ok:#1f6b45;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #eed4da 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#26282d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #dccfd4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--side-bg);color:#3a232a;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.gh{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.gh th,table.gh td{border:1px solid var(--rule);padding:9px 12px;text-align:left;vertical-align:top;}
+  table.gh thead th{background:#f0e5e8;color:#3a232a;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.gh tbody th{background:#f6f1f3;font-weight:600;white-space:nowrap;}
+  table.gh td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.gh tr.hi td,table.gh tr.hi th{background:#f7e4e0;}
+  table.gh tr.ok td,table.gh tr.ok th{background:#e8f0ea;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f7f1f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2c2f36;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfe,#f0e8ea);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--side-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2c2f36;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#666870;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>量子重力自由研究</span><span class="ep">第 5 回 ／ 壁を叩く</span></div>
+  <p class="eyebrow">第4回の表の中に、ひとつだけ自分で叩けるものがありました</p>
+  <h1>c=1 の壁を、<br>自分で叩く
+    <span class="sub">2次元ユークリッド重力は、物質を載せていくと中心電荷 1 のところで壊れます。<br>CDT にはこの壁が無いとされる ── 本当か、自分の手で確かめました。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：三角形分割を書き換える手、そして不変量を毎回検算する根気</span>
+    <span>自由研究 ／ 手を動かした記録</span>
+  </div>
+
+  <p class="lead">
+    第4回は、実験が何も言ってくれないという話で終わりました。
+    でも表の中にひとつだけ、<em>自分のパソコンで叩けるもの</em>があります。<br>
+    <strong>c=1 の壁</strong> ── 2次元のユークリッド量子重力に物質を載せていくと、
+    中心電荷が 1 を超えたところで理論が壊れる。これがユークリッド路線が行き詰まった直接の原因です。
+    CDT にはこの壁が無いとされている。確かめます。
+  </p>
+
+  <h2><span class="n">01</span>壁とは何か</h2>
+
+  <p>
+    2次元重力に中心電荷 \(c\) の物質を載せると、物質の臨界指数が「着替え」ます（第3回の KPZ ドレッシング）。
+    その着替えの量を与える式が
+  </p>
+  $$\Delta=\frac{\sqrt{1-c+24\Delta_0}-\sqrt{1-c}}{\sqrt{25-c}-\sqrt{1-c}}$$
+  <p>
+    です。<strong>\(c>1\) で平方根の中が負になる。</strong>式が複素数になってしまう。
+    そして数値実験では、そこで幾何そのものが<strong>枝分かれポリマー</strong>に潰れることが知られています ──
+    面がちぎれて、細い首でつながった木のような構造になる。
+  </p>
+  <p>
+    これは深刻です。物理的な物質（クォークやレプトン）の中心電荷は 1 よりずっと大きい。
+    <em>壁の向こうに行けないなら、2次元ユークリッド重力に物理を載せられない。</em>
+  </p>
+
+  <h2><span class="n">02</span>叩き方</h2>
+
+  <p>
+    第3回で作った道具がそのまま使えます。イジング模型1枚が \(c=1/2\) なので、
+    <strong>独立なイジングを \(n\) 枚載せれば \(c=n/2\)</strong>。
+    \(n=2\) で壁ちょうど、\(n=8\) で壁の4倍、\(n=16\) で8倍です。
+  </p>
+  <p>
+    幾何が壊れたかどうかは<strong>平均グラフ距離 \(\langle r\rangle\)</strong> で見ます。
+    体積 \(N\) を揃えておけば、
+  </p>
+  <ul>
+    <li>\(c=0\) のユークリッド重力は \(d_H=4\) なので \(\langle r\rangle\sim N^{1/4}\) ── <strong>小さい</strong></li>
+    <li>枝分かれポリマーは \(d_H=2\) なので \(\langle r\rangle\sim N^{1/2}\) ── <strong>大きい</strong></li>
+  </ul>
+  <p>
+    つまり<strong>壁を越えると、同じ体積の宇宙が急に細長くなる</strong>はずです。
+  </p>
+
+  <h2><span class="n">03</span>まず一度、負けた</h2>
+
+  <div class="caveat">
+    <span class="tag">最初の測定は不十分だった</span>
+    <p style="margin-top:2px">
+      DT 側では確かに壁が見えました。しかし CDT 側は、第3回の道具では
+      <strong>プロファイル固定</strong>（各時刻の空間の長さ \(l_t\) が全部同じ）で走らせていました。
+      それだと<em>体積を時刻のあいだで再配分できない</em> ── もともと \(d_H=2\) に縛られています。
+    </p>
+    <p>
+      「CDT には免疫がある」と読むには、これでは足りません。
+      <strong>プロファイルが自由に動く CDT を作らないと、この問いは裁けない。</strong>
+    </p>
+  </div>
+
+  <h2><span class="n">04</span>体積が変わる CDT を作る</h2>
+
+  <p>
+    必要なのは、葉層を壊さずに三角形の数を変える手です。
+  </p>
+
+  <div class="calc">
+    <span class="tag">手の導出 ── 頂点の挿入</span>
+    <p style="margin:6px 0">
+      時刻 \(t\) の空間的な辺 \(ab\) を選ぶ。この辺は上の帯の U 三角形 \(A=(a,b,c)\) と
+      下の帯の D 三角形 \(B=(b,a,d)\) で共有されている。中点に頂点 \(m\) を入れると
+    </p>
+    $$A\to A_1=(a,m,c),\;A_2=(m,b,c)\quad\text{どちらも U のまま}$$
+    $$B\to B_1=(b,m,d),\;B_2=(m,a,d)\quad\text{どちらも D のまま}$$
+    <p style="margin:6px 0">
+      三角形は +2、\(l_t\) は +1、葉層は保たれる。オイラーは \(V{+}1,\,E{+}3,\,F{+}2\) で不変。
+    </p>
+    <div class="lbl">逆手（削除）の判定が、きれいに落ちる</div>
+    <p style="margin:6px 0">
+      CDT ではスライス \(t\) の頂点の次数は \(2+2+u+d\)（\(u,d\) は「その頂点を尖端とする三角形」の数）。
+      したがって
+    </p>
+    $$\textbf{次数が 4}\iff u=d=0\iff\textbf{挿入で作られた頂点}$$
+    <div class="lbl">詳細釣合いも、グローバルな数え上げ無しで書ける</div>
+    <p style="margin:6px 0">
+      挿入は半辺を一様に1本引いて空間的なら実行（1辺＝半辺2本）、
+      削除は半辺を引いてその根元の次数が4なら実行（次数4の頂点＝半辺4本）。よって
+    </p>
+    $$\text{挿入}:\min\!\Big(1,e^{-2\lambda}\frac{2N}{N'}\Big),\qquad
+      \text{削除}:\min\!\Big(1,e^{+2\lambda}\frac{N'}{2N}\Big)$$
+  </div>
+
+  <h2><span class="n">05</span>そして4つの罠を踏んだ</h2>
+
+  <p>ここが今回いちばん時間を使ったところなので、全部書きます。</p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>罠</th><th>症状</th><th>直し方</th></tr></thead>
+    <tbody>
+      <tr><th>① ループ境界</th><td><code>for(i=0;i&lt;N;++i)</code> の中で挿入が \(N\) を増やす。<strong>ループが終わらない</strong></td><td>境界を先に確定させる</td></tr>
+      <tr class="hi"><th>② U/D の入れ替え</th><td>フリップには<strong>2つの場合</strong>がある。U 三角形は時間的な辺を2本持つので、どちらを共有しているかで結果が違い、<strong>片方では三角形の U/D が入れ替わる</strong>。更新漏れで、空間的な辺が U-U をつなぐ配位が生まれ、以降が全部狂った</td><td>不変量（空間的半辺の数＝\(N\)、U の枚数＝\(N/2\)、空間的辺は必ず U と D をつなぐ）を毎回監査して発見</td></tr>
+      <tr class="hi"><th>③ 削除の条件</th><td>次数4だけでは足りない。まわりの4頂点が全部別で、しかも<strong>4枚の並び方</strong>まで見ないと、マージで頂点が同一視されトポロジーが変わる（\(V\) が 1 でなく <strong>3 減った</strong>）</td><td>頂点にIDが無いので「φ巡回の最小半辺番号」を代表元にして判定</td></tr>
+      <tr class="hi"><th>④ 詳細釣合い</th><td>削除にだけ余分な棄却条件があった。<strong>体積が一方的に発散</strong>し、平衡が \(\lambda\approx2\)（\(\ln2\) のはず）にずれた</td><td>削除の条件を<strong>挿入側にも同じだけ置く</strong>。直したら挿入の通過率が <strong>0.3350 ≒ 1/3</strong> と予測どおりに</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aside">
+    <span class="tag">教訓</span>
+    ②と③は、<strong>絵を見ていたら絶対に気づかない</strong>種類のバグです。動いているように見えるのに、
+    測っている対象が別物になっている。助かったのは
+    <em>「この量はこの値でなければならない」という不変量を先に書き出しておいた</em>からでした ──
+    トーラスなら \(V=N/2\)、空間的半辺は \(N\) 本、U は \(N/2\) 枚。
+    毎回それを検算するコードを入れておくと、壊れた瞬間に分かります。
+  </div>
+
+  <h3>検証 ── 厳密解でブラケットする</h3>
+
+  <p>
+    直したあと、20万手打っても<strong>曲面が保たれる</strong>（トーラスなら常に \(V=N/2\)）ことを確認しました。
+    さらに \(\langle N\rangle\) を第2回の厳密解と突き合わせます。私の手は退化した配位
+    （\(l_t\) が 1〜2 の短いスライス）を作れないので、答えは<strong>厳密解の
+    「制限なし」と「\(l\ge3\)」のあいだに挟まるはず</strong>です。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>\(\delta,\,T\)</th><th class="mid">厳密（\(l\ge1\)）</th><th class="mid">モンテカルロ</th><th class="mid">厳密（\(l\ge3\)）</th><th class="mid">挟まったか</th></tr></thead>
+    <tbody>
+      <tr class="ok"><td>0.05, 20</td><td class="mid">130</td><td class="mid"><strong>182</strong></td><td class="mid">239</td><td class="mid">○</td></tr>
+      <tr class="ok"><td>0.02, 40</td><td class="mid">404</td><td class="mid"><strong>509</strong></td><td class="mid">646</td><td class="mid">○</td></tr>
+      <tr class="ok"><td>0.01, 60</td><td class="mid">853</td><td class="mid"><strong>1114</strong></td><td class="mid">1244</td><td class="mid">○</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>3つとも挟まりました。道具として信用できます。</p>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">06</span>叩いた結果</h2>
+
+  <p>
+    体積を \(N\approx2000\) に揃え、同じ温度（\(\beta=0.85\)）、同じ物質。
+    違うのは<strong>因果律を課すかどうかだけ</strong>です。
+  </p>
+
+  <div class="fig">
+    <div class="cap">図：中心電荷 \(c\) を上げたときの宇宙の平均距離。実測値です。ツマミで \(c\) を動かしてください</div>
+    <canvas id="cv" width="700" height="380"></canvas>
+    <div class="controls">
+      <label>中心電荷 c（イジング \(n=2c\) 枚） <span class="val" id="vc">0.0</span>
+        <input type="range" id="sc" min="0" max="8" step="0.5" value="0">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#a83a22"></i>ユークリッド DT（因果律なし）</span>
+      <span><i class="swatch" style="background:#1f6b45"></i>CDT（因果律あり・プロファイル自由）</span>
+      <span><i class="swatch" style="background:#c0b0b6"></i>c = 1（壁）</span>
+    </div>
+    <div class="readout" id="rd">計算中…</div>
+  </div>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>\(c\)</th><th class="mid">0</th><th class="mid">0.5</th><th class="mid">1.0</th><th class="mid">1.5</th><th class="mid">2.0</th><th class="mid">3.0</th><th class="mid">4.0</th><th class="mid">8.0</th></tr></thead>
+    <tbody>
+      <tr class="hi"><th>DT \(\langle r\rangle\)</th><td class="mid">25.0</td><td class="mid">28.2</td><td class="mid">29.9</td><td class="mid">30.5</td><td class="mid">30.8</td><td class="mid">39.9</td><td class="mid"><strong>61.7</strong></td><td class="mid">—</td></tr>
+      <tr class="ok"><th>CDT \(\langle r\rangle\)</th><td class="mid">25.8</td><td class="mid">25.2</td><td class="mid">25.8</td><td class="mid">25.7</td><td class="mid">26.0</td><td class="mid">—</td><td class="mid">26.6</td><td class="mid"><strong>26.2</strong></td></tr>
+      <tr><th>CDT \(\langle r\rangle/\sqrt N\)</th><td class="mid">.578</td><td class="mid">.562</td><td class="mid">.576</td><td class="mid">.571</td><td class="mid">.579</td><td class="mid">—</td><td class="mid">.587</td><td class="mid">.573</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">結果</div>
+    <p style="margin-top:6px;text-align:center;font-size:19px">
+      <strong>CDT に c=1 の壁は無い。ユークリッド DT にはある。</strong>
+    </p>
+    <p style="margin-top:12px">
+      DT は \(c\approx1.5\sim2\) で折れ、そこから伸びて \(c=4\) で <strong>2.5倍</strong>。
+      有限サイズスケーリングでも \(d_H\) が \(2.76\to1.78\)（枝分かれポリマーの 2 に近い）と落ちます。<br>
+      CDT は<strong>イジング16枚（\(c=8\)、壁の8倍）まで、まったく動きません</strong> ──
+      \(\langle r\rangle/\sqrt N\) は ±2% の散らばりで、傾向すらありません。
+    </p>
+  </div>
+
+  <h2><span class="n">07</span>なぜ因果律が効くのか</h2>
+
+  <p>
+    第3回で見た仕掛けと同じです。<strong>因果律を外した幾何は、細い首を作れます。</strong>
+    向きの違う2つのスピン領域を首でつなげば、ドメイン壁のコストがほとんどタダになる。
+    物質が増えるほど、幾何は「自分をちぎって物質に合わせる」ほうが得になり、
+    ついには面が木のように枝分かれしてしまう。
+  </p>
+  <p>
+    因果律は、その首を禁じます。空間的な辺をフリップできないので、<em>時空はちぎれない</em>。
+    だから物質をいくら載せても、幾何は幾何のままでいられる。
+  </p>
+
+  <div class="keybox">
+    <div class="lbl">シリーズを通しての一行（更新）</div>
+    <p style="margin-top:6px">
+      第1回：測度が<strong>運動項の符号</strong>を決める。<br>
+      第3回：測度が<strong>次元</strong>と<strong>物質の臨界指数</strong>を決める。<br>
+      今回：測度が<strong>どれだけ物質を載せられるか</strong>を決める。
+    </p>
+    <p style="margin-top:12px">
+      4つとも、作用は一文字も変えていません。動かしたのは
+      <em>「空間的な辺をフリップしてはいけない」の一行</em>だけです。
+    </p>
+  </div>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:2px">
+      <strong>\(\beta=0.85\) は各 \(c\) の臨界点ではありません。</strong>壁の主張は臨界理論についてのものなので、
+      厳密には各 \(c\) で \(\beta_c\) を求めてから測るべきです。実際 \(c=4\) では比熱のピークが潰れて
+      臨界点が定まりませんでした（それ自体が \(c>1\) で転移が壊れる兆候ではあります）。
+    </p>
+    <p>
+      <strong>DT の閾値の位置は \(c=1.5\sim2\)</strong> で、既知の \(c=1\) とずれています。
+      \(N\approx2000\) という小さい系では壁がぼやけるので、位置の精密決定はできていません。
+      「壁がある／無い」という定性的な差だけが、はっきりしていることです。
+    </p>
+    <p>
+      それから、私の CDT のモンテカルロは退化した配位を作れないぶん、厳密な CDT アンサンブルより
+      わずかに狭い ── これは上のブラケットで定量化してあります。
+    </p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>KPZ の式が \(c>1\) で壊れるのはなぜか。式のどこを見ればよいか。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(\sqrt{1-c}\) の中身。\(c>1\) で負になり、\(\Delta\) が複素数になる。
+          物理的な「次元」が複素数になることはあり得ないので、その先では理論の記述が破綻している。
+        </div></details>
+      </li>
+      <li>CDT で「頂点の次数が 4」が削除の判定に使えるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">
+          スライス \(t\) の頂点の次数は \(2+2+u+d\)（上の帯の U 三角形2枚、下の帯の D 三角形2枚は必ず付く。
+          \(u,d\) はその頂点を尖端とする三角形の数）。次数4 ⟺ \(u=d=0\) ⟺ 挿入で作られた4枚パターン。
+        </div></details>
+      </li>
+      <li>壁を越えると \(\langle r\rangle\) が<strong>大きく</strong>なるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(d_H\) が 4 から 2 に落ちるから。同じ体積 \(N\) でも \(\langle r\rangle\sim N^{1/d_H}\) なので、
+          \(d_H\) が小さいほど直径は大きい。枝分かれポリマー（木）は体積の割にひょろ長い。
+        </div></details>
+      </li>
+      <li>（やや難）不変量の検算コードを先に書いておくことが、なぜ効いたのか。
+        <details><summary>答えを見る</summary><div class="ans">
+          ②と③のバグは、シミュレーションを<strong>止めも落としもしない</strong>。動いているように見えるのに、
+          測っている対象が「曲面」でなくなっている。出力だけ見ていても気づけない。
+          <strong>「この量はこの値でなければならない」を先に書き出して毎回検算する</strong>のが唯一の防御。
+          トーラスなら \(V=N/2\)、空間的半辺は \(N\) 本、U は \(N/2\) 枚。
+        </div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>まとめ ── 壁は、因果律で消える</h2>
+    <p>
+      2次元ユークリッド重力は中心電荷 \(c>1\) で壊れます（KPZ の式が複素数になり、
+      幾何が枝分かれポリマーに潰れる）。これがユークリッド路線が物理的な物質量を扱えない直接の原因です。
+    </p>
+    <p>
+      確かめるために<strong>体積が変わる CDT</strong> を書きました。葉層を保つ頂点の挿入・削除で、
+      逆手の判定は「<strong>頂点の次数が 4</strong>」に落ちます。詳細釣合いも、両側とも半辺を一様に引く形にすれば
+      グローバルな数え上げ無しで書けます。
+      <strong>4つの罠を踏み</strong>、不変量（トーラスなら \(V=N/2\)）の検算で全部見つけました。
+      \(\langle N\rangle\) が第2回の厳密解にブラケットされることも確認しています。
+    </p>
+    <p>
+      結果：同じ体積・同じ温度・同じ物質で、<strong>DT は \(c\approx1.5\sim2\) で折れて 2.5倍に伸び、
+      CDT は \(c=8\) まで動かない。</strong>
+    </p>
+    <p>
+      因果律は「細い首」を禁じます。時空がちぎれないから、物質は幾何を着替えさせられない。
+      ── 第1回から数えて4つ目の帰結が、また<em>あの一行</em>から出てきました。
+    </p>
+
+    <div class="next">
+      <span class="lbl">次にやること</span>
+      2次元はほぼ絞り切りました。次の壁は<strong>3次元</strong>です ── そこには厳密解がありません。
+      2次元がここまで解けたのはメビウス写像という特殊構造のおかげで、
+      3次元には引き継げない。<em>本当にシミュレータの出番になるのはそこからです。</em>
+      あるいは、ここまでで積み残した「\(\beta_c\) をちゃんと求めてから測る」を先に片付けるか。
+    </div>
+  </div>
+
+  <div class="foot">
+    この文書は「量子重力自由研究」シリーズ第5回です。2次元ユークリッド量子重力の \(c=1\) 障壁
+    （KPZ 公式が \(c>1\) で複素数になること、数値的に枝分かれポリマー相へ移行すること）と、
+    CDT がこの障壁を持たないことは、いずれも文献で知られた結果です
+    （Knizhnik–Polyakov–Zamolodchikov、David、Distler–Kawai、および
+    Ambjørn, Anagnostopoulos &amp; Loll 1999 ほか）。
+    本文の数値はすべて筆者が独立に実装・測定したものです。体積可変 CDT の頂点挿入・削除の手、
+    「次数4」による逆手の判定、詳細釣合いの受理率はいずれも筆者が導出し、
+    トポロジー不変量（トーラスで \(V=N/2\)）を毎手検算し、\(\langle N\rangle\) が第2回の厳密解に
+    ブラケットされることで検証しています。\(\beta=0.85\) は各 \(c\) の臨界点ではなく、
+    DT の閾値位置（\(c\approx1.5\sim2\)）は有限サイズのため既知の \(c=1\) とずれています。
+    主張しているのは「壁がある／無い」という定性的な差までです。
+    ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では c のツマミで、2つの宇宙の運命が分かれるのが見えます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), sc=document.getElementById('sc'),
+      vc=document.getElementById('vc'), rd=document.getElementById('rd');
+  if(!cv) return;
+  // 実測値（N≈2000, β=0.85）
+  var DT =[[0,25.0],[0.5,28.2],[1.0,29.9],[1.5,30.5],[2.0,30.8],[3.0,39.9],[4.0,61.7]];
+  var CDT=[[0,25.8],[0.5,25.2],[1.0,25.8],[1.5,25.7],[2.0,26.0],[4.0,26.6],[8.0,26.2]];
+  function interp(a,c){
+    if(c<=a[0][0]) return a[0][1];
+    if(c>=a[a.length-1][0]) return a[a.length-1][1];
+    for(var i=0;i<a.length-1;i++){
+      if(c>=a[i][0]&&c<=a[i+1][0]){
+        var t=(c-a[i][0])/(a[i+1][0]-a[i][0]);
+        return a[i][1]+(a[i+1][1]-a[i][1])*t; } }
+    return a[a.length-1][1];
+  }
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var c=parseFloat(sc.value); vc.textContent=c.toFixed(1);
+    ctx.clearRect(0,0,W,H);
+    var padL=54,padR=150,padT=22,padB=42;
+    var CMAX=8, RMAX=70;
+    function X(cc){ return padL+(cc/CMAX)*(W-padL-padR); }
+    function Y(r){ return H-padB-(r/RMAX)*(H-padT-padB); }
+    // 目盛り
+    ctx.strokeStyle='#eadfe3'; ctx.lineWidth=1;
+    for(var r=0;r<=RMAX;r+=10){ ctx.beginPath(); ctx.moveTo(padL,Y(r)); ctx.lineTo(W-padR,Y(r)); ctx.stroke();
+      ctx.fillStyle='#b0aab8'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+      ctx.fillText(String(r), padL-6, Y(r)+4); }
+    ctx.textAlign='center';
+    for(var cc=0;cc<=CMAX;cc+=1){ ctx.fillStyle='#b0aab8'; ctx.fillText(String(cc), X(cc), H-padB+18); }
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif';
+    ctx.fillText('中心電荷 c', (padL+W-padR)/2, H-8);
+    ctx.save(); ctx.translate(14,(padT+H-padB)/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('平均距離 ⟨r⟩', 0,0); ctx.restore();
+    ctx.textAlign='left';
+    // c=1 の壁
+    ctx.strokeStyle='#c0b0b6'; ctx.setLineDash([5,4]); ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(X(1),padT); ctx.lineTo(X(1),H-padB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a08890'; ctx.font='11px sans-serif';
+    ctx.fillText('c = 1（壁）', X(1)+5, padT+12);
+    // 曲線
+    function curve(a,col){
+      ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+      for(var i=0;i<a.length;i++){ var x=X(a[i][0]), y=Y(a[i][1]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke();
+      ctx.fillStyle=col;
+      for(var j=0;j<a.length;j++){ ctx.beginPath(); ctx.arc(X(a[j][0]),Y(a[j][1]),3.4,0,7); ctx.fill(); }
+    }
+    curve(DT,'#a83a22'); curve(CDT,'#1f6b45');
+    // いまの c
+    var rd_=interp(DT,c), rc_=interp(CDT,c);
+    ctx.strokeStyle='#d9ccd1'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(X(c),padT); ctx.lineTo(X(c),H-padB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(X(c),Y(rd_),6,0,7); ctx.fill();
+    ctx.fillStyle='#1f6b45'; ctx.beginPath(); ctx.arc(X(c),Y(rc_),6,0,7); ctx.fill();
+    // 右側に宇宙の模式図（同じ体積を、直径の比で描く）
+    var bx=W-padR+30, by=H/2, base=26;
+    function blob(cx,cy,rr,col,lab){
+      ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fillStyle=col; ctx.globalAlpha=.13;
+      ctx.beginPath(); ctx.ellipse(cx,cy,rr,Math.max(6,340/rr),0,0,7); ctx.fill();
+      ctx.globalAlpha=1; ctx.beginPath(); ctx.ellipse(cx,cy,rr,Math.max(6,340/rr),0,0,7); ctx.stroke();
+      ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(lab,cx,cy+Math.max(6,340/rr)+16); ctx.textAlign='left';
+    }
+    blob(bx+40, by-58, base*(rd_/25.0)*0.9, '#a83a22', 'DT');
+    blob(bx+40, by+58, base*(rc_/25.0)*0.9, '#1f6b45', 'CDT');
+    ctx.fillStyle='#8a8a94'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('同じ体積・同じ温度', bx+40, padT+12); ctx.textAlign='left';
+
+    rd.textContent='c = '+c.toFixed(1)+'（イジング '+Math.round(2*c)+' 枚）　'
+      +'DT ⟨r⟩ = '+rd_.toFixed(1)+'　CDT ⟨r⟩ = '+rc_.toFixed(1)
+      +'　比 '+(rd_/rc_).toFixed(2)+' 倍'
+      +(c<1.2?'　── まだ壁の手前':(c<2.2?'　── DT が折れ始めた':'　── DT だけ細長く潰れていく'));
+  }
+  sc.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
