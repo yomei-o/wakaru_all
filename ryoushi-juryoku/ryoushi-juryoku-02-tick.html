@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1ティックに、1セル ── 量子重力自由研究 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9f7; --paper-edge:#d9ded9;   /* 第2回：うすい緑がかった紙 */
+    --side:#1f6b45; --side-bg:#e7f0ea;
+    --warn:#8a4b2f;
+    --calc:#23342b; --calc-bg:#e6ebe7;
+    --rule:#cdd3ce; --hair:#b4bab5;
+    --acc:#1f6b45;    /* 第2回アクセント＝常磐緑 */
+    --grid:#e1e6e2;
+    --bad:#a83a22;
+    --ok:#1f6b45;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe3d6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#26282d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #ccd2ce;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e7f0ea;color:#23342b;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.gh{border-collapse:collapse;width:100%;min-width:480px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.gh th,table.gh td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:middle;}
+  table.gh thead th{background:#e6ebe7;color:#23342b;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.gh tbody th{background:#f1f4f2;font-weight:600;white-space:nowrap;}
+  table.gh td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.gh tr.hi td,table.gh tr.hi th{background:#f7e4e0;}
+  table.gh tr.ok td,table.gh tr.ok th{background:#e6f0ea;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1f5f2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2c2f36;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefd,#eaeeeb);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e7f0ea;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2c2f36;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#666870;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="series"><span>量子重力自由研究</span><span class="ep">第 2 回 ／ きれいすぎる答えを、疑う</span></div>
+  <p class="eyebrow">第1回で作った模型は、じつは厳密に解けます。解いたら、拍子抜けするほどきれいでした</p>
+  <h1>1ティックに、<br>1セル
+    <span class="sub">ビッグバンから出発した宇宙の大きさを追いかけると \(\langle l(t)\rangle=t+1\)。<br>ぴったりです。……ぴったりすぎたので、どこまで本当かを確かめました。</span>
+  </h1>
+  <div class="byline">
+    <span>必要な道具：母関数、メビウス変換、そして「係数を疑う」という癖</span>
+    <span>自由研究 ／ 手を動かした記録</span>
+  </div>
+
+  <p class="lead">
+    第1回で、2次元の因果的な格子の上に量子重力を書きました。<em>この模型は厳密に解けます。</em><br>
+    今回はそれを解いて、答えのきれいさに一度うれしくなり、そのあと<strong>そのきれいさのうち
+    どこまでが物理でどこからが測り方なのか</strong>を、自分で崩しに行きます。
+  </p>
+
+  <h2><span class="n">01</span>母関数を立てる</h2>
+
+  <p>
+    第1回の道具をそのまま使います。時刻 \(t\) の空間を長さ \(l\) の輪とし、1ティックで
+    \(l\to l'\) と変わるときの帯の数え上げは、<strong>合成に使える形</strong>で
+  </p>
+  $$K(l,l')=\binom{l+l'-1}{l-1},\qquad \text{重み}=K(l,l')\,g^{\,l+l'},\quad g=e^{-\lambda}$$
+  <p>
+    です。\(t=0\) に長さ1の輪（＝1点。ビッグバン）を置いて、これを \(t\) 回かける。
+    その結果 \(v_t(l)\) を母関数にまとめます。
+  </p>
+  $$F_t(y)=\sum_{l\ge1}v_t(l)\,y^{\,l}$$
+
+  <div class="calc">
+    <span class="tag">計算 ── 1ステップの漸化式</span>
+    <div class="lbl">① 二項係数の和は、じつは初等的にたためる</div>
+    $$\sum_{l'\ge1}\binom{l+l'-1}{l-1}z^{\,l'}=\frac{1}{(1-z)^{\,l}}-1$$
+    <div class="lbl">② これを使うと、母関数の1ステップは「変数を入れ替えて、定数を引く」だけになる</div>
+    $$F_{t+1}(y)=F_t\!\Big(\frac{g}{1-gy}\Big)\;-\;F_t(g)$$
+  </div>
+
+  <p>
+    ここで大事なのは、\(l\) についての和がすっかり消えて、
+    <strong>\(y\) を \(g/(1-gy)\) に取り替える操作</strong>だけが残ったことです。
+    時間発展が、1変数の写像の繰り返しになりました。
+  </p>
+
+  <h2><span class="n">02</span>臨界点で、時間が「+1」になる</h2>
+
+  <p>
+    第1回で見つけた臨界点 \(g=1/2\)（\(\lambda_c=\ln2\)）に座ります。写像はこうなります。
+  </p>
+  $$M(y)=\frac{1/2}{1-y/2}=\frac{1}{2-y}$$
+  <p>
+    不動点を探すと \(y=1/(2-y)\)、つまり \(y^2-2y+1=0\)。<strong>\(y=1\) の重解</strong>です。
+    メビウス変換で不動点が重なっているものを<em>放物型</em>といい、これには特別な性質があります ──
+    <strong>うまい座標を取ると、ただの平行移動になる。</strong>
+  </p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 座標を取り替える</span>
+    <div class="lbl">① 不動点 \(y=1\) を無限遠に飛ばす座標</div>
+    $$w=\frac{1}{1-y}$$
+    <div class="lbl">② この座標で写像を書き直すと</div>
+    $$y=1-\frac1w\;\Longrightarrow\;M(y)=\frac{1}{2-(1-1/w)}=\frac{w}{w+1}
+      \;\Longrightarrow\;\frac{1}{1-M(y)}=w+1$$
+    <div class="lbl">③ つまり</div>
+    $$\boxed{\;w\;\longmapsto\;w+1\;}$$
+  </div>
+
+  <div class="keybox">
+    <div class="lbl">この模型が解ける理由</div>
+    <p style="margin-top:6px">
+      \(w=1/(1-y)\) という座標では、<strong>時間の1ティックが、ただの「+1」</strong>になります。<br>
+      \(t\) ティック進むことは \(w\to w+t\) と同じ。だから \(t\) 回の繰り返しを
+      1回で書き下せる ── <em>この模型が厳密に解けるのは、これのおかげです。</em>
+    </p>
+  </div>
+
+  <h2><span class="n">03</span>解いた答え</h2>
+
+  <p>
+    漸化式を実際に回すと（手でもできますし、数式処理でも同じです）、
+  </p>
+  $$F_t(y)=\frac{y}{(t+1)\big[(t+1)-t\,y\big]}$$
+  <p>
+    が出ます。\(y\) について展開すれば、そのまま確率分布です。
+  </p>
+
+  <div class="keybox">
+    <div class="lbl">厳密解</div>
+    $$P_t(l)=\frac{1}{t+1}\left(\frac{t}{t+1}\right)^{l-1}
+      \qquad\Longrightarrow\qquad
+      \boxed{\;\langle l(t)\rangle=t+1\;}$$
+    <p style="margin-top:12px">
+      時刻 \(t\) での空間の大きさは、<strong>平均 \(t+1\) の幾何分布</strong>。
+      近似ではありません。すべての \(t\) で厳密にこの形です。
+    </p>
+  </div>
+
+  <p>
+    数値でも確かめました。転送行列を \(4000\times4000\) まで取って回すと、
+    \(\langle l\rangle\) は <strong>2, 3, 5, 9, 17, 33, 65, 129, 257</strong> ──
+    \(t=1,2,4,8,16,32,64,128,256\) に対してぴったり \(t+1\) です。
+    差分 \(\langle l(t{+}1)\rangle-\langle l(t)\rangle\) を測ると
+    \(t=10\ldots80\) の平均が <strong>0.9999997</strong>、標準偏差 \(8\times10^{-7}\)。
+  </p>
+
+  <p>
+    第1回で作ったモンテカルロとも突き合わせました（\(T=64\)、2000万掃引）。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>量</th><th class="mid">モンテカルロ</th><th class="mid">厳密</th><th class="mid">ずれ</th></tr></thead>
+    <tbody>
+      <tr class="ok"><th>\(\langle l\rangle\)</th><td class="mid">63.37 ± 1.17</td><td class="mid">64</td><td class="mid">−0.54σ</td></tr>
+      <tr class="ok"><th>\(\sigma_l\)</th><td class="mid">62.14</td><td class="mid">63.50</td><td class="mid">2%</td></tr>
+      <tr class="ok"><th>分布 \(P(l)\)（\(l=1\ldots305\)）</th><td class="mid" colspan="2">幾何分布と一致</td><td class="mid">1% 以内</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2><span class="n">04</span>ゆらぎが、平均と同じ大きさ</h2>
+
+  <p>
+    幾何分布の標準偏差は \(\sigma_l=\sqrt{t(t+1)}\)。つまり
+  </p>
+  $$\frac{\sigma_l}{\langle l\rangle}=\frac{\sqrt{t(t+1)}}{t+1}\;\xrightarrow{\;t\to\infty\;}\;1$$
+  <p>
+    <strong>ゆらぎが平均と同じ大きさ</strong>です。平均は \(t+1\) できれいに伸びるのに、
+    実際の1つ1つの宇宙は平均から桁で外れている。
+    これは<em>2次元には古典極限が無い</em>ということで、既知の事実と合っています
+    （4次元 CDT では、逆に古典的な宇宙が立ち上がることが数値的に見えています）。
+  </p>
+
+  <div class="fig">
+    <div class="cap">図：厳密解 \(P_t(l)\)。上＝分布そのもの、下＝2つの「平均」の伸び方。どちらも直線ですが、傾きが違います</div>
+    <canvas id="cv" width="700" height="400"></canvas>
+    <div class="controls">
+      <label>時刻 t <span class="val" id="vt">20</span>
+        <input type="range" id="st" min="1" max="80" step="1" value="20">
+      </label>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1f6b45"></i>厳密な分布 P(l)</span>
+      <span><i class="swatch" style="background:#2b4a7a"></i>⟨l⟩ = t+1（出口に印をつけない）</span>
+      <span><i class="swatch" style="background:#a83a22"></i>⟨l²⟩/⟨l⟩ = 2t+1（出口の頂点を1つ選ぶ）</span>
+    </div>
+    <div class="readout" id="rd">計算中…</div>
+  </div>
+
+  <div class="divider">◇ ◇ ◇</div>
+
+  <h2><span class="n">05</span>ここで一度、疑う</h2>
+
+  <p>
+    \(\langle l(t)\rangle=t+1\)。傾きがきっちり 1 です。格子の単位で書けば
+  </p>
+  $$\frac{d\langle l\rangle}{dt}=1\quad(\text{格子単位で }=c)$$
+  <p>
+    <strong>1ティックに、1セル。</strong> 光円錐がちょうど1マスずつ広がるのと同じ速さで、
+    空間そのものが広がっている。きれいです。きれいすぎます。
+  </p>
+  <p>
+    こういうときは疑うのが自由研究の作法なので、疑いました。
+    <strong>この「1」は、どこから来ているのか。</strong>
+  </p>
+
+  <h3>数え上げの「印」を変えてみる</h3>
+
+  <p>
+    帯を数えるとき、どこに番号を振るかで数え方が変わります。両端の輪に番号を振った数を
+    \(A(l,l')=l'\binom{l+l'-1}{l-1}\) とすると、第1回で使った \(K\) は \(A/l'\) でした。
+    では \(A\) をそのまま掛け算していったらどうなるか ── やってみました。
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>\(t\)</th><th class="mid">1</th><th class="mid">2</th><th class="mid">4</th><th class="mid">8</th><th class="mid">16</th><th class="mid">32</th><th>伸び方</th></tr></thead>
+    <tbody>
+      <tr class="ok"><th>\(K\) で合成（正しい）</th><td class="mid">2</td><td class="mid">3</td><td class="mid">5</td><td class="mid">9</td><td class="mid">17</td><td class="mid">33</td><td>\(t\) に比例</td></tr>
+      <tr class="hi"><th>\(A\) をそのまま掛ける</th><td class="mid">3</td><td class="mid">6.33</td><td class="mid">16.96</td><td class="mid">53.59</td><td class="mid">188.0</td><td class="mid">701.5</td><td>\(t^2\) で伸びる</td></tr>
+      <tr class="hi"><th>逆に割りすぎた場合</th><td class="mid">2</td><td class="mid">2.47</td><td class="mid">2.73</td><td class="mid">2.769</td><td class="mid">2.769</td><td class="mid">2.769</td><td>伸びない</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    <strong>まるで違う答えが出ます。</strong> 真ん中の行は \(t^2\) で伸び、下の行はそもそも伸びません。
+    「1ティックに1セル」どころではない。では、どれが正しいのか。
+  </p>
+
+  <div class="calc">
+    <span class="tag">計算 ── 正しい合成を、力ずくで決める</span>
+    <div class="lbl">① 2枚重ねた物体では、中間スライスの番号は【物体の性質ではない】ので割る</div>
+    $$W_2(a,c)=\sum_b \frac{A(a,b)\,A(b,c)}{b}$$
+    <div class="lbl">② これを \(K\) で書き直せるか、直接ぶつける</div>
+    $$W_2(a,c)\;\stackrel{?}{=}\;c\sum_b K(a,b)K(b,c)$$
+    <div class="lbl">③ 結果（\(a,c\le5\) の全ケースで整数のまま一致）</div>
+    $$a=c=3:\quad 2{,}082{,}212{,}247\;=\;2{,}082{,}212{,}247$$
+  </div>
+
+  <p>
+    合成に使えるのは \(K(a,b)=\binom{a+b-1}{a-1}\) <strong>だけ</strong>でした。
+    \(A\) をそのまま掛けると、中間スライスの番号を毎ステップ数え直すことになり、
+    \(\prod b_i\) だけ水増しされる ── これが \(t^2\) の正体です。
+    <em>きれいな答えの手前に、はっきりした落とし穴が1つあった</em>ことになります。
+  </p>
+
+  <h3>それでも、係数は測り方で変わる</h3>
+
+  <p>
+    ここからが今回いちばん大事なところです。正しいカーネルを使っても、
+    <strong>「宇宙の大きさの平均」の定義がひとつではありません。</strong>
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>測り方</th><th>厳密な答え</th><th class="mid">傾き</th></tr></thead>
+    <tbody>
+      <tr><th>出口の輪に印をつけない</th><td>\(\langle l\rangle=t+1\)</td><td class="mid">1</td></tr>
+      <tr><th>出口の頂点を1つ選んで、その輪の長さを測る</th><td>\(\dfrac{\langle l^2\rangle}{\langle l\rangle}=2t+1\)</td><td class="mid">2</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    どちらも厳密です（\(t=1,2,5,10,20,40\) で数値と完全一致を確認しました）。
+    後者は「長い輪ほど選ばれやすい」という<em>長さバイアス</em>が入るぶん、ちょうど2倍になります。
+    バスの待ち時間のパラドックスと同じ理屈です。
+  </p>
+
+  <div class="keybox">
+    <div class="lbl">今回の一行</div>
+    <p style="margin-top:6px">
+      <strong>直線であることが物理。傾きの「1」は測り方の値。</strong><br>
+      \(\langle l\rangle\propto t\)、したがって体積 \(V\propto t^2\)、
+      ハウスドルフ次元 \(d_H=2\) ── ここは測り方によらない。
+      でも「きっちり1セル」の <em>1</em> のほうは、印をどう付けたかで 1 にも 2 にもなります。
+    </p>
+  </div>
+
+  <h2><span class="n">06</span>因果律が、次元を決めている</h2>
+
+  <p>
+    \(d_H=2\) は、当たり前のようでいて当たり前ではありません。同じ三角形分割でも、
+    <strong>時間の向きを外して</strong>（＝時空が枝分かれしたりちぎれたりするのを許して）足し上げると、
+    2次元ユークリッド動的三角形分割になります。そちらの答えは
+  </p>
+
+  <div class="tblwrap">
+  <table class="gh">
+    <thead><tr><th>模型</th><th class="mid">ハウスドルフ次元</th><th>形</th></tr></thead>
+    <tbody>
+      <tr class="ok"><th>2次元 CDT（因果あり）</th><td class="mid">\(d_H=2\)</td><td>のっぺりした、ふつうの2次元</td></tr>
+      <tr class="hi"><th>2次元 ユークリッド DT（因果なし）</th><td class="mid">\(d_H=4\)</td><td>枝分かれだらけのフラクタル</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    <strong>足し上げる形の集合に「因果的であれ」という条件を足しただけで、次元が 4 から 2 に変わる。</strong>
+    作用は変えていません。測度（何を足し上げるか）を変えただけです。
+    第1回の結論 ──「効いているのは作用ではなく数え上げのほう」── が、ここでも同じ顔で出てきます。
+  </p>
+
+  <h2><span class="n">07</span>c·t = 一定 との関係（正直な線）</h2>
+
+  <div class="caveat">
+    <span class="tag">正直な線</span>
+    <p style="margin-top:2px">
+      「わかる」シリーズの読者なら、\(d\langle l\rangle/dt=1\) を見て
+      \(R_h=ct\)、\(a\propto t\) を思い浮かべたはずです。実際、形は同じです。
+      ただし持ち帰ってよいのは、次の1行だけです。
+    </p>
+    <p style="text-align:center"><strong>「1ティックに1セル」は、因果格子では自動的に成り立つ。</strong></p>
+    <p>
+      理由は身も蓋もありません。<strong>格子が因果的だから</strong>です。
+      1ティックで情報が進める距離は1セルと決めてあり、その上で臨界点に座れば、
+      空間の広がりがその速さに追いつく。これは<em>正則化の性質</em>であって、
+      「宇宙が離散である」という主張でも「宇宙は本当に \(a\propto t\) で膨らむ」という主張でもありません。
+      格子 QCD が「時空は格子だ」と言っていないのと同じです。
+    </p>
+    <p>
+      そして<strong>これは2次元の話です。</strong>4次元 CDT が出す宇宙は
+      \(V_3(t)\propto\cos^3(t/B)\) ── ド・ジッター型であって、線形膨張ではありません。
+      2次元の \(d_H=2\) を4次元に持ち込む理由はどこにもない。
+    </p>
+    <p>
+      それから、線形膨張を初期宇宙まで額面で外挿すると元素合成と矛盾する
+      （冷却が遅すぎて中性子が枯渇しヘリウムが作れない）という判決は、今回の計算で
+      <strong>一文字も変わりません</strong>。今日の結果は、その判決に触れていません。
+    </p>
+  </div>
+
+  <div class="prob">
+    <div class="lbl">練習問題</div>
+    <ol>
+      <li>\(w=1/(1-y)\) と置くと写像が \(w\mapsto w+1\) になることを確かめよ。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(y=1-1/w\) を \(M(y)=1/(2-y)\) に入れると \(M=1/(1+1/w)=w/(w+1)\)。
+          よって \(1/(1-M)=1/(1/(w+1))=w+1\)。\(w\) 座標での像がちょうど \(w+1\)。
+        </div></details>
+      </li>
+      <li>\(P_t(l)\) が幾何分布であることから、\(\langle l\rangle\) と \(\sigma_l\) を出せ。
+        <details><summary>答えを見る</summary><div class="ans">
+          \(p=1/(t+1)\) の幾何分布（\(l\ge1\)）なので \(\langle l\rangle=1/p=t+1\)、
+          分散 \((1-p)/p^2=t(t+1)\)、よって \(\sigma_l=\sqrt{t(t+1)}\)。
+          \(\sigma_l/\langle l\rangle\to1\) で、ゆらぎが平均と同じ大きさになる。
+        </div></details>
+      </li>
+      <li>「出口の頂点を1つ選ぶ」と平均が \(2t+1\) になるのはなぜか。
+        <details><summary>答えを見る</summary><div class="ans">
+          頂点を選ぶと、長い輪ほど選ばれやすくなる（長さバイアス）。重みが \(l\) 倍になるので
+          平均は \(\langle l^2\rangle/\langle l\rangle\)。幾何分布では
+          \(\langle l^2\rangle=(2-p)/p^2\) なので \(\langle l^2\rangle/\langle l\rangle=(2-p)/p=2(t+1)-1=2t+1\)。
+          バス停で「次のバスまでの間隔」を測ると平均より長く出るのと同じ現象。
+        </div></details>
+      </li>
+      <li>（やや難）\(d_H=2\) と「傾きが1」は、どちらが測り方に依らない主張か。
+        <details><summary>答えを見る</summary><div class="ans">
+          <strong>\(d_H=2\)（＝伸び方が線形であること）のほう。</strong>
+          傾きの数値は、出口に印を付けるかどうかで 1 にも 2 にもなる。
+          べきの指数は測り方を変えても変わらないが、係数は変わる ──
+          「無次元量だけが物理」という前シリーズの合言葉が、ここでも効いている。
+        </div></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="record">
+    <h2>まとめ ── 直線が物理、傾きは測り方</h2>
+    <p>
+      第1回の模型は厳密に解けます。母関数の1ステップは
+      \(F_{t+1}(y)=F_t(g/(1-gy))-F_t(g)\) で、臨界点 \(g=1/2\) では写像 \(y\mapsto1/(2-y)\) が
+      \(y=1\) を重解の不動点にもつ<strong>放物型メビウス変換</strong>。だから
+      \(w=1/(1-y)\) と置けば<strong>時間の1ティックがただの「+1」</strong>になり、一気に解けます。
+    </p>
+    <p>
+      答えは \(P_t(l)=\frac{1}{t+1}\big(\frac{t}{t+1}\big)^{l-1}\)、
+      つまり<strong>平均 \(t+1\) の幾何分布</strong>。転送行列（2,3,5,9,17,33,65,129,257）とも、
+      モンテカルロ（\(63.37\pm1.17\) vs 64）とも一致します。
+      ゆらぎは \(\sqrt{t(t+1)}\) で、平均と同じ大きさ ── 2次元には古典極限がありません。
+    </p>
+    <p>
+      「\(d\langle l\rangle/dt=1\)、1ティックに1セル」はきれいですが、疑ってみると
+      <strong>係数の 1 は測り方の値</strong>でした。出口の頂点を1つ選んで測れば \(2t+1\) になり、
+      傾きは 2 になる。<em>直線であること（\(d_H=2\)）が物理で、傾きの数字は印の付け方</em>です。
+    </p>
+    <p>
+      そして \(d_H=2\) 自体は、因果律を外すと \(d_H=4\) に変わります。作用は同じまま、
+      <strong>何を足し上げるかを変えただけで次元が変わる</strong> ──
+      第1回と同じ結論が、別の顔で出てきました。
+    </p>
+
+    <div class="next">
+      <span class="lbl">次回予告 ── 第3回</span>
+      ここまでは「ひとつの仮説を、自分の手で確かめる」でした。次は横に並べます ──
+      弦理論・ループ量子重力・漸近安全性・CDT・Hořava。<strong>共形モードをどう始末したか</strong>で
+      並べると、それぞれの代償が一本の軸で説明できます。そして判定に本当に使える数字が
+      ひとつだけあります：ブラックホールエントロピーの<strong>対数補正</strong>。
+      同じ量を独立に計算した結果が、<em>符号すら合っていません</em>。
+    </div>
+  </div>
+
+  <div class="foot">
+    この文書は「量子重力自由研究」シリーズ第2回です。2次元の因果的動的三角形分割（CDT）は
+    Ambjørn &amp; Loll (1998, hep-th/9805108) が導入し、離散のレベルで厳密に解かれています ──
+    母関数の漸化式、臨界結合 \(g_c=1/2\)、ハウスドルフ次元 \(d_H=2\)（因果律を外した2次元
+    ユークリッド DT では \(d_H=4\)）は同論文以来の標準的な結果です。本文の \(F_t(y)\)、
+    \(P_t(l)\)、\(\langle l(t)\rangle=t+1\)、\(\langle l^2\rangle/\langle l\rangle=2t+1\)、および
+    合成カーネルの一意性は、すべて筆者が独立に導き、数式処理・転送行列（\(4000\times4000\)）・
+    力ずくの整数計算・モンテカルロで相互に検証したものです。
+    「1ティックに1セル」は因果的な格子正則化の性質であり、時空が離散であるという主張でも、
+    宇宙が線形に膨張するという主張でもありません。4次元 CDT の準古典宇宙はド・ジッター型です。
+    ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。
+  </div>
+
+</div>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面では t のツマミを動かすと分布と2本の直線が動きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), st=document.getElementById('st'),
+      vt=document.getElementById('vt'), rd=document.getElementById('rd');
+  if(!cv) return;
+
+  function setupHiDPI(c){
+    var r=window.devicePixelRatio||1, cssW=c.clientWidth||c.width, cssH=c.height*(cssW/c.width);
+    c.width=Math.round(cssW*r); c.height=Math.round(cssH*r);
+    var ctx=c.getContext('2d'); ctx.setTransform(r,0,0,r,0,0);
+    return {ctx:ctx,w:cssW,h:cssH};
+  }
+
+  var TMAX=80;
+  function draw(){
+    var d=setupHiDPI(cv), ctx=d.ctx, W=d.w, H=d.h;
+    var t=parseInt(st.value,10); vt.textContent=t;
+    ctx.clearRect(0,0,W,H);
+    var padL=54, padR=16;
+    var TOP={y0:20,y1:H*0.50}, BOT={y0:H*0.60,y1:H-34};
+    function X(u){ return padL+u*(W-padL-padR); }
+
+    // ===== 上：分布 P_t(l) =====
+    var p=1/(t+1), LMAXV=Math.max(20, Math.ceil(5*(t+1)));
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('P(l) ＝ 時刻 t で空間の長さが l である確率（厳密）', padL, TOP.y0-4);
+    ctx.strokeStyle='#cfd3d0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,TOP.y0+4); ctx.lineTo(padL,TOP.y1); ctx.lineTo(W-padR,TOP.y1); ctx.stroke();
+    var pmax=p;
+    function Y1(v){ return TOP.y1-(v/pmax)*(TOP.y1-TOP.y0-6); }
+    ctx.strokeStyle='#1f6b45'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(var i=0;i<=400;i++){
+      var l=1+(LMAXV-1)*i/400, v=p*Math.pow(1-p,l-1);
+      var px=X((l-1)/(LMAXV-1)), py=Y1(v);
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // 面を薄く塗る
+    ctx.lineTo(X(1),TOP.y1); ctx.lineTo(X(0),TOP.y1); ctx.closePath();
+    ctx.fillStyle='rgba(31,107,69,.10)'; ctx.fill();
+    // 平均の位置
+    function mark(lv,col,label){
+      if(lv>LMAXV) return;
+      var px=X((lv-1)/(LMAXV-1));
+      ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(px,TOP.y0+2); ctx.lineTo(px,TOP.y1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=col; ctx.font='11px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(label, px, TOP.y0-6<TOP.y0? TOP.y0+12 : TOP.y0+12);
+      ctx.textAlign='left';
+    }
+    mark(t+1,'#2b4a7a','t+1');
+    mark(2*t+1,'#a83a22','2t+1');
+    ctx.fillStyle='#9a9aa4'; ctx.font='11px sans-serif';
+    ctx.fillText('l = 1', padL-2, TOP.y1+14);
+    ctx.textAlign='right'; ctx.fillText('l = '+LMAXV, W-padR, TOP.y1+14); ctx.textAlign='left';
+
+    // ===== 下：2つの平均の伸び方 =====
+    ctx.fillStyle='#666870'; ctx.font='12px sans-serif';
+    ctx.fillText('2つの「平均」── どちらも厳密、どちらも直線、傾きだけが違う', padL, BOT.y0-4);
+    var vmax=2*TMAX+1;
+    function Y2(v){ return BOT.y1-(v/vmax)*(BOT.y1-BOT.y0); }
+    ctx.strokeStyle='#cfd3d0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,BOT.y0); ctx.lineTo(padL,BOT.y1); ctx.lineTo(W-padR,BOT.y1); ctx.stroke();
+    function line(f,col){
+      ctx.strokeStyle=col; ctx.lineWidth=2.2; ctx.beginPath();
+      for(var tt=1;tt<=TMAX;tt++){ var px=X((tt-1)/(TMAX-1)), py=Y2(f(tt));
+        if(tt===1) ctx.moveTo(px,py); else ctx.lineTo(px,py); }
+      ctx.stroke();
+    }
+    line(function(tt){return tt+1;},'#2b4a7a');
+    line(function(tt){return 2*tt+1;},'#a83a22');
+    // いまの t
+    var mx=X((t-1)/(TMAX-1));
+    ctx.strokeStyle='#b4bab5'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(mx,BOT.y0); ctx.lineTo(mx,BOT.y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#2b4a7a'; ctx.beginPath(); ctx.arc(mx,Y2(t+1),5,0,7); ctx.fill();
+    ctx.fillStyle='#a83a22'; ctx.beginPath(); ctx.arc(mx,Y2(2*t+1),5,0,7); ctx.fill();
+    ctx.fillStyle='#9a9aa4'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('t = 1', X(0), BOT.y1+15);
+    ctx.fillText('t = '+TMAX, X(1)-16, BOT.y1+15);
+    ctx.textAlign='right'; ctx.fillText('0', padL-6, BOT.y1+4);
+    ctx.fillText(String(vmax), padL-6, BOT.y0+10); ctx.textAlign='left';
+
+    var sig=Math.sqrt(t*(t+1));
+    rd.textContent='t = '+t+'　⟨l⟩ = '+(t+1)+'　σ = '+sig.toFixed(2)
+      +'（σ/⟨l⟩ = '+(sig/(t+1)).toFixed(3)+' → 1 に近づく）'
+      +'　⟨l²⟩/⟨l⟩ = '+(2*t+1)+'　P(l=1) = '+(1/(t+1)).toFixed(4);
+  }
+
+  st.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(draw);}
+  setTimeout(draw,60); window.addEventListener('load',draw);
+})();
+</script>
+</body>
+</html>
