@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actually constraining the light sheets ── c·t = const, That Clicks, Episode 20</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8f9; --paper-edge:#e9e0e6;
+    --side:#6b2f5a; --side-bg:#f2edf1;
+    --warn:#8a4b2f;
+    --calc:#552548; --calc-bg:#eee7ec;
+    --rule:#dbcdd7; --hair:#c7b0c0;
+    --acc:#6b2f5a;
+    --grid:#ece5ea;
+    --ops:#2a6b2a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e0d3dc 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#5c284d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d3c1ce;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f5f1f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e3d7e0;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e3d7e0;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f4eff3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#5c284d;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#5c284d;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#a37e99;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">c·t = CONST, THAT CLICKS <span class="ep">EPISODE 20 ／ The door the previous series left open</span></p>
+<p class="eyebrow">We constrained it, and no prediction came out — the reason is the interesting part</p>
+
+<h1>Actually constraining<br>the light sheets
+<span class="sub">Impose Bousso's bound as a constraint: what gets excluded?<br><em>Today's margin is 33 orders. The only place it bites was the Planck era.</em></span></h1>
+
+<p class="byline"><span>What you need: adding exponents, logarithms</span><span>\(f\propto t^{1-3p}\); today \(f=6.7\times10^{-34}\)</span></p>
+
+<p class="lead">Extra 2 of the previous series ended on this: <em>"if you write the universe as a computer with finite resources, what should be constrained is not \(a(t)\) but the information on the light sheets. Nobody has done that calculation."</em> Extra 3 applied Bousso's covariant entropy bound to the apparent horizon, derived \(s\le3H/4\ell_P^2\), and got as far as showing that <strong>saturating it identically gives \(a\propto t^{1/3}\)</strong>. Today we go further — <em>imposed as a constraint rather than a saturation, does a prediction come out?</em> The answer first: <strong>no</strong>. And <em>why not</em> is the interesting part.</p>
+
+<h2><span class="n">01</span>Following the bound through time</h2>
+
+<div class="calc">
+<span class="tag">What is constrained</span>
+$$s\ \le\ \frac{3H}{4\ell_P^2}\qquad\Longrightarrow\qquad f\equiv\frac{s}{3H/4\ell_P^2}\ \le\ 1$$
+<p class="lbl">with \(s\propto a^{-3}\) and \(H\propto1/t\)</p>
+$$f\ \propto\ t^{\,1-3p}\qquad(a\propto t^p)$$
+</div>
+
+<p>Take the standard thermal history (radiation \(p=1/2\) → matter \(p=2/3\)), set \(f\approx1\) at the Planck era, and stack up to today.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Epoch</th><th class="mid">\(t\)</th><th class="mid">\(f\)</th><th class="mid">Margin</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Planck era</th><td class="mid">\(5.4\times10^{-44}\) s</td><td class="mid"><strong>\(\approx1\)</strong></td><td class="mid"><strong>0 orders (saturated)</strong></td></tr>
+<tr><th>Electroweak</th><td class="mid">\(10^{-11}\) s</td><td class="mid">\(7.3\times10^{-17}\)</td><td class="mid">16 orders</td></tr>
+<tr><th>Nucleosynthesis</th><td class="mid">1 s</td><td class="mid">\(2.3\times10^{-22}\)</td><td class="mid">22 orders</td></tr>
+<tr><th>Recombination</th><td class="mid">380,000 yr</td><td class="mid">\(2.4\times10^{-29}\)</td><td class="mid">29 orders</td></tr>
+<tr><th>Today</th><td class="mid">13.8 Gyr</td><td class="mid">\(6.7\times10^{-34}\)</td><td class="mid"><strong>33 orders</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0"><strong>The bound saturates exactly at the Planck era, and the margin opens steadily from there.</strong><br>
+Today's margin is <em>33 orders</em>. ── The only epoch actually constrained is the Planck era.</p>
+</div>
+
+<h2><span class="n">02</span>Saturating at the Planck era was an identity</h2>
+
+<p>"The bound saturates exactly at the Planck era" looks meaningful. Let us measure it with Episode 19's tool.</p>
+
+<div class="calc">
+<span class="tag">Check by dimensions alone</span>
+<p class="lbl">at the Planck era \(T\sim M_{\rm Pl}\), hence</p>
+$$s\sim T^3\sim\frac{1}{\ell_P^3},\qquad H\sim\frac{1}{t_P}\sim\frac{c}{\ell_P}$$
+<p class="lbl">substituting</p>
+$$f=\frac{s}{3H/4\ell_P^2}\sim\frac{1/\ell_P^3}{(1/\ell_P)/\ell_P^2}=1$$
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §02</p>
+<p style="margin:6px 0 0">\(O(1)\) from dimensional analysis alone. <strong>An [identity] in Episode 19's classification — surprise 0 bits.</strong><br>
+<em>"The bound saturates at the Planck era" was a check, not a discovery.</em></p>
+</div>
+
+<p>After Dirac's large numbers (Episode 7) and the Landauer limit (Episode 10), this is <strong>the third "looks meaningful, is an identity"</strong>. The procedure built last episode went straight to work.</p>
+
+<h2><span class="n">03</span>The heart — as a constraint, far too weak</h2>
+
+<p>So what does <em>imposing</em> this bound exclude? For each expansion law, find when \(f=1\) is reached going backwards.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">\(p\)</th><th>Expansion law</th><th class="mid">Exponent \(1-3p\)</th><th class="mid">When \(f=1\)</th><th class="mid">Verdict</th></tr></thead>
+<tbody>
+<tr class="hi"><th class="mid">1/3</th><td>stiff (\(w=1\))</td><td class="mid">0</td><td class="mid">── (\(f\) constant)</td><td class="mid"><strong>the only law that can stay saturated</strong></td></tr>
+<tr><th class="mid">1/2</th><td>radiation</td><td class="mid">\(-0.5\)</td><td class="mid">\(2\times10^{-49}\) s</td><td class="mid">before the Planck time — never violated</td></tr>
+<tr><th class="mid">2/3</th><td>matter</td><td class="mid">\(-1\)</td><td class="mid">\(2.9\times10^{-16}\) s</td><td class="mid">formally violated (really radiation then)</td></tr>
+<tr><th class="mid">1</th><td>\(c\cdot t=\)const</td><td class="mid">\(-2\)</td><td class="mid">\(11\) s</td><td class="mid">violated (the verdict of Extra 3)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Here is the heart. <strong>The bound excludes only expansion laws that reach \(f>1\) before the Planck era.</strong> The real universe is radiation dominated there, so it passes safely.</p>
+
+<div class="keybox">
+<p class="lbl">The thing this episode most wants to say</p>
+<p style="margin:6px 0 0"><strong>Constraining the information on light sheets yields no prediction.</strong><br>
+With 33 orders of margin today, essentially <em>every standard expansion law passes</em>.<br>
+In Episode 19's language — <strong>this constraint carries almost zero information</strong>.</p>
+</div>
+
+<div class="fig">
+<p class="cap">Figure: the history of the occupancy \(f=s/(3H/4\ell_P^2)\). The vermilion ceiling is \(f=1\) (the bound). <strong>The standard thermal history touches the ceiling at the Planck era and descends 33 orders from there.</strong> The slider changes the expansion law: for \(p>1/2\) the curve punches through the ceiling going backwards.</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>Expansion index \(p\) (applied at all epochs)<input id="sp" type="range" min="250" max="1200" value="500" step="1"></label>
+  <span class="val" id="vp">p = 0.500</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#6b2f5a"></i>the chosen expansion law</span>
+  <span><i class="swatch" style="background:#2a6b2a"></i>standard thermal history (radiation → matter)</span>
+  <span><i class="swatch" style="background:#a8452a"></i>the bound \(f=1\)</span>
+</div>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>The universe that stays saturated is stiff</h2>
+
+<div class="calc">
+<span class="tag">Two lines</span>
+$$\frac{\sigma}{a^3}=\frac{3\dot a}{4Ga}\quad(\sigma=\text{comoving entropy density, constant})$$
+$$\Longrightarrow\quad a^2\dot a=\text{const}\quad\Longrightarrow\quad \boxed{\ a\propto t^{1/3}\ }\quad(w=1)$$
+</div>
+
+<p>So <strong>"the universe that always maximises its packing efficiency" is stiff (kination)</strong> — not ours. Here is the previous series' table of resources again.</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>Hold the bit count (horizon entropy) fixed</strong><span>\(a\propto e^{Ht}\) ── de Sitter</span></div></div>
+<div class="row"><div class="mk">②</div><div class="txt"><strong>Hold the address space (comoving Hubble radius) fixed</strong><span>\(a\propto t\) ── \(c\cdot t=\)const</span></div></div>
+<div class="row hi"><div class="mk">③</div><div class="txt"><strong>Hold the memory occupancy fixed</strong><span>\(a\propto t^{1/3}\) ── stiff (today's saturation condition)</span></div></div>
+</div>
+
+<p><strong>Which resource you fix splits the answer three ways</strong> — and the observed universe is none of them (it changes over, radiation → matter → \(\Lambda\)). <em>The very idea of "fixing one resource" is not enough to determine the shape of the universe</em> — that is this episode's answer to Extra 2's question.</p>
+
+<h2><span class="n">05</span>So is the door closed?</h2>
+
+<p>Honestly: <strong>half closed</strong>.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>What Extra 2 hoped</th><th class="mid">What we found</th></tr></thead>
+<tbody>
+<tr><th>Constraining the light-sheet information yields a prediction</th><td class="mid"><strong>it does not</strong> (33 orders of margin, almost zero information)</td></tr>
+<tr><th>That is a better form than constraining \(a(t)\)</th><td class="mid">correct as a form (conformally invariant, gauge independent)</td></tr>
+<tr class="hi"><th>Where the bound has meaning</th><td class="mid"><strong>the Planck era only</strong> — and saturation there is an identity</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Extra 2's "what should be constrained is the light-sheet information" was <em>right as a form</em> — Bousso's bound is conformally invariant, gauge independent, and thus has the shape of something that can be judged in Episode 3's sense. But applied, <strong>the only place it bites is the Planck era</strong>.</p>
+
+<div class="aside">
+<span class="tag">Not a failure but a range determination</span>
+Episode 16 measured the limit of the tool: "a conformal transformation touches only size". Today we measured <strong>the limit of the holographic bound</strong> — <em>it says almost nothing about classical cosmology</em>, only about the quantum gravity regime. The conclusion is that <strong>"the universe is a computer with finite resources" has meaning only at the Planck scale</strong>. Part V goes exactly there.
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line — what this episode assumes</span>
+<p style="margin:0 0 10px"><strong>① \(s\le3H/4\ell_P^2\) is Bousso's covariant entropy bound applied to one particular surface, the apparent horizon.</strong> The bound is a claim about arbitrary surfaces, so other surfaces could give stronger conditions — what is shown here is "at least on this surface the constraint is weak" (same caveat as §8 of Extra 3 in the previous series).</p>
+<p style="margin:0 0 10px"><strong>② Comoving conservation of entropy is assumed.</strong> With entropy production (reheating) the past \(s\) would have been smaller and the margin wider still (strengthening the conclusion).</p>
+<p style="margin:0 0 10px"><strong>③ "\(f\approx1\) at the Planck era" is a one-loop estimate.</strong> The coefficient moves with the choice of \(g_*\) (Extra 3 estimated \(T\le2.84M_{\rm Pl}/\sqrt{g_*}\) for standard cosmology). <em>§02 claims that \(f\) comes out \(O(1)\) from dimensional analysis, not that the coefficient is exactly 1.</em></p>
+<p style="margin:0 0 10px"><strong>④ The \(f=1\) times in §03 assume a single \(p\) at all epochs.</strong> The 11 s for \(c\cdot t=\)const is the same order as Extra 3's 5 s, the difference coming from the value taken for today's \(f\). The real universe changes expansion laws, so tracing back with one \(p\) is a coarse approximation.</p>
+<p style="margin:0"><strong>⑤ "No prediction" is a conclusion about this form of constraint</strong>, not a claim that the holographic principle is powerless — there are many contexts (AdS/CFT among them) where holography is a powerful computational tool. The point here is the single one that <em>it is weak as a constraint determining a cosmological \(a(t)\)</em>.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises (solvable with this episode's formulas alone)</p>
+<ol>
+<li>Derive the time dependence of \(f=s/(3H/4\ell_P^2)\) from \(a\propto t^p\).
+<details><summary>Show the answer</summary><div class="ans">\(s\propto a^{-3}\propto t^{-3p}\) and \(H\propto1/t\), so \(f\propto t^{-3p}/t^{-1}=t^{1-3p}\). <strong>Only at \(p=1/3\) does the exponent vanish.</strong></div></details></li>
+
+<li>Why is \(f\approx1\) at the Planck era, and is it surprising?
+<details><summary>Show the answer</summary><div class="ans">With \(T\sim M_{\rm Pl}\), \(s\sim1/\ell_P^3\) and \(H\sim c/\ell_P\), substitution gives \(f\sim1\). <strong>It comes out of dimensional analysis alone</strong>, so in Episode 19's classification it is an <em>identity — 0 bits of surprise</em>. A check, not a discovery.</div></details></li>
+
+<li>Which expansion law saturates the bound identically?
+<details><summary>Show the answer</summary><div class="ans">The one making \(f\propto t^{1-3p}\) constant: \(p=1/3\), i.e. <strong>\(a\propto t^{1/3}\) (\(w=1\), stiff/kination)</strong>. "The universe that always maximises packing efficiency" — but not ours.</div></details></li>
+
+<li>Imposed as a constraint, what does this bound exclude?
+<details><summary>Show the answer</summary><div class="ans"><strong>Only expansion laws reaching \(f>1\) before the Planck era.</strong> With 33 orders of margin today, essentially all standard ones pass — <em>almost zero information as a constraint</em>. Though \(c\cdot t=\)const applied at all epochs does violate it at \(t\sim10\) s.</div></details></li>
+
+<li>(Harder) Was Extra 2's "constrain the light-sheet information" wrong?
+<details><summary>Show the answer</summary><div class="ans"><strong>Right in form, insufficient in effect.</strong> Bousso's bound is conformally invariant and gauge independent, so it has the right shape to be judged in Episode 3's sense. Applied, though, it bites <em>only at the Planck era</em> — and saturation there is an identity. The conclusion is that <strong>"the universe is a computer with finite resources" has meaning only in the quantum gravity regime</strong> — not a failure but <em>a determination of range</em>.</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — the only place it bites was the Planck era</h2>
+<p>We went through the door the previous series left open — <em>does constraining light-sheet information yield a prediction?</em> Using Extra 3's \(s\le3H/4\ell_P^2\) and following the occupancy \(f\), <strong>it saturates exactly at the Planck era and the margin opens by 33 orders</strong> (16 at electroweak, 22 at nucleosynthesis, 33 today).</p>
+<p>"Saturating exactly at the Planck era" looks meaningful, but measured with Episode 19's tool it was <strong>an identity</strong> — \(T\sim M_{\rm Pl}\) gives \(s\sim1/\ell_P^3\) and \(H\sim c/\ell_P\), so \(f\sim1\) from dimensional analysis alone. Zero bits of surprise. The third such case after Dirac's large numbers (Episode 7) and the Landauer limit (Episode 10).</p>
+<p>And the heart — <strong>it is far too weak as a constraint</strong>. With 33 orders of margin, all it excludes are laws that violate before the Planck era, and standard ones all pass. <em>Constraining light-sheet information yields no prediction.</em> Saturating identically gives \(a\propto t^{1/3}\) (stiff), which is not our universe — fix the bit count and you get de Sitter, fix the address space and you get \(a\propto t\), fix the occupancy and you get \(a\propto t^{1/3}\). <strong>Which resource you fix splits the answer three ways, and the observed universe is none of them.</strong></p>
+<p>So the door is half closed. Extra 2's "constrain the light-sheet information" was <em>right as a form</em> — Bousso's bound is conformally invariant and gauge independent — but <strong>it bites only at the Planck era</strong>. Not a failure but <em>a determination of range</em>: as Episode 16 measured the limit of the conformal transformation, today measured the limit of the holographic bound. <strong>"The universe is a computer with finite resources" has meaning only in the quantum gravity regime.</strong> Part V goes there.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next — Episode 21</span>
+The rest of Part III is about the direction of time — <strong>entropy production and a scale for the arrow of time</strong>. Episode 6 wrote that "the occupancy \(1.5\times10^{-18}\) is also a number for how broken the tool now is". Today we have another scale in hand: <em>the holographic margin (33 orders)</em>. <strong>How many scales are there for measuring the arrow of time?</strong> — thermal entropy, gravitational entropy, holographic margin, and Episode 2's a-theorem. <em>We check whether the four all point the same way.</em>
+</div>
+
+<p class="foot">This document is Episode 20 of "c·t = const, That Clicks", written for physics-minded high-school and university readers. The covariant entropy bound is due to Bousso (1999). Applying it to the apparent horizon to get \(s\le3H/4\ell_P^2\), and the fact that saturating it identically gives \(a\propto t^{1/3}\) (\(w=1\)), were shown in Extra 3 of the previous series. The occupancy history (\(\approx1\) at the Planck era, \(7.3\times10^{-17}\) at electroweak, \(2.3\times10^{-22}\) at nucleosynthesis, \(2.4\times10^{-29}\) at recombination, \(6.7\times10^{-34}\) today) and the \(f=1\) times per expansion law are computed here (kenshou/calc24.py). <strong>\(s\le3H/4\ell_P^2\) applies the bound to one particular surface, the apparent horizon; other surfaces could give stronger conditions</strong> (same caveat as §8 of Extra 3). Comoving conservation of entropy is assumed; entropy production would widen the margin further (strengthening the conclusion). "\(f\approx1\) at the Planck era" is a one-loop estimate whose coefficient moves with \(g_*\) — §02 claims \(O(1)\) from dimensional analysis, not a coefficient of exactly 1. The \(f=1\) times in §03 assume a single \(p\) at all epochs; the 11 s for \(c\cdot t=\)const is the same order as Extra 3's 5 s. <strong>"No prediction" concerns this form of constraint and is not a claim that holography in general is powerless</strong> — AdS/CFT and others make it a powerful computational tool. This document's assessment of Extra 2's proposal (right in form, insufficient in effect) is this series' reading. Linear expansion (\(c\cdot t=\)const, \(R_h=ct\)) is a minority model under examination. The academic standard remains the \(\Lambda\)CDM model including inflation. ── To make a PDF, use your browser's Print dialogue (sliders freeze and answers are hidden in the print version).</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, the slider changes the expansion law and moves where the ceiling is breached. "Show the answer" opens each solution.</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sp=document.getElementById('sp'), vp=document.getElementById('vp'), ro=document.getElementById('ro');
+  var X0=78, X1=700, Y0=30, Y1=314;
+  var tP=5.391e-44, t_eq=1.6e12, t0=4.3536e17;
+  var LP=Math.log(tP)/Math.LN10, LEQ=Math.log(t_eq)/Math.LN10, L0=Math.log(t0)/Math.LN10;
+  var F0=6.746e-34;
+  var xmin=-46, xmax=20, ymin=-40, ymax=6;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+
+  function draw(){
+    var p=parseInt(sp.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+
+    g.fillStyle='#f7ece9';
+    g.fillRect(X0, Y0, X1-X0, py(0)-Y0);
+    g.fillStyle='#c08878'; g.textAlign='left';
+    g.fillText('above this line the bound is violated', X0+10, Y0+16);
+
+    g.textAlign='right';
+    for(var e=-40;e<=0;e+=10){
+      var y=py(e);
+      g.strokeStyle=(e===0?'#e0c4bc':'#f5eef2'); g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#a8909c'; g.fillText(e===0?'1':'10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=-40;q<=20;q+=10){
+      var x=px(q);
+      g.strokeStyle='#faf5f8'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a8909c'; g.fillText('10'+q, x, Y1+16);
+    }
+    g.strokeStyle='#d8c2ce'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    g.strokeStyle='#a8452a'; g.lineWidth=2.4; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(0)); g.lineTo(X1,py(0)); g.stroke();
+    g.setLineDash([]);
+
+    g.strokeStyle='#2a6b2a'; g.lineWidth=3;
+    g.beginPath();
+    g.moveTo(px(LP),py(0));
+    g.lineTo(px(LEQ),py(-0.5*(LEQ-LP)));
+    g.lineTo(px(L0),py(-0.5*(LEQ-LP)-1.0*(L0-LEQ)));
+    g.stroke();
+    g.fillStyle='#2a6b2a'; g.textAlign='left';
+    g.fillText('standard thermal history', px(-20), py(-0.5*(-20-LP))-8);
+
+    var sl=1-3*p;
+    g.strokeStyle='#6b2f5a'; g.lineWidth=3;
+    g.beginPath();
+    var first=true;
+    for(var i=0;i<=300;i++){
+      var lx=xmin+(xmax-xmin)*i/300;
+      var y=Math.log(F0)/Math.LN10 + sl*(lx-L0);
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lx),py(y)); first=false; } else g.lineTo(px(lx),py(y));
+    }
+    g.stroke();
+
+    var lv = L0 + (0-Math.log(F0)/Math.LN10)/sl;
+    if(sl<0 && lv>xmin && lv<xmax){
+      g.fillStyle='#6b2f5a';
+      g.beginPath(); g.arc(px(lv),py(0),5.5,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=1.8;
+      g.beginPath(); g.arc(px(lv),py(0),5.5,0,6.2832); g.stroke();
+    }
+
+    [[LP,'Planck'],[L0,'now']].forEach(function(q){
+      g.strokeStyle='#cbb5c2'; g.lineWidth=1.3; g.setLineDash([4,4]);
+      g.beginPath(); g.moveTo(px(q[0]),Y0); g.lineTo(px(q[0]),Y1); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle='#9a8090'; g.textAlign='center';
+      g.fillText(q[1], px(q[0]), Y1-8);
+    });
+
+    g.fillStyle='#8a7080'; g.textAlign='center';
+    g.fillText('age of the universe  t [s]', (X0+X1)/2, Y1+36);
+    g.save(); g.translate(20,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('occupancy f = s / (3H/4ℓ_P²)', 0,0); g.restore();
+
+    vp.textContent='p = '+p.toFixed(3);
+    var msg;
+    if(Math.abs(sl)<1e-6) msg='exponent 0 → f constant. The only law that can stay saturated (w=1, stiff)';
+    else if(sl>0) msg='exponent '+sl.toFixed(2)+' → the margin grows going backwards; the bound is never violated';
+    else {
+      var tv=Math.pow(10,lv);
+      msg='exponent '+sl.toFixed(2)+' → f=1 at t = '+tv.toExponential(2)+' s'+
+          (lv<LP?' (before the Planck time — not violated)':' (violated)');
+    }
+    ro.textContent='p = '+p.toFixed(3)+'　'+msg+'　/　today the margin is 33 orders';
+  }
+  sp.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

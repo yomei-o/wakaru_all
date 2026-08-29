@@ -129,8 +129,11 @@ BODY += card(19,'wakaru-ct-19-surprise.html','Is an identity really not physics?
   'This series has sorted coincidences as identity, coincidence or physics again and again — here the criterion is stated. Surprise \(=-\log_2(\text{width}/\text{prior range})\), and the strata separate cleanly: <strong>identities at 0 bits, coincidences at a few, real problems at \(10^5\)</strong>. The factor-22 agreement of \(\rho_\Lambda^{1/4}\) and \(m_\nu\) is five coin flips; only <strong>Koide’s relation, at 15.7 bits</strong>, is surprising by orders. And an identity is not a prediction but <em>a consistency check</em>.',
   'Identities are 0 bits — but 0 bits is not the same as meaningless')
 
+BODY += card(20,'wakaru-ct-20-lightsheet.html','Actually constraining the light sheets',
+  'The previous series closed with the line “what should be constrained is the information on the light sheets — nobody has done that calculation.” Done here. The occupancy \(f=s/(3H/4\ell_P^2)\) <strong>saturates exactly at the Planck era and opens to a margin of 33 orders</strong> — and that saturation is an <em>identity</em>, 0 bits of surprise. As a constraint it excludes almost nothing. Fix the bit count and you get de Sitter, the address space and you get \(a\propto t\), the occupancy and you get stiff \(a\propto t^{1/3}\); the observed universe is none of them.',
+  'Right in form, insufficient in effect — it bites only at the Planck era')
+
 BODY += mini([
- (20,'Actually constraining the light sheets'),
  (21,'Entropy production, and a scale for the arrow of time'),
  (22,'The instruction set of the universe-as-computer'),
  (23,'The horizon as error correction'),
