@@ -207,8 +207,11 @@ BODY += card(36,'wakaru-ct-36-partIV.html','Onto the operating table (Part IV wr
   'Nine theories on one table, all given the same surgery: exactly one — VSL — failed to separate (A) notation from (B) an observable claim. The line was not whether the name points at (A) but whether the theory itself can tell them apart. Every prediction sat in a dimensionless quantity, without exception. And something new: six of the coincidences fall between 4 and 7.5 bits of surprise — most likely a selection effect, the band where a result is enough for a paper but not for a consensus.',
   'Good theories have already performed Episode 3’s surgery')
 
+BODY += card(37,'wakaru-ct-37-anomaly.html','Quantum anomalies — writing into the zero column',
+  'Episode 11’s "nothing happens to light" was a classical statement. Quantum theory cannot stay at D=4 (D=4-e with dimensional regularisation, a mu with a cutoff), so Episode 34’s exponent Omega^(D-4) becomes the breaking itself. Alpha is dimensionless only at D=4. The running is 7.1 per cent, which against the laboratory noise floor sits 28.7 bits above the noise — far past the band of coincidences. It does not contradict Episode 30’s "constant to 26 bits" because that is a different question. And the size of the breaking turns out to be a count of the fields.',
+  'What broke was not the field but the coupling')
+
 BODY += mini([
- (37,'It breaks in the quantum theory — measuring the trace anomaly in bits'),
  (38,'The conformal factor problem — the ledger is the first thing to break'),
  (39,'Phase shows up only in a rotating spacetime'),
  (40,'How do you count gravitational entropy?'),
