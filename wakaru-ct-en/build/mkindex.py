@@ -125,8 +125,11 @@ BODY += card(18,'wakaru-ct-18-address.html','There are not enough address lines'
   'Holography read as addressing. The universe has \(5.27\times10^{182}\) spatial cells and can write \(2.96\times10^{122}\) bits, so <strong>only \(10^{-61}\) of the cells can be addressed</strong> — and since the ratio goes as \(1/R_H\), the gap widens as the universe grows. Inverted, one bit is responsible for a cube of side <strong>1.96 fm — the size of a proton</strong>, the cube-root intermediate scale \((R_H\ell_P^2)^{1/3}\), an unexplained coincidence. Holography is <em>not compression</em>: volume cells were never given addresses at all.',
   'Addresses grow only with area — and the address table will not fit in memory')
 
+BODY += card(19,'wakaru-ct-19-surprise.html','Is an identity really not physics?',
+  'This series has sorted coincidences as identity, coincidence or physics again and again — here the criterion is stated. Surprise \(=-\log_2(\text{width}/\text{prior range})\), and the strata separate cleanly: <strong>identities at 0 bits, coincidences at a few, real problems at \(10^5\)</strong>. The factor-22 agreement of \(\rho_\Lambda^{1/4}\) and \(m_\nu\) is five coin flips; only <strong>Koide’s relation, at 15.7 bits</strong>, is surprising by orders. And an identity is not a prediction but <em>a consistency check</em>.',
+  'Identities are 0 bits — but 0 bits is not the same as meaningless')
+
 BODY += mini([
- (19,'What "exactly at the Landauer limit" means — an identity is not physics'),
  (20,'Actually constraining the light sheets'),
  (21,'Entropy production, and a scale for the arrow of time'),
  (22,'The instruction set of the universe-as-computer'),
