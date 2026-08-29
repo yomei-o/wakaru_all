@@ -170,8 +170,11 @@ BODY += card(28,'wakaru-ct-28-vsl.html','VSL — where the surgery went wrong',
   'The \(c\) called “the speed of light” appears in four separate roles (Ellis &amp; Uzan), and VSL fixes \(e\) and \(\hbar\), so its observable content is <strong>entirely “\(\alpha\) varies”</strong> — against \(\alpha\) pinned to 32.5 bits in the laboratory and 26.4 at Oklo. Solving the horizon problem demands \(\alpha(z)/\alpha_0\ge1+z\), <strong>ten orders over the nucleosynthesis bound</strong>. A phase transition escapes that — and loses every prediction in the observable era at the same stroke.',
   'The failure was not moving c, but continuing to call it c')
 
+BODY += card(29,'wakaru-ct-29-mond.html','MOND — the comparison hidden inside an acceleration',
+  '\(a_0\) is dimensionful (weight \(-1\)), so “the acceleration is small” needs a comparison — and \(cH_0\) is sitting right next door, at \(a_0/cH_0=0.18\). The ratio has weight 0, so <strong>the coincidence cannot be moved by a conformal transformation</strong>; measured in bits it is 5.9, the same stratum as \(\rho_\Lambda\) and \(m_\nu\). On Episode 5’s scales, <strong>MOND wins galaxy rotation curves by 1971 bits</strong> — and loses clusters, the Bullet Cluster and the CMB. <em>“Dark matter or MOND?” was never one question.</em>',
+  'And the coincidence hides a testable fork: constant \(a_0\), or \(a_0\propto H\)?')
+
 BODY += mini([
- (29,'MOND — the comparison hidden inside an acceleration'),
  (30,'Measuring varying constants for real (atomic clocks, Oklo, quasar absorption)'),
  (31,'Penrose\'s conformal cyclic cosmology'),
  (32,'Wetterich\'s cosmon — implementing a universe that does not expand'),
