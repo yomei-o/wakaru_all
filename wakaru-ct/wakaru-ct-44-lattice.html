@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>離散化 ── わかる c·t=一定 第44回（第V部）</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9fa; --paper-edge:#e1e4eb;
+    --side:#3a4a7a; --side-bg:#eef0f4;
+    --warn:#8a4b2f;
+    --calc:#2e3b61; --calc-bg:#e8eaf0;
+    --rule:#d0d4df; --hair:#b4bacc;
+    --acc:#3a4a7a;
+    --grid:#e6e8ee;
+    --ops:#7a3a4a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6d9e3 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#313f68;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4c9d7;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f3f6;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dadde6;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dadde6;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f1f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#313f68;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#313f68;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#858fad;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 44 回 ／ 第 V 部・道具が壊れる場所</span></p>
+<p class="eyebrow">要求されていたのは「無いこと」ではありませんでした</p>
+
+<h1>スケールは、<br>無関係になればよい
+<span class="sub">格子は最小長そのものなのに、共形場理論が計算できます。<br><em>共形不変性は格子の性質ではなく、流れ着く固定点の性質だからです。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第3回の判定、第14回の異常次元、第19回の目盛り、第36回の (A)/(B)、第43回</span><span>格子を 2 倍細かくするたび 0.83 ビット</span></p>
+
+<p class="lead">前回、<strong>最小長のある理論は共形不変ではありえない</strong>と分かりました。ところが事実として ── <em>共形場理論は、実際に格子の上で計算されています</em>。格子間隔は最小長そのものなのに。今回はその<strong>矛盾しない理由</strong>を数えます。そこには、第 V 部でずっと壊れつづけてきた道具が、<em>それでも生き延びる理由</em>があります。</p>
+
+<h2><span class="n">01</span>矛盾に見えるもの</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">43</div><div class="txt"><strong>最小長のある理論は共形不変ではありえない</strong><span>共形不変性はスケールが無いことを要求し、最小長はスケールそのもの</span></div></div>
+<div class="row"><div class="mk">事</div><div class="txt"><strong>ところが共形場理論は格子の上で計算されている</strong><span>3 次元イジング模型の臨界指数は、格子モンテカルロで 5〜6 桁まで求まっている</span></div></div>
+<div class="row hi"><div class="mk">?</div><div class="txt"><strong>格子間隔 \(a\) は最小長そのもの。なぜ矛盾しないのか</strong><span>これが今回の問い</span></div></div>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">02</span>核心 ── スケールは「無い」のではなく「無関係になる」</h2>
+
+<div class="calc">
+<span class="tag">格子の理論に出てくる長さは二つ</span>
+$$a\ (\text{格子間隔})\qquad \xi\ (\text{相関長})$$
+<p class="lbl">物理量が依存できるのは、無次元の比 \(\xi/a\) だけ（第3回）── 臨界点では \(\xi/a\to\infty\)</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0"><strong>共形不変性は格子の性質ではなく、格子の理論が流れ着く<em>固定点</em>の性質です。</strong><br>
+「スケールが無い」のではなく、<strong>「スケールが無関係（irrelevant）になる」</strong>。<br>
+── これは第3回の手続きそのものです：<em>物理は比のほうにあり、その比が発散するとき、答えは \(a\) に依らなくなる。</em></p>
+</div>
+
+<h2><span class="n">03</span>どれくらい合っているのか ── 3 次元イジング</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">指数</th><th class="mid">共形ブートストラップ（連続）</th><th class="mid">格子モンテカルロ</th><th class="mid">相対差</th><th class="mid">何 \(\sigma\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th class="mid">\(\nu\)</th><td class="mid">\(0.6299709(4)\)</td><td class="mid">\(0.63002(10)\)</td><td class="mid">\(7.8\times10^{-5}\)</td><td class="mid"><strong>\(0.5\)</strong></td></tr>
+<tr><th class="mid">\(\eta\)</th><td class="mid">\(0.0362978(20)\)</td><td class="mid">\(0.03627(10)\)</td><td class="mid">\(7.7\times10^{-4}\)</td><td class="mid">\(0.3\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Kos et al. (2016) のブートストラップと Hasenbusch (2010) の格子モンテカルロです。<strong>格子の答えと連続の答えが、\(\nu\) で 4 桁・\(\eta\) で 3 桁まで一致しています</strong>（どちらも \(1\sigma\) 以内）── <em>格子間隔という「最小長」は、答えのどこにも残っていません。</em></p>
+
+<h2><span class="n">04</span>普遍性 ── 中身が違っても、同じ数が出る</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">1</div><div class="txt"><strong>3 次元イジング模型（格子スピン）</strong><span>\(\nu=0.6300\)</span></div></div>
+<div class="row"><div class="mk">2</div><div class="txt"><strong>液体–気体の臨界点（水、CO\(_2\) など）</strong><span>同じ</span></div></div>
+<div class="row"><div class="mk">3</div><div class="txt"><strong>二成分流体の混溶臨界点</strong><span>同じ</span></div></div>
+<div class="row hi"><div class="mk">4</div><div class="txt"><strong>一軸異方性の強磁性体</strong><span>同じ ── <em>微視的な中身がまったく違うのに、同じ指数が出る</em></span></div></div>
+</div>
+
+<p><strong>格子の詳細も、分子の詳細も、答えから消えています</strong> ── これが「無関係になる」ということの、<em>実験的な意味</em>です。</p>
+
+<h2><span class="n">05</span>どれだけ速く消えるのか ── 補正の指数 \(\omega\)</h2>
+
+<div class="calc">
+<span class="tag">格子の痕跡は \((a/\xi)^\omega\) で消える（3 次元イジングで \(\omega=0.8303\)）</span>
+$$\text{格子を 2 倍細かくするたびに }\mathbf{0.83\ \text{ビット}}\text{ 買える}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">\(\xi/a\)</th><th class="mid">残る誤差 \((a/\xi)^\omega\)</th><th class="mid">ビット</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(10\)</th><td class="mid">\(1.5\times10^{-1}\)</td><td class="mid">\(2.8\)</td></tr>
+<tr><th class="mid">\(10^2\)</th><td class="mid">\(2.2\times10^{-2}\)</td><td class="mid">\(5.5\)</td></tr>
+<tr><th class="mid">\(10^3\)</th><td class="mid">\(3.2\times10^{-3}\)</td><td class="mid">\(8.3\)</td></tr>
+<tr><th class="mid">\(10^4\)</th><td class="mid">\(4.8\times10^{-4}\)</td><td class="mid">\(11.0\)</td></tr>
+<tr class="hi"><th class="mid">\(10^6\)</th><td class="mid">\(1.0\times10^{-5}\)</td><td class="mid">\(16.5\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>6 桁（\(10^{-6}\)）に届くには \(\xi/a>1.7\times10^7\) が要ります ── <strong>格子には載りません</strong>。だから実際には<em>改良作用</em>（先頭の補正項を打ち消す）と外挿を使います。<strong>03節の一致は、素朴な格子計算の成果ではなく、補正を消す工夫の成果</strong>です。</p>
+
+<div class="fig">
+<p class="cap">図：格子の痕跡が消えていく速さ。<strong>格子を細かくするほど誤差は \((a/\xi)^{0.83}\) で落ちます</strong>が、<em>6 桁に届くには \(\xi/a>10^7\) が要る</em>ので、実際には改良作用で先頭の補正を打ち消します。ツマミで格子の細かさを動かしてください</p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>格子の細かさ \(\log_{10}(\xi/a)\)<input id="sx" type="range" min="5" max="80" value="30" step="1"></label>
+  <span class="val" id="vx">3.0</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#3a4a7a"></i>素朴な格子（\(\omega=0.83\)）</span>
+  <span><i class="swatch" style="background:#7a3a4a"></i>改良作用（先頭の補正を打ち消す）</span>
+  <span><i class="swatch" style="background:#c8c2d0"></i>実際に載る格子の限界</span>
+</div>
+</div>
+
+<h2><span class="n">06</span>第14回とのつながり</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">14</div><div class="txt"><strong>異常次元 \(\eta=0.036\) は「ウェイト表の 3.6 パーセントの誤差」だった</strong><span>第14回で測った量</span></div></div>
+<div class="row hi"><div class="mk">!</div><div class="txt"><strong>その \(\eta\) に、格子間隔 \(a\) はまったく入っていない</strong><span>ウェイト表の数字は<em>固定点の性質</em>であって、格子の性質ではない</span></div></div>
+<div class="row"><div class="mk">→</div><div class="txt"><strong>第16回のウェイト表が量子でも生き残る理由が、ここにある</strong><span>第37回で量子が 0 の列に書き込んだ数字も、固定点の量だった</span></div></div>
+</div>
+
+<h2><span class="n">07</span>効かなかった例 ── ヘリウムの \(\lambda\) 転移</h2>
+
+<div class="calc">
+<span class="tag">3 次元 XY 普遍類（\(^4\)He の超流動転移）の比熱の指数 \(\alpha=2-3\nu\)</span>
+$$\text{理論}\ \alpha=-0.01525\pm0.00030\qquad
+\text{実験}\ \alpha=-0.0127\pm0.0003$$
+<p class="lbl">差 \(0.00255\)、合成誤差 \(0.00042\) → <strong>\(6.0\sigma\)</strong>、第19回の作法で <strong>29.0 ビット</strong></p>
+</div>
+
+<p>実験はスペースシャトル上での測定（Lipa et al. 2003）── 重力による圧力勾配を避けるためです。<strong>これは未解決の食い違いです。</strong> 普遍性が壊れているのか、実験か理論の系統誤差か、決着していません ── <em>普遍性はよく効きますが、万能の魔法ではありません。</em></p>
+
+<h2><span class="n">08</span>結局これも (A)/(B) だった</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>読み方</th><th class="mid">極限</th><th class="mid">共形不変性</th><th class="mid">帰結</th></tr></thead>
+<tbody>
+<tr><th>(A) \(a\) は取り除くべき正則化</th><td class="mid">連続極限を取る</td><td class="mid">固定点で<strong>厳密</strong></td><td class="mid">格子は道具</td></tr>
+<tr class="hi"><th>(B) \(a\) は物理的（時空が本当に離散）</th><td class="mid">取り除かない</td><td class="mid"><strong>近似</strong></td><td class="mid">違反が観測にかかりうる</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第36回の (A)/(B) が、格子間隔にも当たります。そして<strong>第43回⑤の GRB の制限は、(B) を試している測定</strong>でした。</p>
+
+<div class="keybox">
+<p class="lbl">第 V 部の答え</p>
+<p style="margin:6px 0 0">第43回：最小長は共形不変性と両立しない（仮定からして排除）。<br>
+第44回：<strong>それでも道具は生き延びる</strong> ── スケールが<em>無関係になる</em>なら。<br>
+── <strong>道具が要求するのは「スケールが無いこと」ではなく、「スケールが答えに残らないこと」でした。</strong><br>
+くりこみ群の意味で irrelevant なら、長距離では好きな精度で共形不変が戻ります。</p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p style="margin:0 0 10px"><strong>① 03節の一致は、格子の側が「連続極限を取っている」ことの結果です。</strong> 有限の格子で計算した生の値ではなく、<em>複数の格子サイズから外挿し、改良作用で先頭の補正を消したうえでの値</em>です ── 05節のとおり、素朴な計算では \(10^3\) の格子でも 0.3 パーセントの誤差が残ります。<strong>「格子でも同じ答えが出る」は、正しくは「連続極限を丁寧に取れば同じ答えが出る」</strong>です。</p>
+<p style="margin:0 0 10px"><strong>② 02節の「スケールが無関係になる」は、くりこみ群の技術用語です。</strong> 日常語の「関係ない」ではなく、<em>くりこみ変換のもとで係数が縮んでいく演算子（irrelevant operator）</em>という意味 ── そして<strong>どの演算子が irrelevant かは理論ごとに違い、自明ではありません</strong>。重力の場合、まさにそれが第35回の漸近安全性の未解決点でした。</p>
+<p style="margin:0 0 10px"><strong>③ 07節のヘリウムの食い違いは、いまも議論が続いている話題です。</strong> 実験側の系統誤差（有限サイズ効果、温度制御）、理論側の誤差評価、どちらの可能性も指摘されています ── <em>本稿は「未解決である」以上のことを主張しません</em>。また \(6.0\sigma\) という値は、引いた文献値の誤差をそのまま合成したもので、<strong>系統誤差の見積もりが変われば大きく動きます</strong>。</p>
+<p style="margin:0 0 10px"><strong>④ 04節の普遍性の例は、教科書的な整理です。</strong> 実際の実験では<em>臨界点への近づき方や補正項の扱いで有効数字が変わり</em>、すべてが同じ精度で確認されているわけではありません ── 液体–気体の臨界点の指数は、磁性体ほどの精度では出ていません。</p>
+<p style="margin:0"><strong>⑤ 08節の (B) は、時空が本当に離散だという主張ではありません。</strong> <em>そういう読み方も論理的にはありうる、という整理</em>で、現在の観測は第43回⑤のとおり 1 次の効果を排除しているだけです ── <strong>時空が離散かどうかは未解決</strong>で、本稿はどちらも支持しません。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>格子は最小長なのに、なぜ共形場理論が計算できるのか。
+<details><summary>答えを見る</summary><div class="ans">共形不変性が<strong>格子の性質ではなく、格子の理論が流れ着く固定点の性質</strong>だからです。物理量が依存できるのは無次元の比 \(\xi/a\) だけで、臨界点では \(\xi/a\to\infty\) となり <em>\(a\) が答えから落ちます</em> ── 「スケールが無い」のではなく<strong>「スケールが無関係になる」</strong>。</div></details></li>
+
+<li>格子を 2 倍細かくすると、精度は何ビット上がるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>0.83 ビット</strong>（3 次元イジングの補正指数 \(\omega=0.8303\)）。\(\xi/a=10^3\) でも誤差は 0.3 パーセント（8.3 ビット）残り、<em>6 桁に届くには \(\xi/a>1.7\times10^7\) が必要</em>で格子には載りません ── だから改良作用と外挿を使います。</div></details></li>
+
+<li>普遍性の実験的な意味は。
+<details><summary>答えを見る</summary><div class="ans"><strong>微視的な中身がまったく違っても、同じ指数が出ること</strong>です ── 格子スピン、水の液体–気体臨界点、二成分流体、一軸強磁性体がすべて同じ \(\nu=0.6300\)。<em>格子の詳細も分子の詳細も答えから消えている</em>、それが「無関係になる」の実験的な姿です。</div></details></li>
+
+<li>普遍性が疑われている例はあるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(^4\)He の \(\lambda\) 転移</strong>です。3 次元 XY 普遍類の \(\alpha=2-3\nu=-0.01525(30)\) に対し、スペースシャトル上の実験は \(-0.0127(3)\) ── <strong>\(6.0\sigma\)、29 ビット</strong>の食い違い。<em>未解決</em>で、普遍性が破れているのか系統誤差かは決着していません。</div></details></li>
+
+<li>（やや難）第43回と第44回を合わせると、道具は何を要求しているのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>「スケールが無いこと」ではなく「スケールが答えに残らないこと」</strong>です。第43回のとおり最小長があれば厳密な共形不変性は排除されますが、<em>そのスケールがくりこみ群の意味で irrelevant なら、長距離では好きな精度で共形不変が戻ります</em> ── これが第 V 部の答えです。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　道具が要求していたのは、無いことではなかった</h2>
+<p>第43回で「最小長のある理論は共形不変ではありえない」と分かりました。ところが<strong>共形場理論は格子の上で計算されています</strong>。矛盾しない理由は ── <em>共形不変性が格子の性質ではなく、格子の理論が流れ着く固定点の性質だから</em>です。物理量が依存できるのは無次元の比 \(\xi/a\) だけで、臨界点ではそれが発散し、<strong>\(a\) が答えから落ちます</strong>。「スケールが無い」のではなく、<strong>「スケールが無関係になる」</strong>。</p>
+<p>実際、3 次元イジングでは連続のブートストラップと格子モンテカルロが <strong>\(\nu\) で 4 桁まで一致</strong>します（\(0.5\sigma\)）。そして<strong>普遍性</strong> ── 格子スピンも、水の液体–気体臨界点も、二成分流体も、一軸強磁性体も、同じ \(\nu=0.6300\)。<em>格子の詳細も分子の詳細も、答えから消えています。</em></p>
+<p>ただし消え方には速さがあります。格子の痕跡は \((a/\xi)^{0.83}\) で落ちる ── <strong>格子を 2 倍細かくするたびに 0.83 ビット</strong>。6 桁に届くには \(\xi/a>1.7\times10^7\) が要り、格子には載りません。<em>03節の一致は素朴な計算の成果ではなく、改良作用と外挿という「補正を消す工夫」の成果</em>です。</p>
+<p>そして効かなかった例もあります ── <strong>\(^4\)He の \(\lambda\) 転移</strong>。3 次元 XY 普遍類の予言 \(\alpha=-0.01525(30)\) に対し、スペースシャトル上の実験は \(-0.0127(3)\)、<strong>\(6.0\sigma\)、29 ビット</strong>の食い違いで、いまも未解決です。<em>普遍性はよく効きますが、万能の魔法ではありません。</em></p>
+<p>結局これも (A)/(B) でした ── \(a\) を取り除くべき正則化と読むか、物理的な離散性と読むか。そして第43回の GRB の制限は (B) を試す測定でした。<strong>第 V 部の答えはこうです：道具が要求するのは「スケールが無いこと」ではなく、「スケールが答えに残らないこと」だった。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第45回（第 V 部・総括）</span>
+第 V 部の九回を、一枚に並べます ── <strong>量子アノマリー、共形因子問題、回転する時空、重力エントロピー、ワイル曲率仮説、ブラックホール内部、プランクスケール、離散化</strong>。<em>壊れた場所、届かなかった場所、排除された場所</em>を分類し、<strong>道具の効く範囲の地図</strong>を描きます。そして第 IV 部の総括（第36回）で見つけた「良い理論は手術を済ませてある」と、今回の「スケールは残らなければよい」が、<em>どうつながるのか</em>を書きます。
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第44回（第 V 部の 8 回目）、物理好きの高校生・大学生向け読み物です。くりこみ群、普遍性、格子の連続極限、共形ブートストラップはいずれも確立した標準的な内容で、本稿に新しい主張はありません ── 数値は kenshou/calc48.py で計算しています。引いた値は 3 次元イジングが Kos, Poland, Simmons-Duffin &amp; Vichi (2016) のブートストラップと Hasenbusch (2010) の格子モンテカルロ、3 次元 XY が Chester et al. (2019)、\(^4\)He の実験が Lipa et al. (2003) です。<strong>03節の一致は、格子の側が連続極限を取っていることの結果です</strong> ── 有限の格子の生の値ではなく、複数の格子サイズから外挿し改良作用で先頭の補正を消したうえでの値で、<em>素朴な計算では \(10^3\) の格子でも 0.3 パーセントの誤差が残ります</em>。<strong>02節の「無関係になる」はくりこみ群の技術用語（irrelevant operator）で</strong>、どの演算子が irrelevant かは理論ごとに違い自明ではありません ── 重力の場合、まさにそれが第35回の漸近安全性の未解決点でした。<strong>07節のヘリウムの食い違いはいまも議論が続いている話題で</strong>、実験側の系統誤差も理論側の誤差評価も可能性が指摘されており、<em>本稿は「未解決である」以上のことを主張しません</em>（\(6.0\sigma\) は文献値の誤差をそのまま合成したもので、系統誤差の見積もりが変われば大きく動きます）。04節の普遍性の例は教科書的な整理で、<em>すべてが同じ精度で確認されているわけではありません</em>。<strong>08節の (B) は時空が本当に離散だという主張ではなく</strong>、そういう読み方も論理的にはありうるという整理です ── 時空が離散かどうかは未解決で、本稿はどちらも支持しません。図中の「改良作用」の曲線は効果を示すための模式で、特定の手法の性能を表すものではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではツマミで格子の細かさを動かすと、買えるビット数が見えます。「答えを見る」で解答が開きます。</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sx=document.getElementById('sx'), vx=document.getElementById('vx'), ro=document.getElementById('ro');
+  var X0=80, X1=690, Y0=34, Y1=272;
+  var OM=0.8303, OM2=1.66;
+  var A0=0.5, A1=8;    // log10(xi/a)
+  var B0=0, B1=24;     // bits
+
+  function px(v){ return X0+(v-A0)/(A1-A0)*(X1-X0); }
+  function py(b){ return Y1-(b-B0)/(B1-B0)*(Y1-Y0); }
+  function bits(v,om){ return om*v*Math.LN10/Math.LN2; }
+
+  function draw(){
+    var lx=parseInt(sx.value,10)/10;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // 実際に載る格子の限界（ξ/a ~ 10^3）
+    g.fillStyle='#f4f2f6'; g.fillRect(px(3),Y0,X1-px(3),Y1-Y0);
+    g.fillStyle='#a89fae'; g.textAlign='left';
+    g.fillText('この右は、素朴な格子では載らない', px(3)+8, Y0+16);
+
+    g.textAlign='right'; g.fillStyle='#9c96a4';
+    for(var b=0;b<=B1;b+=4){
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(b)); g.lineTo(X1,py(b)); g.stroke();
+      g.fillText(b+' bit', X0-8, py(b)+4);
+    }
+    g.textAlign='center';
+    for(var t=1;t<=8;t+=1){ g.fillStyle='#9c96a4'; g.fillText('10^'+t, px(t), Y1+20); }
+
+    g.strokeStyle='#3a4a7a'; g.lineWidth=2.8; g.beginPath();
+    for(var i=0;i<=200;i++){ var v=A0+(A1-A0)*i/200; if(i===0)g.moveTo(px(v),py(bits(v,OM))); else g.lineTo(px(v),py(bits(v,OM))); }
+    g.stroke();
+    g.strokeStyle='#7a3a4a'; g.lineWidth=2.4; g.setLineDash([6,4]); g.beginPath();
+    for(var j=0;j<=200;j++){ var v2=A0+(A1-A0)*j/200; if(j===0)g.moveTo(px(v2),py(bits(v2,OM2))); else g.lineTo(px(v2),py(bits(v2,OM2))); }
+    g.stroke(); g.setLineDash([]);
+
+    g.textAlign='left';
+    g.fillStyle='#3a4a7a'; g.fillText('素朴な格子：0.83 bit / 倍化', px(4.4), py(bits(4.4,OM))+18);
+    g.fillStyle='#7a3a4a'; g.fillText('改良作用：先頭を消すと約 2 倍速い', px(1.5), py(bits(1.5,OM2))-10);
+
+    var Xc=px(lx);
+    g.strokeStyle='#5a5262'; g.lineWidth=1.6; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(Xc,Y0); g.lineTo(Xc,Y1); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#3a4a7a'; g.beginPath(); g.arc(Xc,py(bits(lx,OM)),4.6,0,6.29); g.fill();
+    g.fillStyle='#7a3a4a'; g.beginPath(); g.arc(Xc,py(bits(lx,OM2)),4.6,0,6.29); g.fill();
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('格子の細かさ ξ/a', (X0+X1)/2, Y1+44);
+
+    vx.textContent=lx.toFixed(1);
+    var e1=Math.pow(10,-OM*lx), e2=Math.pow(10,-OM2*lx);
+    ro.textContent='ξ/a = 10^'+lx.toFixed(1)+
+      '　→　素朴な格子の残る誤差 '+e1.toExponential(2)+'（'+bits(lx,OM).toFixed(1)+' bit）'+
+      '　／　改良作用なら '+e2.toExponential(2)+'（'+bits(lx,OM2).toFixed(1)+' bit）'+
+      (lx>3?'　★ ここは実際の格子には載らない ── 外挿で届かせる':'');
+  }
+  sx.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

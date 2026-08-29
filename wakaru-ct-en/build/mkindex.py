@@ -235,8 +235,11 @@ BODY += card(43,'wakaru-ct-43-planck.html','The Planck scale',
   'The Planck length has conformal weight +1 — it is just a length, sitting in the bookkeeping column, so "the smallest length is l_P" is not yet a sentence; the sentence is L/l_P >= 1. And this is where the tool really breaks: conformal invariance demands the absence of a scale, and a smallest length is a scale, so the two are incompatible by hypothesis rather than by any subtle failure. The concept survives only as a dimensionless statement — the mass where the Compton wavelength and the Schwarzschild radius have ratio 1. We are fifty doublings away from it.',
   'Excluded by hypothesis — the edge of the tool')
 
+BODY += card(44,'wakaru-ct-44-lattice.html','Discretisation',
+  'A lattice spacing is a smallest length, yet conformal field theories are computed on lattices every day. The resolution: conformal invariance belongs to the fixed point the lattice theory flows to, not to the lattice — observables depend only on xi/a, which diverges at criticality, so the spacing drops out. The 3D Ising exponents agree to four digits between continuum and lattice, and universality erases the microscopic content entirely. But the traces die only as (a/xi)^0.83, and the lambda transition of helium still shows a 6-sigma unresolved discrepancy.',
+  'The demand was never absence, only irrelevance')
+
 BODY += mini([
- (44,'What changes if you make it discrete'),
  (45,'Summary: the list of things that could not be erased'),
 ])
 
