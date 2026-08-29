@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原子に入れてみる ── わかる c·t=一定 第9回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9f8; --paper-edge:#dfe4e3;
+    --side:#2c4a45; --side-bg:#edf0ef;
+    --warn:#8a4b2f;
+    --calc:#233b37; --calc-bg:#e7eaea;
+    --rule:#ccd4d2; --hair:#afbab8;
+    --acc:#2c4a45;
+    --grid:#e5e8e8;
+    --ops:#a35a1f;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d3d9d8 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#253f3b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c0c9c7;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f1f3f3;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d7dddc;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d7dddc;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff1f1;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#253f3b;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#253f3b;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7c8f8c;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 9 回 ／ 1918年の刃が、なぜ届かないのか</span></p>
+<p class="eyebrow">原子は縮むのに、スペクトル線はぼけません</p>
+
+<h1>原子に、<br>入れてみる
+<span class="sub">アインシュタインはこの論法でワイルの統一理論を殺しました。<br>同じ刃が現代の共形変換に届かない理由を、<em>二つの数字</em>で言い切ります。</span></h1>
+
+<p class="byline"><span>必要な道具：割り算、断熱定理の直観</span><span>\(\varepsilon=\hbar H/\Delta E=1.1\times10^{-34}\)</span></p>
+
+<p class="lead">この絵では、原子が \(1/t\) で縮んでいきます。ボーア半径は \(\hbar/(mc\alpha)\) で、質量が育つぶん小さくなる。── ならば、<strong>スペクトル線はぼけないのか。</strong> これはただの心配ではありません。1918年にアインシュタインがワイルの理論を殺したのが、<em>まさにこの論法</em>だったからです。今回は、その刃がなぜ現代の共形変換に届かないのかを、二つの数字で言い切ります。</p>
+
+<h2><span class="n">01</span>1918年、アインシュタインが使った刃</h2>
+
+<p>前シリーズ第1回の復習です。ワイルは「長さの基準を各点で選び直してよい」として \(g_{\mu\nu}\to\Omega(x)^2g_{\mu\nu}\) を提案し、その補正場を電磁ポテンシャルと同一視しました。アインシュタインは同じ論文の付録で反論します。</p>
+
+<div class="aside">
+<span class="tag">アインシュタインの指摘（1918）</span>
+物差しが場所ごとに違い、しかもその違いを運ぶのに<strong>経路が要る</strong>なら ── 同じ二点を違う道で結ぶと、答えが変わる。つまり同じ原子でも、<em>たどってきた歴史によって出す光の波長が変わってしまう</em>（第二時計効果）。ところが現実のスペクトル線は鋭い。水素は宇宙のどこで見ても水素の色をしている。
+</div>
+
+<p>この反論は決定的でした。ワイルは理論を撤回します。<strong>「原子は履歴を覚えない」という一つの観測事実が、統一理論を一本殺した</strong>のです。</p>
+
+<h2><span class="n">02</span>現代の共形変換は、二重に守られている</h2>
+
+<p>ところが同じ刃は、このシリーズが使っている操作には届きません。理由が二つあります。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>そもそも経路依存性がない</strong><span>\(\Omega(x)\) は各点で一つの値に決まる<em>一価関数</em>。長さの変化が到着点だけで決まるので、第二時計効果は原理的に起きません（前シリーズ第1回）</span></div></div>
+<div class="row hi"><div class="mk">②</div><div class="txt"><strong>時間変化しても、断熱で守られる</strong><span>質量が \(\propto t\) で育つのは事実です。でもその変化は準位間隔に比べて<em>桁違いに遅い</em>ので、遷移が一つも誘起されない ── 今回計算するのは、こちらです</span></div></div>
+</div>
+
+<p>①は歴史的な整理で、前シリーズで済んでいます。今回やるのは②です。<strong>仮に原子が本当に縮んでいっても、なぜ線がぼけないのか</strong>を、数字で出します。</p>
+
+<h2><span class="n">03</span>断熱パラメータを、計算する</h2>
+
+<p>量子力学の断熱定理は、こう言います ── ハミルトニアンの変化が<em>準位間隔に比べて</em>十分ゆっくりなら、系は準位から飛び出さずについてくる。判定に使うのは、二つの速さの比です。</p>
+
+<div class="calc">
+<span class="tag">計算 ── 二つの速さを割る</span>
+<p class="lbl">ハミルトニアンの変化率（この絵では質量の成長率）</p>
+$$\frac{\dot m}{m}=\frac{1}{t}=H$$
+<p class="lbl">準位が「反応できる」速さ</p>
+$$\frac{\Delta E}{\hbar}$$
+<p class="lbl">割ると、断熱パラメータ</p>
+$$\varepsilon=\frac{\hbar H}{\Delta E}\qquad(\varepsilon\ll1\ \text{なら断熱})$$
+</div>
+
+<p>今日の値 \(\hbar H_0=1.51\times10^{-33}\) eV を入れます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>遷移</th><th class="mid">\(\Delta E\)</th><th class="mid">\(\varepsilon=\hbar H_0/\Delta E\)</th><th class="mid">断熱が破れる時刻 \(t=\hbar/\Delta E\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th>水素のリュードベリ</th><td class="mid">13.6 eV</td><td class="mid"><strong>\(1.1\times10^{-34}\)</strong></td><td class="mid">\(4.8\times10^{-17}\) 秒</td></tr>
+<tr><th>ライマン α</th><td class="mid">10.2 eV</td><td class="mid">\(1.5\times10^{-34}\)</td><td class="mid">\(6.5\times10^{-17}\) 秒</td></tr>
+<tr><th>可視光</th><td class="mid">2 eV</td><td class="mid">\(7.6\times10^{-34}\)</td><td class="mid">\(3.3\times10^{-16}\) 秒</td></tr>
+<tr><th>セシウム時計（9.19 GHz）</th><td class="mid">\(3.8\times10^{-5}\) eV</td><td class="mid">\(4.0\times10^{-29}\)</td><td class="mid">\(1.7\times10^{-11}\) 秒</td></tr>
+<tr><th>21 cm 超微細</th><td class="mid">\(5.9\times10^{-6}\) eV</td><td class="mid">\(2.6\times10^{-28}\)</td><td class="mid">\(1.1\times10^{-10}\) 秒</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の結論</p>
+<p style="margin:6px 0 0">いちばん<em>ゆるい</em>遷移（21 cm）ですら、断熱が破れるのは <strong>\(10^{-10}\) 秒</strong>より前。<br>
+原子ができるのは再結合（\(1.2\times10^{13}\) 秒＝38万年）以降です。<br>
+<strong>原子が存在する全時代にわたって、完全に断熱。</strong></p>
+</div>
+
+<div class="fig">
+<p class="cap">図：横軸は宇宙の年齢、縦軸は断熱パラメータ \(\hbar H/\Delta E\)。線が朱色の水平線（\(\varepsilon=1\)）を上回ると断熱が破れます。<strong>灰色の帯が「原子が存在する時代」</strong> ── ツマミで遷移エネルギーをどう変えても、交点は帯のはるか左にしか来ません</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>遷移エネルギー \(\Delta E\)（対数）<input id="se" type="range" min="0" max="1000" value="742" step="1"></label>
+  <span class="val" id="ve">13.6 eV</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2c4a45"></i>断熱パラメータ \(\hbar H/\Delta E\)</span>
+  <span><i class="swatch" style="background:#a35a1f"></i>\(\varepsilon=1\)（断熱が破れる線）</span>
+  <span><i class="swatch" style="background:#9fb0ab"></i>原子が存在する時代</span>
+</div>
+</div>
+
+<p>ツマミをいちばん左（\(10^{-10}\) eV、想像しうるどんな微細な遷移よりゆるい）まで振っても、交点は帯に届きません。<em>「原子ができてから今日まで」のあいだ、断熱が破れる瞬間は一度もない。</em></p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>では、線はどれだけぼけるのか</h2>
+
+<p>断熱だとしても、放射が起きているあいだに振動数が少し変わるはずです。それがどれだけ線幅に効くか、比べます。</p>
+
+<div class="calc">
+<span class="tag">計算 ── 自然幅と比べる</span>
+<p class="lbl">ライマン α の自然幅（自然放出係数 \(A=6.27\times10^8\ \mathrm{s^{-1}}\)）</p>
+$$\frac{\Delta\nu}{\nu}=\frac{A/2\pi}{\nu}=\frac{9.97\times10^{7}}{2.47\times10^{15}}=4.04\times10^{-8}$$
+<p class="lbl">この絵で、放射のあいだ（\(1/A\) 秒）に振動数が変わる割合</p>
+$$\frac{\dot\nu}{\nu}\cdot\frac{1}{A}=\frac{H_0}{A}=\frac{2.30\times10^{-18}}{6.27\times10^{8}}=3.67\times10^{-27}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">「原子が縮むことによる線のぼけ」は、自然幅の <strong>\(9\times10^{-20}\)</strong> 倍。<br>
+── <em>19 桁下</em>。アインシュタインの刃は、届きません。</p>
+</div>
+
+<h2><span class="n">05</span>原子時計の制約は、厳密にゼロで満たされる</h2>
+
+<p>現代の精密測定は、定数の時間変化を凄まじい精度で縛っています。この絵の予言を並べます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">実測の上限</th><th class="mid">この絵の予言</th></tr></thead>
+<tbody>
+<tr><th>\(\dot\alpha/\alpha\)</th><td class="mid">\(1.0(1.1)\times10^{-18}\)/年（Lange 2021）</td><td class="mid"><strong>厳密に 0</strong></td></tr>
+<tr><th>\(\dot\mu/\mu\)（\(\mu=m_p/m_e\)）</th><td class="mid">\(\sim10^{-17}\)/年（分子時計）</td><td class="mid"><strong>厳密に 0</strong></td></tr>
+<tr><th>質量比・電荷比のすべて</th><td class="mid">各種</td><td class="mid"><strong>厳密に 0</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>理由はいつもと同じです ── <strong>分子と分母のウェイトが揃っているから</strong>。\(\alpha=e^2/4\pi\varepsilon_0\hbar c\) は \(e,\hbar,c\) がどれもウェイト 0。\(\mu=m_p/m_e\) は分子も分母もウェイト \(-1\)。打ち消して、動きようがない。</p>
+
+<h2><span class="n">06</span>種明かし ── 比較相手が、存在しない</h2>
+
+<p>ボーア半径は、この絵で確かに縮んでいます。</p>
+
+<div class="calc">
+<span class="tag">縮む速さ</span>
+$$\frac{\dot a_B}{a_B}=-H_0=-7.25\times10^{-11}\ /\text{年}$$
+</div>
+
+<p>第7回の \(G\) と同じで、素朴に読めばとんでもない速さです。ではなぜ測れないのか ── <strong>比べる相手を探すと、全部が同じウェイトだから</strong>です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>原子の大きさを、何と比べるか</th><th class="mid">相手のウェイト</th><th class="mid">比は</th></tr></thead>
+<tbody>
+<tr><th>別の原子</th><td class="mid">\(+1\)</td><td class="mid">不変</td></tr>
+<tr><th>光の波長</th><td class="mid">\(+1\)</td><td class="mid">不変</td></tr>
+<tr><th>定規（原子でできている）</th><td class="mid">\(+1\)</td><td class="mid">不変</td></tr>
+<tr><th>光速 × 時計の刻み</th><td class="mid">\(+1\)</td><td class="mid">不変</td></tr>
+<tr class="hi"><th>何とも比べない</th><td class="mid">──</td><td class="mid"><strong>主張が存在しない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第3回でシリーズの題名に対してやったことを、原子に対してやると、こうなります ── <em>「原子が縮んでいる」は、比較相手を言わない限り、文になっていない</em>。そして比較相手を探すと、原子の外に原子と無関係な物差しは一つもありません。前シリーズ第2回の出発点（<strong>すべての物差しは最終的に原子に行き着く</strong>）が、ここで閉じます。</p>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① 断熱パラメータを \(\hbar H/\Delta E\) と書いたのは、いちばん粗い見積もりです。</strong> 正確な断熱条件は \(|\langle m|\partial_t H|n\rangle|/(E_n-E_m)^2\ll1\) で、行列要素が入ります。本稿は「ハミルトニアンの変化率 ÷ 準位間隔」という次元解析だけで評価しています ── ただし行列要素は \(O(1)\) の無次元数なので、<em>34 桁という結論は動きません</em>。</p>
+<p style="margin:0 0 10px"><strong>② 「線がぼける量」は、放射寿命 \(1/A\) のあいだの振動数変化として見積もったものです。</strong> 実際の線形状（自然幅・ドップラー幅・圧力幅）の完全な計算ではありません。桁の議論として読んでください。実験室のスペクトル線は、この効果よりはるかに大きなドップラー幅・衝突幅に埋もれています。</p>
+<p style="margin:0 0 10px"><strong>③ 「原子時計の制約を厳密に 0 で満たす」は、\(c\cdot t=\text{一定}\) を<em>共形変換として</em>実装した場合の話です。</strong> \(c\) だけを動かす VSL 型の実装では \(\alpha\) が動き、この上限に衝突します（前シリーズ番外編③）。<em>同じ「光速が変わる」でも、実装しだいで生死が分かれます。</em></p>
+<p style="margin:0 0 10px"><strong>④ ワイル 1918 の理論と本稿の操作は別物です。</strong> ワイルは非可積分な長さ接続を持つ幾何（Weyl 幾何）を提案しました。本稿が使うのは \(\Omega\) が一価関数の可積分な場合で、第二時計効果を最初から持ちません。<em>アインシュタインの反論をかわしたのではなく、反論の当たる部分を持っていない</em> ── これは前シリーズ第1回の整理そのままです。なお非可積分な Weyl 幾何は、いまも重力理論の研究対象として生きています。</p>
+<p style="margin:0"><strong>⑤ 再結合を「原子ができる時刻」としましたが、</strong> 実際には水素原子は再結合期（\(z\simeq1100\)）に大量にでき、それ以前にも短命な束縛状態は存在します。図の帯はその目安です。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>アインシュタインが 1918 年にワイルの理論を殺した論法を、一行で述べよ。
+<details><summary>答えを見る</summary><div class="ans">長さの基準を運ぶのに<strong>経路が要る</strong>なら、同じ原子でも歩いてきた道によって出す光の波長が変わってしまう（第二時計効果）。ところが現実のスペクトル線は鋭い ── だから即座に反証される。</div></details></li>
+
+<li>現代の共形変換が同じ論法で切られない理由を、二つ挙げよ。
+<details><summary>答えを見る</summary><div class="ans">① \(\Omega(x)\) が<strong>一価関数</strong>なので長さの変化が経路に依らない（可積分）── 第二時計効果が原理的に起きない。② 質量が時間変化しても、断熱パラメータ \(\hbar H/\Delta E\sim10^{-34}\) なので遷移が誘起されない。<em>二重に守られています。</em></div></details></li>
+
+<li>21 cm 線（\(\Delta E=5.9\times10^{-6}\) eV）で断熱が破れるのはいつか。
+<details><summary>答えを見る</summary><div class="ans">\(t=\hbar/\Delta E=6.58\times10^{-16}/5.9\times10^{-6}=1.1\times10^{-10}\) 秒。原子ができる再結合（\(1.2\times10^{13}\) 秒）の <strong>23 桁前</strong>です。原子がある時代には、決して破れません。</div></details></li>
+
+<li>ボーア半径は \(7.2\times10^{-11}\)/年 で縮む。なぜ測れないのか。
+<details><summary>答えを見る</summary><div class="ans">比べる相手が全部ウェイト \(+1\) だから ── 別の原子も、光の波長も、定規も、光速×時計の刻みも、同じだけ縮みます。<strong>原子の外に、原子と無関係な物差しが存在しない</strong>（前シリーズ第2回）。だから「原子が縮んでいる」は、比較相手を言わない限り文になっていません。</div></details></li>
+
+<li>（やや難）同じ「光速が変わる」でも、VSL は原子時計に殺されて、この絵は殺されない。何が違うのか。
+<details><summary>答えを見る</summary><div class="ans">VSL は \(c\) だけを動かして \(e,\hbar\) を固定したので \(\alpha\) が動き、原子時計の上限（\(\dot\alpha/\alpha<10^{-18}\)/年）に衝突しました。この絵は<strong>全部をひとそろい込みで動かす</strong>ので \(\alpha\) が厳密に不変。<em>次元付きの量をどう動かすかではなく、無次元量を守れるかどうかが生死を分けます</em>（前シリーズ番外編③・④）。第7回の \(G\) でも同じ構図でした。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　アインシュタインの刃は、二重に届かない</h2>
+<p>この絵では原子が \(1/t\) で縮みます。1918 年、アインシュタインはまさにこの種の変化を突いてワイルの統一理論を殺しました ── <strong>長さの基準を運ぶのに経路が要るなら、原子は履歴を覚えてしまい、スペクトル線がぼける</strong>。決定的な反論でした。</p>
+<p>ところが同じ刃は、現代の共形変換には届きません。理由が二つ。①\(\Omega(x)\) が一価関数なので<strong>経路依存性が最初から無い</strong>（前シリーズ第1回）。②そして今回計算したのが二つ目です ── 断熱パラメータ \(\varepsilon=\hbar H/\Delta E\) は、水素のリュードベリで <strong>\(1.1\times10^{-34}\)</strong>。断熱が破れる時刻は \(t=\hbar/\Delta E=4.8\times10^{-17}\) 秒で、いちばんゆるい 21 cm 線でも \(1.1\times10^{-10}\) 秒。<em>原子ができるのは \(1.2\times10^{13}\) 秒（38万年）以降なので、原子が存在する全時代にわたって完全に断熱</em>です。</p>
+<p>線がどれだけぼけるかも数えました。放射寿命のあいだの振動数変化は \(H_0/A=3.7\times10^{-27}\) ── ライマン α の自然幅 \(4.0\times10^{-8}\) の <strong>\(9\times10^{-20}\) 倍</strong>、つまり 19 桁下。おまけに原子時計が縛る \(\dot\alpha/\alpha\) も \(\dot\mu/\mu\) も、この絵の予言は<strong>厳密にゼロ</strong>です（分子と分母のウェイトが揃っているから）。</p>
+<p>種明かしはいつもの形でした。ボーア半径は確かに \(7.2\times10^{-11}\)/年 で縮むのに測れない ── <strong>比べる相手が全部ウェイト \(+1\) だから</strong>。別の原子も、光の波長も、定規も、同じだけ縮む。<em>「原子が縮んでいる」は、比較相手を言わない限り文になっていない</em>。第3回でシリーズの題名にやった手術を原子に当てると、前シリーズ第2回の出発点「すべての物差しは最終的に原子に行き着く」に、ちょうど戻ってきます。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第10回</span>
+次は<strong>熱と情報</strong>です。この絵では温度が動きません（\(\tilde T=aT=\)一定）── 宇宙は 2.7255 K のまま、永遠に冷えない。すると<em>ランダウアーの限界、つまり 1 ビットを消すのに要るエネルギー \(k_BT\ln2\) が、宇宙の全歴史を通じて一定</em>になります（\(1.63\times10^{-4}\) eV）。標準の絵では \(1/a\) で下がっていく量が、この絵では固定される。ではどちらが「本当の消去コスト」なのか ── 答えは第3回と同じで、<strong>何と比べるかを言うまで、問いになっていません</strong>。粒子質量と比べれば \(\propto1/t\) で安くなり、光子1個と比べれば一定。<em>情報を消す仕事の値段にも、比較相手が隠れていました。</em>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第9回、物理好きの高校生・大学生向け読み物です。Weyl (1918) の長さのゲージ理論、それに対する Einstein の反論（非可積分な長さ接続は第二時計効果を生じるが原子スペクトルは鋭い）、および現代の共形変換が \(\Omega\) を一価関数に限る可積分な場合にあたり第二時計効果を持たないことは、いずれも科学史・物理として確立した事実です（前シリーズ第1回）。量子力学の断熱定理、およびハミルトニアンの変化率と準位間隔の比が断熱性を支配することも標準的です。本稿の \(\varepsilon=\hbar H/\Delta E\) は<strong>次元解析による粗い評価</strong>で、正確な条件は行列要素 \(\langle m|\partial_tH|n\rangle/(E_n-E_m)^2\) を含みます ── ただし行列要素は \(O(1)\) の無次元数なので結論の桁は変わりません。表の値（\(\hbar H_0=1.51\times10^{-33}\) eV、リュードベリで \(1.1\times10^{-34}\)、断熱が破れる時刻 \(t=\hbar/\Delta E\)）、および線幅の比較（\(H_0/A=3.7\times10^{-27}\) 対 ライマン α の自然幅 \(4.04\times10^{-8}\)、比 \(9\times10^{-20}\)）は本稿での計算です。ライマン α の \(A=6.265\times10^8\ \mathrm{s^{-1}}\)、\(\nu=2.466\times10^{15}\) Hz は標準値。線幅の見積もりは放射寿命のあいだの振動数変化によるもので、完全な線形状計算ではありません（実験室ではドップラー幅・衝突幅がはるかに大きい）。原子時計による \(\dot\alpha/\alpha\) の制約 \(1.0(1.1)\times10^{-18}\)/年 は Lange et al. (2021, PRL 126, 011102)。本稿の「制約を厳密に 0 で満たす」は \(c\cdot t=\text{一定}\) を<em>共形変換として</em>実装した場合の話であり、\(c\) のみを動かす VSL 型の実装では \(\alpha\) が動いてこの上限に衝突します（前シリーズ番外編③）。非可積分な Weyl 幾何は現在も研究対象です。線形膨張（\(c\cdot t=\)一定、\(R_h=ct\)）は検証途上の少数派モデルで、初期宇宙まで外挿した場合は元素合成と矛盾します（Lewis, Barnes &amp; Kaushik 2016）。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで遷移エネルギーを変え、交点が「原子が存在する時代」に決して入らない様子が見えます。「答えを見る」で解答が開きます。</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var se=document.getElementById('se'), ve=document.getElementById('ve'), ro=document.getElementById('ro');
+  var X0=76, X1=700, Y0=30, Y1=318;
+  var hbar=6.582119569e-16;         // eV s
+  var xmin=-44, xmax=18;            // log10(t/s)
+  var ymin=-40, ymax=12;            // log10(ε)
+  var LREC=Math.log(1.2e13)/Math.LN10, LNOW=Math.log(4.3536e17)/Math.LN10;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+
+  function draw(){
+    var f=parseInt(se.value,10)/1000;
+    var dE=1e-10*Math.pow(1e17,f);        // 1e-10 eV → 1e7 eV
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // 原子が存在する時代の帯
+    g.fillStyle='#eef2f1';
+    g.fillRect(px(LREC), Y0, px(xmax)-px(LREC), Y1-Y0);
+    g.fillStyle='#8b9c97'; g.textAlign='center';
+    g.fillText('原子が存在する時代', (px(LREC)+px(xmax))/2, Y0+16);
+
+    g.textAlign='right';
+    for(var e=-40;e<=10;e+=10){
+      var y=py(e);
+      g.strokeStyle='#eef2f1'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#93a5a0'; g.fillText(e===0?'1':'10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=-40;q<=10;q+=10){
+      var x=px(q);
+      g.strokeStyle='#f4f7f6'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#93a5a0'; g.fillText('10'+q, x, Y1+16);
+    }
+    g.strokeStyle='#c3d0cc'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // ε=1
+    g.strokeStyle='#a35a1f'; g.lineWidth=2.2; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(0)); g.lineTo(X1,py(0)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#a35a1f'; g.textAlign='left';
+    g.fillText('ε = 1（ここより上で断熱が破れる）', X0+8, py(0)-7);
+
+    // ε = ħ/(t ΔE) : log10 ε = log10(ħ/ΔE) - log10 t
+    var A=Math.log(hbar/dE)/Math.LN10;
+    g.strokeStyle='#2c4a45'; g.lineWidth=3.2;
+    g.beginPath();
+    g.moveTo(px(xmin),py(Math.min(Math.max(A-xmin,ymin),ymax)));
+    g.lineTo(px(xmax),py(Math.min(Math.max(A-xmax,ymin),ymax)));
+    g.stroke();
+
+    // 交点 t = ħ/ΔE
+    var xc=A;
+    if(xc>xmin&&xc<xmax){
+      g.fillStyle='#a35a1f';
+      g.beginPath(); g.arc(px(xc),py(0),5.5,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=1.7;
+      g.beginPath(); g.arc(px(xc),py(0),5.5,0,6.2832); g.stroke();
+    }
+
+    // 再結合・今日
+    [[LREC,'再結合'],[LNOW,'いま']].forEach(function(q){
+      g.strokeStyle='#b6c4c0'; g.lineWidth=1.3; g.setLineDash([4,4]);
+      g.beginPath(); g.moveTo(px(q[0]),Y0); g.lineTo(px(q[0]),Y1); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle='#7d8f8a'; g.textAlign='center';
+      g.fillText(q[1], px(q[0]), Y1-8);
+    });
+
+    g.fillStyle='#6b7d78'; g.textAlign='center';
+    g.fillText('宇宙の年齢  t [秒]', (X0+X1)/2, Y1+36);
+
+    var eps_now=hbar/(4.3536e17*dE);
+    ve.textContent = dE>=1 ? dE.toPrecision(3)+' eV' : dE.toExponential(2)+' eV';
+    ro.textContent='ΔE = '+ve.textContent+
+      '　→　今日の断熱パラメータ ε = '+eps_now.toExponential(2)+
+      '　／　断熱が破れる時刻 t = ħ/ΔE = '+(hbar/dE).toExponential(2)+' 秒'+
+      '　／　再結合（1.2×10¹³ 秒）より '+(Math.abs(LREC-xc)).toFixed(0)+' 桁 前';
+  }
+  se.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
