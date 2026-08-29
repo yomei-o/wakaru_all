@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二つのクロックが、噛み合っていない ── わかる c·t=一定 第2回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f6f8f5; --paper-edge:#d9e2d8;   /* 第2回：深緑の紙（クロック） */
+    --side:#25422f; --side-bg:#e8f0e9;
+    --warn:#8a4b2f;
+    --calc:#1d3626; --calc-bg:#e3ece4;
+    --rule:#c8d6c9; --hair:#a6bba9;
+    --acc:#2f4a3a;    /* 第2回アクセント＝深緑 */
+    --grid:#dde7de;
+    --ops:#a8452a;    /* 朱 */
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe0d1 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#1e3527;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bfd0c1;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfdfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e3ece4;color:#1d3626;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfefd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#e3ece4;color:#1d3626;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#eef4ef;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dfe9e0;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dfe9e0;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff5f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1c3325;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfefd,#e8f0e9);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e3ece4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1c3325;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f7062;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 2 回 ／ 前回はメモリ、今回はクロック</span></p>
+<p class="eyebrow">宇宙には時計が二つあって、進み方が違います</p>
+
+<h1>二つのクロックが、<br>噛み合っていない
+<span class="sub">宇宙の対数時間は 140 ステップ、繰り込み群の対数エネルギーは 73 ステップ。<br>
+この二つを割ると、膨張則がそのまま出てきます ── そして \(c\cdot t=\text{一定}\) は、<br>この二つが 1:1 で噛み合うことを要求します。</span></h1>
+
+<p class="byline"><span>必要な道具：対数、割り算</span><span>\(\dfrac{d\ln T}{d\ln t}=-p\)</span></p>
+
+<p class="lead">前回はメモリと演算を割りました。今回はクロックです。宇宙には <em>時間の対数</em> と <em>エネルギーの対数</em> という二本の目盛りがあって、どちらも「ステップ数」で数えられます。前者は宇宙論の軸、後者は繰り込み群の軸。<strong>この二本を割ると、また膨張則が出てきます。</strong> しかも今度は、動力学を一行も使わずに \(c\cdot t=\text{一定}\) の判決が出ます ── 観測された二つの比だけで。</p>
+
+<h2><span class="n">01</span>生の数より、対数のほうが本当のクロック</h2>
+
+<p>前回、宇宙は \(8.08\times10^{60}\) ティック走ったと数えました。でも計算機として意味があるのは、こちらです。</p>
+
+<div class="calc">
+<span class="tag">計算 ── 時間のクロック</span>
+$$\mathcal{N}_t\equiv\ln\frac{t_0}{t_P}=\ln\frac{4.354\times10^{17}\,\mathrm{s}}{5.391\times10^{-44}\,\mathrm{s}}=140.24$$
+<p class="lbl">1ステップでメモリは何倍か（\(N\propto t^2\) より）</p>
+$$e^{2}=7.389\ \text{倍}\qquad\Longrightarrow\qquad e^{2\times140.24}=10^{121.8}\ \checkmark$$
+</div>
+
+<p>140 ステップ、1ステップごとにメモリ 7.4 倍。それだけで \(10^{122}\) ビットが再現します。<strong>宇宙は、140 手しか指していない機械</strong>です。生の \(10^{60}\) という数より、この 140 のほうが機械の履歴を正しく表しています ── 同じ処理を \(10^{60}\) 回繰り返したのではなく、<em>140 回の倍々</em>をしただけだからです。</p>
+
+<h2><span class="n">02</span>もう一本、目盛りがある</h2>
+
+<p>前シリーズ第8回で、量子場の理論には「細かさの基準 \(\mu\)」が要る、と見ました。結合定数はこの \(\mu\) に沿って走り（\(1/137\to1/128\)）、その走りが共形対称性の破れそのものでした。この \(\mu\) の軸も、対数で数えられます。</p>
+
+<p>宇宙で \(\mu\) にあたるのは温度です。プランク温度から今日の CMB まで、何ステップあるでしょうか。</p>
+
+<div class="calc">
+<span class="tag">計算 ── エネルギーのクロック</span>
+$$T_P=\frac{m_Pc^2}{k_B}=1.417\times10^{32}\ \mathrm{K},\qquad T_0=2.7255\ \mathrm{K}$$
+$$\mathcal{N}_T\equiv\ln\frac{T_P}{T_0}=\ln\left(5.20\times10^{31}\right)=73.03$$
+</div>
+
+<p>73 ステップ。時間のクロックの、ちょうど半分くらいです。<strong>同じ宇宙史を数えているのに、目盛りの数が違う。</strong></p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">03</span>核心 ── 割る</h2>
+
+<p>前回と同じことをします。割ります。</p>
+
+<div class="keybox">
+<p class="lbl">この回の結論</p>
+$$\bar p=\frac{\mathcal{N}_T}{\mathcal{N}_t}=\frac{73.03}{140.24}=0.5207$$
+<p style="margin:10px 0 0">二つのクロックの比が、<strong>宇宙史の対数平均の膨張指数</strong>です。\(T\propto1/a\)、\(a\propto t^{p}\) なら \(\ln(T_P/T_0)=p\,\ln(t_0/t_P)\) ── ただそれだけ。</p>
+</div>
+
+<p>膨張が続くあいだ光子の数は保存するので、温度は \(1/a\) で落ちます。ただし粒子が対消滅するたびに光子へエネルギーが渡され、そのぶん温度の落ち方が鈍ります（エントロピー放出）。効き目は \(g_{*s}\) の変化ぶんだけです。</p>
+
+<div class="calc">
+<span class="tag">補正</span>
+$$T\propto\frac{g_{*s}^{-1/3}}{a}:\qquad \ln\left(\frac{106.75}{3.909}\right)^{1/3}=1.10$$
+<p class="lbl">よって</p>
+$$\bar p=\frac{73.03-1.10}{140.24}=0.5129$$
+</div>
+
+<p>並べます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>宇宙</th><th class="mid">\(p\)</th><th class="mid">エネルギー軸の長さ</th><th class="mid">判定</th></tr></thead>
+<tbody>
+<tr class="hi"><th>観測（\(T_0\) と \(t_0\) から）</th><td class="mid"><strong>0.513</strong></td><td class="mid"><strong>71.9 ステップ</strong></td><td class="mid">──</td></tr>
+<tr><th>放射優勢</th><td class="mid">0.500</td><td class="mid">70.1</td><td class="mid">ほぼ一致</td></tr>
+<tr><th>物質優勢</th><td class="mid">0.667</td><td class="mid">93.5</td><td class="mid">合わない</td></tr>
+<tr><th>\(c\cdot t=\)一定</th><td class="mid">1.000</td><td class="mid">140.2</td><td class="mid">1.92 倍ずれる</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>観測値 0.513 は、<strong>放射優勢のすぐ上</strong>です。物質優勢期は宇宙の年齢の大半を占めるのに、<em>対数で数えるとほとんど寄与していない</em> ── 放射から物質へ移るのがステップ 132 あたりで、残りは 8 ステップしかないからです。<strong>対数で見た宇宙史は、ほぼ全部が放射優勢</strong>でした。</p>
+
+<h2><span class="n">04</span>9つ目の特徴づけ</h2>
+
+<p>結論の式は、微分の形で書くともっと素直です。</p>
+
+<div class="calc">
+<span class="tag">二つのクロックの噛み合い方</span>
+$$\frac{d\ln T}{d\ln t}=-p$$
+<p class="lbl">つまり</p>
+$$\text{宇宙時間の 1 ステップ}\ \longleftrightarrow\ \text{繰り込み群の }p\ \text{ステップ}$$
+</div>
+
+<p>放射なら 1 対 0.5、物質なら 1 対 0.667。そして ──</p>
+
+<div class="seven">
+<div class="row hi"><div class="mk">⑨</div><div class="txt"><strong>宇宙のクロックと繰り込み群のクロックが、1:1 で噛み合う</strong><span>\(d\ln T/d\ln t=-1\)。宇宙時間が 1 ステップ進むと、繰り込み群も厳密に 1 ステップ進む ── これが成り立つのは \(a\propto t\) のときだけ</span></div></div>
+</div>
+
+<p>前回の⑧（1ビットあたりの演算回数）に続いて、9つ目です。そして⑨は、⑥「1ティックに1セル」の親戚だと分かります ── あちらは<em>地平面と光</em>が同期する、こちらは<em>宇宙と繰り込み群</em>が同期する。\(c\cdot t=\text{一定}\) が集める性質は、どれも「二つの時計が揃う」という形をしています。</p>
+
+<h2><span class="n">05</span>判決を、二つの数だけで出す</h2>
+
+<p>ここが今回いちばん強いところです。\(p=1\) を要求するということは、こう要求することです。</p>
+
+<div class="keybox">
+<p class="lbl">\(c\cdot t=\)一定 が要求していること</p>
+<p style="margin:6px 0 0;text-align:center;font-size:19px">140.24　＝　73.03</p>
+<p style="margin:10px 0 0">動力学は一行も使っていません。使ったのは <strong>今日の温度 2.7255 K と、今日の年齢 138 億年</strong>、それだけ。</p>
+</div>
+
+<p>合わない量は \(e^{67.2}=1.55\times10^{29}\)。この数が、具体的に何を意味するかを二通りで書きます。</p>
+
+<div class="calc">
+<span class="tag">帰結① プランク時刻の温度</span>
+<p class="lbl">\(T_0\) を合わせたまま \(T\propto1/t\) で遡ると</p>
+$$T(t_P)=T_0\cdot\frac{t_0}{t_P}=2.7255\times8.075\times10^{60}=2.20\times10^{61}\ \mathrm{K}=1.55\times10^{29}\,T_P$$
+<p class="lbl">逆に言えば、この宇宙がプランク温度に達するのは</p>
+$$t=8.4\times10^{-15}\ \mathrm{s}\qquad(\text{ステップ }67.2)$$
+</div>
+
+<p>最初の 67 ステップ ── 宇宙史の対数のほぼ半分 ── が、プランク温度より熱い領域に入ります。</p>
+
+<div class="calc">
+<span class="tag">帰結② 中性子が凍る時刻</span>
+<p class="lbl">温度が 0.8 MeV（\(9.28\times10^9\) K）まで下がる時刻</p>
+$$t=t_0\frac{T_0}{T}=4.354\times10^{17}\times\frac{2.7255}{9.28\times10^{9}}=1.28\times10^{8}\ \mathrm{s}=\mathbf{4.05\ \text{年}}$$
+<p class="lbl">標準宇宙論では</p>
+$$t=1.2\ \text{秒}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">\(c\cdot t=\text{一定}\) の宇宙では、中性子が凍りつく温度に達するのが <strong>4 年後</strong>。<br>
+自由中性子の寿命は <strong>880 秒</strong>。<em>その頃には、一個も残っていない。</em></p>
+</div>
+
+<p>前シリーズ番外編①は、これを反応レートの競争（\(\Gamma\propto T^5\) と \(H\)）で示しました。今回は<strong>競争を一切扱わずに、同じ結論を出しています</strong> ── 温度と年齢の関係だけで、時刻が \(6\times10^8\) 倍ずれるからです。番外編①の判決の、いちばん短い言い方がこれです。</p>
+
+<div class="aside">
+<span class="tag">「等価だ」と矛盾しないのか</span>
+しません。<strong>二つの別々の主張</strong>があるからです。<br>
+（A）<em>語り方</em>：同じ一つの時空を「空間が伸びる／光が遅くなる／原子が育つ」と三通りに書ける ── これは共形変換で厳密に等価で、観測では区別できません。<br>
+（B）<em>膨張則</em>：その \(a(t)\) が \(\propto t\) である ── これは書き換えではなく、時空そのものについての主張です。無次元量（\(Q/k_BT\) の時間変化、\(\Gamma/H\)、そして今回の \(\mathcal{N}_T/\mathcal{N}_t\)）を動かすので、<strong>観測で判定できます</strong>。<br>
+三つの絵はどれも同じ \(a\propto t\) を仮定しているので、<em>三つとも同じ判決を受けます</em>。「等価」なのは三つの絵どうしであって、\(a\propto t\) と \(\Lambda\)CDM が等価だとは一言も言っていません。
+</div>
+
+<div class="fig">
+<p class="cap">図：横軸は宇宙の対数年齢（ステップ）、縦軸は \(\ln(T_P/T)\)＝繰り込み群のステップ。線は<strong>今日の点（140.2, 73.0）を必ず通り</strong>、傾きが \(p\)。ツマミを動かすと、初期宇宙がどこへ飛んでいくかが見えます</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>膨張指数 \(p\)（\(a\propto t^{p}\)）<input id="sp" type="range" min="400" max="1000" value="513" step="1"></label>
+  <span class="val" id="vp">p = 0.513</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2f4a3a"></i>温度の履歴（傾き＝p）</span>
+  <span><i class="swatch" style="background:#a8452a"></i>0.8 MeV（中性子の凍結）</span>
+  <span><i class="swatch" style="background:#9aa8b6"></i>プランク温度より熱い領域</span>
+</div>
+</div>
+
+<p>\(p=0.513\) のとき、線は<strong>ほぼ原点を通ります</strong>── 正確には \(T_P/3.0\) のところ。この 3.0 倍のずれは、03節で入れた \(g_{*s}\) 補正 1.10 nat そのものです。<em>プランク時刻にプランク温度、という気持ちのいい絵は、観測された \(T_0\) と \(t_0\) がそう言っているから成り立っている</em>のであって、仮定ではありません。</p>
+<p>ツマミを右へ動かして \(p=1\) にすると、線は原点のはるか下へ突き抜け、初期宇宙が灰色の帯（プランク温度より熱い領域）に沈みます。同時に、朱色の線（中性子の凍結温度）と交わる点が右へ大きく移動していく ── <em>それが「冷却が遅すぎる」の正体</em>です。ステップ 97.5（0.12 秒）が、ステップ 118.3（4.07 年）へ。</p>
+
+<h2><span class="n">06</span>忘却の階段を、この軸に載せる</h2>
+
+<p>せっかく二本の軸が繋がったので、前シリーズ番外編⑦の <strong>a定理</strong> をここに置いてみます。あちらの結論はこうでした ── 繰り込み群には向きがあり、\(a_{\rm UV}>a_{\rm IR}\)。\(a\) は球をまたぐエンタングルメント・エントロピーの係数なので、<em>粗視化すると情報が減る</em>。標準模型では \(a\) がプランクの 995.5 から今日の 62.0 まで、16.06 分の1に落ちます。</p>
+
+<p>この階段を、宇宙の対数時間の目盛りに載せ替えます（標準の熱史を使います）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>抜けるもの</th><th class="mid">温度</th><th class="mid">時刻</th><th class="mid">ステップ</th><th class="mid">\(a\)</th><th class="mid">落差</th></tr></thead>
+<tbody>
+<tr><th>（プランク）</th><td class="mid">\(T_P\)</td><td class="mid">\(t_P\)</td><td class="mid">0.0</td><td class="mid">995.5</td><td class="mid">──</td></tr>
+<tr><th>トップ・ヒッグス・W・Z</th><td class="mid">173 GeV</td><td class="mid">7.8 ps</td><td class="mid">74.1</td><td class="mid">772.5</td><td class="mid">0.254 nat</td></tr>
+<tr><th>ボトム</th><td class="mid">4.2 GeV</td><td class="mid">15 ns</td><td class="mid">81.6</td><td class="mid">739.5</td><td class="mid">0.044</td></tr>
+<tr><th>タウ・チャーム</th><td class="mid">1.3 GeV</td><td class="mid">0.16 μs</td><td class="mid">84.0</td><td class="mid">695.5</td><td class="mid">0.061</td></tr>
+<tr class="hi"><th>QCD の閉じ込め</th><td class="mid">0.2 GeV</td><td class="mid">7.7 μs</td><td class="mid"><strong>87.9</strong></td><td class="mid">89.5</td><td class="mid"><strong>2.050</strong></td></tr>
+<tr><th>電子</th><td class="mid">0.511 MeV</td><td class="mid">2.8 s</td><td class="mid">100.7</td><td class="mid">78.5</td><td class="mid">0.131</td></tr>
+<tr><th>ニュートリノ</th><td class="mid">0.05 eV</td><td class="mid">440 万年</td><td class="mid">132.2</td><td class="mid">62.0</td><td class="mid">0.236</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>読み取れることが三つあります。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>最初の 74 ステップは、何も起きない</strong><span>宇宙の対数史の半分以上が、標準模型のすべての自由度が生きたままの「退屈な」区間。抜けるものがないので \(a\) は動かない</span></div></div>
+<div class="row hi"><div class="mk">②</div><div class="txt"><strong>忘却の 73.9% は、ステップ 87.9 の一段で起きた</strong><span>QCD の閉じ込め。グルーオン8個ぶん \(8\times62=496\) が一度に消える ── 前シリーズ第8回の「あなたの体重の99%」を作ったのと、同じ一段</span></div></div>
+<div class="row"><div class="mk">③</div><div class="txt"><strong>平均は 1 ステップあたり 2.0%、実働区間なら 4.8%</strong><span>全 140 ステップで割れば \(2.776/140.24=1.98\%\)。実際に落ちるステップ 74〜132 の 58.1 ステップで割れば 4.77%</span></div></div>
+</div>
+
+<p>a定理は「粗視化するともつれが減る」という定理でした。宇宙の対数時計に載せると、<strong>宇宙は 140 手のうち、74 手目まで何も忘れず、88 手目で一気に 4 分の 3 を忘れた</strong>ということになります。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">07</span>種明かし ── なぜ二本あるのか</h2>
+
+<p>そもそも、なぜクロックが二本もあるのでしょうか。答えは、二本が<strong>別の側に属している</strong>からです。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>　</th><th>時間のクロック \(\mathcal{N}_t\)</th><th>エネルギーのクロック \(\mathcal{N}_T\)</th></tr></thead>
+<tbody>
+<tr><th>数えているもの</th><td>地平面が広がったステップ数</td><td>細かさの基準が下がったステップ数</td></tr>
+<tr><th>由来</th><td>幾何（\(R_H=c/H\)）</td><td>物質（光子数の保存、\(T\propto1/a\)）</td></tr>
+<tr><th>前シリーズでの居場所</th><td>共形因子の側（帳簿）</td><td>アノマリーの側（物理）</td></tr>
+<tr><th>これで測れるもの</th><td>メモリ、演算数（第1回）</td><td>\(\beta\) 関数、\(a\)、忘却</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>前シリーズ番外編②の表 ── 重力場そのものが <em>共形因子（帳簿・時間の矢なし）</em> と <em>ワイルテンソル（物理・時間の矢あり）</em> に割れる、というあの表 ── が、ここでも効いています。時間のクロックは幾何が刻み、エネルギーのクロックは物質が刻む。<strong>二本が独立だからこそ、比を取ると意味のある数（膨張則）が出る</strong>のです。もし同じものを二度数えていたら、比は 1 に決まっていて何も測れません。</p>
+
+<p>そして \(c\cdot t=\text{一定}\) は、まさに <em>比を 1 にせよ</em> と要求するモデルでした。二本の独立な時計を無理やり噛み合わせようとする ── 美しい要求ですが、宇宙は 0.51 と答えています。</p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p style="margin:0 0 10px">\(T_P=m_Pc^2/k_B\) は<strong>規約</strong>です。プランク温度に物理的な意味を持たせているわけではなく、「エネルギー軸の原点をどこに取るか」の約束にすぎません。原点を変えれば \(\mathcal{N}_T\) の値は変わります ── ただし \(\bar p\) は<em>二点間の比</em>なので、両端を同じだけずらす限り結論は動きません。</p>
+<p style="margin:0 0 10px">「宇宙が \(t_P\) に始まった」も仮定です。インフレーションがあれば初期の対数時間は書き換わりますし、再加熱でエントロピーが放出されれば \(T\propto1/a\) も破れます。本文の \(g_{*s}\) 補正 1.10 nat は標準的な素粒子内容だけを勘定したもので、それ以外の放出は入れていません。</p>
+<p style="margin:0 0 10px">05節の「4.05 年」「1.2 秒」は、それぞれ \(T\propto1/t\) と標準の \(t=2.42g_*^{-1/2}(\mathrm{MeV}/T)^2\,\mathrm{s}\) による見積もりです。図の線は<strong>単一の冪則</strong>で描いているので、\(p=0.513\) でも 0.8 MeV への到達は 0.12 秒に出ます（標準の詳しい計算では 1.2 秒）── 対数平均の \(p\) を全時代に当てているぶんのずれです。<em>4年と1秒という 8 桁の差</em>が主張であって、係数ではありません。</p>
+<p style="margin:0 0 10px">06節の \(a\) の階段は、前シリーズ番外編⑦の但し書きをそのまま引き継ぎます ── \(a\) は本来<strong>共形不変な固定点でしか定義されません</strong>。途中のエネルギーで「いまの \(a\)」を語るのは自由場勘定による模式図で、a定理の検証にはなっていません。質量を持つベクトル（W・Z）や閉じ込めの扱いも粗いままです。ニュートリノの段（440万年）は物質優勢の近似で出しています。</p>
+<p style="margin:0">\(\bar p=0.513\) は<strong>対数平均</strong>であって、どこかの時刻の瞬間的な \(p\) ではありません。実際の宇宙は放射（0.5）→物質（0.667）→Λ（加速）と乗り換えており、対数史のほとんどを放射が占めるので平均が 0.5 に近くなっています。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>物質優勢がずっと続く宇宙では、エネルギー軸は何ステップになるか。
+<details><summary>答えを見る</summary><div class="ans">\(p=2/3\) なので \(\mathcal{N}_T=0.667\times140.24=93.5\) ステップ。実測の 71.9 より 20 以上多い ── つまり今日の CMB は \(e^{21.6}=2.4\times10^{9}\) 倍冷たすぎることになります。<strong>物質優勢だけでも合いません。</strong></div></details></li>
+
+<li>\(\bar p=0.513\) が放射の 0.5 に近いのはなぜか。物質優勢期のほうが長いのに。
+<details><summary>答えを見る</summary><div class="ans">数えているのが<strong>対数</strong>だから。放射→物質の切り替えは \(z\simeq3400\)、時刻にしてステップ 132 あたりで、そこから今日までは 8 ステップしかありません。<em>対数で見ると宇宙史の 94% が放射優勢</em>なので、平均も放射の値に寄ります。</div></details></li>
+
+<li>\(c\cdot t=\text{一定}\) で、温度が 0.1 MeV（重水素ができる温度）まで下がるのはいつか。
+<details><summary>答えを見る</summary><div class="ans">\(t=t_0T_0/T\) に \(T=1.16\times10^{9}\) K を入れて \(t=1.02\times10^{9}\) s \(=\) <strong>32 年</strong>。標準では 132 秒です。中性子が 880 秒で消えるので、重水素を作る相手がいません。</div></details></li>
+
+<li>宇宙が忘れた自由度のうち、QCD の閉じ込め一段が占める割合は。
+<details><summary>答えを見る</summary><div class="ans">\(\ln(695.5/89.5)/\ln(995.5/62.0)=2.050/2.776=\) <strong>73.9%</strong>。グルーオン8個の寄与だけで \(8\times62=496\)、標準模型全体の \(a\) の約半分です。<em>宇宙が忘れたことの4分の3は、ステップ 87.9 の一瞬で起きた</em>ことになります。</div></details></li>
+
+<li>（やや難）⑨「二つのクロックが 1:1」と⑥「1ティックに1セル」の関係を述べよ。
+<details><summary>答えを見る</summary><div class="ans">どちらも「二つの時計が揃う」という形をしていますが、揃える相手が違います。⑥は <strong>地平面と光</strong>（\(dR_H/dt=c\)、幾何どうし）、⑨は <strong>宇宙と繰り込み群</strong>（\(d\ln T/d\ln t=-1\)、幾何と物質）。どちらも \(a\propto t\) と同値ですが、⑨のほうが強い主張です ── ⑥は幾何の内部で閉じているのに対し、⑨は<em>物質側の時計（\(T\propto1/a\)）を巻き込む</em>ので、観測で判定できます。実際、今回の判決は⑨から出ました。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　比を取ると、また膨張則が出た</h2>
+<p>宇宙には対数の目盛りが二本あります。<strong>時間のクロック</strong> \(\mathcal{N}_t=\ln(t_0/t_P)=140.24\) ステップ（1ステップでメモリ \(e^2=7.39\) 倍、140 ステップで \(10^{121.8}\)）と、<strong>エネルギーのクロック</strong> \(\mathcal{N}_T=\ln(T_P/T_0)=73.03\) ステップ。前者は幾何が刻み、後者は物質が刻みます。</p>
+<p>割ると \(\bar p=0.5207\)（\(g_{*s}\) 補正で 0.5129）── <em>宇宙史の対数平均の膨張指数</em>です。放射の 0.5 のすぐ上で、対数で見た宇宙史の 94% が放射優勢だったことを意味します。微分形で書けば \(d\ln T/d\ln t=-p\) ── <strong>宇宙時間の 1 ステップは、繰り込み群の \(p\) ステップ</strong>。\(p=1\) だけが 1:1 で噛み合い、これが \(a\propto t\) の <strong>9つ目の特徴づけ</strong>になります。</p>
+<p>そして判決。\(p=1\) は \(140.24=73.03\) を要求します ── 動力学を一行も使わず、今日の温度と年齢だけで、\(1.55\times10^{29}\) 倍のずれ。具体的には、中性子が凍る温度 0.8 MeV に達するのが <strong>4.05 年後</strong>（標準は 1.2 秒）。<em>自由中性子の寿命 880 秒に対して、5 桁遅い。</em> 前シリーズ番外編①が反応レートの競争で示したことを、比だけで言い直したことになります。</p>
+<p>おまけに、a定理の階段をこの軸に載せると ── 最初の 74 ステップは何も起きず、ステップ 87.9（QCD の閉じ込め）の一段だけで忘却の <strong>73.9%</strong> が起き、最後の一段はステップ 132.2（ニュートリノ）。<em>宇宙は 140 手のうち、88 手目で一気に 4 分の 3 を忘れた。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第3回</span>
+第1回で「28.5 ビットに 1 回しか演算しない」、第2回で「140 手のうち 88 手目で 4 分の 3 を忘れた」。次は<strong>メモリの中身</strong>を見ます ── 今日の宇宙は、容量 \(10^{122}\) ビットのうち \(1.5\times10^{-18}\) しか使っていません。ほぼ空です。この「空っぽさ」は欠陥ではなく、<em>宇宙がいまも 99.9999999999999998% 共形平坦である</em>ことの言い換えでした。ペンローズのワイル曲率仮説と、前シリーズ番外編②の「重力場が帳簿と物理に割れる」表を、使用率の言葉で書き直します。そして今回ちらりと出た「時間の矢はワイル側にしかない」を、正面から扱います。
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第2回、物理好きの高校生・大学生向け読み物です。\(T\propto g_{*s}^{-1/3}/a\)（断熱膨張）、放射優勢期の \(t=2.42\,g_*^{-1/2}(\mathrm{MeV}/T)^2\) s、標準模型の \(g_{*s}\) が \(106.75\to3.909\) と変化することは、いずれも標準的な結果です。プランク温度 \(T_P=m_Pc^2/k_B=1.4168\times10^{32}\) K、\(T_0=2.7255\) K、\(t_0=4.3536\times10^{17}\) s を用いました。本稿の \(\mathcal{N}_t=140.24\)、\(\mathcal{N}_T=73.03\)、\(\bar p=\mathcal{N}_T/\mathcal{N}_t=0.5207\)（\(g_{*s}\) 補正後 0.5129）、および \(d\ln T/d\ln t=-p\) が \(p=1\) でのみ 1:1 になるという整理は、本稿での計算と読み方です。\(c\cdot t=\)一定 で 0.8 MeV に達するのが 4.05 年、0.1 MeV が 32 年、プランク温度が \(8.4\times10^{-15}\) s（ステップ 67.2）となることも本稿での計算です。自由中性子の寿命は 879.4 s。線形膨張を初期宇宙まで適用した場合に元素合成が破綻することは Lewis, Barnes &amp; Kaushik (2016, MNRAS 460, 291) の数値計算による結論で、本稿はその結論を温度‐時刻関係のみから再現したものです。<strong>a定理は Komargodski &amp; Schwimmer (2011) によりますが、\(a\) は共形固定点でのみ定義される量であり、06節の階段は自由場勘定による模式図です</strong>（実スカラー : ワイル : ベクトル ＝ \(1:11/2:62\)）。\(a\) の値、QCD 閉じ込めでの落差 73.9%、各段のステップ数は本稿での計算で、質量を持つベクトルや閉じ込めの扱いは粗いものです。\(\bar p\) は対数平均であり、瞬間の膨張指数ではありません。「宇宙が \(t_P\) に始まった」および \(T_P\) を原点に取ることは、いずれも規約または仮定です。線形膨張（\(c\cdot t=\)一定、\(R_h=ct\)）は検証途上の少数派モデルで、低赤方偏移での観測適合をめぐっては Melia らによる支持の主張もあります ── 本稿の「合わない」は初期宇宙まで外挿した場合に限定されます。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで膨張指数を変え、初期宇宙がどこへ飛ぶかが見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sp=document.getElementById('sp'), vp=document.getElementById('vp'), ro=document.getElementById('ro');
+  var X0=66, X1=700, Y0=26, Y1=316;
+  var xmin=0, xmax=150;          // 宇宙の対数年齢ステップ
+  var ymin=-72, ymax=100;        // ln(TP/T)
+  var TODAY_X=140.24, TODAY_Y=73.03;
+  var Y_08MEV=51.09;             // ln(TP / 9.284e9 K)
+  var t0=4.3536e17, YR=3.1557e7;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function fmtT(s){
+    if(s<1e-9) return (s*1e12).toPrecision(3)+' ps';
+    if(s<1e-6) return (s*1e9).toPrecision(3)+' ns';
+    if(s<1e-3) return (s*1e6).toPrecision(3)+' μs';
+    if(s<100)  return s.toPrecision(3)+' 秒';
+    if(s<3*YR) return (s/86400).toPrecision(3)+' 日';
+    return (s/YR).toPrecision(3)+' 年';
+  }
+
+  function draw(){
+    var p=parseInt(sp.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // プランク温度より熱い帯（y<0）
+    g.fillStyle='#eef1f4';
+    g.fillRect(X0, py(0), X1-X0, py(ymin)-py(0));
+    g.fillStyle='#8b97a5'; g.textAlign='left';
+    g.fillText('プランク温度より熱い領域', X0+10, py(0)+18);
+
+    // 目盛り
+    g.textAlign='right';
+    [0,25,50,75,100].forEach(function(v){
+      var y=py(v);
+      g.strokeStyle=(v===0?'#c3ccd6':'#eef2f6'); g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#8a93a3'; g.fillText(String(v), X0-8, y+4);
+    });
+    g.textAlign='center';
+    [0,25,50,75,100,125,150].forEach(function(v){
+      var x=px(v);
+      g.strokeStyle='#f2f5f8'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#8a93a3'; g.fillText(String(v), x, Y1+16);
+    });
+    g.strokeStyle='#c8d6c9'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // 0.8 MeV の線
+    g.strokeStyle='#a8452a'; g.lineWidth=1.8; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(Y_08MEV)); g.lineTo(X1,py(Y_08MEV)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#a8452a'; g.textAlign='left';
+    g.fillText('0.8 MeV ── 中性子の凍結', X0+10, py(Y_08MEV)-7);
+
+    // 温度の履歴：今日の点を通り、傾き p
+    function yline(x){ return TODAY_Y + p*(x-TODAY_X); }
+    g.strokeStyle='#2f4a3a'; g.lineWidth=3;
+    g.beginPath();
+    var first=true;
+    for(var x=xmin;x<=xmax;x+=0.5){
+      var y=yline(x);
+      if(y<ymin-5||y>ymax+5){ first=true; continue; }
+      if(first){ g.moveTo(px(x),py(y)); first=false; } else g.lineTo(px(x),py(y));
+    }
+    g.stroke();
+
+    // 交点（0.8 MeV）
+    var xc=TODAY_X+(Y_08MEV-TODAY_Y)/p;
+    if(xc>=xmin&&xc<=xmax){
+      g.fillStyle='#a8452a';
+      g.beginPath(); g.arc(px(xc),py(Y_08MEV),5.5,0,6.2832); g.fill();
+      g.strokeStyle='#a8452a'; g.lineWidth=1.2; g.setLineDash([3,3]);
+      g.beginPath(); g.moveTo(px(xc),py(Y_08MEV)); g.lineTo(px(xc),Y1); g.stroke();
+      g.setLineDash([]);
+    }
+
+    // 今日の点
+    g.fillStyle='#2f4a3a';
+    g.beginPath(); g.arc(px(TODAY_X),py(TODAY_Y),6.5,0,6.2832); g.fill();
+    g.strokeStyle='#fff'; g.lineWidth=2; g.beginPath();
+    g.arc(px(TODAY_X),py(TODAY_Y),6.5,0,6.2832); g.stroke();
+    g.fillStyle='#2f4a3a'; g.textAlign='right';
+    g.fillText('いま（140.2, 73.0）＝ 2.7255 K', px(TODAY_X)-12, py(TODAY_Y)-10);
+
+    // 原点マーカー
+    g.strokeStyle='#6d7b88'; g.lineWidth=1.4;
+    g.beginPath(); g.arc(px(0),py(0),4.5,0,6.2832); g.stroke();
+    g.fillStyle='#6d7b88'; g.textAlign='left';
+    g.fillText('プランク時刻・プランク温度', px(0)+9, py(0)-9);
+
+    // 軸ラベル
+    g.fillStyle='#5f7062'; g.textAlign='center';
+    g.fillText('宇宙の対数年齢  ln(t / t_P)  ［ステップ］', (X0+X1)/2, Y1+36);
+    g.save(); g.translate(18,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('繰り込み群のステップ  ln(T_P / T)', 0,0); g.restore();
+
+    // 読み出し
+    var t_cross=t0*Math.exp(xc-TODAY_X);
+    var yP=yline(0);
+    vp.textContent='p = '+p.toFixed(3);
+    var tag = Math.abs(p-0.513)<0.0015 ? '（観測＝対数平均）' :
+              (Math.abs(p-0.5)<0.0015 ? '（放射）' :
+              (Math.abs(p-2/3)<0.0015 ? '（物質）' :
+              (Math.abs(p-1)<0.0015 ? '（c·t=一定）' : '')));
+    var pt;
+    if(yP<-0.5)      pt='プランク時刻の温度は T_P の 10^'+((-yP)/Math.LN10).toFixed(1)+' 倍';
+    else if(yP>0.5)  pt='プランク時刻の温度は T_P の 1/10^'+(yP/Math.LN10).toFixed(1);
+    else             pt='プランク時刻にちょうどプランク温度';
+    ro.textContent='p = '+p.toFixed(3)+tag+
+      '　エネルギー軸の長さ '+(p*TODAY_X).toFixed(1)+' ステップ（実測 73.0）'+
+      '　／　0.8 MeV への到達 ステップ '+xc.toFixed(1)+'（t = '+fmtT(t_cross)+'）'+
+      '　／　'+pt;
+  }
+  sp.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

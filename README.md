@@ -17,6 +17,7 @@
 |---|---|---|
 | **わかる共形変換**〔※「わかる宇宙論」続編〕| 物差しを場所ごとに取り替える操作で、宇宙を書き換え続ける。ワイル1918とアインシュタインの反論（gauge は物差しだった）・膨張は原子が縮んでいるだけかも・**「光が遅くなる」の正体**（c·t=一定 を Weyl 変換すると、同じ計量を宇宙時間で読んだものだと分かる）・重力はスカラー1個になる（ディラトン）・状態方程式はポテンシャルだった（V∝φ^(1−3w)、c·t=一定 はちょうど質量項）・特異点は座標のせいか（答えは半分だけ）・光は共形不変で質量はそうでない（ペンローズCCC）・共形対称性は量子で壊れる（トレースアノマリー＝結合の running。あなたの体重の99%）・共形因子はゴーストだった・どのフレームが本物か。前シリーズの合言葉「次元付きは帳簿、無次元だけが物理」が**判定手続き**になる（全10話・完結＋番外1「額面で走らせると、どうなるか＝元素合成の判決」）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-kyokei/index.html) |
 | **量子重力自由研究**〔※「わかる共形変換」続編・進行中〕| 解説ではなく**自由研究**。仮説を選んで自分で計算し、間違いも罠もそのまま載せる。第1回：重力の経路積分は作用が下に非有界だから定義できない ── と40年言われてきたが、いちばん簡単な宇宙を離散にして**数え直す**と、三角形1個あたりのエントロピーはちょうど **ln 2**、存在条件は無次元比 **λ/ln2 &gt; 1** ひとつ。そして**素の作用に運動項が一行も無いのに、数え上げから正符号の運動項が生える**（図では数え上げの重みを負に倒して、経路積分を自分の手で壊せる）。第2回：厳密に解けて ⟨l(t)⟩ = t+1「1ティックに1セル」── だが疑ったら**傾きの1は測り方の値**だった。第3回：**「因果的」が if 一行に落ちる**（空間的な辺をフリップしてはいけない、それだけ）。その一行を切り替えると d_H が 2→4、物質の臨界指数も変わる。ところが**スペクトル次元だけは動かない** ── 量子重力で最も横断的に引用される量が、いちばん弁別力が低い量だった。第4回：仮説を横に並べ、判定に使える唯一の数字（BHエントロピーの対数補正、+77/45 vs −2 で符号が逆）。第5回：**c=1 の壁**を自分で叩く ── 体積が変わる CDT を書いて4つの罠を踏み、DT は壁で折れて CDT は c=8 まで動かないことを確認（進行中）| [開く](https://yomei-o.github.io/wakaru_all/ryoushi-juryoku/index.html) |
+| **わかる c·t=一定**〔※「わかる共形変換」続編・進行中〕| c·t=一定 は、それ自体では何も言わない ── どんな宇宙でも実現できてしまう。だからこそ**あらゆる式に代入できる**。宇宙論をいちばん短く書くための記法として扱い、その「短さ」を情報理論の言葉で測るシリーズ。第1回：メモリと演算を割ると時間が消えて状態方程式だけが残る（Ω/N = ln2/3π²(1+w)、c·t=一定 なら 28.5ビットに1回）。第2回：宇宙の対数時計は140ステップ、繰り込み群は73ステップ、**割ると膨張則が出る**（p=0.513）。第3回：読者の質問から ── c·t=一定 は時間座標を T=exp(η/η₀) に取れば**どんな宇宙でも厳密に成り立つ**（数値で 1.000000 まで確認）。残る主張はただ一つ「その時計が宇宙の年齢である」。第4回：共形変換で消せるものを全部消すと**質量ひとつしか残らない** ── 宇宙の歴史が「育つ直線が固定された k_BT₀ を追い越す話」に潰れ、距離も年齢も積分なしの閉じた式になる（無次元パラメータ0個）（第4回まで公開・全9話予定）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ct/index.html) |
 | **わかる場** | なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
 | **わかる相対論** | すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力=曲率・可変c≡曲率（全7話・完結）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
 | **わかる量子** | ℏ の物語。S/ℏ で古典と量子を分ける。粒と波・波動関数・経路和・シュレディンガー・不確定性・測定（全6話・完結＋番外）| [開く](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) |
@@ -35,7 +36,7 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`ryoushi-juryoku/`・`wakaru-kyokei/`（英語版 `wakaru-kyokei-en/`）・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`ryoushi-juryoku/`・`wakaru-ct/`・`wakaru-kyokei/`（英語版 `wakaru-kyokei-en/`）・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🔧 「つくる格子」だけは、立場が逆
 

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙は、1ビットに0.035回しか計算していない ── わかる c·t=一定 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f7fa; --paper-edge:#d7dee8;   /* 第1回：藍の紙（計算機） */
+    --side:#17304f; --side-bg:#e9eef6;
+    --warn:#8a4b2f;
+    --calc:#132c48; --calc-bg:#e4ebf4;
+    --rule:#c9d4e2; --hair:#a8b8cc;
+    --acc:#1c3f63;    /* 第1回アクセント＝藍 */
+    --grid:#dde5ee;
+    --mem:#1c3f63;    /* メモリ＝藍 */
+    --ops:#a85a12;    /* 演算＝銅 */
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfdcea 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#16283f;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bfcddd;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfe;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e4ebf4;color:#132c48;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfeff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#e4ebf4;color:#132c48;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#eef3f9;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e0e9f4;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e0e9f4;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff4f9;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#1b2c44;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfeff,#e9eef6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e4ebf4;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#1b2c44;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f6a7a;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 1 回 ／ スペック表を作るところから始める</span></p>
+<p class="eyebrow">メモリと演算を割り算すると、状態方程式が出てきます</p>
+
+<h1>宇宙は、1ビットに<br>0.035回しか計算していない
+<span class="sub">「宇宙は有限リソースの計算機だ」── この見方を、比喩ではなく<br>スペック表として最後まで書き切ります。最初の一枚で、もう妙なことが起きます。</span></h1>
+
+<p class="byline"><span>必要な道具：割り算、プランク単位、対数</span><span>\(\Omega/N=\dfrac{\ln 2}{3\pi^2(1+w)}\)</span></p>
+
+<p class="lead">前シリーズ「わかる共形変換」は、\(c\cdot t=\text{一定}\) を <em>語り方としては完璧、モデルとしては失格</em> と判定して閉じました。この新シリーズは、そこで扱いきれなかった一点だけを掘ります ── <strong>そもそも \(c\cdot t=\text{一定}\) は、物理を情報理論で見た世界だった</strong>という一点です。まずは計算機としてのスペックを取ります。メモリ、クロック、演算数。三つ揃えて割り算すると、宇宙論のいちばん基本的な量が、まったく別の顔で出てきます。</p>
+
+<h2><span class="n">01</span>メモリ ── 地平面に何ビット書けるか</h2>
+
+<p>計算機の第一のスペックはメモリです。宇宙の場合、これはホログラフィック原理が答えを持っています ── 情報は体積ではなく<strong>面積</strong>に書かれる。地平面の面積 \(A\) を、プランク面積で割って \(4\ln 2\) で割ると、ビット数になります。</p>
+
+<div class="calc">
+<span class="tag">計算 ── メモリ</span>
+<p class="lbl">地平面のビット数</p>
+$$N=\frac{A}{4\ell_P^2\ln 2}=\frac{\pi}{\ln 2}\left(\frac{R_H}{\ell_P}\right)^2$$
+<p class="lbl">数を入れる（\(R_H=c\,t_0=1.305\times10^{26}\) m、\(\ell_P=1.616\times10^{-35}\) m）</p>
+$$\frac{R_H}{\ell_P}=8.075\times10^{60}\qquad\Longrightarrow\qquad N=2.956\times10^{122}\ \text{bit}$$
+</div>
+
+<p>これが宇宙の全メモリです。地球上の全ストレージが \(10^{22}\) ビット程度なので、その \(10^{100}\) 倍。</p>
+
+<h2><span class="n">02</span>クロック ── 何回ティックしたか</h2>
+
+<p>第二のスペックはクロック。プランク時間を1ティックと数えます。</p>
+
+<div class="calc">
+<span class="tag">計算 ── クロック</span>
+$$\frac{t_0}{t_P}=\frac{4.354\times10^{17}\,\mathrm{s}}{5.391\times10^{-44}\,\mathrm{s}}=8.075\times10^{60}\ \text{tick}$$
+<p class="lbl">対数で数えると</p>
+$$\ln\frac{t_0}{t_P}=140.2$$
+</div>
+
+<p>メモリの \(R_H/\ell_P\) とクロックの \(t_0/t_P\) が、同じ \(8.075\times10^{60}\) になっているのに気づいたと思います。これが前シリーズ番外編③の <strong>「1ティックに1セル」</strong> ── \(dR_H/dt=c\)、つまり \(c\cdot t=\text{一定}\) そのものです。今回はここには触れず、先へ進みます。</p>
+
+<div class="aside">
+<span class="tag">対数のほうが、本当のクロックかもしれない</span>
+生の 8×10⁶⁰ という数より、\(\ln(t_0/t_P)=140\) のほうが計算機としては意味があります。宇宙の履歴は「10⁶⁰回の同じ処理」ではなく「<strong>140回の倍々</strong>」だからです。実際、1対数ティックごとにメモリは \(e^2=7.39\) 倍に増えます（\(N\propto t^2\) なので）。140 回ぶん掛けると \(e^{280}\approx10^{122}\) ── ちゃんとメモリの値が再現します。<strong>宇宙は、140 ステップしか走っていない機械</strong>です。
+</div>
+
+<h2><span class="n">03</span>演算数 ── 何回、状態を変えたか</h2>
+
+<p>第三のスペックが演算数です。「1回の演算」に物理的な下限を与えるのが <strong>マルゴラス＝レヴィティン限界</strong> で、エネルギー \(E\) の系が直交する状態へ移るのに最低 \(\pi\hbar/2E\) の時間がかかる、と言います。つまり演算のレートは \(2E/\pi\hbar\) が上限。</p>
+
+<p>地平面の中の全エネルギーは、平坦 FLRW ならいつでも \(E=Mc^2=c^4R_H/2G\) です（番外編③06節の恒等式 ── ディラックの大数仮説の正体だったもの）。膨張則を \(a\propto t^{p}\) とすると \(R_H=ct/p\) なので、レートは時間に比例して増えます。</p>
+
+<div class="calc">
+<span class="tag">計算 ── 演算数（三行）</span>
+<p class="lbl">① レート</p>
+$$\frac{d\Omega}{dt}=\frac{2E}{\pi\hbar}=\frac{c^4R_H}{\pi\hbar G}=\frac{c^5\,t}{\pi\hbar G\,p}$$
+<p class="lbl">② 積分する</p>
+$$\Omega=\frac{c^5t^2}{2\pi\hbar G\,p}$$
+<p class="lbl">③ \(\ell_P^2=\hbar G/c^3\) を使うと、単位が全部消える</p>
+$$\Omega=\frac{1}{2\pi p}\left(\frac{ct}{\ell_P}\right)^2$$
+</div>
+
+<p>\(p=1\)（\(c\cdot t=\text{一定}\)）で数を入れると \(\Omega=1.038\times10^{121}\) 回。ロイド（2002）の有名な見積もり「宇宙は \(10^{120}\) 回の演算をした」と、同じ桁です。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>核心 ── メモリを演算で割る</h2>
+
+<p>スペックが三つ揃いました。計算機を評価するとき、いちばん見たい数はこれです ── <strong>1ビットあたり、何回演算したか</strong>。メモリばかり大きくて演算しない機械なのか、その逆なのか。</p>
+
+<p>やってみると、驚くことが起きます。</p>
+
+<div class="calc">
+<span class="tag">計算 ── 割るだけ</span>
+$$\frac{\Omega}{N}=\frac{1}{2\pi p}\left(\frac{ct}{\ell_P}\right)^{2}\ \Bigg/\ \frac{\pi}{\ln 2}\left(\frac{ct}{p\,\ell_P}\right)^{2}
+=\frac{p\,\ln 2}{2\pi^{2}}$$
+</div>
+
+<p><strong>\(t\) が、きれいに消えました。</strong> メモリも演算数もどちらも \(t^2\) で増えるので、比は宇宙の年齢に依りません。宇宙が生まれて1秒でも、いまでも、\(10^{100}\) 年後でも、1ビットあたりの演算回数は<em>まったく同じ</em>。</p>
+
+<p>そして残った \(p\) は、膨張則そのものです。状態方程式 \(w\) との関係 \(p=2/3(1+w)\) を入れると ──</p>
+
+<div class="keybox">
+<p class="lbl">この回の結論</p>
+$$\boxed{\ \frac{\Omega}{N}=\frac{\ln 2}{3\pi^{2}\,(1+w)}\ }$$
+<p style="margin:10px 0 0">1ビットあたりの演算回数は、<strong>状態方程式だけで決まる純粋な数</strong>。宇宙の年齢にも、大きさにも、中身の詳細にも依らない。</p>
+</div>
+
+<p>宇宙論でいちばん基本的な量（状態方程式）と、計算機科学でいちばん基本的な比（演算数 ÷ メモリ）が、同じ一つの数だった、ということです。</p>
+
+<div class="aside">
+<span class="tag">判定手続きにかける</span>
+前シリーズ最終回の作法どおり、この量を二列に分けます。\(\Omega\) も \(N\) も<strong>ただの個数</strong>で、次元がありません。だから共形変換（＝物差しの取り替え）では動かない ── <strong>右の列、物理です</strong>。しかも動かないどころか、\(w\) を直接読んでいる。<em>「宇宙の膨張則を測る」ことと「宇宙の演算効率を測る」ことが、同じ作業だった</em>ということになります。
+</div>
+
+<h2><span class="n">05</span>四人を並べる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>宇宙</th><th class="mid">\(w\)</th><th class="mid">\(p\)</th><th class="mid">\(\Omega/N\)</th><th class="mid">1回あたり</th></tr></thead>
+<tbody>
+<tr><th>stiff（キネーション）</th><td class="mid">\(+1\)</td><td class="mid">1/3</td><td class="mid">0.01171</td><td class="mid">85.4 ビットに1回</td></tr>
+<tr><th>放射</th><td class="mid">\(+1/3\)</td><td class="mid">1/2</td><td class="mid">0.01756</td><td class="mid">57.0 ビットに1回</td></tr>
+<tr><th>物質</th><td class="mid">\(0\)</td><td class="mid">2/3</td><td class="mid">0.02341</td><td class="mid">42.7 ビットに1回</td></tr>
+<tr class="hi"><th>\(c\cdot t=\)一定</th><td class="mid">\(-1/3\)</td><td class="mid">1</td><td class="mid"><strong>0.03512</strong></td><td class="mid"><strong>28.5 ビットに1回</strong></td></tr>
+<tr><th>ド・ジッター</th><td class="mid">\(-1\)</td><td class="mid">∞</td><td class="mid">発散</td><td class="mid">時間とともに増える</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>どれも 1 に遠く届きません。<strong>宇宙は 138 億年かけて、一度も「1ビットあたり1回」を計算したことがない。</strong> しかもそれは「まだ若いから」ではありません。比は時間に依らないので、<em>いつの時代もそうだった</em>のです。</p>
+
+<h2><span class="n">06</span>8つ目の特徴づけ</h2>
+
+<p>ここで \(c\cdot t=\text{一定}\) の行を、もう少し正確に言い直します。\(p=ct/R_H\) ですから、結論の式はこう書けます。</p>
+
+<div class="calc">
+<span class="tag">同じ式を、比で書く</span>
+$$\frac{\Omega}{N}=\frac{\ln 2}{2\pi^{2}}\cdot\frac{ct}{R_H}$$
+<p class="lbl">よって</p>
+$$R_h=ct\qquad\Longleftrightarrow\qquad \frac{\Omega}{N}=\frac{\ln 2}{2\pi^{2}}=0.0351152\cdots$$
+</div>
+
+<p>前シリーズ番外編③は、\(a\propto t\) の特徴づけを七つ並べて「これだけの性質が一点に集まるのは、それ自体が驚くべきこと」と書きました。八つ目を足せます。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>ポテンシャルが純粋な二次形式</strong><span>\(U=-\phi^2/2t_0^2\)（共形変換 第5回）</span></div></div>
+<div class="row"><div class="mk">②</div><div class="txt"><strong>共形時間が \((-\infty,\infty)\) 全体</strong><span>ミンコフスキーをまるごと覆う（第6回）</span></div></div>
+<div class="row"><div class="mk">③</div><div class="txt"><strong>加速がゼロ</strong><span>\(\ddot a=0\)。地平線問題の分水嶺（第5回）</span></div></div>
+<div class="row"><div class="mk">④</div><div class="txt"><strong>共動ハッブル半径が一定</strong><span>アドレス空間が動かない（番外編②）</span></div></div>
+<div class="row"><div class="mk">⑤</div><div class="txt"><strong>粒子的地平線と事象の地平線が両方無限</strong><span>全メモリに読み書き両方のアクセス</span></div></div>
+<div class="row"><div class="mk">⑥</div><div class="txt"><strong>\(dR_H/dt=c\)、セル数＝ティック数</strong><span>1ティックに1セル（番外編③）</span></div></div>
+<div class="row"><div class="mk">⑦</div><div class="txt"><strong>強いエネルギー条件の飽和</strong><span>\(\rho+3p=0\)。特異点定理の境界（番外編③）</span></div></div>
+<div class="row hi"><div class="mk">⑧</div><div class="txt"><strong>1ビットあたりの演算回数が \(\ln 2/2\pi^2\)</strong><span>演算とメモリの比が、光が走った距離と地平半径の比に一致する（今回）</span></div></div>
+</div>
+
+<p>⑥と⑧は、同じ事実の別の顔です。⑥が「長さと時間」で言っているものを、⑧は「演算とビット」で言っている ── <em>次元付きの言い方と、無次元の言い方</em>。前シリーズの判定手続きで言えば、⑧のほうが右の列にいます。</p>
+
+<h2><span class="n">07</span>では、「1」に届く宇宙はあるのか</h2>
+
+<p>結論の式を逆に解いてみましょう。\(\Omega/N=1\) を要求すると ──</p>
+
+<div class="calc">
+<span class="tag">逆に解く</span>
+$$1+w=\frac{\ln 2}{3\pi^{2}}=0.02341\qquad\Longrightarrow\qquad \boxed{\,w=-0.97659\,}$$
+</div>
+
+<p>ほとんど \(-1\)。つまり <strong>宇宙定数のすぐ手前</strong>です。そして観測されている暗黒エネルギーの状態方程式は \(w=-1.03\pm0.03\) ── <em>すでにその向こう側にいます</em>。</p>
+
+<p>いま宇宙は暗黒エネルギー優勢期に入ったところです。ド・ジッター的な膨張では \(N\) が一定に飽和する一方で演算レートは落ちないので、比は時間とともに増え続けます。</p>
+
+<div class="calc">
+<span class="tag">ド・ジッターでの比</span>
+$$\frac{\Omega}{N}=\frac{\ln 2}{\pi^{2}}\,Ht\qquad\Longrightarrow\qquad
+\frac{\Omega}{N}=1\ \text{になるのは}\ Ht=\frac{\pi^{2}}{\ln 2}=14.24$$
+<p class="lbl">\(H_\Lambda=H_0\sqrt{\Omega_\Lambda}=1.81\times10^{-18}\,\mathrm{s^{-1}}\) を入れると</p>
+$$t\approx2.5\times10^{11}\ \text{年}\qquad(\text{約 2500 億年後})$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">宇宙は 138 億年、<strong>一度も「1ビットあたり1回」を計算していない</strong>。<br>
+そしていま、初めてその境界を越える側の膨張則に入った。</p>
+</div>
+
+<div class="fig">
+<p class="cap">図：横軸は宇宙の対数年齢（\(\ln(t/t_P)\)、今日が 140.2）。冪則の宇宙では 1ビットあたりの演算回数は<strong>完全に水平</strong>で、\(w\) のツマミを動かすと線の高さだけが変わる。銅の破線が「1 演算／ビット」── 冪則の宇宙がここに届くのは \(w<-0.977\)、つまり宇宙定数のすぐ手前に入ってからだけ</p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>状態方程式 \(w\)（左端＝宇宙定数の手前／右端＝放射より硬い）<input id="sw" type="range" min="-990" max="1000" value="-333" step="1"></label>
+  <span class="val" id="vw">w = −0.33</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#1c3f63"></i>1ビットあたりの演算回数（冪則）</span>
+  <span><i class="swatch" style="background:#a85a12"></i>1 演算／ビット</span>
+  <span><i class="swatch" style="background:#7a8ba0"></i>Λ優勢の未来</span>
+</div>
+</div>
+
+<p>ツマミを<strong>左端</strong>（\(w\to-1\)）に寄せていくと、水平線がゆっくり持ち上がります。それでも銅の破線に触れるのは \(w=-0.977\) を越えてから ── <strong>宇宙定数のすぐ手前でしか、計算機は「割に合わない」状態を脱しない</strong>。右へ振るほど（物質・放射・stiff）線は下がる一方です。灰色の破線が、今日から先の Λ 優勢の未来。ここだけが水平ではありません。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">08</span>種明かし ── なぜ両方 \(t^2\) だったのか</h2>
+
+<p>比が時間に依らなかったのは、\(N\) も \(\Omega\) も \(t^2\) だったからです。これは偶然ではありません。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th>なぜ \(t^2\) か</th></tr></thead>
+<tbody>
+<tr><th>メモリ \(N\)</th><td>面積だから。\(N\propto R_H^2\)、\(R_H\propto t\)。<strong>ホログラフィック原理</strong>そのもの</td></tr>
+<tr><th>演算 \(\Omega\)</th><td>レートが \(E\propto R_H\propto t\) に比例し、それを積分するから。<strong>\(E=c^2R_H/2G\times c^2\) という恒等式</strong>が効いている</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>後者の恒等式は、前シリーズ番外編③06節で「ディラックの大数仮説はただの恒等式だった」と片付けたあの式です。<strong>ハッブル半径は、いつでも中身のシュヴァルツシルト半径にぴったり等しい。</strong> だから宇宙のエネルギーは半径に比例し、演算レートも半径に比例する。</p>
+
+<p>まとめると、こういう連鎖です。</p>
+
+<div class="calc">
+<span class="tag">連鎖</span>
+$$\underbrace{N\propto R_H^{2}}_{\text{ホログラフィー}}\qquad
+\underbrace{\frac{d\Omega}{dt}\propto E\propto R_H}_{\text{大数の恒等式}}\qquad\Longrightarrow\qquad
+\frac{\Omega}{N}\propto\frac{\int R_H\,dt}{R_H^{2}}=\text{（膨張則だけの関数）}$$
+</div>
+
+<p><em>「演算数がメモリに比例する」のは、ホログラフィー と 大数の恒等式 の積</em>でした。どちらも \(c\cdot t=\text{一定}\) に固有の性質ではなく、平坦 FLRW ならいつでも成り立つ ── だから比は、膨張則の情報しか残さない。</p>
+
+<h2><span class="n">09</span>おまけ ── メモリ増設のほうが速い</h2>
+
+<p>同じ数を、レートで読み直しておきます。</p>
+
+<div class="calc">
+<span class="tag">今日の値（\(p=1\)）</span>
+$$\frac{dN}{dt}=\frac{2N}{t_0}=1.36\times10^{105}\ \mathrm{bit/s},\qquad
+\frac{d\Omega}{dt}=\frac{2\Omega}{t_0}=4.77\times10^{103}\ \mathrm{ops/s}$$
+$$\frac{dN/dt}{d\Omega/dt}=\frac{2\pi^{2}}{p\ln 2}=28.5$$
+</div>
+
+<p><strong>宇宙は、1回演算するあいだに 28.5 ビットのメモリを増設している。</strong> 計算機としては異常な設計です ── メモリを積み続けるだけで、そこに書かれたものを処理する速度がまるで追いつかない。前シリーズ番外編②が「メモリ \(10^{122}\)、クロック 140 回」を<em>極端にメモリ過多・クロック過少</em>と呼んだのは、この比のことでした。今回はその「過多」に、\(2\pi^2/\ln2\) という値が付いたことになります。</p>
+
+<div class="aside">
+<span class="tag">しかも、ほとんど空</span>
+番外編②の計算では、今日の宇宙が実際に使っているエントロピーは容量の \(1.5\times10^{-18}\) しかありません。つまり ── <strong>28.5 ビットに 1 回しか演算しない機械が、そのメモリの \(10^{-18}\) しか使っていない</strong>。書き込みも計算も、限界からはるかに遠い。宇宙は資源が有限な計算機ではありますが、<em>その有限な資源すら、まったく使い切っていない</em>のです。この「空っぽさ」が何を意味するかは、第3回で扱います。
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p style="margin:0 0 10px">「演算」の定義は、マルゴラス＝レヴィティン限界による <strong>直交状態への遷移回数の上限</strong> です。意味のある計算をしている、という主張ではありません。宇宙が実際にその上限で走っているという証拠もない ── これは<em>スペック表であって、ベンチマークではない</em>。</p>
+<p style="margin:0 0 10px">係数は規約に敏感です。レートを \(2E/\pi\hbar\) と取り、\(E\) を地平面内の全エネルギー \(Mc^2=c^4R_H/2G\) と取ると \(\Omega=1.04\times10^{121}\) になります。ロイド（2002）の \(\sim10^{120}\) との差は、この取り方の違いです。ビット数を \(\ln2\) で割るか（bit）割らないか（nat）でも \(\Omega/N\) は 1.44 倍動きます。<strong>したがって「0.035」という数字そのものより、「時間に依らず、\(w\) だけで決まる」という構造のほうが本体です。</strong></p>
+<p style="margin:0 0 10px">\(w\) は宇宙全体の実効的な状態方程式であって、単一成分の話ではありません。実際の宇宙は放射→物質→Λ と乗り換えていくので、\(\Omega/N\) も区間ごとに違う値を取り、正確には \(\int R_H dt/R_H^2\) を数値で追う必要があります。表の値は「その \(w\) がずっと続いたら」という理想化です。</p>
+<p style="margin:0">07節の「約 2500 億年後」は、今日以降を純粋なド・ジッターと近似した見積もりです。また \(w=-1.03\pm0.03\) は \(w\) を定数と仮定したフィットの値で、\(w<-1\) 側（ファントム）は将来の測定で動きうる領域です。「すでに向こう側」は<em>中心値についての言い方</em>であって、確定した事実ではありません。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>放射優勢期（\(w=1/3\)）の宇宙では、1ビットあたり何回演算するか。
+<details><summary>答えを見る</summary><div class="ans">\(\Omega/N=\ln2/(3\pi^2\cdot4/3)=\ln2/(4\pi^2)=0.01756\)。<strong>57 ビットに 1 回</strong>。\(c\cdot t=\text{一定}\) のちょうど半分で、放射のほうがさらに「計算しない」宇宙です。</div></details></li>
+
+<li>なぜ \(\Omega/N\) は宇宙の年齢に依らないのか。一行で。
+<details><summary>答えを見る</summary><div class="ans">\(N\propto R_H^2\propto t^2\)（ホログラフィー）で、\(\Omega\propto\int E\,dt\propto\int R_H\,dt\propto t^2\)（\(E=c^4R_H/2G\) の恒等式）だから。<strong>両方が同じ \(t^2\)</strong> なので、比には膨張則の情報しか残りません。</div></details></li>
+
+<li>\(\Omega/N\) は帳簿か、物理か。
+<details><summary>答えを見る</summary><div class="ans"><strong>物理</strong>。\(\Omega\) も \(N\) もただの個数で無次元なので、共形変換で動きません。しかも \(w\) を一意に決めるので、動くなら本当に別の宇宙です ── 前シリーズ最終回の判定手続きで、右の列に落ちます。</div></details></li>
+
+<li>\(\Omega/N=1\) を満たす \(w\) を求め、それが何を意味するか述べよ。
+<details><summary>答えを見る</summary><div class="ans">\(1+w=\ln2/3\pi^2=0.0234\) より \(w=-0.9766\)。<strong>宇宙定数のすぐ手前</strong>です。冪則で膨張する宇宙が「1ビットあたり1回」に達するには、ほとんど加速膨張しきっている必要がある ── 逆に言えば、物質や放射が支配する宇宙は原理的に計算機として割に合いません。</div></details></li>
+
+<li>（やや難）⑥「1ティックに1セル」と⑧「\(\Omega/N=\ln2/2\pi^2\)」が同じ事実であることを示せ。
+<details><summary>答えを見る</summary><div class="ans">\(\Omega/N=(\ln2/2\pi^2)(ct/R_H)\) と書ける。⑥は \(dR_H/dt=c\)、これを積分すると \(R_H=ct\) すなわち \(ct/R_H=1\)。代入すれば \(\Omega/N=\ln2/2\pi^2\)。逆も同じ。<strong>「地平面が光と同じ速さで進む」と「演算とメモリの比が \(\ln2/2\pi^2\)」は、\(ct/R_H=1\) という一つの式の二つの読み方</strong>です。前者は次元付きの言い方、後者は無次元の言い方。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　割り算したら、状態方程式が出た</h2>
+<p>宇宙を計算機としてスペック表にすると、メモリ \(N=\pi(R_H/\ell_P)^2/\ln2=2.96\times10^{122}\) ビット、クロック \(8.08\times10^{60}\) ティック（対数では 140 回）、演算 \(\Omega=(ct/\ell_P)^2/2\pi p=1.04\times10^{121}\) 回。ここまでは既知の見積もりの再確認です。<strong>面白いのは、メモリと演算を割ったとき</strong>でした。</p>
+<p>両方が \(t^2\) で増えるので時間が消え、残るのは膨張則だけ ── \(\Omega/N=\ln2/3\pi^2(1+w)\)。1ビットあたりの演算回数は、状態方程式そのものです。放射で 1/57、物質で 1/42.7、\(c\cdot t=\text{一定}\) で <strong>1/28.5</strong>。<em>宇宙は 138 億年かけて、一度も「1ビットあたり1回」に達していない</em>し、比は時間に依らないので、いつの時代もそうでした。</p>
+<p>そして \(\Omega/N=(\ln2/2\pi^2)(ct/R_H)\) と書けるので、\(R_h=ct\) はこの比が \(\ln2/2\pi^2\) にちょうど等しいこと ── 番外編③の七つの特徴づけに、<strong>八つ目</strong>が足せます。⑥「1ティックに1セル」の、無次元版です。「1」に届くには \(w=-0.977\) が必要で、観測されている暗黒エネルギーはその向こう側。純ド・ジッター近似なら、宇宙が初めて 1 演算／ビットを超えるのは約 2500 億年後です。</p>
+<p>種明かしは二つの恒等式でした ── メモリが \(t^2\) なのは<strong>ホログラフィー</strong>、演算が \(t^2\) なのは<strong>ハッブル半径＝シュヴァルツシルト半径</strong>（ディラックの大数）。どちらも平坦 FLRW なら常に成り立つので、割り算の結果には膨張則しか残らなかった。おまけに、メモリの増設は演算より \(2\pi^2/\ln2=28.5\) 倍速く、しかもそのメモリは \(10^{-18}\) しか使われていません。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第2回</span>
+今回、宇宙は「28.5 ビットに 1 回しか演算しない機械」だと分かりました。次はクロックのほうを掘ります ── <strong>なぜ 140 なのか</strong>。\(\ln(t_0/t_P)=140.2\) という数は、対数で数えたときの宇宙のステップ数です。そして前シリーズ番外編⑦で、繰り込み群のアノマリー係数 \(a\) はプランクから今日まで 16.06 分の 1 に落ちる、と数えました。両方を割ると <strong>1 ステップあたり 2%</strong> ── 宇宙は 1 対数ティックごとに、自由度の 2% を忘れている。a定理（「粗視化するともつれが減る」）に、クロックが付きます。
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第1回、物理好きの高校生・大学生向け読み物です。地平面エントロピー \(S=k_BA/4\ell_P^2\)、マルゴラス＝レヴィティン限界（直交状態への遷移レートの上限 \(2E/\pi\hbar\)）、および宇宙の総演算数が \(\sim10^{120}\) 程度になることは Lloyd (2002, PRL 88, 237901) 以来の標準的な見積もりです。平坦 FLRW における \(M=c^2R_H/2G\) は恒等式で、Dirac の大数仮説がこれと同型であることは本シリーズ前作の番外編③で示した通りです。本稿の \(\Omega=(ct/\ell_P)^2/2\pi p\)、\(\Omega/N=p\ln2/2\pi^2=\ln2/3\pi^2(1+w)\)、\(\Omega/N=1\) を与える \(w=-0.97659\)、およびド・ジッターでの \(\Omega/N=(\ln2/\pi^2)Ht\)（\(Ht=\pi^2/\ln2=14.24\) で 1 に達する）は、いずれも本稿での導出・数値計算です。数値は \(t_0=4.3536\times10^{17}\) s、\(\ell_P=1.6163\times10^{-35}\) m、\(t_P=5.3912\times10^{-44}\) s を用いました。<strong>「演算」はエネルギーが許す遷移回数の上限であり、意味のある計算を指すものではありません。</strong> レートの規約（\(2E/\pi\hbar\) か \(4E/h\) か）、\(E\) の取り方、bit と nat の別によって \(\Omega/N\) の数値は 1.5 倍程度動きます ── 時間に依存せず \(w\) のみで決まるという構造が本稿の主張であり、数値そのものではありません。\(w\) は宇宙全体の実効的な状態方程式で、表の値は「その \(w\) が全時代続いたら」という理想化です。約 2500 億年という見積もりは純ド・ジッター近似（\(H_\Lambda=H_0\sqrt{\Omega_\Lambda}\)、\(H_0=67.66\) km/s/Mpc、\(\Omega_\Lambda=0.685\)）によります。暗黒エネルギーの \(w=-1.03\pm0.03\) は定数 \(w\) を仮定したフィットの値です。エントロピー使用率 \(1.5\times10^{-18}\) は Egan &amp; Lineweaver (2010, ApJ 710, 1825) の \(S_{\rm obs}=3.1\times10^{104}k_B\) によります。線形膨張（\(c\cdot t=\)一定、\(R_h=ct\)）は検証途上の少数派モデルで、初期宇宙まで外挿した場合は元素合成と矛盾します（Lewis, Barnes &amp; Kaushik 2016, MNRAS 460, 291）。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで状態方程式を変え、1ビットあたりの演算回数が上下する様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sw=document.getElementById('sw'), vw=document.getElementById('vw'), ro=document.getElementById('ro');
+  var LN2=Math.log(2), PI=Math.PI;
+  var X0=64, X1=696, Y0=28, Y1=316;          // 描画枠
+  var xmin=0, xmax=200;                       // ln(t/tP)
+  var ymin=-2.6, ymax=0.7;                    // log10(ops/bit)
+  var TODAY=140.24;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function opsbit(w){ return LN2/(3*PI*PI*(1+w)); }
+
+  function draw(){
+    var w=parseInt(sw.value,10)/1000;
+    var p=2/(3*(1+w));
+    var v=opsbit(w);
+    var ly=Math.log(v)/Math.LN10;
+
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+
+    // 目盛り（縦：10のべき）
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    for(var e=-3;e<=0;e++){
+      if(e<ymin||e>ymax) continue;
+      var y=py(e);
+      g.strokeStyle='#e8eef5'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#8a93a3'; g.textAlign='right';
+      g.fillText(e===0?'1':('10'+String(e).replace('-','⁻').replace('1','¹').replace('2','²').replace('3','³')), X0-8, y+4);
+    }
+    // 横目盛り
+    g.textAlign='center';
+    [0,40,80,120,160,200].forEach(function(t){
+      var x=px(t);
+      g.strokeStyle='#eef3f8'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#8a93a3'; g.fillText(String(t), x, Y1+16);
+    });
+    // 枠
+    g.strokeStyle='#c9d4e2'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // 「1 演算／ビット」
+    g.strokeStyle='#a85a12'; g.lineWidth=2; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(0)); g.lineTo(X1,py(0)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#a85a12'; g.textAlign='left';
+    g.fillText('1 演算 ／ ビット', X0+8, py(0)-7);
+
+    // Λ優勢の未来（今日から先）：ops/bit = (ln2/pi^2) * (x - TODAY)
+    g.strokeStyle='#7a8ba0'; g.lineWidth=2; g.setLineDash([3,4]);
+    g.beginPath();
+    var started=false;
+    for(var x=TODAY;x<=xmax;x+=0.5){
+      var val=(LN2/(PI*PI))*(x-TODAY);
+      if(val<=0) continue;
+      var yy=Math.log(val)/Math.LN10;
+      if(yy<ymin) continue;
+      if(!started){ g.moveTo(px(x),py(Math.min(yy,ymax))); started=true; }
+      else g.lineTo(px(x),py(Math.min(yy,ymax)));
+    }
+    g.stroke(); g.setLineDash([]);
+    g.fillStyle='#7a8ba0'; g.textAlign='left';
+    g.fillText('Λ優勢の未来', px(153), py(-0.62));
+
+    // 冪則の水平線
+    var yh=Math.max(Math.min(ly,ymax),ymin);
+    g.strokeStyle='#1c3f63'; g.lineWidth=3;
+    g.beginPath(); g.moveTo(X0,py(yh)); g.lineTo(px(TODAY),py(yh)); g.stroke();
+    g.strokeStyle='rgba(28,63,99,.28)'; g.lineWidth=3; g.setLineDash([4,5]);
+    g.beginPath(); g.moveTo(px(TODAY),py(yh)); g.lineTo(X1,py(yh)); g.stroke();
+    g.setLineDash([]);
+
+    // 今日
+    g.strokeStyle='#3c4b5f'; g.lineWidth=1.4; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(px(TODAY),Y0); g.lineTo(px(TODAY),Y1); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#3c4b5f'; g.textAlign='center';
+    g.fillText('いま（140.2）', px(TODAY), Y0-8);
+
+    // 基準（放射・物質）の薄い目印
+    [[1/3,'放射',13],[0,'物質',-4]].forEach(function(q){
+      var yv=Math.log(opsbit(q[0]))/Math.LN10;
+      g.strokeStyle='rgba(28,63,99,.18)'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(yv)); g.lineTo(px(TODAY),py(yv)); g.stroke();
+      g.fillStyle='rgba(60,75,95,.6)'; g.textAlign='left';
+      g.fillText(q[1], X0+6, py(yv)+q[2]);
+    });
+
+    // 軸ラベル
+    g.fillStyle='#5f6a7a'; g.textAlign='center';
+    g.fillText('宇宙の対数年齢  ln(t / t_P)', (X0+X1)/2, Y1+34);
+
+    vw.textContent='w = '+(w<0?'−':'')+Math.abs(w).toFixed(3);
+    var name = Math.abs(w+1/3)<0.0006 ? '（c·t=一定）' : (Math.abs(w-1/3)<0.0006?'（放射）':(Math.abs(w)<0.0006?'（物質）':''));
+    ro.textContent='w = '+(w<0?'−':'')+Math.abs(w).toFixed(3)+name+
+      '　p = '+p.toFixed(3)+'　→　1ビットあたり '+v.toFixed(5)+' 回 ＝ '+
+      (1/v).toFixed(1)+' ビットに 1 回'+(v>=1?'　★ 1 を超えた':'　（1 まであと '+(1/v).toFixed(1)+' 倍）');
+  }
+  sw.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
