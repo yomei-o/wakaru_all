@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恒等式は、本当に物理ではないのか ── わかる c·t=一定 第19回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9fa; --paper-edge:#e2e4e9;
+    --side:#3f4a6b; --side-bg:#eff0f2;
+    --warn:#8a4b2f;
+    --calc:#323b55; --calc-bg:#e9eaee;
+    --rule:#d1d4db; --hair:#b6bac7;
+    --acc:#3f4a6b;
+    --grid:#e7e8ec;
+    --ops:#8a5a2a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d7d9e0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#363f5c;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c5c9d3;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f3f3f5;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dbdde3;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dbdde3;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1f1f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#363f5c;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#363f5c;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#888fa3;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 19 回 ／ 仕分けの手続きそのものを、作る</span></p>
+<p class="eyebrow">驚きをビットで測ると、三つの層がはっきり分かれます</p>
+
+<h1>恒等式は、本当に<br>物理ではないのか
+<span class="sub">このシリーズは「一致」を何度も仕分けてきました。<br><em>その基準を、情報理論の言葉で明示します。</em></span></h1>
+
+<p class="byline"><span>必要な道具：対数ひとつ</span><span>驚き \(=-\log_2(\text{幅}/\text{範囲})\)</span></p>
+
+<p class="lead">このシリーズは「一致」を何度も仕分けてきました ── ディラックの大数は<em>恒等式</em>、ランダウアー限界ぴったりも<em>恒等式</em>、\(\alpha+2\beta+\gamma=2\) も<em>恒等式</em>。前回の 1.96 fm は<em>偶然</em>。そして \(\Omega/N=\ln2/3\pi^2(1+w)\) は<em>物理</em>。──<strong>この仕分け、手続きになっているのでしょうか。</strong> 今回は、そこを正面から作ります。答えは情報理論の側にありました ── <em>驚きを、ビットで測ればいい。</em></p>
+
+<h2><span class="n">01</span>これまで仕分けてきたもの</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>一致</th><th class="mid">出どころ</th><th class="mid">下した判定</th></tr></thead>
+<tbody>
+<tr><th>\(M/m_P=R_H/2\ell_P\)（ディラックの大数）</th><td class="mid">前・番外編③</td><td class="mid">恒等式</td></tr>
+<tr><th>\(E/N=k_BT_H\ln2\)（ランダウアー）</th><td class="mid">第10回</td><td class="mid">恒等式</td></tr>
+<tr><th>\(\alpha+2\beta+\gamma=2\)（臨界指数）</th><td class="mid">第14回</td><td class="mid">恒等式</td></tr>
+<tr><th>\(\rho_\Lambda^{1/4}\) と \(m_\nu\) が 22 倍以内</th><td class="mid">前・番外編⑤</td><td class="mid">偶然</td></tr>
+<tr><th>1 ビットの体積の一辺 ≈ 核子</th><td class="mid">第18回</td><td class="mid">偶然</td></tr>
+<tr><th>小出の関係式 \(Q=2/3\)</th><td class="mid">前・番外編④</td><td class="mid">説明のない経験式</td></tr>
+<tr class="hi"><th>\(\Omega/N=\ln2/3\pi^2(1+w)\)</th><td class="mid">第1回</td><td class="mid"><strong>物理</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>毎回それらしく判定してきましたが、<strong>基準を明示したことは一度もありません</strong>。今回作ります。</p>
+
+<h2><span class="n">02</span>驚きを、ビットで測る</h2>
+
+<p>ある一致が「どれだけ驚きか」は、こう測れます ── <em>事前に許されていた範囲のうち、どれだけ狭いところに落ちたか</em>。</p>
+
+<div class="calc">
+<span class="tag">定義</span>
+$$\text{驚き}=-\log_2\frac{\text{落ちた幅}}{\text{事前に許された範囲}}\ \ [\text{ビット}]$$
+<p class="lbl">意味</p>
+$$1\ \text{ビット}=\text{コイン 1 回ぶん},\qquad 20\ \text{ビット}=\text{百万分の 1}$$
+</div>
+
+<p>これは情報理論の「サプライザル」そのものです。そして恒等式は、この定義でぴったり <strong>0 ビット</strong>になります ── <em>定義から従うので、落ちる先が最初から一点に決まっていた</em>からです。</p>
+
+<h2><span class="n">03</span>実際に測ってみる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>一致</th><th class="mid">驚き</th><th class="mid">実感</th><th class="mid">分類</th></tr></thead>
+<tbody>
+<tr><th>ディラックの大数</th><td class="mid"><strong>0 bit</strong></td><td class="mid">──</td><td class="mid">恒等式</td></tr>
+<tr><th>ランダウアー限界ぴったり</th><td class="mid"><strong>0 bit</strong></td><td class="mid">──</td><td class="mid">恒等式</td></tr>
+<tr><th>\(\alpha+2\beta+\gamma=2\)</th><td class="mid"><strong>0 bit</strong></td><td class="mid">──</td><td class="mid">恒等式</td></tr>
+<tr><th>\(\rho_\Lambda^{1/4}\) と \(m_\nu\)</th><td class="mid">4.7 bit</td><td class="mid">コイン 5 回</td><td class="mid">偶然</td></tr>
+<tr><th>1 ビットの体積 ≈ 核子</th><td class="mid">7.4 bit</td><td class="mid">コイン 7 回</td><td class="mid">偶然</td></tr>
+<tr class="hi"><th>小出の関係式 \(Q=2/3\)</th><td class="mid"><strong>15.7 bit</strong></td><td class="mid">3 万分の 1</td><td class="mid">経験式</td></tr>
+<tr class="hi"><th>CMB が 9600 パッチで一様</th><td class="mid"><strong>\(1.6\times10^{5}\) bit</strong></td><td class="mid">桁が違う</td><td class="mid">本物の問題</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の結論</p>
+<p style="margin:6px 0 0">数字にすると、層がはっきり分かれます ── <strong>恒等式は 0、偶然は数ビット、本物の問題は \(10^5\) ビット。</strong><br>
+<em>「宇宙定数とニュートリノ質量が 22 倍以内」は、コインを 5 回投げて全部表が出た程度の驚きでしかない。</em></p>
+</div>
+
+<p>この結果は、たぶん直観に反します。\(10^{-31}\) と \(10^{-30}\) という<em>途方もなく小さい数</em>が近いと聞くと大事件に思えますが、<strong>対数で数えれば 35 桁のうち 1.3 桁ぶんの一致</strong>にすぎません。前回の 1.96 fm も同じで、61 桁のうち 0.36 桁 ── <em>7.4 ビット</em>。</p>
+
+<div class="aside">
+<span class="tag">小出の関係式だけが、桁違いに驚きが大きい</span>
+表で唯一 15.7 ビットあるのが小出の関係式です。\(Q\) が取りうる範囲 \([1/3,1]\) のうち、実測は \(2/3\) から \(6.2\times10^{-6}\) しか外れていない ── <strong>3 万分の 1 の一致</strong>。だから理論的な導出が一つも無いのに、40 年以上まじめに扱われてきた。<em>この表は、なぜある偶然だけが真剣に扱われるのかを説明します。</em>
+</div>
+
+<div class="fig">
+<p class="cap">図：これまで扱った「一致」の驚きを、ビットで並べたもの。ツマミは<strong>事前範囲の取り方</strong>を変えます ── <em>驚きの大きさは、どれだけの範囲を「あり得た」と考えるかに依存します</em>。これが、この測り方のいちばん弱いところです</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>事前に許された範囲（桁数）<input id="ss" type="range" min="5" max="80" value="35" step="1"></label>
+  <span class="val" id="vs">35 桁</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#3f4a6b"></i>事前範囲に依存する（偶然）</span>
+  <span><i class="swatch" style="background:#8a5a2a"></i>事前範囲に依存しない</span>
+</div>
+</div>
+
+<p>ツマミを動かすと、上二本だけが伸び縮みします ── <strong>「偶然の驚き」は、事前範囲の取り方しだいで数ビット動く</strong>。一方、恒等式（0 ビット）、小出（\(Q\) の範囲が数学的に決まっている）、CMB（パッチ数と精度が観測で決まっている）は動きません。<em>だから前者は「弱い」一致で、後者は「強い」一致です。</em></p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>仕分けの手続き ── 入力と出力を数える</h2>
+
+<p>ビットで測るのとは別に、もっと構造的な仕分けもできます。<strong>その関係式は、何を入力して何を出力するか。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>分類</th><th class="mid">入力</th><th class="mid">出力</th><th class="mid">反証</th><th class="mid">驚き</th></tr></thead>
+<tbody>
+<tr><th>恒等式</th><td class="mid">0 個（定義から従う）</td><td class="mid">0 個</td><td class="mid">不可能</td><td class="mid">0 bit</td></tr>
+<tr><th>偶然</th><td class="mid">2 個以上の独立な測定値</td><td class="mid">0 個</td><td class="mid">不可能</td><td class="mid">数 bit</td></tr>
+<tr class="hi"><th>物理</th><td class="mid">\(n\) 個の測定値</td><td class="mid"><strong>\(m\) 個の予言</strong></td><td class="mid">可能</td><td class="mid">大きい</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第1回の \(\Omega/N=\ln2/3\pi^2(1+w)\) を当ててみます ── 入力は膨張則 \(w\) ひとつ、出力は「1 ビットあたりの演算回数」。<strong>別の測定にかかる量を出しているので、物理</strong>です。一方 \(E/N=k_BT_H\ln2\) は、地平面のエネルギーを地平面の温度と地平面のエントロピーで割っただけ ── <em>入力も出力も無い</em>。</p>
+
+<h2><span class="n">05</span>記述長で書き直すと、第5回に戻る</h2>
+
+<p>この仕分けは、じつは第5回でやったことと同じです。あそこでは<strong>記述長</strong>を数えました ── モデルの良さは「データをどれだけ短く書けるか」。</p>
+
+<div class="keybox">
+<p class="lbl">05節の結論</p>
+<p style="margin:6px 0 0"><strong>良い関係式とは、データの記述長を減らすもの。</strong><br>
+恒等式は 0 ビットしか減らさない。偶然は数ビットしか減らさず、しかも<em>減らす手段（機構）がない</em>。<br>
+物理は桁違いに減らす ── \(\Lambda\)CDM は 6 個のパラメータで、\(\ell\le2500\) の \(6.3\times10^6\) 個の多重極を説明します。</p>
+</div>
+
+<p>第5回では「短さは \(\log N\) しか買えず、当てはまりの損は \(N\) に比例する」と見ました。今回はその同じ天秤を、<em>モデルではなく「一致」に対して</em>使っています。<strong>一致が説明を要求するのは、それが記述長を大きく減らせるときだけ</strong>です。</p>
+
+<h2><span class="n">06</span>では、恒等式には何も残らないのか</h2>
+
+<p>ここは丁寧に言う必要があります。<strong>「恒等式は物理ではない」は、「恒等式は無意味だ」という意味ではありません。</strong></p>
+
+<div class="seven">
+<div class="row"><div class="mk">✗</div><div class="txt"><strong>予言ではない</strong><span>新しい測定にかかる量を一つも出さない。だから「発見」にはならない</span></div></div>
+<div class="row hi"><div class="mk">◎</div><div class="txt"><strong>整合性の検算である</strong><span>\(E=T_HS\) が成り立つのは、<em>ホログラフィーと熱力学が矛盾していない</em>から。成り立たなければ、どちらかが間違っている</span></div></div>
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>破れたら大発見になる</strong><span>恒等式は反証不可能ではなく、<em>導出の前提が崩れたときにだけ破れる</em>。破れは前提の破れを意味する</span></div></div>
+</div>
+
+<p>だから正確な言い方はこうです ── <strong>恒等式は「予言」ではなく「検算」</strong>。このシリーズが恒等式を見つけるたびに「物理ではない」と書いてきたのは、<em>それを謎として扱うな</em>という意味であって、捨てろという意味ではありません。</p>
+
+<div class="aside">
+<span class="tag">ディラックの名誉のために</span>
+1937 年のディラックは、\(M/m_P=R_H/2\ell_P\) がフリードマン方程式の帰結だと知りませんでした（フリードマン宇宙論が確立する前です）。<em>当時の知識では、あれは本物の謎に見えた</em>。恒等式だと分かるのは後知恵で、<strong>「恒等式だった」と判明すること自体が進歩</strong>です ── 謎が一つ減るのだから。第7回で「彼の処方は空回りする」と書いたのは、いまの知識での話です。
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① 「驚きのビット数」は、事前範囲をどう取るかで数ビット動きます。</strong> 図のツマミがまさにそれで、\(\rho_\Lambda^{1/4}\) と \(m_\nu\) の 4.7 ビットは「35 桁の範囲を仮定した」場合の値です。20 桁なら 3.9 ビット、60 桁なら 5.5 ビット。<em>この手続きは順序をつけるには使えますが、絶対的な数値ではありません</em> ── ベイズ的に言えば、事前分布の選び方の問題です。</p>
+<p style="margin:0 0 10px"><strong>② 「一様分布を対数で取る」という仮定を置いています。</strong> スケールの事前分布としては自然な選択（ジェフリーズ事前分布）ですが、唯一の選択ではありません。</p>
+<p style="margin:0 0 10px"><strong>③ 03節の表の CMB の値（\(1.6\times10^5\) ビット）は、第17回と同じく「独立な 17 ビットが 9600 個」という素朴な数え方です。</strong> 実際のゆらぎは音響振動という構造を持つので、正確な情報量ではありません（第17回②）。<em>桁の比較のための数字</em>と読んでください。</p>
+<p style="margin:0 0 10px"><strong>④ 小出の関係式の 15.7 ビットは、\(Q\in[1/3,1]\) を事前範囲としたものです。</strong> 三つの正の質量から作れる \(Q\) の数学的な範囲がこれなので、事前範囲の恣意性が小さい ── それがこの一致の「強さ」でもあります。ただし前シリーズ番外編④のとおり、この関係式は<em>極質量でのみ成立し、\(M_Z\) まで走らせるとずれが 205 倍に膨らむ</em>という深刻な弱点を抱えています。<strong>驚きが大きいことと、正しいことは別です。</strong></p>
+<p style="margin:0"><strong>⑤ 「入力 \(n\) 個 → 出力 \(m\) 個」という仕分けは、本シリーズによる整理です。</strong> 科学哲学には反証可能性・予測力・統一力など多数の基準があり、これはそのうち情報量で書けるものを取り出したものにすぎません。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>恒等式の驚きが 0 ビットになるのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">定義から従うので、<strong>落ちる先が最初から一点に決まっていた</strong>から。「事前に許された範囲」が最初から一点しかないので、\(-\log_2(1)=0\)。<em>驚きようがない</em>のです。</div></details></li>
+
+<li>\(\rho_\Lambda^{1/4}\) と \(m_\nu\) が 22 倍以内である驚きを、35 桁の事前範囲で求めよ。
+<details><summary>答えを見る</summary><div class="ans">\(\log_{10}22.3=1.35\) 桁。確率 \(1.35/35=0.0385\)。\(-\log_2 0.0385=\) <strong>4.7 ビット</strong> ── コイン 5 回ぶん。<em>途方もなく小さい数どうしの一致に見えても、対数で数えれば大した驚きではありません。</em></div></details></li>
+
+<li>小出の関係式だけ驚きが大きいのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">\(Q\) の取りうる範囲が \([1/3,1]\) と数学的に決まっているのに、実測が \(2/3\) から \(6.2\times10^{-6}\) しか外れていないから。確率 \(1.85\times10^{-5}\)、<strong>15.7 ビット ＝ 3 万分の 1</strong>。事前範囲の恣意性が小さいぶん、この一致は「強い」── だから導出が無くても真剣に扱われます。</div></details></li>
+
+<li>「恒等式は物理ではない」は「恒等式は無意味」と同じか。
+<details><summary>答えを見る</summary><div class="ans">違います。恒等式は<strong>予言ではないが、整合性の検算</strong>です。\(E=T_HS\) が成り立つのはホログラフィーと熱力学が矛盾していないからで、<em>破れたら前提のどれかが間違っている</em>ことになります。「物理ではない」は<strong>謎として扱うな</strong>という意味で、捨てろという意味ではありません。</div></details></li>
+
+<li>（やや難）この測り方のいちばんの弱点は何か。
+<details><summary>答えを見る</summary><div class="ans"><strong>事前範囲の取り方に依存すること</strong>。図のツマミで見たとおり、\(\rho_\Lambda\) と \(m_\nu\) の驚きは 20 桁なら 3.9 ビット、60 桁なら 5.5 ビットと動きます。ベイズ的には事前分布の選択の問題で、<em>順序をつけるには使えるが、絶対的な数値ではありません</em>。逆に、小出や CMB のように事前範囲が数学や観測で決まっている場合は、この弱点が小さくなります。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　驚きをビットで測ると、三つの層に分かれる</h2>
+<p>このシリーズが繰り返してきた「恒等式か、偶然か、物理か」という仕分けを、手続きにしました。使ったのは情報理論の<strong>サプライザル</strong> ── \(-\log_2(\text{落ちた幅}/\text{事前範囲})\)。</p>
+<p>測ってみると層がはっきり分かれます。<strong>恒等式は 0 ビット</strong>（ディラックの大数、ランダウアー限界、\(\alpha+2\beta+\gamma=2\)、そして第18回の \(N/(R/\ell_P)^3\)）。<strong>偶然は数ビット</strong> ── \(\rho_\Lambda^{1/4}\) と \(m_\nu\) の 22 倍一致は <em>コイン 5 回ぶん（4.7 ビット）</em>、前回の 1.96 fm は 7.4 ビット。<em>途方もなく小さい数どうしの一致に見えても、対数で数えれば大した驚きではない</em>のです。そして<strong>本物の問題は \(10^5\) ビット</strong>（CMB の一様性）。表で唯一 15.7 ビットあるのが小出の関係式で、だから導出が無くても真剣に扱われてきました。</p>
+<p>構造的な仕分けも作りました ── <strong>恒等式は入力 0・出力 0、偶然は入力 2 以上・出力 0、物理は入力 \(n\)・出力 \(m\)（予言）</strong>。そしてこれは第5回の記述長の話と同じ天秤です。<em>良い関係式とはデータの記述長を減らすもの</em>で、\(\Lambda\)CDM は 6 個のパラメータで \(6.3\times10^6\) 個の多重極を説明します。</p>
+<p>最後に一つ、丁寧に。<strong>「恒等式は物理ではない」は「無意味」という意味ではありません</strong> ── 恒等式は<em>予言ではなく検算</em>で、破れれば前提のどれかが崩れたことを意味します。1937 年のディラックはフリードマン方程式を知らなかったので、あれは<em>当時の知識では本物の謎に見えた</em>。<strong>恒等式だと判明すること自体が、謎を一つ減らす進歩</strong>です。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第20回</span>
+仕分けの道具ができたので、前シリーズが<strong>開いたまま閉じた扉</strong>に入ります。番外編②の最後の一行はこうでした ── <em>「宇宙を有限リソースの計算機として書くなら、縛るべきは \(a(t)\) ではなく光シート上の情報量。その計算は、まだ誰もやっていない」</em>。番外編③はブソーの共変エントロピー境界を見かけの地平面に当てて \(s\le3H/4\ell_P^2\) を出し、<strong>恒等的に飽和させると \(a\propto t^{1/3}\) が出る</strong>ところまで進んで止まりました。次回はその先 ── <em>飽和ではなく制約として課したまま、観測に合う宇宙は作れるのか。</em>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第19回、物理好きの高校生・大学生向け読み物です。サプライザル \(-\log_2 p\) は情報理論の標準的な量です。本稿の各「驚き」の値（\(\rho_\Lambda^{1/4}\) と \(m_\nu\) が 4.7 ビット、1 ビットの体積 ≈ 核子が 7.4 ビット、小出の関係式が 15.7 ビット、CMB の一様性が \(1.6\times10^5\) ビット）は本稿での計算です（kenshou/calc23.py）。<strong>これらの値は事前範囲の取り方に依存します</strong> ── \(\rho_\Lambda\) と \(m_\nu\) の 4.7 ビットは 35 桁の対数一様な事前分布（ジェフリーズ事前分布）を仮定した値で、20 桁なら 3.9、60 桁なら 5.5 ビットです。<em>この手続きは順序をつけるには使えますが、絶対的な数値ではありません。</em> CMB の \(1.6\times10^5\) ビットは第17回と同じく「独立な 17 ビットが 9600 個」という素朴な数え方で、実際のゆらぎは音響振動という構造を持つため正確な情報量ではありません。小出の関係式の 15.7 ビットは \(Q\in[1/3,1]\)（三つの正の質量から作れる数学的な範囲）を事前範囲としたもので、\(Q=0.66666051\) と \(2/3\) のずれ \(6.2\times10^{-6}\) によります ── ただし同関係式は理論的導出を持たず、極質量でのみ成立し \(M_Z\) まで走らせるとずれが 205 倍に拡大するという弱点を抱えています（前シリーズ番外編④）。<strong>驚きが大きいことと正しいことは別です。</strong> 「入力 \(n\) 個 → 出力 \(m\) 個」という仕分けは本シリーズによる整理であり、科学哲学における反証可能性・予測力・統一力などの基準のうち、情報量で書けるものを取り出したものにすぎません。Dirac (1937) が \(M/m_P=R_H/2\ell_P\) をフリードマン方程式の帰結と知らなかったという点は、時代背景としての指摘です。\(\Lambda\)CDM の 6 パラメータと \(\ell\le2500\) の \(a_{\ell m}\) の個数 \(6.3\times10^6\) は目安です。線形膨張（\(c\cdot t=\)一定、\(R_h=ct\)）は検証途上の少数派モデルです。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで事前範囲を変え、偶然の驚きだけが動く様子が見えます。「答えを見る」で解答が開きます。</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var ss=document.getElementById('ss'), vs=document.getElementById('vs'), ro=document.getElementById('ro');
+  var X0=250, X1=690, Y0=34;
+  var ROWS=[
+    ['ディラックの大数', 'id', 0],
+    ['ランダウアー限界', 'id', 0],
+    ['α+2β+γ = 2', 'id', 0],
+    ['ρ_Λ^(1/4) と m_ν（22倍）', 'span', Math.log10(22.3)],
+    ['1ビットの体積 ≈ 核子', 'span61', Math.log10(1.96/0.84)],
+    ['小出の関係式 Q=2/3', 'fix', 15.7],
+    ['CMB が 9600 パッチで一様', 'fix', 1.595e5]
+  ];
+  var XMAX=30;
+
+  function px(b){ return X0+Math.min(b,XMAX)/XMAX*(X1-X0); }
+
+  function draw(){
+    var span=parseInt(ss.value,10);
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // 目盛り
+    g.textAlign='center';
+    for(var b=0;b<=30;b+=5){
+      var x=px(b);
+      g.strokeStyle=(b===0?'#c8cbd8':'#f0f1f6'); g.lineWidth=(b===0?1.6:1);
+      g.beginPath(); g.moveTo(x,Y0-6); g.lineTo(x,Y0+7*40+6); g.stroke();
+      g.fillStyle='#9a9db0'; g.fillText(b+' bit', x, Y0+7*40+22);
+    }
+
+    var vals=[];
+    for(var i=0;i<ROWS.length;i++){
+      var r=ROWS[i], b;
+      if(r[1]==='id') b=0;
+      else if(r[1]==='span') b=-Math.log2(r[2]/span);
+      else if(r[1]==='span61') b=-Math.log2(r[2]/61);
+      else b=r[2];
+      vals.push(b);
+      var y=Y0+i*40+8, h=22;
+      var col=(r[1]==='span'||r[1]==='span61')?'#3f4a6b':'#8a5a2a';
+      g.fillStyle=col; g.globalAlpha=(b===0?0.25:0.88);
+      var w=px(b)-X0;
+      g.fillRect(X0, y, Math.max(w,3), h);
+      g.globalAlpha=1;
+      // ラベル
+      g.fillStyle='#3a3d4a'; g.textAlign='right';
+      g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      g.fillText(r[0], X0-12, y+16);
+      g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+      // 値
+      g.textAlign='left'; g.fillStyle=col;
+      if(b>XMAX){
+        g.fillText('→ '+(b/1000).toFixed(0)+',000 bit（桁が違う）', X1+6-160, y+16);
+      } else {
+        g.fillText(b.toFixed(1)+' bit', px(b)+6, y+16);
+      }
+    }
+
+    g.fillStyle='#7d8090'; g.textAlign='center';
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('驚き ＝ −log₂( 落ちた幅 ÷ 事前に許された範囲 )', (X0+X1)/2, Y0+7*40+46);
+
+    vs.textContent=span+' 桁';
+    ro.textContent='事前範囲 '+span+' 桁　→　ρ_Λ と m_ν の驚き '+vals[3].toFixed(1)+' bit、'+
+      '1ビットの体積 ≈ 核子 '+vals[4].toFixed(1)+' bit'+
+      '　／　恒等式は 0 bit、小出 15.7 bit、CMB 1.6×10⁵ bit（どれも事前範囲に依存しない）';
+  }
+  ss.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
