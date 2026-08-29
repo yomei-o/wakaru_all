@@ -186,8 +186,11 @@ BODY += card(32,'wakaru-ct-32-cosmon.html','Wetterich’s cosmon',
   'Episode 4’s picture put \(a(t)\) in by hand; the cosmon has field equations determine \(\chi(t)\). In the ledger it <strong>pays 2 parameters = 10.7 bits and buys back up to 408</strong> — the tuning of \(\rho_\Lambda/M_{\rm Pl}^4\). And it does not die like VSL because <em>one field sets every mass, so the ratios are fixed</em> — \(\alpha\)’s 26 bits catch nothing. Judgement moves to \(w=-1.03\pm0.03\).',
   'A notation shortens L(law); a theory pays L(parameters) to reduce L(residual)')
 
+BODY += card(33,'wakaru-ct-33-milne.html','Milne versus R_h=ct',
+  'Both have \(a\propto t\), but for \(a=t\) the FLRW curvature is \(R=6(1+k)/t^2\) — <strong>exactly zero at \(k=-1\)</strong>, so Milne is Minkowski in other coordinates. From this follows a three-step test, and <em>every FLRW lands in the “needs a conformal transformation” step</em>. And at \(z=1\) the empty Milne universe fits \(\Lambda\)CDM better than \(R_h=ct\) does — which is why “fits the Hubble diagram” is a weak test.',
+  'Tell them apart by looking at k')
+
 BODY += mini([
- (33,'Milne versus \\(R_h=ct\\) — coordinate change, or conformal transformation?'),
  (34,'Conformal gravity (Mannheim) — can conformal symmetry be more than bolted on?'),
  (35,'Asymptotic safety and a running \\(G\\)'),
  (36,'Summary: the whole table, side by side'),
