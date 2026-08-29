@@ -219,8 +219,11 @@ BODY += card(39,'wakaru-ct-39-kerr.html','Rotating spacetime — a bound in the 
   'Kerr carries two labels, M and chi. On the weight table M is -1 and chi is 0 — one is bookkeeping, the other is physics, which makes it the cleanest example of Part II’s "a conformal transformation touches only size". The bound chi<=1, the 0.29289 ceiling on extractable mass, and the fact that entropy at chi=1 is exactly half all live in the dimensionless column and cannot be moved. Measured spins sit just below the bound at 4.3 bits of surprise — back in the band, but explained. And on Episode 33’s three-step test Kerr is Step 3: the first spacetime this tool cannot reach.',
   'Weyl not zero — a spacetime the conformal tool cannot reach')
 
+BODY += card(40,'wakaru-ct-40-gravity-entropy.html','Gravitational entropy — not even halfway along',
+  'The Hubble sphere sits exactly at its own Schwarzschild radius (an identity at critical density), and because of it three separate 10^122 numbers coincide: the holographic bound, the entropy of all the mass as one black hole, and Episode 24’s N = C.t. The 5 per cent gap is exactly the ratio of the age of the universe to the Hubble time. The actual entropy is 3.1e104, of which 99.999 per cent is supermassive black holes, leaving 59.3 doublings of headroom — headroom that survives because gravity only attracts, so a uniform gravitational field is at minimum entropy, not maximum.',
+  'The three headline numbers were one')
+
 BODY += mini([
- (40,'How do you count gravitational entropy?'),
  (41,'The Weyl curvature hypothesis, measured as occupancy'),
  (42,'What happens to the notation inside a black hole'),
  (43,'The Planck scale — the edge of the band'),
