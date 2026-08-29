@@ -15,6 +15,8 @@ def promote(num, href, title, desc, key, path='mkindex.py'):
         print('  ep%d: mini entry not found (already promoted?)' % num)
         return False
     s = pat.sub('', s)
+    # apos-guard: a straight apostrophe would break the single-quoted Python string
+    title=title.replace(chr(39),chr(0x2019)); desc=desc.replace(chr(39),chr(0x2019)); key=key.replace(chr(39),chr(0x2019))
     card = ("BODY += card(%d,'%s','%s',\n  '%s',\n  '%s')\n\n"
             % (num, href, title, desc, key))
     # 直後の mini ブロックの直前に card を挿す

@@ -199,11 +199,14 @@ BODY += card(35,'wakaru-ct-35-asymptotic-safety.html','Asymptotic safety and a r
   'The same entrance as conformal gravity — physics is in a dimensionless coupling')
 
 BODY += mini([
- (36,'Summary: the whole table, side by side'),
 ])
 
 BODY += part('V', 'Going looking for where it breaks',
   'Hunting deliberately for the places the notation stops working: quantum anomalies, ghosts, rotating spacetimes, gravitational entropy — everything a conformal transformation cannot erase.')
+BODY += card(36,'wakaru-ct-36-partIV.html','Onto the operating table (Part IV wrap-up)',
+  'Nine theories on one table, all given the same surgery: exactly one — VSL — failed to separate (A) notation from (B) an observable claim. The line was not whether the name points at (A) but whether the theory itself can tell them apart. Every prediction sat in a dimensionless quantity, without exception. And something new: six of the coincidences fall between 4 and 7.5 bits of surprise — most likely a selection effect, the band where a result is enough for a paper but not for a consensus.',
+  'Good theories have already performed Episode 3’s surgery')
+
 BODY += mini([
  (37,'It breaks in the quantum theory — measuring the trace anomaly in bits'),
  (38,'The conformal factor problem — the ledger is the first thing to break'),
