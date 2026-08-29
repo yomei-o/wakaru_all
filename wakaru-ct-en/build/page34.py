@@ -1,0 +1,339 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">Every theory so far has used the conformal transformation as <em>a rewriting bolted on afterwards</em>. <strong>Mannheim does not</strong> — he puts conformal symmetry itself at the foundation of gravity. Replace the Einstein–Hilbert action with <strong>the square of the Weyl tensor</strong> and the whole theory is conformally invariant from the start. Then <em>the cosmological constant problem disappears structurally, and rotation curves come out without dark matter</em>. <strong>At a price.</strong></p>
+
+<h2><span class="n">01</span>Swap the action — and four dimensions become special again</h2>
+
+<div class="calc">
+<span class="tag">Two actions</span>
+$$\text{Einstein–Hilbert}:\quad S=\frac{1}{16\pi G}\int\!\sqrt{-g}\,R\;d^4x$$
+$$\text{Conformal gravity (Weyl}^2\text{)}:\quad S=-\alpha_g\int\!\sqrt{-g}\;C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\;d^4x$$
+</div>
+
+<p>Count the weights exactly as in Episode 11.</p>
+
+<div class="calc">
+<span class="tag">The count</span>
+$$\sqrt{-g}\,d^Dx\ \to\ \Omega^{D},\qquad C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\ \to\ \Omega^{-4}$$
+$$\Longrightarrow\qquad S\ \to\ \Omega^{\,D-4}S$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">Dimension \(D\)</th><th class="mid">2</th><th class="mid">3</th><th class="mid">4</th><th class="mid">5</th><th class="mid">6</th></tr></thead>
+<tbody>
+<tr><th>Residual factor</th><td class="mid">\(\Omega^{-2}\)</td><td class="mid">\(\Omega^{-1}\)</td><td class="mid"><strong>\(\Omega^{0}=1\)</strong></td><td class="mid">\(\Omega^{+1}\)</td><td class="mid">\(\Omega^{+2}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0"><strong>Conformally invariant only at \(D=4\)</strong> — <em>exactly the structure of Episode 11's Maxwell action</em>.<br>
+That we live in four dimensions matters here too.</p>
+</div>
+
+<h2><span class="n">02</span>The coupling becomes dimensionless</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Theory</th><th class="mid">Gravitational coupling</th><th class="mid">Dimensions</th><th class="mid">Weight</th><th class="mid">On Episode 16's map</th></tr></thead>
+<tbody>
+<tr><th>Einstein gravity</th><td class="mid">\(G\)</td><td class="mid">\(\mathrm{m^3kg^{-1}s^{-2}}\)</td><td class="mid">──</td><td class="mid">the bookkeeping side</td></tr>
+<tr class="hi"><th>Conformal gravity</th><td class="mid">\(\alpha_g\)</td><td class="mid"><strong>dimensionless</strong></td><td class="mid">\(0\)</td><td class="mid"><strong>the physics column</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Episode 7 counted that "genuinely varying \(G\) changes nothing" — <em>because \(G\) is bookkeeping</em>. <strong>\(\alpha_g\) has no such escape.</strong> Being dimensionless it sits in the zero column of Episode 16's map, and <em>measurement fixes it</em>.</p>
+
+<h2><span class="n">03</span>The cosmological constant term cannot be written</h2>
+
+<div class="calc">
+<span class="tag">The symmetry forbids it</span>
+$$\int\!\sqrt{-g}\,\Lambda\;d^4x\ \to\ \Omega^{4}\times(\cdots)\qquad\text{── not conformally invariant}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The thing this episode most wants to say</p>
+<p style="margin:6px 0 0">The tuning of \(\rho_\Lambda/M_{\rm Pl}^4=1.13\times10^{-123}\) counted in Episode 12 — <strong>408 bits</strong> in Episode 32's terms.<br>
+In conformal gravity it <strong>disappears structurally</strong>. <em>Without adding a single parameter.</em><br>
+── Episode 32's cosmon paid 10.7 bits to try to buy it back. This one gets it <strong>free</strong>.</p>
+</div>
+
+<p>The story does not end there. <strong>Giving particles mass requires breaking the symmetry, and \(\Lambda\) returns.</strong> Mannheim argues the same breaking cancels the vacuum energy — <em>contested</em>.</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>A linear term appears in the vacuum solution</h2>
+
+<div class="calc">
+<span class="tag">The static spherically symmetric solution</span>
+$$B(r)=1-3\beta\gamma-\frac{\beta(2-3\beta\gamma)}{r}+\gamma r-\kappa r^2$$
+<p class="lbl">besides the Newtonian \(-2\beta/r\) there is <strong>a linear term \(+\gamma r\)</strong> that dominates far out</p>
+</div>
+
+<p>Per galaxy, \(\gamma=\gamma_*N_*+\gamma_0/2\) with \(\gamma_*=5.42\times10^{-41}\ \mathrm{m^{-1}}\) (per solar mass) and \(\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}}\) (a cosmological term). Compute <strong>the radius where the two terms swap</strong>.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">Stellar mass</th><th class="mid">\(\beta\) [m]</th><th class="mid">\(\gamma\) [1/m]</th><th class="mid">Crossover \(r_*=\sqrt{2\beta/\gamma}\)</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(10^{9}\,M_\odot\)</th><td class="mid">\(1.5\times10^{12}\)</td><td class="mid">\(1.53\times10^{-28}\)</td><td class="mid">4.5 kpc</td></tr>
+<tr><th class="mid">\(10^{10}\,M_\odot\)</th><td class="mid">\(1.5\times10^{13}\)</td><td class="mid">\(1.54\times10^{-28}\)</td><td class="mid">14.2 kpc</td></tr>
+<tr class="hi"><th class="mid">\(10^{11}\,M_\odot\)</th><td class="mid">\(1.5\times10^{14}\)</td><td class="mid">\(1.58\times10^{-28}\)</td><td class="mid"><strong>44.2 kpc</strong></td></tr>
+<tr><th class="mid">\(10^{12}\,M_\odot\)</th><td class="mid">\(1.5\times10^{15}\)</td><td class="mid">\(2.07\times10^{-28}\)</td><td class="mid">122.3 kpc</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Crossovers from a few to a few tens of kpc — <em>exactly where rotation curves go flat</em>. The aim is to explain that with this one term, without dark matter.</p>
+
+<div class="fig">
+<p class="cap">Figure: the Newtonian term \(2\beta/r\) and the linear term \(\gamma r\). <strong>Beyond the crossing the linear term dominates.</strong> Change the galaxy's mass and the crossover moves — <em>and it always lands near the galaxy's outskirts</em>.</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>Stellar mass \(\log_{10}(N_*/M_\odot)\)<input id="sm" type="range" min="80" max="125" value="110" step="1"></label>
+  <span class="val" id="vm">10¹¹ M☉</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#4a1a3a"></i>Newtonian term \(2\beta/r\)</span>
+  <span><i class="swatch" style="background:#2a6a4a"></i>linear term \(\gamma r\)</span>
+  <span><i class="swatch" style="background:#c8bcc4"></i>crossover radius</span>
+</div>
+</div>
+
+<h2><span class="n">05</span>\(\gamma_0\) is also on the cosmological scale</h2>
+
+<div class="calc">
+<span class="tag">The same coincidence again</span>
+$$\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}},\qquad \frac{1}{R_H}=7.66\times10^{-27}\ \mathrm{m^{-1}}$$
+$$\frac{\gamma_0}{1/R_H}=0.040\qquad\Longrightarrow\qquad \gamma_0\simeq\frac{1}{25\,R_H}$$
+<p class="lbl">the acceleration the linear term supplies</p>
+$$\frac{c^2\gamma_0}{2}=1.38\times10^{-11}\ \mathrm{m/s^2}\qquad(0.115\ \text{times MOND's }a_0)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Coincidence</th><th class="mid">Surprise</th><th class="mid">Class (Episode 19)</th></tr></thead>
+<tbody>
+<tr><th>\(\rho_\Lambda^{1/4}\) and \(m_\nu\)</th><td class="mid">4.7 bit</td><td class="mid">coincidence</td></tr>
+<tr class="hi"><th>\(\gamma_0\simeq1/(25R_H)\)</th><td class="mid"><strong>5.4 bit</strong></td><td class="mid"><strong>the coincidence band</strong></td></tr>
+<tr class="hi"><th>\(a_0\simeq cH_0/2\pi\) (Episode 29)</th><td class="mid"><strong>5.9 bit</strong></td><td class="mid"><strong>the coincidence band</strong></td></tr>
+<tr><th>one bit ↔ 1.96 fm</th><td class="mid">7.4 bit</td><td class="mid">coincidence</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Essentially the same stratum as MOND in Episode 29</strong> — <em>a galactic acceleration scale coinciding with the cosmological one</em>, the very same shape of coincidence. Two independent theories meeting the same coincidence in the same place.</p>
+
+<h2><span class="n">06</span>The price — ghosts</h2>
+
+<div class="calc">
+<span class="tag">A fourth-order propagator</span>
+$$\frac{1}{k^2(k^2+M^2)}=\frac{1}{M^2}\left[\frac{1}{k^2}-\frac{1}{k^2+M^2}\right]$$
+<p class="lbl">the second term has a <strong>negative</strong> sign — a negative-norm state, a ghost</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">An interesting trade is happening</p>
+<p style="margin:6px 0 0">Episode 9 of the previous series: in Einstein gravity <strong>the conformal factor is a ghost</strong>.<br>
+In conformal gravity the conformal factor is pure gauge, so <strong>that problem disappears</strong>.<br>
+And the fourth-order derivatives bring in <strong>a new massive spin-2 ghost</strong>.<br>
+── <em>The ghost was not removed but swapped for another.</em></p>
+</div>
+
+<p>Mannheim and Bender object — <em>"the Hamiltonian is not Hermitian but PT-symmetric, and in a suitable inner product the eigenvalues are real and no negative-norm states appear"</em>. A serious published argument, but <strong>there is no consensus</strong>. This document does not adjudicate.</p>
+
+<h2><span class="n">07</span>The surgery — there is nothing to cut</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Ep.</th><th>Theory</th><th class="mid">Role of the conformal transformation</th><th class="mid">The surgery</th></tr></thead>
+<tbody>
+<tr><th>28</th><td>VSL</td><td class="mid">a rewriting (left in the name)</td><td class="mid">cuts (and failed)</td></tr>
+<tr><th>31</th><td>CCC</td><td class="mid">used openly as a tool</td><td class="mid">cuts (already done)</td></tr>
+<tr><th>32</th><td>the cosmon</td><td class="mid">stated as an equivalence of pictures</td><td class="mid">cuts (already done)</td></tr>
+<tr class="hi"><th>34</th><td><strong>conformal gravity</strong></td><td class="mid"><strong>a gauge symmetry itself</strong></td><td class="mid"><strong>nothing to cut</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §07</p>
+<p style="margin:6px 0 0">In conformal gravity the conformal transformation is <strong>a gauge symmetry, not a rewriting</strong>.<br>
+(A) is not "another way of writing" but <em>part of the theory's definition</em> — so <strong>the surgery has nothing to cut</strong>.<br>
+── The gravitational version of Episode 16's caveat ④: "there are fields where it is invariance under the transformation, not the transformation, that does the work".</p>
+</div>
+
+<h2><span class="n">08</span>The ledger</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Model</th><th class="mid">Parameters</th><th class="mid">Description length</th><th class="mid">Breakdown</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Conformal gravity</th><td class="mid"><strong>3</strong></td><td class="mid"><strong>17.1 bit</strong></td><td class="mid">\(\alpha_g,\ \gamma_*,\ \gamma_0\) (all shared by every galaxy)</td></tr>
+<tr><th>MOND (Episode 29)</th><td class="mid">4</td><td class="mid">22.8 bit</td><td class="mid">\(a_0\) + the interpolating function</td></tr>
+<tr><th>Halo model</th><td class="mid">350</td><td class="mid">1994 bit</td><td class="mid">two per galaxy</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>On rotation curves, conformal gravity sits in <strong>the same stratum as MOND</strong> (about 1977 bits ahead of the halo model). What it cannot buy is the same too — <em>CMB acoustic peaks, clusters, structure growth</em>. Exactly the shape of Episode 29's table.</p>
+
+<div class="aside">
+<span class="tag">And it carries debts of its own</span>
+Conformal gravity stands on the same ground as MOND but <strong>carries two debts MOND does not</strong> — <em>ghosts</em> (§06) and <em>the \(\Lambda\) that returns after the symmetry breaks</em> (the note in §03). It also has an asset MOND lacks — <strong>being a complete relativistic theory</strong> (MOND's results depend on which relativistic completion you pick, Episode 29). <em>Different debts and different assets mean no simple ranking.</em>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line — what this episode assumes</span>
+<p style="margin:0 0 10px"><strong>① Conformal gravity is a minority theory</strong>, from a body of work since Mannheim &amp; Kazanas (1989), and is <em>not widely accepted</em>. This document neither supports nor refutes it and measures only what this series' tools can measure.</p>
+<p style="margin:0 0 10px"><strong>② The ghost problem is unresolved.</strong> That fourth-order theories carry negative-norm states is a standard result, but Mannheim &amp; Bender's PT-symmetry objection is also a peer-reviewed claim — <strong>there is no consensus</strong>, and this document does not adjudicate.</p>
+<p style="margin:0 0 10px"><strong>③ "The cosmological constant problem disappears structurally" applies before the symmetry breaks.</strong> Mass generation requires breaking it, and whether \(\Lambda\) returns afterwards is the point at issue — <em>read "408 bits bought back for free" as conditional on that being resolved</em>.</p>
+<p style="margin:0 0 10px"><strong>④ \(\gamma_*=5.42\times10^{-41}\ \mathrm{m^{-1}}\) and \(\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}}\) are values Mannheim and collaborators obtained by fitting rotation curves.</strong> The crossover calculation is this document's, dropping the \(\kappa r^2\) and \(3\beta\gamma\) terms — an order-of-magnitude argument.</p>
+<p style="margin:0 0 10px"><strong>⑤ §08's ledger uses Episode 29's framework and has the same limitations.</strong> The parameter counts are crude and \(\Lambda\)CDM's priors are not accounted for — <em>1977 bits is an upper-side estimate</em>.</p>
+<p style="margin:0"><strong>⑥ There is no established result for conformal gravity's CMB predictions.</strong> That is the sense in which it is listed under "cannot buy" — <em>not that its predictions have been shown to disagree with observation</em>.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises (solvable with this episode's formulas alone)</p>
+<ol>
+<li>In what dimension is the Weyl² action conformally invariant?
+<details><summary>Show the answer</summary><div class="ans">\(\sqrt{-g}\,d^Dx\to\Omega^D\) and \(C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\to\Omega^{-4}\), so the action picks up \(\Omega^{D-4}\). <strong>Invariant only at \(D=4\)</strong> — <em>exactly the structure of Episode 11's Maxwell action.</em></div></details></li>
+
+<li>What is the difference, for this series, between \(G\) and \(\alpha_g\)?
+<details><summary>Show the answer</summary><div class="ans">\(G\) is dimensionful — bookkeeping — so moving it changes nothing (Episode 7). \(\alpha_g\) is <strong>dimensionless, weight 0</strong>, in the physics column of Episode 16's map — <em>no escape, and measurement fixes it</em>.</div></details></li>
+
+<li>Why can the cosmological constant term not be written, and what does that mean?
+<details><summary>Show the answer</summary><div class="ans">\(\int\sqrt{-g}\,\Lambda\,d^4x\) picks up \(\Omega^4\), so it is <strong>not conformally invariant and the symmetry forbids it</strong>. The 408-bit tuning counted in Episodes 12 and 32 <em>disappears structurally, without adding parameters</em> (though what happens after symmetry breaking is at issue).</div></details></li>
+
+<li>Find the crossover radius for a \(10^{11}M_\odot\) galaxy.
+<details><summary>Show the answer</summary><div class="ans">\(\beta=1.475\times10^3\times10^{11}=1.48\times10^{14}\) m and \(\gamma=\gamma_*N_*+\gamma_0/2=1.58\times10^{-28}\ \mathrm{m^{-1}}\), so \(r_*=\sqrt{2\beta/\gamma}=1.4\times10^{21}\) m = <strong>44 kpc</strong> — <em>exactly where rotation curves go flat</em>.</div></details></li>
+
+<li>(Harder) What does Episode 3's surgery cut in conformal gravity?
+<details><summary>Show the answer</summary><div class="ans"><strong>Nothing.</strong> In Episodes 27–33 the conformal transformation was "another way of writing" (A); in conformal gravity it is <em>a gauge symmetry, part of the theory's definition</em>. The gravitational version of Episode 16's caveat ④ — <strong>which is why the price appears elsewhere, as ghosts.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — the ghost was not removed but swapped</h2>
+<p>Mannheim places conformal symmetry not as <em>an afterthought rewriting</em> but as <strong>the foundation of gravity</strong>. With the Weyl-squared action, \(S\to\Omega^{D-4}S\), so it is <strong>conformally invariant only at \(D=4\)</strong> — exactly the structure of Episode 11's Maxwell action.</p>
+<p>Three things follow. ① The gravitational coupling \(\alpha_g\) is <strong>dimensionless</strong> — unlike \(G\) it is not bookkeeping but sits in the physics column, fixed by measurement. ② The cosmological constant term picks up \(\Omega^4\), so <strong>the symmetry forbids it</strong> and Episode 32's 408-bit tuning <em>disappears structurally, without adding parameters</em> (contested after symmetry breaking). ③ The vacuum solution has a <strong>linear term \(\gamma r\)</strong> whose crossover for a \(10^{11}M_\odot\) galaxy is <strong>44 kpc</strong> — exactly where rotation curves go flat.</p>
+<p>But \(\gamma_0\) is on the cosmological scale too (\(\gamma_0\simeq1/(25R_H)\), surprise <strong>5.4 bits</strong>) — <em>essentially the stratum of MOND in Episode 29 (5.9 bits), the same shape of coincidence</em>. And the ledger puts it in MOND's stratum too (about 1977 bits ahead of the halo model on rotation curves; the CMB and clusters unbought).</p>
+<p>The price was <strong>ghosts</strong>. Fourth-order derivatives split the propagator into \(1/k^2-1/(k^2+M^2)\), the second with a negative sign. <em>The trade is the interesting part</em> — Episode 9 of the previous series saw the conformal factor as a ghost in Einstein gravity; in conformal gravity it becomes gauge and disappears, and a massive spin-2 ghost arrives instead. <strong>The ghost was not removed but swapped for another.</strong> As for the surgery — <em>the conformal transformation is a gauge symmetry here, so there is nothing to cut</em>. The one theory in Part IV that never made it onto the operating table.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next — Episode 35</span>
+Two episodes left in Part IV. Next: <strong>asymptotic safety and a running \(G\)</strong>. Episode 7 counted "\(G\) is dimensionful, hence bookkeeping"; today counted "\(\alpha_g\) is dimensionless, hence physics". <em>Asymptotic safety connects the two</em> — <strong>make \(G\) dimensionless and let it run</strong> (\(\tilde G=Gk^2\)) and it settles onto a fixed point in the ultraviolet. Then the <strong>anomalous dimensions</strong> of Episode 14 appear in gravity itself. <em>Episode 14's "the weight table acquires error bars" finally reaches gravity.</em>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sm=document.getElementById('sm'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+  var X0=78, X1=700, Y0=34, Y1=310;
+  var b_star=1.475e3, g_star=5.42e-41, g_0=3.06e-28;
+  var kpc=3.0857e19;
+  var xmin=-1, xmax=3.2;
+  var ymin=-9, ymax=-2;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function lg(v){ return Math.log(v)/Math.LN10; }
+
+  function draw(){
+    var lN=parseInt(sm.value,10)/10;
+    var N=Math.pow(10,lN);
+    var beta=b_star*N;
+    var gam=g_star*N+g_0/2;
+    var rstar=Math.sqrt(2*beta/gam);
+
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+
+    g.textAlign='right';
+    for(var e=-9;e<=-2;e++){
+      var y=py(e);
+      g.strokeStyle='#f4eff2'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#a3919c'; g.fillText('10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=-1;q<=3;q++){
+      var x=px(q);
+      g.strokeStyle='#faf6f8'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a3919c';
+      g.fillText((q===0?'1':'10'+q)+' kpc', x, Y1+16);
+    }
+    g.strokeStyle='#d6c6ce'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    g.strokeStyle='#4a1a3a'; g.lineWidth=3.2; g.beginPath();
+    var first=true;
+    for(var i=0;i<=240;i++){
+      var lx=xmin+(xmax-xmin)*i/240;
+      var r=Math.pow(10,lx)*kpc;
+      var y=lg(2*beta/r);
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lx),py(y)); first=false; } else g.lineTo(px(lx),py(y));
+    }
+    g.stroke();
+
+    g.strokeStyle='#2a6a4a'; g.lineWidth=3.2; g.beginPath();
+    first=true;
+    for(var i=0;i<=240;i++){
+      var lx=xmin+(xmax-xmin)*i/240;
+      var r=Math.pow(10,lx)*kpc;
+      var y=lg(gam*r);
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lx),py(y)); first=false; } else g.lineTo(px(lx),py(y));
+    }
+    g.stroke();
+
+    var lr=lg(rstar/kpc), yv=lg(gam*rstar);
+    if(lr>xmin&&lr<xmax&&yv>ymin&&yv<ymax){
+      g.strokeStyle='#c8bcc4'; g.lineWidth=1.6; g.setLineDash([5,4]);
+      g.beginPath(); g.moveTo(px(lr),Y0); g.lineTo(px(lr),Y1); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle='#6a4a5a';
+      g.beginPath(); g.arc(px(lr),py(yv),6,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=2;
+      g.beginPath(); g.arc(px(lr),py(yv),6,0,6.2832); g.stroke();
+      g.fillStyle='#6a4a5a'; g.textAlign='left';
+      g.fillText('crossover '+(rstar/kpc).toFixed(1)+' kpc', px(lr)+10, py(yv)-10);
+    }
+
+    g.textAlign='left';
+    g.fillStyle='#4a1a3a'; g.fillText('Newtonian 2β/r', px(-0.8), py(lg(2*beta/(Math.pow(10,-0.8)*kpc)))-8);
+    g.fillStyle='#2a6a4a'; g.fillText('linear γr', px(2.4), py(lg(gam*Math.pow(10,2.4)*kpc))-8);
+
+    g.fillStyle='#8a7580'; g.textAlign='center';
+    g.fillText('distance from the centre,  r', (X0+X1)/2, Y1+38);
+
+    vm.textContent = '10^'+lN.toFixed(1)+' M☉';
+    ro.textContent='stellar mass 10^'+lN.toFixed(1)+' M☉　β = '+beta.toExponential(2)+' m　'+
+      'γ = '+gam.toExponential(2)+' 1/m　→　crossover '+(rstar/kpc).toFixed(1)+' kpc'+
+      '　(beyond it the linear term dominates — the aim being flat rotation curves without dark matter)';
+  }
+  sm.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-34-conformal-gravity.html', acc='#4a1a3a', ops='#2a6a4a',
+      title='Conformal gravity (Mannheim) ── c·t = const, That Clicks, Episode 34',
+      ep='EPISODE 34 ／ Part IV — can conformal symmetry be more than bolted on?',
+      eyebrow='The ghost was not removed but swapped for another',
+      h1='Conformal gravity<br>(Mannheim)',
+      sub='With the Weyl-squared action the whole theory is conformally invariant from the start.<br><em>The cosmological constant problem disappears structurally and rotation curves come out without dark matter — at a price.</em>',
+      byline_l='What you need: Episode 11\'s weight counting, Episode 19\'s practice, Episode 5\'s scales',
+      byline_r='\\(S\\to\\Omega^{D-4}S\\) — invariant only in four dimensions',
+      body=BODY + '\n\n<p class="foot">This document is Episode 34 of "c·t = const, That Clicks", written for physics-minded high-school and university readers. Conformal gravity comes from a body of work since Mannheim &amp; Kazanas (1989, ApJ 342, 635). That the Weyl² action is conformally invariant only at \\(D=4\\), that the static spherically symmetric solution carries a linear term \\(\\gamma r\\), and that fourth-order theories carry negative-norm states (ghosts) are all standard results. The values \\(\\gamma_*=5.42\\times10^{-41}\\ \\mathrm{m^{-1}}\\) and \\(\\gamma_0=3.06\\times10^{-28}\\ \\mathrm{m^{-1}}\\) are those Mannheim and collaborators obtained by fitting rotation curves. The crossover \\(r_*=\\sqrt{2\\beta/\\gamma}\\) (44 kpc at \\(10^{11}M_\\odot\\)), \\(\\gamma_0\\simeq1/(25R_H)\\), the acceleration \\(c^2\\gamma_0/2=1.38\\times10^{-11}\\ \\mathrm{m/s^2}\\), the surprise of 5.4 bits and the description-length comparison are computed here (kenshou/calc38.py) — the crossover drops the \\(\\kappa r^2\\) and \\(3\\beta\\gamma\\) terms and is an order-of-magnitude argument. <strong>Conformal gravity is a minority theory and is not widely accepted</strong>; this document neither supports nor refutes it. <strong>The ghost problem is unresolved</strong>: that fourth-order theories carry negative-norm states is standard, but Mannheim &amp; Bender\'s PT-symmetry objection is also a peer-reviewed claim, and there is no consensus — not adjudicated here. "The cosmological constant problem disappears structurally" applies before symmetry breaking; mass generation requires breaking it and whether \\(\\Lambda\\) returns is the point at issue. §08\'s ledger uses Episode 29\'s framework with the same limitations (crude parameter counts, no account of \\(\\Lambda\\)CDM\'s priors), so 1977 bits is an upper-side estimate. <strong>There is no established result for conformal gravity\'s CMB predictions</strong>, which is the sense in which it is listed under "cannot buy". The academic standard remains the \\(\\Lambda\\)CDM model including inflation, together with unmodified general relativity. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, changing the galaxy mass moves the crossover radius. "Show the answer" opens each solution.')

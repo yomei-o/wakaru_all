@@ -1,0 +1,341 @@
+# -*- coding: utf-8 -*-
+from mkpage import build
+
+BODY = r'''<p class="lead">ここまで扱った理論はどれも、共形変換を<em>後付けの書き換え</em>として使っていました。<strong>マンハイムは違います</strong> ── 共形対称性そのものを、重力の基本原理に据える。作用をアインシュタイン＝ヒルベルトではなく<strong>ワイルテンソルの二乗</strong>にすると、理論全体が最初から共形不変になります。すると<em>宇宙定数問題が構造的に消え、暗黒物質なしで回転曲線が出ます</em>。<strong>ただし、代償があります。</strong></p>
+
+<h2><span class="n">01</span>作用を取り替える ── そして 4 次元だけが特別になる</h2>
+
+<div class="calc">
+<span class="tag">二つの作用</span>
+$$\text{アインシュタイン＝ヒルベルト}:\quad S=\frac{1}{16\pi G}\int\!\sqrt{-g}\,R\;d^4x$$
+$$\text{共形重力（Weyl}^2\text{）}:\quad S=-\alpha_g\int\!\sqrt{-g}\;C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\;d^4x$$
+</div>
+
+<p>第11回とまったく同じ手続きで、ウェイトを数えます。</p>
+
+<div class="calc">
+<span class="tag">数え上げ</span>
+$$\sqrt{-g}\,d^Dx\ \to\ \Omega^{D},\qquad C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\ \to\ \Omega^{-4}$$
+$$\Longrightarrow\qquad S\ \to\ \Omega^{\,D-4}S$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">次元 \(D\)</th><th class="mid">2</th><th class="mid">3</th><th class="mid">4</th><th class="mid">5</th><th class="mid">6</th></tr></thead>
+<tbody>
+<tr><th>残る因子</th><td class="mid">\(\Omega^{-2}\)</td><td class="mid">\(\Omega^{-1}\)</td><td class="mid"><strong>\(\Omega^{0}=1\)</strong></td><td class="mid">\(\Omega^{+1}\)</td><td class="mid">\(\Omega^{+2}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の結論</p>
+<p style="margin:6px 0 0"><strong>\(D=4\) でだけ共形不変</strong> ── <em>第11回のマクスウェル作用と、まったく同じ構造</em>です。<br>
+私たちが 4 次元に住んでいることが、ここでも効いています。</p>
+</div>
+
+<h2><span class="n">02</span>結合定数が、無次元になる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>理論</th><th class="mid">重力の結合</th><th class="mid">次元</th><th class="mid">ウェイト</th><th class="mid">第16回の地図で</th></tr></thead>
+<tbody>
+<tr><th>アインシュタイン重力</th><td class="mid">\(G\)</td><td class="mid">\(\mathrm{m^3kg^{-1}s^{-2}}\)</td><td class="mid">──</td><td class="mid">帳簿の側</td></tr>
+<tr class="hi"><th>共形重力</th><td class="mid">\(\alpha_g\)</td><td class="mid"><strong>無次元</strong></td><td class="mid">\(0\)</td><td class="mid"><strong>物理の列</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第7回で「\(G\) を本当に時間変化させても何も起きない」と数えました ── <em>\(G\) が帳簿だったから</em>です。<strong>\(\alpha_g\) にはその逃げ道がありません。</strong> 無次元なので、第16回の地図でいうゼロの列にいて、<em>測れば決まる</em>。</p>
+
+<h2><span class="n">03</span>宇宙定数項が、書けなくなる</h2>
+
+<div class="calc">
+<span class="tag">対称性が禁じる</span>
+$$\int\!\sqrt{-g}\,\Lambda\;d^4x\ \to\ \Omega^{4}\times(\cdots)\qquad\text{── 共形不変でない}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">第12回で数えた \(\rho_\Lambda/M_{\rm Pl}^4=1.13\times10^{-123}\) の微調整 ── 第32回の言葉で <strong>408 ビット</strong>。<br>
+共形重力ではこれが <strong>構造的に消えます</strong>。<em>パラメータを一つも増やさずに。</em><br>
+── 第32回のコスモンは 10.7 ビット払って買い戻そうとしました。こちらは<strong>ただで</strong>。</p>
+</div>
+
+<p>ただし話はここで終わりません。<strong>粒子に質量を与えるには対称性を破る必要があり、そこで \(\Lambda\) が戻ってきます。</strong> マンハイムは同じ破れが真空エネルギーを相殺すると主張していますが ── <em>論争中</em>です。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>真空解に、線形項が出る</h2>
+
+<div class="calc">
+<span class="tag">静的球対称解</span>
+$$B(r)=1-3\beta\gamma-\frac{\beta(2-3\beta\gamma)}{r}+\gamma r-\kappa r^2$$
+<p class="lbl">ニュートン項 \(-2\beta/r\) に加えて、<strong>遠方で効く線形項 \(+\gamma r\)</strong> がある</p>
+</div>
+
+<p>銀河ごとの線形項は \(\gamma=\gamma_*N_*+\gamma_0/2\) で、\(\gamma_*=5.42\times10^{-41}\ \mathrm{m^{-1}}\)（太陽質量あたり）、\(\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}}\)（宇宙論的な項）。<strong>ニュートン項と線形項が入れ替わる半径</strong>を計算します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">銀河の星質量</th><th class="mid">\(\beta\) [m]</th><th class="mid">\(\gamma\) [1/m]</th><th class="mid">交差半径 \(r_*=\sqrt{2\beta/\gamma}\)</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(10^{9}\,M_\odot\)</th><td class="mid">\(1.5\times10^{12}\)</td><td class="mid">\(1.53\times10^{-28}\)</td><td class="mid">4.5 kpc</td></tr>
+<tr><th class="mid">\(10^{10}\,M_\odot\)</th><td class="mid">\(1.5\times10^{13}\)</td><td class="mid">\(1.54\times10^{-28}\)</td><td class="mid">14.2 kpc</td></tr>
+<tr class="hi"><th class="mid">\(10^{11}\,M_\odot\)</th><td class="mid">\(1.5\times10^{14}\)</td><td class="mid">\(1.58\times10^{-28}\)</td><td class="mid"><strong>44.2 kpc</strong></td></tr>
+<tr><th class="mid">\(10^{12}\,M_\odot\)</th><td class="mid">\(1.5\times10^{15}\)</td><td class="mid">\(2.07\times10^{-28}\)</td><td class="mid">122.3 kpc</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>交差半径が<strong>数 kpc から数十 kpc</strong> ── <em>ちょうど回転曲線が平坦になるところ</em>です。暗黒物質を入れずに、この一つの項で説明しようという狙いです。</p>
+
+<div class="fig">
+<p class="cap">図：ニュートン項 \(2\beta/r\) と線形項 \(\gamma r\)。<strong>交わる半径から先は線形項が支配</strong>します。ツマミで銀河の質量を変えると、交差半径が動きます ── <em>いつも銀河の外縁あたりに来ることが見えます</em></p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>銀河の星質量 \(\log_{10}(N_*/M_\odot)\)<input id="sm" type="range" min="80" max="125" value="110" step="1"></label>
+  <span class="val" id="vm">10¹¹ M☉</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#4a1a3a"></i>ニュートン項 \(2\beta/r\)</span>
+  <span><i class="swatch" style="background:#2a6a4a"></i>線形項 \(\gamma r\)</span>
+  <span><i class="swatch" style="background:#c8bcc4"></i>交差半径</span>
+</div>
+</div>
+
+<h2><span class="n">05</span>\(\gamma_0\) も、宇宙論スケールにいる</h2>
+
+<div class="calc">
+<span class="tag">また同じ偶然</span>
+$$\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}},\qquad \frac{1}{R_H}=7.66\times10^{-27}\ \mathrm{m^{-1}}$$
+$$\frac{\gamma_0}{1/R_H}=0.040\qquad\Longrightarrow\qquad \gamma_0\simeq\frac{1}{25\,R_H}$$
+<p class="lbl">線形項が与える加速度</p>
+$$\frac{c^2\gamma_0}{2}=1.38\times10^{-11}\ \mathrm{m/s^2}\qquad(\text{MOND の }a_0\text{ の }0.115\ \text{倍})$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>一致</th><th class="mid">驚き</th><th class="mid">分類（第19回）</th></tr></thead>
+<tbody>
+<tr><th>\(\rho_\Lambda^{1/4}\) と \(m_\nu\)</th><td class="mid">4.7 bit</td><td class="mid">偶然</td></tr>
+<tr class="hi"><th>\(\gamma_0\simeq1/(25R_H)\)</th><td class="mid"><strong>5.4 bit</strong></td><td class="mid"><strong>偶然の帯</strong></td></tr>
+<tr class="hi"><th>\(a_0\simeq cH_0/2\pi\)（第29回）</th><td class="mid"><strong>5.9 bit</strong></td><td class="mid"><strong>偶然の帯</strong></td></tr>
+<tr><th>1 ビット ↔ 1.96 fm</th><td class="mid">7.4 bit</td><td class="mid">偶然</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>第29回の MOND とほぼ同じ層</strong>です ── <em>銀河スケールの加速度が宇宙論スケールに一致する</em>という、まったく同じ形の偶然。二つの独立な理論が、同じ場所で同じ偶然に出会っている。</p>
+
+<h2><span class="n">06</span>代償 ── ゴースト</h2>
+
+<div class="calc">
+<span class="tag">微分 4 階の伝播関数</span>
+$$\frac{1}{k^2(k^2+M^2)}=\frac{1}{M^2}\left[\frac{1}{k^2}-\frac{1}{k^2+M^2}\right]$$
+<p class="lbl">第 2 項の符号が<strong>負</strong> ── 負ノルム状態＝ゴースト</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">面白い取引が起きている</p>
+<p style="margin:6px 0 0">前シリーズ第9回：アインシュタイン重力では<strong>共形因子がゴースト</strong>だった。<br>
+共形重力：共形因子はゲージ自由度なので、<strong>その問題は消える</strong>。<br>
+ところが微分 4 階が、<strong>質量を持つスピン 2 のゴースト</strong>を新しく連れてくる。<br>
+── <em>ゴーストを消したのではなく、別のゴーストと取り替えた。</em></p>
+</div>
+
+<p>マンハイムとベンダーは反論しています ── <em>「ハミルトニアンはエルミートではないが PT 対称であり、適切な内積を取れば固有値は実で、負ノルム状態も現れない」</em>。論文として出ている真面目な主張ですが、<strong>合意はありません</strong>。本稿は判定しません。</p>
+
+<h2><span class="n">07</span>手術 ── 切るものが無い</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>回</th><th>理論</th><th class="mid">共形変換の役割</th><th class="mid">手術は</th></tr></thead>
+<tbody>
+<tr><th>28</th><td>VSL</td><td class="mid">書き換え（名前に残った）</td><td class="mid">切れる（失敗）</td></tr>
+<tr><th>31</th><td>CCC</td><td class="mid">道具として明示的に使う</td><td class="mid">切れる（済んでいる）</td></tr>
+<tr><th>32</th><td>コスモン</td><td class="mid">絵の等価性として明示</td><td class="mid">切れる（済んでいる）</td></tr>
+<tr class="hi"><th>34</th><td><strong>共形重力</strong></td><td class="mid"><strong>ゲージ対称性そのもの</strong></td><td class="mid"><strong>切るものが無い</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の結論</p>
+<p style="margin:6px 0 0">共形重力では、共形変換は<strong>書き換えではなくゲージ対称性</strong>です。<br>
+(A) が「別の書き方」ではなく<em>理論の定義の一部</em>になっている ── だから<strong>手術に切るものがありません</strong>。<br>
+── 第16回の但し書き④で「変換そのものではなく、変換に対する不変性が働く分野もある」と書いた、その重力版です。</p>
+</div>
+
+<h2><span class="n">08</span>帳簿</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>模型</th><th class="mid">パラメータ</th><th class="mid">記述長</th><th class="mid">内訳</th></tr></thead>
+<tbody>
+<tr class="hi"><th>共形重力</th><td class="mid"><strong>3</strong></td><td class="mid"><strong>17.1 bit</strong></td><td class="mid">\(\alpha_g,\ \gamma_*,\ \gamma_0\)（すべて全銀河共通）</td></tr>
+<tr><th>MOND（第29回）</th><td class="mid">4</td><td class="mid">22.8 bit</td><td class="mid">\(a_0\) ＋ 内挿関数</td></tr>
+<tr><th>ハロー模型</th><td class="mid">350</td><td class="mid">1994 bit</td><td class="mid">銀河ごとに 2 個</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>回転曲線に限れば、共形重力は<strong>MOND と同じ層</strong>（ハロー模型に対し約 1977 ビット勝ち）。買えないものも同じです ── <em>CMB の音響ピーク、銀河団、構造成長</em>。第29回の表と、そっくり同じ構図になります。</p>
+
+<div class="aside">
+<span class="tag">さらに、固有の負債がある</span>
+共形重力は MOND と同じ土俵に立っていますが、<strong>MOND には無い負債を二つ抱えています</strong> ── <em>ゴースト</em>（06節）と、<em>対称性を破ったあとに戻ってくる \(\Lambda\)</em>（03節の注）。逆に MOND には無い資産もあります ── <strong>相対論的に完成した理論であること</strong>（MOND は相対論的完成形ごとに結果が変わる、第29回）。<em>負債と資産が違うので、単純な優劣はつきません。</em>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① 共形重力は少数派の理論です。</strong> Mannheim &amp; Kazanas (1989) 以来の一連の仕事で、<em>広く受け入れられてはいません</em>。本稿は支持も否定もせず、このシリーズの道具で測れるところだけを測っています。</p>
+<p style="margin:0 0 10px"><strong>② ゴーストの問題は未決着です。</strong> 4 階微分の理論が負ノルム状態を持つことは標準的な結果ですが、Mannheim &amp; Bender の PT 対称性による反論も査読を経た主張です ── <strong>合意はありません</strong>。本稿は判定しません。</p>
+<p style="margin:0 0 10px"><strong>③ 「宇宙定数問題が構造的に消える」は、対称性が破れる前の話です。</strong> 質量を与えるには破る必要があり、破れたあとに \(\Lambda\) が戻るかどうかが争点です ── <em>「ただで 408 ビット買い戻す」は、この争点が解決した場合の話</em>と読んでください。</p>
+<p style="margin:0 0 10px"><strong>④ \(\gamma_*=5.42\times10^{-41}\ \mathrm{m^{-1}}\)、\(\gamma_0=3.06\times10^{-28}\ \mathrm{m^{-1}}\) はマンハイムらが回転曲線に当てて得た値です。</strong> 交差半径の計算は本稿によるもので、\(\kappa r^2\) 項と \(3\beta\gamma\) 項を落とした近似です ── 桁の議論として読んでください。</p>
+<p style="margin:0 0 10px"><strong>⑤ 08節の帳簿は第29回と同じ枠組みで、同じ限界を持ちます。</strong> パラメータ数の見積もりは粗く、\(\Lambda\)CDM 側の事前分布を考慮していません ── <em>1977 ビットは上限側の見積もり</em>です。</p>
+<p style="margin:0"><strong>⑥ 共形重力の CMB 予言については、確立した結果がありません。</strong> 本稿が「買えない」に挙げたのはその意味で、<em>「予言が観測と合わない」ことが示されたという意味ではありません</em>。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>Weyl² 作用が共形不変になる次元を求めよ。
+<details><summary>答えを見る</summary><div class="ans">\(\sqrt{-g}\,d^Dx\to\Omega^D\)、\(C_{\mu\nu\rho\sigma}C^{\mu\nu\rho\sigma}\to\Omega^{-4}\) なので、作用は \(\Omega^{D-4}\) 倍。<strong>\(D=4\) でだけ不変</strong>です ── <em>第11回のマクスウェル作用と、まったく同じ構造。</em></div></details></li>
+
+<li>\(G\) と \(\alpha_g\) の、このシリーズにとっての違いは何か。
+<details><summary>答えを見る</summary><div class="ans">\(G\) は次元付き＝帳簿なので、動かしても何も起きません（第7回）。\(\alpha_g\) は<strong>無次元＝ウェイト 0</strong> で、第16回の地図では物理の列 ── <em>逃げ道が無く、測れば決まります</em>。</div></details></li>
+
+<li>宇宙定数項が書けなくなる理由と、その意味を述べよ。
+<details><summary>答えを見る</summary><div class="ans">\(\int\sqrt{-g}\,\Lambda\,d^4x\) は \(\Omega^4\) 倍になるので<strong>共形不変でなく、対称性が禁じます</strong>。第12回・第32回で数えた 408 ビットの微調整が、<em>パラメータを増やさずに構造的に消える</em>ことになります（ただし対称性の破れ後は争点）。</div></details></li>
+
+<li>\(10^{11}M_\odot\) の銀河で、ニュートン項と線形項が入れ替わる半径を求めよ。
+<details><summary>答えを見る</summary><div class="ans">\(\beta=1.475\times10^3\times10^{11}=1.48\times10^{14}\) m、\(\gamma=\gamma_*N_*+\gamma_0/2=1.58\times10^{-28}\ \mathrm{m^{-1}}\)。\(r_*=\sqrt{2\beta/\gamma}=1.4\times10^{21}\) m ＝ <strong>44 kpc</strong> ── <em>ちょうど回転曲線が平坦になるところ</em>です。</div></details></li>
+
+<li>（やや難）共形重力に対して、第3回の手術は何を切るか。
+<details><summary>答えを見る</summary><div class="ans"><strong>切るものがありません。</strong> 第27〜33回の理論では共形変換が「別の書き方」（A）でしたが、共形重力では<em>ゲージ対称性そのもの</em>＝理論の定義の一部です。第16回の但し書き④で「共形場理論のように、変換そのものではなく変換に対する不変性が働く分野もある」と書いた、その重力版 ── <strong>だから代償は別のところ（ゴースト）に出ます。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　ゴーストを消したのではなく、取り替えた</h2>
+<p>マンハイムは共形対称性を<em>後付けの書き換え</em>ではなく<strong>重力の基本原理</strong>に据えます。作用をワイルテンソルの二乗にすると \(S\to\Omega^{D-4}S\) で、<strong>\(D=4\) でだけ共形不変</strong> ── 第11回のマクスウェル作用と、まったく同じ構造です。</p>
+<p>すると三つのことが起きます。①重力の結合 \(\alpha_g\) が<strong>無次元</strong>になる ── \(G\) と違って帳簿ではなく、第16回の地図では物理の列にいて、測れば決まる。②宇宙定数項 \(\int\sqrt{-g}\Lambda\) が \(\Omega^4\) 倍になるので<strong>対称性が禁じ</strong>、第32回で数えた 408 ビットの微調整が<em>パラメータを増やさずに構造的に消える</em>（ただし対称性の破れ後は争点）。③真空解に<strong>線形項 \(\gamma r\)</strong> が出て、交差半径が \(10^{11}M_\odot\) の銀河で <strong>44 kpc</strong> ── ちょうど回転曲線が平坦になるところです。</p>
+<p>ただし \(\gamma_0\) もまた宇宙論スケールにいます（\(\gamma_0\simeq1/(25R_H)\)、驚き <strong>5.4 ビット</strong>）── <em>第29回の MOND（5.9 ビット）とほぼ同じ層で、同じ形の偶然</em>。そして帳簿でも MOND と同じ層に立ちます（回転曲線でハロー模型に約 1977 ビット勝ち、CMB と銀河団は買えない）。</p>
+<p>代償は<strong>ゴースト</strong>でした。微分 4 階なので伝播関数が \(1/k^2-1/(k^2+M^2)\) に割れ、第 2 項の符号が負になる。<em>面白いのは取引の中身です</em> ── 前シリーズ第9回で「アインシュタイン重力では共形因子がゴースト」と見ましたが、共形重力ではそれがゲージ自由度になって消え、代わりに質量を持つスピン 2 のゴーストが来る。<strong>ゴーストを消したのではなく、別のゴーストと取り替えた</strong>。そして手術については ── <em>共形変換がゲージ対称性そのものなので、切るものがありません</em>。第 IV 部でただ一つ、手術台に載らなかった理論です。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第35回</span>
+第 IV 部もあと二回。次は<strong>漸近安全性と、走る \(G\)</strong>です。第7回で「\(G\) は次元付きだから帳簿」と数え、今回「\(\alpha_g\) は無次元だから物理」と数えました。<em>漸近安全性は、その両方をつなぐ立場です</em> ── \(G\) を<strong>無次元化して走らせる</strong>（\(\tilde G=Gk^2\)）と、紫外で固定点に落ち着く。すると第14回で見た<strong>異常次元</strong>が重力に現れます。<em>ウェイト表に誤差棒が付く、という第14回の話が、いよいよ重力そのものに当たります。</em>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sm=document.getElementById('sm'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+  var X0=78, X1=700, Y0=34, Y1=310;
+  var b_star=1.475e3, g_star=5.42e-41, g_0=3.06e-28;
+  var kpc=3.0857e19;
+  var xmin=-1, xmax=3.2;      // log10(r/kpc)
+  var ymin=-9, ymax=-2;       // log10(値)
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function lg(v){ return Math.log(v)/Math.LN10; }
+
+  function draw(){
+    var lN=parseInt(sm.value,10)/10;
+    var N=Math.pow(10,lN);
+    var beta=b_star*N;
+    var gam=g_star*N+g_0/2;
+    var rstar=Math.sqrt(2*beta/gam);
+
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right';
+    for(var e=-9;e<=-2;e++){
+      var y=py(e);
+      g.strokeStyle='#f4eff2'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#a3919c'; g.fillText('10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=-1;q<=3;q++){
+      var x=px(q);
+      g.strokeStyle='#faf6f8'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a3919c';
+      g.fillText((q===0?'1':'10'+q)+' kpc', x, Y1+16);
+    }
+    g.strokeStyle='#d6c6ce'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // ニュートン項 2β/r
+    g.strokeStyle='#4a1a3a'; g.lineWidth=3.2; g.beginPath();
+    var first=true;
+    for(var i=0;i<=240;i++){
+      var lx=xmin+(xmax-xmin)*i/240;
+      var r=Math.pow(10,lx)*kpc;
+      var y=lg(2*beta/r);
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lx),py(y)); first=false; } else g.lineTo(px(lx),py(y));
+    }
+    g.stroke();
+
+    // 線形項 γr
+    g.strokeStyle='#2a6a4a'; g.lineWidth=3.2; g.beginPath();
+    first=true;
+    for(var i=0;i<=240;i++){
+      var lx=xmin+(xmax-xmin)*i/240;
+      var r=Math.pow(10,lx)*kpc;
+      var y=lg(gam*r);
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lx),py(y)); first=false; } else g.lineTo(px(lx),py(y));
+    }
+    g.stroke();
+
+    // 交差点
+    var lr=lg(rstar/kpc), yv=lg(gam*rstar);
+    if(lr>xmin&&lr<xmax&&yv>ymin&&yv<ymax){
+      g.strokeStyle='#c8bcc4'; g.lineWidth=1.6; g.setLineDash([5,4]);
+      g.beginPath(); g.moveTo(px(lr),Y0); g.lineTo(px(lr),Y1); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle='#6a4a5a';
+      g.beginPath(); g.arc(px(lr),py(yv),6,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=2;
+      g.beginPath(); g.arc(px(lr),py(yv),6,0,6.2832); g.stroke();
+      g.fillStyle='#6a4a5a'; g.textAlign='left';
+      g.fillText('交差半径 '+(rstar/kpc).toFixed(1)+' kpc', px(lr)+10, py(yv)-10);
+    }
+
+    g.textAlign='left';
+    g.fillStyle='#4a1a3a'; g.fillText('ニュートン項 2β/r', px(-0.8), py(lg(2*beta/(Math.pow(10,-0.8)*kpc)))-8);
+    g.fillStyle='#2a6a4a'; g.fillText('線形項 γr', px(2.4), py(lg(gam*Math.pow(10,2.4)*kpc))-8);
+
+    g.fillStyle='#8a7580'; g.textAlign='center';
+    g.fillText('中心からの距離  r', (X0+X1)/2, Y1+38);
+
+    vm.textContent = '10^'+lN.toFixed(1)+' M☉';
+    ro.textContent='星質量 10^'+lN.toFixed(1)+' M☉　β = '+beta.toExponential(2)+' m　'+
+      'γ = '+gam.toExponential(2)+' 1/m　→　交差半径 '+(rstar/kpc).toFixed(1)+' kpc'+
+      '　（この半径から先は線形項が支配 ── 暗黒物質なしで回転曲線が平坦になる狙い）';
+  }
+  sm.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-34-conformal-gravity.html', acc='#4a1a3a', ops='#2a6a4a',
+      title='共形重力（マンハイム）── わかる c·t=一定 第34回',
+      ep='第 34 回 ／ 第 IV 部・後付けでない共形対称性はありうるか',
+      eyebrow='ゴーストを消したのではなく、別のゴーストと取り替えました',
+      h1='共形重力<br>（マンハイム）',
+      sub='作用をワイルテンソルの二乗にすると、理論全体が最初から共形不変になります。<br><em>宇宙定数問題は構造的に消え、回転曲線は暗黒物質なしで出る ── 代償つきで。</em>',
+      byline_l='必要な道具：第11回のウェイト数え上げ、第19回の作法、第5回の天秤',
+      byline_r='\\(S\\to\\Omega^{D-4}S\\) ── 4次元でだけ不変',
+      body=BODY + '\n\n<p class="foot">この文書は「わかる c·t=一定」シリーズ第34回、物理好きの高校生・大学生向け読み物です。共形重力は Mannheim &amp; Kazanas (1989, ApJ 342, 635) 以来の一連の仕事によります。Weyl² 作用が \\(D=4\\) でのみ共形不変であること、静的球対称解に線形項 \\(\\gamma r\\) が現れること、および 4 階微分の理論が負ノルム状態（ゴースト）を持つことは、いずれも標準的な結果です。\\(\\gamma_*=5.42\\times10^{-41}\\ \\mathrm{m^{-1}}\\)、\\(\\gamma_0=3.06\\times10^{-28}\\ \\mathrm{m^{-1}}\\) はマンハイムらが回転曲線に当てて得た値です。本稿の交差半径 \\(r_*=\\sqrt{2\\beta/\\gamma}\\)（\\(10^{11}M_\\odot\\) で 44 kpc）、\\(\\gamma_0\\simeq1/(25R_H)\\)、加速度 \\(c^2\\gamma_0/2=1.38\\times10^{-11}\\ \\mathrm{m/s^2}\\)、驚き 5.4 ビット、および記述長の比較は本稿での計算です（kenshou/calc38.py）── 交差半径は \\(\\kappa r^2\\) 項と \\(3\\beta\\gamma\\) 項を落とした近似で、桁の議論です。<strong>共形重力は少数派の理論であり、広く受け入れられてはいません</strong> ── 本稿は支持も否定もせず、このシリーズの道具で測れるところだけを測っています。<strong>ゴーストの問題は未決着です</strong>：4 階微分理論が負ノルム状態を持つことは標準的ですが、Mannheim &amp; Bender による PT 対称性に基づく反論も査読を経た主張であり、合意はありません ── 本稿は判定しません。「宇宙定数問題が構造的に消える」は対称性が破れる前の話で、質量生成のために破れたあと \\(\\Lambda\\) が戻るかどうかが争点です。08節の帳簿は第29回と同じ枠組みで同じ限界を持ち（パラメータ数の見積もりは粗く、\\(\\Lambda\\)CDM 側の事前分布を考慮していない）、1977 ビットは上限側の見積もりです。<strong>共形重力の CMB 予言については確立した結果がなく</strong>、「買えない」に挙げたのはその意味であって、予言が観測と合わないことが示されたという意味ではありません。学術的な標準はインフレーションを含む \\(\\Lambda\\)CDM モデルと、修正のない一般相対論です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>',
+      script=SCRIPT,
+      hint='印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで銀河の質量を変え、交差半径が動く様子が見えます。「答えを見る」で解答が開きます。')

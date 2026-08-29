@@ -190,8 +190,11 @@ BODY += card(33,'wakaru-ct-33-milne.html','Milne versus R_h=ct',
   'Both have \(a\propto t\), but for \(a=t\) the FLRW curvature is \(R=6(1+k)/t^2\) — <strong>exactly zero at \(k=-1\)</strong>, so Milne is Minkowski in other coordinates. From this follows a three-step test, and <em>every FLRW lands in the “needs a conformal transformation” step</em>. And at \(z=1\) the empty Milne universe fits \(\Lambda\)CDM better than \(R_h=ct\) does — which is why “fits the Hubble diagram” is a weak test.',
   'Tell them apart by looking at k')
 
+BODY += card(34,'wakaru-ct-34-conformal-gravity.html','Conformal gravity (Mannheim)',
+  'With the Weyl-squared action, \(S\to\Omega^{D-4}S\) — <strong>conformally invariant only at \(D=4\)</strong>, exactly Episode 11’s Maxwell structure. Then the coupling \(\alpha_g\) is dimensionless, the symmetry <em>forbids</em> a cosmological constant term (Episode 32’s 408 bits, for free), and the vacuum solution’s linear term crosses over at 44 kpc. The price is <strong>ghosts</strong> — the conformal factor’s ghost is gauged away and a massive spin-2 ghost arrives instead.',
+  'The one theory in Part IV that never made it onto the operating table')
+
 BODY += mini([
- (34,'Conformal gravity (Mannheim) — can conformal symmetry be more than bolted on?'),
  (35,'Asymptotic safety and a running \\(G\\)'),
  (36,'Summary: the whole table, side by side'),
 ])
