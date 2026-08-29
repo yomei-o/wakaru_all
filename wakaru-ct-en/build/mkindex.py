@@ -178,8 +178,11 @@ BODY += card(30,'wakaru-ct-30-measure.html','Measuring varying constants for rea
   'Atomic clocks, the Oklo natural reactor, quasar absorption lines — three different physics, one skeleton: (change in the observable) = K × (Δα/α). <strong>Oklo’s precision is a coarse 2% and it matches an atomic clock, because its amplification is \(10^7\)</strong> — the 97.3 meV resonance is a difference of MeV-scale quantities. Placed on the logarithmic axis, data cover <strong>29% of cosmic history and 26-bit precision covers 0.1%</strong>. And measurement of constants sits entirely in the weight-0 column — which is why it can be the referee.',
   'A cancellation of orders can be a mystery or a tool')
 
+BODY += card(31,'wakaru-ct-31-ccc.html','Penrose’s conformal cyclic cosmology',
+  'CCC’s central move is exactly Episode 11’s result — <em>with no mass there is no ruler, and with no ruler the conformal factor has no meaning</em>. Measuring its three conditions with this series’ quantities: 31.4% of today’s energy must lose its rest mass; the gluing falls at logarithmic step 348, with <strong>today only 40% of the way</strong>; occupancy falls from \(1.5\times10^{-18}\) to \(3.2\times10^{-22}\). And Episode 16 plus Episode 6 show <em>why CCC has no choice but to bet on information loss</em>.',
+  'The theory in Part IV that best withstands the surgery')
+
 BODY += mini([
- (31,'Penrose\'s conformal cyclic cosmology'),
  (32,'Wetterich\'s cosmon — implementing a universe that does not expand'),
  (33,'Milne versus \\(R_h=ct\\) — coordinate change, or conformal transformation?'),
  (34,'Conformal gravity (Mannheim) — can conformal symmetry be more than bolted on?'),
