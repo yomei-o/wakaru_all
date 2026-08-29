@@ -194,8 +194,11 @@ BODY += card(34,'wakaru-ct-34-conformal-gravity.html','Conformal gravity (Mannhe
   'With the Weyl-squared action, \(S\to\Omega^{D-4}S\) — <strong>conformally invariant only at \(D=4\)</strong>, exactly Episode 11’s Maxwell structure. Then the coupling \(\alpha_g\) is dimensionless, the symmetry <em>forbids</em> a cosmological constant term (Episode 32’s 408 bits, for free), and the vacuum solution’s linear term crosses over at 44 kpc. The price is <strong>ghosts</strong> — the conformal factor’s ghost is gauged away and a massive spin-2 ghost arrives instead.',
   'The one theory in Part IV that never made it onto the operating table')
 
+BODY += card(35,'wakaru-ct-35-asymptotic-safety.html','Asymptotic safety and a running G',
+  'Pair \(G\) with a scale to form \(g=Gk^2\) and run it: the slope is <strong>exactly 2</strong>, the classical dimension — and “gravity is \(10^{-38}\) times weaker” turns out to mean only that we look at small scales. At the ultraviolet fixed point \(g\) stops, so \(\eta_N=-2\) exactly: <strong>Episode 14’s 3.6% error in the weight table becomes 100% in gravity</strong>. The Higgs prediction of 126 GeV against a measured 125.25 is a 4–6 bit surprise.',
+  'The same entrance as conformal gravity — physics is in a dimensionless coupling')
+
 BODY += mini([
- (35,'Asymptotic safety and a running \\(G\\)'),
  (36,'Summary: the whole table, side by side'),
 ])
 

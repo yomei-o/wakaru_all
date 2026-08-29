@@ -1,0 +1,306 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">Episode 7 counted "\(G\) is dimensionful, hence bookkeeping"; Episode 34 counted "\(\alpha_g\) is dimensionless, hence physics". <strong>Asymptotic safety connects the two</strong> — pair \(G\) with a scale, <em>make it dimensionless and let it run</em>. It settles onto a fixed point in the ultraviolet and gravity survives as a quantum theory. And Episode 14's <strong>anomalous dimensions</strong> finally reach gravity itself — <em>at a value far larger than one would guess.</em></p>
+
+<h2><span class="n">01</span>Making \(G\) dimensionless</h2>
+
+<div class="calc">
+<span class="tag">This series' procedure, applied to gravity's coupling</span>
+<p class="lbl">in four dimensions \([G]=\)length\(^2\) (with \(\hbar=c=1\), \(G=\ell_P^2\)) — dimensionful, hence bookkeeping</p>
+$$g(k)=G\,k^2=(\ell_P k)^2\qquad\text{← this is the physics side (weight 0)}$$
+</div>
+
+<p>Episode 3 settled that only dimensionless quantities are physics, and Episode 16 drew the map. <strong>Asymptotic safety applies that procedure to gravity's coupling itself</strong> — \(G\) alone means nothing, so pair it with a scale \(k\) and make it dimensionless.</p>
+
+<h2><span class="n">02</span>Let it run</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Scale</th><th class="mid">\(k\) [1/m]</th><th class="mid">\(g=(\ell_Pk)^2\)</th></tr></thead>
+<tbody>
+<tr><th>Laboratory (\(1\ \mathrm{m^{-1}}\))</th><td class="mid">\(1.0\)</td><td class="mid">\(2.6\times10^{-70}\)</td></tr>
+<tr><th>Proton (1 GeV)</th><td class="mid">\(5.1\times10^{15}\)</td><td class="mid">\(6.7\times10^{-39}\)</td></tr>
+<tr><th>LHC (10 TeV)</th><td class="mid">\(5.1\times10^{19}\)</td><td class="mid">\(6.7\times10^{-31}\)</td></tr>
+<tr><th>Grand unification (\(10^{16}\) GeV)</th><td class="mid">\(5.1\times10^{31}\)</td><td class="mid">\(6.7\times10^{-7}\)</td></tr>
+<tr class="hi"><th>Planck (\(1.22\times10^{19}\) GeV)</th><td class="mid">\(6.2\times10^{34}\)</td><td class="mid"><strong>\(1.0\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">Measure the slope</span>
+$$\frac{38.2\ \text{orders}\ (g)}{19.1\ \text{orders}\ (E)}=2.00$$
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §02</p>
+<p style="margin:6px 0 0">The slope is <strong>exactly 2</strong> — the classical dimension of \(g=Gk^2\) itself.<br>
+── <em>Below the Planck scale the weight table is exactly right (zero anomalous dimension).</em></p>
+</div>
+
+<p>Incidentally, the famous "gravity is \(10^{-38}\) times weaker" lives here — <em>\(g=6.7\times10^{-39}\) at proton scales</em>. It is not weak; <strong>we are simply looking at a small scale</strong>.</p>
+
+<h2><span class="n">03</span>It settles onto a fixed point in the ultraviolet</h2>
+
+<div class="calc">
+<span class="tag">The claim of asymptotic safety</span>
+$$\beta_g=2g-b\,g^2\qquad\Longrightarrow\qquad g^*=\frac{2}{b}\ne0\quad(\text{a non-Gaussian fixed point})$$
+<p class="lbl">representative Reuter-type values (<strong>truncation and scheme dependent</strong>)</p>
+$$g^*\simeq0.71,\qquad \lambda^*\simeq0.19$$
+</div>
+
+<p>Since \(g\) stops there, \(G(k)\propto1/k^2\) and <strong>gravity weakens in the ultraviolet</strong>. That is what "asymptotically safe" means — instead of diverging, it settles at a finite value.</p>
+
+<div class="fig">
+<p class="cap">Figure: the running of the dimensionless coupling \(g=Gk^2\). <strong>Below Planck it is a straight line of slope 2 (the classical dimension); above, it flattens onto the fixed point.</strong> Change \(g^*\) with the slider and the bend moves.</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>Fixed-point value \(g^*\) (varies with truncation)<input id="sg" type="range" min="10" max="150" value="71" step="1"></label>
+  <span class="val" id="vg">g* = 0.71</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2a5a5a"></i>the running of \(g=Gk^2\)</span>
+  <span><i class="swatch" style="background:#8a3a3a"></i>fixed point \(g^*\)</span>
+  <span><i class="swatch" style="background:#c2cfcf"></i>the Planck energy</span>
+</div>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>The heart — at the fixed point the weight table is 100% wrong</h2>
+
+<p>For \(g=Gk^2\) to be constant, \(G\) must run as \(k^{-2}\). That is —</p>
+
+<div class="calc">
+<span class="tag">The anomalous dimension of Newton's coupling</span>
+$$\eta_N=-2\qquad(\text{exactly, at the fixed point})$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Operator</th><th class="mid">Classical dimension</th><th class="mid">Anomalous dimension</th><th class="mid">Relative error</th></tr></thead>
+<tbody>
+<tr><th>3D Ising spin operator (Episode 14)</th><td class="mid">0.5</td><td class="mid">0.0181</td><td class="mid">3.6%</td></tr>
+<tr class="hi"><th>Gravity's coupling (at the fixed point)</th><td class="mid">2.0</td><td class="mid"><strong>2.0</strong></td><td class="mid"><strong>100%</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The thing this episode most wants to say</p>
+<p style="margin:6px 0 0">Episode 14 said "the bookkeeping gets error bars", and measured <strong>3.6%</strong> for the 3D Ising model.<br>
+At gravity's fixed point it is <strong>100%</strong> — <em>the classical dimension is cancelled entirely.</em><br>
+── <strong>Not error bars. The weight table loses its meaning there.</strong></p>
+</div>
+
+<p>Episode 14 concluded that "a weight is not a settled number: a theory determines it and experiment measures it". <em>In gravity's ultraviolet, the "theory determines it" part goes to its limit</em> — the prediction of dimensional analysis vanishes completely.</p>
+
+<h2><span class="n">05</span>What it buys — the number of predictions</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th class="mid">Content</th></tr></thead>
+<tbody>
+<tr><th>Relevant directions</th><td class="mid"><strong>2 to 3</strong> (varies with truncation)</td></tr>
+<tr><th>If three</th><td class="mid">the ultraviolet physics is fixed by three numbers — 16.1 bits at Episode 5's price</td></tr>
+<tr class="hi"><th>The weakness</th><td class="mid"><strong>that the number is not settled</strong>, being truncation dependent</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">06</span>A prediction that came true — the Higgs mass</h2>
+
+<div class="calc">
+<span class="tag">Predicted in 2010, discovered in 2012</span>
+$$\text{Shaposhnikov \& Wetterich (2010)}:\quad m_H\simeq126\ \mathrm{GeV}$$
+$$\text{Measured}:\quad m_H=125.25\pm0.17\ \mathrm{GeV}\qquad(\text{a gap of }0.6\%)$$
+</div>
+
+<p><em>Issued before the discovery.</em> Measure the surprise by Episode 19's procedure.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Choice of prior range</th><th class="mid">Surprise</th></tr></thead>
+<tbody>
+<tr><th>The 90–160 GeV window suggested by LEP + precision electroweak at the time</th><td class="mid">4.5 bit</td></tr>
+<tr><th>A wider 100–300 GeV</th><td class="mid">6.1 bit</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>4 to 6 bits</strong> — the <em>coincidence</em> band on Episode 19's scale (MOND was 5.9 in Episode 29, \(\gamma_0\) was 5.4 in Episode 34). But <strong>it has an explanation (the fixed-point condition)</strong>, so like inflation in Episode 27 it moves to <em>physics</em> — if it holds. <em>The prediction depends on assumptions about the matter sector and its robustness is debated.</em></p>
+
+<h2><span class="n">07</span>The reveal — the same entrance as Episode 34</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>Conformal gravity (Episode 34)</strong><span>\(\alpha_g\) is dimensionless <em>by construction</em> — in the physics column from the start</span></div></div>
+<div class="row hi"><div class="mk">◎</div><div class="txt"><strong>Asymptotic safety (today)</strong><span>\(G\) is <em>made</em> dimensionless by pairing with a scale — then run to find a fixed point</span></div></div>
+<div class="row"><div class="mk">◆</div><div class="txt"><strong>Two implementations of one requirement</strong><span>both start from "the physics is in a dimensionless coupling"</span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §07</p>
+<p style="margin:6px 0 0">The decision procedure built in Episode 3 (<em>dimensionful is bookkeeping, dimensionless is physics</em>)<br>
+<strong>is shaping the design of quantum gravity itself.</strong><br>
+── Two theories enter by the same door and pay their price in different places.</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Theory</th><th class="mid">Dimensionless coupling</th><th class="mid">Main debt</th><th class="mid">Unresolved</th></tr></thead>
+<tbody>
+<tr><th>Conformal gravity (Episode 34)</th><td class="mid">\(\alpha_g\) (by construction)</td><td class="mid">ghosts</td><td class="mid">no established CMB prediction</td></tr>
+<tr class="hi"><th>Asymptotic safety</th><td class="mid">\(g=Gk^2\) (running)</td><td class="mid">truncation dependence</td><td class="mid">the number of predictions is unsettled</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line — what this episode assumes</span>
+<p style="margin:0 0 10px"><strong>① The fixed-point values \(g^*\simeq0.71\), \(\lambda^*\simeq0.19\) depend on truncation and scheme.</strong> Functional renormalisation group calculations require choosing how to truncate the action, and <em>the values move by tens of percent</em>. The <strong>existence</strong> of the fixed point is confirmed across many truncations, but there is no rigorous proof that it is a genuine non-perturbative result.</p>
+<p style="margin:0 0 10px"><strong>② \(\eta_N=-2\) restates "\(g\) is constant at the fixed point".</strong> It holds largely by definition — <em>close to an identity in Episode 19's classification</em>. Whether such a fixed point exists is not an identity but a claim about physics. §04 says: <strong>if there is a fixed point, the weight table's error is maximal.</strong></p>
+<p style="margin:0 0 10px"><strong>③ "Two to three relevant directions" is an estimate from truncated calculations.</strong> That the number is unsettled is itself one of the main criticisms of the theory's predictive power.</p>
+<p style="margin:0 0 10px"><strong>④ The Higgs mass prediction (Shaposhnikov &amp; Wetterich 2010) depends on assumptions about the matter sector</strong> (in particular the condition that quantum effects set \(\lambda\) and \(\beta_\lambda\) to zero at the Planck scale). Its robustness and the treatment of the top quark mass uncertainty are debated — <em>this document records only that it came true and how large the surprise was</em>.</p>
+<p style="margin:0"><strong>⑤ Asymptotic safety is a leading candidate but not an established theory of quantum gravity.</strong> String theory, loop quantum gravity, causal dynamical triangulations and others remain open alongside it.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises (solvable with this episode's formulas alone)</p>
+<ol>
+<li>How is \(G\) made dimensionless, and why?
+<details><summary>Show the answer</summary><div class="ans">\([G]=\)length\(^2\), so pairing with a scale \(k\) (an inverse length) gives \(g=Gk^2=(\ell_Pk)^2\), dimensionless. Since <strong>dimensionful is bookkeeping and dimensionless is physics</strong> (Episodes 3 and 16), <em>the physics is on the \(g\) side</em>.</div></details></li>
+
+<li>Find \(g\) at proton scales and explain "gravity is \(10^{-38}\) times weaker".
+<details><summary>Show the answer</summary><div class="ans">1 GeV gives \(k=5.07\times10^{15}\ \mathrm{m^{-1}}\), so \(g=(\ell_Pk)^2=6.7\times10^{-39}\). <strong>Gravity is not intrinsically weak; we are looking at a small scale</strong> — at the Planck scale \(g=1\).</div></details></li>
+
+<li>Why is the slope of \(g\) equal to 2 below the Planck scale?
+<details><summary>Show the answer</summary><div class="ans">Because \(g=Gk^2\) with constant \(G\) gives \(g\propto k^2\). <strong>The classical dimension itself</strong>, meaning <em>zero anomalous dimension</em> — below Planck the weight table is exactly right.</div></details></li>
+
+<li>Find the anomalous dimension at the fixed point and compare with Episode 14.
+<details><summary>Show the answer</summary><div class="ans">For \(g=Gk^2\) to be constant, \(G\propto k^{-2}\), i.e. <strong>\(\eta_N=-2\) exactly</strong>. The 3D Ising model had 0.018 against a classical 0.5 (<em>3.6%</em>); gravity has 2 against 2 — <strong>100%</strong>. <em>The classical dimension is cancelled entirely.</em></div></details></li>
+
+<li>(Harder) How does asymptotic safety relate to Episode 34's conformal gravity?
+<details><summary>Show the answer</summary><div class="ans">Both start from <strong>the same requirement that the physics be in a dimensionless coupling</strong> — conformal gravity has \(\alpha_g\) dimensionless <em>by construction</em>, asymptotic safety <em>makes</em> \(G\) dimensionless by pairing with \(k\) and runs it. <em>Episode 3's decision procedure is shaping the design of quantum gravity itself.</em> They pay their price in different places (ghosts versus truncation dependence).</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — in gravity the weight table vanishes entirely</h2>
+<p>Asymptotic safety applies this series' decision procedure to gravity's coupling: \(G\) alone is meaningless, so pair it with a scale to form <strong>\(g=Gk^2=(\ell_Pk)^2\)</strong>. Run it and you get \(2.6\times10^{-70}\) in the laboratory, \(6.7\times10^{-39}\) at proton scales, \(1.0\) at Planck — <em>a slope of exactly 2, the classical dimension itself</em>. And "gravity is \(10^{-38}\) times weaker" turns out to mean <strong>not that it is weak but that we are looking at a small scale</strong>.</p>
+<p>In the ultraviolet it settles onto \(g^*\simeq0.71\), giving \(G(k)\propto1/k^2\) and <strong>gravity weakening at short distances</strong>. And the heart — for \(g\) to be constant \(G\) must run as \(k^{-2}\), so Newton's coupling has anomalous dimension <strong>\(\eta_N=-2\) exactly</strong>. Episode 14 said "the bookkeeping gets error bars" and measured <strong>3.6%</strong> for the 3D Ising model; at gravity's fixed point it is <strong>100%</strong> — <em>the classical dimension is cancelled entirely. Not error bars.</em></p>
+<p>What it buys is <strong>the number of predictions</strong> (two to three relevant directions, 16.1 bits at Episode 5's price) — though <em>the number being unsettled</em> is the weakness. One prediction did come true: Shaposhnikov and Wetterich's 126 GeV for the Higgs against a measured 125.25 GeV, a surprise of <strong>4 to 6 bits</strong> by Episode 19's procedure, which counts as <em>physics</em> because it has an explanation (though it depends on assumptions about the matter sector).</p>
+<p>And the reveal — <strong>it enters by the same door as Episode 34's conformal gravity</strong>. One has \(\alpha_g\) dimensionless by construction; the other makes \(G\) dimensionless and runs it. <em>The "dimensionful is bookkeeping, dimensionless is physics" procedure built in Episode 3 is shaping the design of quantum gravity itself</em> — and the two pay their price in different places (ghosts versus truncation dependence).</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next — Episode 36 (Part IV finale)</span>
+Part IV's nine theories go onto one operating table — inflation, VSL, MOND, measuring constants, CCC, the cosmon, Milne, conformal gravity, asymptotic safety. <strong>The same surgery applied to all of them, and an inventory of where the dividing line fell.</strong> And then <em>the most important thing this part found</em>: <strong>a good theory has already performed Episode 3's surgery.</strong> Exactly one had not.
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sg=document.getElementById('sg'), vg=document.getElementById('vg'), ro=document.getElementById('ro');
+  var X0=78, X1=700, Y0=34, Y1=310;
+  var lP=1.616255e-35, hbarc=1.973269804e-16, Epl=1.220890e19;
+  var xmin=-3, xmax=25;
+  var ymin=-46, ymax=2;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function lgG(lE){
+    var k=Math.pow(10,lE)/hbarc;
+    return 2*Math.log(lP*k)/Math.LN10;
+  }
+
+  function draw(){
+    var gs=parseInt(sg.value,10)/100;
+    var lgs=Math.log(gs)/Math.LN10;
+    var lEs=(lgs/2)+Math.log(hbarc/lP)/Math.LN10;
+
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+
+    g.textAlign='right';
+    for(var e=-45;e<=0;e+=15){
+      var y=py(e);
+      g.strokeStyle='#eef3f3'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#95a8a8'; g.fillText(e===0?'1':'10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=0;q<=24;q+=6){
+      var x=px(q);
+      g.strokeStyle='#f6faf9'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#95a8a8'; g.fillText('10'+q+' GeV', x, Y1+16);
+    }
+    g.strokeStyle='#c5d4d4'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    var lPl=Math.log(Epl)/Math.LN10;
+    g.strokeStyle='#c2cfcf'; g.lineWidth=1.6; g.setLineDash([5,4]);
+    g.beginPath(); g.moveTo(px(lPl),Y0); g.lineTo(px(lPl),Y1); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#8ea0a0'; g.textAlign='center';
+    g.fillText('Planck', px(lPl), Y0-8);
+
+    g.strokeStyle='#8a3a3a'; g.lineWidth=2.2; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(lgs)); g.lineTo(X1,py(lgs)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#7a3232'; g.textAlign='left';
+    g.fillText('fixed point g* = '+gs.toFixed(2), X0+10, py(lgs)-8);
+
+    g.strokeStyle='#2a5a5a'; g.lineWidth=3.4;
+    g.beginPath();
+    var first=true;
+    for(var i=0;i<=300;i++){
+      var lE=xmin+(xmax-xmin)*i/300;
+      var y=(lE<lEs)? lgG(lE) : lgs;
+      if(y<ymin||y>ymax){ first=true; continue; }
+      if(first){ g.moveTo(px(lE),py(y)); first=false; } else g.lineTo(px(lE),py(y));
+    }
+    g.stroke();
+
+    if(lEs>xmin&&lEs<xmax){
+      g.fillStyle='#2a5a5a';
+      g.beginPath(); g.arc(px(lEs),py(lgs),6,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=2;
+      g.beginPath(); g.arc(px(lEs),py(lgs),6,0,6.2832); g.stroke();
+    }
+
+    g.fillStyle='#2a5a5a'; g.textAlign='left';
+    g.fillText('slope 2 (classical dimension)', px(6), py(lgG(6))-10);
+    g.fillStyle='#7a3232';
+    g.fillText('slope 0 (η_N = −2 cancels it)', px(lEs)+14, py(lgs)+18);
+
+    g.fillStyle='#7d9090'; g.textAlign='center';
+    g.fillText('energy scale  k', (X0+X1)/2, Y1+38);
+    g.save(); g.translate(19,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('dimensionless coupling g = G k²', 0,0); g.restore();
+
+    vg.textContent='g* = '+gs.toFixed(2);
+    ro.textContent='g* = '+gs.toFixed(2)+
+      '　→　the bend sits at '+Math.pow(10,lEs).toExponential(2)+' GeV ('+
+      (Math.pow(10,lEs)/Epl).toFixed(2)+'× Planck)'+
+      '　/　above it η_N = −2 exactly cancels the classical +2 — a 100% error in the weight table';
+  }
+  sg.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-35-asymptotic-safety.html', acc='#2a5a5a', ops='#8a3a3a',
+      title='Asymptotic safety and a running G ── c·t = const, That Clicks, Episode 35',
+      ep='EPISODE 35 ／ Part IV — Episode 14\'s anomalous dimensions reach gravity',
+      eyebrow='Ising was 3.6%; gravity\'s fixed point is 100%',
+      h1='Asymptotic safety<br>and a running \\(G\\)',
+      sub='Pair \\(G\\) with a scale, make it dimensionless, and run it to find a fixed point.<br><em>Episode 14\'s error in the weight table then reaches 100% in gravity.</em>',
+      byline_l='What you need: Episode 3\'s procedure, Episode 14\'s anomalous dimensions, Episode 19\'s practice',
+      byline_r='\\(\\eta_N=-2\\) — the classical dimension vanishes entirely',
+      body=BODY + '\n\n<p class="foot">This document is Episode 35 of "c·t = const, That Clicks", written for physics-minded high-school and university readers. Asymptotic safety comes from Weinberg\'s (1979) proposal and functional renormalisation group work since Reuter (1998). That \\([G]=\\)length\\(^2\\) in four dimensions, that \\(g=Gk^2\\) is dimensionless, and that \\(\\eta_N=-2\\) at a non-Gaussian fixed point are all standard. The values of \\(g\\) (\\(6.7\\times10^{-39}\\) at proton scales, \\(1.0\\) at Planck), the slope of 2.00, and the comparison with Episode 14 (Ising 3.6%, gravity 100%) are computed here (kenshou/calc39.py). <strong>The fixed-point values \\(g^*\\simeq0.71\\), \\(\\lambda^*\\simeq0.19\\) depend on truncation and scheme and move by tens of percent</strong> — the existence of the fixed point is confirmed across many truncations, but there is no rigorous proof that it is a genuine non-perturbative result. <strong>\\(\\eta_N=-2\\) restates "\\(g\\) is constant at the fixed point" and holds largely by definition</strong> (close to an identity in Episode 19\'s classification); §04\'s claim is that <em>if</em> there is a fixed point, the weight table\'s error is maximal. "Two to three relevant directions" is an estimate from truncated calculations, and <strong>the number being unsettled is itself a main criticism of the theory\'s predictive power</strong>. The Higgs mass prediction is Shaposhnikov &amp; Wetterich (2010, Phys. Lett. B683, 196) and <strong>depends on assumptions about the matter sector; its robustness is debated</strong> — this document records only that it came true and how large the surprise was. The measured \\(m_H=125.25\\pm0.17\\) GeV is the PDG value. Asymptotic safety is a leading candidate but not an established theory of quantum gravity, alongside string theory, loop quantum gravity and causal dynamical triangulations. The academic standard remains the \\(\\Lambda\\)CDM model including inflation, together with unmodified general relativity. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, changing the fixed-point value moves where the curve bends. "Show the answer" opens each solution.')
