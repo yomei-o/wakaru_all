@@ -280,7 +280,7 @@ BODY += card(50,'wakaru-ct-50-final.html','Finale: only one thing moves',
   'Six parts, nine theories, eight places the tool broke, sixteen open doors, four compressions. Applying that compression to the series itself, the six tools become two: separating the dimensionful from the dimensionless, and measuring everything in bits — and one step further, the second was the tool for checking the first. What 50 episodes did was one idea and a way of checking it. The verdict never moved; what moved was the understanding of why that verdict can be reached. Three lines are enough to take away.',
   'Separating what moves from what does not')
 
-BODY += '''<div class="part">\n  <div class="pn">BONUS</div>\n  <div class="pt">Back to what was left undug</div>\n  <div class="pd">After the main fifty closed we went back to one thing left undug: <em>the variation of mass</em>. For fifty episodes this series wrote that expansion and shrinking cannot be told apart — <strong>so what can be?</strong> Digging turned up a degeneracy, and that led on to the exponential map.</div>\n</div>\n\n'''
+BODY += '''<div class="part">\n  <div class="pn">BONUS</div>\n  <div class="pt">Back to what was left undug</div>\n  <div class="pd">After the main fifty closed we went back to one thing left undug: <em>the variation of mass</em>. For fifty episodes this series wrote that expansion and shrinking cannot be told apart — <strong>so what can be?</strong> Digging turned up a degeneracy, that led on to the exponential map, and it ended at <strong>what a dimensionless quantity even is, and whether constants exist at all</strong>.</div>\n</div>\n\n'''
 
 BODY += bonus('①','wakaru-ct-b1-mass.html','What it means for mass to vary',
   'mu = m_p/m_e has weight 0, so no conformal transformation moves it — which is why expansion and shrinking cannot be told apart. But m_e is 100 per cent of Higgs origin while 87 to 93 per cent of m_p is Lambda_QCD, a product of the trace anomaly, so mu is the only ratio straddling the two origins. Digging further turned up a degeneracy: variation of the constants is a three-dimensional problem, and the worst direction of the Fisher matrix is 99.6 per cent quark mass, with a condition number of 1196 (10.2 bits). And that invisible direction is the one that matters most to physics.',
@@ -289,6 +289,10 @@ BODY += bonus('①','wakaru-ct-b1-mass.html','What it means for mass to vary',
 BODY += bonus('②','wakaru-ct-b2-hierarchy.html','A hierarchy shrinks to its own logarithm',
   'Differentiating dimensional transmutation gives d lnLambda / d lnalpha = H — the gain is exactly the hierarchy. So a hierarchy of B bits shrinks to a description length of log2 B bits, exactly. The cosmological constant problem’s 408 bits become 8.7 through an exponential map, a compression of 47. Out of this comes a second criterion for fine-tuning — is an exponential map available — which reproduces which problems physicists actually treat as real. And Episode 32’s cosmon turns out to sit only 2 bits above that floor.',
   'A 408-bit problem becomes 8.7 bits')
+
+BODY += bonus('③','wakaru-ct-b3-dimensionless.html','What a dimensionless quantity is, and whether constants exist',
+  'A dimensionless quantity is what you can send by radio — conveyed without shipping anything. But the zero column is not homogeneous: ratios, angles, counts and exponents belong to different groups, and the logarithm turns out to be not a discovery but the isomorphism from the multiplicative group to the additive one. That makes Episode 48’s criterion a theorem: compact means the Haar measure is normalisable and the prior is fixed, non-compact means it is not — which is why the one uncontested fine-tuning problem is the one angle. And re-sorting the constants, about 24 are running functions, 6 are this universe’s state, and what is genuinely invariant is a theorem rather than a constant. One remains, and the axion would remove it.',
+  'Perhaps there is not a single constant')
 
 HEAD = '''<!DOCTYPE html>
 <html lang="en">
@@ -312,7 +316,7 @@ HEAD = '''<!DOCTYPE html>
 <em>Which is exactly why it can be substituted into every equation there is</em>: it is a notation for writing cosmology as short as it will go.<br>
 This series measures that shortness, all the way, in the language of information theory.</span></h1>
 
-<p class="meta"><span>50 episodes, complete + 2 bonus / 6 parts</span><span>Each episode: count → divide → interactive figure → the reveal → exercises</span><span>Main series complete + 2 bonus episodes</span><span>Print / PDF ready</span></p>
+<p class="meta"><span>50 episodes, complete + 3 bonus / 6 parts</span><span>Each episode: count → divide → interactive figure → the reveal → exercises</span><span>Main series complete + 3 bonus episodes</span><span>Print / PDF ready</span></p>
 
 <p class="lead">The backbone of the previous series was "dimensionful is bookkeeping, dimensionless is physics". But the quantities of information theory — bits, operation counts, parameter counts, entropy — are <strong>dimensionless from the outset</strong>. They carry no units. So a cosmology written in that language can only ever live in the "physics" column. We start again from where bonus episode ② of the previous series asked "is the universe a computer with finite resources?" and answered "the motivation was apt, the implementation missed" — this time not as a verdict, but as <strong>compression</strong>.</p>
 
