@@ -166,8 +166,11 @@ BODY += card(27,'wakaru-ct-27-inflation.html','Inflation, on the same operating 
   'Cut “it solves the horizon problem” in two: (A) establishing causal contact, (B) producing a fluctuation spectrum. (A) is cheap — the particle horizon \(ct/(1-p)\) diverges at \(p=1\), so <strong>\(a\propto t\) removes the problem with zero e-folds and zero parameters</strong>. What survives is (B): the horizon fixes \(N_{\min}=62.1\) and the same \(N\) predicts \(n_s\), against an observed \(N=57.0\pm6.8\) — <em>agreement at 0.75σ</em>. The most famous motivation turns out to be the weakest argument.',
   'Same surgery, different survivor')
 
+BODY += card(28,'wakaru-ct-28-vsl.html','VSL — where the surgery went wrong',
+  'The \(c\) called “the speed of light” appears in four separate roles (Ellis &amp; Uzan), and VSL fixes \(e\) and \(\hbar\), so its observable content is <strong>entirely “\(\alpha\) varies”</strong> — against \(\alpha\) pinned to 32.5 bits in the laboratory and 26.4 at Oklo. Solving the horizon problem demands \(\alpha(z)/\alpha_0\ge1+z\), <strong>ten orders over the nucleosynthesis bound</strong>. A phase transition escapes that — and loses every prediction in the observable era at the same stroke.',
+  'The failure was not moving c, but continuing to call it c')
+
 BODY += mini([
- (28,'Variable speed of light (VSL) — where the operation went wrong'),
  (29,'MOND — the comparison hidden inside an acceleration'),
  (30,'Measuring varying constants for real (atomic clocks, Oklo, quasar absorption)'),
  (31,'Penrose\'s conformal cyclic cosmology'),
