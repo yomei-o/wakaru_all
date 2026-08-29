@@ -223,8 +223,11 @@ BODY += card(40,'wakaru-ct-40-gravity-entropy.html','Gravitational entropy — n
   'The Hubble sphere sits exactly at its own Schwarzschild radius (an identity at critical density), and because of it three separate 10^122 numbers coincide: the holographic bound, the entropy of all the mass as one black hole, and Episode 24’s N = C.t. The 5 per cent gap is exactly the ratio of the age of the universe to the Hubble time. The actual entropy is 3.1e104, of which 99.999 per cent is supermassive black holes, leaving 59.3 doublings of headroom — headroom that survives because gravity only attracts, so a uniform gravitational field is at minimum entropy, not maximum.',
   'The three headline numbers were one')
 
+BODY += card(41,'wakaru-ct-41-weyl-hypothesis.html','The Weyl curvature hypothesis',
+  'Penrose demanded Weyl = 0 at initial singularities — a condition that switches off exactly half of the 20 Riemann components. Measured in bits, his famous 10^(10^123) is 3.27e122 bits, exactly the same number as Episode 24’s N = C.t and Episode 40’s holographic bound: four headline numbers turned out to be one. And lining beginning and end up on Episode 33’s three-step test, the beginning is Step 2 (the tool reaches) and the final black holes are Step 3 (it does not) — the arrow of time runs from where conformal transformations reach to where they do not.',
+  'Four headline numbers were one')
+
 BODY += mini([
- (41,'The Weyl curvature hypothesis, measured as occupancy'),
  (42,'What happens to the notation inside a black hole'),
  (43,'The Planck scale — the edge of the band'),
  (44,'What changes if you make it discrete'),
