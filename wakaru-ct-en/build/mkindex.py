@@ -252,8 +252,11 @@ BODY += card(46,'wakaru-ct-46-characterisations.html','Every characterisation of
   'Collecting every way of saying a proportional to t gives twelve statements, nine of which are identities of one another — mere rewritings by differentiation and integration. The independent inputs are three: the expansion law, the Einstein equations, and the spatial curvature. Tested against observation, q=0 misses by 13 sigma and w=-1/3 by 23 sigma, but H_0 t_0 = 1 misses by only 4.9 per cent, and the Hubble tension straddles it exactly. The difference is integral versus instant — which is why c.t = const looked plausible in the first place.',
   'Where the plausibility came from')
 
+BODY += card(47,'wakaru-ct-47-map.html','The map of dimensionless quantities',
+  'In 2019 the SI fixed the exact values of seven constants and redefined the units from them; the kilogram prototype was retired and mass is now built from h. That is an official international declaration that dimensionful quantities are bookkeeping — the same line this series drew by hand in Episode 3. But alpha could not be fixed: being dimensionless, it is not determined by any definition of units. The map of dimensionless quantities spans 815 bits, physics has 32 parameters of which exactly one is dimensionful, and 171.7 bits of them are unexplained.',
+  'c can be decreed; alpha cannot')
+
 BODY += mini([
- (47,'A map of the dimensionless — what is physics and what is bookkeeping'),
  (48,'Shortness, fit, beauty — three currencies'),
  (49,'The doors still open'),
  (50,'Finale: only one thing was ever moving'),
