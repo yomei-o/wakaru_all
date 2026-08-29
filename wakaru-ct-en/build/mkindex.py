@@ -294,6 +294,14 @@ BODY += bonus('③','wakaru-ct-b3-dimensionless.html','What a dimensionless quan
   'A dimensionless quantity is what you can send by radio — conveyed without shipping anything. But the zero column is not homogeneous: ratios, angles, counts and exponents belong to different groups, and the logarithm turns out to be not a discovery but the isomorphism from the multiplicative group to the additive one. That makes Episode 48’s criterion a theorem: compact means the Haar measure is normalisable and the prior is fixed, non-compact means it is not — which is why the one uncontested fine-tuning problem is the one angle. And re-sorting the constants, about 24 are running functions, 6 are this universe’s state, and what is genuinely invariant is a theorem rather than a constant. One remains, and the axion would remove it.',
   'Perhaps there is not a single constant')
 
+BODY += bonus('④','wakaru-ct-b4-relations.html','Is there hidden structure among the constants?',
+  'An exactly-137 fine structure constant is excluded at 1.7 million sigma, yet the physical difference is only 0.026 per cent — the sole effect in the world is a 3-sigma shift in the neutron lifetime. It nags because 137 is an integer, and the surprise of that nearness is 3.8 bits, the bottom of the band. “Changing this is the same as changing that” comes in three kinds: exact degeneracies (theta and the quark phases, the CKM’s five directions) tell you about your notation, observational ones about your instruments, and only hidden relations about physics. And searching for relations has a price — a 4.1-bit prediction beats a 15.7-bit discovery.',
+  '“Theory first” meant fixing the measure first')
+
+BODY += bonus('⑤','wakaru-ct-b5-measure.html','The prior was never ours to choose',
+  'The renormalisation group hands out the measure: for a one-dimensional flow the invariant measure is rho proportional to 1/beta, uniquely, and it is RG time itself. Since a verdict that changes with the scale depends on a convention (Episode 3), the prior must be RG-invariant — and that fixes it. The shape of the measure follows from the shape of beta alone: multiplicative is cheap, additive is expensive, which is ’t Hooft’s criterion. Scoring all 20 Standard Model parameters this way, exactly three come out expensive — the hierarchy, strong CP and the cosmological constant, with zero false positives. And it closed two escape routes this series had built for itself.',
+  'The shape of beta alone hits all three problems')
+
 HEAD = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,7 +324,7 @@ HEAD = '''<!DOCTYPE html>
 <em>Which is exactly why it can be substituted into every equation there is</em>: it is a notation for writing cosmology as short as it will go.<br>
 This series measures that shortness, all the way, in the language of information theory.</span></h1>
 
-<p class="meta"><span>50 episodes, complete + 3 bonus / 6 parts</span><span>Each episode: count → divide → interactive figure → the reveal → exercises</span><span>Main series complete + 3 bonus episodes</span><span>Print / PDF ready</span></p>
+<p class="meta"><span>50 episodes, complete + 5 bonus / 6 parts</span><span>Each episode: count → divide → interactive figure → the reveal → exercises</span><span>Main series complete + 5 bonus episodes</span><span>Print / PDF ready</span></p>
 
 <p class="lead">The backbone of the previous series was "dimensionful is bookkeeping, dimensionless is physics". But the quantities of information theory — bits, operation counts, parameter counts, entropy — are <strong>dimensionless from the outset</strong>. They carry no units. So a cosmology written in that language can only ever live in the "physics" column. We start again from where bonus episode ② of the previous series asked "is the universe a computer with finite resources?" and answered "the motivation was apt, the implementation missed" — this time not as a verdict, but as <strong>compression</strong>.</p>
 
