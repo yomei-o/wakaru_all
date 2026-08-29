@@ -215,8 +215,11 @@ BODY += card(38,'wakaru-ct-38-conformal-factor.html','The conformal factor probl
   'Rewrite the Einstein action as g = Omega^2 g-hat and the conformal factor’s kinetic term has coefficient (D-1)(D-2) with the sign opposite to an ordinary scalar. It vanishes only at D=1 and D=2; at D=4 it is 6. Wrinkle the factor and the Euclidean action falls as n-squared forever — 8498 bits of path-integral weight at n=50, with no bottom. The fix is to rotate the contour, but there is no derivation from first principles. And the finding: the ghost never disappears, it just moves between the conformal factor and the spin 2.',
   'The place where the tool breaks does not vanish; it moves')
 
+BODY += card(39,'wakaru-ct-39-kerr.html','Rotating spacetime — a bound in the untouchable column',
+  'Kerr carries two labels, M and chi. On the weight table M is -1 and chi is 0 — one is bookkeeping, the other is physics, which makes it the cleanest example of Part II’s "a conformal transformation touches only size". The bound chi<=1, the 0.29289 ceiling on extractable mass, and the fact that entropy at chi=1 is exactly half all live in the dimensionless column and cannot be moved. Measured spins sit just below the bound at 4.3 bits of surprise — back in the band, but explained. And on Episode 33’s three-step test Kerr is Step 3: the first spacetime this tool cannot reach.',
+  'Weyl not zero — a spacetime the conformal tool cannot reach')
+
 BODY += mini([
- (39,'Phase shows up only in a rotating spacetime'),
  (40,'How do you count gravitational entropy?'),
  (41,'The Weyl curvature hypothesis, measured as occupancy'),
  (42,'What happens to the notation inside a black hole'),
