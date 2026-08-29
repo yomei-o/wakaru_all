@@ -182,8 +182,11 @@ BODY += card(31,'wakaru-ct-31-ccc.html','Penrose’s conformal cyclic cosmology'
   'CCC’s central move is exactly Episode 11’s result — <em>with no mass there is no ruler, and with no ruler the conformal factor has no meaning</em>. Measuring its three conditions with this series’ quantities: 31.4% of today’s energy must lose its rest mass; the gluing falls at logarithmic step 348, with <strong>today only 40% of the way</strong>; occupancy falls from \(1.5\times10^{-18}\) to \(3.2\times10^{-22}\). And Episode 16 plus Episode 6 show <em>why CCC has no choice but to bet on information loss</em>.',
   'The theory in Part IV that best withstands the surgery')
 
+BODY += card(32,'wakaru-ct-32-cosmon.html','Wetterich’s cosmon',
+  'Episode 4’s picture put \(a(t)\) in by hand; the cosmon has field equations determine \(\chi(t)\). In the ledger it <strong>pays 2 parameters = 10.7 bits and buys back up to 408</strong> — the tuning of \(\rho_\Lambda/M_{\rm Pl}^4\). And it does not die like VSL because <em>one field sets every mass, so the ratios are fixed</em> — \(\alpha\)’s 26 bits catch nothing. Judgement moves to \(w=-1.03\pm0.03\).',
+  'A notation shortens L(law); a theory pays L(parameters) to reduce L(residual)')
+
 BODY += mini([
- (32,'Wetterich\'s cosmon — implementing a universe that does not expand'),
  (33,'Milne versus \\(R_h=ct\\) — coordinate change, or conformal transformation?'),
  (34,'Conformal gravity (Mannheim) — can conformal symmetry be more than bolted on?'),
  (35,'Asymptotic safety and a running \\(G\\)'),

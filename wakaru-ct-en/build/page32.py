@@ -1,0 +1,318 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">When Episode 4 counted "delete everything deletable and one mass is left", it named only the source of that picture — <strong>Wetterich</strong>, the person who actually wrote "a universe without expansion" as a field theory. Now we go inside. <em>Where Episode 4's picture was <strong>notation</strong>, the cosmon is <strong>a dynamical theory implementing that notation</strong></em> — so it has predictions. One question today: <strong>what does a notation gain when it becomes a theory?</strong></p>
+
+<h2><span class="n">01</span>Episode 4's picture versus the cosmon</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th class="mid">Episode 4's picture</th><th class="mid">The cosmon</th></tr></thead>
+<tbody>
+<tr><th>What moves</th><td class="mid">one mass, \(\tilde m=a(t)m\)</td><td class="mid">one mass, \(m\propto\chi\)</td></tr>
+<tr class="hi"><th>\(a(t)\) or \(\chi(t)\) is</th><td class="mid"><strong>a function put in by hand</strong></td><td class="mid"><strong>determined by field equations</strong></td></tr>
+<tr><th>Parameters</th><td class="mid">0</td><td class="mid">2, in the potential \(V(\chi)\)</td></tr>
+<tr><th>Predictions</th><td class="mid">0</td><td class="mid">\(w(z)\), structure formation</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0">Same picture, and yet whether \(m(t)\) is <strong>chosen or determined</strong> makes them entirely different things.<br>
+── <em>Episode 4 is notation; the cosmon is a theory.</em></p>
+</div>
+
+<p>In Wetterich's model a scalar field \(\chi\) (the cosmon) sets every particle mass, \(m\propto\chi\). And <strong>the same \(\chi\) also plays the role of dark energy</strong>. The field that grows the masses and the field that accelerates the universe are one field.</p>
+
+<h2><span class="n">02</span>What it pays — the price of parameters</h2>
+
+<div class="calc">
+<span class="tag">Episode 5's scales</span>
+<p class="lbl">an exponential potential \(V(\chi)=M^4e^{-\alpha\chi/M}\) has two</p>
+$$2\times\tfrac12\log_2(1701)=2\times5.37=10.7\ \text{bits}$$
+</div>
+
+<p>Episode 4's picture had zero, so <strong>10.7 bits have been paid</strong>. What is bought?</p>
+
+<h2><span class="n">03</span>What it buys — the cosmological constant's tuning</h2>
+
+<div class="calc">
+<span class="tag">Episode 12's number, in bits</span>
+$$\frac{\rho_\Lambda}{M_{\rm Pl}^4}=1.13\times10^{-123}\qquad\Longrightarrow\qquad -\log_2(1.13\times10^{-123})=408\ \text{bits}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The thing this episode most wants to say</p>
+<p style="margin:6px 0 0">Setting that value by hand means setting <strong>408 bits</strong>.<br>
+Quintessence claims it comes out automatically from an <em>attractor</em> —<br>
+<strong>paying 10.7 bits to buy back up to 408.</strong></p>
+</div>
+
+<p>That is why dynamical dark energy is attractive despite adding parameters. Episode 5 counted a parameter at 5.37 bits — <em>if 408 bits get explained, two of them are cheap</em>. (Not all of it is bought back; §07 does the honest accounting.)</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>Why it does not die like VSL in Episode 28</h2>
+
+<p>Structurally this is the most interesting part. The cosmon is also a "constants vary" theory, and yet its fate differs from Episode 28's VSL.</p>
+
+<div class="calc">
+<span class="tag">The reason in one line</span>
+<p class="lbl">the cosmon sets <strong>every mass by the same \(\chi\)</strong>, so</p>
+$$\frac{m_p}{m_e},\quad \frac{m_n}{m_p},\quad \alpha\quad \text{are all exactly invariant}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Dimensionless ratio</th><th class="mid">Observational bound</th><th class="mid">Bits pinned</th><th class="mid">Cosmon's prediction</th></tr></thead>
+<tbody>
+<tr><th>\(\alpha\)</th><td class="mid">\(1.4\times10^{-8}\)</td><td class="mid">26.1</td><td class="mid"><strong>exactly 0</strong></td></tr>
+<tr><th>\(m_p/m_e\)</th><td class="mid">\(1.4\times10^{-7}\)</td><td class="mid">22.8</td><td class="mid"><strong>exactly 0</strong></td></tr>
+<tr><th>\(m_n/m_p\)</th><td class="mid">\(1\times10^{-2}\)</td><td class="mid">6.6</td><td class="mid"><strong>exactly 0</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §04</p>
+<p style="margin:6px 0 0">Same "constants vary", and <strong>life or death turns on whether the ratios are protected.</strong><br>
+VSL moved \(\alpha\) and collided head-on with 26 bits of constraint (Episode 28).<br>
+The cosmon protects the ratios, so <em>measurements of constants catch nothing at all</em>.</p>
+</div>
+
+<p>This is not an accident but <strong>a design principle</strong>. Episode 3: "no claim without a comparison". Episode 9: "atoms shrink, and everything to compare against shrinks with them". <em>The cosmon builds that structure into the theory</em> — one field sets every mass, so the ratios cannot move.</p>
+
+<h2><span class="n">05</span>So what does judge it?</h2>
+
+<p>If measurements of constants cannot distinguish it, judgement moves elsewhere — to <strong>the equation of state of dark energy</strong>.</p>
+
+<div class="calc">
+<span class="tag">Observation</span>
+$$w=-1.03\pm0.03\qquad(\text{Planck} + \text{SNe} + \text{BAO})$$
+<p class="lbl">with a prior range \(w\in[-2,0]\)</p>
+$$\text{bits pinned}=-\log_2\frac{0.06}{2}=5.1\ \text{bits}$$
+</div>
+
+<div class="fig">
+<p class="cap">Figure: the arena of the equation of state \(w\). <strong>A cosmological constant is the single point \(w=-1\)</strong>; quintessence has width. Move the potential's slope \(\alpha\) and \(w\) drifts in and out of the observational band — <em>this is the arena the notation gained by becoming a theory</em>.</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>Potential slope \(\alpha\) (larger takes \(w\) further from \(-1\))<input id="sa" type="range" min="0" max="200" value="40" step="1"></label>
+  <span class="val" id="va">α = 0.40</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2a4a2a"></i>the cosmon's \(w(z)\)</span>
+  <span><i class="swatch" style="background:#8a6a1a"></i>cosmological constant (\(w=-1\))</span>
+  <span><i class="swatch" style="background:#c8d2c8"></i>band allowed by observation (\(\pm0.03\))</span>
+</div>
+</div>
+
+<p>DESI (2024) reports hints favouring models with time-varying \(w\) — <strong>an ongoing story</strong>, which this document does not adjudicate. <em>But being on an arena where judgement is possible at all is the decisive difference from Episode 4's picture.</em></p>
+
+<h2><span class="n">06</span>Does the singularity go away?</h2>
+
+<p>The most striking of Wetterich's claims is <strong>"the universe had no beginning"</strong>. It concerns the same place Episode 4's table counted as \(\tilde R=0\).</p>
+
+<div class="seven">
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>Curvature invariants do not diverge</strong><span>in the mass-grows picture the past lies at the finite side of \(\chi\to0\)</span></div></div>
+<div class="row"><div class="mk">△</div><div class="txt"><strong>Light's geodesics can be extended</strong><span>null geodesics survive a conformal transformation up to reparametrisation — Episode 11's invariance</span></div></div>
+<div class="row hi"><div class="mk">✗</div><div class="txt"><strong>Massive particles' worldlines do not</strong><span>the substance of a singularity is geodesic incompleteness, which is not conformally invariant — <em>the contested point</em></span></div></div>
+</div>
+
+<p>Episode 6 wrote that "nothing has actually vanished on changing pictures — the geometric singularity came back the moment a dimensionless ratio was formed". <strong>The same caution applies here.</strong> Though in the cosmon picture <em>masses too go to zero in the past</em>, so massive particles approach masslessness — <strong>whether "the singularity is removed" depends on how that limit is handled</strong>. Contested.</p>
+
+<h2><span class="n">07</span>The honest ledger — what is not bought back</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th class="mid">Content</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Bought back</th><td class="mid">the magnitude of \(\rho_\Lambda\) (up to <strong>408 bits</strong>, if the attractor explains it)</td></tr>
+<tr><th>Not bought ①</th><td class="mid">the potential's scale \(M\) still has to be set</td></tr>
+<tr><th>Not bought ②</th><td class="mid"><strong>the "why now" problem (Episode 12) remains</strong> — an attractor does not explain today's coincidence</td></tr>
+<tr><th>Not bought ③</th><td class="mid">the strength of \(\chi\)'s coupling to matter is a new freedom</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>So only part of the 408 bits is actually recovered — <strong>the order shrinks but does not go to zero</strong>. Episode 12 counted that "neither the cosmological constant problem nor the why-now problem moves when you swap pictures". <em>The cosmon is not a swap of pictures but a theory, so it bites on the first. Not on the second.</em></p>
+
+<h2><span class="n">08</span>The surgery — name against content</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Ep.</th><th>Theory</th><th class="mid">What the name points at</th><th class="mid">Content</th><th class="mid">Surgery already done?</th></tr></thead>
+<tbody>
+<tr><th>28</th><td>VSL</td><td class="mid">(A) a change of units</td><td class="mid">(B) \(\alpha\) varies</td><td class="mid"><strong>no</strong></td></tr>
+<tr><th>31</th><td>CCC</td><td class="mid">both (A) and (B)</td><td class="mid">(B) Hawking points</td><td class="mid">yes</td></tr>
+<tr class="hi"><th>32</th><td><strong>the cosmon</strong></td><td class="mid">(A) "a universe without expansion"</td><td class="mid">(B) a dynamical scalar field</td><td class="mid"><strong>yes, inside the paper</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The paper's title, "A universe without expansion", speaks from the (A) side. But <strong>Wetterich himself states explicitly that the two pictures are equivalent by a Weyl transformation</strong> — so the confusion of Episode 28's VSL does not arise. <em>The title is provocative; the surgery is done inside the paper.</em> The same type as Episode 31's CCC.</p>
+
+<div class="aside">
+<span class="tag">What Part IV has been showing</span>
+Six theories on the operating table, and <strong>the dividing line has become clear</strong> — it is not whether the name points at (A), but <em>whether the theory itself can distinguish (A) from (B)</em>. Only VSL failed to, and the 26 bits on \(\alpha\) stopped being visible. Inflation, MOND, CCC and the cosmon all distinguish them and bet on (B). <strong>Episode 3's surgery is something a good theory has already performed.</strong>
+</div>
+
+<h2><span class="n">09</span>The reveal — what a notation gains by becoming a theory</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>What is gained</th><th class="mid">Change</th><th class="mid">Meaning in the ledger</th></tr></thead>
+<tbody>
+<tr><th>Parameters</th><td class="mid">0 → 2</td><td class="mid">pay 10.7 bits</td></tr>
+<tr><th>Predictions</th><td class="mid">0 → \(w(z)\)</td><td class="mid">enter a 5.1-bit arena</td></tr>
+<tr class="hi"><th>Explanation</th><td class="mid">none → the magnitude of \(\rho_\Lambda\)</td><td class="mid"><strong>buy back up to 408 bits</strong></td></tr>
+<tr><th>Falsifiability</th><td class="mid">none → yes</td><td class="mid">judged by departures from \(w=-1\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §09</p>
+<p style="margin:6px 0 0">In Episode 25's terms —<br>
+<strong>a notation only shortens \(L(\text{law})\); a theory pays \(L(\text{parameters})\) to reduce \(L(\text{residual})\).</strong><br>
+<em>Different arenas.</em> And as Episode 25 showed, only the latter can be used for judgement.</p>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line — what this episode assumes</span>
+<p style="margin:0 0 10px"><strong>① The cosmon model here summarises a body of work by Wetterich</strong> (quintessence, 1988; "A Universe without expansion", 2013, among others). <em>This document does not fix on one specific model</em> but treats only the structure "one scalar field sets every mass" — real models come in many variants.</p>
+<p style="margin:0 0 10px"><strong>② "Two parameters" assumes an exponential potential.</strong> Real models involve more complicated potentials or couplings of \(\chi\) to dark matter (growing neutrino quintessence and the like), adding parameters — <em>10.7 bits is a lower-side estimate</em>.</p>
+<p style="margin:0 0 10px"><strong>③ "Buying back 408 bits" is a maximum.</strong> Tracker quintessence eases the fine-tuning of the <em>magnitude</em> of \(\rho_\Lambda\), but per §07 the potential's scale and the "why now" problem remain. <strong>The order shrinks; it does not go to zero.</strong> The 408 bits also uses the \(-\log_2\) reading of Episode 30's "bits pinned", which is <em>strictly a different quantity</em> from Episode 5's MDL currency (same caveat as Episode 30 ④) — they are placed side by side to convey magnitude.</p>
+<p style="margin:0 0 10px"><strong>④ \(w=-1.03\pm0.03\) is a representative combination (Planck + SNe + BAO).</strong> The number moves with the dataset and the model assumed (constant \(w\) or \(w_0w_a\)). <strong>DESI (2024) reports hints favouring dynamical dark energy, but the assessment of significance is ongoing and is not adjudicated here.</strong></p>
+<p style="margin:0 0 10px"><strong>⑤ Whether "the singularity is removed" is contested.</strong> Keeping curvature invariants finite and having geodesic completeness are different claims — the former is demonstrable, the latter depends on the treatment of massive particles (same caveat as Episode 6 ③).</p>
+<p style="margin:0"><strong>⑥ This document neither supports nor refutes the cosmon model.</strong> It only counts, in the ledger, <em>what was gained</em> relative to Episode 4's picture (a notation).</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises (solvable with this episode's formulas alone)</p>
+<ol>
+<li>What is the essential difference between Episode 4's picture and the cosmon?
+<details><summary>Show the answer</summary><div class="ans">Whether \(m(t)\) is <strong>chosen or determined</strong>. Episode 4 put \(a(t)\) in by hand, so zero predictions; the cosmon has field equations determining \(\chi(t)\), so it has predictions. <em>The same picture is a different thing as notation and as theory.</em></div></details></li>
+
+<li>Find the bits the cosmon pays and the maximum it can buy back.
+<details><summary>Show the answer</summary><div class="ans">Pays: 2 parameters × \(\tfrac12\log_2(1701)=5.37\) = <strong>10.7 bits</strong>. Buys at most: \(-\log_2(1.13\times10^{-123})=\) <strong>408 bits</strong> (the tuning of \(\rho_\Lambda/M_{\rm Pl}^4\)). <em>Two parameters are cheap at that price.</em></div></details></li>
+
+<li>Why does the cosmon not die like Episode 28's VSL?
+<details><summary>Show the answer</summary><div class="ans">Because <strong>every mass is set by the same \(\chi\), so mass ratios are fixed</strong>. It catches nothing from the constraints on \(\alpha\) (26.1 bits), \(m_p/m_e\) (22.8) or \(m_n/m_p\) (6.6). VSL moved \(\alpha\) and collided head-on — <em>life or death turns on whether the ratios are protected.</em></div></details></li>
+
+<li>So what does judge the cosmon?
+<details><summary>Show the answer</summary><div class="ans"><strong>The dark energy equation of state \(w\).</strong> Observation gives \(w=-1.03\pm0.03\), which with a prior of \([-2,0]\) pins 5.1 bits. The difference between a cosmological constant (exactly \(w=-1\)) and moving quintessence shows up here.</div></details></li>
+
+<li>(Harder) In Episode 25's terms, what does a notation gain by becoming a theory?
+<details><summary>Show the answer</summary><div class="ans"><strong>A notation only shortens \(L(\text{law})\); a theory pays \(L(\text{parameters})\) to reduce \(L(\text{residual})\).</strong> As Episode 25 showed, \(L(\text{law})\) depends on the description language and cannot be used for judgement, leaving only the other two — <em>so a notation is not on the arena of judgement and a theory is.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — becoming a theory puts you on the arena</h2>
+<p>Episode 4's picture and the cosmon are the same picture of "one mass moving". The difference is one point — <strong>whether \(m(t)\) is put in by hand or determined by field equations</strong>. In Wetterich's model a scalar field \(\chi\) sets every particle mass, and <em>the same \(\chi\) plays the role of dark energy</em>.</p>
+<p>In the ledger, it pays <strong>2 parameters = 10.7 bits</strong> and buys the tuning of \(\rho_\Lambda/M_{\rm Pl}^4=1.13\times10^{-123}\), which set by hand would be <strong>408 bits</strong> — <em>two parameters are cheap if an attractor explains that</em>. Not all of it is recovered, though (the potential's scale, the "why now" problem, the coupling strength remain).</p>
+<p>Structurally the most interesting part was <strong>why it does not die like Episode 28's VSL</strong>. Because <em>every mass is set by the same \(\chi\), the mass ratios are fixed</em> — \(\alpha\) (26.1 bits) and \(m_p/m_e\) (22.8 bits) are exactly invariant and catch nothing from measurements of constants. VSL moved \(\alpha\) and collided head-on. <strong>Same "constants vary", and life or death turns on whether the ratios are protected</strong> — the structure of Episodes 3 and 9, built in as a design principle.</p>
+<p>So judgement moves to <strong>the dark energy equation of state</strong> (\(w=-1.03\pm0.03\), 5.1 bits). And the reveal, in Episode 25's terms: <em>a notation only shortens \(L(\text{law})\); a theory pays \(L(\text{parameters})\) to reduce \(L(\text{residual})\)</em>. <strong>Different arenas</strong> — and only the latter can be used for judgement.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next — Episode 33</span>
+Next: <strong>Milne versus \(R_h=ct\)</strong>. Both look like "\(a\propto t\)" and are <em>entirely different things</em> — <strong>Milne is empty special relativity and can be returned to flat spacetime by a change of coordinates alone</strong>. \(R_h=ct\) has matter in it and cannot. Episode 3 said "\(c\cdot t=\)const is not a coordinate change but a conformal transformation"; now we apply that distinction to <em>the most easily confused case of all</em>. <strong>Coordinate change, or conformal transformation?</strong> — we build the procedure for telling them apart.
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sa=document.getElementById('sa'), va=document.getElementById('va'), ro=document.getElementById('ro');
+  var X0=76, X1=700, Y0=34, Y1=310;
+  var xmin=0, xmax=2.0;
+  var ymin=-1.25, ymax=-0.55;
+  var W0=-1.03, WE=0.03;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function wOf(z,a){
+    var dev=a*a/3.0;
+    return -1.0 + dev*(1.0 - 0.35/(1.0+z));
+  }
+
+  function draw(){
+    var a=parseInt(sa.value,10)/100;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+
+    g.fillStyle='#e6ece6';
+    g.fillRect(X0, py(W0+WE), X1-X0, py(W0-WE)-py(W0+WE));
+    g.fillStyle='#7d9080'; g.textAlign='left';
+    g.fillText('band allowed by observation:  w = −1.03 ± 0.03', X0+10, py(W0+WE)-7);
+
+    g.textAlign='right';
+    for(var e=-1.2;e<=-0.6;e+=0.1){
+      var y=py(e);
+      g.strokeStyle='#f1f4f1'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#95a595'; g.fillText(e.toFixed(1), X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=0;q<=2;q+=0.5){
+      var x=px(q);
+      g.strokeStyle='#f7faf7'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#95a595'; g.fillText('z = '+q.toFixed(1), x, Y1+16);
+    }
+    g.strokeStyle='#c6d2c6'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    g.strokeStyle='#8a6a1a'; g.lineWidth=2.6; g.setLineDash([7,5]);
+    g.beginPath(); g.moveTo(X0,py(-1)); g.lineTo(X1,py(-1)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#7a5c16'; g.textAlign='right';
+    g.fillText('cosmological constant  w = −1', X1-8, py(-1)+16);
+
+    g.strokeStyle='#2a4a2a'; g.lineWidth=3.4;
+    g.beginPath();
+    for(var i=0;i<=200;i++){
+      var z=xmin+(xmax-xmin)*i/200;
+      var w=wOf(z,a);
+      if(i===0) g.moveTo(px(z),py(Math.min(Math.max(w,ymin),ymax)));
+      else g.lineTo(px(z),py(Math.min(Math.max(w,ymin),ymax)));
+    }
+    g.stroke();
+
+    var w0=wOf(0,a);
+    g.fillStyle='#2a4a2a';
+    g.beginPath(); g.arc(px(0),py(Math.min(Math.max(w0,ymin),ymax)),5.5,0,6.2832); g.fill();
+    g.strokeStyle='#fff'; g.lineWidth=1.8;
+    g.beginPath(); g.arc(px(0),py(Math.min(Math.max(w0,ymin),ymax)),5.5,0,6.2832); g.stroke();
+
+    g.fillStyle='#7d8d7d'; g.textAlign='center';
+    g.fillText('redshift  z', (X0+X1)/2, Y1+38);
+    g.save(); g.translate(19,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('equation of state  w', 0,0); g.restore();
+
+    var inband = Math.abs(w0-W0)<=WE;
+    va.textContent='α = '+a.toFixed(2);
+    ro.textContent='α = '+a.toFixed(2)+'　→　today w = '+w0.toFixed(3)+
+      '　'+(inband? '★ inside the observational band (indistinguishable)' : 'outside the band — this α is excluded')+
+      '　/　α = 0 coincides with a cosmological constant (w = −1)';
+  }
+  sa.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-32-cosmon.html', acc='#2a4a2a', ops='#8a6a1a',
+      title='Wetterich\'s cosmon ── c·t = const, That Clicks, Episode 32',
+      ep='EPISODE 32 ／ Part IV — what a notation gains by becoming a theory',
+      eyebrow='This is what Episode 4\'s picture looks like implemented as a field theory',
+      h1='Wetterich\'s<br>cosmon',
+      sub='The scalar field that grows the masses plays the role of dark energy itself.<br><em>It pays 10.7 bits and buys back up to 408.</em>',
+      byline_l='What you need: Episode 5\'s scales, Episode 12\'s \\(\\rho_\\Lambda\\), Episode 30\'s bounds',
+      byline_r='ratios are protected, so it never meets \\(\\alpha\\)\'s 26 bits',
+      body=BODY + '\n\n<p class="foot">This document is Episode 32 of "c·t = const, That Clicks", written for physics-minded high-school and university readers. Cosmon/quintessence is due to Wetterich (1988, Nucl. Phys. B302, 668), and the growing-mass picture of cosmology to Wetterich (2013, Phys. Dark Univ. 2, 184, "A Universe without expansion"). <strong>This document does not fix on one specific model but treats only the structure "one scalar field sets every mass"</strong> — real models come in many variants. "Two parameters" assumes an exponential potential \\(V=M^4e^{-\\alpha\\chi/M}\\); more complicated potentials or couplings of \\(\\chi\\) to dark matter (growing neutrino quintessence) add parameters, so <em>10.7 bits is a lower-side estimate</em>. "Buying back 408 bits" is a maximum: tracker quintessence eases the tuning of the magnitude of \\(\\rho_\\Lambda\\) but leaves the potential\'s scale and the "why now" problem — <strong>the order shrinks but does not go to zero</strong>. The 408 bits uses the \\(-\\log_2\\) reading of Episode 30\'s "bits pinned", strictly a different quantity from Episode 5\'s MDL currency (same caveat as Episode 30 ④). \\(w=-1.03\\pm0.03\\) is a representative Planck + SNe + BAO value and moves with the dataset and the model assumed — <strong>DESI (2024) reports hints favouring dynamical dark energy, but the significance is still being assessed and is not adjudicated here</strong>. The \\(w(z)\\) in the figure is a <em>schematic</em> of exponential-tracker behaviour, not a numerical solution of a specific model. The bounds on dimensionless ratios from atomic clocks, molecular clocks and nucleosynthesis are as in Episode 30. Whether "the singularity is removed" is contested: keeping curvature invariants finite and having geodesic completeness are different claims (Episode 6 ③). <strong>This document neither supports nor refutes the cosmon model</strong>; it counts in the ledger what was gained relative to Episode 4\'s picture. The academic standard remains the \\(\\Lambda\\)CDM model including inflation. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, changing the potential slope moves w in and out of the observational band. "Show the answer" opens each solution.')
