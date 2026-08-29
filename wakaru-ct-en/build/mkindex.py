@@ -154,11 +154,14 @@ BODY += card(25,'wakaru-ct-25-mdl.html','Are physical laws a compression algorit
   'MDL’s compression ratio and Popper’s falsifiability are one axis')
 
 BODY += mini([
- (26,'Summary: which resource was being optimised'),
 ])
 
 BODY += part('IV', 'Putting other theories on the same table',
   'The operation from Ep.3 — <em>naming the comparison hidden inside a name</em> — applied to other models. In every case an "equivalent rewriting" and an "observable claim" are travelling under one label.')
+BODY += card(26,'wakaru-ct-26-partIII.html','The same numbers, in eight languages (Part III wrap-up)',
+  '\(1.5\times10^{-18}\) three times, \(140\) four times — chased down, they are all one number. Occupancy equals black hole share by a one-line identity from holography. Part III’s <strong>24 headline numbers reduce to 12 independent inputs</strong>, and the surprises total 8.4 bits, of which 7.4 is the 1.96 fm already judged a coincidence in Episode 18. <em>Part III did not discover; it restated the same numbers in eight languages</em> — and that is how five identities and exactly one unexplained agreement became visible.',
+  'A map of structure, not new physics')
+
 BODY += mini([
  (27,'Inflation, on the same operating table'),
  (28,'Variable speed of light (VSL) — where the operation went wrong'),
