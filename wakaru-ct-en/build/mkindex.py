@@ -211,8 +211,11 @@ BODY += card(37,'wakaru-ct-37-anomaly.html','Quantum anomalies — writing into 
   'Episode 11’s "nothing happens to light" was a classical statement. Quantum theory cannot stay at D=4 (D=4-e with dimensional regularisation, a mu with a cutoff), so Episode 34’s exponent Omega^(D-4) becomes the breaking itself. Alpha is dimensionless only at D=4. The running is 7.1 per cent, which against the laboratory noise floor sits 28.7 bits above the noise — far past the band of coincidences. It does not contradict Episode 30’s "constant to 26 bits" because that is a different question. And the size of the breaking turns out to be a count of the fields.',
   'What broke was not the field but the coupling')
 
+BODY += card(38,'wakaru-ct-38-conformal-factor.html','The conformal factor problem',
+  'Rewrite the Einstein action as g = Omega^2 g-hat and the conformal factor’s kinetic term has coefficient (D-1)(D-2) with the sign opposite to an ordinary scalar. It vanishes only at D=1 and D=2; at D=4 it is 6. Wrinkle the factor and the Euclidean action falls as n-squared forever — 8498 bits of path-integral weight at n=50, with no bottom. The fix is to rotate the contour, but there is no derivation from first principles. And the finding: the ghost never disappears, it just moves between the conformal factor and the spin 2.',
+  'The place where the tool breaks does not vanish; it moves')
+
 BODY += mini([
- (38,'The conformal factor problem — the ledger is the first thing to break'),
  (39,'Phase shows up only in a rotating spacetime'),
  (40,'How do you count gravitational entropy?'),
  (41,'The Weyl curvature hypothesis, measured as occupancy'),
