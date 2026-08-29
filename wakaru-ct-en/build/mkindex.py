@@ -141,8 +141,11 @@ BODY += card(22,'wakaru-ct-22-instruction.html','The instruction set of the univ
   'The ML rate is proportional to energy, so the operational budget <em>is</em> the energy budget. And ML measures energy above the ground state — the vacuum <strong>has nowhere to transition to</strong>, removing 68.5% at a stroke; of what remains, 84.1% is dark matter, which interacts only gravitationally. <strong>95.0% of the budget goes to components in which nothing happens.</strong> Starlight, the most conspicuous activity there is, accounts for one millionth of the total, and Episode 1’s 0.035 operations per bit falls to one per 580 bits.',
   'The gap Episode 1 flagged as “a spec sheet, not a benchmark”, measured')
 
+BODY += card(23,'wakaru-ct-23-code.html','The horizon as error correction',
+  'Read the horizon as a code: \(n=2.96\times10^{122}\) physical bits, \(k=4.47\times10^{104}\) logical, giving <strong>a redundancy of \(6.6\times10^{17}\)</strong> — fourteen orders beyond the quantum surface code. That is Episode 6’s occupancy read inside out, and the heart of it: <em>“empty” and “redundant” are the same number until you name the comparison</em>. Episode 3’s surgery, this time applied to the series’ own figure. Closing with an act of restraint — the logical bit’s length matches nothing, so nothing is said.',
+  'AdS/CFT is the precedent, but a cosmological horizon is not established')
+
 BODY += mini([
- (23,'The horizon as error correction'),
  (24,'Channel capacity — how many bits per second cross the horizon'),
  (25,'Are physical laws a compression algorithm?'),
  (26,'Summary: which resource was being optimised'),
