@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メモリの 10⁻¹⁸ しか使っていない ── わかる c·t=一定 第6回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f6f4; --paper-edge:#dcd9d3;   /* 第6回：墨の紙（メモリ） */
+    --side:#33353d; --side-bg:#eceae6;
+    --warn:#8a4b2f;
+    --calc:#2a2c33; --calc-bg:#e9e7e2;
+    --rule:#cfccc5; --hair:#b0aca3;
+    --acc:#33353d;    /* 第6回アクセント＝墨 */
+    --grid:#e4e1db;
+    --ops:#8a6a2f;    /* 古金＝重力側 */
+    --cool:#4a6478;   /* 青灰＝熱側 */
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #ddd9d0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#2b2d33;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cbc7c0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfcfa;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#e9e7e2;color:#2a2c33;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffefc;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#e9e7e2;color:#2a2c33;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f1efeb;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e4e1da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e4e1da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f2f0ec;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#2b2d33;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffefc,#eceae6);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#e9e7e2;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#2b2d33;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#6d6a63;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 6 回 ／ 三回ぶん割り算したので、今度は中身を見る</span></p>
+<p class="eyebrow">空っぽであることが、この道具が効く理由でした</p>
+
+<h1>メモリの 10⁻¹⁸ しか<br>使っていない
+<span class="sub">28.5 ビットに 1 回しか演算しない機械が、そのメモリをほぼ空のまま抱えている。<br>
+この「空っぽさ」を数えると、<em>このシリーズが成立する理由</em>そのものが出てきます。</span></h1>
+
+<p class="byline"><span>必要な道具：割り算、面積、対数</span><span>使用率 \(=\dfrac{\sum A_{\rm BH}}{A_H}=1.5\times10^{-18}\)</span></p>
+
+<p class="lead">第1回でメモリと演算を割り、第2回で二つのクロックを割り、第5回で当てはまりとパラメータを割りました。今回は割らずに、<strong>メモリの中身を開けます</strong>。容量は \(10^{122}\) ビット。使われているのは \(1.5\times10^{-18}\)。ほぼ空です。── ところがこの「空っぽさ」を追いかけると、<em>なぜ共形変換という道具が宇宙に効くのか</em>という、シリーズの土台そのものに出ます。</p>
+
+<h2><span class="n">01</span>容量と、使用量</h2>
+
+<div class="calc">
+<span class="tag">計算 ── 二つの数</span>
+<p class="lbl">容量（地平面のホログラフィック上限）</p>
+$$\frac{S_{\max}}{k_B}=\frac{A_H}{4\ell_P^2}=2.05\times10^{122}\qquad(=2.96\times10^{122}\ \text{bit})$$
+<p class="lbl">使用量（イーガン＆ラインウィーバー 2010 の集計）</p>
+$$\frac{S_{\rm obs}}{k_B}=3.1\times10^{104}$$
+<p class="lbl">割ると</p>
+$$\text{使用率}=1.51\times10^{-18}$$
+</div>
+
+<p>ゼロを並べると、<strong>99.9999999999999998%</strong> が空いています。前シリーズ番外編②で一度出した数字ですが、今回はここから先を掘ります。</p>
+
+<h2><span class="n">02</span>使用率は、じつは面積の比だった</h2>
+
+<p>今日のエントロピーは、ほぼ全部が超巨大ブラックホールです。そしてブラックホールのエントロピーも、宇宙の地平面のエントロピーも、<em>まったく同じ式</em>で書けます ── \(S=k_BA/4\ell_P^2\)。だから割り算すると \(\ell_P\) が消えて、<strong>ただの面積比</strong>になります。</p>
+
+<div class="keybox">
+<p class="lbl">02節の結論</p>
+$$\text{使用率}=\frac{\sum A_{\rm BH}}{A_H}=1.51\times10^{-18}$$
+<p style="margin:10px 0 0">宇宙にあるすべてのブラックホールの地平面を足し合わせて、宇宙の地平面の面積で割った数 ── それが「メモリ使用率」の正体でした。</p>
+</div>
+
+<p>面積として書き下すと、大きさの感覚がつかめます。</p>
+
+<div class="calc">
+<span class="tag">一つの球にまとめてみる</span>
+$$A_H=4\pi R_H^2=2.14\times10^{53}\ \mathrm{m^2}\qquad\Longrightarrow\qquad \sum A_{\rm BH}=3.24\times10^{35}\ \mathrm{m^2}$$
+<p class="lbl">これを半径に直すと</p>
+$$r=\sqrt{\frac{\sum A_{\rm BH}}{4\pi}}=1.61\times10^{17}\ \mathrm{m}=\mathbf{17\ \text{光年}}$$
+</div>
+
+<p><strong>観測可能な宇宙のすべてのブラックホールの地平面を一枚に貼り合わせると、半径 17 光年の球になります。</strong> 直径にして 34 光年 ── 太陽から見て、ベガやアークトゥルスがぎりぎり入るくらいの範囲。宇宙の情報のほぼ全部が、そこに書かれている。</p>
+
+<h2><span class="n">03</span>使われているのは、どちら側か</h2>
+
+<p>前シリーズ番外編②に、重力場が二つに割れるという表がありました ── <strong>共形因子の側</strong>（ゲージ・帳簿・時間の矢を持たない）と、<strong>ワイルテンソルの側</strong>（物理・重力エントロピー・時間の矢を持つ）。あのときは構造だけの話でした。今回は、数字を入れられます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>中身</th><th class="mid">\(S/k_B\)</th><th class="mid">全体に占める割合</th><th class="mid">どちら側か</th></tr></thead>
+<tbody>
+<tr class="hi"><th>超巨大ブラックホール</th><td class="mid">\(3.1\times10^{104}\)</td><td class="mid"><strong>≈ 1</strong></td><td class="mid"><strong>ワイル側</strong></td></tr>
+<tr><th>CMB 光子</th><td class="mid">\(2.03\times10^{88}\)</td><td class="mid">\(6.5\times10^{-17}\)</td><td class="mid">物質・放射側</td></tr>
+<tr><th>ニュートリノ</th><td class="mid">\(1.93\times10^{88}\)</td><td class="mid">\(6.2\times10^{-17}\)</td><td class="mid">物質・放射側</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の結論</p>
+<p style="margin:6px 0 0;text-align:center;font-size:19px">今日の宇宙のエントロピーの<br><strong>99.999999999999986 %</strong> が、重力側にある</p>
+</div>
+
+<p>前シリーズ番外編②の表が、ここで数字になりました。<em>使われているメモリは、ほぼ完全にワイル側だけ</em>。共形因子の側 ── このシリーズがずっと動かしてきた \(\phi\)、膨張、スケール因子 ── は、<strong>エントロピーをまったく持っていません</strong>。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>履歴を追う ── 満杯で始まり、空になった</h2>
+
+<p>使用率は昔からこんなに小さかったのでしょうか。番外編③で使った不等式 \(s\le3H/4\ell_P^2\) を、比として時間で追います。エントロピー密度は \(s\propto a^{-3}\)、上限は \(H\propto1/t\) なので ──</p>
+
+<div class="calc">
+<span class="tag">計算 ── 比の時間変化</span>
+$$\frac{s}{3H/4\ell_P^2}\ \propto\ t^{\,1-3p}$$
+<p class="lbl">放射期（\(p=1/2\)）は \(t^{-1/2}\)、物質期（\(p=2/3\)）は \(t^{-1}\)。プランク期から積むと</p>
+$$\underbrace{1.84\times10^{-28}}_{\text{プランク}\to\text{等密度}}\times\underbrace{3.68\times10^{-6}}_{\text{等密度}\to\text{今日}}=6.7\times10^{-34}$$
+</div>
+
+<p>番外編③では、<strong>標準宇宙論はプランク期にこの上限へ \(O(1)\) で乗る</strong>ことを確かめていました。つまり ──</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>プランク期：使用率 ≈ 1</strong><span>メモリは満杯だった。物質は熱平衡で、書けるところは全部書かれていた</span></div></div>
+<div class="row"><div class="mk">②</div><div class="txt"><strong>今日（物質と放射だけ）：使用率 ≈ \(7\times10^{-34}\)</strong><span>容量が \(t^2\) で増え、中身は追いつけなかった。<em>空になった</em></span></div></div>
+<div class="row hi"><div class="mk">③</div><div class="txt"><strong>今日（ブラックホール込み）：使用率 \(=1.5\times10^{-18}\)</strong><span>重力が <strong>15.4 桁ぶん埋め戻した</strong></span></div></div>
+</div>
+
+<p>そしてエントロピーそのものは、確かに増えています ── 再結合ごろの \(2\times10^{88}\) から今日の \(3.1\times10^{104}\) へ、<strong>16.2 桁</strong>。ただし <em>その増加分は、ほぼ全部が重力側の寄与</em>です。</p>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">宇宙は<strong>熱的には満杯で始まり、重力的には空っぽで始まった</strong>。<br>
+膨張が容量を広げ、熱の使用率は落ち続けた。<br>
+そして<em>ブラックホールだけが、埋め戻している</em> ── それが時間の矢の正体でした。</p>
+</div>
+
+<div class="fig">
+<p class="cap">図：横軸は宇宙の年齢（プランク時間からの桁数）、縦軸はメモリ使用率。青灰が<strong>熱の側</strong>（満杯から落ちていく）、古金が<strong>重力の側</strong>（構造ができてから埋め戻す）。ツマミで時代を動かすと、その瞬間の内訳が出ます</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>宇宙の年齢 \(\log_{10}(t/t_P)\)（右端が今日）<input id="st" type="range" min="0" max="609" value="609" step="1"></label>
+  <span class="val" id="vt">今日</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#4a6478"></i>熱の側（物質・放射）</span>
+  <span><i class="swatch" style="background:#8a6a2f"></i>重力の側（ブラックホール／模式）</span>
+  <span><i class="swatch" style="background:#9c9890"></i>容量いっぱい（使用率 1）</span>
+</div>
+</div>
+
+<p>青灰の線は、左端（プランク期）で天井に触れていて、そこからひたすら落ちていきます。<strong>宇宙の熱的な履歴は「メモリが空いていく」履歴</strong>でした。古金の線は右端近くでだけ立ち上がり、青灰を 16 桁追い抜きます ── <em>宇宙が「何かを覚えはじめた」のは、ごく最近です</em>。</p>
+
+<h2><span class="n">05</span>種明かし ── 道具が効くのは、空いている側だから</h2>
+
+<p>ここが今回の本題です。なぜ共形変換という道具が、宇宙にこれほどよく効くのか。</p>
+
+<p>FLRW 宇宙は<strong>厳密に共形平坦</strong>です ── ワイルテンソルが恒等的にゼロ。だから前シリーズ第3回で、\(c\cdot t=\text{一定}\) の宇宙をミンコフスキーに変換できました。ところがワイルテンソルは重力エントロピーそのものなので、<em>\(C=0\) とは「重力のメモリが空である」ということ</em>です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>　</th><th>共形因子の側</th><th>ワイルテンソルの側</th></tr></thead>
+<tbody>
+<tr><th>共形変換で</th><td>動く（これがゲージ）</td><td><strong>動かない</strong>（\(C\) は共形不変）</td></tr>
+<tr><th>エントロピー</th><td>持たない</td><td>持つ（＝重力エントロピー）</td></tr>
+<tr><th>今日の使用量</th><td>\(0\)</td><td>\(3.1\times10^{104}\)（ほぼ全部）</td></tr>
+<tr class="hi"><th>このシリーズの道具は</th><td><strong>ここだけを動かす</strong></td><td>触れない</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の結論</p>
+<p style="margin:6px 0 0"><strong>共形変換が動かせるのは、宇宙のメモリのうち「使われていない側」だけ。</strong><br>
+使用率 \(1.5\times10^{-18}\) は、そのまま<em>この道具の有効範囲</em>を測っています。</p>
+</div>
+
+<p>だから第4回で「消せるものを全部消したら質量ひとつになった」とき、消えたものは<em>ぜんぶ空っぽの側にあった</em>のです。膨張も、曲率も、温度も。逆に、消せなかったもの ── 前シリーズ第9回の共形因子問題、第6回の \(N=mc^2t/\hbar\)、そしてブラックホールのエントロピー ── は、どれも「動かない側」に居ます。</p>
+
+<div class="aside">
+<span class="tag">道具が壊れていく度合いが、時間の矢</span>
+ペンローズの<strong>ワイル曲率仮説</strong>は「宇宙は \(C=0\) で始まった」と言います。\(C=0\) とはまさに、前シリーズ第3回でミンコフスキーへ変換できた条件 ── <em>共形平坦</em>。つまり<strong>このシリーズの道具は、宇宙の始まりで完璧に効き、重力エントロピーが増えたぶんだけ効かなくなる</strong>。今日の \(1.5\times10^{-18}\) は「いま道具がどれだけ壊れているか」の数字でもあります。<em>道具の壊れ具合そのものが、時間の矢だった。</em> 前シリーズ番外編②が構造として書いたことに、今回ようやく目盛りが付きました。
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① 使用量は Egan &amp; Lineweaver (2010) の集計値</strong>（\(S_{\rm obs}=3.1\times10^{104}k_B\)、超巨大ブラックホールが支配）を使っています。この値は SMBH の質量関数に強く依存し、彼ら自身が桁の不確かさを認めています。</p>
+<p style="margin:0 0 10px"><strong>② 「容量」は地平面の \(A/4\ell_P^2\)</strong> であって、実際に貯蔵できる量ではありません。ホログラフィック上限は「これ以上は入らない」という不等式で、「ここまで使える」という保証ではない。<em>空きスペースがあることは、使えることを意味しません。</em></p>
+<p style="margin:0 0 10px"><strong>③ 「共形平坦」はワイルテンソルがゼロという意味</strong>で、曲率がゼロという意味ではありません。FLRW は \(C=0\) ですが \(R\ne0\) です（前シリーズ第6回）。</p>
+<p style="margin:0 0 10px"><strong>④ ワイル曲率仮説は提案であって定理ではありません。</strong> ペンローズによる仮説で、証明も反証もされていません。</p>
+<p style="margin:0 0 10px"><strong>⑤ 重力エントロピーの定義は未確立</strong>です ── \(C\) をどう数えるかの標準的な処方はまだありません。本文で「ワイル側のエントロピー」と呼んでいるのは、実際にはブラックホールのエントロピーの合計であって、\(C\) から直接計算した量ではありません。</p>
+<p style="margin:0">加えて 04節の履歴は、番外編③と同じく<strong>エントロピーが共動的に保存される</strong>という仮定に立っています（再加熱などの生成は入っていません）。図の古金の線（重力側の立ち上がり）は<strong>模式</strong>で、Egan &amp; Lineweaver が与えているのは今日の値だけです。「プランク期に \(O(1)\)」も番外編③の1ループ的な見積もりによります。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>なぜ「メモリ使用率」が面積の比になるのか。
+<details><summary>答えを見る</summary><div class="ans">ブラックホールも宇宙の地平面も、エントロピーが同じ式 \(S=k_BA/4\ell_P^2\) で書けるから。割ると \(4\ell_P^2\) が約分されて \(\sum A_{\rm BH}/A_H\) だけが残ります。<strong>プランク長すら消える</strong> ── 使用率は純粋な幾何の比でした。</div></details></li>
+
+<li>全ブラックホールの地平面を一つの球にすると半径は何光年か。
+<details><summary>答えを見る</summary><div class="ans">\(\sum A_{\rm BH}=1.51\times10^{-18}\times2.14\times10^{53}=3.24\times10^{35}\ \mathrm{m^2}\)。\(r=\sqrt{A/4\pi}=1.61\times10^{17}\) m ＝ <strong>17 光年</strong>。宇宙の情報のほぼ全部が、直径 34 光年ぶんの面に書かれています。</div></details></li>
+
+<li>使用率が時間とともに下がるのはなぜか。エントロピーは増えているのに。
+<details><summary>答えを見る</summary><div class="ans"><strong>分母のほうが速く増えるから</strong>。容量は \(A_H\propto R_H^2\propto t^2\) で増えるのに対し、熱のエントロピーは共動的に保存される（≒増えない）。だから比は落ちます。<em>エントロピーが増えることと、使用率が下がることは両立します</em> ── 第二法則は分子の話、膨張は分母の話。</div></details></li>
+
+<li>共形変換で動かせるのは、メモリのどちら側か。
+<details><summary>答えを見る</summary><div class="ans">共形因子の側 ── つまり<strong>使われていない側</strong>だけ。ワイルテンソルは共形不変なので触れません。今日の使用量 \(3.1\times10^{104}\) はほぼ全部がワイル側なので、<em>このシリーズの道具は、実際に使われているメモリには一切手が届かない</em>ことになります。</div></details></li>
+
+<li>（やや難）「道具が壊れていく度合いが時間の矢」とはどういう意味か。
+<details><summary>答えを見る</summary><div class="ans">共形変換が完璧に効くのは \(C=0\)（共形平坦）のときで、ワイル曲率仮説によれば宇宙はそこから始まりました。重力エントロピーが増える＝\(C\) が育つ＝<strong>共形変換で書き換えられない成分が増える</strong>ということ。だから「道具の有効範囲が狭まっていく向き」が、そのまま時間の向きになります。使用率 \(1.5\times10^{-18}\) は、いま道具がどれだけ効かなくなっているかの目盛りです。<em>ただし⑤のとおり、重力エントロピーの定義自体が未確立なので、この対応は厳密な定理ではありません。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　空っぽであることが、道具の効く理由だった</h2>
+<p>宇宙のメモリは容量 \(2.96\times10^{122}\) ビット、使用量 \(3.1\times10^{104}\)、使用率 <strong>\(1.51\times10^{-18}\)</strong>。ほぼ空です。そしてこの使用率は、ブラックホールも地平面も同じ \(S=k_BA/4\ell_P^2\) で書けることから、<strong>ただの面積比</strong> \(\sum A_{\rm BH}/A_H\) に帰着します ── 宇宙の全ブラックホールの地平面を一枚に貼ると、<em>半径 17 光年の球</em>。宇宙の情報のほぼ全部が、そこに書かれている。</p>
+<p>その「ほぼ全部」がどちら側かを数えると、<strong>99.999999999999986%</strong> が重力側（ワイル側）でした。前シリーズ番外編②の「重力場は共形因子とワイルテンソルに割れる」という表に、ここで数字が入ったことになります。共形因子の側 ── 膨張、スケール因子、このシリーズがずっと動かしてきた \(\phi\) ── は、エントロピーをまったく持っていません。</p>
+<p>履歴を追うと、三段でした。<strong>プランク期は使用率 ≈ 1（満杯）</strong>、今日は物質と放射だけなら \(7\times10^{-34}\)（<em>空になった</em>）、ブラックホールを入れて \(1.5\times10^{-18}\)（<em>重力が 15.4 桁ぶん埋め戻した</em>）。エントロピー自体は 16.2 桁ふえていますが、その増加分はほぼ全部が重力側です。宇宙は<strong>熱的には満杯で、重力的には空っぽで</strong>始まりました。</p>
+<p>そして種明かし ── <strong>共形変換が動かせるのは、メモリのうち使われていない側だけ</strong>。ワイルテンソルは共形不変なので触れません。だから第4回で消せたものは全部が空っぽの側にあり、消せなかったもの（共形因子問題、\(N=mc^2t/\hbar\)、ブラックホールのエントロピー）は全部が使われている側に居ました。ペンローズのワイル曲率仮説どおり宇宙が \(C=0\) で始まったなら、<em>この道具は宇宙の始まりで完璧に効き、重力エントロピーが増えたぶんだけ効かなくなる</em>。<strong>道具の壊れ具合そのものが、時間の矢でした。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第7回</span>
+今回、宇宙のメモリは「ほぼ空だが、書かれた場所は全部ブラックホール」だと分かりました。次は<strong>通信</strong>を見ます ── CMB は \(10^4\) 個の因果的に切れたパッチにまたがって \(\Delta T/T\sim10^{-5}\) で一様です。情報の言葉に直すと、<em>メッセージを一通も交換していない \(10^4\) 台のノードが、17 ビットぶん合意している</em>。分散システムなら不可能とされる状況です。\(c\cdot t=\text{一定}\) はノードが増えない唯一の膨張則なので、この問題を原理的に持ちません ── 持たないはずでした。<strong>放射を入れるまでは。</strong>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第6回、物理好きの高校生・大学生向け読み物です。地平面のエントロピー \(S=k_BA/4\ell_P^2\)、ブラックホールのベッケンシュタイン＝ホーキング・エントロピーが同形であること、および FLRW 時空がワイルテンソルの消える共形平坦時空であることは、いずれも標準的な結果です。観測可能な宇宙のエントロピー収支 \(S_{\rm obs}=3.1\times10^{104}k_B\)（超巨大ブラックホールが支配）、CMB 光子 \(2.03\times10^{88}k_B\)、ニュートリノ \(1.93\times10^{88}k_B\) は Egan &amp; Lineweaver (2010, ApJ 710, 1825) によります。<strong>これらの値は超巨大ブラックホールの質量関数に依存し、著者ら自身が桁の不確かさを述べています。</strong> 本稿の使用率 \(1.51\times10^{-18}\)、面積比への帰着 \(\sum A_{\rm BH}/A_H\)、等価半径 17 光年、重力側の割合 99.999999999999986%、履歴の三段（プランク期 \(O(1)\)、今日の熱側 \(7\times10^{-34}\)）は、いずれも本稿での計算です。04節の履歴は前シリーズ番外編③の \(s\le3H/4\ell_P^2\)（Bousso 1999 の共変エントロピー境界を見かけの地平面に当てたもの）に基づき、<strong>エントロピーが共動的に保存されるという仮定</strong>に立っています。「プランク期に \(O(1)\)」も同所の1ループ的見積もりによります。図の重力側の曲線は<strong>模式</strong>であり、Egan &amp; Lineweaver が与えるのは今日の値のみです。ワイル曲率仮説は Penrose による<strong>提案</strong>であって定理ではなく、重力エントロピーの定義（\(C\) をどう数えるか）も未確立です ── 本文で「ワイル側のエントロピー」と呼んでいるのはブラックホールのエントロピーの合計であり、\(C\) から直接計算した量ではありません。ホログラフィック上限は「これ以上は入らない」という不等式であって、貯蔵可能量の保証ではありません。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで時代を動かし、その瞬間の内訳が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var st=document.getElementById('st'), vt=document.getElementById('vt'), ro=document.getElementById('ro');
+  var X0=74, X1=700, Y0=30, Y1=318;
+  var xmin=0, xmax=62;        // log10(t/tP)
+  var ymin=-36, ymax=1.5;     // log10(使用率)
+  var X_EQ=55.47;             // 等密度期 log10(t/tP)
+  var X_NOW=60.91;            // 今日
+  var X_STR=59.2;             // 構造形成のころ（模式）
+  var Y_NOW_G=Math.log(1.51e-18)/Math.LN10;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+
+  // 熱側：プランク期 1 から t^(1-3p) で落ちる
+  function thermal(x){
+    if(x<=X_EQ) return -0.5*x;
+    return -0.5*X_EQ - 1.0*(x-X_EQ);
+  }
+  // 重力側：構造形成から今日の値へ（模式）
+  function grav(x){
+    if(x<=X_STR) return null;
+    var f=(x-X_STR)/(X_NOW-X_STR);
+    return ymin + (Y_NOW_G-ymin)*Math.pow(f,0.42);
+  }
+
+  function draw(){
+    var xc=parseInt(st.value,10)/10;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right';
+    for(var e=0;e>=-35;e-=5){
+      var y=py(e);
+      g.strokeStyle='#f0eeea'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#9c9890'; g.fillText(e===0?'1':'10⁻'+Math.abs(e), X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=0;q<=60;q+=10){
+      var x=px(q);
+      g.strokeStyle='#f6f4f1'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#9c9890'; g.fillText('10'+q, x, Y1+16);
+    }
+    g.strokeStyle='#cfccc5'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // 天井（使用率1）
+    g.strokeStyle='#9c9890'; g.lineWidth=1.8; g.setLineDash([6,5]);
+    g.beginPath(); g.moveTo(X0,py(0)); g.lineTo(X1,py(0)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#8a8680'; g.textAlign='left';
+    g.fillText('容量いっぱい', X0+8, py(0)-7);
+
+    // 熱側
+    g.strokeStyle='#4a6478'; g.lineWidth=3.2; g.beginPath();
+    for(var i=0;i<=400;i++){
+      var x=xmin+(X_NOW-xmin)*i/400, y=thermal(x);
+      if(y<ymin) break;
+      if(i===0) g.moveTo(px(x),py(y)); else g.lineTo(px(x),py(y));
+    }
+    g.stroke();
+    // 重力側（模式・破線）
+    g.strokeStyle='#8a6a2f'; g.lineWidth=3.2; g.setLineDash([6,4]); g.beginPath();
+    var started=false;
+    for(var i=0;i<=200;i++){
+      var x=X_STR+(X_NOW-X_STR)*i/200, y=grav(x);
+      if(y===null||y<ymin) continue;
+      if(!started){ g.moveTo(px(x),py(y)); started=true; } else g.lineTo(px(x),py(y));
+    }
+    g.stroke(); g.setLineDash([]);
+
+    // 今日の点
+    g.fillStyle='#8a6a2f';
+    g.beginPath(); g.arc(px(X_NOW),py(Y_NOW_G),5.5,0,6.2832); g.fill();
+    g.strokeStyle='#fff'; g.lineWidth=1.8;
+    g.beginPath(); g.arc(px(X_NOW),py(Y_NOW_G),5.5,0,6.2832); g.stroke();
+    g.fillStyle='#8a6a2f'; g.textAlign='right';
+    g.fillText('今日 1.5×10⁻¹⁸', px(X_NOW)-10, py(Y_NOW_G)-9);
+
+    // 等密度期
+    g.strokeStyle='#ddd9d2'; g.lineWidth=1; g.setLineDash([3,4]);
+    g.beginPath(); g.moveTo(px(X_EQ),Y0); g.lineTo(px(X_EQ),Y1); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#a8a49c'; g.textAlign='center';
+    g.fillText('等密度期', px(X_EQ), Y0-8);
+
+    // カーソル
+    g.strokeStyle='#33353d'; g.lineWidth=1.6;
+    g.beginPath(); g.moveTo(px(xc),Y0); g.lineTo(px(xc),Y1); g.stroke();
+
+    g.fillStyle='#6d6a63'; g.textAlign='center';
+    g.fillText('宇宙の年齢  t / t_P', (X0+X1)/2, Y1+36);
+
+    // 読み出し
+    var th=thermal(xc), gr=grav(xc);
+    var thv=Math.pow(10,th);
+    var grv=(gr===null?0:Math.pow(10,gr));
+    var tot=thv+grv;
+    var tsec=Math.pow(10,xc)*5.391e-44;
+    var tlabel = tsec<1 ? tsec.toExponential(2)+' 秒'
+               : (tsec<3.156e7 ? (tsec).toExponential(2)+' 秒'
+               : (tsec/3.156e7).toExponential(2)+' 年');
+    vt.textContent = (xc>=X_NOW-0.05 ? '今日' : 'log₁₀(t/t_P) = '+xc.toFixed(1));
+    ro.textContent =
+      '年齢 '+tlabel+'（log₁₀ t/t_P = '+xc.toFixed(1)+'）　／　'+
+      '熱の側 '+thv.toExponential(1)+'　'+
+      '重力の側 '+(gr===null?'0（まだ天体がない）':grv.toExponential(1))+'　'+
+      '合計 '+tot.toExponential(1)+
+      '　→　空き '+(100*(1-tot)).toFixed(12)+' %';
+  }
+  st.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
