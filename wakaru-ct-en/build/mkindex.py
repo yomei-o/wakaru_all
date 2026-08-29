@@ -162,8 +162,11 @@ BODY += card(26,'wakaru-ct-26-partIII.html','The same numbers, in eight language
   '\(1.5\times10^{-18}\) three times, \(140\) four times — chased down, they are all one number. Occupancy equals black hole share by a one-line identity from holography. Part III’s <strong>24 headline numbers reduce to 12 independent inputs</strong>, and the surprises total 8.4 bits, of which 7.4 is the 1.96 fm already judged a coincidence in Episode 18. <em>Part III did not discover; it restated the same numbers in eight languages</em> — and that is how five identities and exactly one unexplained agreement became visible.',
   'A map of structure, not new physics')
 
+BODY += card(27,'wakaru-ct-27-inflation.html','Inflation, on the same operating table',
+  'Cut “it solves the horizon problem” in two: (A) establishing causal contact, (B) producing a fluctuation spectrum. (A) is cheap — the particle horizon \(ct/(1-p)\) diverges at \(p=1\), so <strong>\(a\propto t\) removes the problem with zero e-folds and zero parameters</strong>. What survives is (B): the horizon fixes \(N_{\min}=62.1\) and the same \(N\) predicts \(n_s\), against an observed \(N=57.0\pm6.8\) — <em>agreement at 0.75σ</em>. The most famous motivation turns out to be the weakest argument.',
+  'Same surgery, different survivor')
+
 BODY += mini([
- (27,'Inflation, on the same operating table'),
  (28,'Variable speed of light (VSL) — where the operation went wrong'),
  (29,'MOND — the comparison hidden inside an acceleration'),
  (30,'Measuring varying constants for real (atomic clocks, Oklo, quasar absorption)'),
