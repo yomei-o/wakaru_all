@@ -149,8 +149,11 @@ BODY += card(24,'wakaru-ct-24-channel.html','How many bits per second cross the 
   'Dividing the Bekenstein bound by a crossing time gives \(C=2\pi E/(\hbar\ln2)=6.79\times10^{104}\) bit/s. Its factor-of-two relation to Episode 1’s \(dN/dt\) is an identity, and the clean form is <strong>\(C\cdot t=N\)</strong> — <em>the universe has exactly enough bandwidth to move its entire memory once per Hubble time</em>. Which settles Episode 17: the 20 KB could have been sent in \(10^{-96}\) seconds. <strong>Bandwidth was never the bottleneck; the wiring was.</strong>',
   'Three routes now agree: the universe has power to spare')
 
+BODY += card(25,'wakaru-ct-25-mdl.html','Are physical laws a compression algorithm?',
+  '\(a\propto t\) is 66 bits, the Einstein equations 512, the Standard Model 33,000; \(\Lambda\)CDM compresses \(10^6\)-fold. But totalled with MDL it breaks: counting \(a\propto t\) as an added constraint or as a replacement flips <strong>the same model on the same data from losing by 214 bits to winning by 200</strong>. Only \(L(\text{law})\) moved — a language-dependent quantity. What is trustworthy is the parameter count and the residual, and those alone give \(-148\) bits. <strong>Compression ratio measures the size of the bet, not the quality.</strong>',
+  'MDL’s compression ratio and Popper’s falsifiability are one axis')
+
 BODY += mini([
- (25,'Are physical laws a compression algorithm?'),
  (26,'Summary: which resource was being optimised'),
 ])
 
