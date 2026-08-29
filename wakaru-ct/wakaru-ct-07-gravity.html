@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重力に入れてみる ── わかる c·t=一定 第7回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f5f7; --paper-edge:#e2d5db;   /* 第7回：葡萄の紙（重力） */
+    --side:#4a2740; --side-bg:#f0e7ec;
+    --warn:#8a4b2f;
+    --calc:#3d2035; --calc-bg:#ece1e7;
+    --rule:#dccdd5; --hair:#c0a9b5;
+    --acc:#4a2740;    /* 第7回アクセント＝葡萄 */
+    --grid:#e8dce2;
+    --ops:#96702a;    /* 金＝不変な量 */
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e5d3dc 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3b2033;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d5c3cd;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fefbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#ece1e7;color:#3d2035;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fffdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#ece1e7;color:#3d2035;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f4ecf0;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e9dce3;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e9dce3;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f5eef2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3b2033;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fffdfe,#f0e7ec);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#ece1e7;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3b2033;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7a6570;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 7 回 ／ 第 II 部のはじまり ── 記法を、宇宙論の外へ持ち出す</span></p>
+<p class="eyebrow">\(G\) が観測上限の 1450 倍速く変わっても、誰も気づけません</p>
+
+<h1>重力に、<br>入れてみる
+<span class="sub">最初の持ち出し先は重力です。この絵では \(G\) が \(1/t^2\) で落ちていく。<br>
+ディラックが夢見た「\(G\) が変われば大数の一致が説明できる」を、<em>本当にやってみます</em>。</span></h1>
+
+<p class="byline"><span>必要な道具：ウェイト表、割り算</span><span>\(\alpha_G=(m/M_{\rm Pl})^2\) は不変</span></p>
+
+<p class="lead">第 I 部（第1〜6回）で、\(c\cdot t=\text{一定}\) が<strong>記法</strong>だと確定しました。それ自体は何も言わない代わりに、あらゆる式に安全に代入できる。ここから第 II 部では、その記法を<em>宇宙論の外へ持ち出します</em>。最初は重力。── そして、いきなり気持ちのいいものが出ます。<strong>ディラックが1937年に立てた仮説を、この記法の中で本当に走らせることができる</strong>のです。</p>
+
+<h2><span class="n">01</span>\(G\) は、帳簿だった</h2>
+
+<p>前シリーズ番外編⑤の出発点をもう一度。ニュートン定数の単位は \(\mathrm{m^3\,kg^{-1}\,s^{-2}}\) ── 思いきり次元付きです。判定手続きにかければ<strong>左の列、帳簿</strong>。物理は、無次元にした重力結合のほうです。</p>
+
+<div class="calc">
+<span class="tag">重力の、無次元の結合</span>
+$$\alpha_G=\frac{Gm^2}{\hbar c}=\left(\frac{m}{M_{\rm Pl}}\right)^2$$
+</div>
+
+<p>この絵では質量が \(\tilde m=am\) で育ちます。ところが \(\alpha_G\) は無次元なので動いてはいけない。だから \(G\) のほうが、つじつま合わせに動きます。</p>
+
+<div class="keybox">
+<p class="lbl">01節の結論</p>
+$$\tilde G=\frac{G}{a^2}\qquad\Longrightarrow\qquad \frac{\dot G}{G}=-\frac{2}{t}=-2H_0$$
+</div>
+
+<h2><span class="n">02</span>数字にすると、とんでもない</h2>
+
+<div class="calc">
+<span class="tag">計算 ── 変化率</span>
+$$\frac{\dot G}{G}=-2H_0=-1.45\times10^{-10}\ /\text{年}$$
+<p class="lbl">月レーザー測距による観測上限</p>
+$$\left|\frac{\dot G}{G}\right|<10^{-13}\ /\text{年}$$
+<p class="lbl">比べると</p>
+$$\text{観測上限の}\ \mathbf{1450}\ \text{倍速い}$$
+</div>
+
+<p>素朴に読めば、この絵は<strong>三桁ぶん反証されている</strong>ことになります。ところが、まったく反証されていません。</p>
+
+<h2><span class="n">03</span>それでも、誰も気づけない</h2>
+
+<p>測れるのは無次元量だけだからです。\(\alpha_G=Gm^2/\hbar c\) は、\(G\) が \(1/a^2\) で落ちて \(m^2\) が \(a^2\) で育つので、<strong>完全に打ち消し合います</strong>。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>粒子</th><th class="mid">\(\alpha_G=(m/M_{\rm Pl})^2\)</th><th class="mid">この絵で</th></tr></thead>
+<tbody>
+<tr><th>ニュートリノ（0.05 eV）</th><td class="mid">\(1.68\times10^{-59}\)</td><td class="mid">不変</td></tr>
+<tr><th>電子</th><td class="mid">\(1.75\times10^{-45}\)</td><td class="mid">不変</td></tr>
+<tr><th>陽子</th><td class="mid">\(5.91\times10^{-39}\)</td><td class="mid">不変</td></tr>
+<tr><th>プランク質量</th><td class="mid">\(1\)</td><td class="mid">不変</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>月レーザー測距が実際に測っているのは、月の軌道という<em>無次元の比</em>（周期 ÷ 原子時計の刻み、距離 ÷ 光速×時間）です。そのどれも動かない。<strong>「\(G\) が変わった」は、測定装置ごと変わるので測定にかからない。</strong></p>
+
+<div class="aside">
+<span class="tag">前シリーズ番外編③の、重力版</span>
+光速可変理論（VSL）は \(c\) だけを動かして \(e,\hbar\) を固定したために、\(\alpha\) が動いて原子時計に衝突しました。<strong>ここで起きているのは、その逆です</strong> ── \(G\) を動かすと同時に \(m\) も動かしたので、\(\alpha_G\) が保たれ、観測にかからない。<em>次元付きの定数を動かすときは、ひとそろい込みで動かさなければならない</em>。番外編④の「等価条件の二つ目」が、重力でもそのまま効いています。
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>核心 ── ディラックの大数を、本当に試す</h2>
+
+<p>1937年、ディラックは二つの巨大な数が近いことに気づきました。</p>
+
+<div class="calc">
+<span class="tag">ディラックの二つの大数</span>
+<p class="lbl">① 水素原子の中の、電気力 ÷ 重力</p>
+$$N_1=\frac{e^2}{4\pi\varepsilon_0\,G\,m_p m_e}=2.27\times10^{39}$$
+<p class="lbl">② 宇宙の年齢 ÷ 古典電子時間（\(r_e/c=9.40\times10^{-24}\) s）</p>
+$$N_2=\frac{t_0}{r_e/c}=4.63\times10^{40}$$
+<p class="lbl">比</p>
+$$\frac{N_2}{N_1}=20.4\qquad(\text{どちらも }10^{40}\text{ 前後})$$
+</div>
+
+<p>ディラックの推論はこうでした ── <strong>\(N_2\) は宇宙の年齢に比例して増える。二つが今日たまたま等しいのは不自然だから、\(N_1\) も増えているはずだ。\(N_1\) の中で変われるのは \(G\) しかない。ゆえに \(G\propto1/t\)。</strong></p>
+
+<p>じつに大胆で、じつに美しい推論です。そして<strong>この記法は、まさに \(G\) を時間変化させます</strong>。だったら、当ててみましょう。</p>
+
+<div class="calc">
+<span class="tag">実際にやってみる</span>
+<p class="lbl">\(N_1\) の分母を変換する（\(e,\varepsilon_0\) はウェイト 0）</p>
+$$\left(\frac{G}{a^2}\right)\cdot(a\,m_p)\cdot(a\,m_e)=G\,m_p m_e\qquad\Longrightarrow\qquad \tilde N_1=N_1$$
+<p class="lbl">\(N_2\) は時間どうしの比（\(r_e\) は長さ）</p>
+$$\tilde N_2=\frac{t/a}{(r_e/a)/c}=N_2$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">\(G\) を本当に時間変化させても、<strong>ディラックの大数は二つとも、びくとも動かない。</strong><br>
+一致は良くも悪くもならない。<em>ディラックの処方は、空回りする。</em></p>
+</div>
+
+<p>理由は 03節と同じです ── <strong>\(G\) だけを動かすことはできない</strong>。動かせば、それは共形変換ではなく VSL 型の操作になり、\(\alpha_G\) が動いて観測に衝突します。ちゃんと共形変換にすると、\(m\) も一緒に動いて \(N_1\) が保たれてしまう。</p>
+
+<p>そして前シリーズ番外編③では、もう一つの大数についてこう結論していました ── <strong>\(M/m_P=R_H/2\ell_P\) はフリードマン方程式そのもので、恒等式。説明を要する謎ではなかった。</strong> 今回はその隣にもう一行足せます。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>\(M/m_P=R_H/2\ell_P\)　── 恒等式</strong><span>平坦 FLRW ならいつでも成り立つ。偶然ではないが、物理でもない（番外編③）</span></div></div>
+<div class="row hi"><div class="mk">②</div><div class="txt"><strong>\(N_1,\ N_2\)　── 共形不変</strong><span>\(G\) を動かしても動かない。だから「\(G\) を変えて説明する」という戦略が、そもそも成立しない（今回）</span></div></div>
+</div>
+
+<div class="fig">
+<p class="cap">図：ツマミで<strong>語り方</strong>を切り替えます ── 左端が標準の絵（\(G\) も \(m\) も一定）、右端がこの絵（\(G\propto t^{-2}\)、\(m\propto t\)）。葡萄と灰色は激しく動くのに、<strong>金の線（\(\alpha_G\)）はぴくりとも動きません</strong></p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>語り方 \(s\)（左＝標準の絵／右＝質量が育つ絵）<input id="ss" type="range" min="0" max="1000" value="1000" step="1"></label>
+  <span class="val" id="vs">s = 1.00</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#4a2740"></i>\(G\)（\(\propto t^{-2s}\)）</span>
+  <span><i class="swatch" style="background:#8a8a94"></i>質量 \(m\)（\(\propto t^{s}\)）</span>
+  <span><i class="swatch" style="background:#96702a"></i>\(\alpha_G=Gm^2/\hbar c\)</span>
+</div>
+</div>
+
+<p>右端では \(G\) が過去に向かって跳ね上がり、質量が沈みます。左端では二本とも水平。それでも金の線は、どこでも完全に水平のまま ── <em>そして観測にかかるのは、金の線だけ</em>です。</p>
+
+<h2><span class="n">05</span>重力の量を、片っ端から変換する</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">ウェイト</th><th class="mid">この絵で</th></tr></thead>
+<tbody>
+<tr><th>ニュートン定数 \(G\)</th><td class="mid">──</td><td class="mid">\(\div a^2\)</td></tr>
+<tr><th>重力加速度 \(g=GM/r^2\)</th><td class="mid">\(-1\)</td><td class="mid">\(\times a\)</td></tr>
+<tr><th>シュヴァルツシルト半径 \(2GM/c^2\)</th><td class="mid">\(+1\)</td><td class="mid">\(\div a\)</td></tr>
+<tr><th>ホーキング温度 \(\hbar c^3/8\pi GMk_B\)</th><td class="mid">\(-1\)</td><td class="mid">\(\times a\)</td></tr>
+<tr><th>潮汐力（測地線偏差）</th><td class="mid">\(-2\)</td><td class="mid">\(\times a^2\)</td></tr>
+<tr class="hi"><th>ブラックホールのエントロピー \(A/4\ell_P^2\)</th><td class="mid">\(0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr class="hi"><th>重力波のひずみ \(h\)</th><td class="mid">\(0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr class="hi"><th>ケプラー第三法則 \(T^2=4\pi^2r^3/GM\)</th><td class="mid">──</td><td class="mid"><strong>形も不変</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">ケプラーが形を保つ、の検算</span>
+$$\underbrace{\frac{T^2}{a^2}}_{\text{左辺}}\qquad\text{と}\qquad \underbrace{\frac{4\pi^2(r/a)^3}{(G/a^2)(aM)}=\frac{1}{a^2}\cdot\frac{4\pi^2r^3}{GM}}_{\text{右辺}}$$
+<p class="lbl">両辺とも \(1/a^2\)。だから</p>
+$$T^2=\frac{4\pi^2r^3}{GM}\qquad\text{は恒等的に成立し、軌道は相似に縮むだけ}$$
+</div>
+
+<p>惑星の軌道は、この絵では<strong>時代とともに縮んでいきます</strong>（\(\div a\)）。でも周期も同じだけ縮むので、ケプラーの法則は一文字も書き換わりません。<em>太陽系を望遠鏡で見ても、絶対に区別できない。</em></p>
+
+<h2><span class="n">06</span>種明かし ── 不変だったものの共通点</h2>
+
+<p>表の下三行（BH エントロピー、重力波の \(h\)、ケプラー）が不変なのは、どれも無次元だからです。ただし最初の一つには、もう一段深い意味があります。</p>
+
+<div class="keybox">
+<p class="lbl">06節の結論</p>
+<p style="margin:6px 0 0">第6回で、宇宙の<strong>使われているメモリはほぼ全部がブラックホール</strong>だと数えました。<br>
+そのブラックホールのエントロピーは、この絵で<strong>一切動きません</strong>。<br>
+<em>共形変換は、使われているメモリには手が届かない</em> ── 重力の側から見ても、同じ結論です。</p>
+</div>
+
+<p>第6回では「共形因子の側は空、ワイルの側が使われている」と幾何の言葉で言いました。今回は重力の量を一つずつ変換して、<strong>同じことを別の道から確かめた</strong>ことになります。\(G\) も \(g\) も \(r_s\) も \(T_H\) も動くのに、<em>エントロピーだけが動かない</em>。</p>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① \(\tilde G=G/a^2\) は「\(\alpha_G\) を不変に保つ」という要請から出しています。</strong> 前シリーズ第4回で見たとおり Weyl 不変な書き方では \(M_{\rm Pl}^2=\xi\phi^2\) なので、\(G\) 単独に物理的な意味はありません ── この \(G\) の「変化」は完全に帳簿です。</p>
+<p style="margin:0 0 10px"><strong>② 月レーザー測距の上限 \(|\dot G/G|<10^{-13}\)/年は、\(G\) だけが変わる（\(m\) は変わらない）理論に対する制約です。</strong> 本稿の絵はそういう理論ではないので、この上限は<em>そもそも適用されません</em>。1450 倍という数字は「素朴に読むとどう見えるか」を示すためのもので、モデルが反証されているという意味ではありません。</p>
+<p style="margin:0 0 10px"><strong>③ ディラックの大数仮説は、本稿では \(N_1,N_2\) の二つだけを扱っています。</strong> ディラック自身の議論はもっと広く、宇宙の粒子数 \(\sim10^{80}\simeq N^2\) も含みます。また彼の主張は「今日たまたま一致するのは不自然」という<em>自然さの議論</em>であって、観測から導かれたものではありません ── 自然さの議論の是非は、それ自体が未解決の論点です。</p>
+<p style="margin:0 0 10px"><strong>④ 「ケプラーの法則が形を保つ」は、共形変換のもとでの話です。</strong> 実際に \(G\) が時間変化する理論（ブランス＝ディッケ型など）では、軌道に観測可能な効果が出ます ── それらは本稿の絵とは別物で、実際に月レーザー測距などで制約されています。</p>
+<p style="margin:0">⑤ ホーキング温度・BH エントロピーの変換は、<strong>準定常な（ゆっくり変化する）ブラックホールを仮定</strong>しています。宇宙論的な時間変化とブラックホールの内部構造の相互作用は、本稿では扱っていません。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>なぜ \(G\) は \(1/a^2\) で変換されるのか。
+<details><summary>答えを見る</summary><div class="ans">\(\alpha_G=Gm^2/\hbar c\) が無次元だから不変でなければならず、\(m\to am\) なので \(m^2\) が \(a^2\) 倍になる。打ち消すには \(G\to G/a^2\) しかありません。<em>\(G\) の変換則は選んだのではなく、無次元量の不変性から強制されます。</em></div></details></li>
+
+<li>\(\dot G/G\) の大きさを求め、月レーザー測距の上限と比べよ。
+<details><summary>答えを見る</summary><div class="ans">\(\dot G/G=-2/t=-2H_0=-1.45\times10^{-10}\)/年。上限 \(10^{-13}\)/年の <strong>1450 倍</strong>。<em>それでも反証されません</em> ── その上限は「\(G\) だけが動く」理論に対するもので、この絵では \(m\) も一緒に動くため \(\alpha_G\) が保たれ、月の軌道の無次元比が一つも変わらないからです。</div></details></li>
+
+<li>ディラックの \(N_1\) が共形不変であることを示せ。
+<details><summary>答えを見る</summary><div class="ans">\(N_1=e^2/(4\pi\varepsilon_0Gm_pm_e)\) の分母は \((G/a^2)(am_p)(am_e)=Gm_pm_e\) で不変。分子の \(e,\varepsilon_0\) はウェイト 0。よって \(N_1\) は動きません。<strong>\(G\) を変えても大数は動かない</strong> ── ディラックの戦略が空回りする理由です。</div></details></li>
+
+<li>この絵で惑星の軌道半径と周期はどうなるか。ケプラーの法則は？
+<details><summary>答えを見る</summary><div class="ans">軌道半径は長さなので \(\div a\)、周期も時間なので \(\div a\)。\(T^2=4\pi^2r^3/GM\) の両辺はどちらも \(1/a^2\) になり、<strong>法則は一文字も変わりません</strong>。太陽系は時代とともに相似に縮んでいくが、縮んでいることは中から測れない。</div></details></li>
+
+<li>（やや難）BH エントロピーだけが不変なことは、第6回とどうつながるか。
+<details><summary>答えを見る</summary><div class="ans">第6回で、宇宙の使われているメモリ（\(3.1\times10^{104}k_B\)）はほぼ全部がブラックホールだと数えました。そのエントロピー \(A/4\ell_P^2\) は面積とプランク面積の比なので<strong>無次元＝共形不変</strong>。つまり<em>共形変換は、実際に使われているメモリには一切触れられない</em>。第6回は幾何（ワイルテンソルは共形不変）から、今回は重力の量を一つずつ変換して、同じ結論に着いています。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　\(G\) を本当に変えてみたら、何も起きなかった</h2>
+<p>\(G\) は次元付き ── 帳簿です。物理は無次元の \(\alpha_G=(m/M_{\rm Pl})^2\) のほう。この絵では質量が \(\tilde m=am\) で育つので、\(\alpha_G\) を保つために \(\tilde G=G/a^2\) が<strong>強制されます</strong>。数字にすると \(\dot G/G=-2H_0=-1.45\times10^{-10}\)/年 ── 月レーザー測距の上限 \(10^{-13}\)/年の <strong>1450 倍</strong>。素朴に読めば三桁の反証です。</p>
+<p>ところが、まったく反証されていません。測れるのは無次元量だけで、\(\alpha_G\) はニュートリノでも電子でも陽子でも一切動かないからです。月の軌道が測っているのも無次元の比だけ。<em>「\(G\) が変わった」は、測定装置ごと変わるので測定にかからない</em> ── 前シリーズ番外編③の VSL 批判を、そっくり裏返した形です。</p>
+<p>そして今回の核心。ディラックは1937年、\(N_1=e^2/4\pi\varepsilon_0Gm_pm_e=2.27\times10^{39}\) と \(N_2=t_0/(r_e/c)=4.63\times10^{40}\) が近いことから、<strong>\(G\propto1/t\) を予言しました</strong>。この記法はまさに \(G\) を時間変化させるので、当ててみると ── <em>両方とも、びくとも動きません</em>。\(N_1\) の分母は \((G/a^2)(am_p)(am_e)=Gm_pm_e\) で不変、\(N_2\) は時間どうしの比で不変。<strong>\(G\) だけを動かすことはできないので、ディラックの処方は空回りします。</strong> 番外編③が「\(M/m_P=R_H/2\ell_P\) は恒等式」と片付けた隣に、もう一行足せました。</p>
+<p>重力の量を片っ端から変換すると、\(g\) は \(\times a\)、\(r_s\) は \(\div a\)、\(T_H\) は \(\times a\)、潮汐は \(\times a^2\)。ケプラーの法則は両辺とも \(1/a^2\) で<strong>形も不変</strong>（太陽系は相似に縮むだけ）。そして重力波の \(h\) と、<strong>ブラックホールのエントロピーだけが完全に不変</strong>。第6回で「使われているメモリはほぼ全部ブラックホール」と数えたその量が、この絵で一切動かない ── <em>共形変換は、使われているメモリには手が届かない</em>。幾何の道から言ったことに、重力の量を数える道からも同じ答えが出ました。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第8回</span>
+次は<strong>量子力学</strong>に入れます。シュレディンガー方程式は形が不変で、\(m(t)=m_0\,t/t_0\) の同じ方程式になります。すると自由な波束は \(\Delta x\propto t\) ではなく <strong>\(\Delta x\propto\ln t\)</strong> でしか広がらない ── 質量が育つぶん、速度が \(1/t\) で落ちるからです。積み上げると、<em>質量を持つものの共動到達距離は有限</em>（固有速度 600 km/s の銀河なら、これから先ずっと動いても あと 8.5 Mpc）。一方で光は \(\int c\,dt/a\propto\ln t\) で無限に届く。<strong>物質は歩けなくなるが、光は歩き続ける。</strong>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第7回、物理好きの高校生・大学生向け読み物です。\(\alpha_G=Gm^2/\hbar c=(m/M_{\rm Pl})^2\) が重力の無次元結合であること、共形変換のもとで質量がウェイト \(-1\)、長さ・時間が \(+1\)、\(c,\hbar,e,\varepsilon_0\) がウェイト \(0\) であることは標準的です。本稿の \(\tilde G=G/a^2\)、\(\dot G/G=-2H_0=-1.45\times10^{-10}\)/年、および月レーザー測距の上限 \(|\dot G/G|<10^{-13}\)/年との比 1450 倍は本稿での計算です ── <strong>ただしその上限は \(G\) のみが変化する理論に対する制約であり、質量も同時に変換される本稿の絵には適用されません。</strong> 大数仮説は Dirac (1937, Nature 139, 323) によります。\(N_1=e^2/(4\pi\varepsilon_0Gm_pm_e)=2.27\times10^{39}\)、\(r_e=2.818\times10^{-15}\) m、\(N_2=t_0/(r_e/c)=4.63\times10^{40}\)、比 20.4、および両者が共形不変であることは本稿での計算・指摘です。ディラックの議論はより広く宇宙の粒子数 \(\sim10^{80}\) を含み、また「今日たまたま一致するのは不自然」という自然さの議論に基づくもので、観測から導かれた結論ではありません。\(M/m_P=R_H/2\ell_P\) が平坦 FLRW の恒等式であることは前シリーズ番外編③で示した通りです。ケプラー第三法則が共形変換のもとで形を保つこと、ブラックホールのエントロピー \(A/4\ell_P^2\) と重力波のひずみ \(h\) が無次元ゆえ不変であることも本稿での確認です。ホーキング温度・BH エントロピーの変換は準定常なブラックホールを仮定しています。実際に \(G\) が時間変化する理論（Brans–Dicke 型など）は本稿の絵とは別物であり、観測的に制約されています。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルと、修正のない一般相対論です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで語り方を切り替え、α_G だけが動かない様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var ss=document.getElementById('ss'), vs=document.getElementById('vs'), ro=document.getElementById('ro');
+  var X0=74, X1=700, Y0=30, Y1=318;
+  var xmin=-3, xmax=0.3;      // log10(t/t0)
+  var ymin=-3.2, ymax=6.6;    // log10(値／今日の値)
+  var H0yr=1/(4.3536e17/3.1557e7);
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+
+  function line(slope,color,w,dash){
+    g.strokeStyle=color; g.lineWidth=w;
+    if(dash) g.setLineDash(dash);
+    g.beginPath();
+    g.moveTo(px(xmin),py(slope*xmin));
+    g.lineTo(px(xmax),py(slope*xmax));
+    g.stroke(); g.setLineDash([]);
+  }
+
+  function draw(){
+    var s=parseInt(ss.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right';
+    for(var e=-3;e<=6;e++){
+      var y=py(e);
+      g.strokeStyle=(e===0?'#ddd0d8':'#f4ecf0'); g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      if(e%2===0){ g.fillStyle='#a9959f';
+        g.fillText(e===0?'1':(e<0?'10⁻'+Math.abs(e):'10'+e), X0-8, y+4); }
+    }
+    g.textAlign='center';
+    for(var q=-3;q<=0;q++){
+      var x=px(q);
+      g.strokeStyle='#f8f2f5'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a9959f'; g.fillText(q===0?'いま':'10'+q, x, Y1+16);
+    }
+    g.strokeStyle='#dccdd5'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    line(-2*s, '#4a2740', 3.2);          // G ∝ t^{-2s}
+    line( 1*s, '#8a8a94', 2.6, [6,4]);   // m ∝ t^{s}
+    line( 0,   '#96702a', 3.6);          // α_G
+
+    g.textAlign='left';
+    g.fillStyle='#4a2740'; g.fillText('G', px(xmin)+8, py(-2*s*xmin)-8);
+    g.fillStyle='#8a8a94'; g.fillText('質量 m', px(xmin)+8, py(1*s*xmin)+16);
+    g.fillStyle='#96702a'; g.fillText('α_G ＝ Gm²/ħc　（どこまでも水平）', px(-1.45), py(0)-10);
+
+    g.fillStyle='#7a6570'; g.textAlign='center';
+    g.fillText('宇宙の年齢  t / t₀', (X0+X1)/2, Y1+36);
+
+    var rate=2*s*H0yr;
+    vs.textContent='s = '+s.toFixed(2);
+    var tag = s>0.995?'（質量が育つ絵）':(s<0.005?'（標準の絵）':'（途中の語り方）');
+    ro.textContent='s = '+s.toFixed(2)+' '+tag+
+      '　G ∝ t^'+(-2*s).toFixed(2)+'　m ∝ t^'+s.toFixed(2)+
+      '　→　|Ġ/G| = '+rate.toExponential(2)+' /年'+
+      (rate>1e-13 ? '（月レーザー測距の上限の '+(rate/1e-13).toFixed(0)+' 倍）' : '（上限の内側）')+
+      '　／　α_G は '+(s>=0?'不変':'不変');
+  }
+  ss.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
