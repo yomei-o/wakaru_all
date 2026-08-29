@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流体と乱流に入れてみる ── わかる c·t=一定 第13回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f9f8; --paper-edge:#e6e6df;
+    --side:#5a5a2a; --side-bg:#f1f1ed;
+    --warn:#8a4b2f;
+    --calc:#484821; --calc-bg:#ecece7;
+    --rule:#d7d7cc; --hair:#c0c0ae;
+    --acc:#5a5a2a;
+    --grid:#eaeae4;
+    --ops:#7a2f5a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dcdcd2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#4d4d24;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cecebf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f4f4f1;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e0e0d7;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e0e0d7;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3f3ef;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4d4d24;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4d4d24;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#99997b;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 13 回 ／ 宇宙論から、完全に離れる</span></p>
+<p class="eyebrow">無次元数は一つ残らず不変 ── では、内訳はどうなっているのか</p>
+
+<h1>流体と乱流に、<br>入れてみる
+<span class="sub">レイノルズ数を作る四つの量は、\(a^4,\ a^0,\ a^{-1},\ a^3\) とバラバラに動きます。<br><em>それでも、組み合わせると必ずゼロに戻る。</em></span></h1>
+
+<p class="byline"><span>必要な道具：ウェイトの足し算だけ</span><span>\(-4+0+1-(-3)=0\)</span></p>
+
+<p class="lead">ここから第 II 部の後半は、宇宙論から完全に離れます。今回は<strong>流体と乱流</strong>。工学が使う無次元数 ── レイノルズ数、マッハ数、プラントル数、フルード数 ── は、<em>一つ残らず不変</em>です。だから相似則も、風洞実験も、コルモゴロフの \(-5/3\) 則も、この絵で一文字も変わりません。面白いのは<strong>内訳</strong>のほうです。レイノルズ数を作る四つの量は、それぞれ<em>まったく違うウェイト</em>で動くのに、組み合わせると必ずゼロに戻る。</p>
+
+<h2><span class="n">01</span>まず、ウェイトを機械的に数える</h2>
+
+<p>やることは単純です。どんな量も「長さ\(^{n_L}\) × 時間\(^{n_T}\) × 質量\(^{n_M}\)」に分解できるので、長さ \(+1\)、時間 \(+1\)、質量 \(-1\) を代入して足すだけ。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">次元</th><th class="mid">ウェイト</th><th class="mid">この絵で</th></tr></thead>
+<tbody>
+<tr><th>長さ \(L\)</th><td class="mid">\(L\)</td><td class="mid">\(+1\)</td><td class="mid">\(\div a\)</td></tr>
+<tr class="hi"><th>速度 \(v\)</th><td class="mid">\(L/T\)</td><td class="mid">\(0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>質量密度 \(\rho\)</th><td class="mid">\(M/L^3\)</td><td class="mid">\(-4\)</td><td class="mid">\(\times a^4\)</td></tr>
+<tr><th>圧力 \(p\)</th><td class="mid">\(M/LT^2\)</td><td class="mid">\(-4\)</td><td class="mid">\(\times a^4\)</td></tr>
+<tr><th>粘性率 \(\eta\)</th><td class="mid">\(M/LT\)</td><td class="mid">\(-3\)</td><td class="mid">\(\times a^3\)</td></tr>
+<tr><th>動粘性率 \(\nu=\eta/\rho\)</th><td class="mid">\(L^2/T\)</td><td class="mid">\(+1\)</td><td class="mid">\(\div a\)</td></tr>
+<tr><th>散逸率 \(\varepsilon\)</th><td class="mid">\(L^2/T^3\)</td><td class="mid">\(-1\)</td><td class="mid">\(\times a\)</td></tr>
+<tr><th>表面張力 \(\sigma\)</th><td class="mid">\(M/T^2\)</td><td class="mid">\(-3\)</td><td class="mid">\(\times a^3\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>二行目に注目してください ── <strong>速度はウェイト 0</strong>。長さと時間が同じウェイトなので、割ると消えます。これがこのシリーズを通じて「光速 \(c\) が動かない」と言い続けてきたことの、いちばん素朴な理由です。</p>
+
+<h2><span class="n">02</span>無次元数を、全部かけてみる</h2>
+
+<p>あとは足し算です。工学でよく使う無次元数を、片っ端から検算します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>無次元数</th><th class="mid">定義</th><th class="mid">ウェイトの合計</th><th class="mid">結果</th></tr></thead>
+<tbody>
+<tr class="hi"><th>レイノルズ数</th><td class="mid">\(\rho vL/\eta\)</td><td class="mid">\(-4+0+1-(-3)=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>マッハ数</th><td class="mid">\(v/c_s\)</td><td class="mid">\(0-0=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>プラントル数</th><td class="mid">\(\nu/\kappa\)</td><td class="mid">\(1-1=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>フルード数</th><td class="mid">\(v/\sqrt{gL}\)</td><td class="mid">\(0-\tfrac{-1+1}{2}=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>ウェーバー数</th><td class="mid">\(\rho v^2L/\sigma\)</td><td class="mid">\(-4+0+1-(-3)=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>ストローハル数</th><td class="mid">\(\Omega L/v\)</td><td class="mid">\(-1+1-0=0\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>コルモゴロフ長</th><td class="mid">\((\nu^3/\varepsilon)^{1/4}\)</td><td class="mid">\((3\cdot1-(-1))/4=1\)</td><td class="mid">長さと同じ（\(\div a\)）</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の結論</p>
+<p style="margin:6px 0 0"><strong>流体力学の無次元数は、一つ残らず不変です。</strong><br>
+だから相似則がそのまま成り立ち ── <em>風洞実験も、船の模型実験も、この絵でまったく同じように機能します</em>。</p>
+</div>
+
+<h2><span class="n">03</span>核心 ── 内訳は、めちゃくちゃに動いている</h2>
+
+<p>結果が不変なのは当たり前に見えます。でも中身を開けると、様子が違います。</p>
+
+<div class="calc">
+<span class="tag">レイノルズ数の、四つの部品</span>
+$$\mathrm{Re}=\frac{\rho\,v\,L}{\eta}$$
+<p class="lbl">それぞれの動き方</p>
+$$\tilde\rho=a^4\rho,\qquad \tilde v=v,\qquad \tilde L=\frac{L}{a},\qquad \tilde\eta=a^3\eta$$
+<p class="lbl">組み立てると</p>
+$$\widetilde{\mathrm{Re}}=\frac{(a^4\rho)(v)(L/a)}{a^3\eta}=a^{4-1-3}\,\frac{\rho vL}{\eta}=\mathrm{Re}$$
+</div>
+
+<p><strong>四つの部品が \(a^4\)、\(a^0\)、\(a^{-1}\)、\(a^3\) というバラバラの倍率で動いているのに、指数がちょうど \(4-1-3=0\) になる。</strong> 偶然ではなく、レイノルズ数が無次元であることの言い換えです ── でも、<em>言い換えを実際に見ると、なかなか壮観</em>です。</p>
+
+<div class="fig">
+<p class="cap">図：レイノルズ数を作る四つの部品が、この絵でどれだけ動くか。ツマミで時代を遡ると<strong>棒がバラバラに伸び縮みします</strong>（\(\rho\) は \(a^4\)、\(\eta\) は \(a^3\)、\(L\) は \(1/a\)）。それでも右端の「合計＝Re」だけは、<em>いつでもゼロに貼りついたまま</em></p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>いつの時代で見るか \(\log_{10}a\)（右端が今日）<input id="sa" type="range" min="-3000" max="0" value="-1000" step="1"></label>
+  <span class="val" id="va">a = 0.100</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#5a5a2a"></i>各部品の倍率</span>
+  <span><i class="swatch" style="background:#7a2f5a"></i>合計＝レイノルズ数の倍率</span>
+</div>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>乱流も、臨界現象も、指数はただの数</h2>
+
+<p>もう一段上の話も、同じです。乱流や複雑系を特徴づけるのは<strong>指数</strong>で、指数はどれもただの数 ── つまり無次元です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>何を測っているか</th><th class="mid">値</th><th class="mid">この絵で</th></tr></thead>
+<tbody>
+<tr><th>コルモゴロフ則 \(E(k)\propto k^{-5/3}\)</th><td class="mid">\(-5/3\)</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>3 次元イジングの \(\nu\)</th><td class="mid">0.629971</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>スケーリング次元 \(\Delta_\sigma\)</th><td class="mid">0.5181489</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>フラクタル次元</th><td class="mid">──</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>リアプノフ指数 × 経過時間 \(\lambda t\)</th><td class="mid">──</td><td class="mid"><strong>不変</strong></td></tr>
+<tr><th>クライバー則の指数</th><td class="mid">3/4</td><td class="mid"><strong>不変</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>リアプノフ指数 \(\lambda\) だけは単体ではウェイト \(-1\)（時間の逆数）で動きますが、意味を持つのは<em>経過時間との積</em> \(\lambda t\) です。そして \(t\) はウェイト \(+1\) なので、掛けると消える。<strong>「予測可能性がどれだけ失われたか」は、この絵でも同じ値</strong>です。</p>
+
+<h2><span class="n">05</span>種明かし ── 道具が触れるのは「大きさ」だけ</h2>
+
+<p>ここまで見てきたことを、一行にまとめられます。</p>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0"><strong>共形変換は、「大きさ」にしか触れません。</strong><br>
+構造・複雑さ・情報を測る指標は、ひとつ残らず無次元なので ── <em>手が届かない</em>。</p>
+</div>
+
+<p>これは第6回の結論の、複雑系版です。あちらでは「使われているメモリ（＝ブラックホールのエントロピー）に手が届かない」と数えました。今回は「乱流の指数にも、臨界指数にも、フラクタル次元にも手が届かない」。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>触れるもの：大きさ</strong><span>長さ、質量、エネルギー、温度、密度、粘性率 ── 次元付きのものは全部動く</span></div></div>
+<div class="row hi"><div class="mk">②</div><div class="txt"><strong>触れないもの：かたち</strong><span>無次元数、指数、比、情報量、複雑さの指標 ── ひとつも動かない</span></div></div>
+</div>
+
+<p>だから、この記法で宇宙論が「質量ひとつ」に潰れた（第4回）のと同じ勢いで、<em>流体力学は一文字も潰れません</em>。潰せる部分が、そもそも無いからです。<strong>ナビエ＝ストークス方程式は、この絵でも完全にそのまま。</strong></p>
+
+<div class="aside">
+<span class="tag">逆から見ると、道具の限界</span>
+第1回から「割ると膨張則が出る」を繰り返してきましたが、それは<em>次元付きの量を二つ持ってきたとき</em>だけの話でした。最初から無次元で書かれている学問 ── 流体力学の相似則、臨界現象、情報理論 ── に対して、この道具は<strong>何の情報も与えません</strong>。<em>共形変換で新しいことが言えるのは、次元付きの量が主役の場所だけ</em>。それは宇宙論と重力に、ほぼ限られます。
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① ウェイトの数え上げは、物質の性質（粘性率など）も一緒に変換されることを前提にしています。</strong> 実験室で固定された流体（決まった粘性率の水）を置くなら、その \(\eta\) は勝手には変換されません ── 本稿が扱っているのは<em>宇宙全体をまとめて書き換える</em>操作です。この注意は第8回①と同じです。</p>
+<p style="margin:0 0 10px"><strong>② 「風洞実験がそのまま機能する」は、相似則が無次元数だけで書かれているという事実の言い換えです。</strong> 実際の風洞実験は共形変換とは無関係に成立しており、本稿はそれを<em>再確認しているだけ</em>で、新しいことは何も主張していません。</p>
+<p style="margin:0 0 10px"><strong>③ コルモゴロフ理論の \(-5/3\) 則には間欠性による補正があり、</strong> 厳密には \(-5/3\) からわずかにずれることが知られています。ただし補正後の指数もやはり無次元なので、結論は変わりません。</p>
+<p style="margin:0"><strong>④ 「共形変換は大きさにしか触れない」は、古典の範囲での言い方です。</strong> 量子にするとトレースアノマリーで無次元量（結合定数、スケーリング次元）が走り出します ── 前シリーズ第8回・番外編⑥、および本シリーズ第 V 部で扱います。<em>無次元だから絶対に安全、ではありません。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>速度のウェイトが 0 になるのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">長さも時間もウェイト \(+1\) なので、割ると打ち消すから。<em>これが「光速がこの絵で動かない」ことの、いちばん素朴な理由</em>です ── \(c\) は速度なので、最初からウェイト 0。</div></details></li>
+
+<li>粘性率 \(\eta\)（次元 \(M/LT\)）のウェイトを求めよ。
+<details><summary>答えを見る</summary><div class="ans">\(M\) が \(-1\)、\(L\) が \(+1\)、\(T\) が \(+1\) なので \(-1-1-1=-3\)。よって \(\tilde\eta=a^3\eta\)。<em>宇宙が若いほど、この絵の流体はさらさらになります。</em></div></details></li>
+
+<li>レイノルズ数が不変であることを、四つの部品の指数から示せ。
+<details><summary>答えを見る</summary><div class="ans">\(\tilde\rho=a^4\rho\)、\(\tilde v=v\)、\(\tilde L=L/a\)、\(\tilde\eta=a^3\eta\)。組むと \(a^{4}\cdot a^{0}\cdot a^{-1}/a^{3}=a^{0}\)。<strong>四つがバラバラに動いても、指数の和がゼロ</strong>になります。</div></details></li>
+
+<li>コルモゴロフ長 \((\nu^3/\varepsilon)^{1/4}\) のウェイトは。それは何を意味するか。
+<details><summary>答えを見る</summary><div class="ans">\(\nu\) が \(+1\)、\(\varepsilon\) が \(-1\) なので \((3\cdot1-(-1))/4=+1\)。<strong>長さと同じウェイト</strong>です ── つまりコルモゴロフ長は、この絵で他のあらゆる長さと同じ \(1/a\) で縮む。<em>渦の階層は、丸ごと相似に縮むだけ</em>で、形は変わりません。</div></details></li>
+
+<li>（やや難）このシリーズの道具は、複雑系について何か言えるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>何も言えません。</strong> 複雑さを測る指標（無次元数、指数、フラクタル次元、情報量）は全部ウェイト 0 なので、共形変換で一つも動かない。<em>この道具が触れるのは「大きさ」だけ</em>で、「かたち」には手が届かない。第6回で「使われているメモリに手が届かない」と数えたのと、同じ構図です ── そして<strong>それは道具の限界を正確に示しています</strong>。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　触れるのは大きさだけ、かたちには届かない</h2>
+<p>どんな量も「長さ\(^{n_L}\)×時間\(^{n_T}\)×質量\(^{n_M}\)」に分解して、\(+1,+1,-1\) を足すだけでウェイトが出ます。やってみると ── 速度は 0、質量密度は \(-4\)、粘性率は \(-3\)、動粘性率は \(+1\)。そして<strong>レイノルズ数、マッハ数、プラントル数、フルード数、ウェーバー数、ストローハル数は、一つ残らず 0</strong>。相似則はそのまま成り立ち、風洞実験も船の模型実験も、この絵でまったく同じように機能します。</p>
+<p>面白いのは内訳でした。レイノルズ数の四つの部品は \(a^4\)、\(a^0\)、\(a^{-1}\)、\(a^3\) という<em>バラバラの倍率</em>で動くのに、指数の和が \(4-1-3=0\) でぴったり戻る。<strong>結果が不変なのは当たり前でも、中身がこれだけ暴れているのを見るのは壮観です。</strong></p>
+<p>もう一段上も同じでした ── コルモゴロフの \(-5/3\)、3 次元イジングの \(\nu=0.629971\)、スケーリング次元 \(\Delta_\sigma=0.518\)、フラクタル次元、リアプノフ指数×経過時間、クライバー則の \(3/4\)。<em>指数はどれもただの数</em>なので、ひとつも動きません。</p>
+<p>そして種明かし ── <strong>共形変換は「大きさ」にしか触れない</strong>。構造・複雑さ・情報を測る指標は全部無次元なので、手が届かない。だから宇宙論が「質量ひとつ」に潰れた（第4回）のと同じ勢いで、<em>流体力学は一文字も潰れません</em>。ナビエ＝ストークス方程式は、この絵でも完全にそのまま。<strong>これは道具の限界を、正確に測ったことでもあります</strong> ── 共形変換で新しいことが言えるのは、次元付きの量が主役の場所、つまり宇宙論と重力に、ほぼ限られます。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第14回</span>
+「無次元は不変」を今回いちばん強く使いましたが、<strong>それが破れる場所が一つだけあります</strong>。相転移です ── 臨界点では、無次元の指数が<em>古典的な予想からずれる</em>（異常次元）。前シリーズ番外編⑥で見た通り、3 次元イジングの \(\Delta_\sigma=0.5181489\) は自由場の \(0.5\) からわずかに外れていて、そのずれ \(\gamma_\sigma=0.0181489\) こそが「共形変換のウェイトがどれだけ間違っているか」を 7 桁で測った量でした。次回は<strong>この記法のウェイトが、実験で測られている</strong>という話をします。<em>帳簿の数字に、誤差棒が付く。</em>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第13回、物理好きの高校生・大学生向け読み物です。共形変換のもとで長さ・時間がウェイト \(+1\)、質量が \(-1\) であること、したがって任意の物理量のウェイトが次元の分解から機械的に決まることは標準的です。本稿の各ウェイト（速度 0、質量密度 \(-4\)、圧力 \(-4\)、粘性率 \(-3\)、動粘性率 \(+1\)、散逸率 \(-1\)、表面張力 \(-3\)）およびレイノルズ数・マッハ数・プラントル数・フルード数・ウェーバー数・ストローハル数がすべてウェイト 0 になること、コルモゴロフ長が \(+1\)（長さと同じ）になることは、本稿で機械的に検算した結果です（kenshou/calc18.py）。これらは「無次元数は共形変換で不変」という一般則の具体例であり、新しい物理を主張するものではありません ── <strong>相似則や風洞実験は共形変換とは無関係に成立しており、本稿はそれを再確認しているだけです</strong>。ウェイトの数え上げは物質の性質（粘性率など）も一緒に変換される場合の話で、実験室で固定された流体には適用されません。コルモゴロフの \(-5/3\) 則には間欠性による補正があり厳密には \(-5/3\) からわずかにずれますが、補正後の指数も無次元なので結論は変わりません。3 次元イジングの \(\nu=0.629971\)、\(\Delta_\sigma=0.5181489\) は共形ブートストラップによる値です（前シリーズ番外編⑥）。「共形変換は大きさにしか触れない」は古典の範囲での主張で、量子にするとトレースアノマリーにより結合定数やスケーリング次元が走ります（前シリーズ第8回・番外編⑥、本シリーズ第 V 部）。線形膨張（\(c\cdot t=\)一定、\(R_h=ct\)）は検証途上の少数派モデルで、初期宇宙まで外挿した場合は元素合成と矛盾します（Lewis, Barnes &amp; Kaushik 2016）。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで時代を変え、四本の棒が暴れても合計が動かない様子が見えます。「答えを見る」で解答が開きます。</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sa=document.getElementById('sa'), va=document.getElementById('va'), ro=document.getElementById('ro');
+  var X0=70, X1=700, Y0=34, YB=250;       // YB = ゼロ線
+  var HH=150;                              // 1 桁あたりの高さ基準（動的に調整）
+  var PARTS=[['ρ',4,'#5a5a2a'],['v',0,'#5a5a2a'],['L',-1,'#5a5a2a'],['η（分母）',-3,'#5a5a2a']];
+
+  function draw(){
+    var la=parseInt(sa.value,10)/1000;     // log10 a
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // 目盛り
+    var maxexp=4*Math.abs(la);
+    var scale=Math.min(95, 190/Math.max(maxexp,1));
+    g.textAlign='right';
+    for(var e=-12;e<=12;e+=4){
+      var y=YB-e*scale;
+      if(y<Y0-4||y>YB+96) continue;
+      g.strokeStyle=(e===0?'#c9c9a8':'#f1f1e4'); g.lineWidth=(e===0?1.6:1);
+      g.beginPath(); g.moveTo(X0-8,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#9c9c7c'; g.font='11px sans-serif';
+      g.fillText(e===0?'×1':'10'+e, X0-12, y+4);
+      g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+
+    // 棒（4部品 ＋ 合計）
+    var n=5, w=64, gap=(X1-X0-n*w)/(n+1);
+    var total=0;
+    for(var i=0;i<PARTS.length;i++){
+      var ex=-PARTS[i][1]*la;             // a^{-w}: 指数は -w*log10 a
+      total+= (i===3? -ex : ex);          // η は分母
+      var x=X0+gap+(w+gap)*i;
+      var h=ex*scale;
+      g.fillStyle=PARTS[i][2];
+      g.globalAlpha=0.85;
+      g.fillRect(x, h>=0? YB-h : YB, w, Math.abs(h));
+      g.globalAlpha=1;
+      g.fillStyle='#3f3f1c'; g.textAlign='center';
+      g.fillText(PARTS[i][0], x+w/2, YB+22);
+      g.font='11px sans-serif'; g.fillStyle='#6a6a48';
+      g.fillText('×10'+(ex>=0?'+':'')+ex.toFixed(1), x+w/2, YB+40);
+      g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    }
+    // 合計
+    var x=X0+gap+(w+gap)*4;
+    g.fillStyle='#7a2f5a'; g.globalAlpha=0.9;
+    g.fillRect(x, YB-2, w, 4);
+    g.globalAlpha=1;
+    g.fillStyle='#7a2f5a'; g.textAlign='center';
+    g.fillText('Re', x+w/2, YB+22);
+    g.font='11px sans-serif';
+    g.fillText('×10'+total.toFixed(1), x+w/2, YB+40);
+    g.font='bold 12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('動かない', x+w/2, YB-14);
+
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillStyle='#7d7d5c'; g.textAlign='center';
+    g.fillText('レイノルズ数 Re = ρ v L / η　── 部品ごとの倍率', (X0+X1)/2, YB+72);
+
+    var a=Math.pow(10,la);
+    va.textContent='a = '+(a<0.01? a.toExponential(2) : a.toFixed(3));
+    ro.textContent='a = '+va.textContent+'（z = '+(1/a-1).toPrecision(3)+'）　'+
+      'ρ ×10'+(-4*la>=0?'+':'')+(-4*la).toFixed(1)+'　'+
+      'v ×1　'+
+      'L ×10'+(la>=0?'+':'')+(la).toFixed(1)+'　'+
+      'η ×10'+(-3*la>=0?'+':'')+(-3*la).toFixed(1)+
+      '　→　合計 ×10'+total.toFixed(1)+'　★ レイノルズ数は動かない';
+  }
+  sa.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
