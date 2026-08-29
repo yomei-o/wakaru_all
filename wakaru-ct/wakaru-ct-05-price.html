@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>短さは、いくらで買えるのか ── わかる c·t=一定 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f4f8f8; --paper-edge:#d3e0e0;   /* 第5回：青緑の紙（値段） */
+    --side:#144145; --side-bg:#e3efef;
+    --warn:#8a4b2f;
+    --calc:#123c40; --calc-bg:#dfebeb;
+    --rule:#c2d5d5; --hair:#a0bbbb;
+    --acc:#17454a;    /* 第5回アクセント＝深青緑 */
+    --grid:#dbe8e8;
+    --ops:#8c3a52;    /* 臙脂＝当てはまりの損 */
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfe2e2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#123538;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bcd2d2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfdfd;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:#dfebeb;color:#123c40;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdffff;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:#dfebeb;color:#123c40;font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#ecf4f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d8e8e8;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d8e8e8;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef5f5;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#123538;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdffff,#e3efef);}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:#dfebeb;border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#123538;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#5f7272;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">第 5 回 ／ 短さと当てはまりを、同じ通貨で並べる</span></p>
+<p class="eyebrow">記述長ゼロ ── では、そのゼロは何ビットぶんの値打ちがあるのか</p>
+
+<h1>短さは、<br>いくらで買えるのか
+<span class="sub">第4回で、\(c\cdot t=\text{一定}\) は無次元パラメータ 0 個だと分かりました。<br>
+オッカムの剃刀の極限です。ただし当てはまりでは負ける。<br>
+この二つを、<em>ビットという一つの通貨</em>に両替します。</span></h1>
+
+<p class="byline"><span>必要な道具：対数、\(\chi^2\)、割り算</span><span>パラメータ1個 ＝ \(\tfrac12\log_2 N\) ビット</span></p>
+
+<p class="lead">第4回の結末は、きれいな対立でした ── \(\Lambda\)CDM は無次元パラメータ 6 個、\(c\cdot t=\text{一定}\) は 0 個。<strong>記述長は圧倒的に短い</strong>。ところが \(H_0d_L/c\) を比べると \(z\simeq1.1\) で 0.21 等ずれる。<em>短いほうが正しいのか、当たるほうが正しいのか。</em> この問いは主観ではなく、情報理論がきちんと値段表を持っています。今回は、その値段表を実際に引きます。</p>
+
+<h2><span class="n">01</span>記述長を、二つに割る</h2>
+
+<p>モデルとデータをまとめて誰かに送ることを考えます。送るものは二つです ── <strong>モデルの説明</strong>と、<strong>モデルからのズレ</strong>。合計の長さがいちばん短い送り方が、いちばん良いモデルだ、というのが最小記述長（MDL）の考え方です。</p>
+
+<div class="keybox">
+<p class="lbl">送る中身</p>
+$$\underbrace{L_{\text{全体}}}_{\text{総ビット数}}\;=\;\underbrace{-\log_2 L(\text{データ}\mid\text{モデル})}_{\text{当てはまりの損}}\;+\;\underbrace{\frac{k}{2}\log_2 N}_{\text{パラメータの値段}}$$
+<p style="margin:10px 0 0">\(k\) はパラメータの数、\(N\) はデータ点の数。<strong>パラメータを1個持つと、その値を送るぶんだけ長くなる</strong> ── その料金が右の項です。</p>
+</div>
+
+<p>右の項の \(2\) 倍を自然対数で書くと \(k\ln N\) ── <strong>ベイズ情報量規準（BIC）の罰金そのもの</strong>です。MDL と BIC は、同じ勘定を違う単位で書いたものでした。</p>
+
+<h2><span class="n">02</span>パラメータ1個の、値段表</h2>
+
+<p>いちばん使われる二つの規準を、ビットに直します。</p>
+
+<div class="calc">
+<span class="tag">値段表</span>
+<p class="lbl">AIC（赤池情報量規準）── 罰金 \(2k\)（自然対数の \(\chi^2\) 単位）</p>
+$$\frac{2}{2\ln 2}=\frac{1}{\ln 2}=1.443\ \text{ビット／個}\qquad(\text{データ数に依らない})$$
+<p class="lbl">BIC（ベイズ情報量規準）── 罰金 \(k\ln N\)</p>
+$$\frac{\ln N}{2\ln 2}=\frac12\log_2 N\ \text{ビット／個}\qquad(\text{データが増えると高くなる})$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>データ点の数 \(N\)</th><th class="mid">AIC の値段</th><th class="mid">BIC の値段</th><th class="mid">BIC の \(\Delta\chi^2\) 予算</th></tr></thead>
+<tbody>
+<tr><th>100</th><td class="mid">1.443 bit</td><td class="mid">3.32 bit</td><td class="mid">4.61</td></tr>
+<tr><th>1000</th><td class="mid">1.443 bit</td><td class="mid">4.98 bit</td><td class="mid">6.91</td></tr>
+<tr class="hi"><th>1701（Pantheon+ 規模）</th><td class="mid">1.443 bit</td><td class="mid"><strong>5.37 bit</strong></td><td class="mid"><strong>7.44</strong></td></tr>
+<tr><th>10000</th><td class="mid">1.443 bit</td><td class="mid">6.64 bit</td><td class="mid">9.21</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>読み方はこうです ── <strong>パラメータを1個節約すると、5.4 ビットぶん得をする</strong>。だから当てはまりで 5.4 ビット以内の損なら、短いほうが勝ちます。</p>
+
+<h2><span class="n">03</span>当てはまりの損も、ビットに直す</h2>
+
+<p>ガウス誤差なら \(-2\ln L=\chi^2+\text{定数}\) なので、二つのモデルの当てはまりの差はこう換算できます。</p>
+
+<div class="calc">
+<span class="tag">両替レート</span>
+$$\text{当てはまりで失うビット}=\frac{\Delta\chi^2}{2\ln 2}=0.7213\,\Delta\chi^2$$
+</div>
+
+<p>これで通貨が揃いました。あとは \(\Delta\chi^2\) を実際に計算するだけです。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>実際に、勘定する</h2>
+
+<p>超新星の距離指標で比べます。第4回の閉じた式 \(H_0d_L/c=(1+z)\ln(1+z)\) と、\(\Lambda\)CDM の数値積分の差を等級で書くと ──</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">\(z\)</th><th class="mid">0.05</th><th class="mid">0.1</th><th class="mid">0.3</th><th class="mid">0.5</th><th class="mid">1.0</th><th class="mid">1.5</th><th class="mid">2.0</th></tr></thead>
+<tbody>
+<tr><th>\(\Delta\mu\) [mag]</th><td class="mid">−0.027</td><td class="mid">−0.052</td><td class="mid">−0.126</td><td class="mid">−0.171</td><td class="mid">−0.213</td><td class="mid">−0.206</td><td class="mid">−0.181</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>超新星の絶対等級は未知なので、<strong>定数のずれは自由に吸わせられます</strong>（これがちょうど「\(H_0\) は次元付きだから数えない」の実務版です）。吸わせたあとに残るのは<em>形の差</em>だけ。Pantheon+ 規模の赤方偏移分布（中央値 \(z=0.27\)、1701 本、1本あたり \(\sigma=0.15\) 等）で計算すると ──</p>
+
+<div class="calc">
+<span class="tag">勘定</span>
+<p class="lbl">定数項を吸わせたあとの残差</p>
+$$\text{RMS}=0.053\ \text{等}\qquad\Longrightarrow\qquad \Delta\chi^2=N\left(\frac{0.053}{0.15}\right)^2=213$$
+<p class="lbl">ビットに両替する</p>
+$$\text{当てはまりの損}=\frac{213}{2\ln2}=154\ \text{ビット}$$
+<p class="lbl">節約したぶん</p>
+$$\text{パラメータ1個}=5.4\ \text{ビット}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">この回の勘定書き</p>
+<p style="margin:6px 0 0;text-align:center;font-size:19px">
+得： <strong>+5.4 ビット</strong>　　損： <strong>−154 ビット</strong>　　差引： <strong>−149 ビット</strong></p>
+<p style="margin:10px 0 0">パラメータを一つ捨てて得られる短さは、当てはまりで払う額の <strong>約 1/29</strong> しかない。</p>
+</div>
+
+<h2><span class="n">05</span>逆から見る ── どれだけ当たれば釣り合うのか</h2>
+
+<p>予算のほうから逆算すると、要求の厳しさがはっきりします。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>規準</th><th class="mid">\(\Delta\chi^2\) の予算</th><th class="mid">許される残差 RMS</th><th class="mid">実際</th></tr></thead>
+<tbody>
+<tr><th>AIC</th><td class="mid">2</td><td class="mid">5.1 mmag</td><td class="mid" rowspan="2"><strong>53 mmag</strong></td></tr>
+<tr class="hi"><th>BIC</th><td class="mid">7.44</td><td class="mid">9.9 mmag</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>1701 本ぶん平均したあとで、<strong>1本あたり 10 ミリ等級まで一致していなければならない</strong> ── 超新星の内在的なばらつき（150 ミリ等級）の 1/15 です。実際の食い違いは 53 ミリ等級。<em>桁が足りません。</em></p>
+
+<h2><span class="n">06</span>では、何本で決着するのか</h2>
+
+<p>面白いのはここです。同じ食い違い（53 mmag）のまま、データの本数だけを変えてみます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">本数 \(N\)</th><th class="mid">当てはまりの損 \(\Delta\chi^2\)</th><th class="mid">BIC の予算 \(\ln N\)</th><th class="mid">勝つのは</th></tr></thead>
+<tbody>
+<tr><th class="mid">10</th><td class="mid">1.25</td><td class="mid">2.30</td><td class="mid"><strong>\(c\cdot t=\)一定</strong></td></tr>
+<tr class="hi"><th class="mid">約 26</th><td class="mid">3.26</td><td class="mid">3.26</td><td class="mid">引き分け</td></tr>
+<tr><th class="mid">100</th><td class="mid">12.5</td><td class="mid">4.61</td><td class="mid">\(\Lambda\)CDM</td></tr>
+<tr><th class="mid">1000</th><td class="mid">125</td><td class="mid">6.91</td><td class="mid">\(\Lambda\)CDM</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>超新星が 26 本より少なければ、\(c\cdot t=\text{一定}\) のほうが良いモデルです。</strong> これは負け惜しみではなく、情報理論が本当にそう言っています ── データが乏しいとき、短い理論は正しい選択なのです。1998年に加速膨張が見つかったときの超新星は 42 本と 16 本でした。<em>あのころなら、この勝負は際どかった。</em></p>
+
+<div class="fig">
+<p class="cap">図：横軸はデータ点の数、縦軸はビット。<strong>パラメータの値段は \(\log N\) でしかふえない</strong>のに、<strong>当てはまりの損は \(N\) に比例</strong>する。だから二本は必ず交差し、その先は二度と逆転しません</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>モデルの食い違い（定数項を吸わせたあとの残差 RMS）<input id="sr" type="range" min="5" max="150" value="53" step="1"></label>
+  <span class="val" id="vr">53 mmag</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#17454a"></i>パラメータ1個の値段（\(\tfrac12\log_2 N\)）</span>
+  <span><i class="swatch" style="background:#8c3a52"></i>当てはまりの損（\(\propto N\)）</span>
+  <span><i class="swatch" style="background:#9aa8a8"></i>Pantheon+ 規模</span>
+</div>
+</div>
+
+<p>ツマミで食い違いを小さくしていくと、臙脂の直線が右へ平行移動し、交点が右へ動きます。それでも <strong>必ず交わります</strong> ── 傾きが違うからです。食い違いを 1 mmag まで小さくしても、交点は \(N\simeq10^4\) 台。<em>データを増やし続ければ、短さはいつか必ず負ける。</em></p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">07</span>種明かし ── オッカムの剃刀には、有効期限がある</h2>
+
+<p>図の二本の傾きが、今回のいちばん深い話です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>　</th><th>ふえ方</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>パラメータの値段</th><td>\(\propto\log N\)</td><td>値を1個送るのに必要な精度は、データが増えるほど上がるが、<strong>対数でしか上がらない</strong></td></tr>
+<tr class="hi"><th>当てはまりの損</th><td>\(\propto N\)</td><td>1点ごとに残差を送り直すので、<strong>点数に正比例して積み上がる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">今回の一行</p>
+<p style="margin:6px 0 0"><strong>短さの利益は \(\log N\)、当てはまりの損は \(N\)。</strong><br>
+だからデータが増えれば、短いモデルは<em>必ず</em>負ける ── 当たっていない限り。</p>
+</div>
+
+<p>オッカムの剃刀は、迷信でも美意識でもなく<strong>計算可能な割引券</strong>でした。ただし額面が \(\log N\) と小さく、しかも<em>データが増えるほど相対的に安くなる</em>。「シンプルな理論が良い」というのは、<strong>当てはまりが同じくらいなら</strong>という但し書きつきの定理だったのです。</p>
+
+<div class="aside">
+<span class="tag">第4回とのつながり</span>
+第4回で「無次元パラメータ 0 個」を、記述長ゼロ・オッカムの極限と呼びました。今回はその<em>ゼロに値札がついた</em>ことになります ── <strong>5.4 ビット</strong>。そして \(c\cdot t=\text{一定}\) が式を短くしてくれた分（積分が \(\ln\) 一つになる、閉じた式で書ける）は、この勘定にはまったく入りません。<em>計算の楽さは、情報量規準では 1 ビットも評価されない。</em> それでも第4回の価値は残ります ── あちらは<strong>記法</strong>の話で、こちらは<strong>モデル</strong>の話だからです（第3回で分けた二つが、ここでもそのまま効いています）。
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p style="margin:0 0 10px">04節の \(\Delta\chi^2=213\) は、<strong>\(\Lambda\)CDM（\(\Omega_m=0.315\)）が正しいと仮定したときの期待値</strong>です。実データへのフィットではありません。赤方偏移分布も Pantheon+ 風に作った<em>模擬分布</em>（中央値 0.27）で、実際の分布とは違います。1本あたり \(\sigma=0.15\) 等も内在的ばらつきの代表値で、系統誤差の相関を入れると<strong>実効的な本数は減り、\(\Delta\chi^2\) も小さくなります</strong>。桁の議論として読んでください。</p>
+<p style="margin:0 0 10px">実データでの比較は、文献のあいだで一致していません。メリアらは「モデル非依存の距離指標では \(R_h=ct\) が好まれる」と主張し、他の解析（Shafer 2015 ほか）は \(\Lambda\)CDM が強く好まれると報告しています。<em>本稿は「\(\Lambda\)CDM が正しければこうなる」という条件つきの勘定であって、実測の判定ではありません。</em></p>
+<p style="margin:0 0 10px">パラメータの数え方にも議論があります。超新星だけを見るなら \(H_0\) は絶対等級と縮退するので、実質 \(\Lambda\)CDM 1 個（\(\Omega_m\)）対 \(R_h=ct\) 0 個。第4回で挙げた「6 個」は CMB まで含めた \(\Lambda\)CDM 標準基底の話で、比較の土俵が違います。<strong>本稿の 5.4 ビットは「1 個ぶん」の値段です。</strong></p>
+<p style="margin:0">MDL の \( \frac{k}{2}\log_2 N\) は漸近形で、正確には模型の幾何（フィッシャー情報の体積）に依存する項が付きます。AIC と BIC はそもそも導出の前提が違い（予測誤差の最小化 vs 事後確率の最大化）、どちらを使うべきかは目的次第です ── <em>「唯一正しい値段表」は存在しません。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>\(N=100\) のとき、パラメータ1個の値段は BIC で何ビットか。
+<details><summary>答えを見る</summary><div class="ans">\(\tfrac12\log_2 100=3.32\) ビット。\(\Delta\chi^2\) に直せば \(\ln100=4.61\)。<strong>データが 17 倍（1701本）になっても、値段は 3.32→5.37 ビットにしか上がりません</strong> ── 対数だからです。</div></details></li>
+
+<li>\(\Delta\chi^2=213\) は何ビットぶんの損か。
+<details><summary>答えを見る</summary><div class="ans">\(213/(2\ln2)=154\) ビット。パラメータ1個の節約（5.37 ビット）の <strong>約 29 倍</strong>。差し引き 149 ビットの負けです。</div></details></li>
+
+<li>AIC の値段がデータ数に依らないのはなぜか。BIC との違いは何を反映しているか。
+<details><summary>答えを見る</summary><div class="ans">AIC の罰金は \(2k\) で \(N\) を含まないから。AIC は<strong>予測誤差</strong>を最小にする規準で、「1個のパラメータを増やすと期待予測誤差が \(\chi^2\) で 2 だけ悪化する」という補正です。BIC は<strong>事後確率</strong>を最大にする規準で、\(N\) が増えるほど「たまたま合っただけ」の可能性が下がるので罰金が重くなります。<em>目的が違えば値段表も違う。</em></div></details></li>
+
+<li>残差 RMS が 20 mmag だったら、何本まで \(c\cdot t=\text{一定}\) が勝つか。
+<details><summary>答えを見る</summary><div class="ans">\(\ln N=N(0.020/0.15)^2=0.01778\,N\) を数値で解いて \(N\simeq325\)。<strong>食い違いを 1/2.7 に減らすと、勝てる本数は約 12 倍</strong>になります。それでも 300 本台止まり ── \(\log N\) 対 \(N\) の勝負は、最初から不利です。</div></details></li>
+
+<li>（やや難）「短い理論のほうが良い」は、どういう条件つきで正しいか。
+<details><summary>答えを見る</summary><div class="ans"><strong>当てはまりの差が \(\log N\) 程度に収まっている限り</strong>、正しい。パラメータの値段は \(\tfrac12\log_2 N\) ビットしかないので、それを超える当てはまりの損（\(\Delta\chi^2>\ln N\)）を出した瞬間に逆転します。そして当てはまりの損は \(N\) に比例するので、<em>データを増やせば必ずどこかで逆転する</em>。オッカムの剃刀は定理ですが、有効期限つきの定理でした。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　値札は 5.4 ビットだった</h2>
+<p>「短いほうが正しいのか、当たるほうが正しいのか」── 情報理論はこれに値段表で答えます。記述長は <em>当てはまりの損 ＋ パラメータの値段</em> に割れ、後者は \(\tfrac{k}{2}\log_2 N\) ビット。これは BIC の罰金 \(k\ln N\) と同じものです。AIC なら <strong>1.443 ビット／個（データ数に依らない）</strong>、BIC なら <strong>\(\tfrac12\log_2 N\)</strong> ── Pantheon+ 規模（1701 本）で <strong>5.37 ビット</strong>。</p>
+<p>当てはまりの損は \(\Delta\chi^2/(2\ln2)\) ビット。超新星の距離指標で実際に勘定すると、絶対等級（定数項）を吸わせたあとの残差 RMS が <strong>53 ミリ等級</strong>、\(\Delta\chi^2=213\)、すなわち <strong>154 ビットの損</strong>。パラメータ1個で得た 5.4 ビットの <em>約 29 倍</em>を払っています。差し引き 149 ビットの負け。釣り合うには 1本あたり <strong>10 ミリ等級</strong>まで一致していなければならず、これは超新星の内在的ばらつきの 1/15 です。</p>
+<p>面白いのは本数を振ったときでした ── <strong>26 本より少なければ \(c\cdot t=\text{一定}\) のほうが良いモデル</strong>になります。これは負け惜しみではなく、情報理論がそう言っている。1998年に加速膨張が見つかったときの超新星は 42 本と 16 本でした。<em>データが乏しいとき、短い理論は正しい選択なのです。</em></p>
+<p>種明かしは傾きの違いでした ── <strong>短さの利益は \(\log N\)、当てはまりの損は \(N\)</strong>。二本は必ず交差し、その先は二度と逆転しない。オッカムの剃刀は迷信でも美意識でもなく<em>計算可能な割引券</em>でしたが、額面は対数でしか増えません。「シンプルな理論が良い」は、<strong>当てはまりが同じくらいなら</strong>という但し書きつきの定理でした。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第6回</span>
+ここまで三回、割り算ばかりしてきました（メモリ÷演算、時間÷エネルギー、当てはまり÷パラメータ）。次はメモリの<strong>中身</strong>を見ます ── 今日の宇宙は容量 \(10^{122}\) ビットのうち \(1.5\times10^{-18}\) しか使っていません。ほぼ空です。この「空っぽさ」は欠陥ではなく、<em>宇宙がいまも 99.9999999999999998% 共形平坦である</em>ことの言い換えでした ── つまり<strong>このシリーズの道具が効く理由</strong>そのもの。ペンローズのワイル曲率仮説と、前シリーズ番外編②の「重力場が共形因子（帳簿・時間の矢なし）とワイルテンソル（物理・時間の矢あり）に割れる」表を、使用率の言葉で書き直します。<em>道具が壊れていく度合いが、時間の矢でした。</em>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズ第5回、物理好きの高校生・大学生向け読み物です。最小記述長（MDL）における二部符号 \(-\log_2 L+\tfrac{k}{2}\log_2 N\)、赤池情報量規準 \(\mathrm{AIC}=-2\ln L+2k\)、ベイズ情報量規準 \(\mathrm{BIC}=-2\ln L+k\ln N\)、およびガウス誤差での \(-2\ln L=\chi^2+\text{const}\) は、いずれも標準的な結果です。ビットへの換算（パラメータ1個が AIC で \(1/\ln2=1.443\) ビット、BIC で \(\tfrac12\log_2 N\) ビット、当てはまりの損が \(\Delta\chi^2/(2\ln2)\) ビット）は本稿での書き換えです。04–06節の数値は本稿での計算で、<strong>\(\Lambda\)CDM（\(\Omega_m=0.315\), \(\Omega_r=9.2\times10^{-5}\)）が正しいと仮定したときの期待値</strong>です ── 実データへのフィットではありません。赤方偏移分布は Pantheon+ 風の模擬分布（\(N=1701\)、中央値 \(z=0.27\)）、1本あたり \(\sigma=0.15\) 等（内在的ばらつきの代表値）を用いており、系統誤差の相関は考慮していません。相関を入れると実効的な本数が減り \(\Delta\chi^2\) は小さくなります。\(R_h=ct\) と \(\Lambda\)CDM の実データによる比較は文献で一致しておらず、Melia らによる \(R_h=ct\) 支持の主張と、\(\Lambda\)CDM が強く好まれるとする解析（Shafer 2015 ほか）が併存しています。超新星のみを用いる場合 \(H_0\) は絶対等級と縮退するため、実質のパラメータ数は \(\Lambda\)CDM 1 個・\(R_h=ct\) 0 個であり、第4回で挙げた \(\Lambda\)CDM の 6 個は CMB を含む標準基底の話です。MDL の \(\tfrac{k}{2}\log_2 N\) は漸近形で、正確にはフィッシャー情報の体積に依存する項が加わります。AIC と BIC は導出の前提（予測誤差の最小化／事後確率の最大化）が異なり、一意に正しい規準は存在しません。1998年の加速膨張の発見に用いられた超新星の本数は、High-z Supernova Search Team が 16 本、Supernova Cosmology Project が 42 本です。学術的な標準はインフレーションを含む \(\Lambda\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで食い違いを変え、交点が動く様子が見えます。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sr=document.getElementById('sr'), vr=document.getElementById('vr'), ro=document.getElementById('ro');
+  var X0=70, X1=700, Y0=28, Y1=318;
+  var LN2=Math.log(2), SIG=0.15;
+  var xmin=0, xmax=5;          // log10 N
+  var ymin=-1, ymax=4;         // log10 bits
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function priceBits(N){ return 0.5*Math.log(N)/LN2; }            // (1/2)log2 N
+  function fitBits(N,r){ return N*(r/SIG)*(r/SIG)/(2*LN2); }      // Δχ²/(2ln2)
+
+  function draw(){
+    var r=parseInt(sr.value,10)/1000;      // mag
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    // 目盛り
+    g.textAlign='right';
+    for(var e=-1;e<=4;e++){
+      var y=py(e);
+      g.strokeStyle='#e9f0f0'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#8fa0a0';
+      g.fillText(e<0?'0.1':(e===0?'1':'10'+e), X0-8, y+4);
+    }
+    g.textAlign='center';
+    for(var q=0;q<=5;q++){
+      var x=px(q);
+      g.strokeStyle='#f0f6f6'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#8fa0a0'; g.fillText(q===0?'1':'10'+q, x, Y1+16);
+    }
+    g.strokeStyle='#c2d5d5'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // Pantheon+ 規模の縦線
+    var lx=Math.log(1701)/Math.LN10;
+    g.strokeStyle='#9aa8a8'; g.lineWidth=1.4; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(px(lx),Y0); g.lineTo(px(lx),Y1); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='#778888'; g.textAlign='center';
+    g.fillText('Pantheon+ 1701本', px(lx), Y0-8);
+
+    function curve(fn,color,w){
+      g.strokeStyle=color; g.lineWidth=w; g.beginPath();
+      var first=true;
+      for(var i=0;i<=340;i++){
+        var lN=xmin+(xmax-xmin)*i/340, N=Math.pow(10,lN);
+        var v=fn(N); if(v<=0) continue;
+        var yy=Math.log(v)/Math.LN10;
+        if(yy<ymin-0.5||yy>ymax+0.5){ first=true; continue; }
+        if(first){ g.moveTo(px(lN),py(yy)); first=false; } else g.lineTo(px(lN),py(yy));
+      }
+      g.stroke();
+    }
+    curve(function(N){return fitBits(N,r);}, '#8c3a52', 3.2);
+    curve(function(N){return priceBits(N);}, '#17454a', 3.2);
+
+    // 交点：ln N = N (r/sig)^2 。f(N)=lnN-kN は N=1/k で最大の凸関数なので根は二つ。
+    // 欲しいのは大きいほうの根（ここから先は ΛCDM が勝ち続ける）。
+    var k=(r/SIG)*(r/SIG), Ncross=null;
+    var peak=1/k;
+    if(Math.log(peak)-1>0){                 // 根が存在する場合だけ
+      var lo=peak, hi=1e12;
+      for(var it=0;it<300;it++){
+        var mid=Math.sqrt(lo*hi);
+        if(Math.log(mid)-mid*k>0) lo=mid; else hi=mid;
+      }
+      Ncross=Math.sqrt(lo*hi);
+    }
+    if(Ncross&&Ncross>1&&Ncross<1e5){
+      var cx=Math.log(Ncross)/Math.LN10, cy=Math.log(priceBits(Ncross))/Math.LN10;
+      g.fillStyle='#3d5a5a';
+      g.beginPath(); g.arc(px(cx),py(cy),5.5,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=1.8;
+      g.beginPath(); g.arc(px(cx),py(cy),5.5,0,6.2832); g.stroke();
+      g.fillStyle='#3d5a5a'; g.textAlign='left';
+      g.fillText('引き分け N≈'+Math.round(Ncross), px(cx)+10, py(cy)-8);
+    }
+
+    // ラベル
+    g.fillStyle='#17454a'; g.textAlign='left';
+    g.fillText('パラメータ1個の値段 ∝ log N', X0+10, py(Math.log(priceBits(30))/Math.LN10)-26);
+    g.fillStyle='#8c3a52'; g.textAlign='right';
+    g.fillText('当てはまりの損 ∝ N', X1-8, py(3.3));
+
+    g.fillStyle='#5f7272'; g.textAlign='center';
+    g.fillText('データ点の数  N', (X0+X1)/2, Y1+36);
+    g.save(); g.translate(18,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('ビット', 0,0); g.restore();
+
+    var fb=fitBits(1701,r), pb=priceBits(1701);
+    vr.textContent=Math.round(r*1000)+' mmag';
+    ro.textContent='残差 RMS = '+Math.round(r*1000)+' mmag　／　Pantheon+ 規模では　当てはまりの損 '+
+      fb.toFixed(1)+' bit　vs　パラメータの値段 '+pb.toFixed(2)+' bit　→　'+
+      (fb>pb ? '差引 '+(fb-pb).toFixed(1)+' bit の負け（ΛCDM の勝ち）' : '差引 '+(pb-fb).toFixed(2)+' bit の勝ち（c·t=一定 の勝ち）')+
+      '　／　引き分けになるのは '+(!Ncross ? '（本数によらず ΛCDM の勝ち）' : (Ncross<1e5 ? 'N≈'+Math.round(Ncross) : 'N≈10⁵超'));
+  }
+  sr.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>
