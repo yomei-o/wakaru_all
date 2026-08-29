@@ -1,0 +1,278 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">Last time the end state turned out to be <strong>Step 3</strong>, where the tool does not reach. This time we go inside it — <strong>the interior of a black hole</strong>. The conclusion first: <em>the event horizon has weight 0, so a conformal transformation can neither create nor destroy it</em>. But <strong>the apparent horizon does move</strong>. And once inside, the \(1.5\times10^{77}\) bits <em>still cannot be read.</em></p>
+
+<h2><span class="n">01</span>Can a conformal transformation remove a horizon?</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>\(g\to\Omega^2g\) does not move the light cones</strong><span>if \(\Omega>0\) is smooth, the set of null geodesics is unchanged — <em>the causal structure survives intact</em></span></div></div>
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>The event horizon is defined by causal structure alone</strong><span>"the boundary of the causal past of future null infinity" — no distance or time enters</span></div></div>
+<div class="row hi"><div class="mk">!</div><div class="txt"><strong>So the event horizon has weight 0</strong><span><em>it can be neither created nor destroyed</em> — this is why this series' tool cannot make a black hole go away</span></div></div>
+</div>
+
+<h2><span class="n">02</span>But the apparent horizon is not conformally invariant</h2>
+
+<div class="calc">
+<span class="tag">The apparent horizon is fixed by the expansion of outgoing null congruences, \(\theta=0\) — a local quantity</span>
+$$\theta\;\to\;\Omega^{-1}\left(\theta+2\,l^\mu\partial_\mu\ln\Omega\right)$$
+<p class="lbl">\(\theta=0\) is not preserved — <strong>the apparent horizon moves</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Horizon</th><th class="mid">Defined by</th><th class="mid">Weight</th><th class="mid">Conformal transformation</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Event horizon</th><td class="mid">causal structure (global)</td><td class="mid"><strong>\(0\)</strong></td><td class="mid"><strong>does not move</strong></td></tr>
+<tr><th>Apparent horizon</th><td class="mid">\(\theta=0\) (local)</td><td class="mid">\(\ne0\)</td><td class="mid"><strong>moves</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §02</p>
+<p style="margin:6px 0 0">The difference between the two horizons is exactly a <strong>difference of weight</strong>.<br>
+But locating the event horizon requires <em>knowing the entire future</em> —<br>
+<strong>the one that does not move cannot be measured, and the one that can be measured moves.</strong></p>
+</div>
+
+<h2><span class="n">03</span>Penrose diagrams — where notation does real work</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">＝</div><div class="txt"><strong>A Penrose diagram is a conformal transformation</strong><span>choose \(\Omega\) so that infinity is brought to a finite distance</span></div></div>
+<div class="row"><div class="mk">Δ</div><div class="txt"><strong>What changes: distances on the page</strong><span>bookkeeping — no claim at all</span></div></div>
+<div class="row hi"><div class="mk">=</div><div class="txt"><strong>What does not: the tilt of the light cones</strong><span>= causal structure = <em>physics</em></span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §03</p>
+<p style="margin:6px 0 0">It is the <strong>twin</strong> of Episode 1's claim that "\(c\cdot t=\)const is a notation, not a model" —<br>
+the Penrose diagram is not a model either. <em>And it is one of the most useful tools in relativity.</em><br>
+── <strong>Notation is not worthless. It is simply not a claim.</strong></p>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">04</span>The core — even inside, the contents cannot be read</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Black hole</th><th class="mid">tide at the horizon [g]</th><th class="mid">horizon → singularity [s]</th></tr></thead>
+<tbody>
+<tr><th>Solar mass</th><td class="mid">\(2.10\times10^{9}\)</td><td class="mid">\(1.55\times10^{-5}\)</td></tr>
+<tr><th>Sgr A\(^*\) (\(4.3\times10^6M_\odot\))</th><td class="mid">\(1.14\times10^{-4}\)</td><td class="mid">\(66.6\)</td></tr>
+<tr class="hi"><th>M87\(^*\) (\(6.5\times10^9M_\odot\))</th><td class="mid"><strong>\(4.97\times10^{-11}\)</strong></td><td class="mid">\(1.01\times10^{5}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>At solar mass it is \(2\times10^9\) g — <em>you are torn apart atom by atom</em>. But at <strong>M87\(^*\) it is \(5\times10^{-11}\) g and you feel nothing at all</strong>. <em>The horizon is not a place where something happens</em> — at a large black hole you would not notice crossing it.</p>
+
+<div class="calc">
+<span class="tag">Can information be read inside? (Episode 24's channel capacity, applied to a 70 kg observer)</span>
+$$C=\frac{2\pi mc^2}{\hbar\ln2}=5.41\times10^{53}\ \text{bit/s}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Black hole</th><th class="mid">readable [bits]</th><th class="mid">the hole's \(S\) [bits]</th><th class="mid">shortfall [bits]</th></tr></thead>
+<tbody>
+<tr><th>Solar mass</th><td class="mid">\(8.37\times10^{48}\)</td><td class="mid">\(1.51\times10^{77}\)</td><td class="mid">\(93.9\)</td></tr>
+<tr><th>Sgr A\(^*\)</th><td class="mid">\(3.60\times10^{55}\)</td><td class="mid">\(2.80\times10^{90}\)</td><td class="mid">\(115.9\)</td></tr>
+<tr class="hi"><th>M87\(^*\)</th><td class="mid">\(5.44\times10^{58}\)</td><td class="mid">\(6.40\times10^{96}\)</td><td class="mid"><strong>\(126.5\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The main point of this episode</p>
+<p style="margin:6px 0 0"><strong>In every case it falls short by orders of magnitude.</strong><br>
+── Long before the question of whether information is "lost", <em>there is no time to extract it.</em><br>
+<strong>The bigger the hole, the longer you have inside — and the larger the shortfall</strong> (93.9 → 126.5 bits).</p>
+</div>
+
+<div class="fig">
+<p class="cap">Figure: as the mass varies, <strong>the tide at the horizon (whether you feel it)</strong> and <strong>the shortfall in information you could read inside</strong>. Move the slider — <em>the bigger it is, the less it hurts, and the less you can read.</em></p>
+<canvas id="cv" width="720" height="370"></canvas>
+<div class="controls">
+  <label>black hole mass \(\log_{10}(M/M_\odot)\)<input id="sm" type="range" min="0" max="100" value="0" step="1"></label>
+  <span class="val" id="vm">0.0</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#4a3a6a"></i>tide at the horizon [g] (log)</span>
+  <span><i class="swatch" style="background:#2a6a4a"></i>shortfall [bits]</span>
+  <span><i class="swatch" style="background:#c8c2d0"></i>roughly survivable (10 g)</span>
+</div>
+</div>
+
+<h2><span class="n">05</span>The evaporation clock</h2>
+
+<div class="calc">
+<span class="tag">Hawking evaporation</span>
+$$t_{\rm evap}=\frac{5120\pi G^2M^3}{\hbar c^4}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Black hole</th><th class="mid">\(t_{\rm evap}\) [yr]</th><th class="mid">× the age of the universe</th></tr></thead>
+<tbody>
+<tr><th>Solar mass</th><td class="mid">\(2.10\times10^{67}\)</td><td class="mid">\(1.5\times10^{57}\)</td></tr>
+<tr><th>M87\(^*\)</th><td class="mid">\(5.76\times10^{96}\)</td><td class="mid">\(4.2\times10^{86}\)</td></tr>
+<tr class="hi"><th>Mass finishing evaporation now</th><td class="mid" colspan="2"><strong>\(M=1.73\times10^{11}\) kg (one mountain's worth)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Anything of stellar mass or above takes at least \(10^{57}\) times the age of the universe</strong> — effectively, it does not evaporate. The mass range finishing now (\(10^{11}\) kg) is exactly where <em>primordial black holes are being searched for.</em></p>
+
+<h2><span class="n">06</span>The Page time — if information comes out, when?</h2>
+
+<div class="calc">
+<span class="tag">The area halves at \(M/M_0=1/\sqrt2\)</span>
+$$\frac{t}{t_{\rm evap}}=1-\left(\frac1{\sqrt2}\right)^3=0.6464\qquad\text{── 65 per cent of the evaporation time}$$
+</div>
+
+<p>On the Page curve, the entanglement entropy of the radiation turns over when it equals the black hole's entropy. <em>The frequently quoted "0.54" comes from a different convention</em>; here we took the moment the area halves. <strong>Either way it is the middle of the evaporation</strong> — if information comes out, it comes out after that. For a solar mass, \(1.4\times10^{67}\) years from now.</p>
+
+<h2><span class="n">07</span>Checking against the weight table</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Quantity</th><th class="mid">Weight</th><th class="mid">Why</th></tr></thead>
+<tbody>
+<tr><th>Whether an event horizon exists</th><td class="mid">\(0\)</td><td class="mid">fixed by causal structure alone</td></tr>
+<tr><th>\(S=A/4\ell_P^2\)</th><td class="mid">\(0\)</td><td class="mid">Episode 40 §01</td></tr>
+<tr><th>The tide measured in \(g\)</th><td class="mid">\(0\)</td><td class="mid">acceleration ÷ acceleration</td></tr>
+<tr><th>\(t_{\rm evap}/t_0\)</th><td class="mid">\(0\)</td><td class="mid">time ÷ time</td></tr>
+<tr><th>The Page fraction</th><td class="mid">\(0\)</td><td class="mid">time ÷ time</td></tr>
+<tr class="hi"><th><strong>The location of the apparent horizon</strong></th><td class="mid"><strong>\(\ne0\)</strong></td><td class="mid"><strong>the one exception</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line</span>
+<p style="margin:0 0 10px"><strong>(1) §01's "conformal transformations preserve causal structure" has a condition.</strong> \(\Omega\) must be <em>positive and smooth everywhere</em>; where \(\Omega\) goes to zero or diverges — precisely the boundary a Penrose diagram uses to bring infinity in — the story changes. <strong>Handling that boundary is the subtlest part of conformal geometry</strong>, and both Episode 31's CCC and Episode 41's hypothesis were demands made at exactly such a place.</p>
+<p style="margin:0 0 10px"><strong>(2) §04's "readable information" is an upper bound on an upper bound.</strong> Episode 24's channel capacity (the Margolus–Levitin limit) is <em>a speed limit on ideal quantum computation</em>, not a claim that a real observer could take information in at that rate — <strong>the conclusion is strengthened by the fact that even this most generous estimate falls short</strong>, but the numbers themselves are indicative.</p>
+<p style="margin:0 0 10px"><strong>(3) §04's tides and infall times are Schwarzschild values.</strong> Real black holes rotate (Episode 39) and have a different interior — <em>read these as order-of-magnitude calculations</em>. They are also the maximum proper time for free fall from rest; other trajectories are shorter.</p>
+<p style="margin:0 0 10px"><strong>(4) §06's Page curve is not fully settled.</strong> Recent "island" computations reproduce the curve, but <em>the mechanism by which information comes out is unresolved</em>. This document treats only the timing of the turnover and <strong>makes no claim about whether information actually emerges</strong>.</p>
+<p style="margin:0"><strong>(5) §05's evaporation times assume nothing falls in.</strong> In fact the CMB at 2.7 K is hotter than a stellar-mass hole's Hawking temperature (around \(10^{-8}\) K), so <em>in today's universe these holes do not evaporate at all — they absorb and grow</em>. Evaporation begins only once the universe is far colder.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Can a conformal transformation remove an event horizon? Why?
+<details><summary>Show the answer</summary><div class="ans"><strong>No.</strong> Conformal transformations do not move light cones, and the event horizon is fixed by <em>causal structure alone</em> ("the boundary of the causal past of future null infinity") — so it has <strong>weight 0</strong>. Per caveat (1), this requires \(\Omega\) to be positive and smooth everywhere.</div></details></li>
+
+<li>What about the apparent horizon?
+<details><summary>Show the answer</summary><div class="ans"><strong>It moves.</strong> It is fixed by the <em>local</em> condition \(\theta=0\), and under a conformal transformation \(\theta\to\Omega^{-1}(\theta+2l^\mu\partial_\mu\ln\Omega)\), so \(\theta=0\) is not preserved. ── <em>The one that does not move cannot be located without knowing the whole future; the one that can be located moves.</em></div></details></li>
+
+<li>How much does crossing M87\(^*\)'s horizon hurt?
+<details><summary>Show the answer</summary><div class="ans"><strong>Not at all</strong> — \(5\times10^{-11}\) g. At solar mass it is \(2\times10^9\) g and you are torn apart atom by atom, but the tide falls as \(1/M^2\). <em>The horizon is not a place where something happens.</em></div></details></li>
+
+<li>Could you read a black hole's information by going inside?
+<details><summary>Show the answer</summary><div class="ans"><strong>No.</strong> Even on Episode 24's most generous channel-capacity estimate you fall short by <strong>93.9 bits</strong> at solar mass and <strong>126.5 bits</strong> at M87\(^*\) — <em>long before the question of whether information is "lost", there is no time to extract it</em>. And <strong>the bigger the hole, the longer you have inside and the larger the shortfall.</strong></div></details></li>
+
+<li>(Harder) What do Penrose diagrams and \(c\cdot t=\)const have in common?
+<details><summary>Show the answer</summary><div class="ans"><strong>Both are notation, not models.</strong> A Penrose diagram is a conformal transformation: distances on the page change (bookkeeping), the tilt of the light cones does not (physics). <em>And it is one of the most useful tools in relativity</em> — <strong>notation is not worthless; it is simply not a claim.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary: the one that does not move cannot be measured</h2>
+<p>\(g\to\Omega^2g\) does not move the light cones, and the event horizon is fixed by <em>causal structure alone</em> — so <strong>the event horizon has weight 0 and can be neither created nor destroyed</strong>. That is why this series' tool cannot make a black hole go away.</p>
+<p>But <strong>the apparent horizon moves</strong>: it is fixed by the local condition \(\theta=0\), and \(\theta\to\Omega^{-1}(\theta+2l^\mu\partial_\mu\ln\Omega)\). <em>The difference between the two horizons is exactly a difference of weight</em> — and <strong>the one that does not move cannot be located without knowing the whole future, while the one that can be located moves.</strong></p>
+<p>A Penrose diagram is a conformal transformation. Distances on the page change (bookkeeping); the tilt of the light cones does not (physics) — <em>the twin of Episode 1's "\(c\cdot t=\)const is a notation, not a model"</em>, and one of the most useful tools in relativity. <strong>Notation is not worthless. It is simply not a claim.</strong></p>
+<p>Inside: at solar mass the tide at the horizon is \(2\times10^9\) g and tears you apart atom by atom, but <strong>at M87\(^*\) it is \(5\times10^{-11}\) g and you feel nothing</strong> — the horizon is not a place where something happens. Can you read the information there? On the most generous estimate you still fall short by <strong>93.9 bits at solar mass and 126.5 at M87\(^*\)</strong>. <em>Long before information can be "lost", there is no time to extract it</em> — and the bigger the hole, the longer you have and the larger the shortfall.</p>
+<p>Waiting outside is no better: a stellar-mass hole takes <strong>at least \(10^{57}\) times the age of the universe</strong> to evaporate, and if information emerges it does so after the Page time (65 per cent of the way) — \(1.4\times10^{67}\) years from now for a solar mass. <em>Everything about black holes sat in the weight-0 column, except the apparent horizon.</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time — Episode 43</span>
+This time nearly everything about black holes landed in the <strong>weight-0 column</strong>. Next time we go to the <strong>Planck scale</strong> — Episode 18 produced "one bit \(\leftrightarrow\) 1.96 fm", but <em>what is the Planck length itself?</em> Where does \(\ell_P\) sit on the weight table? And <strong>is "there is a smallest length" even compatible with conformal transformations?</strong> — <em>this is where the series' tool really breaks.</em>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sm=document.getElementById('sm'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+  var X0=80, X1=690, Y0=36, Y1=270;
+  var G=6.6743e-11, c=2.99792458e8, hbar=1.054571817e-34, Ms=1.98892e30, g0=9.80665, LN2=Math.LN2;
+
+  function px(l){ return X0+l/10*(X1-X0); }
+  function tidal(l){ var M=Math.pow(10,l)*Ms; return 2*Math.pow(c,6)/(4*G*G*M*M)/g0; }
+  function shortfall(l){
+    var M=Math.pow(10,l)*Ms;
+    var tau=Math.PI*G*M/(c*c*c);
+    var read=2*Math.PI*70*c*c/(hbar*LN2)*tau;
+    var S=4*Math.PI*G*M*M/(hbar*c)/LN2;
+    return Math.log(S/read)/LN2;
+  }
+  function pyT(v){ return Y1-(Math.log(v)/Math.LN10+12)/24*(Y1-Y0); }
+  function pyS(v){ return Y1-(v-80)/60*(Y1-Y0); }
+
+  function draw(){
+    var l=parseInt(sm.value,10)/10;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px ui-sans-serif,system-ui,sans-serif';
+
+    g.strokeStyle='#c8c2d0'; g.lineWidth=1.6; g.setLineDash([5,4]);
+    g.beginPath(); g.moveTo(X0,pyT(10)); g.lineTo(X1,pyT(10)); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#a89fae'; g.textAlign='left';
+    g.fillText('roughly survivable (10 g)', X0+8, pyT(10)-7);
+
+    g.textAlign='center'; g.fillStyle='#9c96a4';
+    for(var t=0;t<=10;t+=2){
+      var X=px(t);
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X,Y0); g.lineTo(X,Y1); g.stroke();
+      g.fillText('10^'+t, X, Y1+20);
+    }
+
+    g.strokeStyle='#4a3a6a'; g.lineWidth=2.8; g.beginPath();
+    for(var i=0;i<=200;i++){ var v=i/20, X2=px(v), Y2=pyT(tidal(v)); if(i===0)g.moveTo(X2,Y2); else g.lineTo(X2,Y2); }
+    g.stroke();
+    g.strokeStyle='#2a6a4a'; g.lineWidth=2.4; g.beginPath();
+    for(var j=0;j<=200;j++){ var v3=j/20, X3=px(v3), Y3=pyS(shortfall(v3)); if(j===0)g.moveTo(X3,Y3); else g.lineTo(X3,Y3); }
+    g.stroke();
+
+    g.textAlign='left';
+    g.fillStyle='#4a3a6a'; g.fillText('tide at the horizon [g] (falls as 1/M^2)', px(0.3), pyT(tidal(0.3))-10);
+    g.fillStyle='#2a6a4a'; g.fillText('shortfall [bits] (grows with mass)', px(3.4), pyS(shortfall(3.4))-10);
+
+    var Xc=px(l);
+    g.strokeStyle='#5a5262'; g.lineWidth=1.8; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(Xc,Y0); g.lineTo(Xc,Y1); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#4a3a6a'; g.beginPath(); g.arc(Xc,pyT(tidal(l)),4.6,0,6.29); g.fill();
+    g.fillStyle='#2a6a4a'; g.beginPath(); g.arc(Xc,pyS(shortfall(l)),4.6,0,6.29); g.fill();
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px ui-sans-serif,system-ui,sans-serif';
+    g.fillText('black hole mass  M / M_sun', (X0+X1)/2, Y1+44);
+
+    vm.textContent=l.toFixed(1);
+    var M=Math.pow(10,l)*Ms, tau=Math.PI*G*M/(c*c*c);
+    ro.textContent='M = 10^'+l.toFixed(1)+' M_sun　→　tide '+tidal(l).toExponential(2)+
+      ' g　/　horizon to singularity '+tau.toExponential(2)+' s　/　shortfall '+shortfall(l).toFixed(1)+' bits'+
+      (tidal(l)<10?'　★ no longer painful — and the shortfall has grown':'');
+  }
+  sm.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-42-inside.html', acc='#4a3a6a', ops='#2a6a4a',
+      title='Inside a black hole ── c·t = const, That Clicks, Episode 42 (Part V)',
+      ep='EPISODE 42 ／ Part V — where the tool breaks',
+      eyebrow='The one that does not move cannot be measured',
+      h1='A horizon no conformal<br>transformation can remove',
+      sub='The event horizon has weight 0 — it is fixed by causal structure alone.<br><em>But the apparent horizon moves. And inside, the contents still cannot be read.</em>',
+      byline_l='What you need: Episode 1 on notation, Episode 24\'s channel capacity, Episodes 39, 40 and 41',
+      byline_r='M87\\(^*\\)\'s horizon is \\(5\\times10^{-11}\\) g — unnoticeable',
+      body=BODY + '\n\n<p class="foot">This document is Episode 42 of "c·t = const, That Clicks" (the sixth of Part V), written for physics-minded high-school and university readers. That conformal transformations preserve causal structure, the different characters of event and apparent horizons, Penrose diagrams, Hawking evaporation and the Page curve are all standard, and nothing here is a new claim — the numbers are computed in kenshou/calc46.py. <strong>§01\'s statement requires \\(\\Omega\\) to be positive and smooth everywhere</strong>; where \\(\\Omega\\) vanishes or diverges — precisely the boundary a Penrose diagram uses — the story changes, and handling that boundary is the subtlest part of conformal geometry. <strong>§04\'s "readable information" is an upper bound on an upper bound</strong>: the Margolus–Levitin limit is a speed limit on ideal quantum computation, not a claim about real observers — <em>the conclusion is strengthened by even this generous estimate falling short, but the numbers are indicative</em>. §04\'s tides and infall times are Schwarzschild values (real black holes rotate) and are the maximum proper time for free fall from rest. <strong>§06\'s Page curve is not fully settled</strong>; recent "island" computations reproduce it but the mechanism by which information emerges is unresolved — this document treats only the timing and <em>makes no claim about whether information actually comes out</em>. <strong>§05\'s evaporation times assume nothing falls in</strong>; in fact the 2.7 K CMB is hotter than a stellar-mass hole\'s Hawking temperature, so <em>in today\'s universe such holes absorb and grow rather than evaporate</em>. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, move the mass and watch it stop hurting while becoming less readable. "Show the answer" opens each solution.')

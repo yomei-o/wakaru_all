@@ -227,8 +227,11 @@ BODY += card(41,'wakaru-ct-41-weyl-hypothesis.html','The Weyl curvature hypothes
   'Penrose demanded Weyl = 0 at initial singularities — a condition that switches off exactly half of the 20 Riemann components. Measured in bits, his famous 10^(10^123) is 3.27e122 bits, exactly the same number as Episode 24’s N = C.t and Episode 40’s holographic bound: four headline numbers turned out to be one. And lining beginning and end up on Episode 33’s three-step test, the beginning is Step 2 (the tool reaches) and the final black holes are Step 3 (it does not) — the arrow of time runs from where conformal transformations reach to where they do not.',
   'Four headline numbers were one')
 
+BODY += card(42,'wakaru-ct-42-inside.html','Inside a black hole',
+  'Conformal transformations do not move light cones, and the event horizon is fixed by causal structure alone — so it has weight 0 and can be neither created nor destroyed. The apparent horizon, defined locally by theta = 0, does move: the one that cannot be moved cannot be located without knowing the whole future, and the one that can be located moves. A Penrose diagram is a conformal transformation and the twin of Episode 1’s notation claim — notation is not worthless, it is simply not a claim. And inside, even the most generous estimate falls 93.9 bits short at solar mass and 126.5 at M87*.',
+  'Notation is not worthless; it is simply not a claim')
+
 BODY += mini([
- (42,'What happens to the notation inside a black hole'),
  (43,'The Planck scale — the edge of the band'),
  (44,'What changes if you make it discrete'),
  (45,'Summary: the list of things that could not be erased'),
