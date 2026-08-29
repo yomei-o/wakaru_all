@@ -1,0 +1,321 @@
+# -*- coding: utf-8 -*-
+from mkpage import build
+
+BODY = r'''<p class="lead">50 回のあいだ、繰り返し書きました ── 「空間が膨張したのか、原子が縮んだのかは区別できない」。それは正しい。<strong>では、何なら区別できるのか。</strong> 今回はその一点を掘ります。答えは <em>\(\mu=m_p/m_e\)</em> にあり、そして掘った先に<strong>予想していなかった縮退</strong>が出てきました。</p>
+
+<h2><span class="n">01</span>なぜ \(\mu\) なのか</h2>
+
+<div class="calc">
+<span class="tag">共形変換のもとで、質量はウェイト \(-1\)（第16回）</span>
+$$\tilde m_p=\Omega^{-1}m_p,\qquad \tilde m_e=\Omega^{-1}m_e\qquad\Longrightarrow\qquad \frac{\tilde m_p}{\tilde m_e}=\frac{m_p}{m_e}$$
+<p class="lbl">\(\mu=1836.15267\) はウェイト \(0\) ── <strong>純粋な共形変換では動かせない</strong></p>
+</div>
+
+<p><strong>「膨張か収縮か」の区別がつかないのは、まさにこれが理由</strong>です。全部の質量が同じ重みで動くので、比が変わらない。<em>逆に言えば ── \(\mu\) が動いたら、それは共形変換ではない何かです。</em></p>
+
+<h2><span class="n">02</span>ところが \(m_p\) と \(m_e\) は、出どころが違う</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">e</div><div class="txt"><strong>\(m_e=y_e\,v\) ── 100 パーセント ヒッグス起源</strong><span>湯川結合と真空期待値、それだけ</span></div></div>
+<div class="row hi"><div class="mk">p</div><div class="txt"><strong>\(m_p\) ── 87〜93 パーセントは \(\Lambda_{\rm QCD}\)</strong><span>ヒッグス起源はシグマ項の 65〜120 MeV だけ（938.3 MeV のうち）</span></div></div>
+<div class="row"><div class="mk">!</div><div class="txt"><strong>そしてその \(\Lambda_{\rm QCD}\) は、次元転移で生まれた量</strong><span>＝ <em>トレースアノマリーの産物</em>（第37回）</span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の結論</p>
+<p style="margin:6px 0 0"><strong>\(\mu\) は、アノマリー起源の質量とヒッグス起源の質量の比です。</strong><br>
+── 第37回で「量子が 0 の列に数字を書き込んだ」と書きましたが、<br>
+<em>その数字を分子に、ヒッグスを分母に持つ唯一の比</em>が \(\mu\) でした。</p>
+</div>
+
+<h2><span class="n">03</span>だから \(\mu\) は増幅器になる</h2>
+
+<div class="calc">
+<span class="tag">次元転移</span>
+$$\Lambda_{\rm QCD}=M\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(M)}\right)
+\qquad\Longrightarrow\qquad
+\frac{d\ln\Lambda}{d\ln\alpha_s}=\frac{2\pi}{b_0\alpha_s}$$
+<p class="lbl">\(M_Z\) で指定するなら <strong>約 7 倍の増幅</strong>。大統一で \(\alpha_s\) と \(\alpha\) が繋がっていれば、文献の見積もりは \(R\approx30\text{〜}50\)（模型依存）</p>
+</div>
+
+<p><strong>第30回の「増幅率 \(K\)」が、今度は理論側に現れました。</strong> オクロが強かったのは観測が精密だからではなく増幅率 \(10^7\) があったからでしたが、\(\mu\) の場合は<em>理論の中に増幅が入っている</em>のです。</p>
+
+<h2><span class="n">04</span>観測は、\(\alpha\) よりどれだけ厳しいか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>測定</th><th class="mid">量</th><th class="mid">上限</th><th class="mid">ビット</th></tr></thead>
+<tbody>
+<tr class="hi"><th>メタノール・メーザー（\(z\approx0.89\)）</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(10^{-7}\)</td><td class="mid"><strong>\(23.3\)</strong></td></tr>
+<tr><th>アンモニア吸収（\(z\approx0.68\)）</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(3.5\times10^{-7}\)</td><td class="mid">\(21.4\)</td></tr>
+<tr><th>H\(_2\) クエーサー吸収線</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(5\times10^{-6}\)</td><td class="mid">\(17.6\)</td></tr>
+<tr><th>クエーサー多重項法（第30回）</th><td class="mid">\(\Delta\alpha/\alpha\)</td><td class="mid">\(10^{-5}\)</td><td class="mid">\(16.6\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>同じ赤方偏移帯で <strong>\(\mu\) のほうが 100 倍きつい</strong>。増幅率を掛けて下敷きの結合定数への制限に直すと <strong>700〜3500 倍（9.5〜11.8 ビット）強い</strong>。そして報告されている \(\Delta\alpha/\alpha\approx6\times10^{-6}\) は、<em>統一的な変化だと仮定するかぎり</em> \(\mu\) の上限を <strong>420〜3000 倍超過</strong>します。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">05</span>核心 ── 掘ったら、縮退が出てきた</h2>
+
+<p>ここまでは既知の話です。掘り進めて分かったのは、<strong>「定数が変わる」は 1 次元の問題ではない</strong>ということでした。基本パラメータは三つあります：</p>
+
+<div class="calc">
+<span class="tag">三つの独立な方向</span>
+$$x_1=\frac{\Delta\alpha}{\alpha},\qquad
+x_2=\frac{\Delta X_e}{X_e}\ \left(X_e=\frac{m_e}{\Lambda_{\rm QCD}}\right),\qquad
+x_3=\frac{\Delta X_q}{X_q}\ \left(X_q=\frac{m_q}{\Lambda_{\rm QCD}}\right)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>測定</th><th class="mid">\(\alpha\)</th><th class="mid">\(X_e\)</th><th class="mid">\(X_q\)</th><th class="mid">\(1\sigma\)</th></tr></thead>
+<tbody>
+<tr><th>Mg/Fe 多重項</th><td class="mid">\(1\)</td><td class="mid">\(0\)</td><td class="mid">\(0\)</td><td class="mid">\(10^{-5}\)</td></tr>
+<tr><th>H\(_2\) Lyman-Werner</th><td class="mid">\(0\)</td><td class="mid">\(-1\)</td><td class="mid">\(0.048\)</td><td class="mid">\(5\times10^{-6}\)</td></tr>
+<tr class="hi"><th>NH\(_3\)・メタノール</th><td class="mid">\(0\)</td><td class="mid">\(-1\)</td><td class="mid"><strong>\(0.048\)</strong></td><td class="mid">\(10^{-7}\)</td></tr>
+<tr><th>21cm 対 光学</th><td class="mid">\(2\)</td><td class="mid">\(-1\)</td><td class="mid">\(-0.039\)</td><td class="mid">\(10^{-6}\)</td></tr>
+<tr><th>OH 18cm</th><td class="mid">\(3.70\)</td><td class="mid">\(-1.85\)</td><td class="mid">\(0.002\)</td><td class="mid">\(10^{-5}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>\(X_q\) の列が、どれも極端に小さい。</strong> 陽子質量が \(m_q\) に依存するのはシグマ項の \(0.048\) だけだからです。フィッシャー行列を組んで対角化すると：</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">方向</th><th class="mid">その方向の \(\sigma\)</th><th>中身</th></tr></thead>
+<tbody>
+<tr><th class="mid">第 1</th><td class="mid">\(9.9\times10^{-8}\)</td><td>ほぼ \(X_e\)（\(0.999\)）</td></tr>
+<tr><th class="mid">第 2</th><td class="mid">\(4.9\times10^{-7}\)</td><td>ほぼ \(\alpha\)（\(0.999\)）</td></tr>
+<tr class="hi"><th class="mid">第 3</th><td class="mid"><strong>\(1.2\times10^{-4}\)</strong></td><td><strong>\(99.6\) パーセントが \(X_q\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0"><strong>条件数 1196 倍 ── クォーク質量方向だけが 10.2 ビット悪い。</strong><br>
+しかも感度係数を 4 倍振っても（シグマ項 \(0.030\)〜\(0.128\)、\(g_p\) 感度 \(-0.040\)〜\(-0.150\)）、<br>
+<em>最悪方向はつねに \(X_q\) で 98 パーセント以上</em> ── <strong>この縮退は係数の細部ではなく、構造から来ています。</strong></p>
+</div>
+
+<div class="fig">
+<p class="cap">図：三つの方向の縛られ方。<strong>\(\alpha\) と \(X_e\) はよく縛られているのに、\(X_q\) だけが 1000 倍以上ゆるい</strong>。ツマミでシグマ項の値を動かしてください ── <em>どこに動かしても、悪い方向は \(X_q\) のままです</em></p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>シグマ項 \(\sigma_{\pi N}/m_p\)<input id="ss" type="range" min="20" max="140" value="48" step="1"></label>
+  <span class="val" id="vs">0.048</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2a5a4a"></i>\(\alpha\) と \(X_e\)（よく見えている）</span>
+  <span><i class="swatch" style="background:#8a3a3a"></i>\(X_q\)（見えていない）</span>
+</div>
+</div>
+
+<h2><span class="n">06</span>見えない方向は、いちばん効く方向だった</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m_q/\Lambda\) が動くと</th><th class="mid">感度の係数</th><th class="mid">効く先</th></tr></thead>
+<tbody>
+<tr><th>パイ中間子の質量（\(m_\pi^2\propto m_q\)）</th><td class="mid">\(0.50\)</td><td class="mid">核力の到達距離</td></tr>
+<tr class="hi"><th>重陽子の束縛エネルギー</th><td class="mid"><strong>\(\approx1\)</strong></td><td class="mid"><strong>元素合成そのもの</strong></td></tr>
+<tr><th>ホイル状態の位置</th><td class="mid">大</td><td class="mid">炭素の生成</td></tr>
+<tr><th>陽子・中性子の質量差</th><td class="mid">大</td><td class="mid">陽子の安定性</td></tr>
+<tr class="hi"><th>陽子質量そのもの</th><td class="mid"><strong>\(0.048\)</strong></td><td class="mid"><strong>分光が見ているのはここだけ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の結論</p>
+<p style="margin:6px 0 0"><strong>分光が見ている \(0.048\) は、いちばん鈍いチャンネルでした。</strong><br>
+核物理が効くチャンネル（\(0.5\)〜\(1\)）は、分光にまったく載っていません。<br>
+── <em>定数の変化のうち、いちばん影響が大きい方向が、いちばん見えていない。</em></p>
+</div>
+
+<h2><span class="n">07</span>ただし、その穴に隠れるのは高くつく</h2>
+
+<div class="calc">
+<span class="tag">縮退の正体は簡単な式</span>
+$$\frac{\Delta\mu}{\mu}=0.048\,x_3-x_2=0
+\qquad\Longleftrightarrow\qquad
+x_2=0.048\,x_3$$
+<p class="lbl">\(m_e/\Lambda\) の変化が \(m_q/\Lambda\) の変化のちょうど <strong>4.8 パーセント</strong>であれば、分光には何も見えない</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">隠れたい \(x_3\)</th><th class="mid">要る比の精度</th><th class="mid">調整のビット数</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(10^{-4}\)</th><td class="mid">\(2.1\times10^{-2}\)</td><td class="mid">\(5.6\)</td></tr>
+<tr class="hi"><th class="mid">\(10^{-3}\)</th><td class="mid">\(2.1\times10^{-3}\)</td><td class="mid"><strong>\(8.9\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>穴は空いていますが、通り抜けるには 6〜9 ビットの調整が要ります。</strong> 第48回の作法で言えば ── <em>盲点に隠れる模型は、それ自体が微調整</em>。これが正直な結論です。</p>
+
+<h2><span class="n">08</span>そして \(c\cdot t=\)一定 には、これは効かない</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>\(\mu\) はウェイト 0 ── 共形変換では動かない</strong><span>だから \(\mu\) の制限は、このシリーズの主題を一切傷つけない</span></div></div>
+<div class="row hi"><div class="mk">!</div><div class="txt"><strong>傷つけないのは、強いからではない</strong><span><em>主張していないから</em>（第1・3回）</span></div></div>
+<div class="row"><div class="mk">28</div><div class="txt"><strong>一方 VSL は \(\Delta\alpha\ne0\) を主張した</strong><span>だから 04節がそのまま追加の負債になる</span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">08節の結論 ── 50 回の問いへの答え</p>
+<p style="margin:6px 0 0">「膨張したのか縮んだのか」は区別できません。<em>二つは同じ計量を別の座標で読んだだけ</em>だから。<br>
+では何なら区別できるのか ──<br>
+<strong>全部の質量が同じ重みで動く → 共形変換 ＝ 記法（区別できない）</strong><br>
+<strong>質量が別々の重みで動く → スカラー場が媒介する物理（区別できる）</strong><br>
+── <em>その分かれ目を測る量が、まさに \(\mu\) でした。</em> 現在 <strong>23.3 ビット</strong>で確かめられています。</p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p style="margin:0 0 10px"><strong>① 05節の感度係数は文献値で、幅があります。</strong> シグマ項 \(\sigma_{\pi N}\) は格子計算と現象論で 45〜60 MeV とずれがあり、ストレンジ・シグマ項はさらに大きく 20〜60 MeV。\(g_p\) の \(m_q\) 感度も模型依存です ── <em>だから 4 倍振って結論が動かないことを確かめました</em>が、<strong>個々の数字を有効数字まで信用しないでください</strong>。</p>
+<p style="margin:0 0 10px"><strong>② 05節の \(1\sigma\) 上限は、代表値を一つずつ採ったものです。</strong> 実際には系統誤差の扱いで文献ごとに数倍動きます ── <em>条件数 1196 という値は「1000 倍程度」と読んでください</em>。構造（最悪方向が \(X_q\) であること）は動きませんが、倍率は動きます。</p>
+<p style="margin:0 0 10px"><strong>③ 「\(X_q\) が見えていない」は分光についての話です。</strong> オクロ天然原子炉は \(^{149}\)Sm 共鳴が核力に敏感なので \(X_q\) を強く縛りますし（\(10^{-9}\) 程度）、元素合成も重陽子の束縛を通じて縛ります ── <strong>盲点があるのは「分光が届く赤方偏移帯」であって、全時代ではありません</strong>。ただしその二点は時代が大きく離れた孤立点です。</p>
+<p style="margin:0 0 10px"><strong>④ 03節の増幅率 \(R\approx30\text{〜}50\) は、大統一を仮定した文献の見積もりです。</strong> <em>統一しない模型では \(R\) はまったく違い、1 以下にもなりえます</em> ── 04節の「\(\Delta\alpha\) の主張が殺される」は<strong>統一を仮定したときだけ</strong>の話で、逆に言えば「\(\Delta\alpha\) が本物なら統一していない」という条件文です。</p>
+<p style="margin:0"><strong>⑤ 本稿に新しい物理はありません。</strong> \(\mu\) の増幅、シグマ項、感度行列はいずれも文献にある内容です（Calmet &amp; Fritzsch 2002、Langacker–Segre–Strassler 2002、Flambaum ら）── <em>本シリーズの寄与は 08節の言い直し</em>、つまり「区別できない」を「何なら区別できるか」に変換した部分だけです。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>共形変換で \(\mu=m_p/m_e\) は動くか。
+<details><summary>答えを見る</summary><div class="ans"><strong>動きません。</strong> 質量はウェイト \(-1\) なので \(m_p\) も \(m_e\) も同じ重みで動き、比はウェイト \(0\)。<em>「膨張か収縮か」の区別がつかないのは、まさにこれが理由</em>です。逆に、\(\mu\) が動いたらそれは共形変換ではありません。</div></details></li>
+
+<li>\(m_p\) と \(m_e\) の出どころの違いは。
+<details><summary>答えを見る</summary><div class="ans">\(m_e=y_e v\) は <strong>100 パーセント ヒッグス起源</strong>。\(m_p\) は<strong>87〜93 パーセントが \(\Lambda_{\rm QCD}\)</strong>（ヒッグス起源はシグマ項の 65〜120 MeV だけ）── そして \(\Lambda_{\rm QCD}\) は<em>トレースアノマリーの産物</em>（第37回）。だから \(\mu\) は<strong>アノマリーとヒッグスをまたぐ唯一の比</strong>です。</div></details></li>
+
+<li>フィッシャー行列の最悪方向は何か。どれくらい悪いか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(99.6\) パーセントが \(X_q=m_q/\Lambda\) の方向</strong>で、\(\sigma=1.2\times10^{-4}\) ── 最良方向より <strong>1196 倍（10.2 ビット）悪い</strong>。感度係数を 4 倍振っても最悪方向は \(X_q\) のままで、<em>縮退は構造から来ています</em>。</div></details></li>
+
+<li>その見えない方向は、物理的に重要か。
+<details><summary>答えを見る</summary><div class="ans"><strong>いちばん重要です。</strong> \(m_q/\Lambda\) はパイ中間子質量（係数 0.5）、重陽子の束縛エネルギー（\(\approx1\)）、ホイル状態、陽子・中性子質量差に効きます。ところが<em>分光が見ているのはシグマ項の 0.048 だけ</em> ── <strong>いちばん影響が大きい方向が、いちばん見えていない</strong>。</div></details></li>
+
+<li>（やや難）「膨張か収縮か」は測れないが、では何が測れるのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>質量の変化が「普遍的」かどうか</strong>です。全部が同じ重みで動けば共形変換＝記法（区別不能）、別々の重みで動けばスカラー場が媒介する物理（区別可能）── <em>その分かれ目を測る量が \(\mu\)</em> で、現在 <strong>23.3 ビット</strong>で普遍性が確かめられています。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　「区別できない」を「何なら区別できるか」に変える</h2>
+<p>\(\mu=m_p/m_e\) はウェイト \(0\) ── <strong>純粋な共形変換では動きません</strong>。だから「空間が膨張したのか原子が縮んだのか」は区別できないのです。</p>
+<p>ところが \(m_e\) は 100 パーセント ヒッグス起源、\(m_p\) は<strong>87〜93 パーセントが \(\Lambda_{\rm QCD}\)</strong> ── つまりトレースアノマリーの産物です（第37回）。<em>\(\mu\) は、アノマリー起源とヒッグス起源をまたぐ唯一の比</em>でした。そのおかげで \(\mu\) は増幅器になり（\(M_Z\) で約 7 倍、統一なら 30〜50 倍）、観測は同じ赤方偏移帯で <strong>\(\alpha\) より 100 倍きつい</strong>。</p>
+<p>掘り進めて出てきたのが<strong>縮退</strong>でした。定数の変化は \((\alpha,\ X_e,\ X_q)\) の 3 次元の問題で、フィッシャー行列を対角化すると<strong>第 3 方向は 99.6 パーセントが \(X_q\)、\(\sigma=1.2\times10^{-4}\)、最良方向より 1196 倍（10.2 ビット）悪い</strong>。感度係数を 4 倍振っても最悪方向は \(X_q\) のまま ── <em>構造から来ている縮退</em>です。</p>
+<p>そして見えないその方向が、<strong>いちばん物理に効く方向</strong>でした ── パイ中間子質量、重陽子の束縛、ホイル状態。<em>分光が見ているシグマ項の \(0.048\) は、いちばん鈍いチャンネル</em>です。ただし穴に隠れるには \(x_2=0.048\,x_3\) を <strong>6〜9 ビットの精度</strong>で合わせる必要があり、<em>盲点に隠れる模型はそれ自体が微調整</em>でした。</p>
+<p>最後に、50 回の問いへの答えです。「膨張か収縮か」は区別できません ── 同じ計量を別の座標で読んだだけだから。<strong>では何なら区別できるか ── 質量の変化が普遍的かどうか。</strong> 全部が同じ重みで動けば記法、別々の重みで動けば物理。<em>その分かれ目を測る量が \(\mu\) で、現在 23.3 ビットで確かめられています。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">番外編②へ</span>
+今回、\(\Lambda_{\rm QCD}\) が<strong>次元転移</strong>で生まれることが増幅の源でした。次はその指数写像そのものを、情報として測ります ── <strong>「階層は、自分の対数まで縮む」</strong>。\(408\) ビットの宇宙定数問題が指数写像を通すと \(8.7\) ビットになること、そしてそこから<em>微調整が「問題」かどうかの第二の判定基準</em>が出てくることを書きます。
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var ss=document.getElementById('ss'), vs=document.getElementById('vs'), ro=document.getElementById('ro');
+  var X0=110, X1=690, Y0=40, Y1=270;
+  var GP=-0.087;
+
+  function rows(sig){
+    return [[[1,0,0],1e-5],[[0,-1,sig],5e-6],[[0,-1,sig],1e-7],
+            [[2,-1,sig+GP],1e-6],[[3.70,-1.85,1.85*sig+GP],1e-5]];
+  }
+  function fisher(sig){
+    var F=[[0,0,0],[0,0,0],[0,0,0]], rs=rows(sig);
+    for(var k=0;k<rs.length;k++){ var r=rs[k][0], w=1/(rs[k][1]*rs[k][1]);
+      for(var i=0;i<3;i++) for(var j=0;j<3;j++) F[i][j]+=w*r[i]*r[j]; }
+    return F;
+  }
+  function eig(A){
+    var a=[A[0].slice(),A[1].slice(),A[2].slice()];
+    var v=[[1,0,0],[0,1,0],[0,0,1]];
+    for(var it=0;it<120;it++){
+      var p=0,q=1,off=0;
+      for(var i=0;i<3;i++) for(var j=i+1;j<3;j++) if(Math.abs(a[i][j])>off){off=Math.abs(a[i][j]);p=i;q=j;}
+      if(off<1e-290) break;
+      var th=0.5*(a[q][q]-a[p][p])/a[p][q];
+      var t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1));
+      var c=1/Math.sqrt(t*t+1), s=t*c, k;
+      for(k=0;k<3;k++){ var akp=a[k][p],akq=a[k][q]; a[k][p]=c*akp-s*akq; a[k][q]=s*akp+c*akq; }
+      for(k=0;k<3;k++){ var apk=a[p][k],aqk=a[q][k]; a[p][k]=c*apk-s*aqk; a[q][k]=s*apk+c*aqk; }
+      for(k=0;k<3;k++){ var vkp=v[k][p],vkq=v[k][q]; v[k][p]=c*vkp-s*vkq; v[k][q]=s*vkp+c*vkq; }
+    }
+    var out=[];
+    for(var m=0;m<3;m++) out.push([a[m][m],[v[0][m],v[1][m],v[2][m]]]);
+    out.sort(function(x,y){return y[0]-x[0];});
+    return out;
+  }
+  function py(l){ return Y1-(l+8)/6*(Y1-Y0); }   // log10 σ: -8 .. -2
+
+  function draw(){
+    var sig=parseInt(ss.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right'; g.fillStyle='#9c96a4';
+    for(var e=-8;e<=-2;e++){
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(e)); g.lineTo(X1,py(e)); g.stroke();
+      g.fillText('10^'+e, X0-8, py(e)+4);
+    }
+
+    var pr=eig(fisher(sig));
+    var labs=['第1方向','第2方向','第3方向'];
+    var bw=(X1-X0)/3;
+    for(var k=0;k<3;k++){
+      var s=1/Math.sqrt(pr[k][0]), l=Math.log(s)/Math.LN10;
+      var pur=pr[k][1][2]*pr[k][1][2];
+      var col = (pur>0.5) ? '#8a3a3a' : '#2a5a4a';
+      var x=X0+k*bw+18;
+      g.fillStyle=col; g.globalAlpha=0.9;
+      g.fillRect(x, py(l), bw-46, Y1-py(l));
+      g.globalAlpha=1;
+      g.fillStyle='#3a3640'; g.textAlign='center';
+      g.fillText(labs[k], x+(bw-46)/2, Y1+18);
+      g.fillText(s.toExponential(1), x+(bw-46)/2, py(l)-8);
+      var nm = pur>0.5 ? 'X_q が '+(100*pur).toFixed(0)+'%' :
+               (Math.abs(pr[k][1][0])>Math.abs(pr[k][1][1]) ? 'ほぼ α' : 'ほぼ X_e');
+      g.fillStyle='#7d7686';
+      g.fillText(nm, x+(bw-46)/2, Y1+34);
+    }
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('その方向の 1σ（小さいほどよく見えている）', (X0+X1)/2, Y1+60);
+
+    var w=1/Math.sqrt(pr[2][0]), b=1/Math.sqrt(pr[0][0]);
+    vs.textContent=sig.toFixed(3);
+    ro.textContent='σ項 = '+sig.toFixed(3)+
+      '　→　最悪方向 '+w.toExponential(2)+
+      '（X_q 純度 '+(100*pr[2][1][2]*pr[2][1][2]).toFixed(1)+'%）'+
+      '　／　条件数 '+(w/b).toFixed(0)+' 倍 ＝ '+(Math.log(w/b)/Math.LN2).toFixed(1)+' ビット'+
+      '　★ どこへ動かしても、悪いのは X_q のまま';
+  }
+  ss.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-b1-mass.html', acc='#2a5a4a', ops='#8a3a3a',
+      title='番外編①：質量が変わるとは、どういうことか ── わかる c·t=一定',
+      ep='番外編 ① ／ 本編完結後の深掘り',
+      eyebrow='「区別できない」を「何なら区別できるか」に変える',
+      h1='質量が変わるとは、<br>どういうことか',
+      sub='\\(\\mu=m_p/m_e\\) は共形変換で動きません ── だから区別がつかない。<br><em>掘ったら、予想していなかった縮退が出てきました。</em>',
+      byline_l='必要な道具：第16回のウェイト表、第30回の増幅率、第37回のアノマリー、第48回の事前分布',
+      byline_r='最悪方向は 99.6% が \\(m_q/\\Lambda\\) ── 10.2 ビットの穴',
+      body=BODY + '\n\n<p class="foot">この文書は「わかる c·t=一定」シリーズの番外編①（本編全50話の完結後に書いた深掘り）、物理好きの高校生・大学生向け読み物です。数値は kenshou/calc55.py と calc56.py で計算しています。<strong>本稿に新しい物理はありません</strong> ── \\(\\mu\\) の増幅、シグマ項、感度行列はいずれも文献にある内容です（Calmet &amp; Fritzsch 2002、Langacker–Segre–Strassler 2002、Flambaum らの一連の仕事）。<em>本シリーズの寄与は 08節の言い直し</em>、つまり「区別できない」を「何なら区別できるか」に変換した部分だけです。<strong>05節の感度係数は文献値で幅があり</strong>（シグマ項 45〜60 MeV、ストレンジ・シグマ項 20〜60 MeV、\\(g_p\\) の感度も模型依存）、だから 4 倍振って結論が動かないことを確かめましたが <em>個々の数字を有効数字まで信用しないでください</em>。<strong>\\(1\\sigma\\) 上限は代表値を一つずつ採ったもので</strong>、系統誤差の扱いで文献ごとに数倍動きます ── 条件数 1196 は「1000 倍程度」と読んでください。<strong>「\\(X_q\\) が見えていない」は分光についての話です</strong> ── オクロ天然原子炉（\\(^{149}\\)Sm 共鳴）と元素合成（重陽子の束縛）は \\(X_q\\) を強く縛りますが、この二点は時代が大きく離れた孤立点です。<strong>03節の増幅率 \\(R\\approx30\\text{〜}50\\) は大統一を仮定した見積もり</strong>で、統一しない模型では \\(R\\) はまったく違います ── 04節の「\\(\\Delta\\alpha\\) の主張が殺される」は統一を仮定したときだけの条件文です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>',
+      script=SCRIPT,
+      hint='印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではツマミでシグマ項を動かすと、悪い方向が変わらないことが見えます。「答えを見る」で解答が開きます。')

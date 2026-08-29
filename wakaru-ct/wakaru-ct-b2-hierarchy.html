@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番外編②：階層は、自分の対数まで縮む ── わかる c·t=一定</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#fbf8f9; --paper-edge:#ede1e6;
+    --side:#8a3a5a; --side-bg:#f5eef1;
+    --warn:#8a4b2f;
+    --calc:#6e2e48; --calc-bg:#f2e8ec;
+    --rule:#e3d0d7; --hair:#d3b4c0;
+    --acc:#8a3a5a;
+    --grid:#f0e6ea;
+    --ops:#3a4a7a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e6d6dc 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#76314d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #dcc4ce;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f7f2f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e9dae0;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e9dae0;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f6f0f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#76314d;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#76314d;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#b68599;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">わかる c·t=一定 <span class="ep">番外編 ② ／ 本編完結後の深掘り</span></p>
+<p class="eyebrow">408 ビットの問題が、8.7 ビットになる</p>
+
+<h1>階層は、自分の<br>対数まで縮む
+<span class="sub">次元転移は圧縮器で、利得はちょうど階層の大きさでした。<br><em>そこから、微調整が「問題」かどうかの第二の基準が出てきます。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第5回の天秤、第32回のコスモン、第48回の事前分布、番外編①</span><span>\(B\to\log_2 B\) ── 厳密、規約なし</span></p>
+
+<p class="lead">番外編①で、\(\Lambda_{\rm QCD}\) が<strong>次元転移</strong>で生まれることが増幅の源でした。今回はその指数写像そのものを、情報として測ります。出てくるのは短い法則です ── <strong>\(B\) ビットの階層は、記述長 \(\log_2 B\) ビットまで縮む。</strong> そしてそこから、<em>微調整が「問題」かどうかの第二の判定基準</em>が出てきます。</p>
+
+<h2><span class="n">01</span>次元転移とは、指数写像である</h2>
+
+<div class="calc">
+<span class="tag">結合定数が走って、スケールが生まれる</span>
+$$\Lambda=M\exp\!\left(-\frac{2\pi}{b_0\,\alpha(M)}\right)
+\qquad\Longrightarrow\qquad
+\ln\frac{M}{\Lambda}=\frac{2\pi}{b_0\alpha(M)}\equiv H$$
+<p class="lbl">両辺を \(\ln\alpha\) で微分すると <strong>\(d\ln\Lambda/d\ln\alpha=+H\)</strong> ── 利得は、ちょうど階層の大きさ</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の結論</p>
+<p style="margin:6px 0 0"><strong>\(\alpha\) の 1 ビットが、\(\Lambda\) の \(H\) ビットになります。</strong><br>
+── <em>階層が大きいほど、利得も大きい。</em></p>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">02</span>核心 ── だから階層の値段は、階層の対数になる</h2>
+
+<div class="calc">
+<span class="tag">階層を \(B\) ビットとする（\(B=H/\ln2\)）</span>
+$$\Lambda\text{ を 2 倍以内に決めたい}
+\ \Longrightarrow\ \delta(\ln\Lambda)=\ln2
+\ \Longrightarrow\ \frac{\delta\alpha}{\alpha}=\frac{\ln2}{H}=\frac1B$$
+$$\therefore\quad\alpha\text{ に要る精度}=\log_2\frac{1}{\delta\alpha/\alpha}=\boxed{\log_2 B}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0"><strong>\(B\) ビットの階層は、指数写像を通せば \(\log_2 B\) ビットで買えます。</strong><br>
+── 圧縮率 \(B/\log_2 B\)。<em>これは厳密な結果で、近似も規約も入っていません。</em><br>
+第5回の MDL でいう<strong>記述長そのもの</strong>の話です。</p>
+</div>
+
+<h2><span class="n">03</span>実際の階層に当ててみる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階層</th><th class="mid">生の \(B\)</th><th class="mid">\(\log_2 B\)</th><th class="mid">圧縮率</th><th class="mid">指数写像</th></tr></thead>
+<tbody>
+<tr><th>\(\Lambda_{\rm QCD}/M_{\rm Planck}\)</th><td class="mid">\(65.0\)</td><td class="mid">\(6.02\)</td><td class="mid">\(10.8\)</td><td class="mid"><strong>あり</strong>（QCD の走り）</td></tr>
+<tr><th>\(v/M_{\rm Planck}\)（階層性問題）</th><td class="mid">\(55.5\)</td><td class="mid">\(5.79\)</td><td class="mid">\(9.6\)</td><td class="mid">なし</td></tr>
+<tr><th>\(\Lambda_{\rm QCD}/v\)</th><td class="mid">\(9.5\)</td><td class="mid">\(3.25\)</td><td class="mid">\(2.9\)</td><td class="mid"><strong>あり</strong></td></tr>
+<tr class="hi"><th>\(\rho_\Lambda/\rho_{\rm Planck}\)（宇宙定数問題）</th><td class="mid"><strong>\(408.4\)</strong></td><td class="mid"><strong>\(8.67\)</strong></td><td class="mid"><strong>\(47.1\)</strong></td><td class="mid">なし</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>\(408\) ビットの宇宙定数問題ですら、指数写像があれば \(8.7\) ビットで済みます</strong>（圧縮率 47 倍）── <em>だから誰もが指数関数的な機構を探しにいくのです。</em></p>
+
+<div class="fig">
+<p class="cap">図：階層の大きさ \(B\) と、指数写像を通したあとの値段 \(\log_2 B\)。<strong>青は指数写像なし（対角線 ＝ 生の値段）、赤は指数写像あり（\(\log_2 B\) に潰れる）</strong>。ツマミで階層の大きさを動かしてください ── <em>どれだけ大きくしても、赤はほとんど上がりません</em></p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>階層の大きさ \(B\)（ビット）<input id="sb" type="range" min="5" max="500" value="408" step="1"></label>
+  <span class="val" id="vb">408</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#3a4a7a"></i>指数写像なし（値段 ＝ \(B\)）</span>
+  <span><i class="swatch" style="background:#8a3a5a"></i>指数写像あり（値段 ＝ \(\log_2B\)）</span>
+  <span><i class="swatch" style="background:#c8c2d0"></i>パラメータ 1 個ぶん（5.37 ビット）</span>
+</div>
+</div>
+
+<h2><span class="n">04</span>すると、微調整の判定基準が二つになる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>微調整</th><th class="mid">事前分布に理由（第48回）</th><th class="mid">指数写像（今回）</th><th class="mid">値段 [bit]</th><th class="mid">実際の扱われ方</th></tr></thead>
+<tbody>
+<tr class="hi"><th>強い CP（\(\theta_{\rm QCD}\)）</th><td class="mid"><strong>ある</strong>（角度）</td><td class="mid">ない</td><td class="mid">\(35.9\)</td><td class="mid"><strong>本物の問題</strong></td></tr>
+<tr><th>\(\Lambda_{\rm QCD}/v\)</th><td class="mid">ない</td><td class="mid"><strong>ある</strong></td><td class="mid">\(9.5\to3.2\)</td><td class="mid">誰も問題視しない</td></tr>
+<tr><th>\(v/M_{\rm Planck}\)</th><td class="mid">ない</td><td class="mid">ない</td><td class="mid">\(55.5\)</td><td class="mid">論争中</td></tr>
+<tr><th>\(\rho_\Lambda/\rho_{\rm Planck}\)</th><td class="mid">ない</td><td class="mid">ない</td><td class="mid">\(408.4\)</td><td class="mid">論争中</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の結論</p>
+<p style="margin:6px 0 0"><strong>二つの基準だけで、物理学者が実際にどれを問題視しているかが再現されます。</strong><br>
+── 判定を作ってから見に行ったら、<em>社会の側がすでに同じ線を引いていた</em>。<br>
+第47回で SI が第3回の線を引いていたのと、同じ形です。</p>
+</div>
+
+<h2><span class="n">05</span>コスモンを、この物差しに当てる</h2>
+
+<div class="calc">
+<span class="tag">第32回のコスモン（指数ポテンシャルによる宇宙定数の説明）</span>
+$$\text{理論下限}=\log_2(408.4)=\mathbf{8.67\ \text{ビット}}
+\qquad
+\text{実際に払った値段}=2\times5.37=\mathbf{10.73\ \text{ビット}}$$
+<p class="lbl">超過はわずか <strong>\(2.06\) ビット</strong>（24 パーセント）</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の結論</p>
+<p style="margin:6px 0 0"><strong>コスモンは、指数機構の情報理論的な下限から 2 ビットしか離れていませんでした。</strong><br>
+第32回では「10.7 払って最大 408 買う」と書きましたが ──<br>
+<em>いま分かるのは、10.7 という値段自体がほぼ最小だったということ</em>です。<br>
+※ これは「コスモンが正しい」という意味ではありません。<strong>指数機構であるかぎり、これ以上安くはならない</strong>という下限の話です。</p>
+</div>
+
+<h2><span class="n">06</span>下限をパラメータの個数に直すと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>問題</th><th class="mid">\(B\) [bit]</th><th class="mid">下限 \(\log_2B\)</th><th class="mid">＝ 何個ぶん</th><th class="mid">実際の機構</th></tr></thead>
+<tbody>
+<tr class="hi"><th>強い CP</th><td class="mid">\(35.9\)</td><td class="mid">\(5.17\)</td><td class="mid"><strong>\(0.96\)</strong></td><td class="mid">アクシオン ＝ <strong>1 個</strong></td></tr>
+<tr><th>階層性</th><td class="mid">\(55.5\)</td><td class="mid">\(5.79\)</td><td class="mid">\(1.08\)</td><td class="mid">次元転移 ＝ 1 個</td></tr>
+<tr class="hi"><th>宇宙定数</th><td class="mid">\(408.4\)</td><td class="mid">\(8.67\)</td><td class="mid"><strong>\(1.62\)</strong></td><td class="mid">コスモン ＝ <strong>2 個</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="seven">
+<div class="row"><div class="mk">✓</div><div class="txt"><strong>強い CP は下限 0.96 個 → 1 個で足りる → アクシオンは 1 個</strong><span>合う</span></div></div>
+<div class="row"><div class="mk">✓</div><div class="txt"><strong>宇宙定数は下限 1.61 個 → 2 個要る → コスモンは 2 個</strong><span>合う</span></div></div>
+<div class="row hi"><div class="mk">◎</div><div class="txt"><strong>\(\log_2 B\) なので、階層がどれだけ大きくても下限は 1〜2 個で頭打ち</strong><span><em>\(408\) ビットも \(55\) ビットも \(36\) ビットも、要るのは 1〜2 個</em> ── 指数写像があるなら、階層の大きさはほとんど値段に効かない</span></div></div>
+</div>
+
+<p>逆に、指数写像が無ければ \(B\) ビットをそのまま払います ── \(408\) ビットは第5回の値段で <strong>76 個ぶん</strong>。<em>だから解けていないのです。</em></p>
+
+<div class="caveat">
+<span class="tag">正直な線 ── どこが強くて、どこが弱いか</span>
+<p style="margin:0 0 10px"><strong>① 強い（厳密）：\(d\ln\Lambda/d\ln\alpha=H\) と、\(B\to\log_2B\)。</strong> 前者は 1 ループの次元転移から直接出ます。後者は「\(B\) ビットの階層を 1 ビット以内に決めるのに要る \(\alpha\) の精度が \(\log_2B\) ビット」という<em>記述長についての言明</em>で、近似も規約も入っていません ── <strong>03節までは、この意味で強い</strong>です。</p>
+<p style="margin:0 0 10px"><strong>② 中くらい：04節の判定表。</strong> 「指数写像があるか」は模型を見れば分かるので客観的ですが、<em>「実際の扱われ方」の欄は文献の空気を要約したもの</em>です ── 4 例しかなく、選び方にも私の偏りがあります。</p>
+<p style="margin:0 0 10px"><strong>③ 弱い（本稿のいちばん弱いところ）：05・06節で \(\log_2B\) を第5回の 5.37 ビット/個 で割った部分。</strong> 5.37 は \(N=1701\) という特定のデータ点数から出た<em>パラメータの値段</em>で、<strong>記述長の精度ビットと同じ通貨だという保証はありません</strong>（第48回②と同じ弱点）。ここを認めないと 05・06節は成立しません。</p>
+<p style="margin:0 0 10px"><strong>④ 06節の一致（0.96 → アクシオン 1 個、1.61 → コスモン 2 個）は 2 例だけです。</strong> 第36回②の但し書きと同じで ── <em>目に付いたパターンの記録であって、結果ではありません</em>。3 例目・4 例目を当てて外れたら、そこで終わりです。</p>
+<p style="margin:0"><strong>⑤ 「指数写像がある／ない」は、いまのところ無いという意味です。</strong> 宇宙定数や階層性に指数機構が<em>見つかっていない</em>だけで、原理的に不可能だと示されたわけではありません ── むしろ 03節の 47 倍という圧縮率こそが、<strong>探し続ける理由</strong>になっています。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>次元転移の「利得」はいくつか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(H=\ln(M/\Lambda)\)、つまり階層そのもの</strong>です。\(\Lambda=M\exp(-2\pi/b_0\alpha)\) を \(\ln\alpha\) で微分すると \(d\ln\Lambda/d\ln\alpha=2\pi/(b_0\alpha)=H\)。<em>\(\alpha\) の 1 ビットが \(\Lambda\) の \(H\) ビットになります。</em></div></details></li>
+
+<li>\(B\) ビットの階層を、指数写像を通すといくらで買えるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(\log_2 B\) ビット</strong>。\(\Lambda\) を 2 倍以内に決めるには \(\delta\alpha/\alpha=\ln2/H=1/B\) が要り、その精度を指定するのに \(\log_2B\) ビット。<em>圧縮率 \(B/\log_2B\) で、これは厳密です。</em></div></details></li>
+
+<li>宇宙定数問題の 408 ビットは、指数写像があるといくらになるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(\log_2(408.4)=8.67\) ビット</strong> ── 圧縮率 47 倍。<em>だから誰もが指数関数的な機構を探しにいくのです。</em></div></details></li>
+
+<li>微調整が「問題」かどうかの二つの基準は。
+<details><summary>答えを見る</summary><div class="ans">①<strong>事前分布に理由があるか</strong>（第48回 ── 角度にはある、質量比にはない）、②<strong>指数写像が使えるか</strong>（今回）。<em>強い CP は①があり②がないので本物、\(\Lambda_{\rm QCD}/v\) は②があるので問題ではない</em> ── <strong>実際の扱われ方が再現されます</strong>。</div></details></li>
+
+<li>（やや難）本稿でいちばん弱いのはどこか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(\log_2B\) を 5.37 ビット/個 で割ってパラメータ数に直した部分</strong>（05・06節）です。5.37 は \(N=1701\) から出たパラメータの値段で、<em>記述長の精度ビットと同じ通貨だという保証はありません</em>。03節までは厳密ですが、そこから先は換算に寄りかかっています。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　階層は、自分の対数まで縮む</h2>
+<p>次元転移 \(\Lambda=M\exp(-2\pi/b_0\alpha)\) を \(\ln\alpha\) で微分すると <strong>\(d\ln\Lambda/d\ln\alpha=H\)</strong> ── 利得はちょうど階層の大きさです。\(\alpha\) の 1 ビットが \(\Lambda\) の \(H\) ビットになる。</p>
+<p>だから <strong>\(B\) ビットの階層は、記述長 \(\log_2B\) ビットまで縮みます</strong>（圧縮率 \(B/\log_2B\)、厳密）。\(\Lambda_{\rm QCD}/M_P\) の 65 ビットは 6.0 に、\(v/M_P\) の 55.5 は 5.8 に、そして<strong>宇宙定数問題の 408 ビットは 8.7 に</strong> ── 圧縮率 47 倍。<em>だから誰もが指数関数的な機構を探しにいくのです。</em></p>
+<p>ここから、微調整の第二の判定基準が出ます ── 第48回の「<strong>事前分布に理由があるか</strong>」に加えて、「<strong>指数写像が使えるか</strong>」。強い CP は前者があり後者がないので本物の問題、\(\Lambda_{\rm QCD}/v\) は後者があるので問題ではなく、\(v/M_P\) と \(\rho_\Lambda\) はどちらも無いので論争中 ── <em>実際に物理学者が問題視している分布が、そのまま再現されました。</em></p>
+<p>そして第32回のコスモン。指数機構の理論下限は \(\log_2(408.4)=8.67\) ビットで、コスモンが払ったのは \(10.73\) ビット ── <strong>超過はわずか 2.06 ビット</strong>。「10.7 払って最大 408 買う」と書きましたが、<em>その 10.7 という値段自体が、ほぼ最小だった</em>のです。</p>
+<p>最後に \(\log_2B\) の効き方。<strong>階層がどれだけ大きくても、下限は 1〜2 個ぶんで頭打ち</strong>です ── 408 ビットも 55 ビットも 36 ビットも、要るのは 1〜2 個。<em>指数写像があるなら、階層の大きさはほとんど値段に効きません。</em> 逆に指数写像が無ければ \(B\) をそのまま払う ── 408 ビットは 76 個ぶん。<strong>だから解けていないのです。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">おわりに ── 二つの番外編で分かったこと</span>
+番外編①：「膨張か収縮か」は区別できないが、<strong>質量の変化が普遍的かどうかなら測れる</strong>（\(\mu\)、現在 23.3 ビット）。そして掘ると<em>クォーク質量方向に 10.2 ビットの縮退</em>が出てきた。<br>
+番外編②：<strong>階層は自分の対数まで縮む</strong>。だから微調整の値段は、指数写像があるかどうかでほぼ決まる。<br>
+── どちらも、本編第3回の一つの手続き（<em>次元付きは帳簿、無次元が物理。比較相手を言え</em>）の上に立っています。<strong>50 回で作った道具は、まだ使えました。</strong>
+</div>
+
+<p class="foot">この文書は「わかる c·t=一定」シリーズの番外編②（本編全50話の完結後に書いた深掘り）、物理好きの高校生・大学生向け読み物です。数値は kenshou/calc57.py で計算しています。次元転移、走る結合定数、階層性問題、宇宙定数問題はいずれも標準的な内容です。<strong>強いのは 01〜03節</strong>：\(d\ln\Lambda/d\ln\alpha=H\) は 1 ループの次元転移から直接出て、\(B\to\log_2B\) は「\(B\) ビットの階層を 1 ビット以内に決めるのに要る \(\alpha\) の精度が \(\log_2B\) ビット」という<em>記述長についての言明</em>で、近似も規約も入っていません。<strong>04節の判定表は中くらい</strong> ── 「指数写像があるか」は客観的ですが「実際の扱われ方」は文献の空気の要約で、4 例しかなく選び方にも偏りがあります。<strong>05・06節がいちばん弱いところです</strong>：\(\log_2B\) を第5回の 5.37 ビット/個 で割った換算は、5.37 が \(N=1701\) から出た<em>パラメータの値段</em>である以上、<strong>記述長の精度ビットと同じ通貨だという保証がありません</strong>（第48回②と同じ弱点）。06節の一致（0.96→アクシオン 1 個、1.61→コスモン 2 個）は 2 例だけで、<em>目に付いたパターンの記録であって結果ではありません</em>。<strong>「指数写像がない」は「いまのところ見つかっていない」という意味</strong>で、原理的に不可能だと示されたわけではありません ── むしろ 47 倍という圧縮率こそが探し続ける理由になっています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではツマミで階層の大きさを動かすと、赤い線がほとんど上がらないことが見えます。「答えを見る」で解答が開きます。</p>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sb=document.getElementById('sb'), vb=document.getElementById('vb'), ro=document.getElementById('ro');
+  var X0=76, X1=690, Y0=34, Y1=290;
+  var B0=5, B1=500, C0=0, C1=500;
+
+  function px(b){ return X0+(b-B0)/(B1-B0)*(X1-X0); }
+  function py(c){ return Y1-(c-C0)/(C1-C0)*(Y1-Y0); }
+
+  function draw(){
+    var B=parseInt(sb.value,10);
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right'; g.fillStyle='#9c96a4';
+    for(var c=0;c<=500;c+=100){
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(c)); g.lineTo(X1,py(c)); g.stroke();
+      g.fillText(c+' bit', X0-8, py(c)+4);
+    }
+    g.textAlign='center';
+    for(var t=100;t<=500;t+=100){ g.fillStyle='#9c96a4'; g.fillText(t, px(t), Y1+20); }
+
+    // パラメータ 1 個ぶん
+    g.strokeStyle='#c8c2d0'; g.lineWidth=1.6; g.setLineDash([5,4]);
+    g.beginPath(); g.moveTo(X0,py(5.37)); g.lineTo(X1,py(5.37)); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#a89fae'; g.textAlign='left';
+    g.fillText('パラメータ 1 個ぶん（5.37 ビット）', X0+8, py(5.37)-7);
+
+    g.strokeStyle='#3a4a7a'; g.lineWidth=2.8; g.beginPath();
+    g.moveTo(px(B0),py(B0)); g.lineTo(px(B1),py(B1)); g.stroke();
+    g.strokeStyle='#8a3a5a'; g.lineWidth=2.8; g.beginPath();
+    for(var i=0;i<=300;i++){ var b=B0+(B1-B0)*i/300, y=Math.log(b)/Math.LN2;
+      if(i===0) g.moveTo(px(b),py(y)); else g.lineTo(px(b),py(y)); }
+    g.stroke();
+
+    g.textAlign='left';
+    g.fillStyle='#3a4a7a'; g.fillText('指数写像なし：値段 = B', px(330), py(340));
+    g.fillStyle='#8a3a5a'; g.fillText('指数写像あり：値段 = log₂B', px(150), py(40));
+
+    // 実際の階層
+    var pts=[[65.0,'Λ_QCD/M_P'],[55.5,'v/M_P'],[408.4,'ρ_Λ/ρ_P']];
+    for(var k=0;k<pts.length;k++){
+      var b2=pts[k][0];
+      g.strokeStyle='#e6e2ea'; g.lineWidth=1; g.setLineDash([2,3]);
+      g.beginPath(); g.moveTo(px(b2),Y0); g.lineTo(px(b2),Y1); g.stroke(); g.setLineDash([]);
+      g.save(); g.translate(px(b2)-4,Y0+96); g.rotate(-Math.PI/2);
+      g.fillStyle='#a89fae'; g.textAlign='left'; g.fillText(pts[k][1],0,0); g.restore();
+    }
+
+    var Xc=px(B), lg=Math.log(B)/Math.LN2;
+    g.strokeStyle='#5a5262'; g.lineWidth=1.8; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(Xc,Y0); g.lineTo(Xc,Y1); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#3a4a7a'; g.beginPath(); g.arc(Xc,py(B),5,0,6.29); g.fill();
+    g.fillStyle='#8a3a5a'; g.beginPath(); g.arc(Xc,py(lg),5,0,6.29); g.fill();
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('階層の大きさ B（ビット）', (X0+X1)/2, Y1+44);
+
+    vb.textContent=String(B);
+    ro.textContent='B = '+B+' ビット　→　指数写像なしなら '+B+
+      ' ビット、あるなら '+lg.toFixed(2)+' ビット　／　圧縮率 '+(B/lg).toFixed(1)+' 倍'+
+      '　（パラメータ '+(lg/5.37).toFixed(2)+' 個ぶん）'+
+      (B>=400?'　★ ここが宇宙定数問題 ── 47 倍':'');
+  }
+  sb.addEventListener('input',draw);
+  draw();
+})();
+</script>
+</body>
+</html>

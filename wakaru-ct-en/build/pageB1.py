@@ -1,0 +1,322 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">Across 50 episodes this series kept saying it: "you cannot tell whether space expanded or atoms shrank". That is correct. <strong>So what <em>can</em> be told apart?</strong> This bonus episode digs into that one point. The answer lies in \(\mu=m_p/m_e\) — and digging turned up <strong>a degeneracy we had not expected.</strong></p>
+
+<h2><span class="n">01</span>Why \(\mu\)?</h2>
+
+<div class="calc">
+<span class="tag">Under a conformal transformation, mass has weight \(-1\) (Episode 16)</span>
+$$\tilde m_p=\Omega^{-1}m_p,\qquad \tilde m_e=\Omega^{-1}m_e\qquad\Longrightarrow\qquad \frac{\tilde m_p}{\tilde m_e}=\frac{m_p}{m_e}$$
+<p class="lbl">\(\mu=1836.15267\) has weight \(0\) — <strong>no pure conformal transformation can move it</strong></p>
+</div>
+
+<p><strong>That is exactly why "expansion versus shrinking" cannot be told apart.</strong> All masses move with the same weight, so the ratio does not change. <em>Which also means — if \(\mu\) ever moved, it was not a conformal transformation.</em></p>
+
+<h2><span class="n">02</span>But \(m_p\) and \(m_e\) come from different places</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">e</div><div class="txt"><strong>\(m_e=y_e\,v\) — 100 per cent of Higgs origin</strong><span>a Yukawa coupling and a vacuum expectation value, nothing else</span></div></div>
+<div class="row hi"><div class="mk">p</div><div class="txt"><strong>\(m_p\) — 87 to 93 per cent is \(\Lambda_{\rm QCD}\)</strong><span>the Higgs part is only the sigma terms, 65–120 MeV out of 938.3</span></div></div>
+<div class="row"><div class="mk">!</div><div class="txt"><strong>And that \(\Lambda_{\rm QCD}\) is born of dimensional transmutation</strong><span>= <em>a product of the trace anomaly</em> (Episode 37)</span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §02</p>
+<p style="margin:6px 0 0"><strong>\(\mu\) is the ratio of anomaly-generated mass to Higgs-generated mass.</strong><br>
+── Episode 37 said "quantum theory writes a number into the zero column";<br>
+<em>\(\mu\) is the only ratio with that number in its numerator and the Higgs in its denominator.</em></p>
+</div>
+
+<h2><span class="n">03</span>Which makes \(\mu\) an amplifier</h2>
+
+<div class="calc">
+<span class="tag">Dimensional transmutation</span>
+$$\Lambda_{\rm QCD}=M\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(M)}\right)
+\qquad\Longrightarrow\qquad
+\frac{d\ln\Lambda}{d\ln\alpha_s}=\frac{2\pi}{b_0\alpha_s}$$
+<p class="lbl">specified at \(M_Z\), an amplification of about <strong>7</strong>; if \(\alpha_s\) and \(\alpha\) unify, the literature estimates \(R\approx30\text{–}50\) (model-dependent)</p>
+</div>
+
+<p><strong>Episode 30's "amplification factor \(K\)" reappears — this time on the theory side.</strong> Oklo was strong not because the measurement was precise but because it had an amplification of \(10^7\); with \(\mu\), <em>the amplification is built into the theory.</em></p>
+
+<h2><span class="n">04</span>How much tighter than \(\alpha\)?</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Measurement</th><th class="mid">Quantity</th><th class="mid">Bound</th><th class="mid">bits</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Methanol masers (\(z\approx0.89\))</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(10^{-7}\)</td><td class="mid"><strong>\(23.3\)</strong></td></tr>
+<tr><th>Ammonia absorption (\(z\approx0.68\))</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(3.5\times10^{-7}\)</td><td class="mid">\(21.4\)</td></tr>
+<tr><th>H\(_2\) quasar absorption</th><td class="mid">\(\Delta\mu/\mu\)</td><td class="mid">\(5\times10^{-6}\)</td><td class="mid">\(17.6\)</td></tr>
+<tr><th>Many-multiplet method (Ep. 30)</th><td class="mid">\(\Delta\alpha/\alpha\)</td><td class="mid">\(10^{-5}\)</td><td class="mid">\(16.6\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>At the same redshifts, <strong>\(\mu\) is 100 times tighter</strong>. Converted through the amplification into a bound on the underlying coupling, it is <strong>700 to 3500 times (9.5 to 11.8 bits) stronger</strong>. And the reported \(\Delta\alpha/\alpha\approx6\times10^{-6}\), <em>assuming the variation is unified</em>, overshoots the \(\mu\) bound by <strong>420 to 3000 times</strong>.</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">05</span>The core — digging turned up a degeneracy</h2>
+
+<p>All of the above is known. What digging further showed is that <strong>"the constants vary" is not a one-dimensional problem</strong>. There are three fundamental directions:</p>
+
+<div class="calc">
+<span class="tag">Three independent directions</span>
+$$x_1=\frac{\Delta\alpha}{\alpha},\qquad
+x_2=\frac{\Delta X_e}{X_e}\ \left(X_e=\frac{m_e}{\Lambda_{\rm QCD}}\right),\qquad
+x_3=\frac{\Delta X_q}{X_q}\ \left(X_q=\frac{m_q}{\Lambda_{\rm QCD}}\right)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Measurement</th><th class="mid">\(\alpha\)</th><th class="mid">\(X_e\)</th><th class="mid">\(X_q\)</th><th class="mid">\(1\sigma\)</th></tr></thead>
+<tbody>
+<tr><th>Mg/Fe multiplets</th><td class="mid">\(1\)</td><td class="mid">\(0\)</td><td class="mid">\(0\)</td><td class="mid">\(10^{-5}\)</td></tr>
+<tr><th>H\(_2\) Lyman–Werner</th><td class="mid">\(0\)</td><td class="mid">\(-1\)</td><td class="mid">\(0.048\)</td><td class="mid">\(5\times10^{-6}\)</td></tr>
+<tr class="hi"><th>NH\(_3\) and methanol</th><td class="mid">\(0\)</td><td class="mid">\(-1\)</td><td class="mid"><strong>\(0.048\)</strong></td><td class="mid">\(10^{-7}\)</td></tr>
+<tr><th>21 cm versus optical</th><td class="mid">\(2\)</td><td class="mid">\(-1\)</td><td class="mid">\(-0.039\)</td><td class="mid">\(10^{-6}\)</td></tr>
+<tr><th>OH 18 cm</th><td class="mid">\(3.70\)</td><td class="mid">\(-1.85\)</td><td class="mid">\(0.002\)</td><td class="mid">\(10^{-5}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Every entry in the \(X_q\) column is tiny</strong> — the proton mass depends on \(m_q\) only through the sigma term, \(0.048\). Building the Fisher matrix and diagonalising:</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">Direction</th><th class="mid">\(\sigma\) along it</th><th>Composition</th></tr></thead>
+<tbody>
+<tr><th class="mid">1st</th><td class="mid">\(9.9\times10^{-8}\)</td><td>almost pure \(X_e\) (\(0.999\))</td></tr>
+<tr><th class="mid">2nd</th><td class="mid">\(4.9\times10^{-7}\)</td><td>almost pure \(\alpha\) (\(0.999\))</td></tr>
+<tr class="hi"><th class="mid">3rd</th><td class="mid"><strong>\(1.2\times10^{-4}\)</strong></td><td><strong>\(99.6\) per cent \(X_q\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The main point of this episode</p>
+<p style="margin:6px 0 0"><strong>A condition number of 1196 — the quark-mass direction alone is 10.2 bits worse.</strong><br>
+And varying the sensitivity coefficients by a factor of four (sigma term \(0.030\)–\(0.128\), \(g_p\) sensitivity \(-0.040\)–\(-0.150\))<br>
+<em>always leaves the worst direction at least 98 per cent \(X_q\)</em> — <strong>this degeneracy is structural, not a detail of the coefficients.</strong></p>
+</div>
+
+<div class="fig">
+<p class="cap">Figure: how well each direction is constrained. <strong>\(\alpha\) and \(X_e\) are pinned down, while \(X_q\) alone is a thousand times looser.</strong> Move the sigma-term slider — <em>wherever you put it, the bad direction stays \(X_q\).</em></p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>sigma term \(\sigma_{\pi N}/m_p\)<input id="ss" type="range" min="20" max="140" value="48" step="1"></label>
+  <span class="val" id="vs">0.048</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2a5a4a"></i>\(\alpha\) and \(X_e\) (well seen)</span>
+  <span><i class="swatch" style="background:#8a3a3a"></i>\(X_q\) (not seen)</span>
+</div>
+</div>
+
+<h2><span class="n">06</span>The invisible direction was the one that matters most</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>If \(m_q/\Lambda\) moves</th><th class="mid">sensitivity</th><th class="mid">what it affects</th></tr></thead>
+<tbody>
+<tr><th>The pion mass (\(m_\pi^2\propto m_q\))</th><td class="mid">\(0.50\)</td><td class="mid">the range of the nuclear force</td></tr>
+<tr class="hi"><th>The deuteron binding energy</th><td class="mid"><strong>\(\approx1\)</strong></td><td class="mid"><strong>nucleosynthesis itself</strong></td></tr>
+<tr><th>The Hoyle state</th><td class="mid">large</td><td class="mid">the production of carbon</td></tr>
+<tr><th>The proton–neutron mass difference</th><td class="mid">large</td><td class="mid">the stability of the proton</td></tr>
+<tr class="hi"><th>The proton mass itself</th><td class="mid"><strong>\(0.048\)</strong></td><td class="mid"><strong>the only channel spectroscopy sees</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §06</p>
+<p style="margin:6px 0 0"><strong>The \(0.048\) that spectroscopy sees is the dullest channel of all.</strong><br>
+The channels nuclear physics cares about (\(0.5\) to \(1\)) do not appear in spectroscopy at all.<br>
+── <em>Of all the ways the constants could drift, the one with the largest consequences is the one we see least.</em></p>
+</div>
+
+<h2><span class="n">07</span>But hiding in that hole is expensive</h2>
+
+<div class="calc">
+<span class="tag">The degeneracy is a simple equation</span>
+$$\frac{\Delta\mu}{\mu}=0.048\,x_3-x_2=0
+\qquad\Longleftrightarrow\qquad
+x_2=0.048\,x_3$$
+<p class="lbl">if \(m_e/\Lambda\) drifts by exactly <strong>4.8 per cent</strong> of the drift in \(m_q/\Lambda\), spectroscopy sees nothing</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">\(x_3\) to hide</th><th class="mid">precision required on the ratio</th><th class="mid">bits of tuning</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(10^{-4}\)</th><td class="mid">\(2.1\times10^{-2}\)</td><td class="mid">\(5.6\)</td></tr>
+<tr class="hi"><th class="mid">\(10^{-3}\)</th><td class="mid">\(2.1\times10^{-3}\)</td><td class="mid"><strong>\(8.9\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>The hole is there, but getting through it costs 6 to 9 bits of tuning.</strong> In Episode 48's terms — <em>a model that hides in the blind spot is itself fine-tuned.</em> That is the honest conclusion.</p>
+
+<h2><span class="n">08</span>And none of this touches \(c\cdot t=\)const</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>\(\mu\) has weight 0 — a conformal transformation does not move it</strong><span>so the \(\mu\) bounds do not damage this series' subject at all</span></div></div>
+<div class="row hi"><div class="mk">!</div><div class="txt"><strong>Not because it is strong</strong><span><em>because it makes no claim</em> (Episodes 1 and 3)</span></div></div>
+<div class="row"><div class="mk">28</div><div class="txt"><strong>VSL, by contrast, claimed \(\Delta\alpha\ne0\)</strong><span>so §04 becomes an additional debt on its ledger</span></div></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §08 — the answer to the question of 50 episodes</p>
+<p style="margin:6px 0 0">"Expanded or shrank" cannot be told apart — <em>they are the same metric read in different coordinates.</em><br>
+So what can be?<br>
+<strong>All masses moving with the same weight → a conformal transformation = notation (indistinguishable)</strong><br>
+<strong>Masses moving with different weights → physics mediated by a scalar field (distinguishable)</strong><br>
+── <em>and the quantity that measures which is exactly \(\mu\).</em> Currently confirmed to <strong>23.3 bits</strong>.</p>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line</span>
+<p style="margin:0 0 10px"><strong>(1) §05's sensitivity coefficients are literature values with real spread.</strong> The sigma term \(\sigma_{\pi N}\) sits between 45 and 60 MeV depending on lattice versus phenomenology, the strange sigma term ranges more widely (20–60 MeV), and the \(m_q\)-sensitivity of \(g_p\) is model-dependent — <em>which is why we varied them by a factor of four</em>, but <strong>do not trust the individual figures to their significant digits</strong>.</p>
+<p style="margin:0 0 10px"><strong>(2) The \(1\sigma\) bounds in §05 are one representative value each.</strong> In practice they move by factors of a few between papers depending on systematics — <em>read the condition number 1196 as "of order a thousand"</em>. The structure (that the worst direction is \(X_q\)) is robust; the multiplier is not.</p>
+<p style="margin:0 0 10px"><strong>(3) "\(X_q\) is not seen" refers to spectroscopy.</strong> The Oklo natural reactor constrains \(X_q\) strongly (to around \(10^{-9}\)) because the \(^{149}\)Sm resonance is sensitive to the nuclear force, and nucleosynthesis constrains it through the deuteron binding — <strong>the blind spot is in the redshift range spectroscopy reaches, not across all epochs</strong>. But those two points are widely separated and isolated.</p>
+<p style="margin:0 0 10px"><strong>(4) §03's amplification \(R\approx30\text{–}50\) assumes grand unification.</strong> <em>In non-unified models \(R\) is entirely different and can be below 1</em> — so §04's "the \(\Delta\alpha\) claim is killed" holds <strong>only under that assumption</strong>; read in reverse, it says "if \(\Delta\alpha\) is real, the variation is not unified".</p>
+<p style="margin:0"><strong>(5) There is no new physics in this document.</strong> The \(\mu\) amplification, the sigma terms and the sensitivity matrix are all in the literature (Calmet &amp; Fritzsch 2002, Langacker–Segre–Strassler 2002, and Flambaum's body of work) — <em>this series' contribution is the restatement in §08</em>, turning "cannot be told apart" into "here is what can be".</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Does a conformal transformation move \(\mu=m_p/m_e\)?
+<details><summary>Show the answer</summary><div class="ans"><strong>No.</strong> Mass has weight \(-1\), so \(m_p\) and \(m_e\) move with the same weight and the ratio has weight \(0\). <em>That is exactly why "expansion versus shrinking" cannot be told apart</em> — and conversely, if \(\mu\) moved, it was not a conformal transformation.</div></details></li>
+
+<li>How do \(m_p\) and \(m_e\) differ in origin?
+<details><summary>Show the answer</summary><div class="ans">\(m_e=y_e v\) is <strong>100 per cent Higgs</strong>. \(m_p\) is <strong>87–93 per cent \(\Lambda_{\rm QCD}\)</strong> (the Higgs part is only the 65–120 MeV of sigma terms) — and \(\Lambda_{\rm QCD}\) is <em>a product of the trace anomaly</em> (Episode 37). So \(\mu\) is <strong>the only ratio straddling anomaly and Higgs.</strong></div></details></li>
+
+<li>What is the worst direction of the Fisher matrix, and how bad is it?
+<details><summary>Show the answer</summary><div class="ans"><strong>\(99.6\) per cent \(X_q=m_q/\Lambda\)</strong>, with \(\sigma=1.2\times10^{-4}\) — <strong>1196 times (10.2 bits) worse</strong> than the best direction. Varying the coefficients by a factor of four leaves it \(X_q\), so <em>the degeneracy is structural</em>.</div></details></li>
+
+<li>Does that invisible direction matter physically?
+<details><summary>Show the answer</summary><div class="ans"><strong>It matters most.</strong> \(m_q/\Lambda\) drives the pion mass (0.5), the deuteron binding energy (\(\approx1\)), the Hoyle state and the proton–neutron mass difference. Yet <em>spectroscopy sees only the sigma term's 0.048</em> — <strong>the direction with the largest consequences is the one we see least.</strong></div></details></li>
+
+<li>(Harder) "Expanded or shrank" cannot be measured — so what can?
+<details><summary>Show the answer</summary><div class="ans"><strong>Whether the mass variation is universal.</strong> All masses moving alike means a conformal transformation = notation (indistinguishable); masses moving differently means physics mediated by a scalar (distinguishable) — <em>and \(\mu\) is the quantity that measures which</em>, currently confirmed to <strong>23.3 bits</strong>.</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary: turning "cannot be told apart" into "here is what can"</h2>
+<p>\(\mu=m_p/m_e\) has weight \(0\) — <strong>no pure conformal transformation moves it</strong>. That is why "did space expand or did atoms shrink" cannot be told apart.</p>
+<p>But \(m_e\) is 100 per cent of Higgs origin while \(m_p\) is <strong>87–93 per cent \(\Lambda_{\rm QCD}\)</strong> — a product of the trace anomaly (Episode 37). <em>\(\mu\) is the only ratio straddling the two origins.</em> That makes it an amplifier (about 7 at \(M_Z\), 30–50 if unified), and the observations are <strong>100 times tighter than for \(\alpha\)</strong> at the same redshifts.</p>
+<p>Digging further turned up a <strong>degeneracy</strong>. Variation of the constants is a three-dimensional problem in \((\alpha,\ X_e,\ X_q)\), and diagonalising the Fisher matrix gives a <strong>third direction that is 99.6 per cent \(X_q\), with \(\sigma=1.2\times10^{-4}\) — 1196 times (10.2 bits) worse than the best</strong>. Vary the coefficients by four and the worst direction stays \(X_q\): <em>the degeneracy is structural.</em></p>
+<p>And that invisible direction is <strong>the one that matters most</strong> — the pion mass, the deuteron binding, the Hoyle state. <em>The sigma term's \(0.048\) that spectroscopy sees is the dullest channel.</em> But hiding in the hole requires tuning \(x_2=0.048\,x_3\) to <strong>6–9 bits</strong>, so <em>a model that hides there is itself fine-tuned.</em></p>
+<p>Finally, the answer to the question of 50 episodes. "Expanded or shrank" cannot be told apart — same metric, different coordinates. <strong>But whether the mass variation is universal can be.</strong> All masses alike means notation; masses differently means physics. <em>The quantity that measures which is \(\mu\), and it is currently confirmed to 23.3 bits.</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">On to bonus episode ②</span>
+Here the source of the amplification was that \(\Lambda_{\rm QCD}\) is born of <strong>dimensional transmutation</strong>. Next we measure that exponential map itself, as information — <strong>"a hierarchy shrinks to its own logarithm"</strong>. The cosmological constant problem's 408 bits become 8.7 through the exponential map, and out of that comes <em>a second criterion for whether a fine-tuning is a real problem</em>.
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var ss=document.getElementById('ss'), vs=document.getElementById('vs'), ro=document.getElementById('ro');
+  var X0=110, X1=690, Y0=40, Y1=270;
+  var GP=-0.087;
+
+  function rows(sig){
+    return [[[1,0,0],1e-5],[[0,-1,sig],5e-6],[[0,-1,sig],1e-7],
+            [[2,-1,sig+GP],1e-6],[[3.70,-1.85,1.85*sig+GP],1e-5]];
+  }
+  function fisher(sig){
+    var F=[[0,0,0],[0,0,0],[0,0,0]], rs=rows(sig);
+    for(var k=0;k<rs.length;k++){ var r=rs[k][0], w=1/(rs[k][1]*rs[k][1]);
+      for(var i=0;i<3;i++) for(var j=0;j<3;j++) F[i][j]+=w*r[i]*r[j]; }
+    return F;
+  }
+  function eig(A){
+    var a=[A[0].slice(),A[1].slice(),A[2].slice()];
+    var v=[[1,0,0],[0,1,0],[0,0,1]];
+    for(var it=0;it<120;it++){
+      var p=0,q=1,off=0;
+      for(var i=0;i<3;i++) for(var j=i+1;j<3;j++) if(Math.abs(a[i][j])>off){off=Math.abs(a[i][j]);p=i;q=j;}
+      if(off<1e-290) break;
+      var th=0.5*(a[q][q]-a[p][p])/a[p][q];
+      var t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1));
+      var c=1/Math.sqrt(t*t+1), s=t*c, k;
+      for(k=0;k<3;k++){ var akp=a[k][p],akq=a[k][q]; a[k][p]=c*akp-s*akq; a[k][q]=s*akp+c*akq; }
+      for(k=0;k<3;k++){ var apk=a[p][k],aqk=a[q][k]; a[p][k]=c*apk-s*aqk; a[q][k]=s*apk+c*aqk; }
+      for(k=0;k<3;k++){ var vkp=v[k][p],vkq=v[k][q]; v[k][p]=c*vkp-s*vkq; v[k][q]=s*vkp+c*vkq; }
+    }
+    var out=[];
+    for(var m=0;m<3;m++) out.push([a[m][m],[v[0][m],v[1][m],v[2][m]]]);
+    out.sort(function(x,y){return y[0]-x[0];});
+    return out;
+  }
+  function py(l){ return Y1-(l+8)/6*(Y1-Y0); }
+
+  function draw(){
+    var sig=parseInt(ss.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px ui-sans-serif,system-ui,sans-serif';
+
+    g.textAlign='right'; g.fillStyle='#9c96a4';
+    for(var e=-8;e<=-2;e++){
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(e)); g.lineTo(X1,py(e)); g.stroke();
+      g.fillText('10^'+e, X0-8, py(e)+4);
+    }
+
+    var pr=eig(fisher(sig));
+    var labs=['1st direction','2nd direction','3rd direction'];
+    var bw=(X1-X0)/3;
+    for(var k=0;k<3;k++){
+      var s=1/Math.sqrt(pr[k][0]), l=Math.log(s)/Math.LN10;
+      var pur=pr[k][1][2]*pr[k][1][2];
+      var col = (pur>0.5) ? '#8a3a3a' : '#2a5a4a';
+      var x=X0+k*bw+18;
+      g.fillStyle=col; g.globalAlpha=0.9;
+      g.fillRect(x, py(l), bw-46, Y1-py(l));
+      g.globalAlpha=1;
+      g.fillStyle='#3a3640'; g.textAlign='center';
+      g.fillText(labs[k], x+(bw-46)/2, Y1+18);
+      g.fillText(s.toExponential(1), x+(bw-46)/2, py(l)-8);
+      var nm = pur>0.5 ? 'X_q at '+(100*pur).toFixed(0)+'%' :
+               (Math.abs(pr[k][1][0])>Math.abs(pr[k][1][1]) ? 'mostly alpha' : 'mostly X_e');
+      g.fillStyle='#7d7686';
+      g.fillText(nm, x+(bw-46)/2, Y1+34);
+    }
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px ui-sans-serif,system-ui,sans-serif';
+    g.fillText('1 sigma along that direction (smaller = better seen)', (X0+X1)/2, Y1+60);
+
+    var w=1/Math.sqrt(pr[2][0]), b=1/Math.sqrt(pr[0][0]);
+    vs.textContent=sig.toFixed(3);
+    ro.textContent='sigma term = '+sig.toFixed(3)+
+      '　→　worst direction '+w.toExponential(2)+
+      ' (X_q purity '+(100*pr[2][1][2]*pr[2][1][2]).toFixed(1)+'%)'+
+      '　/　condition number '+(w/b).toFixed(0)+' = '+(Math.log(w/b)/Math.LN2).toFixed(1)+' bits'+
+      '　★ wherever you move it, the bad one stays X_q';
+  }
+  ss.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-b1-mass.html', acc='#2a5a4a', ops='#8a3a3a',
+      title='Bonus ①: what it means for mass to vary ── c·t = const, That Clicks',
+      ep='BONUS ① ／ dug after the main series closed',
+      eyebrow='Turning "cannot be told apart" into "here is what can"',
+      h1='What it means<br>for mass to vary',
+      sub='\\(\\mu=m_p/m_e\\) does not move under a conformal transformation — which is why nothing can be told apart.<br><em>Digging turned up a degeneracy we had not expected.</em>',
+      byline_l='What you need: Episode 16\'s weight table, Episode 30\'s amplification, Episode 37\'s anomaly, Episode 48\'s priors',
+      byline_r='The worst direction is 99.6% \\(m_q/\\Lambda\\) — a 10.2-bit hole',
+      body=BODY + '\n\n<p class="foot">This document is bonus episode ① of "c·t = const, That Clicks", written after the main 50 episodes closed, for physics-minded high-school and university readers. The numbers are computed in kenshou/calc55.py and calc56.py. <strong>There is no new physics here</strong> — the \\(\\mu\\) amplification, the sigma terms and the sensitivity matrix are all in the literature (Calmet &amp; Fritzsch 2002, Langacker–Segre–Strassler 2002, and Flambaum\'s body of work); <em>this series\' contribution is the restatement in §08</em>, turning "cannot be told apart" into "here is what can". <strong>§05\'s sensitivity coefficients are literature values with real spread</strong> (sigma term 45–60 MeV, strange sigma term 20–60 MeV, and the \\(g_p\\) sensitivity model-dependent) — which is why they were varied by a factor of four, but <em>the individual figures should not be trusted to their significant digits</em>. <strong>The \\(1\\sigma\\) bounds are one representative value each</strong> and move by factors of a few between papers, so read the condition number 1196 as "of order a thousand". <strong>"\\(X_q\\) is not seen" refers to spectroscopy</strong> — Oklo (the \\(^{149}\\)Sm resonance) and nucleosynthesis (the deuteron binding) do constrain it strongly, but those two points are widely separated and isolated. <strong>§03\'s \\(R\\approx30\\text{–}50\\) assumes grand unification</strong>; in non-unified models it is entirely different, so §04\'s conclusion is a conditional statement. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, move the sigma term and watch the bad direction refuse to change. "Show the answer" opens each solution.')
