@@ -240,11 +240,14 @@ BODY += card(44,'wakaru-ct-44-lattice.html','Discretisation',
   'The demand was never absence, only irrelevance')
 
 BODY += mini([
- (45,'Summary: the list of things that could not be erased'),
 ])
 
 BODY += part('VI', 'What the notation was',
   'Fifty episodes of ledger and physics, folded into a single sheet.')
+BODY += card(45,'wakaru-ct-45-partV.html','The tool touches exactly half (Part V wrap-up)',
+  'Laid side by side, Part V’s "breaking" came in only two kinds: a scale was brought in (the tool reporting correctly), or a structure outside the conformal class appeared (the tool having nothing to say). Neither is a malfunction. And the 20 Riemann components in four dimensions split into Ricci 10, which change, and Weyl 10, which are conformally invariant — exactly half. So the tool cannot reach Kerr not from weakness but because the Weyl curvature is what a conformal transformation preserves. Which means the arrow of time is written entirely in the half the tool cannot touch.',
+  'The tool never once malfunctioned')
+
 BODY += mini([
  (46,'Every characterisation of \\(a\\propto t\\)'),
  (47,'A map of the dimensionless — what is physics and what is bookkeeping'),
