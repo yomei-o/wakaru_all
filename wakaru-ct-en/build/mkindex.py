@@ -248,8 +248,11 @@ BODY += card(45,'wakaru-ct-45-partV.html','The tool touches exactly half (Part V
   'Laid side by side, Part V’s "breaking" came in only two kinds: a scale was brought in (the tool reporting correctly), or a structure outside the conformal class appeared (the tool having nothing to say). Neither is a malfunction. And the 20 Riemann components in four dimensions split into Ricci 10, which change, and Weyl 10, which are conformally invariant — exactly half. So the tool cannot reach Kerr not from weakness but because the Weyl curvature is what a conformal transformation preserves. Which means the arrow of time is written entirely in the half the tool cannot touch.',
   'The tool never once malfunctioned')
 
+BODY += card(46,'wakaru-ct-46-characterisations.html','Every characterisation of a proportional to t',
+  'Collecting every way of saying a proportional to t gives twelve statements, nine of which are identities of one another — mere rewritings by differentiation and integration. The independent inputs are three: the expansion law, the Einstein equations, and the spatial curvature. Tested against observation, q=0 misses by 13 sigma and w=-1/3 by 23 sigma, but H_0 t_0 = 1 misses by only 4.9 per cent, and the Hubble tension straddles it exactly. The difference is integral versus instant — which is why c.t = const looked plausible in the first place.',
+  'Where the plausibility came from')
+
 BODY += mini([
- (46,'Every characterisation of \\(a\\propto t\\)'),
  (47,'A map of the dimensionless — what is physics and what is bookkeeping'),
  (48,'Shortness, fit, beauty — three currencies'),
  (49,'The doors still open'),

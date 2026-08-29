@@ -155,7 +155,7 @@ $$\underbrace{10}_{\text{touched}}\;:\;\underbrace{10}_{\text{untouched}}\;=\;\t
 
 <div class="next">
 <span class="lbl">Next time — Episode 46 (Part VI begins, the final part)</span>
-Part VI <strong>puts the procedure itself under examination</strong>. First, the <strong>2019 redefinition of the SI</strong> — in 2019 the International System fixed the numerical values of \(c\), \(\hbar\), \(e\), \(k_B\) and others, and <em>defined the units from them</em>. The kilogram prototype was retired; mass is now built from \(\hbar\). Which means — <strong>"dimensionful is bookkeeping" has been declared, internationally and officially.</strong> The line this series drew by hand in Episode 3 turns out to be <em>exactly where the world's metrology drew it too</em>. We count that out.
+Part VI <strong>puts the procedure itself under examination</strong>. First: <strong>every characterisation of \(a\propto t\)</strong> — after 45 episodes on this one condition, <em>how many different ways are there to say it?</em> \(w=-1/3\), \(q=0\), the horizon being exactly \(ct\), Episode 33's \(R=6(1+k)/t^2\) vanishing, conformal time going as \(\ln t\) — <strong>we collect them all, count how many there are, and count how many are independent.</strong> The compression that worked three times in Episodes 26, 40 and 41 <em>now gets applied to the series' own subject.</em>
 </div>'''
 
 SCRIPT = r'''<script>
