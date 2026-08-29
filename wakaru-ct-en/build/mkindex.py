@@ -5,13 +5,25 @@ import io, re
 ja = io.open('../../wakaru-ct/index.html', encoding='utf-8').read()
 css = re.search(r'<style>(.*?)</style>', ja, re.S).group(1)
 
+import os
 def card(n, href, title, desc, key, tag=''):
-    return f'''<a class="ep" href="{href}">
+    """英訳済みならリンク、未訳なら非リンクで表示する。"""
+    if os.path.exists('../'+href):
+        return f'''<a class="ep" href="{href}">
   <span class="no">EPISODE {n} <span class="badge b-new">LIVE</span> <span style="color:#5f6a7a;font-weight:600">interactive figure</span>{tag}</span>
   <h3>{title}</h3>
   <p>{desc}</p>
   <span class="key">{key}</span>
 </a>
+
+'''
+    ja = '../../wakaru-ct/'+href
+    return f'''<div class="ep">
+  <span class="no">EPISODE {n} <span class="badge b-soon">TRANSLATING</span>{tag}</span>
+  <h3>{title}</h3>
+  <p>{desc}</p>
+  <span class="key">{key}　·　<a href="{ja}" style="color:inherit">read the Japanese original</a></span>
+</div>
 
 '''
 
