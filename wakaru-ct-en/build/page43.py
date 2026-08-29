@@ -1,0 +1,289 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">Episode 18 produced "one bit \(\leftrightarrow\) 1.96 fm". So where does <strong>the Planck length itself</strong> sit on the weight table? The answer is unexpected — <em>\(\ell_P\) has weight \(+1\); it is just a length, in the bookkeeping column</em>. And the claim that "there is a smallest length" is <strong>simply incompatible with conformal invariance</strong>. This is the clearest edge of the tool's reach in all of Part V.</p>
+
+<h2><span class="n">01</span>Where the Planck length sits on the weight table</h2>
+
+<div class="calc">
+<span class="tag">\(\hbar\) and \(c\) have weight 0; \(G\) has weight \(+2\) (Episode 35 §01)</span>
+$$\ell_P=\sqrt{\frac{\hbar G}{c^3}}\qquad\Longrightarrow\qquad \text{weight}=\frac{+2}{2}=\mathbf{+1}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Quantity</th><th class="mid">Weight</th><th class="mid">Class</th></tr></thead>
+<tbody>
+<tr><th>\(\ell_P=1.616\times10^{-35}\) m</th><td class="mid">\(+1\)</td><td class="mid">a length = bookkeeping</td></tr>
+<tr><th>\(t_P=5.391\times10^{-44}\) s</th><td class="mid">\(+1\)</td><td class="mid">a time = bookkeeping</td></tr>
+<tr><th>\(m_P=2.176\times10^{-8}\) kg</th><td class="mid">\(-1\)</td><td class="mid">a mass = bookkeeping</td></tr>
+<tr><th>\(E_P=1.221\times10^{19}\) GeV</th><td class="mid">\(-1\)</td><td class="mid">an energy = bookkeeping</td></tr>
+<tr class="hi"><th>\(L/\ell_P\) (a ratio of lengths)</th><td class="mid"><strong>\(0\)</strong></td><td class="mid"><strong>dimensionless = physics</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0"><strong>Every Planck quantity sits in the bookkeeping column.</strong> Only <em>ratios</em> are in the physics column.<br>
+── "The smallest length is \(\ell_P\)" is, as it stands, <strong>not yet a sentence</strong> in Episode 3's sense.<br>
+To make it one: <strong>\(L/\ell_P\ge1\)</strong>.</p>
+</div>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">02</span>The core — this is where the tool really breaks</h2>
+
+<p>The question is <strong>whether \(G\) transforms</strong> — Episode 36's (A)/(B) applied directly to \(G\).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Reading</th><th class="mid">\(\ell_P\)</th><th class="mid">\(L/\ell_P\)</th><th class="mid">Consequence</th></tr></thead>
+<tbody>
+<tr><th>(A) \(G\) transforms too (\(G\to\Omega^2G\))</th><td class="mid">moves with everything</td><td class="mid">weight \(0\)</td><td class="mid">the minimum survives → <strong>notation</strong></td></tr>
+<tr class="hi"><th>(B) \(G\) is held fixed</th><td class="mid">does not move</td><td class="mid">weight \(+1\)</td><td class="mid"><strong>you can push below the minimum</strong> → a claim</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The main point of this episode</p>
+<p style="margin:6px 0 0"><strong>A theory with a smallest length cannot be conformally invariant at all.</strong><br>
+Conformal invariance demands <em>the absence of a scale</em>, and a smallest length <em>is</em> a scale.<br>
+── Part V has been about the tool breaking or failing to reach. This is different:<br>
+<strong>it is excluded by hypothesis</strong> — the clear edge of where the tool works.</p>
+</div>
+
+<h2><span class="n">03</span>So what is the Planck scale, then?</h2>
+
+<div class="calc">
+<span class="tag">Not a length you can point at, but where two lengths you can point at have ratio 1</span>
+$$\lambda_C=\frac{\hbar}{mc}\quad(\text{the quantum spread})\qquad
+r_s=\frac{2Gm}{c^2}\quad(\text{the gravitational spread})$$
+$$\lambda_C=r_s\ \Longleftrightarrow\ m=\sqrt{\frac{\hbar c}{2G}}=1.539\times10^{-8}\ \text{kg}=\frac{m_P}{\sqrt2}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">Mass [kg]</th><th class="mid">\(\lambda_C\) [m]</th><th class="mid">\(r_s\) [m]</th><th class="mid">\(\lambda_C/r_s\)</th></tr></thead>
+<tbody>
+<tr><th class="mid">electron \(9.11\times10^{-31}\)</th><td class="mid">\(3.86\times10^{-13}\)</td><td class="mid">\(1.35\times10^{-57}\)</td><td class="mid">\(2.9\times10^{44}\)</td></tr>
+<tr><th class="mid">proton \(1.67\times10^{-27}\)</th><td class="mid">\(2.10\times10^{-16}\)</td><td class="mid">\(2.49\times10^{-54}\)</td><td class="mid">\(8.5\times10^{37}\)</td></tr>
+<tr class="hi"><th class="mid">\(m_P/\sqrt2=1.54\times10^{-8}\)</th><td class="mid">\(2.286\times10^{-35}\)</td><td class="mid">\(2.286\times10^{-35}\)</td><td class="mid"><strong>\(1.000\)</strong></td></tr>
+<tr><th class="mid">1 g</th><td class="mid">\(3.52\times10^{-40}\)</td><td class="mid">\(1.49\times10^{-30}\)</td><td class="mid">\(2.4\times10^{-10}\)</td></tr>
+<tr><th class="mid">1 kg</th><td class="mid">\(3.52\times10^{-43}\)</td><td class="mid">\(1.49\times10^{-27}\)</td><td class="mid">\(2.4\times10^{-16}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §03</p>
+<p style="margin:6px 0 0"><strong>A crossing point is a dimensionless statement.</strong> That is how the concept survives —<br>
+<em>not as "a length", but as "the place where two effects come level".</em></p>
+</div>
+
+<div class="fig">
+<p class="cap">Figure: the <strong>Compton wavelength</strong> and the <strong>Schwarzschild radius</strong> as the mass varies. One goes as \(1/m\) and the other as \(m\), so <em>they must cross somewhere</em>. That crossing is the Planck scale — <strong>not a length you can point at, but where the ratio is 1.</strong></p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>mass \(\log_{10}(m/\text{kg})\)<input id="sm" type="range" min="-320" max="30" value="-80" step="1"></label>
+  <span class="val" id="vm">-8.0</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#2a4a6a"></i>Compton wavelength ħ/mc</span>
+  <span><i class="swatch" style="background:#8a5a2a"></i>Schwarzschild radius 2Gm/c²</span>
+  <span><i class="swatch" style="background:#c8c2d0"></i>Planck length</span>
+</div>
+</div>
+
+<h2><span class="n">04</span>How far from it are we?</h2>
+
+<div class="calc">
+<span class="tag">The length probed at the LHC's 13.6 TeV</span>
+$$\frac{\hbar c}{E}=1.45\times10^{-20}\ \text{m}\qquad
+\frac{1.45\times10^{-20}}{\ell_P}=9.0\times10^{14}=2^{\,49.7}$$
+</div>
+
+<p><strong>Fifty doublings away</strong> — one step for every doubling of accelerator energy.</p>
+
+<div class="aside">
+<span class="tag">Agreement with Episode 2's scale</span>
+\(\ln(R_H/\ell_P)=140.29\) and \(\ln(t_0/t_P)=140.24\) — <strong>Episode 2's "140.24 log steps" comes out the same counted in space.</strong><br>
+Specifying a one-dimensional position to Planck precision takes \(\log_2(R_H/\ell_P)=202.4\) bits; in three dimensions, <strong>607 bits</strong> (the same number as Episode 38 §04).
+</div>
+
+<h2><span class="n">05</span>What do observations say?</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Measurement</th><th class="mid">\(E_{\rm QG}/E_P\)</th><th class="mid">Meaning</th></tr></thead>
+<tbody>
+<tr class="hi"><th>Fermi GRB 090510 (linear effect)</th><td class="mid"><strong>\(>7.6\)</strong></td><td class="mid"><strong>excluded past the Planck energy</strong></td></tr>
+<tr><th>The same (quadratic effect)</th><td class="mid">\(>1.3\times10^{-8}\)</td><td class="mid">constrained only to \(10^{-8}\) of \(E_P\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>A smallest length can make the speed of light depend slightly on energy (dispersion), which gamma-ray burst arrival times constrain. <strong>The linear effect is excluded.</strong> <em>A smallest length that naively breaks Lorentz invariance is in trouble.</em> The quadratic effect, meanwhile, is untouched over eight orders of magnitude. <em>But not every theory with a smallest length breaks Lorentz invariance</em> (formulations that do not exist) — this constraint bites only on those that do.</p>
+
+<h2><span class="n">06</span>The relation to Episode 18's 1.96 fm</h2>
+
+<div class="calc">
+<span class="tag">Episode 18: the length corresponding to one bit</span>
+$$\left(\frac{\ln2}{\pi}R_H\,\ell_P^2\right)^{1/3}=1.96\ \text{fm}\qquad\text{weight}=\frac{(+1)+(+2)}{3}=\mathbf{+1}$$
+</div>
+
+<p>That too was in the bookkeeping column. <strong>The physics is in the ratio to \(\ell_P\)</strong> — \(1.96\ \text{fm}/\ell_P=1.21\times10^{20}=2^{66.7}\). So "the length of one bit" sits <em>67 doublings above the Planck length</em>.</p>
+
+<h2><span class="n">07</span>Auditing the weight table — Part V laid out</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Quantity</th><th class="mid">Weight</th><th class="mid">Why</th></tr></thead>
+<tbody>
+<tr><th>The running of \(\alpha\) (Ep. 37)</th><td class="mid">\(0\)</td><td class="mid">dimensionless</td></tr>
+<tr><th>\((D-1)(D-2)\) (Ep. 38)</th><td class="mid">\(0\)</td><td class="mid">a pure number</td></tr>
+<tr><th>Kerr spin \(\chi\) (Ep. 39)</th><td class="mid">\(0\)</td><td class="mid">dimensionless</td></tr>
+<tr><th>The holographic bound (Ep. 40)</th><td class="mid">\(0\)</td><td class="mid">area ÷ area</td></tr>
+<tr><th>How special the beginning was (Ep. 41)</th><td class="mid">\(0\)</td><td class="mid">a bit count</td></tr>
+<tr><th>The event horizon (Ep. 42)</th><td class="mid">\(0\)</td><td class="mid">causal structure</td></tr>
+<tr class="hi"><th><strong>The apparent horizon (Ep. 42)</strong></th><td class="mid"><strong>\(\ne0\)</strong></td><td class="mid">a local quantity</td></tr>
+<tr class="hi"><th><strong>The Planck length (Ep. 43)</strong></th><td class="mid"><strong>\(+1\)</strong></td><td class="mid">just a length</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §07</p>
+<p style="margin:6px 0 0">Only <strong>two things</strong> in Part V failed to land in the weight-0 column — the apparent horizon and the Planck length.<br>
+── <em>Both are quantities that bring in a local yardstick.</em></p>
+</div>
+
+<div class="caveat">
+<span class="tag">The honest line</span>
+<p style="margin:0 0 10px"><strong>(1) §02's (A)/(B) is a matter of convention.</strong> Whether \(G\) transforms is <em>not decided by physics but by which transformation you define</em> — take (A) and a conformal transformation is a change of units; take (B) and it is a physical claim. <strong>The claim here is not that one is right, but that you have to say which or you have not made a sentence</strong> — Episode 3, again.</p>
+<p style="margin:0 0 10px"><strong>(2) "A smallest length is incompatible with conformal invariance" refers to global conformal invariance.</strong> In theories with local Weyl transformations as a gauge symmetry (conformal gravity, Episode 34), <em>a gauge choice may fix a scale</em>, so the story is more involved — §02 is <strong>close to a tautology ("a theory with a scale is not scale-invariant"), and that is exactly why it is strong</strong>.</p>
+<p style="margin:0 0 10px"><strong>(3) That the Planck length <em>is</em> the smallest length is not an established fact.</strong> It is <em>the length you can build from three constants by dimensions alone</em>, and there is no evidence yet that anything happens there — §03's crossing is an <strong>indication that quantum and gravitational effects come level</strong>, not a claim that a minimum unit lives there.</p>
+<p style="margin:0 0 10px"><strong>(4) §05's \(E_{\rm QG}\) limits assume a particular form of dispersion relation.</strong> The Fermi value comes from the GRB 090510 analysis and <em>depends on assumptions about photon emission times</em>. And as noted, <strong>not every theory with a smallest length breaks Lorentz invariance</strong> (loop quantum gravity and noncommutative geometry both have formulations that do not).</p>
+<p style="margin:0"><strong>(5) §06's 1.96 fm uses Episode 18's value directly</strong>, computed with \(R_H=1.3\times10^{26}\) m (with \(1.3725\times10^{26}\) it is 1.99 fm) — <em>the 66.7 doublings is accurate to about that</em>.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>What is the conformal weight of the Planck length?
+<details><summary>Show the answer</summary><div class="ans"><strong>\(+1\)</strong>. In \(\ell_P=\sqrt{\hbar G/c^3}\), \(\hbar\) and \(c\) have weight 0 and \(G\) has \(+2\), so \((+2)/2=+1\) — <em>just a length, in the bookkeeping column</em>. Only \(L/\ell_P\) is in the physics column.</div></details></li>
+
+<li>Is "the smallest length is \(\ell_P\)" a sentence in Episode 3's sense?
+<details><summary>Show the answer</summary><div class="ans"><strong>No</strong> — it places its claim in a dimensionful quantity. To make it a sentence: <strong>\(L/\ell_P\ge1\)</strong>. <em>"If you have not named what you are comparing to, you have not yet made a sentence."</em></div></details></li>
+
+<li>Can a theory with a smallest length be conformally invariant?
+<details><summary>Show the answer</summary><div class="ans"><strong>No.</strong> Conformal invariance demands <em>the absence of a scale</em>, and a smallest length <em>is</em> a scale — unlike the rest of Part V, this is <strong>excluded by hypothesis</strong> (subject to caveat 2).</div></details></li>
+
+<li>State the Planck scale as a dimensionless claim.
+<details><summary>Show the answer</summary><div class="ans"><strong>The place where the Compton wavelength and the Schwarzschild radius have ratio 1</strong> — \(\lambda_C/r_s=1\) at \(m=\sqrt{\hbar c/2G}=m_P/\sqrt2\). <em>Not as "a length" but as "where two effects come level"</em>, the concept survives.</div></details></li>
+
+<li>(Harder) How many doublings from the LHC to the Planck length?
+<details><summary>Show the answer</summary><div class="ans"><strong>About 50</strong> (\(9.0\times10^{14}=2^{49.7}\)). At 13.6 TeV the length probed is \(1.45\times10^{-20}\) m — <em>one step per doubling of accelerator energy</em>. Incidentally, Episode 2's "140.24 log steps" comes out the same counted in space (\(\ln(R_H/\ell_P)=140.29\)).</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary: the clear edge of where the tool works</h2>
+<p>The Planck length is \(\sqrt{\hbar G/c^3}\), and since \(G\) has weight \(+2\), <strong>\(\ell_P\) has weight \(+1\) — just a length, in the bookkeeping column</strong>. So do \(t_P\), \(m_P\) and \(E_P\). <em>Only ratios like \(L/\ell_P\) are in the physics column</em>, which is why "the smallest length is \(\ell_P\)" is <strong>not yet a sentence</strong> in Episode 3's sense.</p>
+<p>And here the tool really breaks. <strong>A theory with a smallest length cannot be conformally invariant at all</strong> — conformal invariance demands the absence of a scale, and a smallest length is a scale. Unlike the rest of Part V's "breaks / cannot reach", <em>this is excluded by hypothesis</em>.</p>
+<p>Does that make the Planck scale meaningless? No — stated as <strong>the place where \(\hbar/mc\) and \(2Gm/c^2\) have ratio 1</strong>, it is a dimensionless claim (\(m=m_P/\sqrt2=1.54\times10^{-8}\) kg). <em>Not as "a length" but as "where two effects come level", the concept survives.</em></p>
+<p>We are <strong>about fifty doublings away</strong> (from the LHC's \(1.45\times10^{-20}\) m to \(\ell_P\), \(2^{49.7}\)). Observationally, a linear Lorentz-violating effect is <strong>excluded past the Planck energy</strong>, while the quadratic effect is untouched over eight orders of magnitude.</p>
+<p>Laying Part V out again, <strong>only two things failed to land in the weight-0 column</strong> — the apparent horizon (Episode 42) and the Planck length (this one). <em>Both bring in a local yardstick.</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time — Episode 44</span>
+This time we found that <strong>a smallest length is incompatible with conformal invariance</strong>. And yet — <em>conformal field theories are routinely computed on lattices</em>, and a lattice is a smallest length. Next time: <strong>discretisation</strong>. We go back to Episode 14's anomalous dimensions to see <em>why there is no contradiction</em> — and there we find <strong>the reason this series' tool survives after all.</strong>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sm=document.getElementById('sm'), vm=document.getElementById('vm'), ro=document.getElementById('ro');
+  var X0=82, X1=690, Y0=34, Y1=286;
+  var G=6.6743e-11, c=2.99792458e8, hbar=1.054571817e-34, lP=1.616255e-35;
+  var M0=-32, M1=3, L0=-60, L1=0;
+
+  function px(lm){ return X0+(lm-M0)/(M1-M0)*(X1-X0); }
+  function py(ll){ return Y1-(ll-L0)/(L1-L0)*(Y1-Y0); }
+  function lC(lm){ return Math.log(hbar/(Math.pow(10,lm)*c))/Math.LN10; }
+  function lS(lm){ return Math.log(2*G*Math.pow(10,lm)/(c*c))/Math.LN10; }
+
+  function draw(){
+    var lm=parseInt(sm.value,10)/10;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px ui-sans-serif,system-ui,sans-serif';
+
+    g.textAlign='right'; g.fillStyle='#9c96a4';
+    for(var v=L0;v<=L1;v+=10){
+      g.strokeStyle='#f2f0f4'; g.lineWidth=1;
+      g.beginPath(); g.moveTo(X0,py(v)); g.lineTo(X1,py(v)); g.stroke();
+      g.fillText('10^'+v, X0-8, py(v)+4);
+    }
+    g.textAlign='center';
+    for(var t=M0;t<=M1;t+=5){ g.fillStyle='#9c96a4'; g.fillText('10^'+t, px(t), Y1+20); }
+
+    var lpl=Math.log(lP)/Math.LN10;
+    g.strokeStyle='#c8c2d0'; g.lineWidth=1.6; g.setLineDash([5,4]);
+    g.beginPath(); g.moveTo(X0,py(lpl)); g.lineTo(X1,py(lpl)); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#a89fae'; g.textAlign='left';
+    g.fillText('Planck length', X0+8, py(lpl)-7);
+
+    g.strokeStyle='#2a4a6a'; g.lineWidth=2.8; g.beginPath();
+    for(var i=0;i<=300;i++){ var v2=M0+(M1-M0)*i/300; if(i===0)g.moveTo(px(v2),py(lC(v2))); else g.lineTo(px(v2),py(lC(v2))); }
+    g.stroke();
+    g.strokeStyle='#8a5a2a'; g.lineWidth=2.8; g.beginPath();
+    for(var j=0;j<=300;j++){ var v3=M0+(M1-M0)*j/300; if(j===0)g.moveTo(px(v3),py(lS(v3))); else g.lineTo(px(v3),py(lS(v3))); }
+    g.stroke();
+
+    var lmx=Math.log(Math.sqrt(hbar*c/(2*G)))/Math.LN10;
+    g.fillStyle='#7a3a5a';
+    g.beginPath(); g.arc(px(lmx),py(lC(lmx)),5.5,0,6.29); g.fill();
+    g.textAlign='center'; g.fillText('crossing = the Planck scale', px(lmx), py(lC(lmx))-14);
+
+    g.textAlign='left';
+    g.fillStyle='#2a4a6a'; g.fillText('Compton wavelength', px(M0+2), py(lC(M0+2))-10);
+    g.fillStyle='#8a5a2a'; g.fillText('Schwarzschild radius', px(M1-8), py(lS(M1-8))-10);
+
+    var Xc=px(lm);
+    g.strokeStyle='#5a5262'; g.lineWidth=1.6; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(Xc,Y0); g.lineTo(Xc,Y1); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#2a4a6a'; g.beginPath(); g.arc(Xc,py(lC(lm)),4.2,0,6.29); g.fill();
+    g.fillStyle='#8a5a2a'; g.beginPath(); g.arc(Xc,py(lS(lm)),4.2,0,6.29); g.fill();
+
+    g.fillStyle='#7d7686'; g.textAlign='center';
+    g.font='12px ui-sans-serif,system-ui,sans-serif';
+    g.fillText('mass  m [kg]', (X0+X1)/2, Y1+44);
+
+    vm.textContent=lm.toFixed(1);
+    var r=Math.pow(10,lC(lm)-lS(lm));
+    ro.textContent='m = 10^'+lm.toFixed(1)+' kg　→　Compton 10^'+lC(lm).toFixed(1)+
+      ' m　/　Schwarzschild 10^'+lS(lm).toFixed(1)+' m　/　ratio '+r.toExponential(2)+
+      (r>1?'　(the quantum spread is larger)':'　(the gravitational spread is larger)')+
+      (Math.abs(lm-lmx)<0.2?'　★ the crossing — ratio 1, a dimensionless statement':'');
+  }
+  sm.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-43-planck.html', acc='#2a4a6a', ops='#8a5a2a',
+      title='The Planck scale ── c·t = const, That Clicks, Episode 43 (Part V)',
+      ep='EPISODE 43 ／ Part V — where the tool breaks',
+      eyebrow='A smallest length is simply incompatible with conformal invariance',
+      h1='The Planck length was<br>in the bookkeeping column',
+      sub='\\(\\ell_P\\) has weight \\(+1\\) — it is just a length.<br><em>And a theory with a smallest length cannot be conformally invariant, by hypothesis.</em>',
+      byline_l='What you need: Episode 2\'s log steps, Episode 3\'s procedure, Episode 16\'s weight table, Episodes 18 and 35',
+      byline_r='Fifty doublings from the LHC to \\(\\ell_P\\)',
+      body=BODY + '\n\n<p class="foot">This document is Episode 43 of "c·t = const, That Clicks" (the seventh of Part V), written for physics-minded high-school and university readers. Planck units, the crossing of the Compton wavelength and the Schwarzschild radius, and the Lorentz-invariance tests of quantum-gravity phenomenology are all standard, and nothing here is a new claim — the numbers are computed in kenshou/calc47.py. <strong>§02\'s (A)/(B) is a matter of convention</strong>: whether \\(G\\) transforms is not decided by physics but by which transformation you define — <em>the claim is not that one reading is right, but that you must say which</em>, which is Episode 3 again. <strong>"A smallest length is incompatible with conformal invariance" refers to global conformal invariance</strong>; in theories with local Weyl transformations as a gauge symmetry (Episode 34) a gauge choice may fix a scale, so the story is more involved — §02 is close to a tautology, and that is why it is strong. <strong>That the Planck length is the smallest length is not an established fact</strong> — it is the length buildable from three constants by dimensions alone, with no evidence yet that anything happens there, and §03\'s crossing indicates where quantum and gravitational effects come level, not that a minimum unit lives there. <strong>§05\'s limits assume a particular dispersion relation</strong> and the Fermi value depends on assumptions about photon emission times; <em>not every theory with a smallest length breaks Lorentz invariance</em>. §06\'s 1.96 fm uses Episode 18\'s value with \\(R_H=1.3\\times10^{26}\\) m (1.99 fm with \\(1.3725\\times10^{26}\\)). ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, move the mass and watch the two lengths cross. "Show the answer" opens each solution.')

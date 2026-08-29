@@ -231,8 +231,11 @@ BODY += card(42,'wakaru-ct-42-inside.html','Inside a black hole',
   'Conformal transformations do not move light cones, and the event horizon is fixed by causal structure alone — so it has weight 0 and can be neither created nor destroyed. The apparent horizon, defined locally by theta = 0, does move: the one that cannot be moved cannot be located without knowing the whole future, and the one that can be located moves. A Penrose diagram is a conformal transformation and the twin of Episode 1’s notation claim — notation is not worthless, it is simply not a claim. And inside, even the most generous estimate falls 93.9 bits short at solar mass and 126.5 at M87*.',
   'Notation is not worthless; it is simply not a claim')
 
+BODY += card(43,'wakaru-ct-43-planck.html','The Planck scale',
+  'The Planck length has conformal weight +1 — it is just a length, sitting in the bookkeeping column, so "the smallest length is l_P" is not yet a sentence; the sentence is L/l_P >= 1. And this is where the tool really breaks: conformal invariance demands the absence of a scale, and a smallest length is a scale, so the two are incompatible by hypothesis rather than by any subtle failure. The concept survives only as a dimensionless statement — the mass where the Compton wavelength and the Schwarzschild radius have ratio 1. We are fifty doublings away from it.',
+  'Excluded by hypothesis — the edge of the tool')
+
 BODY += mini([
- (43,'The Planck scale — the edge of the band'),
  (44,'What changes if you make it discrete'),
  (45,'Summary: the list of things that could not be erased'),
 ])
