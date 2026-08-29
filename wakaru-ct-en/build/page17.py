@@ -1,0 +1,262 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, '.')
+from mkpage import build
+
+BODY = r'''<p class="lead">From here Part III measures the universe <strong>as information</strong>. First, communication — and immediately we hit the most famous difficulty of all. <em>The cosmic microwave background is uniform to \(10^{-5}\) across \(10^4\) causally disconnected regions.</em> Translated into the language of information: <strong>9,600 nodes that have exchanged not one message agree to 17 bits.</strong> In a distributed system, this cannot happen.</p>
+
+<h2><span class="n">01</span>Measuring uniformity in bits</h2>
+
+<p>Translate "uniform to \(\Delta T/T\sim10^{-5}\)" into information. Two temperatures agreeing to \(10^{-5}\) means <em>how many leading digits match</em>.</p>
+
+<div class="calc">
+<span class="tag">Just take a logarithm</span>
+$$\log_2\frac{1}{10^{-5}}=16.61\ \text{bits}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0">Any two points on the sky agree about temperature to <strong>17 bits</strong>.<br>
+── Not a qualitative "they match" but <em>a countable quantity</em>.</p>
+</div>
+
+<h2><span class="n">02</span>How many nodes are there?</h2>
+
+<p>Next, count the causally disconnected regions. At recombination, light had travelled a comoving particle horizon of 288 Mpc, while the comoving distance from us to the last scattering surface is 14,100 Mpc. So —</p>
+
+<div class="calc">
+<span class="tag">Divide by the solid angle</span>
+<p class="lbl">the angle the horizon subtends</p>
+$$\theta=\frac{288}{14100}=0.0204\ \mathrm{rad}=1.17^\circ$$
+<p class="lbl">divide the whole sky by that solid angle</p>
+$$N=\frac{4\pi}{2\pi(1-\cos\theta)}=9.6\times10^{3}$$
+</div>
+
+<p>About <strong>9,600 nodes</strong> — the same order as the commonly quoted "\(10^4\) causal patches". <em>Those 9,600 have never once exchanged a signal before the CMB was emitted</em>, being outside each other's light cones.</p>
+
+<h2><span class="n">03</span>The total agreed information is 20 kilobytes</h2>
+
+<div class="calc">
+<span class="tag">Just multiply</span>
+$$9.6\times10^{3}\ \text{nodes}\ \times\ 16.6\ \text{bits}=1.59\times10^{5}\ \text{bits}\simeq20\ \mathrm{KB}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The thing this episode most wants to say</p>
+<p style="margin:6px 0 0">The information needed for the agreement was just <strong>20 kilobytes</strong>.<br>
+A phone would send it instantly. <em>The problem is not the amount but that there was no way to send it</em> — <strong>the absence of a channel</strong>.</p>
+</div>
+
+<p>Phrased as "why is it so uniform?", the horizon problem sounds mysterious. In information terms the shape of the problem changes — <em>the uniformity itself is a trivial amount of data. What is impossible is having it with zero channel.</em></p>
+
+<h2><span class="n">04</span>Chance is absolutely excluded</h2>
+
+<p>Could it just have happened? If each patch's temperature varied independently, the chance of one matching to \(10^{-5}\) is \(10^{-5}\), so for all of them —</p>
+
+<div class="calc">
+<span class="tag">Multiplication</span>
+$$\left(10^{-5}\right)^{9600}=10^{-48000}$$
+</div>
+
+<p>Recalling that the universe holds \(10^{122}\) bits in total, this number <strong>exceeds the range of probabilities the universe can handle by orders of magnitude in the number of orders of magnitude</strong>. <em>The option "coincidence" disappears entirely.</em></p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">05</span>\(c\cdot t=\text{const}\) does not have this problem</h2>
+
+<p>How does the patch count depend on the expansion law? The comoving particle horizon is \(\chi=\int c\,dt/a\), so for \(a\propto t^p\), \(\chi\propto t^{1-p}\), and the patch count goes as the square of the ratio.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">Expansion law \(p\)</th><th class="mid">Comoving horizon ratio</th><th class="mid">Patches</th><th class="mid">Bits to agree on</th></tr></thead>
+<tbody>
+<tr><th class="mid">0.500 (radiation)</th><td class="mid">190</td><td class="mid">\(3.6\times10^{4}\)</td><td class="mid">75 KB</td></tr>
+<tr><th class="mid">0.513 (observed log mean)</th><td class="mid">166</td><td class="mid">\(2.8\times10^{4}\)</td><td class="mid">57 KB</td></tr>
+<tr><th class="mid">0.667 (matter)</th><td class="mid">33</td><td class="mid">\(1.1\times10^{3}\)</td><td class="mid">2.3 KB</td></tr>
+<tr><th class="mid">0.900</th><td class="mid">2.9</td><td class="mid">8.2</td><td class="mid">17 bytes</td></tr>
+<tr class="hi"><th class="mid">1.000 (\(c\cdot t=\)const)</th><td class="mid">divergent (∞)</td><td class="mid"><strong>1</strong></td><td class="mid"><strong>0</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>At \(a\propto t\) the particle horizon diverges (characterisation ⑤ of Extra 3 in the previous series). So <strong>any two points in the universe were in communication at some time</strong> — one patch, zero bits to agree on. <em>The horizon problem cannot arise in principle.</em></p>
+
+<div class="fig">
+<p class="cap">Figure: how the number of causally disconnected nodes changes with the expansion law. <strong>As \(p\to1\) the patch count falls to 1 and the bits to agree on go to zero.</strong> The grey band marks the observed expansion law (log mean \(p=0.513\)).</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>Expansion index \(p\)<input id="sp" type="range" min="300" max="999" value="513" step="1"></label>
+  <span class="val" id="vp">p = 0.513</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#7a4a2a"></i>causally disconnected nodes</span>
+  <span><i class="swatch" style="background:#2a5a7a"></i>bits to agree on</span>
+  <span><i class="swatch" style="background:#a8968a"></i>observed log mean (\(p=0.513\))</span>
+</div>
+</div>
+
+<h2><span class="n">06</span>Except that radiation breaks it</h2>
+
+<p>Extra 2 of the previous series already demolished this selling point. To recap — <strong>radiation is conformally invariant, cannot couple to the dilaton, and stays at \(\rho_r\propto a^{-4}\)</strong>. So there comes an epoch when it takes over the total.</p>
+
+<div class="calc">
+<span class="tag">When does it take over?</span>
+$$\sqrt{\Omega_r}=9.6\times10^{-3}\qquad\Longrightarrow\qquad \text{radiation dominates for }z>103$$
+</div>
+
+<p>Recombination (\(z=1100\)) is well inside that. So <strong>\(a\propto t\) cannot hold before recombination and the patch count returns to \(1.2\times10^4\)</strong> — the horizon problem comes back about as severely as in \(\Lambda\)CDM. <em>The one selling point fails exactly when it is most needed.</em></p>
+
+<div class="aside">
+<span class="tag">This is the substance of Extra 2's "it was constraining the wrong thing"</span>
+\(c\cdot t=\text{const}\) is the only expansion law that fixes the comoving Hubble radius (= the address space). But that is <strong>a condition on the conformal factor</strong> — a condition on the bookkeeping. Radiation is conformally invariant, so no amount of constraining the books touches it — <em>and it is precisely radiation that dominates the early universe</em>. The previous series' conclusion, "what should have been constrained is the information on the light sheet", is taken up head on in Episode 20.
+</div>
+
+<h2><span class="n">07</span>Inflation solves it by replication, not consensus</h2>
+
+<p>Let us translate the standard solution too. Inflation is about 60 e-folds of exponential expansion; in distributed-systems terms —</p>
+
+<div class="seven">
+<div class="row"><div class="mk">✗</div><div class="txt"><strong>Not consensus</strong><span>the nodes do not communicate to bring their values into line</span></div></div>
+<div class="row hi"><div class="mk">◎</div><div class="txt"><strong>Broadcast plus partition (replication)</strong><span>copy one node's state into \(e^{60}=10^{26}\) times the volume, then disconnect. <em>They agree because they were the same thing to begin with</em></span></div></div>
+<div class="row"><div class="mk">◎</div><div class="txt"><strong>\(c\cdot t=\)const solves it by communication</strong><span>the particle horizon is infinite, so any two points could communicate at some point in the past — except that, per §06, it does not hold once radiation is included</span></div></div>
+</div>
+
+<p><strong>In distributed systems these are completely different solutions</strong>: one copies an identical initial state, the other communicates to reach agreement. <em>And observation does not directly distinguish which happened</em> — only secondary predictions such as the fluctuation spectrum (\(n_s\)) can.</p>
+
+<div class="caveat">
+<span class="tag">The honest line — what this episode assumes</span>
+<p style="margin:0 0 10px"><strong>① The count of 9,600 comes from a comoving horizon of 288 Mpc and 14,100 Mpc to last scattering.</strong> Both are standard \(\Lambda\)CDM values, and the number shifts by factors of a few depending on how a "causal patch" is defined (particle or acoustic horizon; disc or spherical cap) — the commonly quoted range "\(10^4\)–\(10^5\)" reflects exactly that.</p>
+<p style="margin:0 0 10px"><strong>② "17 bits of agreement" is a naive logarithm of \(\Delta T/T\sim10^{-5}\).</strong> Real CMB fluctuations are <em>structured, not random</em> (acoustic oscillations), and \(10^{-5}\) is the rms after removing the dipole. Saying "17 independent bits agree" <strong>does not go beyond metaphor</strong> — a precise information count would have to handle correlations multipole by multipole.</p>
+<p style="margin:0 0 10px"><strong>③ The \(10^{-48000}\) of §04 assumes each patch is independently random.</strong> It is <em>a calculation showing how absurd that null hypothesis is</em>, and nobody proposes it. Read it as a way of feeling the orders of magnitude.</p>
+<p style="margin:0 0 10px"><strong>④ The table in §05 applies \(a\propto t^p\) at all epochs, crudely.</strong> Coefficients in \(\chi\propto t^{1-p}\) and the \(p\)-dependence of the recombination time are ignored. An order-of-magnitude argument.</p>
+<p style="margin:0"><strong>⑤ Calling inflation "replication" is this document's phrasing.</strong> The standard description is "a small region in causal contact was stretched exponentially" — the content is the same, but <em>the translation into distributed-systems language is this document's own</em>, not a standard formulation. Inflation also has independent motivations and predictions beyond the horizon problem: flatness, monopoles and the fluctuation spectrum.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises (solvable with this episode's formulas alone)</p>
+<ol>
+<li>How many bits of agreement is \(\Delta T/T\sim10^{-5}\)?
+<details><summary>Show the answer</summary><div class="ans">\(\log_2(10^5)=16.6\) bits. <em>That is what translating "they match" into a countable quantity looks like.</em></div></details></li>
+
+<li>Find the number of causal patches from the horizon angle.
+<details><summary>Show the answer</summary><div class="ans">\(\theta=288/14100=0.0204\) rad; solid angle \(2\pi(1-\cos\theta)=1.31\times10^{-3}\) sr; divide \(4\pi\) to get <strong>\(9.6\times10^3\)</strong>.</div></details></li>
+
+<li>What is the total agreed information, and is it a lot?
+<details><summary>Show the answer</summary><div class="ans">\(9.6\times10^3\times16.6=1.6\times10^5\) bits ≈ <strong>20 KB</strong>. Not a lot at all — <em>the problem is not the amount but that the channel was zero</em>.</div></details></li>
+
+<li>Why does the patch count fall to 1 at \(a\propto t\)?
+<details><summary>Show the answer</summary><div class="ans">Because the comoving particle horizon \(\chi=\int c\,dt/a\propto\int dt/t=\ln t\) <strong>diverges</strong> as \(t\to0\) (characterisation ⑤ of Extra 3 in the previous series). Any two points could communicate at some past time, so there are zero bits to agree on.</div></details></li>
+
+<li>(Harder) As distributed systems, how do inflation and \(c\cdot t=\text{const}\) differ?
+<details><summary>Show the answer</summary><div class="ans">Inflation is <strong>broadcast plus partition (replication)</strong> — copy one node's state into \(e^{60}\) times the volume, then disconnect; they agree because they were the same thing. \(c\cdot t=\text{const}\) is <strong>communication</strong> — the particle horizon is infinite, so any two points could exchange signals in the past. <em>Completely different solutions in distributed systems</em>, but CMB uniformity alone cannot tell them apart (that takes secondary predictions like \(n_s\)). And per §06, the \(c\cdot t=\text{const}\) route fails once radiation is included.</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — the problem was not the amount but the missing channel</h2>
+<p>The horizon problem, in the language of information: \(\Delta T/T\sim10^{-5}\) is <strong>16.6 bits of agreement</strong>, and the causally disconnected regions number <strong>9,600</strong> (comoving horizon 288 Mpc against 14,100 Mpc to last scattering). Multiplied, <strong>about 20 kilobytes</strong> — <em>an amount a phone would send instantly</em>.</p>
+<p>So the shape of the problem changes. <strong>The uniformity itself is a trivial amount of information; what is impossible is having it with zero channel</strong> — the absence of a channel. And chance is excluded at \(10^{-48000}\).</p>
+<p>\(c\cdot t=\text{const}\) does not have this problem in principle: the particle horizon diverges as \(\ln t\), so <strong>there is one patch and zero bits to agree on</strong>. Moving the expansion law from \(p=0.5\) to \(1\) takes the patch count from \(3.6\times10^4\) to 1. — <em>Except that radiation breaks it.</em> Radiation is conformally invariant, cannot couple to the dilaton, and takes over the total for \(z>103\). Recombination is inside that, so \(a\propto t\) cannot hold and the count returns to \(1.2\times10^4\). <strong>The one selling point fails exactly when most needed</strong> (Extra 2).</p>
+<p>We translated the standard solution too. Inflation is <strong>replication, not consensus</strong> — copy one node's state into \(e^{60}=10^{26}\) times the volume and then disconnect; they agree because they were the same thing. <em>In distributed systems, "communicate to agree" and "copy the same thing" are entirely different solutions</em> — and CMB uniformity alone cannot distinguish them.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next — Episode 18</span>
+After communication, <strong>addressing</strong>. The universe has \((R_H/\ell_P)^3=5.3\times10^{182}\) spatial cells but can write only \(3\times10^{122}\) bits. The ratio is exactly \(1/(R_H/\ell_P)\) — so we read <strong>holography as "only \(10^{-61}\) of the cells can be given an address"</strong>. Episode 6 counted an occupancy of \(10^{-18}\); this is a more fundamental shortage — <em>not unused, but unaddressable in the first place.</em>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sp=document.getElementById('sp'), vp=document.getElementById('vp'), ro=document.getElementById('ro');
+  var X0=78, X1=690, Y0=32, Y1=310;
+  var R=3.628e4;
+  var BITS=16.61;
+  var xmin=0.30, xmax=1.0;
+  var ymin=0, ymax=5.2;
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function patches(p){ return (p>=0.999)?1:Math.pow(R,2*(1-p)); }
+
+  function draw(){
+    var p=parseInt(sp.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+
+    g.fillStyle='#f3ede8';
+    g.fillRect(px(0.50), Y0, px(0.53)-px(0.50), Y1-Y0);
+    g.fillStyle='#a8968a'; g.textAlign='center';
+    g.fillText('observed (log mean)', px(0.515), Y0-8);
+
+    g.textAlign='right';
+    for(var e=0;e<=5;e++){
+      var y=py(e);
+      g.strokeStyle=(e===0?'#d8c8bc':'#f6f0eb'); g.lineWidth=(e===0?1.6:1);
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#a89286'; g.fillText(e===0?'1 node':'10'+e, X0-8, y+4);
+    }
+    g.textAlign='center';
+    [0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0].forEach(function(v){
+      var x=px(v);
+      g.strokeStyle='#faf6f3'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a89286'; g.fillText(v.toFixed(1), x, Y1+16);
+    });
+    g.strokeStyle='#d4c2b4'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    g.strokeStyle='#7a4a2a'; g.lineWidth=3.4; g.beginPath();
+    for(var i=0;i<=300;i++){
+      var q=xmin+(xmax-xmin)*i/300;
+      var y=Math.log(patches(q))/Math.LN10;
+      if(i===0) g.moveTo(px(q),py(Math.min(y,ymax))); else g.lineTo(px(q),py(Math.min(y,ymax)));
+    }
+    g.stroke();
+
+    g.strokeStyle='#2a5a7a'; g.lineWidth=2.2; g.setLineDash([6,4]); g.beginPath();
+    for(var i=0;i<=300;i++){
+      var q=xmin+(xmax-xmin)*i/300;
+      var v=patches(q)*BITS;
+      var y=Math.log(v)/Math.LN10;
+      if(i===0) g.moveTo(px(q),py(Math.min(y,ymax))); else g.lineTo(px(q),py(Math.min(y,ymax)));
+    }
+    g.stroke(); g.setLineDash([]);
+
+    g.fillStyle='#7a4a2a';
+    g.beginPath(); g.arc(px(1.0),py(0),6,0,6.2832); g.fill();
+    g.strokeStyle='#fff'; g.lineWidth=2;
+    g.beginPath(); g.arc(px(1.0),py(0),6,0,6.2832); g.stroke();
+    g.fillStyle='#7a4a2a'; g.textAlign='right';
+    g.fillText('a ∝ t: 1 node, 0 bits', px(1.0)-12, py(0)-10);
+
+    g.strokeStyle='#8a6a52'; g.lineWidth=1.5; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(px(p),Y0); g.lineTo(px(p),Y1); g.stroke();
+    g.setLineDash([]);
+
+    g.fillStyle='#8a7565'; g.textAlign='center';
+    g.fillText('expansion index  p   (a ∝ t^p)', (X0+X1)/2, Y1+38);
+
+    var N=patches(p), B=N*BITS;
+    vp.textContent='p = '+p.toFixed(3);
+    ro.textContent='p = '+p.toFixed(3)+
+      '　→　causally disconnected nodes '+(N<10?N.toFixed(1):N.toExponential(2))+
+      '　/　information to agree on '+(B<8?B.toFixed(1)+' bits':(B/8<1024? (B/8).toPrecision(3)+' bytes' : (B/8/1024).toPrecision(3)+' KB'))+
+      (p>0.999?'　★ the horizon problem cannot arise in principle':'');
+  }
+  sp.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-17-consensus.html', acc='#7a4a2a', ops='#2a5a7a',
+      title='9,600 nodes that never spoke agree to 17 bits ── c·t = const, That Clicks, Episode 17',
+      ep='EPISODE 17 ／ Part III begins — measuring as information',
+      eyebrow='Rewriting the horizon problem in the language of distributed systems',
+      h1='9,600 nodes that never spoke<br>agree to 17 bits',
+      sub='The information needed for the agreement was just 20 kilobytes.<br><em>The problem is not the amount but that there was no way to send it — the absence of a channel.</em>',
+      byline_l='What you need: logarithms, solid angle, division',
+      byline_r='\\(9.6\\times10^3\\ \\text{nodes}\\times16.6\\ \\text{bits}=20\\ \\mathrm{KB}\\)',
+      body=BODY + '\n\n<p class="foot">This document is Episode 17 of "c·t = const, That Clicks", written for physics-minded high-school and university readers. That CMB temperature fluctuations are \\(\\Delta T/T\\sim10^{-5}\\) (rms with the dipole removed), that the comoving particle horizon at recombination is about 288 Mpc, and that the comoving distance to last scattering is about 14,100 Mpc, are standard \\(\\Lambda\\)CDM values. The patch count \\(9.6\\times10^3\\), the agreed information \\(1.6\\times10^5\\) bits (about 20 KB), and the table of patch counts by expansion law are computed here (kenshou/calc21.py). <strong>The number shifts by factors of a few with the definition of a "causal patch"</strong> (particle or acoustic horizon; disc or spherical cap), which is why the literature quotes a range of \\(10^4\\)–\\(10^5\\). <strong>"17 bits of agreement" is a naive logarithm of \\(10^{-5}\\) and is metaphorical</strong>: real CMB fluctuations are structured by acoustic oscillations, and a precise information count would have to treat correlations multipole by multipole. The \\(10^{-48000}\\) of §04 assumes independently random patches — a null hypothesis nobody proposes — and is there to convey orders of magnitude. The table in §05 applies \\(a\\propto t^p\\) at all epochs and ignores coefficients and the \\(p\\)-dependence of the recombination time. That the particle horizon diverges for \\(a\\propto t\\) is characterisation ⑤ of Extra 3 in the previous series; that radiation, being conformally invariant, cannot couple to the dilaton and dominates for \\(z>103\\) is from Extra 2 of the same. Calling inflation "broadcast plus partition (replication)" is this document\'s translation, not a standard formulation — and inflation has independent motivations and predictions (flatness, monopoles, the fluctuation spectrum). Linear expansion (\\(c\\cdot t=\\)const, \\(R_h=ct\\)) is a minority model under examination and conflicts with nucleosynthesis when extrapolated into the early universe (Lewis, Barnes &amp; Kaushik 2016). The academic standard remains the \\(\\Lambda\\)CDM model including inflation. ── To make a PDF, use your browser\'s Print dialogue (sliders freeze and answers are hidden in the print version).</p>',
+      script=SCRIPT,
+      hint='Print / PDF: ⌘+P (Ctrl+P on Windows). On screen, the slider changes the expansion law and the nodes collapse to one as p→1. "Show the answer" opens each solution.')
