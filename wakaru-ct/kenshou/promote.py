@@ -15,9 +15,16 @@ def promote(num, href, h3, desc, key, extra=''):
     if nxt: s=s[:nxt.start()]+card+s[nxt.start():]
     else:
         li=re.search(r'<li><span class="num">第%d回</span>'%(num+1), s)
-        if not li: print('挿入位置が見つかりません'); return False
-        ol=s.rfind('<ol class="mini">',0,li.start())
-        s=s[:ol]+card+s[ol:]
+        if li:
+            ol=s.rfind('<ol class="mini">',0,li.start())
+            s=s[:ol]+card+s[ol:]
+        else:
+            # 最後の 1 本：空になった mini リストを取り除き、その位置に置く
+            m2=re.search(r'<ol class="mini">\s*</ol>\s*', s)
+            if m2:
+                s=s[:m2.start()]+card+s[m2.end():]
+            else:
+                print('挿入位置が見つかりません'); return False
     io.open(p,'w',encoding='utf-8').write(s)
     o=len(re.findall(r'<div\b',s)); c=s.count('</div>')
     print('index: a.ep=%d  div %d/%d %s'%(s.count('<a class="ep"'),o,c,'OK' if o==c else '*** MISMATCH ***'))

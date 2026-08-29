@@ -30,8 +30,20 @@ def promote(num, href, title, desc, key, path='mkindex.py'):
             break
         idx = s.find('BODY += mini([', idx + 1)
     else:
-        print('  ep%d: no following mini block; appended at end of cards' % num)
-        return False
+        # last episode: no mini block follows, so append after the final card
+        marker = "BODY += card("
+        last = s.rfind(marker)
+        if last == -1:
+            print('  ep%d: no insertion point' % num)
+            return False
+        end = s.find("')\n\n", last)
+        if end == -1:
+            print('  ep%d: could not find the end of the last card' % num)
+            return False
+        end += len("')\n\n")
+        s = s[:end] + card + s[end:]
+        # drop the now-empty mini list, if any
+        s = re.sub(r"BODY \+= mini\(\[\s*\]\)\n+", '', s)
     io.open(path, 'w', encoding='utf-8').write(s)
     print('  ep%d promoted' % num)
     return True
