@@ -174,8 +174,11 @@ BODY += card(29,'wakaru-ct-29-mond.html','MOND — the comparison hidden inside 
   '\(a_0\) is dimensionful (weight \(-1\)), so “the acceleration is small” needs a comparison — and \(cH_0\) is sitting right next door, at \(a_0/cH_0=0.18\). The ratio has weight 0, so <strong>the coincidence cannot be moved by a conformal transformation</strong>; measured in bits it is 5.9, the same stratum as \(\rho_\Lambda\) and \(m_\nu\). On Episode 5’s scales, <strong>MOND wins galaxy rotation curves by 1971 bits</strong> — and loses clusters, the Bullet Cluster and the CMB. <em>“Dark matter or MOND?” was never one question.</em>',
   'And the coincidence hides a testable fork: constant \(a_0\), or \(a_0\propto H\)?')
 
+BODY += card(30,'wakaru-ct-30-measure.html','Measuring varying constants for real',
+  'Atomic clocks, the Oklo natural reactor, quasar absorption lines — three different physics, one skeleton: (change in the observable) = K × (Δα/α). <strong>Oklo’s precision is a coarse 2% and it matches an atomic clock, because its amplification is \(10^7\)</strong> — the 97.3 meV resonance is a difference of MeV-scale quantities. Placed on the logarithmic axis, data cover <strong>29% of cosmic history and 26-bit precision covers 0.1%</strong>. And measurement of constants sits entirely in the weight-0 column — which is why it can be the referee.',
+  'A cancellation of orders can be a mystery or a tool')
+
 BODY += mini([
- (30,'Measuring varying constants for real (atomic clocks, Oklo, quasar absorption)'),
  (31,'Penrose\'s conformal cyclic cosmology'),
  (32,'Wetterich\'s cosmon — implementing a universe that does not expand'),
  (33,'Milne versus \\(R_h=ct\\) — coordinate change, or conformal transformation?'),
