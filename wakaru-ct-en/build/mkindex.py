@@ -137,8 +137,11 @@ BODY += card(21,'wakaru-ct-21-arrows.html','There are four scales for the arrow 
   'Total entropy (+104 orders), memory occupancy (−18), holographic margin (+33), degrees of freedom \(a\) (−1.2). Two up, two down — and <strong>all four are dimensionless</strong>, so the arrow sits entirely in the physics column. Put in the same units, the denominator grows at 0.872 orders per step and the numerator at 0.745: <em>a difference of only 0.127</em>, which over 140 steps gives exactly Episode 6’s occupancy. <strong>The arrow lives in the numerator; the denominator is the stage.</strong>',
   'Rewriting the books cannot touch the direction of time')
 
+BODY += card(22,'wakaru-ct-22-instruction.html','The instruction set of the universe-as-computer',
+  'The ML rate is proportional to energy, so the operational budget <em>is</em> the energy budget. And ML measures energy above the ground state — the vacuum <strong>has nowhere to transition to</strong>, removing 68.5% at a stroke; of what remains, 84.1% is dark matter, which interacts only gravitationally. <strong>95.0% of the budget goes to components in which nothing happens.</strong> Starlight, the most conspicuous activity there is, accounts for one millionth of the total, and Episode 1’s 0.035 operations per bit falls to one per 580 bits.',
+  'The gap Episode 1 flagged as “a spec sheet, not a benchmark”, measured')
+
 BODY += mini([
- (22,'The instruction set of the universe-as-computer'),
  (23,'The horizon as error correction'),
  (24,'Channel capacity — how many bits per second cross the horizon'),
  (25,'Are physical laws a compression algorithm?'),
