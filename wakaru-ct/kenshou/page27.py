@@ -1,0 +1,272 @@
+# -*- coding: utf-8 -*-
+from mkpage import build
+
+BODY = r'''<p class="lead">第3回でやった手術を覚えていますか ── <strong>ひとつの名前の中に、別物が二つ入っていないか調べる</strong>。合言葉には「等価な書き換え」と「観測が判定する主張」が同じ名前で入っていました。第 IV 部では、この手術を他の理論に当てます。<em>最初の患者はインフレーションです。</em></p>
+
+<h2><span class="n">01</span>「インフレーションは地平線問題を解く」を切り分ける</h2>
+
+<div class="seven">
+<div class="row"><div class="mk">A</div><div class="txt"><strong>因果的に繋げること</strong><span>幾何の話。共形図の形が変わればよい ── <em>等価な書き換えでも達成できる種類の主張</em></span></div></div>
+<div class="row hi"><div class="mk">B</div><div class="txt"><strong>ゆらぎのスペクトルを出すこと</strong><span>\(n_s\)、\(r\)、断熱性、ガウス性 ── <em>観測が判定する種類の主張</em></span></div></div>
+</div>
+
+<p>第3回とまったく同じ構図です。では (A) はどれだけ「安い」のか ── そこから数えます。</p>
+
+<h2><span class="n">02</span>(A) は、\(a\propto t\) なら 0 e-folds で済む</h2>
+
+<div class="calc">
+<span class="tag">粒子的地平線</span>
+<p class="lbl">\(a\propto t^p\) のとき</p>
+$$d_p=a(t)\int_0^t\frac{c\,dt'}{a(t')}=\frac{ct}{1-p}$$
+<p class="lbl">\(p=1\) では \(\int dt'/t'\) が対数発散するので</p>
+$$d_p=\infty$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>膨張則</th><th class="mid">\(d_p\)</th><th class="mid">地平線問題</th></tr></thead>
+<tbody>
+<tr><th>\(p=1/2\)（輻射）</th><td class="mid">\(2ct\)</td><td class="mid">ある</td></tr>
+<tr><th>\(p=2/3\)（物質）</th><td class="mid">\(3ct\)</td><td class="mid">ある</td></tr>
+<tr><th>\(p=0.99\)</th><td class="mid">\(100\,ct\)</td><td class="mid">ある</td></tr>
+<tr class="hi"><th>\(p=1\)（c·t=一定）</th><td class="mid"><strong>\(\infty\)</strong></td><td class="mid"><strong>ない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の結論</p>
+<p style="margin:6px 0 0"><strong>c·t=一定 は、地平線問題を e-folds 0・パラメータ 0 で消します。</strong><br>
+つまり (A) はインフレーション固有の成果ではありません ── <em>地平線問題は「宇宙の問題」ではなく「減速する宇宙の問題」でした</em>。</p>
+</div>
+
+<p>第17回では、この問題に必要な情報を数えました ── 再結合時に因果的に切れたパッチが約 \(10^4\) 個、合意に必要な情報は <strong>20 KB</strong>。\(p=1\) ならパッチは 1 個なので、<em>必要な情報は 0 ビット</em>です。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">03</span>(A) がインフレーションに要求する e-folds</h2>
+
+<div class="calc">
+<span class="tag">条件</span>
+<p class="lbl">今日の共動ハッブル半径が、インフレーション開始時のそれの内側にあること</p>
+$$e^N\ \ge\ \frac{a_e}{a_0}\cdot\frac{H_{\rm inf}}{H_0}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(V^{1/4}\)</th><th class="mid">\(H_{\rm inf}\) [1/s]</th><th class="mid">\(T_{\rm reh}\) [GeV]</th><th class="mid">\(N_{\min}\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th>\(10^{16}\) GeV（GUT）</th><td class="mid">\(3.6\times10^{37}\)</td><td class="mid">\(4.1\times10^{15}\)</td><td class="mid"><strong>62.1</strong></td></tr>
+<tr><th>\(10^{13}\) GeV</th><td class="mid">\(3.6\times10^{31}\)</td><td class="mid">\(4.1\times10^{12}\)</td><td class="mid">55.2</td></tr>
+<tr><th>\(10^{10}\) GeV</th><td class="mid">\(3.6\times10^{25}\)</td><td class="mid">\(4.1\times10^{9}\)</td><td class="mid">48.3</td></tr>
+<tr><th>\(10^{6}\) GeV</th><td class="mid">\(3.6\times10^{17}\)</td><td class="mid">\(4.1\times10^{5}\)</td><td class="mid">39.1</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>よく言われる「\(N\approx60\)」は GUT スケールでの値です。<strong>ここが手術の勘所です ── \(N\) は自由パラメータではなく、(A) の要求から決まっています。</strong></p>
+
+<h2><span class="n">04</span>そして、同じ \(N\) が \(n_s\) を予言する</h2>
+
+<div class="calc">
+<span class="tag">スローロールの標準結果</span>
+$$n_s\approx1-\frac{2}{N}$$
+<p class="lbl">(A) が決めた \(N=62.1\) を入れると</p>
+$$n_s=0.9678$$
+<p class="lbl">観測（Planck 2018）</p>
+$$n_s=0.9649\pm0.0042\qquad\Longrightarrow\qquad N=57.0\pm6.8$$
+<p class="lbl">ずれ</p>
+$$0.75\sigma$$
+</div>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0"><strong>まったく別の要求から決めた二つの \(N\) が、\(1\sigma\) 以内で一致しました。</strong><br>
+一方は「今日の宇宙が一つの因果パッチに入ること」、もう一方は「CMB のゆらぎの傾き」。<em>この二つが繋がっている理由は、インフレーションを仮定して初めて出てきます。</em></p>
+</div>
+
+<div class="fig">
+<p class="cap">図：横軸は e-folds \(N\)。<strong>青</strong>＝(A) が要求する \(N_{\min}\)（再加熱スケールで動く）、<strong>橙</strong>＝(B) の \(n_s\) から決まる \(N\)。ツマミで再加熱スケールを動かすと、二つが重なる場所が見えます</p>
+<canvas id="cv" width="720" height="380"></canvas>
+<div class="controls">
+  <label>再加熱スケール \(\log_{10}(V^{1/4}/\mathrm{GeV})\)<input id="sl" type="range" min="60" max="165" value="160" step="1"></label>
+  <span class="val" id="vl">10¹⁶ GeV</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#1e3f6e"></i>(A) 地平線が要求する \(N_{\min}\)</span>
+  <span><i class="swatch" style="background:#c06a1e"></i>(B) \(n_s\) が示す \(N=57.0\pm6.8\)</span>
+</div>
+</div>
+
+<h2><span class="n">05</span>第19回の手続きで、一致の驚きを測る</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>測り方</th><th class="mid">中身</th><th class="mid">驚き</th></tr></thead>
+<tbody>
+<tr><th>A：\(n_s\) の相対幅</th><td class="mid">\(\sigma_N/N=0.120\)、事前 \(\ln\) レンジ 4.61</td><td class="mid">5.3 bit</td></tr>
+<tr><th>B：帯に入る確率</th><td class="mid">\(N\in[55,70]\) の確率 0.052</td><td class="mid">4.3 bit</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>およそ 4〜5 ビット。第19回の目盛りでは<em>偶然</em>の帯（4.7〜7.4 ビット）に入りますが、<strong>こちらには説明があります</strong> ── 同じ \(N\) が両方を決めるという構造です。第19回の分類では、説明がある一致は<em>物理</em>に移ります。第18回の 1.96 fm（7.4 ビット、説明なし）とはそこが違います。</p>
+
+<h2><span class="n">06</span>種明かし ── 同じ手術、違う結果</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th class="mid">払う</th><th class="mid">買う</th><th class="mid">差し引き</th></tr></thead>
+<tbody>
+<tr class="hi"><th>インフレーション</th><td class="mid">\(N\)＋\(V\) の形 ≈ 2 個<br>（\(-10.7\) bit）</td><td class="mid">\(n_s\) を 4.3 bit で当てる</td><td class="mid"><strong>\(-6.5\) bit</strong><br><em>（過小評価）</em></td></tr>
+<tr><th>c·t=一定</th><td class="mid">パラメータ \(-1\) 個<br>（\(+5.4\) bit）</td><td class="mid">地平線問題が消える</td><td class="mid">\(-148.3\) bit<br>（第25回）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>インフレーション側の \(-6.5\) は<strong>過小評価です</strong> ── ここでは \(n_s\) ひとつしか計上していませんが、同じ 2 パラメータが \(r\) の上限、断熱性、ガウス性、<em>地平線を越えた TE 反相関</em>、平坦性、モノポール問題まで買っています。いっぽう c·t=一定 の \(-148.3\) は当てはまりの損そのものなので、過小評価ではありません。</p>
+
+<div class="keybox">
+<p class="lbl">06節の結論</p>
+<p style="margin:6px 0 0">同じ手術をしても、<strong>残るものが違いました</strong>。<br>
+インフレーションは (A) を捨てても (B) が残ります。<br>
+c·t=一定 は (A) を<em>無料で</em>解きますが、(B) に対応するものを持ちません。</p>
+</div>
+
+<div class="aside">
+<span class="tag">なぜ (A) を捨てるべきか</span>
+「インフレーションは地平線問題を解く」は、教科書でいちばん最初に出てくる動機づけです。しかしこの手術が示したのは、<strong>それが最も弱い論拠だ</strong>ということです ── \(a\propto t\) でも同じことができ、パラメータは 0 個で済むのですから。<em>インフレーションを支えているのは (A) ではなく (B) のほうです。</em> 同じことは c·t=一定 についても言えました ── 前作の「c と ħ を同時に動かせば同じ」は正しいが、正しいだけで何も買っていない。<strong>手術の目的は、どちらが本当に払っている論拠かを名指しすることです。</strong>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① \(N=60\) は再加熱スケールに強く依存します。</strong> 表のとおり \(V^{1/4}=10^6\) GeV なら \(N_{\min}=39\)、GUT スケールなら 62 ── <em>幅 23</em> です。\(n_s\) との一致は GUT スケールを仮定したときの話で、低スケール模型では 04節の一致は成立しません。</p>
+<p style="margin:0 0 10px"><strong>② \(n_s\approx1-2/N\) は模型依存です。</strong> \(R^2\)（スタロビンスキー）型や α-attractor では成り立ちますが、あらゆるインフレーション模型で成り立つわけではありません。ここは「インフレーションの予言」ではなく「よく使われる一群の模型の予言」です。</p>
+<p style="margin:0 0 10px"><strong>③ 瞬間再加熱を仮定しています。</strong> 再加熱が長引けば \(N_{\min}\) はさらに数〜十ほど動きます。</p>
+<p style="margin:0 0 10px"><strong>④ 06節の帳簿は、単位を揃えるための粗い計算です。</strong> パラメータの値段は第5回の \(N_{\rm data}=1701\) に基づき、インフレーション側の credit は \(n_s\) ひとつだけ。<em>「\(-6.5\) 対 \(-148\)」は桁の比較としてだけ読んでください。</em></p>
+<p style="margin:0 0 10px"><strong>⑤ \(p=1\) で地平線問題が消えることは、この膨張則を支持しません。</strong> 第3回の判定（BBN でのヘリウム量）は変わっていません。02節が言っているのは「(A) は安い」という一点だけです。</p>
+<p style="margin:0"><strong>⑥ この回はインフレーションを否定していません。</strong> むしろ逆で、<em>手術に耐えて (B) が残る</em>ことを確認しています。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>\(a\propto t^p\) の粒子的地平線を求め、\(p=1\) で発散することを示せ。
+<details><summary>答えを見る</summary><div class="ans">\(d_p=a\int_0^t c\,dt'/a=ct^p\int_0^t t'^{-p}dt'=ct^p\cdot t^{1-p}/(1-p)=ct/(1-p)\)。\(p\to1\) で \(\int dt'/t'=[\ln t']_0^t\) となり、下端で<strong>対数発散</strong>します。</div></details></li>
+
+<li>\(n_s=0.9649\) から \(N\) と誤差を出せ。
+<details><summary>答えを見る</summary><div class="ans">\(N=2/(1-n_s)=2/0.0351=57.0\)。誤差は \(dN/dn_s=2/(1-n_s)^2=1623\) に \(0.0042\) を掛けて \(\pm6.8\)。<strong>\(N=57.0\pm6.8\)</strong>。</div></details></li>
+
+<li>GUT スケールの \(N_{\min}=62.1\) との一致は何 \(\sigma\) か。
+<details><summary>答えを見る</summary><div class="ans">\((62.1-57.0)/6.8=0.75\sigma\)。<strong>1σ 以内</strong>です。</div></details></li>
+
+<li>この一致の驚きを、第19回の手続きでビットに直せ。
+<details><summary>答えを見る</summary><div class="ans">事前を \(N\in[10,1000]\) の対数一様とすると \(\ln\) レンジは 4.61。\(N\) が \([55,70]\) に入る確率は \(\ln(70/55)/4.61=0.052\) なので \(-\log_2 0.052=\) <strong>4.3 ビット</strong>。相対幅で測れば 5.3 ビット。<em>説明があるので「偶然」ではなく「物理」に分類されます</em>。</div></details></li>
+
+<li>（やや難）「インフレーションは地平線問題を解く」という説明は、なぜ弱い論拠なのか。
+<details><summary>答えを見る</summary><div class="ans">同じことが \(a\propto t\) では <strong>e-folds 0・パラメータ 0</strong> でできるからです。つまり (A) はインフレーションを他の可能性から区別しません。インフレーションを支えているのは (B)、すなわち \(n_s\)・断熱性・ガウス性・地平線を越えた相関のほうです。<em>手術の目的は、どちらが本当に払っている論拠かを名指しすること</em>でした。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　(A) は安い。残るのは (B)</h2>
+<p>「インフレーションは地平線問題を解く」を、第3回と同じ手術で二つに切りました ── (A) 因果的に繋げること、(B) ゆらぎのスペクトルを出すこと。</p>
+<p>(A) は安いことが分かりました。\(a\propto t^p\) の粒子的地平線は \(ct/(1-p)\) で、\(p=1\) では対数発散して<strong>無限大</strong>になります。つまり c·t=一定 は地平線問題を <em>e-folds 0・パラメータ 0</em> で消します ── 第17回の 20 KB も、パッチが 1 個なら 0 ビットです。<strong>地平線問題は「宇宙の問題」ではなく「減速する宇宙の問題」でした。</strong></p>
+<p>いっぽうインフレーションでは、(A) が \(N\) を決めます ── GUT スケールで \(N_{\min}=62.1\)。そして<em>同じ \(N\)</em> が \(n_s\approx1-2/N=0.968\) を予言し、観測は \(0.9649\pm0.0042\)、逆算すると \(N=57.0\pm6.8\) で <strong>0.75σ の一致</strong>です。第19回の手続きで測ると 4〜5 ビットの驚き ── ただし説明がある一致なので、分類は「偶然」ではなく「物理」です。</p>
+<p>帳簿にすると、インフレーションは \(-6.5\) ビット（\(n_s\) ひとつしか計上していない過小評価）、c·t=一定 は \(-148.3\) ビット。<strong>同じ手術をしても、残るものが違いました</strong> ── インフレーションは (A) を捨てても (B) が残り、c·t=一定 は (A) を無料で解くが (B) に対応するものを持たない。<em>そして「地平線問題を解く」という最も有名な動機づけが、実は最も弱い論拠だった</em>というのが、この手術の収穫です。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第28回</span>
+次の患者は <strong>VSL（光速可変理論）</strong>です。これは c·t=一定 といちばん近い場所にいる理論で、<em>だからこそ手術がよく効きます</em>。「光速が昔は速かった」という言い方の中にも、やはり二つの別物が入っています ── <strong>単位の取り替え</strong>と、<strong>無次元量が動くという主張</strong>。第2回で決めた「\(c,\hbar,e,\alpha\) は \(w=0\)」という規約を思い出してください。<em>VSL がどこで手術に失敗したのか、\(\alpha\) の測定値をビットで数えて突き止めます。</em>
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sl=document.getElementById('sl'), vl=document.getElementById('vl'), ro=document.getElementById('ro');
+  var X0=72, X1=700, Y0=40, Y1=300;
+  var Nmin=25, Nmax=80;
+  var Mpl=2.435e18, hb=6.582119569e-25, GeVK=1.16045e13, T0=2.725, H0=2.184e-18, gs=106.75;
+  function px(n){ return X0+(n-Nmin)/(Nmax-Nmin)*(X1-X0); }
+  function Nreq(lv){
+    var V4=Math.pow(10,lv), V=Math.pow(V4,4);
+    var H=Math.sqrt(V/(3*Mpl*Mpl))/hb;
+    var Tr=Math.pow(30*V/(Math.PI*Math.PI*gs),0.25);
+    var ae=T0/(Tr*GeVK);
+    return Math.log(ae*H/H0);
+  }
+  function draw(){
+    var lv=parseFloat(sl.value)/10;
+    var Nq=Nreq(lv);
+    var Nns=57.0, sN=6.8;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    // 軸
+    g.strokeStyle='#c8d2e0'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+    g.textAlign='center'; g.fillStyle='#8494a8';
+    for(var n=30;n<=80;n+=10){
+      var x=px(n);
+      g.strokeStyle='#eef2f7'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#8494a8'; g.fillText('N='+n, x, Y1+18);
+    }
+    g.fillStyle='#8494a8'; g.fillText('e-folds  N', (X0+X1)/2, Y1+42);
+    // (B) n_s のガウス帯
+    var yB=Y1-70;
+    for(var i=0;i<=240;i++){
+      var n=Nmin+(Nmax-Nmin)*i/240;
+      var z=(n-Nns)/sN;
+      var h=110*Math.exp(-0.5*z*z);
+      g.strokeStyle='rgba(192,106,30,0.30)'; g.lineWidth=2.6;
+      g.beginPath(); g.moveTo(px(n),yB); g.lineTo(px(n),yB-h); g.stroke();
+    }
+    g.strokeStyle='#c06a1e'; g.lineWidth=2.6; g.beginPath();
+    for(var i=0;i<=240;i++){
+      var n=Nmin+(Nmax-Nmin)*i/240;
+      var z=(n-Nns)/sN;
+      var y=yB-110*Math.exp(-0.5*z*z);
+      if(i===0) g.moveTo(px(n),y); else g.lineTo(px(n),y);
+    }
+    g.stroke();
+    g.fillStyle='#a35a19'; g.textAlign='left';
+    g.fillText('(B) n_s = 0.9649±0.0042  →  N = 57.0 ± 6.8', px(58), yB-124);
+    // (A) の要求
+    g.strokeStyle='#1e3f6e'; g.lineWidth=3.2;
+    g.beginPath(); g.moveTo(px(Nq),Y0-6); g.lineTo(px(Nq),Y1); g.stroke();
+    g.fillStyle='#1e3f6e'; g.textAlign='center';
+    g.font='bold 13px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('(A) N_min = '+Nq.toFixed(1), px(Nq), Y0-12);
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    // 一致度
+    var sig=Math.abs(Nq-Nns)/sN;
+    var okc = sig<1 ? '#1a7a4a' : (sig<2 ? '#b07a1e' : '#a03a2a');
+    g.fillStyle=okc; g.textAlign='left';
+    g.font='bold 14px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillText('ずれ '+sig.toFixed(2)+'σ', px(30), Y0+8);
+    g.font='12px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+    g.fillStyle='#8494a8';
+    g.fillText('c·t=一定 は N=0 でここに来る（地平線問題そのものが無い）', px(29), Y1-14);
+    var lab = lv>=15.5?'10¹⁶ GeV（GUT）':(lv>=12.5?'10¹³ GeV':(lv>=9.5?'10¹⁰ GeV':'10'+lv.toFixed(1)+' GeV'));
+    vl.textContent=lab;
+    ro.textContent='V^(1/4) = 10^'+lv.toFixed(1)+' GeV　→　(A) が要求する N_min = '+Nq.toFixed(1)+
+      '　／　(B) の n_s が示す N = 57.0 ± 6.8　→　ずれ '+sig.toFixed(2)+'σ';
+  }
+  sl.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-27-inflation.html', acc='#1e3f6e', ops='#c06a1e',
+      title='インフレーションを、同じ手術にかける ── わかる c·t=一定 第27回',
+      ep='第 27 回 ／ 第 IV 部・同じ手術を、ほかの理論にもかける',
+      eyebrow='いちばん有名な動機づけが、いちばん弱い論拠でした',
+      h1='インフレーションを、<br>同じ手術にかける',
+      sub='「地平線問題を解く」の中にも、二つの別物が同じ名前で入っています。<br><em>切り分けると、残るのは \\(n_s\\) のほうでした。</em>',
+      byline_l='必要な道具：粒子的地平線、e-folds、第19回の手続き',
+      byline_r='\\(N_{\\min}=62.1\\) vs \\(N_{n_s}=57.0\\pm6.8\\)',
+      body=BODY + '\n\n<p class="foot">この文書は「わかる c·t=一定」シリーズ第27回、物理好きの高校生・大学生向け読み物です。粒子的地平線 \\(d_p=ct/(1-p)\\)、e-folds の要求条件 \\(e^N\\ge(a_e/a_0)(H_{\\rm inf}/H_0)\\)、スローロールの \\(n_s\\approx1-2/N\\)、Planck 2018 の \\(n_s=0.9649\\pm0.0042\\) はいずれも標準的です。<strong>本稿での計算は、再加熱スケールごとの \\(N_{\\min}\\)（GUT スケールで 62.1、\\(10^6\\) GeV で 39.1）、\\(n_s\\) からの逆算 \\(N=57.0\\pm6.8\\)、そのずれ 0.75σ、および第19回の手続きによる驚き 4.3〜5.3 ビットです</strong>（kenshou/calc31.py）。<em>\\(N=60\\) は再加熱スケールに強く依存し（幅 23）、\\(n_s\\approx1-2/N\\) は \\(R^2\\) 型・α-attractor など一群の模型での結果であって、あらゆるインフレーション模型の予言ではありません。</em> 瞬間再加熱を仮定しており、再加熱が長引けば \\(N_{\\min}\\) はさらに動きます。06節の帳簿は単位を揃えるための粗い計算で、パラメータの値段は第5回の \\(N_{\\rm data}=1701\\) に基づき、インフレーション側は \\(n_s\\) ひとつしか計上していない過小評価です ── 桁の比較としてのみ読んでください。<strong>\\(p=1\\) で地平線問題が消えることは、その膨張則を支持するものではありません</strong>（第3回の判定は変わっていません）。線形膨張（\\(c\\cdot t=\\)一定）は検証途上の少数派モデルで、学術的な標準はインフレーションを含む \\(\\Lambda\\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>',
+      script=SCRIPT,
+      hint='印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで再加熱スケールを動かすと、二つの N が重なる場所が見えます。「答えを見る」で解答が開きます。')
