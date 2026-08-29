@@ -133,8 +133,11 @@ BODY += card(20,'wakaru-ct-20-lightsheet.html','Actually constraining the light 
   'The previous series closed with the line “what should be constrained is the information on the light sheets — nobody has done that calculation.” Done here. The occupancy \(f=s/(3H/4\ell_P^2)\) <strong>saturates exactly at the Planck era and opens to a margin of 33 orders</strong> — and that saturation is an <em>identity</em>, 0 bits of surprise. As a constraint it excludes almost nothing. Fix the bit count and you get de Sitter, the address space and you get \(a\propto t\), the occupancy and you get stiff \(a\propto t^{1/3}\); the observed universe is none of them.',
   'Right in form, insufficient in effect — it bites only at the Planck era')
 
+BODY += card(21,'wakaru-ct-21-arrows.html','There are four scales for the arrow of time',
+  'Total entropy (+104 orders), memory occupancy (−18), holographic margin (+33), degrees of freedom \(a\) (−1.2). Two up, two down — and <strong>all four are dimensionless</strong>, so the arrow sits entirely in the physics column. Put in the same units, the denominator grows at 0.872 orders per step and the numerator at 0.745: <em>a difference of only 0.127</em>, which over 140 steps gives exactly Episode 6’s occupancy. <strong>The arrow lives in the numerator; the denominator is the stage.</strong>',
+  'Rewriting the books cannot touch the direction of time')
+
 BODY += mini([
- (21,'Entropy production, and a scale for the arrow of time'),
  (22,'The instruction set of the universe-as-computer'),
  (23,'The horizon as error correction'),
  (24,'Channel capacity — how many bits per second cross the horizon'),
