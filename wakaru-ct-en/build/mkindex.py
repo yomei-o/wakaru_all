@@ -1,0 +1,214 @@
+# -*- coding: utf-8 -*-
+"""日本語版 index.html の CSS を再利用して、英語版の目次を組み立てる。"""
+import io, re
+
+ja = io.open('../../wakaru-ct/index.html', encoding='utf-8').read()
+css = re.search(r'<style>(.*?)</style>', ja, re.S).group(1)
+
+def card(n, href, title, desc, key, tag=''):
+    return f'''<a class="ep" href="{href}">
+  <span class="no">EPISODE {n} <span class="badge b-new">LIVE</span> <span style="color:#5f6a7a;font-weight:600">interactive figure</span>{tag}</span>
+  <h3>{title}</h3>
+  <p>{desc}</p>
+  <span class="key">{key}</span>
+</a>
+
+'''
+
+def mini(items):
+    out=['<ol class="mini">']
+    for n,t in items:
+        out.append(f'<li><span class="num">Ep.{n}</span><span class="ttl">{t}</span></li>')
+    out.append('</ol>')
+    return '\n'.join(out)
+
+def part(no, title, desc):
+    return f'''<div class="part">
+  <div class="pn">PART {no}</div>
+  <div class="pt">{title}</div>
+  <div class="pd">{desc}</div>
+</div>
+
+'''
+
+BODY = part('I', 'Building the notation',
+  'Count, then <strong>divide</strong>. Doing only that, the expansion law keeps falling out — and by the end \\(c\\cdot t=\\text{const}\\) is pinned down as a <em>notation</em>, not a model.')
+
+BODY += card(1,'wakaru-ct-01-opsbit.html','The universe has computed 0.035 operations per bit',
+  'Count the memory, count the operations, divide. Time cancels cleanly and only the equation of state is left standing — the number of operations per bit does not depend on the age of the universe, nor on its size. Radiation gives 1/57, matter 1/42.7, \\(c\\cdot t=\\text{const}\\) gives 1/28.5. Reaching "1" would need \\(w=-0.977\\), and the dark energy we observe already sits on the far side of that.',
+  '\\(\\Omega/N=\\dfrac{\\ln 2}{3\\pi^{2}(1+w)}\\) — the <strong>8th characterisation</strong> of \\(a\\propto t\\)')
+
+BODY += card(2,'wakaru-ct-02-clocks.html','Two clocks that do not mesh',
+  'The universe carries two logarithmic rulers: time, \\(\\ln(t_0/t_P)=140.24\\) steps, and the renormalisation group, \\(\\ln(T_P/T_0)=73.03\\) steps. <strong>Divide them and the expansion law appears</strong> (\\(\\bar p=0.513\\), just above radiation). \\(c\\cdot t=\\text{const}\\) demands \\(140.24=73.03\\) — a verdict reached with no dynamics at all, using only today\'s temperature and today\'s age. Neutrons freeze out at 0.8 MeV after 4.05 years; a free neutron lives 880 seconds.',
+  '\\(d\\ln T/d\\ln t=-p\\) — the <strong>9th characterisation</strong> (the two clocks tick 1:1)')
+
+BODY += card(3,'wakaru-ct-03-whichclock.html','\\(c\\cdot t=\\)const can be realised in any universe',
+  '"A rewriting moves no dimensionless quantity. So how can it fail?" — we push that objection all the way. Push it hard enough and \\(c\\cdot t\\) can be held <strong>exactly constant</strong> in a radiation universe or a matter universe alike (take the time coordinate \\(T=e^{\\eta/\\eta_0}\\); verified numerically to 1.000000). All that differs is what \\(T\\) <em>is</em> — for radiation, \\(T\\propto e^{\\sqrt t}\\), nobody\'s clock. Exactly one claim survives: <strong>that this clock is the age of the universe</strong>.',
+  '\\(T=e^{\\eta/\\eta_0}\\) — the <strong>10th characterisation</strong> (three clocks coincide)',
+  ' <span class="badge b-q">from a reader\'s question</span>')
+
+BODY += card(4,'wakaru-ct-04-onemass.html','Everything collapses into a single mass',
+  'Why use a rewriting that says nothing? <strong>Because the equations get shorter.</strong> Erase everything a conformal transformation can erase and the expansion of space, the curvature, the temperature and the light all vanish in turn — <em>leaving exactly one thing that varies in time</em>. Cosmic history collapses to "a growing mass overtaking a fixed \\(k_BT_0\\)" (recombination at \\(1+z=1100.9\\), neutron freeze-out at 0.800 MeV — exactly the standard numbers). Distances and ages become closed forms, with no integrals.',
+  '\\(H_0d_L/c=(1+z)\\ln(1+z)\\) — a prediction with <strong>zero</strong> dimensionless parameters')
+
+BODY += card(5,'wakaru-ct-05-price.html','What can shortness buy?',
+  'Zero description length (Ep.4) against a 0.21 mag mismatch at \\(z\\simeq1.1\\). We convert both into one currency: <strong>bits</strong>. A parameter costs 1.443 bits under AIC (independent of sample size) and \\(\\tfrac12\\log_2N\\) — 5.37 bits for 1701 supernovae — under BIC. The fit loss is \\(\\Delta\\chi^2/(2\\ln2)=\\) <strong>154 bits</strong>, so the ledger closes 149 bits in the red. And yet <em>with fewer than 26 supernovae, \\(c\\cdot t=\\text{const}\\) is the better model</em>: shortness pays \\(\\log N\\), misfit costs \\(N\\). Occam\'s razor has an expiry date.',
+  'One parameter \\(=\\tfrac12\\log_2 N\\) bits')
+
+BODY += card(6,'wakaru-ct-06-empty.html','Only \\(10^{-18}\\) of the memory is in use',
+  'The occupancy turns out to be <strong>a ratio of areas</strong> — glue together the horizons of every black hole in the universe and you get <em>a sphere 17 light-years in radius</em>. And <strong>99.999999999999986%</strong> of today\'s entropy sits on the gravitational (Weyl) side. The history comes in three steps: at the Planck era the occupancy was \\(\\approx1\\) (full), today the thermal side alone is \\(7\\times10^{-34}\\) (it emptied out), and with black holes \\(1.5\\times10^{-18}\\) (gravity refilled 15.4 orders). <strong>A conformal transformation can only move the side that is not in use</strong> — how broken the tool is, is the arrow of time.',
+  'occupancy \\(=\\sum A_{\\rm BH}/A_H\\)')
+
+BODY += part('II', 'Feeding it to every equation in reach',
+  'The notation is built, so we carry it out of cosmology. Quantum mechanics, gravity, heat, light, fluids, critical phenomena, biology — one at a time, <strong>what happens when you put it in</strong>. The answer, every time: only one thing moves.')
+
+BODY += card(7,'wakaru-ct-07-gravity.html','Feeding it to gravity',
+  'Here \\(\\tilde G=G/a^2\\) is <strong>forced</strong>, giving \\(\\dot G/G=-2H_0=-1.45\\times10^{-10}\\)/yr — <strong>1450 times</strong> the lunar-laser-ranging bound. And still nobody can notice (because \\(\\alpha_G\\) does not move). Then the punchline: the two large numbers Dirac used in 1937 to predict \\(G\\propto1/t\\), \\(N_1=2.27\\times10^{39}\\) and \\(N_2=4.63\\times10^{40}\\), turn out to be <em>both invariant when you actually vary \\(G\\)</em> — <strong>you cannot move \\(G\\) alone</strong>, so Dirac\'s prescription spins in place.',
+  'Only black-hole entropy and the strain \\(h\\) stay put — the tool cannot reach the memory that is in use')
+
+BODY += card(8,'wakaru-ct-08-quantum.html','Feeding it to quantum mechanics',
+  'Both sides of the Schrödinger equation carry weight \\(-5/2\\), so <strong>not a single character changes</strong> — only \\(m(t)=m_0t/t_0\\). Then free-particle velocity decays as \\(1/t\\) and a wave packet spreads as <strong>\\(\\Delta x\\propto\\ln t\\)</strong>. Integrate and the comoving reach of anything with mass saturates at \\(v_1t_1\\) (1.9 parsecs for a hydrogen atom at recombination); only light runs on forever as \\(c\\,t_1\\ln(t/t_1)\\). Tunnelling probability is dimensionless and therefore exactly invariant — the Sun burns at the same rate.',
+  '<strong>Matter stops walking; light keeps walking</strong>')
+
+BODY += card(9,'wakaru-ct-09-atom.html','Feeding it to the atom',
+  'Atoms shrink as \\(1/t\\) here — and in 1918 <strong>Einstein killed Weyl\'s unified theory with exactly this argument</strong>. Two reasons the same blade misses: (i) \\(\\Omega\\) is single-valued, so there is no path dependence to begin with; (ii) the adiabatic parameter is \\(\\hbar H/\\Delta E=1.1\\times10^{-34}\\). Even the softest transition (21 cm) would only break adiabaticity before \\(10^{-10}\\) s, so <em>throughout the entire era in which atoms exist, the evolution is perfectly adiabatic</em>. The induced line blurring is \\(9\\times10^{-20}\\) of the natural width — 19 orders down.',
+  'The Bohr radius shrinks at \\(7.2\\times10^{-11}\\)/yr, yet every possible yardstick has weight \\(+1\\)')
+
+BODY += card(10,'wakaru-ct-10-erase.html','Feeding it to heat and information',
+  'Temperature does not move here (\\(\\tilde T=aT=\\)const), so <strong>the cost of erasing one bit is fixed for all of cosmic history</strong> (\\(1.63\\times10^{-4}\\) eV). But energy is dimensionful — the price is undefined until you name both a comparison and <em>which bath you dump into</em>. Counting how many bits the universe\'s whole energy could erase, the answer swings 60 orders with temperature, and at the CMB temperature <strong>you can only erase \\(10^{-30}\\) of what you can write</strong>. And "exactly at the Landauer limit" turns out to be <em>reading off an identity</em>, \\(E=T_HS\\).',
+  'writable \\(10^{122}\\), erasable \\(10^{92}\\) — the universe is very nearly write-once')
+
+BODY += card(11,'wakaru-ct-11-light.html','Feeding it to light',
+  'Number density, energy density, temperature, photon energy, wavelength — <strong>every one of them constant</strong>. The exponent of \\(a\\) in the standard picture and the weight of the quantity are the same number, so they cancel exactly. <em>The photon gas in this picture is completely at rest.</em> Observation still does not budge: the CMB is fixed by just two dimensionless numbers, \\(s/n=3.60\\,k_B\\) and \\(\\eta=6.1\\times10^{-10}\\). So redshift flips over entirely — not "the light stretched" but "<strong>the receiver grew</strong>".',
+  '\\(\\Omega^{D-4}\\) — living in four dimensions is why this picture works at all')
+
+BODY += card(12,'wakaru-ct-12-vacuum.html','Feeding it to the vacuum',
+  'Energy density has weight \\(-4\\), so \\(\\tilde\\rho=a^4\\rho\\). Applied to the three components, <strong>the ordering inverts completely</strong>: radiation becomes <em>constant</em>, matter goes as \\(\\propto t\\), and the cosmological constant grows fastest of all at \\(\\propto t^4\\). <strong>The very name "cosmological constant" depended on which picture you chose.</strong> And yet \\(\\rho_\\Lambda/M_{\\rm Pl}^4=1.13\\times10^{-123}\\) and \\(\\rho_\\Lambda/\\rho_m\\propto a^3\\) are both invariant — neither the cosmological constant problem nor the "why now?" problem moves by a millimetre.',
+  '<em>Good puzzles are written in dimensionless form</em>')
+
+BODY += card(13,'wakaru-ct-13-fluid.html','Feeding it to fluids and turbulence',
+  'Reynolds, Mach, Prandtl, Froude, Weber, Strouhal — <strong>every one of them has weight 0</strong>. So similarity laws and wind-tunnel tests carry over untouched. The interesting part is the breakdown: the four pieces of \\(\\mathrm{Re}=\\rho vL/\\eta\\) move as \\(a^4,a^0,a^{-1},a^3\\) — <em>wildly and separately</em> — yet the exponents sum to \\(4-1-3=0\\). Kolmogorov\'s \\(-5/3\\), the critical exponents and the fractal dimensions are all invariant too: <strong>a conformal transformation touches "size" only, and cannot reach "shape"</strong>.',
+  'The Navier–Stokes equations survive this picture completely intact')
+
+BODY += card(14,'wakaru-ct-14-critical.html','Feeding it to phase transitions',
+  'The weight table this series has used for thirteen episodes was a <strong>classical approximation</strong> — in field theory \\(\\Delta=\\Delta_{\\rm cl}+\\gamma\\). For the 3D Ising spin operator the free-field value 0.5 becomes <strong>0.5181489(10)</strong>, a discrepancy of \\(\\gamma_\\sigma=0.0181489\\) (3.6%). In two dimensions it is 12.5%, and <em>in four dimensions it vanishes exactly</em>. Through \\(\\eta=2\\gamma_\\sigma\\), <strong>that discrepancy is measurable in water and in magnets</strong>. What broke was not "dimensionless is invariant" but the assumption that <em>weights follow from dimensional analysis</em>.',
+  'The ledger entries acquire error bars — weights were something to be measured')
+
+BODY += card(15,'wakaru-ct-15-life.html','Feeding it to chemistry and biology',
+  'Arrhenius factors, equilibrium constants and pH all have dimensionless exponents, so they come through <strong>entirely unscathed</strong>. Take Kleiber\'s law apart and the exponent 3/4 is invariant while <em>only the coefficient moves, as \\(\\times a^{5/4}\\)</em> (dimensionful, hence bookkeeping). Heart rate \\(\\propto M^{-1/4}\\) times lifespan \\(\\propto M^{1/4}\\) gives <strong>about 1.5 billion beats per lifetime</strong>, independent of body mass and therefore invariant. Everything life can measure is dimensionless — so <strong>living things cannot tell which picture they are in</strong>.',
+  'Ep.9\'s "the atom has nothing to compare against", pushed up to the scale of biology')
+
+BODY += card(16,'wakaru-ct-16-partII.html','Only one thing ever moves (Part II summary)',
+  'Nine fields, one notation, and a count of what moves. The answer had the same shape every time: <strong>everything that moved was dimensionful, everything that stayed was dimensionless</strong> — without a single exception. The map of weights is complete (from \\(+3\\) down to \\(-4\\)), and the range of the tool becomes clear: <em>powerful where size is the protagonist, entirely powerless where shape is</em>. With the caveat from Ep.14 that the weight table itself carries error bars.',
+  'Not "safe because dimensionless" but <strong>"safe because observable"</strong>')
+
+BODY += part('III', 'Measuring it as information',
+  'Writing the universe as a computer with finite resources, and counting it all the way down: memory, communication, error correction, the cost of erasure. This part walks through the door the previous series left open when it concluded "we were constraining the wrong thing".')
+
+BODY += card(17,'wakaru-ct-17-consensus.html','9600 nodes that never communicated agree to 17 bits',
+  'The horizon problem, restated in the language of distributed systems. \\(\\Delta T/T\\sim10^{-5}\\) is <strong>16.6 bits of agreement</strong>, the causally disconnected regions number <strong>9600</strong>, and the product is <strong>about 20 kilobytes</strong> — a phone would send it instantly. <em>The problem was never the quantity; it was that there was no channel.</em> With \\(a\\propto t\\) the particle horizon diverges, so there is one patch and zero bits to agree on — until you put radiation back in, at which point it breaks at \\(z>103\\) and \\(1.2\\times10^4\\) nodes return. Inflation solves it not by consensus but by <strong>replication</strong>.',
+  'Coincidence would need \\(10^{-48000}\\) — the option is gone')
+
+BODY += mini([
+ (18,'<b>Not enough address lines</b> — holography as "only \\(10^{-61}\\) of the cells can be addressed"'),
+ (19,'What "exactly at the Landauer limit" means — an identity is not physics'),
+ (20,'Actually constraining the light sheets'),
+ (21,'Entropy production, and a scale for the arrow of time'),
+ (22,'The instruction set of the universe-as-computer'),
+ (23,'The horizon as error correction'),
+ (24,'Channel capacity — how many bits per second cross the horizon'),
+ (25,'Are physical laws a compression algorithm?'),
+ (26,'Summary: which resource was being optimised'),
+])
+
+BODY += part('IV', 'Putting other theories on the same table',
+  'The operation from Ep.3 — <em>naming the comparison hidden inside a name</em> — applied to other models. In every case an "equivalent rewriting" and an "observable claim" are travelling under one label.')
+BODY += mini([
+ (27,'Inflation, on the same operating table'),
+ (28,'Variable speed of light (VSL) — where the operation went wrong'),
+ (29,'MOND — the comparison hidden inside an acceleration'),
+ (30,'Measuring varying constants for real (atomic clocks, Oklo, quasar absorption)'),
+ (31,'Penrose\'s conformal cyclic cosmology'),
+ (32,'Wetterich\'s cosmon — implementing a universe that does not expand'),
+ (33,'Milne versus \\(R_h=ct\\) — coordinate change, or conformal transformation?'),
+ (34,'Conformal gravity (Mannheim) — can conformal symmetry be more than bolted on?'),
+ (35,'Asymptotic safety and a running \\(G\\)'),
+ (36,'Summary: the whole table, side by side'),
+])
+
+BODY += part('V', 'Going looking for where it breaks',
+  'Hunting deliberately for the places the notation stops working: quantum anomalies, ghosts, rotating spacetimes, gravitational entropy — everything a conformal transformation cannot erase.')
+BODY += mini([
+ (37,'It breaks in the quantum theory — measuring the trace anomaly in bits'),
+ (38,'The conformal factor problem — the ledger is the first thing to break'),
+ (39,'Phase shows up only in a rotating spacetime'),
+ (40,'How do you count gravitational entropy?'),
+ (41,'The Weyl curvature hypothesis, measured as occupancy'),
+ (42,'What happens to the notation inside a black hole'),
+ (43,'The Planck scale — the edge of the band'),
+ (44,'What changes if you make it discrete'),
+ (45,'Summary: the list of things that could not be erased'),
+])
+
+BODY += part('VI', 'What the notation was',
+  'Fifty episodes of ledger and physics, folded into a single sheet.')
+BODY += mini([
+ (46,'Every characterisation of \\(a\\propto t\\)'),
+ (47,'A map of the dimensionless — what is physics and what is bookkeeping'),
+ (48,'Shortness, fit, beauty — three currencies'),
+ (49,'The doors still open'),
+ (50,'Finale: only one thing was ever moving'),
+])
+
+HEAD = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>c·t = const, That Clicks ── Series Contents</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\\\(','\\\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+''' + css + '''</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">A SEQUEL TO "CONFORMAL TRANSFORMATIONS THAT CLICK"</p>
+<h1>c·t = const, That Clicks
+<span class="sub">On its own, \\(c\\cdot t=\\text{const}\\) says nothing at all — it can be realised in any universe.<br>
+<em>Which is exactly why it can be substituted into every equation there is</em>: it is a notation for writing cosmology as short as it will go.<br>
+This series measures that shortness, all the way, in the language of information theory.</span></h1>
+
+<p class="meta"><span>50 episodes planned / 6 parts</span><span>Each episode: count → divide → interactive figure → the reveal → exercises</span><span>Episodes 1–17 live</span><span>Print / PDF ready</span></p>
+
+<p class="lead">The backbone of the previous series was "dimensionful is bookkeeping, dimensionless is physics". But the quantities of information theory — bits, operation counts, parameter counts, entropy — are <strong>dimensionless from the outset</strong>. They carry no units. So a cosmology written in that language can only ever live in the "physics" column. We start again from where bonus episode ② of the previous series asked "is the universe a computer with finite resources?" and answered "the motivation was apt, the implementation missed" — this time not as a verdict, but as <strong>compression</strong>.</p>
+
+<div class="keybox">
+<p class="lbl">The method</p>
+<p style="margin:6px 0 0">Count, then <strong>divide</strong>. Memory \\(N=\\dfrac{\\pi}{\\ln2}\\left(\\dfrac{R_H}{\\ell_P}\\right)^2\\), clock \\(\\ln\\dfrac{t_0}{t_P}=140\\), operations \\(\\Omega=\\displaystyle\\int\\frac{2E}{\\pi\\hbar}dt\\), parameter counts — all dimensionless. Divide any two and <em>the expansion law itself</em> comes out.</p>
+</div>
+
+<h2>EPISODES</h2>
+
+''' + BODY + '''
+
+<div class="aside">
+<span class="tag">You do not need the earlier series</span>
+Every formula is given where it is needed. That said, reading <strong>"Conformal Transformations That Click", Ep.3 and bonus episodes ②③</strong> (what "light slowing down" really is / is the universe a computer with finite resources / one cell per tick) makes it much clearer where this series starts from.<br>
+The position here is consistent throughout: <em>\\(c\\cdot t=\\text{const}\\) is a rewriting, not new physics</em> (proved in Ep.3). That is precisely why it can be substituted into any equation safely. <strong>What is under discussion is "shortness", never "correctness".</strong> The verdict of the previous series stands unchanged: extrapolated to the early universe at face value, it contradicts nucleosynthesis.
+</div>
+
+<p class="foot">"c·t = const, That Clicks" / a sequel to "Conformal Transformations That Click" (itself a sequel to "Cosmology That Clicks"). Every episode carries both an accessible narrative and the reveal of what it means physically. The quantities of information theory (bit counts, operation counts, parameter counts, entropy) are dimensionless and are therefore unmoved by a conformal transformation — they belong, from the start, to the "physics" column of the previous series' decision procedure. Note that the "operation count" used here is the energetic upper bound from the Margolus–Levitin limit and does not refer to meaningful computation. Linear expansion (\\(c\\cdot t=\\)const, \\(R_h=ct\\)) is a minority model still under test; Melia and collaborators argue it is favoured by low-redshift data, while extrapolating it into the early universe contradicts big-bang nucleosynthesis (Lewis, Barnes &amp; Kaushik 2016, MNRAS 460, 291). This series treats \\(c\\cdot t=\\text{const}\\) purely from the standpoint of <strong>notational brevity</strong> and does not argue for its correctness. The academic standard remains the \\(\\Lambda\\)CDM model including inflation. ── Each page can be saved as PDF via the browser's Print dialogue. Keep this contents page and the episode files in the same folder (the links are relative). Japanese original: <a href="../wakaru-ct/index.html" style="color:inherit;text-decoration:underline">わかる c·t=一定</a>.</p>
+
+</article>
+</body>
+</html>
+'''
+
+io.open('../index.html','w',encoding='utf-8').write(HEAD)
+import re as _re
+o=len(_re.findall(r'<div\b',HEAD)); c=HEAD.count('</div>')
+print(f'EN index: {len(HEAD)} chars  div {o}/{c} {"OK" if o==c else "*** NG ***"}  a.ep={HEAD.count(chr(60)+"a class=")}')
