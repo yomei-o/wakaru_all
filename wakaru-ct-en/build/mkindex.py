@@ -256,8 +256,11 @@ BODY += card(47,'wakaru-ct-47-map.html','The map of dimensionless quantities',
   'In 2019 the SI fixed the exact values of seven constants and redefined the units from them; the kilogram prototype was retired and mass is now built from h. That is an official international declaration that dimensionful quantities are bookkeeping — the same line this series drew by hand in Episode 3. But alpha could not be fixed: being dimensionless, it is not determined by any definition of units. The map of dimensionless quantities spans 815 bits, physics has 32 parameters of which exactly one is dimensionful, and 171.7 bits of them are unexplained.',
   'c can be decreed; alpha cannot')
 
+BODY += card(48,'wakaru-ct-48-beauty.html','Brevity, fit and beauty',
+  'Take "beauty" apart into six components and four reduce to the existing two currencies: symmetry, unification and rigidity to brevity, depth to fit (the CKM matrix’s 9 becoming 4 is worth 26.8 bits). What remained was naturalness — and it turned out to be not a third currency but a choice of prior: rho_Lambda over rho_Planck is 408.4 bits surprising under a linear prior and 8.2 under a log-uniform one. The strong CP problem is different, because theta is an angle. And one component, sensory pleasure, this series simply could not measure.',
+  '"Unnatural" was a declaration about the prior')
+
 BODY += mini([
- (48,'Shortness, fit, beauty — three currencies'),
  (49,'The doors still open'),
  (50,'Finale: only one thing was ever moving'),
 ])
