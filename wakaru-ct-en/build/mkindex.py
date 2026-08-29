@@ -121,8 +121,11 @@ BODY += card(17,'wakaru-ct-17-consensus.html','9600 nodes that never communicate
   'The horizon problem, restated in the language of distributed systems. \\(\\Delta T/T\\sim10^{-5}\\) is <strong>16.6 bits of agreement</strong>, the causally disconnected regions number <strong>9600</strong>, and the product is <strong>about 20 kilobytes</strong> — a phone would send it instantly. <em>The problem was never the quantity; it was that there was no channel.</em> With \\(a\\propto t\\) the particle horizon diverges, so there is one patch and zero bits to agree on — until you put radiation back in, at which point it breaks at \\(z>103\\) and \\(1.2\\times10^4\\) nodes return. Inflation solves it not by consensus but by <strong>replication</strong>.',
   'Coincidence would need \\(10^{-48000}\\) — the option is gone')
 
+BODY += card(18,'wakaru-ct-18-address.html','There are not enough address lines',
+  'Holography read as addressing. The universe has \(5.27\times10^{182}\) spatial cells and can write \(2.96\times10^{122}\) bits, so <strong>only \(10^{-61}\) of the cells can be addressed</strong> — and since the ratio goes as \(1/R_H\), the gap widens as the universe grows. Inverted, one bit is responsible for a cube of side <strong>1.96 fm — the size of a proton</strong>, the cube-root intermediate scale \((R_H\ell_P^2)^{1/3}\), an unexplained coincidence. Holography is <em>not compression</em>: volume cells were never given addresses at all.',
+  'Addresses grow only with area — and the address table will not fit in memory')
+
 BODY += mini([
- (18,'<b>Not enough address lines</b> — holography as "only \\(10^{-61}\\) of the cells can be addressed"'),
  (19,'What "exactly at the Landauer limit" means — an identity is not physics'),
  (20,'Actually constraining the light sheets'),
  (21,'Entropy production, and a scale for the arrow of time'),
