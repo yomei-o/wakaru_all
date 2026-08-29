@@ -1,0 +1,278 @@
+# -*- coding: utf-8 -*-
+from mkpage import build
+
+BODY = r'''<p class="lead">前回いちばん強く使ったのは「無次元は不変」でした。今回は、<strong>それが少しだけ怪しくなる場所</strong>へ行きます ── 相転移です。臨界点では、無次元の指数が<em>古典的な予想からずれます</em>（異常次元）。そしてこのずれは、<strong>このシリーズが 13 回にわたって使ってきたウェイト表そのものの誤差</strong>でもある。おまけに、その誤差は 3 次元イジング模型で <em>7 桁の精度で測られています</em>。<strong>帳簿の数字に、誤差棒が付きます。</strong></p>
+
+<h2><span class="n">01</span>ウェイト表は、古典近似だった</h2>
+
+<p>第1回からずっと、こういう表を使ってきました ── 長さ \(+1\)、質量 \(-1\)、速度 \(0\)。作り方は単純で、<strong>次元解析</strong>です。量の次元を \(L^{n_L}T^{n_T}M^{n_M}\) に分解して足すだけ（第13回でやりました）。</p>
+
+<p>ところが場の理論では、演算子のスケーリング次元がこれだけでは決まりません。</p>
+
+<div class="calc">
+<span class="tag">ほんとうのウェイト</span>
+$$\Delta=\underbrace{\Delta_{\text{古典}}}_{\text{次元解析}}+\underbrace{\gamma}_{\text{異常次元}}$$
+<p class="lbl">前シリーズ番外編⑥で見た通り、\(\Delta\) は Weyl ウェイトそのもの</p>
+$$\mathcal{O}\ \longrightarrow\ \Omega^{-\Delta}\mathcal{O}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の結論</p>
+<p style="margin:6px 0 0"><strong>\(\gamma\ne0\) とは、「古典的に数えたウェイトが間違っている」ということ。</strong><br>
+このシリーズが使ってきた表は、<em>その誤差を無視した近似</em>でした。</p>
+</div>
+
+<h2><span class="n">02</span>誤差の大きさを、実際に見る</h2>
+
+<p>いちばん精密に測られているのが、3 次元イジング模型のスピン演算子です。自由場なら \(\Delta=(d-2)/2\) ちょうどのはず ── 実際は違います。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">次元 \(d\)</th><th class="mid">自由場 \((d-2)/2\)</th><th class="mid">実際の \(\Delta_\sigma\)</th><th class="mid">異常次元 \(\gamma_\sigma\)</th><th class="mid">ずれの割合</th></tr></thead>
+<tbody>
+<tr><th class="mid">2</th><td class="mid">0</td><td class="mid">0.125（厳密解）</td><td class="mid">0.125</td><td class="mid">──</td></tr>
+<tr class="hi"><th class="mid">3</th><td class="mid">0.5</td><td class="mid"><strong>0.5181489(10)</strong></td><td class="mid"><strong>0.0181489</strong></td><td class="mid">3.6%</td></tr>
+<tr><th class="mid">4</th><td class="mid">1.0</td><td class="mid">1.0</td><td class="mid"><strong>0</strong></td><td class="mid">0%</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の結論</p>
+<p style="margin:6px 0 0"><strong>4 次元では、古典のウェイト表が厳密に正しい（\(\gamma=0\)）。</strong><br>
+次元を下げるほど、ずれが大きくなる ── 3 次元で 3.6%、2 次元で 12.5%。</p>
+</div>
+
+<p>4 次元は<em>上部臨界次元</em>と呼ばれ、そこから上では平均場理論が厳密になります。私たちの時空が 4 次元であることが、ここでも効いている ── 第11回でマクスウェル作用が 4 次元でだけ共形不変になったのと、同じ場所です。</p>
+
+<div class="fig">
+<p class="cap">図：横軸は空間次元、縦軸は異常次元 \(\gamma_\sigma\)＝<strong>ウェイト表の誤差</strong>。丸が既知の値（2 次元は厳密解、3 次元はブートストラップ、4 次元はゼロ）、点線が \(\varepsilon\) 展開の先頭項。<em>4 次元で誤差がぴたりと消えます</em></p>
+<canvas id="cv" width="720" height="360"></canvas>
+<div class="controls">
+  <label>空間次元 \(d\)<input id="sd" type="range" min="2000" max="4000" value="3000" step="1"></label>
+  <span class="val" id="vd">d = 3.000</span>
+</div>
+<div class="readout" id="ro"></div>
+<div class="legend">
+  <span><i class="swatch" style="background:#5c1f3f"></i>異常次元 \(\gamma_\sigma\)（既知の値）</span>
+  <span><i class="swatch" style="background:#1f6b4a"></i>\(\varepsilon\) 展開の先頭項</span>
+  <span><i class="swatch" style="background:#9a8a92"></i>古典のウェイト表が正しい線（\(\gamma=0\)）</span>
+</div>
+</div>
+
+<p>点線（\(\varepsilon\) 展開の先頭項 \(\gamma=\varepsilon^2/108\)）は、3 次元で実際の値の<strong>半分</strong>しか出しません。<em>誤差の大きさを摂動で当てるのは難しい</em> ── だからこそ、次の節の 7 桁が効きます。</p>
+
+<div class="divider">◇　◇　◇</div>
+
+<h2><span class="n">03</span>誤差が、7 桁で測られている</h2>
+
+<p>共形ブートストラップは、次元付きの入力を一つも使わずに \(\Delta\) を決めます（前シリーズ番外編⑥）。3 次元イジングの結果は、たった二つの数です。</p>
+
+<div class="calc">
+<span class="tag">入力ゼロで出てくる二つの数</span>
+$$\Delta_\sigma=0.5181489(10),\qquad \Delta_\varepsilon=1.412625(10)$$
+</div>
+
+<p>この二つから、統計物理の臨界指数が全部出ます。実際に計算して、実験・モンテカルロと並べます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>指数</th><th class="mid">二つの \(\Delta\) から</th><th class="mid">実験・MC</th><th class="mid">何を測る量か</th></tr></thead>
+<tbody>
+<tr><th>\(\eta\)</th><td class="mid">0.036298</td><td class="mid">0.0363(2)</td><td class="mid">相関の減り方</td></tr>
+<tr><th>\(\nu\)</th><td class="mid">0.629971</td><td class="mid">0.6300(17)</td><td class="mid">相関距離の発散</td></tr>
+<tr><th>\(\alpha\)</th><td class="mid">0.110087</td><td class="mid">0.110(5)</td><td class="mid">比熱の発散</td></tr>
+<tr><th>\(\beta\)</th><td class="mid">0.326419</td><td class="mid">0.3265(15)</td><td class="mid">共存曲線の形</td></tr>
+<tr><th>\(\gamma\)</th><td class="mid">1.237075</td><td class="mid">1.2372(5)</td><td class="mid">感受率の発散</td></tr>
+<tr><th>\(\delta\)</th><td class="mid">4.789841</td><td class="mid">4.789(2)</td><td class="mid">臨界等温線</td></tr>
+<tr class="hi"><th>\(\alpha+2\beta+\gamma\)</th><td class="mid"><strong>2.0000000000</strong></td><td class="mid">──</td><td class="mid">恒等式（\(\Delta\) に依らない）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>そして \(\eta=2\gamma_\sigma\) なので ── <strong>ウェイト表の誤差 \(\gamma_\sigma=0.0181489\) は、水や磁石で実際に測れる量</strong>です。水も、二酸化炭素も、一軸磁石も、臨界点で同じこの数に従います。</p>
+
+<div class="keybox">
+<p class="lbl">今回いちばん言いたいこと</p>
+<p style="margin:6px 0 0">このシリーズの<strong>帳簿の数字に、誤差棒が付いています</strong>。<br>
+\(\gamma_\sigma=0.0181489(10)\) ── <em>ウェイトがどれだけ間違っているかが、7 桁で測られている。</em></p>
+</div>
+
+<h2><span class="n">04</span>それでも、無次元量は不変のまま</h2>
+
+<p>ここで混乱しやすいので、はっきり分けておきます。</p>
+
+<div class="seven">
+<div class="row"><div class="mk">✗</div><div class="txt"><strong>動くもの：古典的に予想したウェイト</strong><span>次元解析だけで \(\Delta=(d-2)/2\) と思っていた値が、実際は \(0.5181489\) だった ── <em>予想が外れている</em></span></div></div>
+<div class="row hi"><div class="mk">✓</div><div class="txt"><strong>動かないもの：測られる無次元量</strong><span>臨界指数も \(\Delta\) 自体も観測量（無次元）なので、共形変換では一切動かない</span></div></div>
+</div>
+
+<p>つまり<strong>第13回の「無次元は不変」は、そのまま正しい</strong>。今回崩れたのは別のことです ── <em>「ウェイトは次元解析で決まる」という前提</em>のほう。ウェイトは決まった数ではなく、<strong>理論が決める量</strong>で、測定の対象でした。</p>
+
+<div class="aside">
+<span class="tag">前シリーズ第8回と、同じ一つのこと</span>
+異常次元は、トレースアノマリーの<em>演算子ごとの姿</em>です。前シリーズ第8回では「結合が走る＝共形対称性が量子で破れている」と \(\beta\) 関数で測りました。番外編⑥では「\(\Delta=\Delta_{\text{古典}}+\gamma\)」と演算子ごとに測った。<strong>どちらも、量子化が持ち込む「細かさの基準 \(\mu\)」の帰結</strong>です ── そして \(1/137\to1/128\) も \(\gamma_\sigma=0.0181489\) も、同じ破れを違う実験で測った数字。
+</div>
+
+<h2><span class="n">05</span>では、宇宙論のウェイトはどうなのか</h2>
+
+<p>気になるのはここです。第4回で「質量だけが \(\propto t\) で育つ」と書いたとき、質量のウェイトを \(-1\) と取りました。<strong>その \(-1\) にも異常次元が付くのでしょうか。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>ウェイトの相手</th><th class="mid">古典</th><th class="mid">量子補正</th></tr></thead>
+<tbody>
+<tr><th>時空の長さ・時間（計量そのもの）</th><td class="mid">\(+1\)</td><td class="mid">なし（幾何の定義）</td></tr>
+<tr><th>ゲージ場・光子</th><td class="mid">\(0\)</td><td class="mid">\(\beta\) 関数ぶんの破れ（第11回）</td></tr>
+<tr class="hi"><th>場の演算子（\(\bar\psi\psi\) など）</th><td class="mid">古典次元</td><td class="mid"><strong>異常次元が付く</strong></td></tr>
+<tr><th>測定される無次元比</th><td class="mid">\(0\)</td><td class="mid">なし（観測量だから）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>幾何の側（長さ・時間）は定義なので動きません。動くのは<strong>場の演算子</strong>のほう ── クォーク質量演算子には異常次元があり、走ります。だから「質量が \(\propto t\) で育つ」という言い方は、<em>厳密には「どのスケールで測った質量か」を言わないと決まらない</em>。</p>
+
+<p>ただし ── 前シリーズ第3回で確かめた通り、<strong>観測にかかる無次元比（\(1+z\)、再結合の 52.6、\(Q/k_BT\)）は、どの絵でもどのスケールでも同じ</strong>です。だから第4回〜第13回の結論は、どれも無傷です。</p>
+
+<div class="caveat">
+<span class="tag">正直な線 ── この回が置いている前提</span>
+<p style="margin:0 0 10px"><strong>① 臨界現象の「次元 \(d\)」は統計力学の空間次元で、時空の次元とは別物です。</strong> 上部臨界次元 4 とマクスウェル作用の \(D=4\) が同じ「4」なのは、どちらも次元解析の釣り合いから来ていますが、<em>同じ現象ではありません</em>。並べたのは構図の類似を示すためです。</p>
+<p style="margin:0 0 10px"><strong>② \(\Delta_\sigma=0.5181489(10)\) は共形ブートストラップによる数値です</strong>（El-Showk, Simmons-Duffin ら 2012–2016）。誤差は数値的なもので、系統誤差の見積もりを含みます。2 次元の \(0.125\) はオンサーガー以来の厳密解、4 次元の \(0\) は平均場が厳密になることによります。</p>
+<p style="margin:0 0 10px"><strong>③ \(\varepsilon\) 展開の先頭項は \(\eta=\varepsilon^2(N+2)/[2(N+8)^2]\)（\(N=1\) で \(\varepsilon^2/54\)）です。</strong> 3 次元（\(\varepsilon=1\)）で実際の値の約半分にしかならず、高次項が重要です ── 図の点線は「先頭項だけならこうなる」という参考線です。</p>
+<p style="margin:0 0 10px"><strong>④ 表の「実験・MC」欄は複数の測定・数値計算のおおよその代表値で、単一の出典による値ではありません。</strong> 実在の流体や磁石は厳密な CFT ではなく、臨界点に十分近いときだけこれらの指数が現れます（補正項があります）。</p>
+<p style="margin:0"><strong>⑤ 05節の「質量のウェイトに異常次元が付く」は定性的な整理です。</strong> 実際にどう効くかは繰り込みスキームと、何を「質量」と呼ぶか（極質量か \(\overline{\rm MS}\) 質量か）に依存します ── 前シリーズ番外編④の小出の関係式が極質量でだけ成立する、という話と地続きです。<em>本稿は「ウェイトは測定の対象である」という点までを主張しています。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題（今回の式だけで解けます）</p>
+<ol>
+<li>異常次元 \(\gamma\) とは何か、このシリーズの言葉で言い直せ。
+<details><summary>答えを見る</summary><div class="ans"><strong>ウェイト表の誤差</strong>。次元解析で予想したウェイト \(\Delta_{\text{古典}}\) と、実際のウェイト \(\Delta\) の差です。\(\Delta=\Delta_{\text{古典}}+\gamma\)。<em>第1〜13回で使ってきた表は、\(\gamma\) を無視した近似でした。</em></div></details></li>
+
+<li>3 次元イジングの \(\gamma_\sigma\) を求めよ。自由場のウェイトは \((d-2)/2\)。
+<details><summary>答えを見る</summary><div class="ans">\(\gamma_\sigma=\Delta_\sigma-(d-2)/2=0.5181489-0.5=\) <strong>0.0181489</strong>。ずれの割合は 3.6%。そして \(\eta=2\gamma_\sigma=0.0362978\) として、水や磁石で実際に測れます。</div></details></li>
+
+<li>4 次元で \(\gamma=0\) になるのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">4 次元が<strong>上部臨界次元</strong>で、そこから上では平均場理論が厳密になるから。相互作用が長距離の振る舞いに効かなくなります。<em>私たちの時空が 4 次元であることが、第11回（マクスウェル作用）に続いてここでも効いています</em> ── ただし ①のとおり、同じ「4」でも別の現象です。</div></details></li>
+
+<li>今回の話は、第13回の「無次元は不変」を否定するか。
+<details><summary>答えを見る</summary><div class="ans">否定しません。<strong>測られる無次元量（臨界指数、\(\Delta\) 自体）は、やはり共形変換で不変</strong>です。崩れたのは別の前提 ── <em>「ウェイトは次元解析で決まる」</em>のほう。ウェイトは決まった数ではなく、理論が決め、実験が測る量でした。</div></details></li>
+
+<li>（やや難）\(\alpha+2\beta+\gamma=2\) が \(\Delta\) に依らず成り立つのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">六つの指数が二つの数（\(\eta,\nu\)）の関数だから。代入すると \((2-d\nu)+\nu(d-2+\eta)+\nu(2-\eta)=2\) で、\(\nu\)・\(\eta\)・\(d\) が全部消えます。<strong>これは物理ではなく、六つが二つの関数であることの帰結</strong>です ── 前シリーズ番外編⑥で見た通り。<em>恒等式は物理ではない</em>という、このシリーズの合言葉がここでも効いています（第10回、第7回）。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　帳簿の数字に、誤差棒が付いた</h2>
+<p>第1回から使ってきたウェイト表は、次元解析で作った<strong>古典近似</strong>でした。場の理論では \(\Delta=\Delta_{\text{古典}}+\gamma\) で、\(\gamma\ne0\) とは「古典的に数えたウェイトが間違っている」ということ。そしてその誤差は、実際に測られています。</p>
+<p>3 次元イジングのスピン演算子は、自由場なら \(\Delta=0.5\) のはずが <strong>0.5181489(10)</strong> ── ずれ \(\gamma_\sigma=0.0181489\)、割合にして 3.6%。2 次元では 12.5%（厳密解 \(1/8\)）、そして<strong>4 次元でぴたりとゼロ</strong>になります（上部臨界次元）。\(\varepsilon\) 展開の先頭項は 3 次元で実際の半分しか出さないので、この 7 桁は摂動では届かない数字です。</p>
+<p>そして \(\eta=2\gamma_\sigma\) を通じて、この誤差は<em>水や磁石の臨界点で実際に測れます</em>。二つの \(\Delta\) から六つの臨界指数が全部出て、実験値と合う。おまけに \(\alpha+2\beta+\gamma=2.0000000000\) は \(\Delta\) に依らない恒等式 ── <strong>恒等式は物理ではない</strong>という、第7回・第10回と同じ判定がここでも効きます。</p>
+<p>大事なのは、これが第13回の「無次元は不変」を否定しない点です。<em>測られる無次元量は、やはり不変</em>。崩れたのは <strong>「ウェイトは次元解析で決まる」という前提</strong>のほうでした。ウェイトは決まった数ではなく、理論が決め、実験が測る量だった ── <em>このシリーズの帳簿そのものが、観測の対象になっている</em>ということです。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第15回</span>
+第 II 部の最後は、いちばん遠いところへ行きます ── <strong>化学と生物</strong>。結合エネルギー ÷ \(k_BT\)、反応速度のアレニウス因子、酵素の \(K_M\)、クライバー則の指数 \(3/4\)、DNA の情報量。<em>ひとつ残らず無次元</em>なので、この絵で一文字も変わりません。だから<strong>生命は、宇宙が「膨張している」か「質量が育っている」かを、原理的に知ることができない</strong>。第9回の「原子は比較相手を持たない」を、生物のスケールまで押し上げる回です。そして第 II 部を「動くのは、いつも一つ」で締めます。
+</div>'''
+
+SCRIPT = r'''<script>
+(function(){
+  var cv=document.getElementById('cv'), g=cv.getContext('2d');
+  var sd=document.getElementById('sd'), vd=document.getElementById('vd'), ro=document.getElementById('ro');
+  var X0=80, X1=690, Y0=34, Y1=280;
+  var xmin=1.9, xmax=4.15, ymin=-0.012, ymax=0.145;
+  var PTS=[[2,0.125,'2次元（厳密解）'],[3,0.0181489,'3次元（ブートストラップ）'],[4,0,'4次元（平均場が厳密）']];
+
+  function px(x){ return X0+(x-xmin)/(xmax-xmin)*(X1-X0); }
+  function py(y){ return Y1-(y-ymin)/(ymax-ymin)*(Y1-Y0); }
+  function epsLead(d){ var e=4-d; return e*e*3/(4*81); }   // γ = η/2 = ε²/108
+
+  function draw(){
+    var d=parseInt(sd.value,10)/1000;
+    g.clearRect(0,0,cv.width,cv.height);
+    g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height);
+    g.font='11px "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+
+    g.textAlign='right';
+    [0,0.025,0.05,0.075,0.1,0.125].forEach(function(v){
+      var y=py(v);
+      g.strokeStyle=(v===0?'#d8cbd2':'#f5eef1'); g.lineWidth=(v===0?1.6:1);
+      g.beginPath(); g.moveTo(X0,y); g.lineTo(X1,y); g.stroke();
+      g.fillStyle='#a8909c'; g.fillText(v.toFixed(3), X0-10, y+4);
+    });
+    g.textAlign='center';
+    [2,2.5,3,3.5,4].forEach(function(v){
+      var x=px(v);
+      g.strokeStyle='#faf5f7'; g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y1); g.stroke();
+      g.fillStyle='#a8909c'; g.fillText(v.toFixed(1), x, Y1+16);
+    });
+    g.strokeStyle='#d4c3cc'; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(X0,Y0); g.lineTo(X0,Y1); g.lineTo(X1,Y1); g.stroke();
+
+    // γ=0 の線ラベル
+    g.fillStyle='#9a8a92'; g.textAlign='left';
+    g.fillText('γ = 0 ── 古典のウェイト表が正しい', X0+8, py(0)+16);
+
+    // ε展開（点線）
+    g.strokeStyle='#1f6b4a'; g.lineWidth=2.2; g.setLineDash([6,4]);
+    g.beginPath();
+    for(var i=0;i<=200;i++){
+      var x=2+2*i/200, y=epsLead(x);
+      if(i===0) g.moveTo(px(x),py(y)); else g.lineTo(px(x),py(y));
+    }
+    g.stroke(); g.setLineDash([]);
+    g.fillStyle='#1f6b4a'; g.textAlign='left';
+    g.fillText('ε 展開の先頭項', px(2.15), py(epsLead(2.15))+16);
+
+    // 既知の3点を結ぶ滑らかな線（参考）
+    g.strokeStyle='#5c1f3f'; g.lineWidth=1.4; g.setLineDash([2,4]);
+    g.beginPath(); g.moveTo(px(2),py(0.125));
+    g.quadraticCurveTo(px(2.6),py(0.055),px(3),py(0.0181489));
+    g.quadraticCurveTo(px(3.5),py(0.004),px(4),py(0));
+    g.stroke(); g.setLineDash([]);
+
+    // 既知の点
+    PTS.forEach(function(p){
+      g.fillStyle='#5c1f3f';
+      g.beginPath(); g.arc(px(p[0]),py(p[1]),6.5,0,6.2832); g.fill();
+      g.strokeStyle='#fff'; g.lineWidth=2;
+      g.beginPath(); g.arc(px(p[0]),py(p[1]),6.5,0,6.2832); g.stroke();
+      g.fillStyle='#5c1f3f'; g.textAlign=(p[0]>3.5?'right':'left');
+      g.fillText(p[2], px(p[0])+(p[0]>3.5?-12:12), py(p[1])-10);
+    });
+
+    // カーソル
+    g.strokeStyle='#8a6a7a'; g.lineWidth=1.4; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(px(d),Y0); g.lineTo(px(d),Y1); g.stroke();
+    g.setLineDash([]);
+
+    g.fillStyle='#8a7580'; g.textAlign='center';
+    g.fillText('空間次元  d', (X0+X1)/2, Y1+38);
+    g.save(); g.translate(20,(Y0+Y1)/2); g.rotate(-Math.PI/2);
+    g.fillText('異常次元 γ_σ ＝ ウェイト表の誤差', 0,0); g.restore();
+
+    vd.textContent='d = '+d.toFixed(3);
+    var known = Math.abs(d-3)<0.02 ? '　★ ブートストラップ値 γ_σ = 0.0181489（7桁）'
+              : (Math.abs(d-2)<0.02 ? '　★ 厳密解 γ_σ = 0.125'
+              : (Math.abs(d-4)<0.02 ? '　★ γ_σ = 0（古典のウェイト表が厳密に正しい）' : ''));
+    ro.textContent='d = '+d.toFixed(3)+
+      '　自由場のウェイト (d−2)/2 = '+((d-2)/2).toFixed(4)+
+      '　／　ε 展開の先頭項 γ ≈ '+epsLead(d).toFixed(5)+known;
+  }
+  sd.addEventListener('input',draw);
+  draw();
+})();
+</script>'''
+
+build(out='../wakaru-ct-14-critical.html', acc='#5c1f3f', ops='#1f6b4a',
+      title='相転移に入れてみる ── わかる c·t=一定 第14回',
+      ep='第 14 回 ／ ウェイト表そのものが、測定の対象になる',
+      eyebrow='帳簿の数字に、誤差棒が付きます',
+      h1='相転移に、<br>入れてみる',
+      sub='このシリーズが13回使ってきたウェイト表は、古典近似でした。<br><em>その誤差が、3次元イジングで7桁の精度で測られています。</em>',
+      byline_l='必要な道具：引き算ひとつ',
+      byline_r='\\(\\gamma_\\sigma=0.0181489(10)\\)',
+      body=BODY + '\n\n<p class="foot">この文書は「わかる c·t=一定」シリーズ第14回、物理好きの高校生・大学生向け読み物です。スケーリング次元が \\(\\Delta=\\Delta_{\\text{古典}}+\\gamma\\) と分解されること、\\(\\Delta\\) が Weyl 変換の重み（\\(\\mathcal{O}\\to\\Omega^{-\\Delta}\\mathcal{O}\\)）であること、自由スカラーのユニタリー限界が \\(\\Delta=(d-2)/2\\) であること、4 が上部臨界次元で平均場が厳密になることは、いずれも標準的です。3 次元イジング CFT の \\(\\Delta_\\sigma=0.5181489(10)\\)、\\(\\Delta_\\varepsilon=1.412625(10)\\) は共形ブートストラップ（El-Showk, Paulos, Poland, Rychkov, Simmons-Duffin, Vichi ら 2012–2016）による値、2 次元の \\(\\Delta_\\sigma=1/8\\) は厳密解です。臨界指数への変換式（\\(\\eta=2\\Delta_\\sigma-d+2\\)、\\(\\nu=1/(d-\\Delta_\\varepsilon)\\) ほか）は標準的で、六つの指数の値および \\(\\alpha+2\\beta+\\gamma=2\\) が恒等式であることは本稿での計算です（kenshou/calc19.py）。「実験・MC」欄は複数の測定・数値計算のおおよその代表値であり、単一の出典による値ではありません。\\(\\varepsilon\\) 展開の先頭項 \\(\\eta=\\varepsilon^2(N+2)/[2(N+8)^2]\\) は 3 次元で実際の約半分にしかならず、高次項が重要です。<strong>臨界現象の空間次元 \\(d\\) は時空の次元とは別物であり、上部臨界次元 4 とマクスウェル作用の \\(D=4\\) を並べたのは構図の類似を示すためで、同じ現象ではありません。</strong> 05節の「質量のウェイトに異常次元が付く」は定性的な整理で、実際の効き方は繰り込みスキームと質量の定義（極質量／\\(\\overline{\\rm MS}\\) 質量）に依存します。実在の物質は厳密な CFT ではなく、臨界点近傍でのみこれらの指数が現れます。異常次元とトレースアノマリーの関係については前シリーズ第8回・番外編⑥を参照。線形膨張（\\(c\\cdot t=\\)一定、\\(R_h=ct\\)）は検証途上の少数派モデルです。学術的な標準はインフレーションを含む \\(\\Lambda\\)CDM モデルです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を（印刷版ではスライダーと解答は静止・非表示になります）。</p>',
+      script=SCRIPT,
+      hint='印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。画面ではスライダーで次元を変え、4次元で誤差が消える様子が見えます。「答えを見る」で解答が開きます。')
