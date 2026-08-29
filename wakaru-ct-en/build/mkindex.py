@@ -145,8 +145,11 @@ BODY += card(23,'wakaru-ct-23-code.html','The horizon as error correction',
   'Read the horizon as a code: \(n=2.96\times10^{122}\) physical bits, \(k=4.47\times10^{104}\) logical, giving <strong>a redundancy of \(6.6\times10^{17}\)</strong> — fourteen orders beyond the quantum surface code. That is Episode 6’s occupancy read inside out, and the heart of it: <em>“empty” and “redundant” are the same number until you name the comparison</em>. Episode 3’s surgery, this time applied to the series’ own figure. Closing with an act of restraint — the logical bit’s length matches nothing, so nothing is said.',
   'AdS/CFT is the precedent, but a cosmological horizon is not established')
 
+BODY += card(24,'wakaru-ct-24-channel.html','How many bits per second cross the horizon?',
+  'Dividing the Bekenstein bound by a crossing time gives \(C=2\pi E/(\hbar\ln2)=6.79\times10^{104}\) bit/s. Its factor-of-two relation to Episode 1’s \(dN/dt\) is an identity, and the clean form is <strong>\(C\cdot t=N\)</strong> — <em>the universe has exactly enough bandwidth to move its entire memory once per Hubble time</em>. Which settles Episode 17: the 20 KB could have been sent in \(10^{-96}\) seconds. <strong>Bandwidth was never the bottleneck; the wiring was.</strong>',
+  'Three routes now agree: the universe has power to spare')
+
 BODY += mini([
- (24,'Channel capacity — how many bits per second cross the horizon'),
  (25,'Are physical laws a compression algorithm?'),
  (26,'Summary: which resource was being optimised'),
 ])
