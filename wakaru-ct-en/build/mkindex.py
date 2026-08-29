@@ -260,8 +260,11 @@ BODY += card(48,'wakaru-ct-48-beauty.html','Brevity, fit and beauty',
   'Take "beauty" apart into six components and four reduce to the existing two currencies: symmetry, unification and rigidity to brevity, depth to fit (the CKM matrix’s 9 becoming 4 is worth 26.8 bits). What remained was naturalness — and it turned out to be not a third currency but a choice of prior: rho_Lambda over rho_Planck is 408.4 bits surprising under a linear prior and 8.2 under a log-uniform one. The strong CP problem is different, because theta is an angle. And one component, sensory pleasure, this series simply could not measure.',
   '"Unnatural" was a declaration about the prior')
 
+BODY += card(49,'wakaru-ct-49-open-doors.html','The doors left open',
+  'Every question opened in 48 episodes and not closed comes to sixteen, falling into four kinds: closed by observation (6), closed by calculation (4), fixed by definition (4), coincidence or not measurable (2). The observational ones are mostly expected to settle in the 2020s and 2030s, so readers will see the answers. But nearly four in ten cannot be closed by data at all — conventions, and things outside the tool. Telling which kind of door it is turned out to be a result in itself. And four judgements never moved across all 48 episodes.',
+  'Not settled by observation is not unimportant')
+
 BODY += mini([
- (49,'The doors still open'),
  (50,'Finale: only one thing was ever moving'),
 ])
 
