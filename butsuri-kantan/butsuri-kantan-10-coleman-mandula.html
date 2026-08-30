@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10回：なぜ解けないのか ── 定理だった ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f8f9; --paper-edge:#e4e0e5;
+    --side:#4a2f52; --side-bg:#f0edf0;
+    --warn:#8a4b2f;
+    --calc:#3b2541; --calc-bg:#eae7eb;
+    --rule:#d4cdd5; --hair:#bab0bd;
+    --acc:#4a2f52;
+    --grid:#e8e5e9;
+    --ops:#8a5a1a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9d3db 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2846;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9c1cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f3f1f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#ddd7de;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#ddd7de;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1eff2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3f2846;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3f2846;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8f7e94;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 10 回 ／ 第 III 部 厳密とは何か</span></p>
+<p class="eyebrow">コールマン–マンデュラの定理 ── QCD は四つの仮定を全部満たす</p>
+
+<h1>なぜ解けないのか<br>── 定理だった
+<span class="sub">4 次元の厳密解は六つある。ただし全部、超対称か大 \(N\) か平面極限か 2 次元。<br><em>並べると、一つの定理の裏返しでした。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第9回（厳密値のフィルタ）</span><span>検証：kensho/calc05.py</span></p>
+
+<p class="lead">前回のフィルタには反例があります。<strong>4 次元の相互作用する理論で、厳密に解けたものが六つ。</strong> ところが並べてみると、全部が<em>一つの定理の裏返し</em>でした。そして分かったのは ── <strong>QCD が厳密に解けないのは、誰も賢くないからではありません。定理の帰結です。</strong></p>
+
+<h2><span class="n">01</span>反例を探す</h2>
+
+<p>前回「相互作用する 3 次元以上で厳密解は前例ゼロ」と書きました。これは言い過ぎです。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc05.py ①）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>いつ・誰</th><th>何を</th><th>どこまで</th><th class="mid">何に頼ったか</th></tr></thead>
+<tbody>
+<tr><th>Seiberg–Witten (1994)</th><td>\(N{=}2\) 超対称ヤン・ミルズ</td><td>低エネルギー有効作用が厳密</td><td class="mid"><strong>超対称</strong></td></tr>
+<tr><th>局所化 (2007〜)</th><td>球面上の超対称理論</td><td>分配関数が厳密</td><td class="mid"><strong>超対称</strong></td></tr>
+<tr><th>\(N{=}4\) の可積分性</th><td>平面極限の異常次元</td><td>スペクトルが厳密</td><td class="mid"><strong>超対称＋平面＋共形</strong></td></tr>
+<tr><th>BES 方程式</th><td>カスプ異常次元 \(\Gamma(g)\)</td><td>全結合で厳密</td><td class="mid">同上</td></tr>
+<tr><th>大 \(N\) の \(O(N)\) 模型</th><td>3 次元の臨界指数</td><td>\(1/N\) の各次で厳密</td><td class="mid"><strong>大 \(N\)</strong></td></tr>
+<tr class="hi"><th>'t Hooft 模型 (1974)</th><td><strong>2 次元の平面 QCD</strong></td><td>中間子スペクトルが厳密</td><td class="mid"><strong>2 次元＋平面</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">反例はあった。ただし</span>
+<p><strong>例外なく、超対称か・大 \(N\) か・平面極限か・2 次元。</strong></p>
+<p>そして <em>QCD はそのどれでもありません。</em></p>
+</div>
+
+<h2><span class="n">02</span>QCD に足りないものは何か ── 保存量を数える</h2>
+
+<p>「厳密に解ける」を、もう少し正確に言うと <strong>可積分</strong> ということです。可積分とは、<em>方程式の数が未知数と同じだけある</em> ── つまり保存量が十分にある、という意味。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>理論</th><th>保存量</th><th class="mid">個数</th><th class="mid">結果</th></tr></thead>
+<tbody>
+<tr class="hi"><th>QCD（現実）</th><td>ポアンカレ 10 ＋ フレーバー 8 ＋ バリオン数 1</td><td class="mid"><strong>19 個（有限）</strong></td><td class="mid">解けない</td></tr>
+<tr><th>2 次元可積分系</th><td>高スピンの保存流が<strong>無限個</strong></td><td class="mid">\(\infty\)</td><td class="mid"><strong>解ける</strong></td></tr>
+<tr><th>\(N{=}4\) 平面極限</th><td>同上（可積分スピン鎖）</td><td class="mid">\(\infty\)</td><td class="mid"><strong>解ける</strong></td></tr>
+<tr><th>自由場</th><td>各モードごとに保存量</td><td class="mid">\(\infty\)</td><td class="mid"><strong>解ける</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>分かれ目は、<strong>保存量が無限個あるかどうか</strong>です。ではなぜ QCD に高スピンの保存流を足せないのか。</p>
+
+<h2><span class="n">03</span>足せない ── 定理で禁じられている</h2>
+
+<div class="keybox">
+<span class="lbl">コールマン–マンデュラの定理（1967）</span>
+<p><strong>仮定</strong>：(1) 4 次元である　(2) \(S\) 行列が自明でない（相互作用する）　(3) 質量ギャップがある（離散的な粒子）　(4) ある質量以下の粒子種が有限個</p>
+<p><strong>結論</strong>：対称性は「ポアンカレ × 内部対称性」に限られる。<br>→ <em>高スピンの保存量は存在できない。</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>仮定</th><th class="mid">QCD は</th></tr></thead>
+<tbody>
+<tr><th>4 次元である</th><td class="mid"><strong>満たす</strong></td></tr>
+<tr><th>\(S\) 行列が自明でない</th><td class="mid"><strong>満たす</strong></td></tr>
+<tr><th>質量ギャップがある</th><td class="mid"><strong>満たす</strong></td></tr>
+<tr><th>粒子種が有限個</th><td class="mid"><strong>満たす</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>この回の中心</h2>
+<p><strong>QCD は四つの仮定を全部満たします。だから可積分になりえません。</strong></p>
+<p>「QCD が厳密に解けない」のは、誰も賢くないからではなく、<em>仮定から出る帰結</em>です。</p>
+</div>
+
+<h2><span class="n">04</span>反例は、どうやって逃げているのか</h2>
+
+<p>ここで①の六つに戻ります。全部、定理の仮定のどれかを外していました。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>逃げ道</th><th>どうやって</th><th class="mid">破る仮定</th></tr></thead>
+<tbody>
+<tr class="hi"><th>\(N{=}4\) 超対称</th><td><strong>共形不変 → 質量ギャップが無い</strong></td><td class="mid"><strong>仮定 3</strong></td></tr>
+<tr><th>\(N{=}2\) Seiberg–Witten</th><td>超対称電荷はスピン \(1/2\)（ボゾンでない）</td><td class="mid">定理の対象外</td></tr>
+<tr><th>大 \(N\)</th><td>\(N=\infty\) で \(S\) 行列が自明になる</td><td class="mid">仮定 2</td></tr>
+<tr class="hi"><th><strong>2 次元</strong></th><td><strong>そもそも定理が 4 次元のもの</strong></td><td class="mid"><strong>仮定 1</strong></td></tr>
+<tr><th>自由場</th><td>\(S\) 行列が 1</td><td class="mid">仮定 2</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">前回のフィルタの、本当の中身</span>
+<p>ばらばらに見えた六つの厳密解が、<strong>一つの定理の裏返し</strong>でした。</p>
+<p>第9回のフィルタは、言い換えると <em>「コールマン–マンデュラの仮定を外せるか」</em> です。</p>
+</div>
+
+<h2><span class="n">05</span>2 次元 QCD は、本当に解けている</h2>
+
+<p>いちばん近い例を見ておきます。't Hooft 模型 ── 2 次元、\(N_c\to\infty\) の QCD では、中間子スペクトルが厳密に決まります。</p>
+
+<div class="calc">
+<span class="tag">2 次元の平面 QCD（'t Hooft, 1974）</span>
+<p>大きい \(n\) で　\(M_n^2 \approx \pi^2 g^2 n\)　── <strong>レッジェ軌道が厳密に直線</strong></p>
+</div>
+
+<p>4 次元で「実験的に直線に見える」ものが、2 次元では<em>厳密に直線</em>になります。</p>
+
+<p>そして <strong>4 次元の平面 QCD（\(N_c=\infty\)）は、いまだ未解決</strong>です。次元を 2 から 4 に上げるだけで、解ける／解けないが変わる。</p>
+
+<div class="aside">
+<span class="tag">そこだけは開いている</span>
+<p>\(N_c=\infty\) は仮定 2（\(S\) 行列が自明でない）を破るので、<strong>4 次元の平面 QCD が解けてもコールマン–マンデュラとは矛盾しません</strong>。つまり ── <em>そこだけは、まだ開いた扉です</em>。</p>
+</div>
+
+<h2><span class="n">06</span>「解けない」の意味が変わる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>読み</th><th class="mid">正しいか</th></tr></thead>
+<tbody>
+<tr><th>「まだ誰も解けていない」（未解決問題）</th><td class="mid"><strong>×</strong></td></tr>
+<tr class="hi"><th><strong>「可積分にする道具が存在できない」（既解決問題）</strong></th><td class="mid"><strong>○</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>答えは「無い」であって、「まだ見つかっていない」ではありません。<em>これは悪い知らせではなく、探索範囲が狭まったという意味では良い知らせです。</em></p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>コールマン–マンデュラは <strong>\(S\) 行列の対称性についての定理</strong>で、「厳密解が無い」を厳密に導くわけではありません ── <em>可積分性を封じる</em>だけです。可積分でなくても厳密に解ける道が、原理的に否定されたわけではありません。<br>04節の「\(N{=}2\) は定理の対象外」は正しいですが、<strong>Seiberg–Witten が厳密なのは低エネルギー有効作用まで</strong>で、完全なスペクトルは厳密には解けていません。<br>02節の「保存量 19 個」は数え方の一例です（フレーバー対称性は近似的なものを含みます）。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回</span>
+<p>では QCD に厳密なものは整数だけなのか。<strong>いいえ ── 「関係」があります。</strong> どれも値については何も言わず、量と量の間だけを言う。そして<em>関係だけで数値が 7 桁決まる</em>例が、実際にあります。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第10回です。コールマン–マンデュラの定理、Seiberg–Witten 解、\(N{=}4\) 平面極限の可積分性、't Hooft 模型はいずれも<strong>確立した標準的な内容</strong>です。<em>「六つの厳密解が一つの定理の裏返しである」という並べ方は本シリーズの整理</em>で、教科書がこの形で書いているわけではありません（kensho/calc05.py）。<strong>コールマン–マンデュラは可積分性を封じる定理であって、「厳密解が存在しない」ことの証明ではありません</strong> ── 06節の言い方はこの留保つきで読んでください。02節の保存量の数え方は一例です。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

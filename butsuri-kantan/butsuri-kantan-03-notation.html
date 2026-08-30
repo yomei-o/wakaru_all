@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3回：記法だけで、1052 万枚が 1 項になる ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f8fa; --paper-edge:#dde2e8;
+    --side:#1c3f63; --side-bg:#eceff2;
+    --warn:#8a4b2f;
+    --calc:#16324f; --calc-bg:#e5e9ed;
+    --rule:#c9d1da; --hair:#a9b6c4;
+    --acc:#1c3f63;
+    --grid:#e3e7ec;
+    --ops:#a85a12;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfd7de 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#183655;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bbc5d0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f0f3f5;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d4dbe1;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d4dbe1;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef1f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#183655;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#183655;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#72889e;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 3 回 ／ 第 I 部「簡単」を測る</span></p>
+<p class="eyebrow">Parke–Taylor と Gell-Mann–Okubo ── どちらも払いがゼロ</p>
+
+<h1>記法だけで、<br>1052 万枚が 1 項になる
+<span class="sub">グルーオン 10 本の散乱、ファインマン図 1052 万枚。<br><em>答えは一行でした。しかも変数を取り替えただけ。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：前回の「為替レート」</span><span>検証：kensho/calc01.py</span></p>
+
+<p class="lead">前回は「計算を増やせば精度が買える」でした。この回はその逆 ── <em>計算を減らす</em>方です。しかも新しい物理は一つも使いません。<strong>変数の取り替えだけで、1052 万枚のファインマン図が 1 項になります。</strong> そして同じことが、紙と鉛筆でスパコンに並ぶ例でも起きています。</p>
+
+<h2><span class="n">01</span>グルーオンの散乱は、図が爆発する</h2>
+
+<p>グルーオンが \(n\) 本、互いに散乱する。いちばん単純な（ツリーレベルの）計算をするのに、ファインマン図を何枚描くか ── その数は次のように増えます。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ⑤）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">\(n\)</th><th class="mid">図の数</th><th class="mid">\(\log_2\)</th><th class="mid">Parke–Taylor 公式では</th></tr></thead>
+<tbody>
+<tr><td class="mid">4</td><td class="mid">4</td><td class="mid">2.0</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr><td class="mid">5</td><td class="mid">25</td><td class="mid">4.6</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr><td class="mid">6</td><td class="mid">220</td><td class="mid">7.8</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr><td class="mid">7</td><td class="mid">2 485</td><td class="mid">11.3</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr><td class="mid">8</td><td class="mid">34 300</td><td class="mid">15.1</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr><td class="mid">9</td><td class="mid">559 405</td><td class="mid">19.1</td><td class="mid"><strong>1 項</strong></td></tr>
+<tr class="hi"><td class="mid"><strong>10</strong></td><td class="mid"><strong>10 525 900</strong></td><td class="mid"><strong>23.3</strong></td><td class="mid"><strong>1 項</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>階乗より速く増えています。10 本で <em>1052 万枚</em>。一枚 1 秒で書き写しても 4 か月かかる量です。</p>
+
+<h2><span class="n">02</span>ところが、答えは一行だった</h2>
+
+<p>1986 年、パークとテイラーが、この和の答えを書きました。</p>
+
+<div class="keybox">
+<span class="lbl">Parke–Taylor 公式</span>
+<p>\[A_n = \frac{\langle ij\rangle^4}{\langle 12\rangle\langle 23\rangle\cdots\langle n1\rangle}\]</p>
+<p><strong>これで全部です。</strong> \(n\) が何本でも、項は一つ。</p>
+</div>
+
+<p>圧縮率は \(1.1\times10^{7}\) 倍、ビットで言えば <strong>23.3 ビット</strong>。前回のレート（計算 1 ビットで精度 2 ビット）で言えば、<em>46 ビット分の精度をタダで手に入れた</em>のと同じ効果です。</p>
+
+<h2><span class="n">03</span>何をしたのか ── 変数を取り替えただけ</h2>
+
+<p>ここが大事なところです。<strong>パークとテイラーは、新しい物理を一つも使っていません。</strong></p>
+
+<p>やったのは、運動量ベクトル \(p^\mu\)（4 成分の実数）を、スピノルの組 \(\lambda_a, \tilde\lambda_{\dot a}\) に書き換えたことだけです。質量ゼロの粒子なら \(p^\mu\) は \(p^2=0\) という条件を持つので、実質 3 自由度。スピノルで書けばその条件が<em>自動的に満たされる</em>。だから条件を持ち回らなくて済む。</p>
+
+<p>この取り替えを「スピノル・ヘリシティ形式」と言います。<strong>記法の変更です。</strong> ラグランジアンは同じ、粒子も同じ、予言も同じ。<em>変わったのは、書き方だけ。</em></p>
+
+<div class="aside">
+<span class="tag">なぜ効くのか</span>
+<p>ファインマン図の一枚一枚は<strong>ゲージ不変ではありません</strong>。合計してはじめて意味のある量になる。つまり 1052 万枚のうち大半は、互いに打ち消し合うために書かれています。スピノル・ヘリシティは、<em>打ち消し合う項を最初から書かない</em>書き方です。</p>
+</div>
+
+<h2><span class="n">04</span>同じことが、質量の計算でも起きている</h2>
+
+<p>もう一つ、もっと古くて、もっと極端な例があります。1961 年のゲルマン–大久保の質量公式です。</p>
+
+<div class="keybox">
+<span class="lbl">Gell-Mann–Okubo の質量公式</span>
+<p>\[\frac{m_N + m_\Xi}{2} = \frac{3m_\Lambda + m_\Sigma}{4}\]</p>
+</div>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ⑥）</span>
+<p>左辺 \(=(938.92+1318.3)/2 = \mathbf{1128.61}\) MeV<br>
+右辺 \(=(3\times1115.68+1193.15)/4 = \mathbf{1135.05}\) MeV<br>
+相対差 <strong>0.567 %</strong>　→　<strong>7.5 ビット</strong></p>
+</div>
+
+<p><strong>紙と鉛筆で 0.6 %。</strong> 格子 QCD がスパコンで 1 % を出すのに、こちらは筆算です。</p>
+
+<p>そして使ったのは <em>SU(3) の表現論だけ</em> ── <strong>ダイナミクスを一切計算していません</strong>。「バリオンが 8 個で一組になる」という並べ方の性質だけから、質量の間の関係が出ています。</p>
+
+<div class="keybox">
+<span class="lbl">この回の要点</span>
+<p><strong>対称性は、計算せずに答えの一部を先取りする装置です。</strong><br>Parke–Taylor も Gell-Mann–Okubo も、第1回の分類でいえば <em>記法の側</em>。物理を変えずに、計算だけを減らしています。</p>
+</div>
+
+<h2><span class="n">05</span>この二つは、同じ型の発見</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>Parke–Taylor</th><th>Gell-Mann–Okubo</th></tr></thead>
+<tbody>
+<tr><th>使ったもの</th><td>スピノル・ヘリシティ</td><td>SU(3) の表現論</td></tr>
+<tr><th>やったこと</th><td>変数の取り替え</td><td>並べ方の性質を読む</td></tr>
+<tr><th>新しい物理</th><td class="mid"><strong>なし</strong></td><td class="mid"><strong>なし</strong></td></tr>
+<tr><th>新しいパラメータ</th><td class="mid"><strong>ゼロ</strong></td><td class="mid"><strong>ゼロ</strong></td></tr>
+<tr class="hi"><th><strong>減ったもの</strong></th><td class="mid"><strong>計算量 \(10^{7}\) 倍</strong></td><td class="mid"><strong>計算量（暗算になった）</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>どちらも<em>タダ</em>です。前回の帳簿でいうと、払いがゼロで買いだけがある。これが「記法で下げる」の実体で、<strong>第1回で「実績あり」と書いた欄の中身</strong>です。</p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>Parke–Taylor 公式が使えるのは <strong>MHV（最大ヘリシティ違反）と呼ばれる特別なヘリシティ配位</strong>で、一般の配位には BCFW 漸化式などの追加の道具が要ります。「1 項」は最も鮮やかな場合の話です。<br>Gell-Mann–Okubo の 0.567 % は<em>厳密ではありません</em> ── SU(3) の破れの 1 次までの関係で、なぜ 0.6 % なのかはこの式からは出ません。この違いは第 III 部（第8〜9回）で正面から扱います。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回</span>
+<p>ここまでは「計算は安い」「記法で下がる」と良い話ばかりでした。次回は<strong>高いところ</strong>を測ります。摂動論が 2.03 ビット／ビットで儲かるのに対し、強結合の格子計算は <em>0.2〜0.33</em>。<strong>効率差は約 7 倍</strong>。そして「簡単」の二つの意味が、そこで完全に分離します。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第3回です。グルーオン散乱のツリー図の枚数と Parke–Taylor 公式、Gell-Mann–Okubo の質量公式はいずれも<strong>確立した標準的な内容</strong>で、本シリーズの主張ではありません。新しいのは<em>それらを「計算量の圧縮」という一つの物差しで並べたこと</em>だけです。数値は kensho/calc01.py で計算しました。<strong>Parke–Taylor が 1 項になるのは MHV 配位に限られます</strong>。<strong>Gell-Mann–Okubo は厳密な関係ではありません</strong>（SU(3) 破れの 1 次まで）── この区別は第 III 部で扱います。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2回：計算は、いちばん安い通貨 ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f8fa; --paper-edge:#dde2e8;
+    --side:#1c3f63; --side-bg:#eceff2;
+    --warn:#8a4b2f;
+    --calc:#16324f; --calc-bg:#e5e9ed;
+    --rule:#c9d1da; --hair:#a9b6c4;
+    --acc:#1c3f63;
+    --grid:#e3e7ec;
+    --ops:#a85a12;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfd7de 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#183655;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bbc5d0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f0f3f5;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d4dbe1;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d4dbe1;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef1f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#183655;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#183655;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#72889e;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 2 回 ／ 第 I 部「簡単」を測る</span></p>
+<p class="eyebrow">電子の g−2 で、精度と計算量の為替レートを測る</p>
+
+<h1>計算は、<br>いちばん安い通貨
+<span class="sub">計算コスト 1 ビットにつき、精度が 2.03 ビット買える。<br><em>パラメータは 5.37 ビット払って、1 個しか買えない。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：\(\log_2\) が「桁」の数え方であること</span><span>検証：kensho/calc01.py</span></p>
+
+<p class="lead">「計算量」は測れます。しかも、<em>精度と交換できる通貨</em>として測れます。電子の \(g-2\) を使うと、「ファインマン図を何枚描くと、精度が何桁上がるか」がきれいな直線に乗りました。そしてその<strong>為替レート</strong>を、パラメータの値段と比べると ── <em>計算はいちばん安い通貨</em>でした。</p>
+
+<h2><span class="n">01</span>電子の \(g-2\) は、計算の値段が分かる唯一の題材</h2>
+
+<p>電子の磁気能率は、ディラック方程式が \(g=2\) ちょうどを要求します。実際には少しずれていて、そのずれ \(a_e = (g-2)/2\) が量子電磁力学の計算で出ます。</p>
+
+<p>この計算が特別なのは、<strong>次数ごとに「何枚の図を描いたか」が数えられている</strong>ことです。1 ループなら 1 枚、2 ループなら 7 枚、…と、はっきりした整数がついている。<em>計算の量が数字になる、めずらしい例です。</em></p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ②）</span>
+<p class="lbl">次数ごとの図の数と、到達した精度</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">ループ</th><th class="mid">図の数</th><th class="mid">累積の図</th><th class="mid">相対誤差</th><th class="mid">精度ビット</th></tr></thead>
+<tbody>
+<tr><td class="mid">1</td><td class="mid">1</td><td class="mid">1</td><td class="mid">\(1.5\times10^{-3}\)</td><td class="mid">9.4</td></tr>
+<tr><td class="mid">2</td><td class="mid">7</td><td class="mid">8</td><td class="mid">\(1.3\times10^{-5}\)</td><td class="mid">16.3</td></tr>
+<tr><td class="mid">3</td><td class="mid">72</td><td class="mid">80</td><td class="mid">\(4.8\times10^{-8}\)</td><td class="mid">24.3</td></tr>
+<tr><td class="mid">4</td><td class="mid">891</td><td class="mid">971</td><td class="mid">\(3.9\times10^{-10}\)</td><td class="mid">31.3</td></tr>
+<tr class="hi"><td class="mid">5</td><td class="mid"><strong>12672</strong></td><td class="mid">13643</td><td class="mid">\(8.1\times10^{-12}\)</td><td class="mid"><strong>36.8</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>「精度ビット」は、相対誤差の \(-\log_2\) です。誤差が半分になると 1 ビット増える、という数え方。第 III 部までずっとこの単位を使います。</p>
+
+<h2><span class="n">02</span>まず驚くのは、一枚目です</h2>
+
+<div class="keybox">
+<span class="lbl">1 ループ ＝ 図 1 枚 ＝ 紙 1 行</span>
+<p>\(a_e \simeq \dfrac{\alpha}{2\pi} = 0.001161410\)　　実測 \(0.001159652\)</p>
+<p><strong>3 桁合います。</strong> 図 1 枚、掛け算 1 回、それで <strong>9.4 ビット</strong>。</p>
+</div>
+
+<p>残りの 12,671 枚が買うのは、そこから先の 27 ビットです。<em>最初の一枚がいちばん儲かる</em> ── これは後で効いてきます。</p>
+
+<h2><span class="n">03</span>直線に乗る</h2>
+
+<p>「累積の図の数」の \(\log_2\) を横軸、精度ビットを縦軸に取ると、五つの点がきれいに並びます。最小二乗で直線を引くと：</p>
+
+<div class="keybox">
+<span class="lbl">為替レート</span>
+<p>\[\text{精度ビット} = 10.24 + \mathbf{2.03}\times \log_2(\text{図の数})\]</p>
+<p><strong>計算コスト 1 ビットにつき、精度が 2.03 ビット買える。</strong></p>
+</div>
+
+<p>つまり<em>計算は儲かります</em>。1 払って 2 返ってくる。図の枚数を倍にすると、精度は 4 倍良くなる計算です。</p>
+
+<h2><span class="n">04</span>パラメータの値段と比べる</h2>
+
+<p>比べる相手が要ります。「パラメータを 1 個増やす」ことの値段は、記述長側の標準的な数え方（BIC）で決まります ── データ点が \(N\) 個あるとき \(\tfrac12\log_2 N\) ビット。素粒子物理の標準的なデータ数（\(N \simeq 1700\)）なら：</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ③）</span>
+<p>パラメータ 1 個の値段 \(= \tfrac12\log_2 1701 = \mathbf{5.37}\) ビット</p>
+</div>
+
+<p>これで二つの通貨が並びました。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>買い方</th><th>払い</th><th>買えるもの</th><th>ほかの量は</th></tr></thead>
+<tbody>
+<tr><th>パラメータで買う</th><td class="mid">5.37 ビット</td><td>合わせた <strong>1 個の量だけ</strong></td><td>何も当たらない</td></tr>
+<tr class="hi"><th><strong>計算で買う</strong></th><td class="mid"><strong>1 ビット</strong></td><td><strong>2.03 ビットの精度</strong></td><td><strong>全部同時に当たる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>右端の欄が決定的です。パラメータを増やして合わせても、<em>合わせた量が当たるだけ</em>で、他は何も良くならない。計算を進めると、<strong>同じ理論から出てくる全部の量が同時に良くなる</strong>。</p>
+
+<h2><span class="n">05</span>10 桁が欲しいときの見積もり</h2>
+
+<p>電子の \(g-2\) は 10 桁（約 44 ビット）合っています。それを買うのに要る計算量は、さっきの直線から逆算できます。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ③）</span>
+<p>\((44.0 - 10.24) / 2.03 = \mathbf{16.7}\) ビットの計算コスト<br>
+\(= 2^{16.7} \simeq\) <strong>10 万枚</strong>の図に相当</p>
+<p>フィットで買うなら 5.37 ビット（<em>安い</em>）。ただし<strong>予言はゼロ</strong>。</p>
+</div>
+
+<p>フィットの方が圧倒的に安いのです。それでも計算する理由は、④の右端の欄しかありません ── <em>計算だけが、払った以上のものを返す</em>。</p>
+
+<div class="keybox">
+<span class="lbl">この回の要点</span>
+<p><strong>「わけのわからない計算」は、パラメータを増やさずに精度を買う唯一の方法です。</strong><br>計算を簡単にすると、その分は<em>必ずパラメータで払う</em>ことになります。</p>
+</div>
+
+<h2><span class="n">06</span>実際に、そうやって払っている</h2>
+
+<p>この交換は、比喩ではありません。強い力の計算では、はっきりそうなっています。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>方法</th><th class="mid">追加パラメータ</th><th class="mid">計算量</th><th class="mid">精度</th></tr></thead>
+<tbody>
+<tr><th>格子 QCD</th><td class="mid"><strong>0 個</strong></td><td class="mid">\(10^{19}\) flops</td><td class="mid">1 %</td></tr>
+<tr><th>カイラル摂動論 NLO</th><td class="mid">10 個</td><td class="mid">手計算</td><td class="mid">数 %</td></tr>
+<tr><th>クォーク模型</th><td class="mid">4 個</td><td class="mid">暗算</td><td class="mid">10 %</td></tr>
+<tr><th>次元解析</th><td class="mid">1 個</td><td class="mid">暗算</td><td class="mid">桁が合う</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>上から下へ行くほど計算は楽になり、<strong>そのぶんパラメータが増えていきます</strong>。カイラル摂動論の 10 個（\(10\times5.37 = 54\) ビット）を払って、格子の \(10^{19}\) flops を回避している ── これが交換の実体です。</p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>02〜03節の回帰は<strong>5 点</strong>で、しかも量子電磁力学という<em>いちばん行儀のいい例</em>です。QCD の摂動級数は係数の増え方が速く、同じレートは出ません。また「図の数 ＝ 計算量」は乱暴で、実際は 1 枚あたりの積分が次数とともに重くなるので、<strong>2.03 は上限寄りの見積もり</strong>です。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回</span>
+<p>計算量は、<strong>記法を変えるだけで劇的に下がることがあります</strong>。グルーオン 10 本の散乱は、ファインマン図で <em>1052 万枚</em>。それが <strong>1 項</strong>になります。しかもやったことは変数の取り替えだけで、物理は一つも変わっていません。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第2回です。ファインマン図の枚数（1, 7, 72, 891, 12672）と \(a_e\) の摂動係数は公表値、<strong>回帰と為替レート 2.03 は本シリーズの計算</strong>です（kensho/calc01.py）。<strong>「計算量 ＝ 図の数」は粗い代用</strong>で、実際の計算コストはこれより急に増えます。パラメータ 1 個 \(=5.37\) ビットは \(N=1701\) を仮定した BIC の値で、データ数の取り方に依存します。<em>「計算は儲かる」という結論は量子電磁力学という最良の例での話</em>で、強結合領域では成り立ちません（第4回で測ります）。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

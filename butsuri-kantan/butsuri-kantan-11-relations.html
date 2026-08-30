@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11回：厳密なのは、値ではなく関係 ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f8f9; --paper-edge:#e4e0e5;
+    --side:#4a2f52; --side-bg:#f0edf0;
+    --warn:#8a4b2f;
+    --calc:#3b2541; --calc-bg:#eae7eb;
+    --rule:#d4cdd5; --hair:#bab0bd;
+    --acc:#4a2f52;
+    --grid:#e8e5e9;
+    --ops:#8a5a1a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9d3db 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2846;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9c1cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f3f1f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#ddd7de;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#ddd7de;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1eff2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3f2846;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3f2846;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8f7e94;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 11 回 ／ 第 III 部 厳密とは何か（部の終わり）</span></p>
+<p class="eyebrow">関係だけで 7 桁決まる ── しかも誤差は厳密な区間の幅</p>
+
+<h1>厳密なのは、<br>値ではなく関係
+<span class="sub">QCD の厳密な内容は、量ではなく量と量の間にありました。<br><em>そして厳密な主張は、計算した実数より 11 桁よく検証されています。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第10回（コールマン–マンデュラ）</span><span>検証：kensho/calc05.py</span></p>
+
+<p class="lead">前回、「QCD は可積分になりえない」と分かりました。では厳密なのは整数だけなのか ── <strong>いいえ。「関係」があります。</strong> どれも値については何も言わず、量と量の<em>間</em>だけを言う。そして驚くことに、<strong>関係だけで数値が 7 桁決まる</strong>例が実際にあります。</p>
+
+<h2><span class="n">01</span>QCD で厳密に成り立つ「関係」</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc05.py ⑥）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>厳密な関係</th><th>中身</th><th>出どころ</th></tr></thead>
+<tbody>
+<tr><th>くりこみ群方程式</th><td>\(\mu\,dG/d\mu = \beta(G)\) ── <strong>全次数で厳密</strong></td><td>スケール不変性</td></tr>
+<tr><th>ワード–高橋恒等式</th><td>厳密</td><td>ゲージ対称性</td></tr>
+<tr><th>ユニタリ性（光学定理）</th><td>\(\mathrm{Im}\,f(0) = (k/4\pi)\sigma\) ── 厳密</td><td>確率の保存</td></tr>
+<tr><th>交叉対称性</th><td>厳密</td><td>解析性</td></tr>
+<tr><th>分散関係</th><td>厳密</td><td>因果律</td></tr>
+<tr><th>Adler–Bardeen 定理</th><td>アノマリーは<strong>1 ループで完全</strong></td><td>位相</td></tr>
+<tr class="hi"><th>'t Hooft のアノマリー整合</th><td><strong>強結合のスペクトルを厳密に縛る</strong></td><td>位相</td></tr>
+<tr><th>Vafa–Witten 定理</th><td>ベクトル的対称性は<strong>自発的に破れない</strong></td><td>正定値性</td></tr>
+<tr><th>Weingarten 不等式</th><td>\(m_\pi \le m_N\) など ── 厳密</td><td>正定値性</td></tr>
+<tr><th>演算子積展開（OPE）</th><td>漸近的に厳密</td><td>スケール分離</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">共通点</span>
+<p><strong>どれも、値については何も言いません。関係だけを言います。</strong></p>
+<p>QCD の厳密な内容は、<em>量ではなく、量と量の間にありました。</em></p>
+</div>
+
+<p>とくに 't Hooft のアノマリー整合は驚くべきものです。<strong>何も解かずに、強結合領域のスペクトルに条件を課します</strong> ── 高エネルギー側のアノマリー係数と低エネルギー側のそれが一致しなければならない、というだけで、「閉じ込めが起きているなら、こういう粒子がなければおかしい」が出る。</p>
+
+<h2><span class="n">02</span>関係だけで、数値が決まることがある</h2>
+
+<p>共形ブートストラップという方法があります。<strong>ラグランジアンを使いません。</strong></p>
+
+<div class="keybox">
+<span class="lbl">入力はこれだけ</span>
+<p><strong>交叉対称性 ＋ ユニタリ性 ＋ 演算子が有限個</strong></p>
+<p>粒子の一覧も、結合定数も、作用も要りません。</p>
+</div>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc05.py ⑦）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">値</th><th class="mid">誤差</th><th>検算</th></tr></thead>
+<tbody>
+<tr class="hi"><th>3 次元イジング \(\nu\)</th><td class="mid"><strong>0.6299709</strong></td><td class="mid">\(4\times10^{-7}\)</td><td>格子 0.63002 と一致</td></tr>
+<tr><th>3 次元イジング \(\eta\)</th><td class="mid">0.0362978</td><td class="mid">\(2\times10^{-7}\)</td><td>同上</td></tr>
+<tr><th>3 次元イジング \(\omega\)</th><td class="mid">0.8303</td><td class="mid">\(1\times10^{-3}\)</td><td>同上</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">この回のいちばん重要な点</span>
+<p><strong>模型ゼロ、パラメータゼロ、近似ゼロで 7 桁。</strong></p>
+<p>しかも誤差は<em>近似の誤差ではありません</em> ── <strong>厳密な不等式の幅</strong>です。値が厳密な区間に閉じ込められている。</p>
+</div>
+
+<p>これが「近似ではなく厳密に」のいちばん近い実現です。<em>量そのものは閉じた形を持たないが、厳密に囲い込める。</em></p>
+
+<h2><span class="n">03</span>経験による裏づけ ── 厳密な主張ほど、よく検証されている</h2>
+
+<p>「厳密を狙え」という直感には、数字の裏づけがあります。<strong>厳密な主張は、計算した実数より桁違いに厳しい試験に通されています。</strong></p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc05.py ⑧）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>検証された主張</th><th class="mid">精度</th><th>種類</th><th class="mid">ビット</th></tr></thead>
+<tbody>
+<tr class="hi"><th>光子質量 \(m_\gamma/m_e\)</th><td class="mid">\(<2\times10^{-24}\)</td><td><strong>厳密（ゼロ）</strong></td><td class="mid"><strong>79</strong></td></tr>
+<tr class="hi"><th>電荷の中性 \(|q_p+q_e|/e\)</th><td class="mid">\(<10^{-21}\)</td><td><strong>厳密（整数）</strong></td><td class="mid"><strong>70</strong></td></tr>
+<tr class="hi"><th>CPT：\(|m_K - m_{\bar K}|/m_K\)</th><td class="mid">\(<6\times10^{-19}\)</td><td><strong>厳密（対称性）</strong></td><td class="mid"><strong>61</strong></td></tr>
+<tr><th>電子 \(g-2\)（理論 対 実験）</th><td class="mid">\(10^{-10}\)</td><td>計算した実数（摂動）</td><td class="mid">33</td></tr>
+<tr><th>\(\mu\) の \(g-2\) のハドロン部分</th><td class="mid">\(10^{-9}\)</td><td>計算した実数（強結合込み）</td><td class="mid">30</td></tr>
+<tr><th>格子のハドロン質量</th><td class="mid">\(10^{-2}\)</td><td>計算した実数（強結合）</td><td class="mid">7</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">きれいな三段</span>
+<p>厳密な主張（整数・ゼロ）　　<strong>70 ビット</strong><br>
+摂動で計算した実数　　　　<strong>33 ビット</strong><br>
+強結合で計算した実数　　　<strong>7 ビット</strong></p>
+<p><strong>厳密なものは、計算した実数より 37 ビット（11 桁）よく検証されています。</strong></p>
+</div>
+
+<h2><span class="n">04</span>第 III 部のまとめ ── 目標への道筋</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">段</th><th>やること</th><th>得られるもの</th></tr></thead>
+<tbody>
+<tr class="hi"><th class="mid">1</th><td><strong>整数かゼロに落とす</strong>（「いくつあるか」「消えるか」に問いを変える）</td><td><strong>厳密。20 桁で検証できる</strong></td></tr>
+<tr class="hi"><th class="mid">2</th><td><strong>厳密な関係を積む</strong>（値ではなく拘束を書く）</td><td><strong>厳密。値を知らなくても成り立つ</strong></td></tr>
+<tr class="hi"><th class="mid">3</th><td><strong>関係で囲い込む</strong>（ブートストラップ）</td><td><strong>厳密な区間。7 桁</strong></td></tr>
+<tr><th class="mid">4</th><td>制御された近似で詰める</td><td>任意精度。1 桁 \(=\) 1000 倍</td></tr>
+<tr><th class="mid">5</th><td>制御されていない近似</td><td><strong>改良できない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>第 III 部の結論</h2>
+<p><strong>第 II 部は 5 段目から始めていました。</strong> 「これだと単なる近似だ」という不満は、もっともでした。</p>
+<p>そして <strong>1〜3 段目は、計算機を一台も使わずにできます。</strong></p>
+<p>残された厳密性は二種類だけ ── <em>(a) 答えが整数かゼロになる問い、(b) 値を言わない、量どうしの関係。</em></p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>02節のブートストラップの「誤差」は厳密な区間ですが、<strong>数値的に得た区間</strong>です。区間が閉じることの証明は、計算の中身に依存しています。<br>03節の精度の比較は、<em>測っているものが違います</em>（対称性の破れの上限 対 値の一致）。三段の順序は頑健ですが、ビット数を直接比べるのは乱暴です。<br>4 次元の \(S\) 行列ブートストラップは<strong>いま進行中の前線</strong>で、QCD の質量比を 7 桁で囲い込めているわけではありません。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回から第 IV 部</span>
+<p>「全部を単純な整数の比で書きたい」── この願いには、<strong>物理でいちばん長い実績</strong>があります。そして成功例を並べると、驚くことに<em>全部が「距離の比」</em>でした。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第11回（第 III 部の終わり）です。くりこみ群方程式、ワード–高橋恒等式、't Hooft のアノマリー整合、Vafa–Witten 定理、共形ブートストラップの 3 次元イジング結果、および 03節の実験上限はいずれも<strong>確立した標準的な内容</strong>です。<em>「厳密なのは値ではなく関係」という整理と、03節の三段の並べ方は本シリーズのもの</em>です（kensho/calc05.py）。<strong>03節は測っているものが違う量を同じ単位で並べており</strong>、順序は頑健ですがビット数の直接比較は乱暴です。<strong>4 次元の \(S\) 行列ブートストラップは進行中の研究</strong>で、QCD の質量比を高精度で囲い込めているわけではありません。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

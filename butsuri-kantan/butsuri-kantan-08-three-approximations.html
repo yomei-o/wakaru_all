@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第8回：近似には、三種類ある ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f8f9; --paper-edge:#e4e0e5;
+    --side:#4a2f52; --side-bg:#f0edf0;
+    --warn:#8a4b2f;
+    --calc:#3b2541; --calc-bg:#eae7eb;
+    --rule:#d4cdd5; --hair:#bab0bd;
+    --acc:#4a2f52;
+    --grid:#e8e5e9;
+    --ops:#8a5a1a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d9d3db 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2846;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c9c1cb;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f3f1f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#ddd7de;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#ddd7de;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f1eff2;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#3f2846;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#3f2846;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#8f7e94;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 8 回 ／ 第 III 部 厳密とは何か</span></p>
+<p class="eyebrow">厳密／制御された近似／制御されていない近似 ── 一つは改良できない</p>
+
+<h1>近似には、<br>三種類ある
+<span class="sub">「近似だから駄目」で切ると、<em>厳密値への収束列</em>まで捨ててしまいます。<br>そして「厳密」と「閉じた形」は別物でした。</span></h1>
+
+<p class="byline"><span>必要な予備知識：第 II 部（強い力の層）</span><span>検証：kensho/calc04.py</span></p>
+
+<p class="lead">ここまでずっと「1 % で合う」「15 % 以内」と書いてきました。<em>それは近似です。</em> では厳密とは何か ── 調べてみると、<strong>近似には三種類あって、そのうち一つは原理的に改良できません</strong>。そして第 II 部で作ったものが、まさにそれでした。</p>
+
+<h2><span class="n">01</span>三種類ある</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>種類</th><th>中身</th><th>例</th><th>伸びしろ</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>厳密</strong></th><td>誤差がゼロ。近似ではない</td><td>アノマリー相殺、指数定理</td><td><strong>改良の余地が無い</strong></td></tr>
+<tr class="hi"><th><strong>制御された近似</strong></th><td>誤差の形が分かっていて、<strong>ゼロに持っていける</strong></td><td>格子 QCD、カイラル摂動論</td><td><strong>計算量を払えばいくらでも</strong></td></tr>
+<tr><th>制御されていない近似</th><td>誤差がいくらか<strong>分からない</strong></td><td>構成子模型、バッグ模型</td><td><strong>改良できない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>いちばん下と、上の二つとの差が決定的です。</p>
+
+<div class="keybox">
+<span class="lbl">第 II 部への判定</span>
+<p><strong>第6回で作ったのは、いちばん下でした。</strong></p>
+<p>「1 % で合う」が<em>なぜ 1 % なのか説明できない</em>のが、その証拠です。次に良くする方法もありません ── パラメータをもう一つ足す以外に。</p>
+</div>
+
+<p>だから「これだと単なる近似だ」という不満は、<strong>正しい</strong>のです。ただし「近似だから駄目」で切ると、真ん中の行まで捨ててしまいます。真ん中は<em>厳密値への収束列</em>であって、近似の対義語ではありません。</p>
+
+<h2><span class="n">02</span>「厳密」と「閉じた形」は、別物</h2>
+
+<p>ここが、この回のいちばん大事なところです。</p>
+
+<p>\(\pi = 3.14159265358979\dots\) に、<strong>近似は一つも入っていません</strong>。無限に続きますが、それは厳密に定まった一つの実数です。</p>
+
+<p>同じように、陽子質量とストリング張力の比 \(m_p/\sqrt{\sigma} = 2.13\dots\) も、<strong>QCD が厳密に定義している一つの実数</strong>です。違うのは、<em>短い式で書けるかどうか</em>だけ。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">厳密か</th><th class="mid">閉じた形</th><th>中身</th></tr></thead>
+<tbody>
+<tr><th>\(\pi\)</th><td class="mid">厳密</td><td class="mid">あり</td><td>円周率という定義がある</td></tr>
+<tr class="hi"><th><strong>\(m_p/\sqrt{\sigma}\)</strong></th><td class="mid"><strong>厳密</strong></td><td class="mid"><strong>なし</strong></td><td><strong>QCD が定義している実数</strong></td></tr>
+<tr><th>構成子模型の 1 %</th><td class="mid"><strong>近似</strong></td><td class="mid">─</td><td>そもそも別の量を計算している</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">願いが二つ混ざっている</span>
+<p>「厳密に一致させたい」と書くと、<em>別の二つの願い</em>が混ざります。</p>
+<p><strong>(i) 誤差ゼロで決まってほしい</strong> → 格子で原理的に達成できる<br>
+<strong>(ii) 短い式で書けてほしい</strong> → 3 次元以上では前例が一つも無い</p>
+</div>
+
+<h2><span class="n">03</span>(i) はどこまで行けるか ── 値段を計算する</h2>
+
+<p>格子計算の誤差は \(\varepsilon \propto a^2\)、コストは \(\propto a^{-6}\)。つまり <strong>コスト \(\propto \varepsilon^{-3}\)</strong>。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc04.py ⑥）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">目標精度</th><th class="mid">コスト [flops]</th><th>現実味</th></tr></thead>
+<tbody>
+<tr class="hi"><td class="mid">\(10^{-2}\)</td><td class="mid">\(10^{19}\)</td><td><strong>達成済み</strong></td></tr>
+<tr><td class="mid">\(10^{-3}\)</td><td class="mid">\(10^{22}\)</td><td>現実的</td></tr>
+<tr><td class="mid">\(10^{-4}\)</td><td class="mid">\(10^{25}\)</td><td>現実的</td></tr>
+<tr><td class="mid">\(10^{-5}\)</td><td class="mid">\(10^{28}\)</td><td>世界中の計算機を数年</td></tr>
+<tr><td class="mid">\(10^{-6}\)</td><td class="mid">\(10^{31}\)</td><td>世界の計算力 300 年ぶん</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>桁を 1 つ増やすたびに、計算は 1000 倍。</strong> 当面の壁は 4〜5 桁です。</p>
+
+<p>ただしこれは「近似だから駄目」という話ではありません。<em>誤差が制御されている</em> ── どこまで行きたいかを言えば、いくら払えばよいかが計算できる。これが真ん中の行の意味です。</p>
+
+<h2><span class="n">04</span>第 II 部の方法を、この目で仕分け直す</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>方法</th><th class="mid">種類</th><th>次に良くする方法</th></tr></thead>
+<tbody>
+<tr><th>アノマリー相殺、\(N_c=3\)</th><td class="mid"><strong>厳密</strong></td><td>不要（誤差ゼロ）</td></tr>
+<tr><th>格子 QCD</th><td class="mid"><strong>制御された近似</strong></td><td>格子を細かくする（1000 倍で 1 桁）</td></tr>
+<tr><th>カイラル摂動論</th><td class="mid"><strong>制御された近似</strong></td><td>次の次数まで計算する</td></tr>
+<tr class="hi"><th><strong>構成子模型</strong></th><td class="mid"><strong>制御されていない</strong></td><td><strong>無い</strong></td></tr>
+<tr class="hi"><th><strong>バッグ模型</strong></th><td class="mid"><strong>制御されていない</strong></td><td><strong>無い</strong></td></tr>
+<tr><th>Gell-Mann–Okubo</th><td class="mid">制御されていない</td><td>SU(3) 破れの 2 次は書けるが、係数が新しいパラメータになる</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="aside">
+<span class="tag">「次に良くする方法があるか」が判定基準</span>
+<p>これが三分類の実務的な使い方です。<strong>手元の計算が「制御された」側か「制御されていない」側かは、次の一手を言えるかどうかで分かります。</strong></p>
+<p>格子なら「格子間隔を半分にする」と言える。構成子模型では、言えることが「パラメータを増やす」しかない ── <em>そしてそれは第2回の帳簿で、いちばん高い買い物でした</em>。</p>
+</div>
+
+<h2><span class="n">05</span>だから、目標は言い直せる</h2>
+
+<div class="keybox">
+<span class="lbl">言い直し</span>
+<p>× 「近似ではなく厳密に一致させたい」</p>
+<p>○ <strong>(i) 制御されていない近似を、制御された近似に格上げする</strong><br>
+○ <strong>(ii) そもそも厳密になりうる問いを、先に見分ける</strong></p>
+</div>
+
+<p>(i) の方は、やり方がはっきりしています ── 誤差の展開が書けるところまで戻る。</p>
+
+<p>(ii) の方は、まだ何も分かっていません。<em>どんな問いなら厳密な答えが返ってくるのか</em>。次回はそれを、実際に厳密値を全部集めることで調べます。</p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>03節のコスト外挿は \(a^{-6}\) という一つの仮定に依ります。<strong>アルゴリズムの改良（過去 30 年で \(10^{6}\) 倍あった）は勘定に入れていません</strong> ── 「壁」は動きうる、ということです。<br>04節の「制御されていない」という判定は、<em>その模型が役に立たないという意味ではありません</em>。構成子模型は暗算で 1 % に届きます。判定しているのは「次の一手があるか」だけです。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回</span>
+<p>物理で<strong>厳密に成り立っているものを、全部集めます</strong>。すると驚くほどきれいな結果が出ました ── <em>例外なく、整数・小さい有理数・\(\pi\) の有理数倍。生の実数の厳密値は、一件もありません。</em></p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第8回です。格子 QCD のコストスケーリングとカイラル摂動論の系統的改良可能性は<strong>標準的な内容</strong>です。<em>「近似の三分類」と「次の一手があるかで判定する」という整理は本シリーズのもの</em>で、教科書の用語ではありません（「制御された近似」自体は分野で使われる言い方です）。数値は kensho/calc04.py で計算しました。<strong>03節の外挿はアルゴリズム改良を含んでいません</strong>。04節の判定は模型の有用性についてのものではありません。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

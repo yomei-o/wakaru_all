@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4回：高いのはどこか ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f7f8fa; --paper-edge:#dde2e8;
+    --side:#1c3f63; --side-bg:#eceff2;
+    --warn:#8a4b2f;
+    --calc:#16324f; --calc-bg:#e5e9ed;
+    --rule:#c9d1da; --hair:#a9b6c4;
+    --acc:#1c3f63;
+    --grid:#e3e7ec;
+    --ops:#a85a12;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #cfd7de 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#183655;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bbc5d0;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f0f3f5;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d4dbe1;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d4dbe1;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eef1f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#183655;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#183655;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#72889e;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 4 回 ／ 第 I 部「簡単」を測る（部の終わり）</span></p>
+<p class="eyebrow">摂動は儲かり、強結合は大損する ── 効率差は 7 倍</p>
+
+<h1>高いのは、<br>どこか
+<span class="sub">「もっと簡単にできないのか」の答えは、<em>できる所ではもうやっている</em>。<br>残っているのは \(\alpha_s \sim 1\) の一箇所だけでした。</span></h1>
+
+<p class="byline"><span>必要な予備知識：第2回の為替レート、第3回の記法圧縮</span><span>検証：kensho/calc01.py</span></p>
+
+<p class="lead">「もっと簡単に計算できないのか」── その答えは、<em>できる所ではもうやっている</em>でした。残っているのは一箇所だけで、そこだけが桁違いに高い。この回でその場所を特定し、ついでに<strong>「簡単」の二つの意味が完全に分離する例</strong>を見ます。そして第 I 部の結論 ── <em>三つの通貨</em> ── にたどり着きます。</p>
+
+<h2><span class="n">01</span>領域ごとに、為替レートが違う</h2>
+
+<p>第2回で測った「精度ビット ÷ 計算コストビット」を、領域ごとに出します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>領域</th><th class="mid">精度／コスト</th><th class="mid">収支</th><th>例</th></tr></thead>
+<tbody>
+<tr><th>摂動論が効く（\(\alpha\) 小）</th><td class="mid"><strong>2.03</strong></td><td class="mid"><strong>儲かる</strong></td><td>量子電磁力学、電弱、高エネルギー QCD</td></tr>
+<tr><th>対称性で決まる</th><td class="mid">\(\infty\)</td><td class="mid"><strong>タダ</strong></td><td>Gell-Mann–Okubo、アノマリー、指数定理</td></tr>
+<tr class="hi"><th><strong>強結合（\(\alpha \sim 1\)）</strong></th><td class="mid"><strong>0.2〜0.33</strong></td><td class="mid"><strong>大損</strong></td><td><strong>陽子質量、ハドロン、閉じ込め</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>いちばん下の行が、この分野で「わけのわからない計算」と呼ばれているものの正体です。</p>
+
+<h2><span class="n">02</span>格子計算の値段を、実際に見積もる</h2>
+
+<p>格子 QCD は、時空を格子に切って数値的に解きます。格子の間隔を \(a\) とすると：</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc01.py ⑦）</span>
+<p>離散化の誤差 \(\sim a^2\)、計算コスト \(\sim a^{-6}\)</p>
+<p>→ 誤差を半分にする（精度 \(+1\) ビット）のにコストは \(2^3 = 8\) 倍 ＝ <strong>3 ビット</strong><br>
+→ 統計誤差ぶん（誤差 \(\sim N^{-1/2}\)、コスト \(\sim N\) ＝ <strong>2 ビット</strong>）も乗る<br>
+→ 実効レート <strong>精度 1 ビットあたりコスト 3〜5 ビット</strong></p>
+</div>
+
+<div class="keybox">
+<span class="lbl">効率の差</span>
+<p>摂動論　<strong>2.03</strong> ビット／ビット　（1 払って 2 返る）<br>
+格子　　<strong>0.2〜0.33</strong> ビット／ビット　（3〜5 払って 1 返る）</p>
+<p><strong>効率差は約 7 倍。</strong></p>
+</div>
+
+<p>だから、摂動論が使えるところでは誰も格子を使いません。<em>使えないところだけが残っている</em>。</p>
+
+<h2><span class="n">03</span>だから、答えはこうなる</h2>
+
+<div class="keybox">
+<span class="lbl">「もっと簡単に計算できないのか」への答え</span>
+<p><strong>できる所では、もうやっています。</strong><br>残っているのは \(\alpha_s \sim 1\) の領域だけで、そこだけが桁違いに高い。</p>
+</div>
+
+<p>これは怠慢の話ではありません。摂動論が使える場所では、人類はすでに 12,672 枚の図を描いています（第2回）。記法で圧縮できる場所では、1052 万枚を 1 項にしています（第3回）。<em>残ったのは、そのどちらも効かない場所です。</em></p>
+
+<h2><span class="n">04</span>高いところを安くする道が、三つある</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>道</th><th>何を使うか</th><th>何を犠牲にするか</th><th class="mid">実績</th></tr></thead>
+<tbody>
+<tr><th>ブートストラップ</th><td>整合性（交叉対称性＋ユニタリ性）だけ</td><td>ラグランジアンも図も使わない</td><td class="mid">\(\nu\) を 7 桁</td></tr>
+<tr><th>有効理論の階層</th><td>測った定数でループを置き換える</td><td><strong>パラメータで払う</strong></td><td class="mid">数 %</td></tr>
+<tr><th>大 \(N\) 展開</th><td>\(1/N_c = 1/3\) を小さいと見なす</td><td><strong>強結合を弱結合に化かす</strong></td><td class="mid">30 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">05</span>そして、ここで「簡単」が二つに割れる</h2>
+
+<p>一番上のブートストラップが、この回でいちばん面白いところです。</p>
+
+<div class="keybox">
+<span class="lbl">ブートストラップの奇妙さ</span>
+<p><strong>記述長は極端に短いのに、計算量は重い。</strong></p>
+<p>使う仮定は「クロッシング対称性とユニタリ性」の<em>2 語</em>。ラグランジアンも、粒子の一覧も、結合定数も要らない。</p>
+<p>ところが実際に解くのは、<strong>数万本の制約を持つ半正定値計画</strong>です。</p>
+</div>
+
+<p>第1回で「三つの軸は独立」と言いました。<strong>ここでそれが完全に分離します。</strong> 短く言えることと、速く解けることは、別の資源です。ブートストラップは片方が極小で、もう片方が極大。</p>
+
+<div class="aside">
+<span class="tag">第 III 部への伏線</span>
+<p>ブートストラップが特別なのは、値段の話だけではありません。<em>これは「近似」ではない</em> ── 出てくる誤差は、近似の誤差ではなく<strong>厳密な不等式の幅</strong>です。この違いが何を意味するかは、第 III 部（第8〜11回）で正面から扱います。</p>
+</div>
+
+<h2><span class="n">06</span>第 I 部のまとめ ── 通貨は三つあった</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>通貨</th><th class="mid">レート</th><th>性質</th></tr></thead>
+<tbody>
+<tr><th>パラメータ</th><td class="mid">5.37 ビット／個</td><td>増やせば予言が減る</td></tr>
+<tr class="hi"><th><strong>計算量</strong></th><td class="mid"><strong>2.03 ビット／ビット</strong></td><td><strong>増やしても予言は減らない</strong></td></tr>
+<tr><th>対称性</th><td class="mid">タダ</td><td>使える所が限られる</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>第 I 部の結論</h2>
+<p><strong>第5回の天秤（記述長＋ずれ）には、通貨が一つ足りませんでした。</strong>「パラメータいくつ」しか数えていなくて、「計算いくら」を数えていない。</p>
+<p>同じ精度を出す二つの理論でも、<em>片方が \(10^{19}\) flops 要るなら同じではありません</em>。</p>
+<p>そして ── <strong>計算が「わけのわからない」ものになるのは、それがいちばん安い通貨だからです。</strong> 簡単にした分は、必ずパラメータか精度で払うことになります。</p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>格子のスケーリング指数（\(a^{-6}\)）は作用とアルゴリズムに依り、\(a^{-5}\)〜\(a^{-7}\) の幅があります。また過去 30 年でアルゴリズムの改良が \(10^{6}\) 倍あった事実は、この見積もりに入っていません ── <strong>「壁」は動きうる</strong>ということです。<br>そして最大の留保：<em>計算量まで込みの記述長理論を、本シリーズは作れていません</em>。コルモゴロフ複雑さと計算量の関係は、それ自体が未解決の分野です。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回から第 II 部</span>
+<p>物差しができたので、実際の物理に当てます。<strong>強い力</strong>を四つの層に切ってみると ── <em>数 % までは全部が単純な計算で届き、格子 QCD が要るのは最後の数 % だけ</em>でした。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第4回（第 I 部の終わり）です。格子 QCD のコストスケーリング（\(a^{-6}\)）と摂動論の収束は<strong>標準的な内容</strong>ですが、<em>それらを同じ「ビット／ビット」という単位で比べたのは本シリーズの整理</em>で、教科書の主張ではありません。数値は kensho/calc01.py で計算しました。<strong>「三つの通貨」という言い方も本シリーズの独自の枠組み</strong>です。計算量を含む形式的な記述長理論は本シリーズでは作れていません。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

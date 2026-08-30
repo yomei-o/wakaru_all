@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7回：持ち込んだ定数を、棚卸しする ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9f8; --paper-edge:#dfe4e1;
+    --side:#2a4d3a; --side-bg:#edf0ee;
+    --warn:#8a4b2f;
+    --calc:#213d2e; --calc-bg:#e7ebe8;
+    --rule:#ccd4d0; --hair:#aebbb4;
+    --acc:#2a4d3a;
+    --grid:#e4e9e6;
+    --ops:#8a5a1a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d2dad6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#244231;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bfcac4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f1f3f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d7ddda;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d7ddda;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff2f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#244231;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#244231;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7b9185;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 7 回 ／ 第 II 部 強い力で実演する（部の終わり）</span></p>
+<p class="eyebrow">12 個 → 0 個。本物の入力はクォーク質量比 6 個だけ</p>
+
+<h1>持ち込んだ定数を、<br>棚卸しする
+<span class="sub">「単純にした」と言いながら、12 個の定数を持ち込んでいました。<br><em>三つのふるいにかけたら、全部落ちました。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第5〜6回（層と構成子模型）</span><span>検証：kensho/calc03.py</span></p>
+
+<p class="lead">前の二回は「単純にした」と言いながら、<strong>12 個の定数を持ち込んでいました</strong>。構成子質量、超微細係数、バッグ定数 ── どれも出どころが説明されていません。この回では、それを一つずつ潰します。三つのふるいにかけると、<em>全部落ちました</em>。強い力の本物の入力は <strong>0 個</strong>です。</p>
+
+<h2><span class="n">01</span>まず、持ち込んだものを全部並べる</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc03.py ①）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>定数</th><th class="mid">値</th><th>出どころ</th></tr></thead>
+<tbody>
+<tr><th>\(m_u\)（中間子）</th><td class="mid">291 MeV</td><td>フィット</td></tr>
+<tr><th>\(m_s\)（中間子）</th><td class="mid">484 MeV</td><td>フィット</td></tr>
+<tr><th>\(A_M^{1/3}\)</th><td class="mid">367 MeV</td><td>フィット</td></tr>
+<tr><th>\(m_u\)（バリオン）</th><td class="mid">364 MeV</td><td>フィット</td></tr>
+<tr><th>\(m_s\)（バリオン）</th><td class="mid">537 MeV</td><td>フィット</td></tr>
+<tr><th>\(A_B^{1/3}\)</th><td class="mid">297 MeV</td><td>フィット</td></tr>
+<tr><th>\(B^{1/4}\)（バッグ）</th><td class="mid">145 MeV</td><td>フィット</td></tr>
+<tr><th>\(\Lambda_{\overline{\rm MS}}\)</th><td class="mid">332 MeV</td><td>入力</td></tr>
+<tr><th>\(x = 2.04\)、\(Z_0 = 1.84\)</th><td class="mid">─</td><td>？</td></tr>
+<tr><th>\(\langle \mathbf{S}_i\cdot\mathbf{S}_j\rangle\)、色因子</th><td class="mid">─</td><td>？</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>合計 12 個。<strong>これを数えずに「単純にした」と言うのは、帳簿をごまかしています。</strong></p>
+
+<h2><span class="n">02</span>ふるい① ── それは、計算できる純粋な数か</h2>
+
+<p>下の四つは、値を決める自由が<em>そもそもありません</em>。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>定数</th><th>中身</th><th>出どころ</th></tr></thead>
+<tbody>
+<tr><th>\(\langle \mathbf{S}_i\cdot\mathbf{S}_j\rangle\)</th><td>\(-3/4, +1/4, \pm 1, \dots\)</td><td><strong>スピンの足し算</strong></td></tr>
+<tr><th>色因子 \(-16/3, -8/3\)</th><td>中間子と 3 体の違い</td><td><strong>SU(3) の 2 次カシミール</strong></td></tr>
+<tr><th>\(x = 2.0428\)</th><td>球の中の質量ゼロのディラック粒子の最低モード</td><td><strong>\(j_0(x)=j_1(x)\) の最初の解</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>\(x = 2.0428\) は<strong>ベッセル関数の零点</strong>です。円周率が 3.14159… であるのと同じ種類の数で、決める自由度はゼロ。</p>
+
+<div class="keybox">
+<span class="lbl">ふるい① の結果</span>
+<p><strong>これらは「意味不明な定数」ではなく、計算をサボった記号でした。</strong><br>消せる ── というより、<em>最初から入力ではなかった</em>。</p>
+</div>
+
+<h2><span class="n">03</span>ふるい② ── それは、唯一のスケールの \(O(1)\) 倍か</h2>
+
+<p>残った次元を持つ定数を、全部 \(\Lambda = 332\) MeV で割ってみます。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc03.py ③）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>定数</th><th class="mid">値 [MeV]</th><th class="mid">\(\Lambda\) の何倍</th></tr></thead>
+<tbody>
+<tr><th>\(B^{1/4}\)（バッグ）</th><td class="mid">145</td><td class="mid">0.44</td></tr>
+<tr><th>\(m_u\)（中間子）</th><td class="mid">291</td><td class="mid">0.88</td></tr>
+<tr><th>\(A_B^{1/3}\)</th><td class="mid">297</td><td class="mid">0.89</td></tr>
+<tr><th>\(m_u\)（バリオン）</th><td class="mid">364</td><td class="mid">1.10</td></tr>
+<tr><th>\(A_M^{1/3}\)</th><td class="mid">367</td><td class="mid">1.10</td></tr>
+<tr><th>\(m_s\)（中間子）</th><td class="mid">484</td><td class="mid">1.46</td></tr>
+<tr class="hi"><th>\(m_s\)（バリオン）</th><td class="mid">537</td><td class="mid"><strong>1.62</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc03.py ③）</span>
+<p>全部 <strong>0.44〜1.62 倍</strong>、開きは <strong>3.7 倍</strong>しかない。</p>
+<p>完全に自由なら \(8\times5.37 = \mathbf{43}\) ビット払う。<br>
+実際は \(\Lambda\) の 3.7 倍の窓に収まるので、<strong>15 ビット</strong>しか新しくない。<br>
+→ <strong>65 % は \(\Lambda\) 一つで決まっていた。</strong></p>
+</div>
+
+<p><em>「定数が増えた」のは見かけだけ</em>でした。8 個あるように見えて、実質は 3 個分の情報しかない。</p>
+
+<h2><span class="n">04</span>ふるい③ ── その \(\Lambda\) は、そもそも定数か</h2>
+
+<p>ここで一段深くなります。\(\Lambda\) は質量の次元を持ちます。<strong>次元を持つ量は、単位の取り方で数値が変わります。</strong> だから \(\Lambda\) は「世界についての数」ではなく、<em>単位を決めているだけ</em>です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">次元</th><th>身分</th></tr></thead>
+<tbody>
+<tr><th>\(\Lambda_{\rm QCD}\)</th><td class="mid">質量</td><td>定数ではなく<strong>単位</strong></td></tr>
+<tr><th>\(m_q\)（クォーク質量）</th><td class="mid">質量</td><td>同上</td></tr>
+<tr class="hi"><th><strong>\(m_q/\Lambda\)</strong></th><td class="mid"><strong>無次元</strong></td><td><strong>これが本当の入力</strong></td></tr>
+<tr><th>\(m_p/\Lambda\)</th><td class="mid">無次元</td><td><strong>計算で出る（入力ではない）</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">05</span>そして、残りも実際に消されている</h2>
+
+<p>これは机上の整理ではありません。<strong>格子 QCD は、①の 12 個を一つも使いません。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>方法</th><th>余分な入力</th><th class="mid">個数</th><th class="mid">計算量</th></tr></thead>
+<tbody>
+<tr><th>構成子模型</th><td>\(m_u, m_s, A\)（中間子・バリオン別）＋ \(B, Z_0\)</td><td class="mid">8</td><td class="mid">四則演算</td></tr>
+<tr class="hi"><th><strong>格子 QCD</strong></th><td><strong>ゲージ結合 1 個 ＋ クォーク質量</strong></td><td class="mid"><strong>0</strong></td><td class="mid"><strong>\(10^{19}\) flops</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc03.py ④）</span>
+<p>消したパラメータ： 8 個 \(= \mathbf{43}\) ビット<br>
+払った計算量　　： \(63 - 7 = \mathbf{56}\) ビット</p>
+<p>→ <strong>パラメータ 1 ビットを消すのに、計算 1.3 ビット。</strong></p>
+</div>
+
+<div class="keybox">
+<span class="lbl">この回の要点</span>
+<p><strong>「意味不明な定数が増える」は、計算を避けた代金です。</strong></p>
+<p>第 I 部で測った三つの通貨の、そのままの実演でした。</p>
+</div>
+
+<h2><span class="n">06</span>極端に行くと、入力がゼロになる</h2>
+
+<p>クォーク質量を全部ゼロにした純粋な QCD（純ヤン・ミルズ）は、<strong>無次元パラメータをただの一つも持ちません</strong>。すべての比が、計算で決まる純粋な数になります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">\(\sqrt{\sigma}\) の何倍</th><th class="mid">誤差</th></tr></thead>
+<tbody>
+<tr><th>グルーボール \(0^{++}\)</th><td class="mid">3.405</td><td class="mid">±0.021</td></tr>
+<tr><th>グルーボール \(2^{++}\)</th><td class="mid">4.850</td><td class="mid">±0.040</td></tr>
+<tr><th>グルーボール \(0^{-+}\)</th><td class="mid">5.800</td><td class="mid">±0.100</td></tr>
+<tr><th>グルーボール \(1^{+-}\)</th><td class="mid">6.270</td><td class="mid">±0.090</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>これらは <strong>\(\pi\) や \(e\) と同じ種類の数</strong>です。測って決めるものではなく、<em>理論が持っている数</em>。</p>
+
+<h2><span class="n">07</span>棚卸しの結果</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>種類</th><th class="mid">個数</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>スピン係数、色因子、ベッセル零点</th><td class="mid">0</td><td>計算できる純粋な数</td></tr>
+<tr><th>構成子質量、\(A\)、\(B\)</th><td class="mid">0</td><td>\(\Lambda\) の \(O(1)\) 倍。格子は使わない</td></tr>
+<tr><th>\(\Lambda_{\rm QCD}\)</th><td class="mid">0</td><td>次元を持つ → 単位</td></tr>
+<tr class="hi"><th><strong>クォーク質量の比 6 個</strong></th><td class="mid"><strong>6</strong></td><td><strong>無次元。計算で出せない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>第 II 部の結論</h2>
+<p><strong>12 個 → 0 個。</strong> 強い力の本物の入力は、クォーク質量の比 6 個だけでした。</p>
+<p>しかもその 6 個は QCD の話ではなく、<em>ヒッグスの話</em>です。</p>
+<p>→ <strong>強い力そのものは、パラメータをほぼ持っていません。</strong></p>
+</div>
+
+<h2><span class="n">08</span>持ち帰る三つのふるい</h2>
+
+<div class="keybox">
+<span class="lbl">「意味不明な定数が増えた」と感じたら</span>
+<p>① <strong>純粋な数か</strong> ── 群論・特殊関数から出るなら、それは記号であって定数ではない<br>
+② <strong>唯一のスケールの \(O(1)\) 倍か</strong> ── そうなら、増えているのは見かけだけ<br>
+③ <strong>無次元か</strong> ── 次元を持つなら単位であって、世界についての数ではない</p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>03節の「\(\Lambda\) の 3.7 倍以内」は、\(\Lambda\) の定義（スキーム、\(n_f\)）に依ります。\(\Lambda\) を 2 倍違う値に取れば倍率は全部ずれますが、<strong>開きの幅は変わりません</strong>。<br>05節の「\(10^{19}\) flops \(=63\) ビット」は桁の見積もりで、交換レート 1.3 は 2 倍の幅を持ちます。<br>06節のグルーボール質量は<strong>まだ実験で確認されていません</strong>（格子の計算値どうしは一致していますが、対応する粒子の同定が未確定）。<br>そして最大の留保 ── <em>「消せる」と「消した方がよい」は別</em>です。構成子模型は 8 個払って暗算で 1 % に届き、格子は 0 個で \(10^{19}\) flops。目標が「わかりやすく」なら、<strong>前者の方が正しい選択でありうる</strong>。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回から第 III 部</span>
+<p>ここまでずっと「1 % で合う」「15 % 以内」と書いてきました。<em>それは近似です</em>。では<strong>厳密</strong>とは何なのか。近似には三種類あって、そのうち一つは<strong>改良できません</strong> ── そしてこの二回で作ったものが、まさにそれでした。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第7回（第 II 部の終わり）です。色因子、ベッセル零点、格子 QCD の入力、グルーボール質量比はいずれも<strong>確立した標準的な内容</strong>です。新しいのは<em>「三つのふるい」という整理と、パラメータと計算量の交換レートを数えたこと</em>で、これは本シリーズの枠組みです（kensho/calc03.py）。<strong>\(\Lambda\) の値はスキーム依存</strong>で、03節の倍率はその取り方で動きます。<strong>グルーボールは実験的に未確認</strong>です。「消せる」と「消した方がよい」は別だという留保を、07節の結論と同じ重みで読んでください。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>
