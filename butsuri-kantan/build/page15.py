@@ -56,6 +56,11 @@ BODY = r'''<p class="lead">整数がある場所と無い場所の境目を、QC
 <p>「強い力は汚い」のは、走り方ではなく<em>スペクトル</em>の話でした。</p>
 </div>
 
+<div class="caveat">
+<span class="tag">番外編で一段細かくしました</span>
+<p>整数になるのは <strong>2 ループまで</strong>でした ―― <strong>3 ループの \(b_2\) には \(\zeta(3)\) が入ります</strong>。「走り方は単純な整数で決まる」は、低次での話でした ―― <strong><a href="butsuri-kantan-b2-zeta.html">番外編②</a></strong>。<em>境目は一本ではなく、階段だったのかもしれません。</em></p>
+</div>
+
 <p>第5回を思い出してください。\(\Lambda = \mu\exp(-2\pi/(b_0\alpha_s))\) で、原子核のスケールが決まりました。<strong>その指数の中身は整数 9 です。</strong> 汚いのは \(\alpha_s\) の値の方 ── そしてそれは第7回で見たとおり、<em>単位の選択</em>です。</p>
 
 <h2><span class="n">03</span>なぜ、動力学だと駄目なのか</h2>

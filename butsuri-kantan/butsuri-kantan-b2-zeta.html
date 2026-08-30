@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番外編②：厳密値に、π 以外の定数が出る ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f9f8fa; --paper-edge:#e6e1e9;
+    --side:#5a3a6a; --side-bg:#f1eef2;
+    --warn:#8a4b2f;
+    --calc:#482e54; --calc-bg:#ece8ee;
+    --rule:#d7d0db; --hair:#c0b4c6;
+    --acc:#5a3a6a;
+    --grid:#eae6ec;
+    --ops:#8a5a1a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #dcd6e0 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#4d315b;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #cec4d2;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fcfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfe;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f4f2f5;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e0dae3;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e0dae3;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f3f0f4;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#4d315b;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfe,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#4d315b;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#9985a3;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">番外編 ② ／ 第9回の訂正</span></p>
+<p class="eyebrow">ζ(3) とカタラン定数 ── 反例は例外ではなく族だった</p>
+
+<h1>厳密値に、<br>\(\pi\) 以外の定数が出る
+<span class="sub">第9回の「整数と \(\pi\) しかない」には反例がありました。<br><em>ただし境目そのものは、動きませんでした。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第9回（厳密値のフィルタ）</span><span>検証：kensho/calc09.py</span></p>
+
+<p class="lead">第9回で「厳密値を全部集めたら、<strong>整数と \(\pi\) しかなかった</strong>」と書きました。そのとき「網羅的な調査ではない」と断りましたが ── <em>実際に反例がありました</em>。しかも例外ではなく、<strong>一つの族</strong>でした。ただし、境目そのものは動きませんでした。</p>
+
+<h2><span class="n">01</span>反例その一 ── 黒体輻射に \(\zeta(3)\) が出る</h2>
+
+<p>空洞の中の光子の<em>数</em>密度は、厳密に次の形をしています。</p>
+
+<div class="keybox">
+<span class="lbl">黒体輻射の光子数密度</span>
+<p>\[n_\gamma = \frac{2\zeta(3)}{\pi^2}\left(\frac{k_BT}{\hbar c}\right)^3\]</p>
+</div>
+
+<p>\(\zeta(3) = \sum_n 1/n^3\)。自由場のボーズ積分から出る、<strong>まぎれもない厳密値</strong>です。近似は一つも入っていません。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc09.py ②）</span>
+<p>\(\sum 1/n^3\) を 400 万項： \(\zeta(3) = \mathbf{1.202056903}\)（参考値と \(5\times10^{-11}\) 一致）</p>
+</div>
+
+<p>ところが \(\zeta(3)\) は、<strong>\(\pi\) の有理数倍ではありません</strong>。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid"></th><th class="mid">値</th><th class="mid">閉じた形</th></tr></thead>
+<tbody>
+<tr><th class="mid">\(\zeta(2)\)</th><td class="mid">1.644934067</td><td class="mid">\(\pi^2/6\)</td></tr>
+<tr class="hi"><th class="mid">\(\zeta(3)\)</th><td class="mid"><strong>1.202056903</strong></td><td class="mid"><strong>\(\pi\) では書けない</strong></td></tr>
+<tr><th class="mid">\(\zeta(4)\)</th><td class="mid">1.082323234</td><td class="mid">\(\pi^4/90\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>偶数だけが \(\pi\) の冪になります。</strong> 奇数は名前つきの新しい定数で、\(\zeta(3)\)（アペリーの定数）が無理数であることは 1978 年に証明されましたが、<em>\(\pi\) との閉じた関係は知られていません</em>。</p>
+
+<h2><span class="n">02</span>反例その二 ── 2 次元イジングにカタラン定数</h2>
+
+<p>第9回では「2 次元イジングの臨界指数は \(\nu=1\)、\(\beta=1/8\)、\(\eta=1/4\) ── 全部きれいな有理数」と書きました。ところが<strong>自由エネルギーそのもの</strong>を見ると、話が変わります。</p>
+
+<div class="keybox">
+<span class="lbl">オンサーガーの厳密解（正方格子、臨界点）</span>
+<p>\[-\beta f = \ln 2 + \frac{1}{8\pi^2}\iint \ln\!\left[2-\cos\theta_1-\cos\theta_2\right]d\theta_1 d\theta_2\]</p>
+<p>この積分の値は \(\;\dfrac{\ln 2}{2} + \dfrac{2G}{\pi}\;\) ── \(G\) は<strong>カタラン定数</strong>。</p>
+</div>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc09.py ③）</span>
+<p>数値積分（\(3000\times3000\) 点）　　\(-\beta f = \mathbf{0.929695}\)<br>
+\(\ln2/2 + 2G/\pi\)　　　　　　　　\(-\beta f = \mathbf{0.929695}\)<br>
+差 \(= 3.9\times10^{-8}\)　── <strong>7 桁一致</strong></p>
+<p>カタラン定数 \(G = \mathbf{0.915965594}\)</p>
+</div>
+
+<p>カタラン定数も \(\pi\) の有理数倍ではありません。それどころか ── <strong>無理数かどうかすら証明されていません</strong>。</p>
+
+<h2><span class="n">03</span>これは例外ではなく、族だった</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th class="mid">厳密値</th><th class="mid">含む定数</th><th>出どころ</th></tr></thead>
+<tbody>
+<tr class="hi"><th>黒体の光子数</th><td class="mid">\(2\zeta(3)/\pi^2\)</td><td class="mid"><strong>\(\zeta(3)\)</strong></td><td>自由場のボーズ積分</td></tr>
+<tr><th>黒体のエントロピー</th><td class="mid">\(\propto \zeta(4)=\pi^4/90\)</td><td class="mid">\(\pi\) の冪</td><td>同上（偶数なので \(\pi\)）</td></tr>
+<tr class="hi"><th>2 次元イジング臨界自由エネルギー</th><td class="mid">\(\ln2/2 + 2G/\pi\)</td><td class="mid"><strong>カタラン \(G\)</strong></td><td>可解模型</td></tr>
+<tr><th>2 次元イジング自発磁化</th><td class="mid">\((1-k^2)^{1/8}\)</td><td class="mid">有理数の冪</td><td>可解模型</td></tr>
+<tr><th>デバイ模型の低温比熱</th><td class="mid">\(\propto \pi^4/5\)</td><td class="mid">\(\pi\) の冪</td><td>自由場</td></tr>
+<tr class="hi"><th>3 ループの \(\beta\) 関数係数</th><td class="mid">\(\zeta(3)\) を含む</td><td class="mid"><strong>\(\zeta(3)\)</strong></td><td><strong>多ループ積分</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最後の行が示唆的です。<strong>多ループのファインマン積分には \(\zeta(3)\)、\(\zeta(5)\) が普通に出ます</strong>（多重ゼータ値と呼ばれる族）。つまり反例は珍しいものではなく、<em>ある高さから上では標準的</em>でした。</p>
+
+<div class="aside">
+<span class="tag">第15回とつながる</span>
+<p>第15回で「\(\beta\) 関数の係数 \(b_0=9\)、\(b_1=64\) は整数」と驚きました。<strong>ところが 3 ループの \(b_2\) には \(\zeta(3)\) が入ります。</strong><br>「結合定数の走り方は単純な整数で決まる」は、<em>2 ループまでの話</em>でした。ここも第15回の記述を一段細かくする必要があります。</p>
+</div>
+
+<h2><span class="n">04</span>主張を、正しく書き直す</h2>
+
+<div class="record">
+<h2>訂正</h2>
+<p>× 「厳密値は<strong>整数・有理数・\(\pi\) の有理数倍</strong>しかない」</p>
+<p>○ <strong>「厳密値は必ず<em>閉じた形</em>を持つ」</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>値の型</th><th>出どころ</th><th>例</th></tr></thead>
+<tbody>
+<tr><th>整数・有理数</th><td>数え上げ・群論・位相</td><td>\(N_c=3\), \(C_F=4/3\), \(b_0=9\)</td></tr>
+<tr><th>\(\pi\) の有理数倍</th><td>自由場のガウス積分</td><td>\(A/4\), \(-\pi/12\), \(\pi^2/60\)</td></tr>
+<tr class="hi"><th><strong>名前つきの定数</strong></th><td><strong>自由場でも高次／可解模型</strong></td><td><strong>\(\zeta(3)\)、カタラン \(G\)</strong></td></tr>
+<tr><th>代数的数</th><td>可解模型の指数</td><td>\((1-k^2)^{1/8}\)</td></tr>
+<tr><td colspan="3" class="mid">────── ここから先 ──────</td></tr>
+<tr class="hi"><th><strong>閉じた形なし</strong></th><td><strong>相互作用を実際に解いた答え</strong></td><td><strong>\(m_p/\sqrt\sigma\)、3 次元イジング \(\nu\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">05</span>境目は、動かなかった</h2>
+
+<div class="keybox">
+<span class="lbl">反例が広げたのは、境目の「上側」だけ</span>
+<p>\(\zeta(3)\) もカタラン \(G\) も、<strong>式で書けます</strong> ── 無限級数として定義されている。数値がいくらでも欲しい桁まで出せる。</p>
+<p>一方 \(m_p/\sqrt\sigma = 2.13\dots\) は、<strong>数値でしか知られていません</strong>。級数も積分も、それを与える式が一つも書かれていない。</p>
+</div>
+
+<p>つまり第9回の<strong>分類の境目 ── 相互作用を実際に解いたかどうか ── は、そのまま生きています</strong>。直すべきだったのは「整数と \(\pi\) しかない」という<em>言い方</em>の方でした。</p>
+
+<p>そして第9回の実務的な結論 ── <strong>「量はいくつか」ではなく「いくつあるか」と問え</strong> ── も変わりません。整数を狙う理由は、\(\pi\) しか出ないからではなく、<em>整数が数え上げから来るから</em>でした。</p>
+
+<h2><span class="n">06</span>この訂正から持ち帰るもの</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>やったこと</th><th>効果</th></tr></thead>
+<tbody>
+<tr><th>「例外なく」と書いた箇所を疑う</th><td>網羅していない主張は、<strong>必ず反例が出る</strong></td></tr>
+<tr class="hi"><th><strong>反例を探しにいく</strong></th><td><strong>2 件見つかり、しかも族だった</strong></td></tr>
+<tr><th>境目が動いたか確かめる</th><td>動いていない ── <em>言い方だけが誤り</em>だった</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>番外編①（\(\tau\) 質量の誤差）と合わせて、<strong>本編には二箇所の上振れがありました</strong>。どちらも<em>結論は変わらず、根拠の言い方が誤っていた</em>という型です。</p>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>\(\zeta(3)\) が \(\pi\) の冪で書けないことは、<strong>証明されていません</strong>（無理数であることは証明済みですが、\(\pi\) との関係は未解決）。250 年探して見つかっていない、という状況証拠があるだけです。<br>02節の数値積分は対数特異点を含むため収束が遅く、<em>主張しているのは 7 桁の一致</em>です。<br>04節の「閉じた形を持つ」にも<strong>厳密な定義はありません</strong>（何を「閉じた」と呼ぶかは規約）。ただし \(\zeta(3)\) と \(m_p/\sqrt\sigma\) の間には<em>「定義する式があるか」という明確な差</em>があります。<br>そして ── <strong>この番外編もまた網羅的ではありません</strong>。「閉じた形を持つ」に対する反例が将来出る可能性は残っています。</p>
+</div>
+
+<div class="next">
+<span class="lbl">この先</span>
+<p>03節の最後の行 ── <strong>3 ループの \(\beta\) 関数に \(\zeta(3)\) が入る</strong> ── は、第15回の「境目は一本」をもう一段細かくします。<em>群論・位相からは整数、自由場の低次からは \(\pi\)、高次からは \(\zeta\)、そして相互作用を解くと閉じた形が消える。</em> 境目は一本ではなく、<strong>階段</strong>だったのかもしれません。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ番外編②です。<strong>本編第9回の記述（「厳密値は整数と \(\pi\) しかない」）の訂正を含みます</strong>。黒体輻射の光子数密度に \(\zeta(3)\) が現れること、オンサーガーの臨界自由エネルギーにカタラン定数が現れること、多ループ積分に多重ゼータ値が現れることは、いずれも<strong>確立した標準的な内容</strong>です ── 本シリーズが見落としていました。数値確認は kensho/calc09.py で行いました。<strong>\(\zeta(3)\) が \(\pi\) の冪で書けないことは証明されていません</strong>。<strong>「閉じた形」にも厳密な定義はありません</strong>。この番外編も網羅的ではなく、さらなる反例の可能性は残ります。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>
