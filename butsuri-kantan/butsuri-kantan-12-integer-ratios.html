@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12回：整数比の戦績 ── 全部「距離の比」だった ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#faf8f8; --paper-edge:#ebe1df;
+    --side:#7a3a2a; --side-bg:#f4eeed;
+    --warn:#8a4b2f;
+    --calc:#612e21; --calc-bg:#f0e8e7;
+    --rule:#dfd0cc; --hair:#ccb4ae;
+    --acc:#7a3a2a;
+    --grid:#eee6e4;
+    --ops:#3a5a7a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #e3d6d2 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#683124;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #d7c4bf;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fdfbfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fefdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f6f2f1;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#e6dad7;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#e6dad7;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f5f0ef;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#683124;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fefdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#683124;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#ad857b;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 12 回 ／ 第 IV 部 整数比の探し方</span></p>
+<p class="eyebrow">勝った 10 例は、例外なく「閉じた道に何個入るか」</p>
+
+<h1>整数比の戦績<br>── 全部「距離の比」だった
+<span class="sub">整数が出るのは、閉じたものを数えているときだけ。<br><em>時計は数えられる。ロープは数えられない。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第9回（厳密値のフィルタ）</span><span>検証：kensho/calc06.py</span></p>
+
+<p class="lead">「全部を単純な整数の比で書きたい」── この願いには、<strong>物理でいちばん長い実績</strong>があります。200 年、勝ち続けている。そして成功例を並べたら、驚くことに<em>全部が同じ形</em>をしていました ── <strong>閉じた道に、いくつ入るか</strong>。つまり、長さと長さの比です。</p>
+
+<h2><span class="n">01</span>戦績</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc06.py ①）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>いつ</th><th>何の比</th><th class="mid">答え</th><th class="mid">ずれ</th></tr></thead>
+<tbody>
+<tr><th>倍数比例の法則 (1803)</th><td>CO : CO\(_2\) の酸素</td><td class="mid"><strong>1 : 2</strong></td><td class="mid">厳密</td></tr>
+<tr class="hi"><th>バルマー (1885)</th><td>H\(\alpha\) / H\(\beta\) の波長比</td><td class="mid"><strong>27/20</strong></td><td class="mid"><strong>\(5\times10^{-6}\)</strong></td></tr>
+<tr><th>ブラッグ (1913)</th><td>\(n\lambda = 2d\sin\theta\)</td><td class="mid">\(n\) は整数</td><td class="mid">厳密</td></tr>
+<tr><th>ボーア (1913)</th><td>\(2\pi r = n\lambda\)</td><td class="mid">\(n\) は整数</td><td class="mid">厳密</td></tr>
+<tr><th>角運動量</th><td>\(\hbar/2\) の整数倍</td><td class="mid">整数</td><td class="mid">厳密</td></tr>
+<tr class="hi"><th>電荷</th><td>\(e/3\) の整数倍</td><td class="mid">整数</td><td class="mid"><strong>\(<10^{-21}\)</strong></td></tr>
+<tr><th>磁束量子</th><td>\(\Phi = n\,h/2e\)</td><td class="mid">整数</td><td class="mid">\(<10^{-9}\)</td></tr>
+<tr class="hi"><th>ジョセフソン効果</th><td>\(V = n\,(h/2e)f\)</td><td class="mid">整数</td><td class="mid"><strong>\(<10^{-19}\)</strong></td></tr>
+<tr><th>整数量子ホール効果</th><td>\(\sigma = \nu\,e^2/h\)</td><td class="mid">\(\nu\) は整数</td><td class="mid">\(<10^{-10}\)</td></tr>
+<tr><th>分数量子ホール効果</th><td>\(\nu = 1/3, 2/5, \dots\)</td><td class="mid"><strong>単純な有理数</strong></td><td class="mid">厳密</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>バルマーを実際に検算しておきます。水素のスペクトルは \(\lambda \propto 1/(1/4 - 1/n^2)\) なので、\(n=3\) と \(n=4\) の比は純粋な分数になるはずです。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc06.py ①）</span>
+<p>予言　\(\lambda_\alpha/\lambda_\beta = (36/5)\div(16/3) = 27/20 = \mathbf{1.350000}\)<br>
+実測　\(656.279 / 486.135 = \mathbf{1.349993}\)<br>
+ずれ　\(\mathbf{5.0\times10^{-6}}\)</p>
+</div>
+
+<div class="keybox">
+<span class="lbl">この方針の強さ</span>
+<p><strong>整数比を探すのは、物理でいちばん実績のある方針です。</strong></p>
+<p>しかも第9〜11回で見たとおり、<em>整数の主張は 20 桁で検証できます</em>。0.57 % で止まる関係とは、桁が違う。</p>
+</div>
+
+<h2><span class="n">02</span>勝った例に、共通するもの</h2>
+
+<p>10 個並べて眺めると、全部が同じことをしています。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>例</th><th>何を数えているか</th></tr></thead>
+<tbody>
+<tr><th>倍数比例</th><td><strong>原子の個数</strong></td></tr>
+<tr><th>バルマー</th><td><strong>軌道に波が何個入るか</strong></td></tr>
+<tr><th>ブラッグ</th><td><strong>面と面の間に波長が何個入るか</strong></td></tr>
+<tr><th>ボーア</th><td><strong>円周に波長が何個入るか</strong></td></tr>
+<tr><th>角運動量</th><td><strong>一周したときの位相の回転数</strong></td></tr>
+<tr><th>量子ホール</th><td><strong>チャーン数 ＝ 位相の巻きつき回数</strong></td></tr>
+<tr><th>磁束量子</th><td><strong>輪を通る磁束が波動関数を何回まわすか</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>この回の中心</h2>
+<p><strong>例外なく、「閉じた道に、いくつ入るか」を数えています。</strong></p>
+<p>整数はどれも \(n = 2L/\lambda\) の形 ── <em>長さと長さの比</em>です。</p>
+</div>
+
+<p>「整数比は距離と関係があるのではないか」という直感は、<strong>成功例については 100 % 当たっています</strong>。整数が出るとき、必ずどこかに<em>一周して戻る道</em>があって、そこに何かが何個入るかを数えている。</p>
+
+<h2><span class="n">03</span>「閉じている」が本質</h2>
+
+<p>なぜ閉じていると整数になるのか。閉じていない場合と並べると、はっきりします。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>何の対称性か</th><th>閉じているか</th><th class="mid">スペクトル</th><th class="mid">整数比</th></tr></thead>
+<tbody>
+<tr><th>回転 SO(3)</th><td><strong>閉じている</strong>（一周して戻る）</td><td class="mid">離散</td><td class="mid"><strong>\(J = 0, 1/2, 1, \dots\)</strong></td></tr>
+<tr><th>U(1) 電荷</th><td><strong>閉じている</strong></td><td class="mid">離散</td><td class="mid"><strong>\(e/3\) の整数倍</strong></td></tr>
+<tr><th>箱の中の並進</th><td><strong>閉じている</strong>（周期境界）</td><td class="mid">離散</td><td class="mid"><strong>\(n = 2L/\lambda\)</strong></td></tr>
+<tr><th>巻きつき数</th><td><strong>閉じている</strong>（円周）</td><td class="mid">整数</td><td class="mid"><strong>トポロジカル電荷</strong></td></tr>
+<tr class="hi"><th>自由空間の並進</th><td><strong>閉じていない</strong></td><td class="mid">連続</td><td class="mid"><strong>整数なし</strong></td></tr>
+<tr class="hi"><th>エネルギーの値そのもの</th><td><strong>閉じていない</strong></td><td class="mid">連続</td><td class="mid"><strong>整数なし</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">探すときの指針</span>
+<p><strong>整数が出るのは、閉じたものを数えているときだけです。</strong></p>
+<p>時計（一周して戻る）は数えられる。ロープ（どこまでも伸びる）は数えられない。</p>
+<p>→ <em>閉じた道を見つけたら、そこに整数があります。</em></p>
+</div>
+
+<h2><span class="n">04</span>言い換えると、こうなる</h2>
+
+<p>「一周して戻る」という言い方を、もう少し使いやすくしておきます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>問いの形</th><th class="mid">整数が出るか</th><th>例</th></tr></thead>
+<tbody>
+<tr class="hi"><th>「一周したら、何回まわったか」</th><td class="mid"><strong>出る</strong></td><td>角運動量、量子ホール、巻きつき数</td></tr>
+<tr class="hi"><th>「この長さに、何個入るか」</th><td class="mid"><strong>出る</strong></td><td>バルマー、ブラッグ、ボーア</td></tr>
+<tr class="hi"><th>「全部で何個あるか」</th><td class="mid"><strong>出る</strong></td><td>色の数、世代の数、倍数比例</td></tr>
+<tr><th>「この量はいくつか」</th><td class="mid"><strong>出ない</strong></td><td>陽子質量、臨界指数、結合定数</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>上の三つは<em>数え上げ</em>、いちばん下は<em>測定</em>です。<strong>数え上げには整数が返り、測定には実数が返ります。</strong></p>
+
+<div class="aside">
+<span class="tag">第 III 部とつながる</span>
+<p>第9回のフィルタ（「答えが整数かゼロか」）と、この回の指針（「閉じた道があるか」）は、<strong>同じことを別の側から言っています</strong>。<br>閉じているから離散になり、離散だから整数で数えられ、整数だから厳密になる。<em>三つが一続きです。</em></p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>03節の「閉じている → 整数」は、<strong>離散スペクトルの十分条件であって必要条件ではありません</strong>。閉じていなくても束縛状態は離散になります（水素原子がそうです）。<br>ただし <em>その離散値が整数比になる</em> のは、可解なときだけです ── 水素が \(1/n^2\) というきれいな形になるのは、水素が厳密に解けるから。ヘリウムの基底状態エネルギーは、水素との比が生の実数になります。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回</span>
+<p>負けた歴史も見ます ── ケプラーの正多面体、ボーデの法則、エディントンの 137。そして<strong>いちばん使える発想</strong>が、負けた例の中から出てきます。プルーの仮説は 1815 年に破れて、<em>1913 年に復活しました</em>。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第12回です。倍数比例の法則、バルマー系列、ブラッグ条件、角運動量・電荷の量子化、磁束量子、ジョセフソン効果、量子ホール効果はいずれも<strong>確立した標準的な内容</strong>です。<em>「勝った例は全部『閉じた道に何個入るか』である」という並べ方と、そこから作った指針は本シリーズの整理</em>で、教科書の主張ではありません（kensho/calc06.py）。<strong>「閉じている → 整数」は十分条件であって必要条件ではありません</strong>（水素原子は反例）── 04節の留保と合わせて読んでください。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>

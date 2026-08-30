@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第16回：現在地と、三本の道 ── 物理を簡単にする</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f8f9; --paper-edge:#dfe1e6;
+    --side:#2a3a5a; --side-bg:#edeef1;
+    --warn:#8a4b2f;
+    --calc:#212e48; --calc-bg:#e7e8ec;
+    --rule:#ccd0d7; --hair:#aeb4c0;
+    --acc:#2a3a5a;
+    --grid:#e4e6ea;
+    --ops:#7a5a3a;
+    --warnc:#a83a22;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d2d6dc 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#24314d;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #bfc4ce;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfbfc;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f1f2f4;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#d7dae0;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#d7dae0;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#eff0f3;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#24314d;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#24314d;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#7b8599;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">物理を簡単にする <span class="ep">第 16 回 ／ 最終回</span></p>
+<p class="eyebrow">パラメータは増え続けている。それでも比では勝っている</p>
+
+<h1>現在地と、<br>三本の道
+<span class="sub">残った非圧縮性の半分以上は、フェルミオンの質量と混合。<br><em>数字で生き残っている候補は、一つだけでした。</em></span></h1>
+
+<p class="byline"><span>必要な予備知識：第1〜15回</span><span>検証：kensho/calc07.py（および calc01〜06）</span></p>
+
+<p class="lead">最終回です。目標に対する<strong>現在地</strong>を測ります ── この 50 年、パラメータの数は<em>増え続けています</em>。それでも比を見ると勝っている。残った非圧縮性のうち、数字で生き残っている候補は<strong>一つだけ</strong>でした。そして 15 回でやってきたことを、一本の道筋にまとめます。</p>
+
+<h2><span class="n">01</span>圧縮の実績 ── 目標は何度も達成されている</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc07.py ②）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>いつ</th><th>何を</th><th>何に</th><th class="mid">圧縮</th></tr></thead>
+<tbody>
+<tr><th>1687 ニュートン</th><td>地上の落下 ＋ 天体の運行</td><td>1 つの法則</td><td class="mid">2 → 1</td></tr>
+<tr><th>1865 マクスウェル</th><td>電気 ＋ 磁気 ＋ 光</td><td>4 つの式</td><td class="mid">3 → 1</td></tr>
+<tr><th>1877 ボルツマン</th><td>熱力学の諸法則</td><td>力学 ＋ 数え上げ</td><td class="mid">4 → 1</td></tr>
+<tr class="hi"><th>1926 量子力学</th><td><strong>92 元素の性質の表</strong></td><td>1 つの方程式 ＋ \(Z\)</td><td class="mid"><strong>100 → 1</strong></td></tr>
+<tr><th>1967 電弱</th><td>電磁気 ＋ 弱い力</td><td>1 つのゲージ群</td><td class="mid">2 → 1</td></tr>
+<tr class="hi"><th>1973 QCD</th><td>ハドロン百数十個</td><td>3 つのクォーク ＋ 色</td><td class="mid"><strong>140 → 1</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>どれも「別々に見えたものが同じだった」型</strong>です。新しい仕組みを足したのではなく、既にあるものが一つだと気づいた。<em>目標は歴史的に何度も達成されていて、方法もはっきりしています。</em></p>
+
+<h2><span class="n">02</span>ところが、この 50 年は逆を向いている</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc07.py ③）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">年</th><th class="mid">独立な数</th><th>できごと</th></tr></thead>
+<tbody>
+<tr><td class="mid">1900</td><td class="mid">300</td><td>元素・スペクトルの表をそのまま持つ</td></tr>
+<tr><td class="mid">1930</td><td class="mid">30</td><td>量子力学で化学が畳まれる</td></tr>
+<tr class="hi"><td class="mid">1973</td><td class="mid"><strong>19</strong></td><td><strong>標準模型が完成。ここが底</strong></td></tr>
+<tr><td class="mid">1998</td><td class="mid">26</td><td>ニュートリノ質量と混合で \(+7\)</td></tr>
+<tr><td class="mid">2003</td><td class="mid">28</td><td>暗黒エネルギーで \(+1\)、ほか</td></tr>
+<tr class="hi"><td class="mid">2026</td><td class="mid"><strong>30</strong></td><td><strong>まだ増えている</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>1973 年を底に、パラメータの数は増え続けています。</strong> 「単純にする」は、この 50 年ずっと負けている ── 少なくとも、この数え方では。</p>
+
+<h2><span class="n">03</span>ただし、比を見ると勝っている</h2>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc07.py ④）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>時代</th><th class="mid">説明したデータ</th><th class="mid">理論の値段</th><th class="mid">圧縮率</th></tr></thead>
+<tbody>
+<tr class="hi"><th>1900 の化学</th><td class="mid">3000 ビット</td><td class="mid">3000 ビット</td><td class="mid"><strong>1.0</strong></td></tr>
+<tr><th>1930 の量子化学</th><td class="mid">3000</td><td class="mid">161</td><td class="mid">18.6</td></tr>
+<tr class="hi"><th>2026 の素粒子</th><td class="mid">30000</td><td class="mid">161</td><td class="mid"><strong>186</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">指標を取り替える</span>
+<p><strong>1900 年の化学は圧縮率 1:1</strong> ── 表を書き写しただけで、理論ではありませんでした。</p>
+<p>いまは <strong>186:1</strong>。パラメータは増えましたが、<em>説明した量はそれ以上に増えています</em>。</p>
+<p>→ <strong>「単純にする」の正しい指標は、数ではなく比。</strong></p>
+</div>
+
+<h2><span class="n">04</span>残った非圧縮性は、どこに集中しているか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>場所</th><th class="mid">個数</th><th>現状</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>フェルミオンの質量</strong></th><td class="mid"><strong>12</strong></td><td><strong>全部フィット。確立した関係はゼロ</strong></td></tr>
+<tr class="hi"><th>混合角と位相</th><td class="mid">8</td><td>全部フィット。パターンはあるが説明なし</td></tr>
+<tr><th>ゲージ結合</th><td class="mid">3</td><td>走る。大統一で 1 個になる可能性</td></tr>
+<tr><th>ヒッグス</th><td class="mid">2</td><td>フィット</td></tr>
+<tr><th>\(\theta_{\rm QCD}\)</th><td class="mid">1</td><td>なぜ 0 なのか不明</td></tr>
+<tr><th>宇宙論</th><td class="mid">6</td><td>初期条件。説明の対象かも不明</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>半分以上が質量と混合です。</strong> ここが圧縮できれば、目標の大半が片づきます。</p>
+
+<h2><span class="n">05</span>候補を、第13回の物差しで採点する</h2>
+
+<p>「質量や角度の間に、隠れた関係があるのではないか」── 有名な候補を四つ、採点します。買いは \(\log_2(\text{事前範囲}/\text{一致幅})\)、払いは探索空間 \(\log_2 M\)。</p>
+
+<div class="calc">
+<span class="tag">計算（kensho/calc07.py ⑥）</span>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>候補</th><th class="mid">買い</th><th class="mid">払い</th><th class="mid">差引</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>小出の関係</strong>（荷電レプトン）</th><td class="mid"><strong>16.7</strong></td><td class="mid">10.0</td><td class="mid"><strong>\(+6.8\)</strong></td><td>\((\sum m)/(\sum\sqrt{m})^2 = 2/3\)、ずれ \(9.2\times10^{-6}\)</td></tr>
+<tr><th>\(b\)–\(\tau\) 統一</th><td class="mid">3.9</td><td class="mid">4.9</td><td class="mid">\(-1.0\)</td><td>大統一で \(m_b/m_\tau \to 1\)、10 % 以内</td></tr>
+<tr><th>量子レプトン相補性</th><td class="mid">4.9</td><td class="mid">6.6</td><td class="mid">\(-1.7\)</td><td>\(\theta_C+\theta_{12} = 46.5^\circ\)（\(45^\circ\) から \(1.5^\circ\)）</td></tr>
+<tr><th>\(\theta_{13} \approx \theta_C/\sqrt2\)</th><td class="mid">6.1</td><td class="mid">8.2</td><td class="mid">\(-2.1\)</td><td>予言 \(9.22^\circ\)、実測 \(8.57^\circ\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>採点の結果</h2>
+<p><strong>生き残るのは、小出の関係だけでした。</strong> 5〜6 桁合っていて、探索空間を引いても黒字。</p>
+<p><em>角度の関係は、全部が探索の値段で消えます。</em>「それっぽく見える」のは、候補が多すぎるからです（第13回）。</p>
+<p>→ <strong>圧縮を探すなら、まず荷電レプトンの質量。</strong> ここだけが数字で残っています。</p>
+</div>
+
+<h2><span class="n">06</span>三本の道</h2>
+
+<p>第1回で「三つの軸」を作りました。目標に対して、それぞれが道になります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>道</th><th>やること</th><th>手がかり</th><th>見込み</th></tr></thead>
+<tbody>
+<tr><th>A 記述長を下げる</th><td>荷電レプトン質量の関係を説明する</td><td><strong>小出の関係だけが残っている</strong></td><td>難しい。50 年誰もできていない</td></tr>
+<tr><th>B 計算量を下げる</th><td>強結合領域の新しい記法を探す</td><td>ブートストラップ、大 \(N\)、AdS/CFT</td><td>専門家が大勢いる</td></tr>
+<tr class="hi"><th><strong>C 前提概念を下げる</strong></th><td><strong>既知の物理を、少ない前提で組み直す</strong></td><td><strong>三つの通貨、三つのふるい、厳密性のフィルタ</strong></td><td><strong>空いている。一人でできる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<span class="lbl">道の選び方</span>
+<p><strong>A は運が要ります。B は設備と人数が要ります。C は要りません。</strong></p>
+<p>そして C の成果は、<em>A と B の両方を助けます</em> ── 前提が少ないほど、探しやすくなるから。</p>
+</div>
+
+<h2><span class="n">07</span>15 回でやったのは、C の道だった</h2>
+
+<p>このシリーズ自体が、第三の軸の実例になっています。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>回</th><th>置き換えた前提概念</th><th>新しい前提</th></tr></thead>
+<tbody>
+<tr><th>第1〜4回</th><td>「簡単」をめぐる議論</td><td><strong>三つの通貨（記述長・計算量・前提概念）</strong></td></tr>
+<tr><th>第7回</th><td>「意味不明な定数」をめぐる議論</td><td><strong>三つのふるい（純粋な数か・\(O(1)\) 倍か・無次元か）</strong></td></tr>
+<tr><th>第8〜9回</th><td>「近似 対 厳密」の議論</td><td><strong>三分類 ＋「答えが整数かゼロか」</strong></td></tr>
+<tr><th>第10回</th><td>「なぜ解けないのか」の議論</td><td><strong>コールマン–マンデュラの四つの仮定</strong></td></tr>
+<tr class="hi"><th>第12〜15回</th><td>「整数比は見つかるか」の議論</td><td><strong>「閉じた道を数えているか」の一言</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>新しい物理は一つも使っていません。順序と記法だけです。</strong></p>
+
+<h2><span class="n">08</span>15 回を、一枚に</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th class="mid">部</th><th class="mid">回</th><th>結論</th></tr></thead>
+<tbody>
+<tr><th class="mid">第 I 部</th><td class="mid">1〜4</td><td>「簡単」は三つあり、独立。計算がいちばん安い通貨</td></tr>
+<tr><th class="mid">第 II 部</th><td class="mid">5〜7</td><td>強い力は四層に切れる。持ち込んだ定数 12 個は全部落ちる</td></tr>
+<tr><th class="mid">第 III 部</th><td class="mid">8〜11</td><td>厳密値は整数と \(\pi\) しかない。解けないのは定理の帰結</td></tr>
+<tr class="hi"><th class="mid">第 IV 部</th><td class="mid">12〜15</td><td><strong>整数は「閉じた道を数える」ところにだけある</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="record">
+<h2>一文にすると</h2>
+<p><strong>物理を簡単にする道は三本あって、そのうち二本は塞がっている。</strong></p>
+<p>残る一本 ── <em>前提概念を減らすこと</em> ── は、新しい物理も設備も要らず、まだ誰も最適化していません。</p>
+<p>そして<strong>厳密が欲しいなら、問いを「いくつあるか」に書き換えること。</strong> 閉じた道を数えているところにだけ、整数と厳密があります。</p>
+</div>
+
+<div class="caveat">
+<span class="tag">正直な線</span>
+<p>02節のパラメータ数の推移は<strong>数え方に幅があります</strong>（マヨラナ位相、宇宙論の従属パラメータ）。ただし「1973 年が底で、その後増えた」という向きは変わりません。<br>03節の圧縮率は「PDG の約 3000 項目」という粗い見積もりで、桁の話としてだけ読んでください。<br>05節の払い \(\log_2 M\) は<strong>筆者の見積もり</strong>です。小出の 1000 通りを 10 万通りにすれば黒字は消えます ── <em>この一点で結論がひっくり返る</em>ことを明記しておきます。<br>そして 07節は<strong>自画自賛の危険があります</strong>。本シリーズの道具が実際に前提を減らしたかは、<em>読者にしか判定できません</em>。筆者が測ると必ず良く出ます。</p>
+</div>
+
+<div class="next">
+<span class="lbl">この先</span>
+<p>04節の 12 個 ── フェルミオンの質量 ── が、残った最大の的です。<strong>そこに関係が「在る」か「無い」かは、まだ誰も知りません。</strong> 探すときは第13回の採点を先にかけてください。それが、このシリーズから持ち帰れるいちばん実用的な道具です。</p>
+</div>
+
+<p class="foot">この文書は「物理を簡単にする」シリーズ第16回（最終回）です。01節の統一の歴史、04節のパラメータの内訳、05節の四つの候補（小出の関係、\(b\)–\(\tau\) 統一、量子レプトン相補性、\(\theta_{13}\approx\theta_C/\sqrt2\)）はいずれも<strong>よく知られた事実</strong>です。<em>「三つの軸」「三本の道」「探索空間を引いてから採点する」という枠組みは本シリーズのもの</em>で、教科書の主張ではありません（kensho/calc07.py）。<strong>02節の数え方には幅があり</strong>、03節は粗い見積もりです。<strong>05節の \(\log_2 M\) は筆者の見積もりで、この一点で結論が変わります</strong>。07節は自己評価であり、読者の判断に委ねます。<strong>本シリーズは既存の物理に新しい主張を加えるものではありません</strong> ── 扱った物理はすべて確立した標準的な内容で、新しいのは測り方だけです。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+</body>
+</html>
