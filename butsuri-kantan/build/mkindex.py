@@ -29,9 +29,9 @@ B.append('<h1>物理を簡単にする\n<span class="sub">'
          '「もっと単純な法則の組み合わせにできないか」── この願いを、実行できる形にします。<br>'
          'まず<em>「簡単」を三つに分けて測り</em>、強い力で実演し、「厳密」の境目を決め、<br>'
          '最後に <strong>「全部を整数の比で書けないか」</strong> を統計的に検定します。</span></h1>\n\n')
-B.append('<p class="meta"><span>全 16 話・完結／ 5 部構成</span>'
+B.append('<p class="meta"><span>全 16 話・完結 ＋ 番外編 1 話／ 5 部構成</span>'
          '<span>各話：数える → 割り算する → 表にする → 正直な線</span>'
-         '<span>検証スクリプト 7 本</span><span>印刷・PDF化対応</span></p>\n\n')
+         '<span>検証スクリプト 8 本</span><span>印刷・PDF化対応</span></p>\n\n')
 
 B.append('<p class="lead">物理は 200 年、圧縮に成功し続けてきました ── '
          '92 元素の表が 1 本の方程式に、ハドロン 140 個が 3 つのクォークに。'
@@ -44,7 +44,7 @@ B.append('<p class="lead">物理は 200 年、圧縮に成功し続けてきま�
 
 B.append('<div class="keybox">\n<p class="lbl">このシリーズの作法</p>\n'
          '<p style="margin:6px 0 0"><strong>数字はすべて、書く前にスクリプトを走らせて出しました</strong>'
-         '（<code>kensho/calc01.py</code>〜<code>calc07.py</code>）。'
+         '（<code>kensho/calc01.py</code>〜<code>calc08.py</code>）。'
          '各回の末尾に<em>正直な線</em>を置き、見積もりが筆者の判断による箇所と、'
          'その一点で結論が変わる箇所を明記しています。'
          '<strong>本シリーズは既存の物理に新しい主張を加えるものではありません</strong> ── '
@@ -204,6 +204,21 @@ B.append(ep(16, 'butsuri-kantan-16-where-we-are.html',
             'そして道は三本 ── <em>A は運が、B は設備が要る。C は要らない。</em>',
             '<strong>C の道＝前提概念を減らす</strong> ── 空いている', '最終回'))
 
+B.append(part('番外編', '推測を、計算に置き換える',
+              '第16回の採点には、筆者が<strong>推測で決めた数が二つ</strong>入っていました。'
+              'それを全部計算に置き換え、<em>本編の記述を一箇所訂正</em>します。'))
+
+B.append(ep(1, 'butsuri-kantan-b1-koide.html',
+            '番外編：小出の関係を、推測なしで採点する',
+            '第16回の「5〜6 桁合っている」は<strong>言い過ぎ</strong>でした ―― '
+            '\(	au\) 質量の誤差を入れると \(K\) は \(\pm1.0	imes10^{-5}\) 動き、'
+            'ずれは<em>0.91 \(\sigma\)</em>。探索空間も推測（\(\log_2 M=10.0\)）ではなく'
+            '<strong>57 通りを列挙して 5.83</strong>。そして新しい項目 ―― '
+            '<strong>狙う有理数の単純さも払う</strong>と、'
+            '精度では勝っていた \(513/8\) が<em>9.4 ビット高くて逆転</em>する。',
+            '結論は変わらず <strong>\(+8.1\) ビット</strong>。ただし内訳が入れ替わった',
+            '訂正あり'))
+
 B.append('<div class="aside">\n<span class="tag">このシリーズの出どころ</span>\n'
          '<p>「<a href="../wakaru-ct/index.html">わかる c·t=一定</a>」完結後の深掘りから生まれました。'
          '出発点は読者の一言 ── <em>「この分野、大体最後は素粒子のわけわかんない計算に落ちるね。'
@@ -215,7 +230,7 @@ B.append('<p class="foot">「物理を簡単にする」シリーズ（全 16 �
          '<strong>扱う物理はすべて確立した標準的な内容で、本シリーズは新しい物理を主張していません。</strong>'
          '新しいのは<em>測り方</em>（三つの通貨、三つのふるい、厳密性のフィルタ、整数比の指針）だけで、'
          'これらは教科書の用語ではありません。'
-         '数値は <code>kensho/calc01.py</code>〜<code>calc07.py</code> ですべて計算しました。'
+         '数値は <code>kensho/calc01.py</code>〜<code>calc08.py</code> ですべて計算しました。'
          '<strong>「前提概念の数」「探索空間 \\(M\\)」など、筆者の見積もりに依存する箇所があり</strong>、'
          'その一点で結論が変わるものは各回の「正直な線」に明記しています。'
          '印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>\n\n')
