@@ -25,7 +25,7 @@ BODY = r'''<p class="lead">物差しができたので、いちばん手強い�
 
 <div class="keybox">
 <span class="lbl">次元転移</span>
-<p>\[\Lambda = \mu\,\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(\mu)}\right),\qquad b_0 = 11 - \frac{2n_f}{3}\]</p>
+<p>$$\Lambda = \mu\,\exp\!\left(-\frac{2\pi}{b_0\,\alpha_s(\mu)}\right),\qquad b_0 = 11 - \frac{2n_f}{3}$$</p>
 </div>
 
 <div class="calc">

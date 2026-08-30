@@ -44,7 +44,7 @@ BODY = r'''<p class="lead">整数がある場所と無い場所の境目を、QC
 
 <div class="keybox">
 <span class="lbl">それでも整数だった</span>
-<p>\[b_0 = 11 - \frac{2n_f}{3},\qquad b_1 = 102 - \frac{38 n_f}{3}\]</p>
+<p>$$b_0 = 11 - \frac{2n_f}{3},\qquad b_1 = 102 - \frac{38 n_f}{3}$$</p>
 <p>\(n_f = 3\) なら \(b_0 = \mathbf{9}\)、\(b_1 = \mathbf{64}\)。</p>
 </div>
 

@@ -34,7 +34,7 @@ BODY = r'''<p class="lead">前回は「計算を増やせば精度が買える�
 
 <div class="keybox">
 <span class="lbl">Parke–Taylor 公式</span>
-<p>\[A_n = \frac{\langle ij\rangle^4}{\langle 12\rangle\langle 23\rangle\cdots\langle n1\rangle}\]</p>
+<p>$$A_n = \frac{\langle ij\rangle^4}{\langle 12\rangle\langle 23\rangle\cdots\langle n1\rangle}$$</p>
 <p><strong>これで全部です。</strong> \(n\) が何本でも、項は一つ。</p>
 </div>
 
@@ -59,7 +59,7 @@ BODY = r'''<p class="lead">前回は「計算を増やせば精度が買える�
 
 <div class="keybox">
 <span class="lbl">Gell-Mann–Okubo の質量公式</span>
-<p>\[\frac{m_N + m_\Xi}{2} = \frac{3m_\Lambda + m_\Sigma}{4}\]</p>
+<p>$$\frac{m_N + m_\Xi}{2} = \frac{3m_\Lambda + m_\Sigma}{4}$$</p>
 </div>
 
 <div class="calc">

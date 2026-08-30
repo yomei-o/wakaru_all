@@ -7,7 +7,7 @@ BODY = r'''<p class="lead">第16回で「生き残るのは小出の関係だけ
 
 <div class="keybox">
 <span class="lbl">小出の関係（1981）</span>
-<p>\[K = \frac{m_e+m_\mu+m_\tau}{\left(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\right)^2} = \frac{2}{3}\;?\]</p>
+<p>$$K = \frac{m_e+m_\mu+m_\tau}{\left(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\right)^2} = \frac{2}{3}\;?$$</p>
 </div>
 
 <div class="calc">

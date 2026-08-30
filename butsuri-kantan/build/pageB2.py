@@ -9,7 +9,7 @@ BODY = r'''<p class="lead">第9回で「厳密値を全部集めたら、<strong
 
 <div class="keybox">
 <span class="lbl">黒体輻射の光子数密度</span>
-<p>\[n_\gamma = \frac{2\zeta(3)}{\pi^2}\left(\frac{k_BT}{\hbar c}\right)^3\]</p>
+<p>$$n_\gamma = \frac{2\zeta(3)}{\pi^2}\left(\frac{k_BT}{\hbar c}\right)^3$$</p>
 </div>
 
 <p>\(\zeta(3) = \sum_n 1/n^3\)。自由場のボーズ積分から出る、<strong>まぎれもない厳密値</strong>です。近似は一つも入っていません。</p>
@@ -40,7 +40,7 @@ BODY = r'''<p class="lead">第9回で「厳密値を全部集めたら、<strong
 
 <div class="keybox">
 <span class="lbl">オンサーガーの厳密解（正方格子、臨界点）</span>
-<p>\[-\beta f = \ln 2 + \frac{1}{8\pi^2}\iint \ln\!\left[2-\cos\theta_1-\cos\theta_2\right]d\theta_1 d\theta_2\]</p>
+<p>$$-\beta f = \ln 2 + \frac{1}{8\pi^2}\iint \ln\!\left[2-\cos\theta_1-\cos\theta_2\right]d\theta_1 d\theta_2$$</p>
 <p>この積分の値は \(\;\dfrac{\ln 2}{2} + \dfrac{2G}{\pi}\;\) ── \(G\) は<strong>カタラン定数</strong>。</p>
 </div>
 

@@ -45,7 +45,8 @@ BODY = r'''<p class="lead">「計算量」は測れます。しかも、<em>精�
 
 <div class="keybox">
 <span class="lbl">為替レート</span>
-<p>\[\text{精度ビット} = 10.24 + \mathbf{2.03}\times \log_2(\text{図の数})\]</p>
+<p>$$b \;=\; 10.24 \;+\; \mathbf{2.03}\,\log_2 D$$</p>
+<p style="text-align:center;margin-top:-10px;font-size:15px">\(b\)＝精度ビット、\(D\)＝図の数</p>
 <p><strong>計算コスト 1 ビットにつき、精度が 2.03 ビット買える。</strong></p>
 </div>
 
