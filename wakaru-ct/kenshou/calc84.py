@@ -127,7 +127,7 @@ wins = [
     ("\u70ad\u7d20\u304c\u6b8b\u308b\uff08\u4e0a\u9650\u306e\u307f f<%.1f\uff09" % fs[0][1], 0.0, fs[0][1] * alpha),
     ("\u30a6\u30e9\u30f3\u304c\u6b8b\u308b\uff08\u4e0a\u9650\u306e\u307f f<%.2f\uff09" % fs[-1][1], 0.0, fs[-1][1] * alpha),
     ("\u6c34\u7d20\u304c\u6b8b\u308b\uff08\u4e0a\u9650\u306e\u307f f<%.2f\uff09" % f_pn, 0.0, f_pn * alpha),
-    ("**C/O \u6bd4\uff08\u4e21\u5074 \u00b14 %%\uff09**", 0.96 * alpha, 1.04 * alpha),
+    ("**C/O \u6bd4\uff08\u4e21\u5074 \u00b14 %\uff09**", 0.96 * alpha, 1.04 * alpha),
 ]
 for amin, amax, label in [(1e-5, 1e-1, "10\u207b\u2075 \u301c 10\u207b\u00b9\uff084 \u6841\uff09"),
                           (1e-11, 1e-1, "10\u207b\u00b9\u00b9 \u301c 10\u207b\u00b9\uff0810 \u6841\uff09")]:
