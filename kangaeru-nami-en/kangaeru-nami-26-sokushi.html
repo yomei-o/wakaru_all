@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is a fractional order always the result of coarse-graining? ｜ Thinking in Waves 26</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1b1a22; --ink-soft:#4c4a5a;
+    --paper:#f8f7fb; --paper-edge:#e0dee9;
+    --side:#3e3466; --side-bg:#eeecf5;
+    --warn:#8a4b2f;
+    --calc:#332b56; --calc-bg:#eae7f3;
+    --rule:#d4d0e2; --hair:#b6b1cc;
+    --acc:#3e3466;
+    --grid:#e4e1ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 26 ／ Part XI · Settling the hypothesis</span></p>
+<p class="eyebrow">Grading Episode 2's hypothesis with 25 episodes' worth of tools</p>
+
+<h1>Is a fractional order always the result of coarse-graining? ──<br>we found a counterexample
+<span class="sub">Integer-order parts alone can build a <strong>half order</strong>. A fractional order <strong>always</strong> decomposes into first-order relaxations.<br>And yet ── <em>there is a real system that coarse-grains down to nothing but an integer order.</em><br>★ <strong>What was missing is self-similarity. A fractional order is the trace of scale-invariant degrees of freedom that were removed.</strong></span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 2, 10, 11, 13, 14, 15, 22</span><span>Computation: kenshou/sokushi.js</span></p>
+
+<p class="lead">In Episode 2 we wrote this ── <strong>[Hypothesis] A system that shows a fractional order is always the result of coarse-graining (integrating out) hidden degrees of freedom.</strong><br><em>And also: "one counterexample would refute it ── this is falsifiable."</em> Twenty-five episodes have supplied the tools, so let us actually check.</p>
+
+<h2><span class="n">01</span>Splitting it in three ── which way does "always" point?</h2>
+
+<p>The sentence quietly mixes <strong>two directions</strong>. Without separating them we cannot grade it.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Test</th><th>Question</th><th>Direction</th></tr></thead>
+<tbody>
+<tr><th>①</th><td>Can a system built only from integer-order parts <strong>produce</strong> a fractional order?</td><td>existence</td></tr>
+<tr><th>②</th><td>Does a fractional order <strong>always</strong> decompose into integer-order pieces?</td><td>fractional → coarse-graining</td></tr>
+<tr class="hi"><th><strong>③</strong></th><td><strong>★ Does coarse-graining always give a fractional order?</strong></td><td><strong>coarse-graining → fractional</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §01</p>
+<p style="margin:6px 0 0">What the hypothesis meant was ② (see a fractional order, and there are removed degrees of freedom behind it).<br>
+<strong>★ But read another way it also claims ③</strong> ── <em>and the real contest is in ③.</em></p>
+</div>
+
+<h2><span class="n">02</span>Test ① Building a half order from integer-order parts only</h2>
+
+<p>Make a ladder out of resistors and capacitors. Both parts are integer order ── a resistor is \(Z=R\) (order 0), a capacitor \(Z=1/(i\omega C)\) (order \(-1\)). <strong>There is no half-order component anywhere.</strong></p>
+
+<div class="calc">
+<span class="tag">Input impedance of \(N\) stages ── a continued fraction</span>
+$$Z_n=R+\cfrac{1}{i\omega C+\cfrac{1}{Z_{n-1}}}$$
+<p class="lbl">\(R=1,\ C=1,\ \omega=10^{-4}\)</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Stages \(N\)</th><th>\(|Z|\)</th><th>Phase [deg]</th><th>Offset from \(-45^\circ\)</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">10000.000</td><td class="mid">−89.9943</td><td class="mid">−44.9943</td></tr>
+<tr><th>10</th><td class="mid">1000.010</td><td class="mid">−89.7794</td><td class="mid">−44.7794</td></tr>
+<tr><th>50</th><td class="mid">201.012</td><td class="mid">−85.1018</td><td class="mid">−40.1018</td></tr>
+<tr><th>200</th><td class="mid">89.697</td><td class="mid">−46.8584</td><td class="mid">−1.8584</td></tr>
+<tr class="hi"><th><strong>1000</strong></th><td class="mid"><strong>100.3542</strong></td><td class="mid"><strong>−44.7975</strong></td><td class="mid"><strong>0.2025</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The semi-infinite ladder has an <strong>exact solution</strong> ── the fixed point of the continued fraction (substitute \(Z_\infty\) into itself and solve):</p>
+
+<div class="calc">
+<span class="tag">Exact solution of the semi-infinite ladder</span>
+$$Z_\infty=\frac{R}{2}+\sqrt{\frac{R^2}{4}+\frac{R}{i\omega C}}$$
+<p class="lbl">At \(\omega=10^{-4}\): \(|Z|=100.354181\), phase \(-44.7974^\circ\) ── matching the \(N=1000\) numbers</p>
+</div>
+
+<p>The remaining \(0.2^\circ\) is the \(R/2\) term (it shrinks at lower frequency). <em>Now the amplitude slope.</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>\(|Z|\)</th><th>Slope [dB/dec]</th><th>Half-order prediction</th></tr></thead>
+<tbody>
+<tr><th>\(10^{-4}\)</th><td class="mid">100.354</td><td class="mid">−9.977</td><td class="mid">−10</td></tr>
+<tr><th>\(10^{-3}\)</th><td class="mid">31.978</td><td class="mid">−9.934</td><td class="mid">−10</td></tr>
+<tr><th>\(10^{-2}\)</th><td class="mid">10.360</td><td class="mid">−9.790</td><td class="mid">−10</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §02</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>Built from integer-order parts only ── and out comes a half order.</strong></p>
+<p style="margin:10px 0 0">\(-10\) dB/dec \(=-3.01\) dB/oct \(=6\alpha\) gives \(\alpha=-1/2\), and the phase \(-45^\circ=90\alpha\) degrees ── <strong>exactly the half-rung of Episode 3's ladder.</strong><br>
+This is what the Warburg impedance of Episode 2 really is. <em>Coarse-graining (folding infinitely many stages into one impedance) genuinely can create a fractional order.</em></p>
+</div>
+
+<h2><span class="n">03</span>Test ② The other direction ── does a fractional order always decompose?</h2>
+
+<p>Now reverse it. Can a fractional-order response be written as a superposition of <strong>ordinary first-order relaxations</strong>?</p>
+
+<div class="calc">
+<span class="tag">Spectral representation ── fractional order = a continuum of first orders?</span>
+$$(i\omega)^{-\alpha}\ \stackrel{?}{=}\ \int_0^\infty g(\tau)\,\frac{1}{1+i\omega\tau}\,d\tau$$
+<p class="lbl">The \(1/(1+i\omega\tau)\) on the right is a first-order relaxation of time constant \(\tau\) ── plain integer order</p>
+</div>
+
+<p>The answer is known (for \(0&lt;\alpha&lt;1\)). We check it numerically, slicing \(\tau\) logarithmically and summing.</p>
+
+<div class="calc">
+<span class="tag">The shape of the distribution</span>
+$$g(\tau)=\frac{\sin\alpha\pi}{\pi}\,\tau^{\alpha-1}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\alpha\)</th><th>\(\omega\)</th><th>Superposition</th><th>\((i\omega)^{-\alpha}\)</th><th>Rel. error</th></tr></thead>
+<tbody>
+<tr><th>0.25</th><td class="mid">\(10^{-1}\)</td><td class="mid">1.641178 − 0.680518\(i\)</td><td class="mid">1.642916 − 0.680518\(i\)</td><td class="mid">9.8e−4</td></tr>
+<tr class="hi"><th><strong>0.50</strong></th><td class="mid">\(10^{0}\)</td><td class="mid"><strong>0.707104 − 0.707104\(i\)</strong></td><td class="mid"><strong>0.707107 − 0.707107\(i\)</strong></td><td class="mid"><strong>3.4e−6</strong></td></tr>
+<tr><th>0.75</th><td class="mid">\(10^{1}\)</td><td class="mid">0.068052 − 0.164118\(i\)</td><td class="mid">0.068052 − 0.164292\(i\)</td><td class="mid">9.8e−4</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §03</p>
+<p style="margin:6px 0 0"><strong>★★ Any fractional order with \(0&lt;\alpha&lt;1\) can be written as a continuum of first-order relaxations.</strong><br>
+This is effectively a proof of claim ② ── <em>behind any dissipative fractional-order response, a distribution of hidden degrees of freedom can always be assigned.</em><br>
+★ And <strong>that distribution is \(g(\tau)\propto\tau^{\alpha-1}\) ── a power law, i.e. scale invariant.</strong> <em>This one line is what matters later.</em></p>
+</div>
+
+<h2><span class="n">04</span>Test ③ Does coarse-graining always give a fractional order?</h2>
+
+<p><strong>★ This is the real question. We go looking for a counterexample.</strong> Take the most innocent coarse-graining there is ── a semi-infinite chain of masses and springs, of which we keep <em>only</em> the end mass.</p>
+
+<div class="calc">
+<span class="tag">A uniform chain, and the "force from the medium" left at its end</span>
+$$m\ddot x_n=k(x_{n+1}-2x_n+x_{n-1}),\qquad Z=\frac{F}{v}$$
+<p class="lbl">Band edge \(\omega_{\max}=2\sqrt{k/m}\); with \(m=k=1\), \(\omega_{\max}=2\)</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega/\omega_{\max}\)</th><th>\(|Z|\)</th><th>Phase (rel. to force)</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><th>0.001</th><td class="mid">1.000000</td><td class="mid">0°</td><td>pure resistance</td></tr>
+<tr><th>0.100</th><td class="mid">1.000000</td><td class="mid">≈ 0°</td><td>pure resistance</td></tr>
+<tr class="hi"><th><strong>Low-frequency limit</strong></th><td class="mid"><strong>\(\sqrt{km}=1\)</strong></td><td class="mid"><strong>0°</strong></td><td><strong>★ ordinary friction</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §04 ── the counterexample</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>Phase 0° ── integer order. Not fractional.</strong></p>
+<p style="margin:10px 0 0">Infinitely many degrees of freedom were removed and what came out is <strong>a plain friction coefficient \(\sqrt{km}\)</strong>.<br>
+★ <strong>"Remove degrees of freedom and you always get a fractional order" is false.</strong> <em>Episode 2's hypothesis does not stand as written.</em></p>
+</div>
+
+<h2><span class="n">05</span>So what sets the order? ── it was the distribution</h2>
+
+<p>① and ③ are both "fold infinitely many degrees of freedom into one impedance". <strong>The difference was how they were laid out.</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>System</th><th>Layout of the degrees of freedom</th><th>Density</th><th>Result</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① RC ladder</strong></th><td><strong>★ self-similar (every stage the same shape)</strong></td><td class="mid"><strong>power law</strong></td><td class="mid"><strong>★ \(\alpha=-1/2\)</strong></td></tr>
+<tr><th>② superposed relaxations</th><td>\(g(\tau)\propto\tau^{\alpha-1}\)</td><td class="mid">power law</td><td class="mid">★ fractional \(\alpha\)</td></tr>
+<tr><th>③ spring chain</th><td>uniform (every stage identical)</td><td class="mid">constant</td><td class="mid">integer order</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Generalise. If the removed degrees of freedom (the bath) have spectral density \(J(\omega)\propto\omega^s\), <strong>what order does the self-energy \(\Sigma(\omega)\) of the surviving degree of freedom have?</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(s\)</th><th>\(\omega\)</th><th>Slope [/dec]</th><th>Phase [deg]</th><th>\((i\omega)^s\) predicts</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.5</strong></th><td class="mid">\(10^{-3}\)</td><td class="mid"><strong>0.5090</strong></td><td class="mid"><strong>45.56</strong></td><td class="mid"><strong>45.0</strong></td></tr>
+<tr><th>1.0</th><td class="mid">\(10^{-3}\)</td><td class="mid">1.0000</td><td class="mid">89.96</td><td class="mid">90.0</td></tr>
+<tr><th>1.5</th><td class="mid">\(10^{-3}\)</td><td class="mid">1.4941</td><td class="mid">133.82</td><td class="mid">135.0</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §05</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>The exponent of the removed degrees of freedom becomes the order itself (\(\alpha=s\)).</strong></p>
+<p style="margin:10px 0 0">\(s=1\) (Ohmic) → ordinary friction. \(s=1/2\) → half order. \(s=2\) → integer again.<br>
+★ <strong>The spring chain was integer order because at low frequency \(J(\omega)\propto\omega\)</strong> ── <em>a uniform chain just happens to be Ohmic.</em></p>
+</div>
+
+<h2><span class="n">06</span>Grading the hypothesis, and rewriting it</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Claim</th><th>Verdict</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><th>fractional → explainable by coarse-graining</th><td class="mid">◎ holds</td><td>Test ②. For \(0&lt;\alpha&lt;1\) a spectral representation always exists</td></tr>
+<tr class="hi"><th><strong>coarse-graining → always fractional</strong></th><td class="mid"><strong>× fails</strong></td><td><strong>★ Test ③. The spring chain is integer order</strong></td></tr>
+<tr><th>coarse-graining <em>can create</em> a fractional order</th><td class="mid">◎ holds</td><td>Test ①. Half order from an RC ladder</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">The rewritten hypothesis</span>
+<p class="lbl" style="font-size:17px">A fractional order appears when the coarse-grained degrees of freedom are<br><strong>★ distributed scale-invariantly (as a power law).</strong></p>
+</div>
+
+<p><strong>Coarse-graining alone is not enough. Self-similarity is required.</strong> ── And here the whole series joins up.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Episode</th><th>What it found</th><th>Shared key</th></tr></thead>
+<tbody>
+<tr><th>13</th><td>imaginary order = generator of scale transformations</td><td class="mid">scale invariance</td></tr>
+<tr><th>22</th><td>wavelets = uniform resolution on \(\ln\omega\)</td><td class="mid">scale invariance</td></tr>
+<tr class="hi"><th><strong>This one</strong></th><td><strong>condition for a fractional order = the hidden degrees of freedom are scale invariant</strong></td><td class="mid"><strong>scale invariance</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §06</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>A fractional order is the trace of scale-invariant degrees of freedom that were removed.</strong></p>
+</div>
+
+<h2><span class="n">07</span>Re-sorting real systems by this criterion</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>System</th><th>Order</th><th>Degrees of freedom removed</th><th>Self-similar?</th></tr></thead>
+<tbody>
+<tr><th>Warburg (Ep. 2)</th><td class="mid">\(-1/2\)</td><td>semi-infinite diffusion</td><td>★ diffusion is self-similar (\(\sqrt t\))</td></tr>
+<tr><th>Viscoelasticity (Ep. 10)</th><td class="mid">0–1</td><td>polymer relaxation times</td><td>★ chain lengths are power-law distributed</td></tr>
+<tr><th>Heat conduction (Ep. 11)</th><td class="mid">\(-1/2\)</td><td>semi-infinite medium</td><td>★ diffusive, hence self-similar</td></tr>
+<tr><th>Cole–Cole</th><td class="mid">0–1</td><td>dielectric relaxation spread</td><td>★ power-law distributed</td></tr>
+<tr><th>Ordinary friction</th><td class="mid">1</td><td>Ohmic bath</td><td>not self-similar → integer order</td></tr>
+<tr class="hi"><th><strong>1/f noise (Ep. 2)</strong></th><td class="mid"><strong>\(-1/2\)</strong></td><td><strong>log-uniform time constants</strong></td><td><strong>★ why log-uniform is unsolved</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §07 ── Episode 15's open doors</p>
+<p style="margin:6px 0 0">★ <strong>"Is a fractional order always the result of coarse-graining?" ── closed, with a condition.</strong><br>
+★ <strong>"The origin of 1/f" ── still open.</strong> But <em>the question has changed shape</em>:<br>
+<strong>"Why are log-uniform distributions of time constants so common in nature?"</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>If each stage of the RC ladder were scaled stage by stage as \(R\to2R,\ C\to C/2\), what happens to the order (qualitatively)?
+<details><summary>Show the answer</summary><div class="ans"><strong>It moves off the half order.</strong> The half order here comes from every stage being identical in shape ── the product \(RC\) is the same at every stage (the simplest form of self-similarity).<br>Make the time constants \(\tau_n=R_nC_n\) a geometric sequence and the removed degrees of freedom become <em>evenly spaced on a log axis</em>, moving the order to a different value set by the ratio.<br>★ <strong>The §05 conclusion ── "the order is set by the distribution of the hidden time constants" ── applies directly.</strong></div></details></li>
+
+<li>How would you rebuild the spring chain (Test ③) so that it does give a fractional order?
+<details><summary>Show the answer</summary><div class="ans"><strong>Let the mass or the spring constant vary as a power of position</strong> (e.g. \(m_n\propto n^{p}\)). The low-frequency density of states then becomes \(J(\omega)\propto\omega^s\) with \(s\ne1\), and the §05 table gives order \(s\).<br>Or <strong>make it branch</strong> (a fractal chain) ── branching gives a density of states whose power is set by the fractal dimension.<br>★ <em>The uniform chain is integer order because it is uniform, not because it was coarse-grained.</em></div></details></li>
+
+<li>Was Episode 2's hypothesis "wrong"? What is the scientifically accurate thing to say?
+<details><summary>Show the answer</summary><div class="ans"><strong>One direction was right, the other wrong.</strong> "Fractional order → a distribution of hidden degrees of freedom can be written" is effectively proved by Test ②. "Coarse-graining → always fractional" is refuted by the counterexample in Test ③.<br>★ <strong>And being refuted let us rewrite the hypothesis into a stronger form</strong> ── <em>"when the removed degrees of freedom are distributed scale-invariantly."</em><br>★ On Episode 15's scoreboard this would read "◎ holds, conditionally". <strong>A hypothesis declared falsifiable was actually falsified, and got sharper for it ── that is this episode's result.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　The hypothesis was half right, and got rewritten</h2>
+<p>We split Episode 2's hypothesis ── <strong>"a system that shows a fractional order is always the result of coarse-graining hidden degrees of freedom"</strong> ── into three and graded each.</p>
+<p><strong>Test ①</strong>: stack 1000 stages of a ladder made only of resistors and capacitors (both integer order) and the phase is \(-44.80^\circ\) with a slope of \(-9.98\) dB/dec ── <em>a half order.</em> It matches the exact semi-infinite solution \(Z_\infty=R/2+\sqrt{R^2/4+R/(i\omega C)}\). <strong>Integer-order parts alone can make a fractional order.</strong></p>
+<p><strong>Test ②</strong>: any fractional order with \(0&lt;\alpha&lt;1\) can be written as a continuum of first-order relaxations (\(g(\tau)=\sin(\alpha\pi)/\pi\cdot\tau^{\alpha-1}\), relative error \(10^{-3}\)–\(10^{-6}\)) ── <em>see a fractional order and a distribution of hidden degrees of freedom can always be assigned.</em></p>
+<p><strong>Test ③ ── ★ the counterexample</strong>: keep only the end mass of a uniform semi-infinite mass–spring chain and the impedance is a <strong>pure resistance \(\sqrt{km}\)</strong> at phase 0°. Infinitely many degrees of freedom removed, and still integer order. <em>"Coarse-graining → always fractional" is false.</em></p>
+<p>The difference was <strong>how the removed degrees of freedom were distributed</strong>. With a bath of spectral density \(J(\omega)\propto\omega^s\) the order is exactly \(s\) (slope \(s\), phase \(90s\) degrees, confirmed numerically). <em>A uniform chain is Ohmic (\(s=1\)) ── which is why it was integer order.</em></p>
+<p style="text-align:center"><strong>★ Rewritten hypothesis: a fractional order appears when the coarse-grained<br>degrees of freedom are distributed scale-invariantly (as a power law).</strong></p>
+<p>Together with Episode 13 (imaginary order = scale transformation) and Episode 22 (wavelets = log axis) ── <strong>all three turned on scale invariance. A fractional order is the trace of scale-invariant degrees of freedom that were removed.</strong> One of Episode 15's open doors closes, conditionally; only the origin of 1/f stays open, and in a <em>changed</em> form ── <strong>"why are log-uniform distributions of time constants so common in nature?"</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next episode</span>
+This episode left "log-uniform distributions of time constants" as the last mystery.<br>
+★ <strong>Next time we go after where that distribution comes from</strong> ── looking at the mechanisms that <em>make</em> distributions (criticality, self-organisation, diffusion-limited growth) as waves, and testing numerically which of them emits log-uniform.<br>
+<em>Episode 13's discrete scale invariance (the \(e^{\pi/s_0}=22.7\) staircase) comes back here.</em>
+</div>
+
+<p class="foot">This document is Episode 26 of the "Thinking in Waves" series. The computations are in kenshou/sokushi.js. <strong>On the numbers here:</strong> the RC ladder values, the spectral-representation comparison, the spring-chain impedance and the bath self-energy were all computed for this article (in dimensionless units \(R=C=m=k=1\)). <em>The exact semi-infinite ladder solution and the spectral-representation \(g(\tau)\) are known results; this article only confirms them numerically.</em> <strong>The correspondence between bath spectral density and order (\(\alpha=s\)) is a well-known result for Caldeira–Leggett-type models and is not a discovery of this article</strong> ── what this article did was use it to grade Episode 2's hypothesis. The 1–4° phase offset from the prediction at \(s=1.5\) comes from keeping the cutoff \(\omega_c\) finite (higher-order terms in \(\omega/\omega_c\)). <em>The "self-similar?" column of §07 is a qualitative summary, not something computed here for each system.</em> The origin of 1/f noise is an open problem; this article only changed the shape of the question. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show the answer" opens the solutions.</p>
+</body>
+</html>
