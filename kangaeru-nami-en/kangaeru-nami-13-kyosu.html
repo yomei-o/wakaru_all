@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imaginary-order differentiation ── the tool of the world of scale｜Thinking in Waves, Episode 13</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1f1b14; --ink-soft:#574e3c;
+    --paper:#fbf9f4; --paper-edge:#e6dfcd;
+    --side:#6b5320; --side-bg:#f4efe2;
+    --warn:#8a4b2f;
+    --calc:#5a4418; --calc-bg:#f2ecdd;
+    --rule:#dbd2bc; --hair:#c2b598;
+    --acc:#6b5320;
+    --grid:#ece4d2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 13 ／ Part VI · Extending the order into the complex plane</span></p>
+<p class="eyebrow">An operation that stretches time without touching the timbre</p>
+
+<h1>Imaginary-order differentiation ──<br>the tool of the world of scale
+<span class="sub">Make the order \(\alpha\) imaginary and <strong>the amplitude of \((i\omega)^{i\beta}\) becomes a constant independent of \(\omega\)</strong>,<br>with <strong>only the phase rotating as \(\beta\ln\omega\)</strong> ── <em>an all-pass filter.</em><br>★ If real orders are the tool of <strong>time translation</strong>, imaginary orders are the tool of <strong>scale transformation</strong>.</span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 1, 2, 5, 8</span><span>Computation: kenshou/kyosu.js</span></p>
+
+<p class="lead">In Episode 2 we differentiated by one half. <strong>Having extended the exponent to the reals, we may as well extend it to the imaginaries.</strong><br><em>We did ── and out came a completely different physics.</em></p>
+
+<h2><span class="n">01</span>What happens when the exponent goes imaginary</h2>
+
+<div class="calc">
+<span class="tag">Take a logarithm and substitute \(i\)</span>
+$$(i\omega)^{i\beta}=\exp\bigl(i\beta\ln(i\omega)\bigr)=\exp\Bigl(i\beta\bigl[\ln\omega+i\tfrac{\pi}{2}\bigr]\Bigr)=\underbrace{e^{-\beta\pi/2}}_{\text{amplitude}}\cdot\underbrace{e^{\,i\beta\ln\omega}}_{\text{phase}}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §01 ── it splits in two</p>
+<p style="margin:6px 0 0"><strong>Amplitude \(=e^{-\beta\pi/2}\)</strong> ── <em>a plain constant</em>, independent of \(\omega\). Every frequency passes equally.<br>
+<strong>Phase \(=\beta\ln\omega\)</strong> ── proportional to the <em>logarithm</em> of frequency.</p>
+<p style="margin:10px 0 0">★ So imaginary-order differentiation is an <strong>all-pass filter</strong>.<br>
+In audio terms ── <em>an operation that leaves the timbre completely alone and changes only the arrangement in time.</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>Amplitude \(e^{-\beta\pi/2}\)</th><th>Phase at \(\omega=1\)</th><th>\(\omega=10\)</th><th>\(\omega=100\)</th></tr></thead>
+<tbody>
+<tr><th>\(-1\)</th><td class="mid">4.810</td><td class="mid">0°</td><td class="mid">\(-131.9°\)</td><td class="mid">\(-263.9°\)</td></tr>
+<tr><th>\(-0.5\)</th><td class="mid">2.193</td><td class="mid">0°</td><td class="mid">\(-66.0°\)</td><td class="mid">\(-131.9°\)</td></tr>
+<tr><th>0</th><td class="mid">1.000</td><td class="mid">0°</td><td class="mid">0°</td><td class="mid">0°</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>0.2079</strong></td><td class="mid">0°</td><td class="mid"><strong>\(+131.9°\)</strong></td><td class="mid"><strong>\(+263.9°\)</strong></td></tr>
+<tr><th>2</th><td class="mid">0.04321</td><td class="mid">0°</td><td class="mid">\(+263.9°\)</td><td class="mid">\(+527.7°\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Every factor of ten in frequency rotates the phase by the same amount.</strong> <em>That is the whole of this episode.</em></p>
+
+<h2><span class="n">02</span>Checking it with sound ── a click becomes a hyperbolic chirp</h2>
+
+<div class="aside">
+<span class="tag">First, fix a convention</span>
+\((i\omega)^{i\beta}\) does not satisfy \(H(-\omega)=H^*(\omega)\) as it stands (the output would be complex).<br>
+So we <strong>define it on positive frequencies and fill the negative side by conjugation</strong> ── the same convention as the Hilbert transform. Then \(|H|=e^{-\beta\pi/2}\) at every frequency and \(\arg H=\beta\ln\omega\) on the positive side.
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>Measured output/input</th><th>Theory \(e^{-\beta\pi/2}\)</th><th>Relative error</th></tr></thead>
+<tbody>
+<tr><th>\(-1\)</th><td class="mid">4.810477</td><td class="mid">4.810477</td><td class="mid">\(<10^{-12}\)</td></tr>
+<tr><th>\(-0.5\)</th><td class="mid">2.193280</td><td class="mid">2.193280</td><td class="mid">\(<10^{-12}\)</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>0.2078796</strong></td><td class="mid"><strong>0.2078796</strong></td><td class="mid"><strong>\(<10^{-12}\)</strong></td></tr>
+<tr><th>2</th><td class="mid">0.0432139</td><td class="mid">0.0432139</td><td class="mid">\(<10^{-12}\)</td></tr>
+</tbody>
+</table>
+<p class="lbl">Check 1: pass white noise through and compare RMS values (is it really all-pass?)</p>
+</div>
+
+<p><strong>The amplitude spectrum is untouched.</strong> So what does change ── the group delay.</p>
+
+<div class="calc">
+<span class="tag">Just differentiate the phase</span>
+$$\varphi(\omega)=\beta\ln\omega\quad\Longrightarrow\quad \tau_g=-\frac{d\varphi}{d\omega}=-\frac{\beta}{\omega}$$
+<p class="lbl">★ The shift goes as \(1/\omega\) ── lower notes are displaced more</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Frequency [Hz]</th><th>Measured shift [ms]</th><th>Theory \(-\beta/\omega\) [ms]</th><th>Difference [µs]</th></tr></thead>
+<tbody>
+<tr><th>200</th><td class="mid">\(-2.3950\)</td><td class="mid">\(-2.3873\)</td><td class="mid">\(-7.6\)</td></tr>
+<tr><th>400</th><td class="mid">\(-1.1946\)</td><td class="mid">\(-1.1937\)</td><td class="mid">\(-0.95\)</td></tr>
+<tr><th>800</th><td class="mid">\(-0.5969\)</td><td class="mid">\(-0.5968\)</td><td class="mid">\(-0.12\)</td></tr>
+<tr class="hi"><th><strong>1600</strong></th><td class="mid"><strong>\(-0.2984\)</strong></td><td class="mid"><strong>\(-0.2984\)</strong></td><td class="mid"><strong>\(-0.01\)</strong></td></tr>
+</tbody>
+</table>
+<p class="lbl">Check 2: centroid shift of a Gaussian-windowed tone burst, \(\beta=3\)</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §02</p>
+<p style="margin:6px 0 0"><strong>Double the frequency and the shift halves.</strong> Exactly \(1/f\).<br>
+So feed in a click (every frequency at once) and out comes a <strong>hyperbolic chirp</strong> ── <em>a pitch sliding smoothly.</em></p>
+<p style="margin:10px 0 0">★ The timbre is unchanged, yet time is stretched. <em>Pure dispersion.</em></p>
+</div>
+
+<h2><span class="n">03</span>Writing the impulse response in closed form</h2>
+
+<p>Integrate to get the output \(h(t)\) for a click. <strong>Substituting \(x=\omega t\) pulls \(t\) out of the integral</strong> ── that is the crux of imaginary orders.</p>
+
+<div class="calc">
+<span class="tag">A rescaling drives \(t\) out</span>
+$$h(t)=\frac{e^{-\beta\pi/2}}{\pi}\,\mathrm{Re}\int_0^\infty \omega^{i\beta}e^{i\omega t}\,d\omega
+=\frac{e^{-\beta\pi/2}}{\pi}\,\mathrm{Re}\Bigl[t^{-1-i\beta}\underbrace{\int_0^\infty x^{i\beta}e^{ix}dx}_{\text{independent of }t}\Bigr]$$
+$$\int_0^\infty x^{i\beta}e^{ix}dx=\Gamma(1+i\beta)\,e^{i\pi(1+i\beta)/2}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §03 ── a sinusoid on a logarithmic scale</p>
+<p style="margin:6px 0 0">$$t\,h(t)=A(\beta)\,\sin\bigl(\beta\ln t-\arg\Gamma(1+i\beta)\bigr)$$</p>
+<p style="margin:8px 0 0">$$A(\beta)=\frac{e^{-\beta\pi}\,|\Gamma(1+i\beta)|}{\pi},\qquad |\Gamma(1+i\beta)|=\sqrt{\frac{\pi\beta}{\sinh\pi\beta}}$$</p>
+<p style="margin:10px 0 0">★ Multiply by \(t\) and you get <strong>a pure sinusoid in \(\ln t\)</strong>, of period \(2\pi/\beta\).<br>
+<em>View the time axis logarithmically and it is cleanly periodic ── this is "log-periodicity".</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(\varepsilon\)</th><th>Numerical integral (real)</th><th>(imaginary)</th><th>Relative error</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.05</td><td class="mid">\(3.9337900\times10^{-2}\)</td><td class="mid">\(1.0682146\times10^{-1}\)</td><td class="mid">\(6.4\times10^{-13}\)</td></tr>
+<tr><th>1</th><td class="mid">0.01</td><td class="mid">\(3.3582150\times10^{-2}\)</td><td class="mid">\(1.0423027\times10^{-1}\)</td><td class="mid">\(4.6\times10^{-13}\)</td></tr>
+<tr><th>2</th><td class="mid">0.05</td><td class="mid">\(-5.6342955\times10^{-4}\)</td><td class="mid">\(7.2846544\times10^{-3}\)</td><td class="mid">\(1.9\times10^{-12}\)</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">0.01</td><td class="mid"><strong>\(-3.1192639\times10^{-4}\)</strong></td><td class="mid"><strong>\(1.8175677\times10^{-4}\)</strong></td><td class="mid"><strong>\(1.9\times10^{-11}\)</strong></td></tr>
+</tbody>
+</table>
+<p class="lbl">Check 3: \(\int_0^\infty x^{i\beta}e^{ix-\varepsilon x}dx\) numerically vs the closed form \(\Gamma(1+i\beta)/(\varepsilon-i)^{1+i\beta}\)</p>
+</div>
+
+<p>Since the phase \(\beta\ln x\) rotates infinitely fast as \(x\to0\), that region is integrated after substituting \(x=e^u\) ── <strong>agreement to 11–13 digits</strong>.</p>
+
+<h2><span class="n">04</span>Here is the trap ── the tail is crushed by \(e^{-\beta\pi}\)</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>Tail amplitude \(A(\beta)\)</th><th>Log-scale period \(2\pi/\beta\)</th></tr></thead>
+<tbody>
+<tr><th>0.1</th><td class="mid">\(2.31\times10^{-1}\)</td><td class="mid">62.83</td></tr>
+<tr><th>0.5</th><td class="mid">\(5.47\times10^{-2}\)</td><td class="mid">12.57</td></tr>
+<tr><th>1</th><td class="mid">\(7.17\times10^{-3}\)</td><td class="mid">6.283</td></tr>
+<tr><th>2</th><td class="mid">\(9.11\times10^{-5}\)</td><td class="mid">3.142</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>\(1.00\times10^{-6}\)</strong></td><td class="mid"><strong>2.094</strong></td></tr>
+<tr><th>5</th><td class="mid">\(1.04\times10^{-10}\)</td><td class="mid">1.257</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§04 ── why log-periodicity is "hard to find"</p>
+<p style="margin:6px 0 0"><strong>Raising \(\beta\) makes the oscillation faster but crushes the amplitude as \(e^{-\beta\pi}\).</strong><br>
+At \(\beta=3\) it is already \(10^{-6}\) ── <em>buried in FFT round-off, invisible in the time domain.</em></p>
+<p style="margin:10px 0 0">★ In fact, our first attempt to measure the impulse response directly by FFT failed.<br>
+What we were measuring was <strong>an artefact of zeroing the DC and Nyquist bins</strong> (about \(10^{-5}\)), an order of magnitude larger than the real signal (\(10^{-6}\)). <em>Without deriving the closed form first, we would not have noticed.</em></p>
+<p style="margin:10px 0 0">This is of a piece with §08's "log-periodicity in earthquakes and finance is disputed" ── <strong>small amplitudes are hard to separate statistically.</strong><br>
+<em>(Though \(A(\beta)\) is about this particular time response, and is not a formula for the amplitude of log-periodic phenomena in general.)</em></p>
+</div>
+
+<h2><span class="n">05</span>What is it the generator of? ── scale transformations</h2>
+
+<p>Restate the property "phase proportional to \(\ln\omega\)". <strong>Stretch the frequency by \(\lambda\).</strong></p>
+
+<div class="calc">
+<span class="tag">Logarithms turn multiplication into addition</span>
+$$\varphi(\lambda\omega)=\beta\ln(\lambda\omega)=\beta\ln\omega+\beta\ln\lambda$$
+<p class="lbl">★ The phase shifts by a constant. The shape does not change at all</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Order</th><th>Symbol</th><th>Amplitude</th><th>Phase</th><th>Corresponding symmetry</th><th>Natural transform</th></tr></thead>
+<tbody>
+<tr><th>Real \(\alpha\)</th><td class="mid">\((i\omega)^\alpha\)</td><td class="mid">\(\omega^\alpha\)</td><td class="mid">\(\alpha\pi/2\) (const)</td><td class="mid">time translation</td><td class="mid">Fourier</td></tr>
+<tr class="hi"><th><strong>Imaginary \(i\beta\)</strong></th><td class="mid"><strong>\((i\omega)^{i\beta}\)</strong></td><td class="mid"><strong>constant</strong></td><td class="mid"><strong>\(\beta\ln\omega\)</strong></td><td class="mid"><strong>★ scale transformation</strong></td><td class="mid"><strong>★ Mellin</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§05 ── the main finding of this episode</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>Real-order differentiation is the tool of the world that shifts time;<br>imaginary-order differentiation is the tool of the world that changes scale.</strong></p>
+<p style="margin:10px 0 0">Just as the Fourier kernel \(e^{i\omega t}\) is <strong>the eigenfunction of time translation</strong>, the Mellin kernel \(t^{i\beta}\) is <strong>the eigenfunction of scale transformation</strong>.<br>
+★ <em>Imaginary-order differentiation is that Mellin kernel itself.</em></p>
+<p style="margin:10px 0 0">In audio: <strong>real orders change the timbre; imaginary orders stretch time without changing it.</strong></p>
+</div>
+
+<h2><span class="n">06</span>Where physics uses imaginary orders ── the \(1/r^2\) potential</h2>
+
+<p>Consider an <strong>attractive \(1/r^2\) potential</strong> (three dimensions, s-wave). As \(r\to0\) the energy \(E\) is irrelevant, so put \(u\propto r^s\):</p>
+
+<div class="calc">
+<span class="tag">An equation for the exponent alone</span>
+$$-\frac{\hbar^2}{2m}u''-\frac{\lambda\hbar^2}{2m}\frac{u}{r^2}=Eu\quad\Longrightarrow\quad s(s-1)+\lambda=0\quad\Longrightarrow\quad s=\frac12\pm\sqrt{\frac14-\lambda}$$
+$$\lambda>\frac14\ \Rightarrow\ s=\frac12\pm is_0,\quad s_0=\sqrt{\lambda-\tfrac14}\quad\Longrightarrow\quad u\propto\sqrt{r}\,\cos(s_0\ln r+\delta)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\lambda\) (attraction strength)</th><th>\(\sqrt{1/4-\lambda}\)</th><th>\(s_0\)</th><th>Behaviour</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">0.5000</td><td class="mid">──</td><td>stable; a ground state exists</td></tr>
+<tr><th>0.20</th><td class="mid">0.2236</td><td class="mid">──</td><td>stable</td></tr>
+<tr><th>0.25</th><td class="mid">0.0000</td><td class="mid">──</td><td>★ exactly critical</td></tr>
+<tr class="hi"><th><strong>0.50</strong></th><td class="mid"><strong>imaginary</strong></td><td class="mid"><strong>0.5000</strong></td><td><strong>★ log-periodic; fall to the centre</strong></td></tr>
+<tr><th>1.00</th><td class="mid">imaginary</td><td class="mid">0.8660</td><td>log-periodic</td></tr>
+<tr><th>2.00</th><td class="mid">imaginary</td><td class="mid">1.3229</td><td>log-periodic</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §06</p>
+<p style="margin:6px 0 0"><strong>\(\lambda=1/4\) is the critical point.</strong> Beyond it the particle "falls to the centre", and the wavefunction becomes periodic in \(\ln r\).</p>
+<p style="margin:10px 0 0">★ <em>Space becomes periodic on a logarithmic scale</em> ── this is called <strong>discrete scale invariance</strong>.<br>
+Continuous scale invariance (the same at any magnification) is broken down to <strong>the same only at integer powers of one particular ratio</strong>.</p>
+</div>
+
+<h2><span class="n">07</span>It has actually been observed ── Efimov states</h2>
+
+<p>This really happens in the three-body problem (Efimov 1970). For three identical bosons at resonance, the effective potential in the hyperradius \(R\) is <strong>\(\propto-(s_0^2+1/4)/R^2\) with \(s_0=1.00624\)</strong> ── a \(1/R^2\) just past critical.</p>
+
+<div class="calc">
+<span class="tag">Every \(\pi\) of phase brings the next level</span>
+$$\text{size ratio}=e^{\pi/s_0}=22.69,\qquad \text{energy ratio}=e^{2\pi/s_0}=515.0$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(n\)</th><th>Size (level 0 = 1)</th><th>Energy ratio</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">1</td><td class="mid">1</td></tr>
+<tr><th>1</th><td class="mid">22.69</td><td class="mid">\(1.94\times10^{-3}\)</td></tr>
+<tr><th>2</th><td class="mid">515.0</td><td class="mid">\(3.77\times10^{-6}\)</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>\(1.17\times10^{4}\)</strong></td><td class="mid"><strong>\(7.32\times10^{-9}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§07 ── log-periodicity seen in the laboratory</p>
+<p style="margin:6px 0 0"><strong>Every factor of 22.7 brings another bound state of the same shape</strong> ── the Efimov ladder.<br>
+In 2006 it was <em>actually observed in ultracold caesium atoms.</em></p>
+<p style="margin:10px 0 0">Back in the language of phase: each factor of 22.7 in size advances the phase \(s_0\ln R\) by \(\pi\).<br>
+★ That is <strong>exactly the same arithmetic</strong> as §01's "a fixed angle per decade" (\(s_0\ln10=133°\)).</p>
+</div>
+
+<h2><span class="n">08</span>Connecting to Episode 5 ── complex dimensions and the renormalisation group</h2>
+
+<p>In Episode 5 the couplings ran with \(\ln\mu\) ── <strong>\(d\alpha/d\ln\mu=\beta(\alpha)\)</strong>. <em>"A derivative with respect to \(\ln\)(scale)" ── precisely the imaginary-order arena.</em></p>
+
+<div class="calc">
+<span class="tag">When the dimension goes complex</span>
+$$O(\mu)\propto\mu^{-\Delta},\qquad \Delta=\Delta_R+i\Delta_I\quad\Longrightarrow\quad \mu^{-\Delta}=\mu^{-\Delta_R}\cdot e^{-i\Delta_I\ln\mu}$$
+<p class="lbl">★ A log-periodic oscillation multiplying a power law ── discrete scale invariance</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Phenomenon</th><th>Status</th><th>Note</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>Efimov states</strong></th><td class="mid"><strong>○ measured</strong></td><td>ultracold atoms (2006); ratio 22.7</td></tr>
+<tr class="hi"><th><strong>\(1/r^2\) fall</strong></th><td class="mid"><strong>◎ exact</strong></td><td>whenever \(\lambda>1/4\)</td></tr>
+<tr><th>Logarithmic corrections at criticality</th><td class="mid">△ case by case</td><td>can appear on discrete lattices</td></tr>
+<tr><th>Diffusion-limited aggregation</th><td class="mid">△ numerical</td><td>reported, but debated</td></tr>
+<tr><th>Log-periodicity in earthquakes / finance</th><td class="mid">× disputed</td><td>★ claimed, but not statistically established</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Only the top two are solid.</strong> The other three are claims ── <em>log-periodicity is a pattern one wants to find, so the statistics need care.</em></p>
+
+<h2><span class="n">09</span>The whole picture ── two independent knobs</h2>
+
+<div class="calc">
+<span class="tag">A general complex order</span>
+$$(i\omega)^{\alpha+i\beta}=\underbrace{\omega^\alpha e^{-\beta\pi/2}}_{\text{amplitude}}\cdot\exp\Bigl(i\bigl[\underbrace{\tfrac{\alpha\pi}{2}}_{\text{constant}}+\underbrace{\beta\ln\omega}_{\text{log-periodic}}\bigr]\Bigr)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Knob</th><th>Acts on</th><th>Formula</th><th>Where it appeared</th></tr></thead>
+<tbody>
+<tr><th>Real part \(\alpha\)</th><td>slope of the amplitude</td><td class="mid">\(\omega^\alpha\to6\alpha\) dB/oct</td><td>Episodes 1–2</td></tr>
+<tr><th>Real part \(\alpha\)</th><td>constant phase</td><td class="mid">\(\alpha\pi/2\)</td><td>Episode 10 (arrow of time)</td></tr>
+<tr><th>Imaginary part \(\beta\)</th><td>constant factor on amplitude</td><td class="mid">\(e^{-\beta\pi/2}\)</td><td>overall size only</td></tr>
+<tr class="hi"><th><strong>Imaginary part \(\beta\)</strong></th><td><strong>log-periodic phase</strong></td><td class="mid"><strong>\(\beta\ln\omega\)</strong></td><td><strong>★ this episode (scale invariance)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§09 ── the plane of orders</p>
+<p style="margin:6px 0 0;text-align:center"><strong>Real part ＝ direction and strength of the arrow of time　／　Imaginary part ＝ periodicity in scale</strong></p>
+<p style="margin:10px 0 0">The two are independent, so the order is <strong>a plane, not a line</strong>.<br>
+And ── ★ <em>physics occupies only a very narrow region of that plane.</em></p>
+<p style="margin:10px 0 0">\(\alpha\in[-1/2,\,2]\) (Episode 2's bounds) and \(\beta\) almost always 0.<br>
+<strong>\(\beta\neq0\) arises only where a critical \(1/r^2\) appears.</strong></p>
+</div>
+
+<div class="aside">
+<p class="lbl">[Our hypothesis] Why is \(\beta\) nearly always zero?</p>
+<p style="margin:6px 0 0">Episode 2 argued that physics is nearly integer-order because nature is local. Apply the same logic to the imaginary part ──<br>
+<strong>\(\beta\neq0\) means "one particular ratio is special".</strong> But laws of nature usually either <em>have no special length</em> or <em>have exactly one</em>.<br>
+★ The former gives continuous scale invariance (\(\beta=0\)); the latter gives a cutoff at that length (Episode 6). <strong>To get a "ladder of ratios" you need a special balance like \(1/r^2\)</strong> ── \(1/r^2\) is the only potential with <em>exactly the same \(r\)-dependence</em> as the kinetic energy \(\hbar^2/2mr^2\), so no length is fixed and a <strong>ratio</strong> is fixed instead.<br>
+<em>Verdict: a restatement of known facts, not a new claim. But it does give a reason why \(\beta\) is rare.</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Why does imaginary-order differentiation leave the timbre unchanged?
+<details><summary>Show answer</summary><div class="ans">Timbre is largely set by <strong>the shape of the amplitude spectrum</strong>, and \(|(i\omega)^{i\beta}|=e^{-\beta\pi/2}\) is <strong>a plain constant</strong> independent of \(\omega\).<br>Every frequency passes with the same gain, so the spectral shape is preserved perfectly ── only the phase changes.<br><em>(Strictly, phase affects perception too. Apply it strongly and you get a soft "pre-echo" ── that is the chirp.)</em></div></details></li>
+
+<li>Connect the Efimov ratio 22.7 with §01's "a fixed angle per decade".
+<details><summary>Show answer</summary><div class="ans">Both are <strong>phases proportional to a logarithm</strong>.<br>§01: \(\varphi=\beta\ln\omega\). Efimov: \(\varphi=s_0\ln R\).<br>The next bound state sits where the phase has advanced by \(\pi\), so \(s_0\ln(R'/R)=\pi\), i.e. \(R'/R=e^{\pi/1.00624}=22.69\).<br>★ <strong>The "period" of a log-periodicity is expressed as a ratio</strong> ── a multiplicative world, not an additive one.</div></details></li>
+
+<li>What does "the tail is crushed by \(e^{-\beta\pi}\)" mean experimentally?
+<details><summary>Show answer</summary><div class="ans">That <strong>making a log-periodic oscillation faster costs you exponentially in amplitude</strong>: \(10^{-6}\) at \(\beta=3\), \(10^{-10}\) at \(\beta=5\).<br>So observable log-periodic phenomena are confined to <strong>large ratios (i.e. small \(\beta\))</strong> ── Efimov's 22.7 being exactly that (\(s_0\approx1\)).<br><em>★ Conversely, a claim of "log-periodicity with a ratio of 1.1" needs very strong evidence.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　Widening the order into a plane</h2>
+<p>\((i\omega)^{i\beta}=e^{-\beta\pi/2}e^{i\beta\ln\omega}\) ── <strong>the amplitude is a constant independent of \(\omega\); the phase goes as \(\ln\omega\)</strong>. Imaginary-order differentiation is an all-pass filter (confirmed to 12 digits with white noise).</p>
+<p>The group delay is \(-\beta/\omega\) (confirmed with tone bursts, matching theory to 0.01 µs between 200 and 1600 Hz). <strong>A click becomes a hyperbolic chirp</strong> ── an operation that stretches time without touching the timbre.</p>
+<p>The impulse response has a closed form, <strong>\(t\,h(t)=A(\beta)\sin(\beta\ln t-\arg\Gamma(1+i\beta))\)</strong> ── <em>a sinusoid on a logarithmic scale</em>. But the tail amplitude \(A(\beta)=e^{-\beta\pi}|\Gamma(1+i\beta)|/\pi\) is already \(10^{-6}\) at \(\beta=3\). <em>Which is why log-periodicity is hard to find.</em></p>
+<p style="text-align:center"><strong>★ Real orders are the tool of time translation (Fourier); imaginary orders the tool of scale transformation (Mellin).</strong></p>
+<p>In physics the imaginary part turns on only when an attractive \(1/r^2\) passes the critical \(\lambda=1/4\). There the wavefunction becomes periodic in \(\ln r\) ── and <strong>that is measured, as the Efimov ladder with ratio 22.7</strong> (\(s_0=1.00624\)).</p>
+<p>And Episode 5's renormalisation group was a flow in \(\ln\mu\). <em>Complex dimension ＝ discrete scale invariance.</em><br>
+★ <strong>The order is a plane, not a line, and physics lives in one narrow corner of it.</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+Many slopes have appeared by now ── <em>\(+6\), \(+12\), \(-6\) dB/oct, \(1/f\), \(1/f^2\), \(\omega^4\).</em><br>
+Next time we line them all up on a single ladder. And collecting nature's spectral exponents, we find that <strong>only turbulence's \(-5/3\) is neither integer nor half-integer</strong>. <em>Where does it come from?</em>
+</div>
+
+<p class="foot">This document is Episode 13 of the series "Thinking in Waves". The computation is in kenshou/kyosu.js. <strong>On the numbers:</strong> applying \((i\omega)^{i\beta}\) to a real signal uses the convention of defining it on positive frequencies and conjugate-extending to negative ones (as for the Hilbert transform) ── <em>without that convention the output is complex and is not "sound"</em>. The group-delay measurement uses the centroid of a tone burst, so lower frequencies are more affected by the finite window (the 7.6 µs discrepancy at 200 Hz is that). Efimov's \(s_0=1.00624\) is the <strong>known value for three identical bosons in the zero-range limit</strong>, not derived here. Measured ratios can depart from the ideal 22.7 (finite-range corrections, the three-body parameter), and experimental values have spread. <strong>Applying discrete scale invariance to earthquakes or finance is not a position of this series</strong> ── the table marks it "disputed". \(\Gamma(1+i\beta)\) is computed by a Lanczos approximation and checked against the exact \(|\Gamma(1+i\beta)|=\sqrt{\pi\beta/\sinh\pi\beta}\) to 8 digits. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens the solutions.</p>
+</body>
+</html>
