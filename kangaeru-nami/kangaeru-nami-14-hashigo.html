@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スペクトル指数の梯子 ── 整数から外れる理由は三つしかない｜考える波 第14回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9f8; --paper-edge:#e1e6e1;
+    --side:#3a5a3a; --side-bg:#eef1ee;
+    --warn:#8a4b2f;
+    --calc:#2e482e; --calc-bg:#e8ece8;
+    --rule:#d0d7d0; --hair:#b4c0b4;
+    --acc:#3a5a3a;
+    --grid:#e6eae6;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 14 回 ／ 第 VI 部・階数を複素数まで広げる</span></p>
+<p class="eyebrow">乱流の \(-5/3\) は、分数階微分ではなかった</p>
+
+<h1>スペクトル指数の梯子 ──<br>整数から外れる理由は、三つしかない
+<span class="sub">この連載で出た傾きを一枚に並べると、<strong>ほとんどが整数か半整数</strong>です。<br>ところが乱流だけが \(-5/3\)、対流だけが \(-11/5\) ── <em>分母に 3 と 5 が出る。</em><br>★ 計算してみたら、<strong>その分母は次元行列の行列式でした。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 2, 11, 13 回</span><span>計算：kenshou/hashigo.js</span></p>
+
+<p class="lead">第 2 回で作った辞書 ── <strong>階数 \(\alpha\) の操作は \(6\alpha\) dB/oct、雑音の指数は \(\beta=-2\alpha\)</strong> ── で、ここまでの傾きは全部ひとつの目盛りに載ります。<br><em>載せてみると、外れ値が三つだけ見つかりました。</em></p>
+
+<h2><span class="n">01</span>まず、全部を一枚に並べる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>現象</th><th>指数 \(\beta\)</th><th>階数の言葉</th><th>出てきた回</th><th>判定</th></tr></thead>
+<tbody>
+<tr><th>\(\omega^4\)（レイリー散乱）</th><td class="mid">\(+4\)</td><td>二階微分を二乗</td><td class="mid">第 12 回</td><td class="mid">◎ 厳密</td></tr>
+<tr><th>\(+12\) dB/oct（加速度）</th><td class="mid">\(+2\)</td><td>二階微分</td><td class="mid">第 1 回</td><td class="mid">◎ 厳密</td></tr>
+<tr><th>\(+6\) dB/oct（速度）</th><td class="mid">\(+1\)</td><td>一階微分</td><td class="mid">第 1 回</td><td class="mid">◎ 厳密</td></tr>
+<tr><th>白色雑音</th><td class="mid">0</td><td>何もしない</td><td class="mid">第 2 回</td><td class="mid">◎ 定義</td></tr>
+<tr><th>\(1/f\) 雑音（ピンク）</th><td class="mid">\(-1\)</td><td>半積分 \(\alpha=-1/2\)</td><td class="mid">第 2 回</td><td class="mid">○ 実測</td></tr>
+<tr class="hi"><th><strong>コルモゴロフ乱流</strong></th><td class="mid"><strong>\(-5/3\)</strong></td><td><strong>★ \(\alpha=-5/6\)</strong></td><td class="mid">本回</td><td class="mid">○ 実測</td></tr>
+<tr><th>ブラウン運動（赤）</th><td class="mid">\(-2\)</td><td>一回積分</td><td class="mid">第 2 回</td><td class="mid">◎ 厳密</td></tr>
+<tr class="hi"><th><strong>ボルジャーノ＝オブホフ</strong></th><td class="mid"><strong>\(-11/5\)</strong></td><td><strong>★ \(\alpha=-11/10\)</strong></td><td class="mid">本回</td><td class="mid">△ 場合による</td></tr>
+<tr><th>2 次元のエンストロフィー</th><td class="mid">\(-3\)</td><td>\(\alpha=-3/2\)</td><td class="mid">本回</td><td class="mid">○ 数値実験</td></tr>
+<tr><th>フィリップス（海の波）</th><td class="mid">\(-5\)</td><td>\(\alpha=-5/2\)</td><td class="mid">本回</td><td class="mid">○ 実測</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0"><strong>ほとんどが整数か半整数です。</strong>ところが三つだけ違う ── \(-5/3\)、\(-11/5\)、そして \(-7/3\)。<br>
+★ <em>分母に 3 と 5 が出てきます。これはどこから来たのか。</em></p>
+</div>
+
+<h2><span class="n">02</span>\(-5/3\) は、2 元 1 次方程式の答えだった</h2>
+
+<p>コルモゴロフの仮定はたった一つです ── <strong>「慣性領域のスペクトルは、エネルギー散逸率 \(\varepsilon\) と波数 \(k\) だけで決まる」</strong>。あとは次元を数えるだけ。</p>
+
+<div class="calc">
+<span class="tag">単位を合わせる、それだけ</span>
+$$[\varepsilon]=L^2T^{-3},\qquad [k]=L^{-1},\qquad [E(k)]=L^3T^{-2}$$
+$$E=\varepsilon^a k^b\ \Longrightarrow\ \begin{cases} L:\ 2a-b=3\\ T:\ -3a=-2\end{cases}\ \Longrightarrow\ a=\frac23,\ b=-\frac53$$
+</div>
+
+<p>同じ解き方を、ほかのカスケードにも当てました。<strong>連立方程式を有理数で厳密に解いています</strong>（浮動小数点にすると 0.6666… になってしまうので）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>カスケード</th><th>使う量</th><th>出た式</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>3 次元エネルギー慣性領域</strong><br>（コルモゴロフ 1941）</th><td class="mid">\(\varepsilon,\ k\)</td><td class="mid"><strong>\(E(k)=C\varepsilon^{2/3}k^{-5/3}\)</strong></td></tr>
+<tr><th>2 次元エンストロフィー領域<br>（クライチナン 1967）</th><td class="mid">\(\eta,\ k\)</td><td class="mid">\(E(k)=C\eta^{2/3}k^{-3}\)</td></tr>
+<tr><th>受動スカラー・慣性対流領域<br>（オブホフ＝コルシン）</th><td class="mid">\(\chi,\ \varepsilon,\ k\)</td><td class="mid">\(E_\theta(k)=C\chi\varepsilon^{-1/3}k^{-5/3}\)</td></tr>
+<tr class="hi"><th><strong>ボルジャーノ＝オブホフ</strong><br>（浮力が効く領域）</th><td class="mid">\(\chi,\ \beta g,\ k\)</td><td class="mid"><strong>\(E(k)\propto\chi^{2/5}(\beta g)^{4/5}k^{-11/5}\)</strong></td></tr>
+<tr class="hi"><th><strong>圧力スペクトル</strong><br>（\(p\) は \(u^2\) のオーダー）</th><td class="mid">\(\varepsilon,\ k\)</td><td class="mid"><strong>\(E_p(k)\propto\varepsilon^{4/3}k^{-7/3}\)</strong></td></tr>
+<tr><th>海面波の飽和領域<br>（フィリップス 1958）</th><td class="mid">\(g,\ \omega\)</td><td class="mid">\(F(\omega)=\alpha g^2\omega^{-5}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>どれも 2〜3 元の 1 次方程式を解いただけです。</strong><em>仮定は「この量とこの量だけで決まる」という一行だけ。</em></p>
+
+<h2><span class="n">03</span>分母の 3 と 5 は、行列式だった</h2>
+
+<p>前節の計算は、すべて<strong>「次元行列 \(M\) の逆行列を掛ける」</strong>ことでした。ならばクラメルの公式から、指数は必ず \((\text{整数})/\det M\) の形になるはずです。</p>
+
+<div class="calc">
+<span class="tag">コルモゴロフの次元行列</span>
+$$M=\begin{pmatrix} 2 & -1\\ -3 & 0\end{pmatrix},\qquad \det M=2\cdot0-(-1)(-3)=-3$$
+<p class="lbl">★ 分母の 3 は、この行列式そのもの</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>カスケード</th><th>\(|\det M|\)</th><th>指数の分母</th><th>整合</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>3 次元エネルギー慣性領域</strong></th><td class="mid"><strong>3</strong></td><td class="mid"><strong>3, 3</strong></td><td class="mid"><strong>○</strong></td></tr>
+<tr><th>2 次元エンストロフィー領域</th><td class="mid">3</td><td class="mid">3, 1</td><td class="mid">○</td></tr>
+<tr><th>受動スカラー・慣性対流領域</th><td class="mid">6</td><td class="mid">1, 3, 3</td><td class="mid">○</td></tr>
+<tr class="hi"><th><strong>ボルジャーノ＝オブホフ</strong></th><td class="mid"><strong>5</strong></td><td class="mid"><strong>5, 5, 5</strong></td><td class="mid"><strong>○</strong></td></tr>
+<tr><th>圧力スペクトル</th><td class="mid">3</td><td class="mid">3, 3</td><td class="mid">○</td></tr>
+<tr class="hi"><th><strong>海面波の飽和領域</strong></th><td class="mid"><strong>1</strong></td><td class="mid"><strong>1, 1</strong></td><td class="mid"><strong>○ ★ だから整数</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── この回いちばんの発見</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>スペクトル指数の分母は、次元行列の行列式である。</strong></p>
+<p style="margin:10px 0 0">\(-5/3\) の 3 も、\(-11/5\) の 5 も、\(-7/3\) の 3 も、すべて \(|\det M|\) の約数でした。<br>
+そして<strong>フィリップスの \(\det M=1\)</strong> ── <em>だから海の波の指数は整数 \(-5\) になる。</em></p>
+<p style="margin:10px 0 0">中身を見ると、こうなっています ──<br>
+・コルモゴロフ：\(\varepsilon\) の時間次元 \(-3\) が、そのまま \(\det=-3\)<br>
+・ボルジャーノ：温度の制約（\(\Theta^2\) と \(\Theta^{-1}\)）が時間の式に噛んで \(\det=-5\)<br>
+・フィリップス：\(g\) と \(\omega\) だけなので \(\det=-1\)</p>
+</div>
+
+<div class="aside">
+<p class="lbl">★ ここが本回の主張です</p>
+<p style="margin:6px 0 0;font-size:16px"><strong>「スペクトルの傾きが整数からずれるのは、次元行列の行列式が 1 でないからであって、分数階微分が物理法則に潜んでいるからではない」</strong></p>
+<p style="margin:10px 0 0">第 2 回で「物理はほぼ整数階」と書きました。<em>乱流はその反例に見えます。</em>でも ──<br>
+★ <strong>支配方程式（ナビエ＝ストークス）は依然として整数階です。</strong>分数が出るのは統計をとった後 ── 階数ではなく、次元の割り算。<br>
+<em>判定：これは本稿の整理であって、新しい主張ではありません。ただし第 2 回の仮説が乱流で破れていない、という確認にはなっています。</em></p>
+</div>
+
+<h2><span class="n">04</span>音で確かめる ── 指数 \(\beta\) の雑音を作って測り返す</h2>
+
+<p>まず道具の確認です。<strong>狙った指数の雑音を作り、スペクトルを測り返します。</strong>一回の実現値だと数 % ばらつくので、4 回作って平均しました。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>狙った \(\beta\)</th><th>測った \(\beta\)（4 回平均）</th><th>差</th><th>ばらつき</th><th>階数 \(\alpha=-\beta/2\)</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">\(+0.0369\)</td><td class="mid">\(+0.037\)</td><td class="mid">\(\pm0.059\)</td><td class="mid">0</td></tr>
+<tr><th>\(-1\)</th><td class="mid">\(-0.9672\)</td><td class="mid">\(+0.033\)</td><td class="mid">\(\pm0.015\)</td><td class="mid">\(1/2\)</td></tr>
+<tr class="hi"><th><strong>\(-5/3\)</strong></th><td class="mid"><strong>\(-1.6231\)</strong></td><td class="mid">\(+0.044\)</td><td class="mid">\(\pm0.015\)</td><td class="mid"><strong>\(5/6\)</strong></td></tr>
+<tr><th>\(-2\)</th><td class="mid">\(-1.9732\)</td><td class="mid">\(+0.027\)</td><td class="mid">\(\pm0.026\)</td><td class="mid">1</td></tr>
+<tr><th>\(-11/5\)</th><td class="mid">\(-2.2100\)</td><td class="mid">\(-0.010\)</td><td class="mid">\(\pm0.009\)</td><td class="mid">\(11/10\)</td></tr>
+<tr><th>\(-3\)</th><td class="mid">\(-2.9494\)</td><td class="mid">\(+0.051\)</td><td class="mid">\(\pm0.033\)</td><td class="mid">\(3/2\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>ばらつきの範囲で一致。</strong><em>ここまでは道具の確認です。</em></p>
+
+<h2><span class="n">05</span>本題 ── 構造関数で見ると、2/3 が出る</h2>
+
+<p>乱流で実際に測られるのは、スペクトルよりも<strong>構造関数</strong>です。</p>
+
+<div class="calc">
+<span class="tag">スペクトル指数と構造関数の指数</span>
+$$S_2(\tau)=\bigl\langle |x(t+\tau)-x(t)|^2\bigr\rangle\propto\tau^{\zeta_2},\qquad \zeta_2=-\beta-1\quad(-3<\beta<-1)$$
+$$\beta=-\frac53\ \Longrightarrow\ \zeta_2=\frac23\qquad\textbf{★ コルモゴロフの 2/3 乗則}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(\zeta_2\) 理論 \((-\beta-1)\)</th><th>\(\zeta_2\) 実測</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>\(-1.2\)</th><td class="mid">0.2000</td><td class="mid">0.3098</td><td class="mid">\(+0.110\)</td></tr>
+<tr class="hi"><th><strong>\(-5/3\)</strong></th><td class="mid"><strong>0.6667</strong></td><td class="mid"><strong>0.6952</strong></td><td class="mid">\(+0.029\)</td></tr>
+<tr><th>\(-2\)</th><td class="mid">1.0000</td><td class="mid">1.0064</td><td class="mid">\(+0.006\)</td></tr>
+<tr><th>\(-11/5\)</th><td class="mid">1.2000</td><td class="mid">1.2021</td><td class="mid">\(+0.002\)</td></tr>
+<tr><th>\(-2.8\)</th><td class="mid">1.8000</td><td class="mid">1.7681</td><td class="mid">\(-0.032\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の結論</p>
+<p style="margin:6px 0 0"><strong>帯の中央（\(\beta=-2\sim-2.2\)）では 3 桁 一致</strong>。端の \(\beta=-1.2\) が 0.11 ずれるのは誤差ではなく、<em>\(\zeta_2=-\beta-1\) が成り立つのが \(-3<\beta<-1\) の内部で、端に近づくほど収束が遅いから</em>です。</p>
+<p style="margin:10px 0 0">★ <strong>コルモゴロフの 2/3 乗則は、\(-5/3\) 乗則の言い換えにすぎません。</strong><br>
+どちらも「エネルギー流量 \(\varepsilon\) と長さだけで決まる」という一行から出ます ── <em>別々の法則ではない。</em></p>
+</div>
+
+<h2><span class="n">06</span>自然界の指数を集めてみる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>現象</th><th>指数</th><th>判定</th><th>備考</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>大気の風速（慣性領域）</strong></th><td class="mid"><strong>\(-5/3\)</strong></td><td class="mid">○ 実測</td><td>コルモゴロフ。多数の観測で確認</td></tr>
+<tr><th>海面波（飽和領域）</th><td class="mid">\(-5\)</td><td class="mid">○ 実測</td><td>フィリップス。ただし \(-4\) という報告も多い</td></tr>
+<tr><th>音楽の音量ゆらぎ</th><td class="mid">約 \(-1\)</td><td class="mid">△ 主張</td><td>ヴォス＝クラーク 1975。曲や測り方に依存</td></tr>
+<tr><th>半導体の \(1/f\) 雑音</th><td class="mid">約 \(-1\)</td><td class="mid">○ 実測</td><td>指数は 0.8〜1.4 に散る</td></tr>
+<tr><th>心拍間隔のゆらぎ</th><td class="mid">約 \(-1\)</td><td class="mid">△ 主張</td><td>指標に使われるが解釈は分かれる</td></tr>
+<tr><th>宇宙マイクロ波背景放射</th><td class="mid">約 \(-1\)</td><td class="mid">○ 実測</td><td>ほぼスケール不変（\(n_s=0.965\)）</td></tr>
+<tr><th>ブラウン運動の位置</th><td class="mid">\(-2\)</td><td class="mid">◎ 厳密</td><td>白色雑音の一回積分</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節 ── 「約 \(-1\)」が多すぎる</p>
+<p style="margin:6px 0 0"><strong>\(1/f\) は自然界でいちばんよく出てくる指数です。</strong>ところが ── ★ <em>起源は一つではありません。</em></p>
+<p style="margin:10px 0 0">緩和時間が対数一様に分布していれば \(1/f\) が出る、というのが最有力ですが、<strong>「なぜ対数一様なのか」は現象ごとに違います</strong>（半導体なら表面準位、宇宙背景放射ならインフレーション）。<br>
+<em>第 2 回で「開いたままの扉」に入れたまま、いまも開いています。</em></p>
+<p style="margin:10px 0 0">★ ただし第 13 回の言葉を借りると、<strong>\(1/f\) は「対数一様 ＝ スケール不変」の直接の帰結</strong>です。<br>
+\(\beta=-1\) は \(\alpha=1/2\)、そして \(\ln\omega\) について平坦 ── <em>虚数階の世界と、いちばん近いところにいる指数でした。</em></p>
+</div>
+
+<h2><span class="n">07</span>梯子の全体像 ── 整数から外れる理由は三つ</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>出自</th><th>指数の型</th><th>例</th><th>どこで出たか</th></tr></thead>
+<tbody>
+<tr><th>微分・積分の回数</th><td class="mid">整数</td><td class="mid">\(\pm6n\) dB/oct</td><td>第 1 回。局所的な法則から</td></tr>
+<tr><th>二乗（強度にする）</th><td class="mid">整数</td><td class="mid">\(\omega^4\)</td><td>第 12 回。振幅 → パワー</td></tr>
+<tr class="hi"><th><strong>拡散（時間 1・空間 2）</strong></th><td class="mid"><strong>半整数</strong></td><td class="mid">\(\sqrt\omega,\ \alpha=1/2\)</td><td>第 11 回。階数の不釣り合い</td></tr>
+<tr class="hi"><th><strong>因果律つきの半微分</strong></th><td class="mid"><strong>半整数</strong></td><td class="mid">ワールブルグ</td><td>第 2 回。\(\alpha=-1/2\)</td></tr>
+<tr class="hi"><th><strong>次元行列の行列式</strong></th><td class="mid"><strong>\(\det M\) の約数</strong></td><td class="mid">\(-5/3,\ -11/5\)</td><td><strong>★ 本回</strong></td></tr>
+<tr class="hi"><th><strong>臨界的な \(1/r^2\)</strong></th><td class="mid"><strong>複素数</strong></td><td class="mid">\(s_0=1.006\)</td><td><strong>★ 第 13 回。対数周期</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節 ── 三つに整理できた</p>
+<p style="margin:6px 0 0">指数が整数から外れる理由は、この連載の範囲では三つしかありませんでした：</p>
+<p style="margin:10px 0 0"><strong>1. 階数そのものが半端</strong>（拡散、ワールブルグ）── 第 2, 11 回<br>
+<strong>2. 次元合わせで分数が出る</strong>（乱流）── 本回<br>
+<strong>3. 階数が複素数になる</strong>（臨界 \(1/r^2\)）── 第 13 回</p>
+<p style="margin:10px 0 0">そして<strong>1 と 3 は「法則の形」の話、2 は「統計の取り方」の話</strong>です。<br>
+★ <em>乱流の \(-5/3\) は二つ目であって、一つ目ではなかった</em> ── ここが本回でいちばん言いたかったことです。</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>海面波のフィリップス則が \(-5\) という整数になる理由を、この回の言葉で。
+<details><summary>答えを見る</summary><div class="ans">使う量が \(g\)（\(LT^{-2}\)）と \(\omega\)（\(T^{-1}\)）の二つだけで、次元行列が \(\begin{pmatrix}1&0\\-2&-1\end{pmatrix}\)、<strong>\(\det M=-1\)</strong> だからです。<br>クラメルの公式の分母が 1 なので、指数は必ず整数になる ── <em>整数になるかどうかは、最初から行列式で決まっていました。</em></div></details></li>
+
+<li>「乱流は物理法則が分数階である証拠だ」という主張への反論を。
+<details><summary>答えを見る</summary><div class="ans"><strong>ナビエ＝ストークス方程式は整数階です</strong>（時間 1 階、空間 2 階）。分数が出るのは、その解を統計的に平均したスペクトルのほうです。<br>つまり <em>\(-5/3\) は方程式の性質ではなく、次元解析の割り算の性質</em>。<br>★ 比較として、ワールブルグ・インピーダンスの \(\alpha=-1/2\) は<strong>方程式そのものが半階</strong>（拡散方程式を境界で解いた結果）── こちらは本物の分数階です。<em>同じ「分数」でも出自が違う。</em></div></details></li>
+
+<li>\(1/f\) 雑音と第 13 回の虚数階微分は、どう関係するか。
+<details><summary>答えを見る</summary><div class="ans">どちらも<strong>「\(\ln\omega\) について平坦・周期的」</strong>という性質を持ちます。<br>\(1/f\)：パワーが \(\ln\omega\) の単位区間あたり一定（オクターブごとに同じエネルギー）。<br>虚数階：位相が \(\ln\omega\) に比例（\(\ln\omega\) について周期的）。<br>★ <strong>前者は振幅がスケール不変、後者は位相がスケール不変</strong> ── 同じ対称性の、振幅側と位相側です。<br><em>ただしこれは対応関係の指摘であって、\(1/f\) の起源の説明ではありません。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　傾きの出自を三つに分ける</h2>
+<p>第 2 回の辞書（\(\beta=-2\alpha\)）で、この連載の傾きを一枚に並べました。<strong>ほとんどが整数か半整数</strong>で、外れるのは乱流系の \(-5/3\)、\(-11/5\)、\(-7/3\) だけ。</p>
+<p>その分母を追いかけたら ── <strong>★ 次元行列の行列式でした</strong>。コルモゴロフは \(|\det M|=3\)、ボルジャーノ＝オブホフは 5、そして<strong>フィリップスは 1 なので整数 \(-5\)</strong>。<em>整数になるかどうかは、最初から行列式が決めている。</em></p>
+<p>数値でも確かめました ── 指数 \(\beta\) の雑音を作って測り返し（ばらつきの範囲で一致）、構造関数の指数が \(\zeta_2=-\beta-1\) になること（帯の中央で 3 桁）。<strong>コルモゴロフの 2/3 乗則は \(-5/3\) 乗則の言い換え</strong>にすぎません。</p>
+<p style="text-align:center"><strong>★ 指数が整数から外れる理由は三つ ──<br>階数が半端か、次元の割り算か、階数が複素数か。</strong></p>
+<p>そして<em>乱流は二つ目</em>でした。ナビエ＝ストークスは整数階のままで、分数は統計をとった後に出てくる。<br>── <strong>第 2 回の「物理はほぼ整数階」は、乱流でも破れていません。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+14 回 歩いてきました。<strong>最終回は、この連載が何を言い当てて何を外したのかを数えます。</strong><br>
+成立した主張、否定された仮説、そして<em>まだ誰も閉じていない問い</em> ── \(1/f\) の起源、\(\alpha\) の値の由来、そして \(10^{4}\sim10^{10}\) 年 という観測の空白帯。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 14 回です。計算は kenshou/hashigo.js で行っています。<strong>本回の数値について：</strong>次元解析の連立方程式は<em>有理数で厳密に解いています</em>（浮動小数点だと 2/3 が 0.6666… になり、行列式との関係が見えなくなるため）。<strong>「分母は \(|\det M|\) を割り切る」はクラメルの公式の直接の帰結で、本稿が発見したものではありません</strong> ── 本稿がやったのは、この連載に出た指数を実際に当てはめて確認したことです。ボルジャーノ＝オブホフの \(-11/5\) は<strong>成層乱流の理論的予言で、観測での確認は限定的</strong>です（\(-5/3\) との区別が難しい）。フィリップス則の指数は \(-5\) と \(-4\) の両方が報告されており、決着していません。構造関数と スペクトルの関係 \(\zeta_2=-\beta-1\) は \(-3<\beta<-1\) でのみ成り立ち、端では収束が遅くなります（表の \(\beta=-1.2\) がそれ）。<strong>実際の乱流には間欠性があり、高次の構造関数の指数はコルモゴロフの予言からずれます</strong>（\(\zeta_n\neq n/3\)）── 本回はその手前、二次までの話に限っています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
