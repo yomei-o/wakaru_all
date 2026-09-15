@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ビットレートを積分すると情報量になる ── 情報は虚軸に住んでいる｜考える波 第21回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f7fa; --paper-edge:#d7dee8;
+    --side:#17304f; --side-bg:#e9eef6;
+    --warn:#8a4b2f;
+    --calc:#132c48; --calc-bg:#e4ebf4;
+    --rule:#c9d4e2; --hair:#a8b8cc;
+    --acc:#1c3f63;
+    --grid:#dde5ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 21 回 ／ 第 IX 部・情報を波として見る</span></p>
+<p class="eyebrow">情報の限界は、全部 帯域幅定理の言い換えだった</p>
+
+<h1>ビットレートを積分すると、情報量になる ──<br>そして情報は、虚軸に住んでいる
+<span class="sub">速さを積分すると距離になる。<strong>ビットレートを積分すると情報量になる。</strong><br>まったく同じ形です ── <em>情報にも、階数の梯子があります。</em><br>★ そしてシャノンの公式は<strong>「帯域幅 × 時間」</strong> ── 第 9 回がそのまま効きます。</span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 3, 7, 9, 10, 19, 20 回</span><span>計算：kenshou/joho.js</span></p>
+
+<p class="lead">この連載はずっと「物理量を波として見る」をやってきました。<strong>情報も波として見られます。</strong><br><em>やってみたら、情報理論の限界と物理の限界が、一本の式でつながりました。</em></p>
+
+<h2><span class="n">01</span>情報にも、階数の梯子がある</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階数</th><th>量</th><th>単位</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>情報量 \(I\)</strong></td><td class="mid">bit</td><td><strong>★ 定数に見える量（第 3 回）</strong></td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>ビットレート \(dI/dt\)</strong></td><td class="mid">bit/s</td><td><strong>通信速度、エントロピー生成率</strong></td></tr>
+<tr><th>2</th><td class="mid">\(d^2I/dt^2\)</td><td class="mid">bit/s²</td><td>情報生成の加速（06節で出ます）</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節 ── 積分定数も、そのまま効く</p>
+<p style="margin:6px 0 0">第 3 回で「積分定数は \(\omega=0\) の成分で、原理的に決められない」と書きました。<br>
+情報でも同じです ── <strong>情報量の積分定数 ＝ 初期情報量。</strong></p>
+<p style="margin:10px 0 0">★ <em>「宇宙は最初に何ビット 持っていたか」は、ビットレートをいくら積分しても決まりません。</em></p>
+</div>
+
+<h2><span class="n">02</span>シャノンの公式は「帯域幅 × 時間」だった</h2>
+
+<div class="calc">
+<span class="tag">情報理論の基本式を、積分する</span>
+$$C=B\log_2\Bigl(1+\frac{S}{N}\Bigr)\ \text{[bit/s]}\quad\Longrightarrow\quad I=C\,T=\underbrace{B\,T}_{\text{帯域}\times\text{時間}}\cdot\log_2\Bigl(1+\frac{S}{N}\Bigr)$$
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>情報量 ＝（帯域幅 × 時間）×（1 サンプルあたりのビット数）</strong></p>
+<p style="margin:10px 0 0">★ 第 9 回の帯域幅定理 \(\Delta t\,\Delta\omega\ge1/2\) が、そのまま出てきます。<br>
+ナイキストの標本化定理では、帯域 \(B\)・時間 \(T\) の信号の自由度は \(2BT\) ── <em>これが「1 モード」の数です。</em></p>
+<p style="margin:10px 0 0;text-align:center">★ <strong>「1 ビット送るには、時間 × 帯域 が要る」。</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>通信路</th><th>帯域 \(B\)</th><th>S/N [dB]</th><th>容量 \(C\)</th><th>実際の値</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>電話回線（音声帯域）</strong></th><td class="mid">3.1 kHz</td><td class="mid">30</td><td class="mid"><strong>30.9 kbps</strong></td><td><strong>★ ダイヤルアップの壁</strong></td></tr>
+<tr><th>4G LTE（20 MHz）</th><td class="mid">20 MHz</td><td class="mid">20</td><td class="mid">133 Mbps</td><td>150 Mbps 級</td></tr>
+<tr><th>Wi-Fi（80 MHz）</th><td class="mid">80 MHz</td><td class="mid">35</td><td class="mid">930 Mbps</td><td>実測 数百 Mbps</td></tr>
+<tr class="hi"><th><strong>光ファイバ C+L 帯</strong></th><td class="mid">10 THz</td><td class="mid">20</td><td class="mid"><strong>67 Tbps</strong></td><td>実用 10〜100 Tbps</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>電話回線の 30.9 kbps</strong> ── 56k モデムがそこで止まったのは、この式が理由でした。<em>S/N を上げても \(\log\) でしか効かないので、帯域を増やすしかない。</em>★ だから光ファイバは 9 桁 速い。</p>
+
+<h2><span class="n">03</span>情報とエネルギーの為替レート ── ランダウアー</h2>
+
+<div class="calc">
+<span class="tag">1 ビット 消すのに要るエネルギー</span>
+$$E\ge k_BT\ln2$$
+<p class="lbl">★ 第 7 回で \(\hbar\)・\(c\)・\(k_B\) を「為替レート」と呼びました。ここでは \(k_B\) が情報 ↔ エネルギーのレート</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>温度</th><th>1 ビットの値段 [J]</th><th>[eV]</th></tr></thead>
+<tbody>
+<tr><th>宇宙背景放射 2.725 K</th><td class="mid">\(2.61\times10^{-23}\)</td><td class="mid">\(1.63\times10^{-4}\)</td></tr>
+<tr><th>液体窒素 77 K</th><td class="mid">\(7.37\times10^{-22}\)</td><td class="mid">\(4.60\times10^{-3}\)</td></tr>
+<tr class="hi"><th><strong>室温 300 K</strong></th><td class="mid"><strong>\(2.87\times10^{-21}\)</strong></td><td class="mid"><strong>0.0179</strong></td></tr>
+<tr><th>太陽中心 \(1.5\times10^7\) K</th><td class="mid">\(1.43\times10^{-16}\)</td><td class="mid">896</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節 ── 半導体はまだ 1 万倍 上</p>
+<p style="margin:6px 0 0">トランジスタ 1 回 のスイッチング \(\approx\frac12CV^2=3.2\times10^{-17}\) J（\(C=0.1\) fF、\(V=0.8\) V の目安）<br>
+ランダウアー限界（300 K）\(=2.87\times10^{-21}\) J</p>
+<p style="margin:8px 0 0;text-align:center">★ <strong>比 \(=1.1\times10^{4}\) 倍</strong></p>
+<p style="margin:10px 0 0">現代の半導体には、まだ 1 万倍 の余裕があります ── <em>2012 年には、実験でランダウアー限界そのものが確認されました。</em></p>
+</div>
+
+<h2><span class="n">04</span>ビットレートの上限 ── 帯域幅定理の言い換え</h2>
+
+<div class="calc">
+<span class="tag">エネルギーが速さを決める</span>
+$$\nu\le\frac{2E}{\pi\hbar}\ \text{（マルゴラス＝レヴィティン）},\qquad \text{ビットレート}\le\frac{mc^2}{h}=1.356\times10^{50}\ \text{bit/(s·kg)}\ \text{（ブレーメルマン）}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>系</th><th>質量</th><th>演算速度の上限 [/s]</th></tr></thead>
+<tbody>
+<tr><th>電子 1 個</th><td class="mid">\(9.1\times10^{-31}\) kg</td><td class="mid">\(4.9\times10^{20}\)</td></tr>
+<tr><th>陽子 1 個</th><td class="mid">\(1.7\times10^{-27}\) kg</td><td class="mid">\(9.1\times10^{23}\)</td></tr>
+<tr class="hi"><th><strong>1 kg（究極のノート PC）</strong></th><td class="mid">1 kg</td><td class="mid"><strong>\(5.4\times10^{50}\)</strong></td></tr>
+<tr><th>地球</th><td class="mid">\(6.0\times10^{24}\) kg</td><td class="mid">\(3.2\times10^{75}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節 ── 第 9 回がそのまま効いている</p>
+<p style="margin:6px 0 0">1 kg の物質は、毎秒 \(5.4\times10^{50}\) 回 まで状態を変えられます。現代の CPU は \(10^{10}\) 回/秒 ── <strong>40 桁 の余裕</strong>。</p>
+<p style="margin:10px 0 0">★ 理屈は第 9 回そのものです ── <em>「速く変わるには広い帯域が要る。広い帯域には高いエネルギーが要る」。</em><br>
+不確定性原理と計算速度の限界は、<strong>同じ一つの定理</strong>でした。</p>
+</div>
+
+<h2><span class="n">05</span>情報量の上限 ── ベケンシュタイン</h2>
+
+<div class="calc">
+<span class="tag">持てる情報量にも上限がある</span>
+$$I\le\frac{2\pi ER}{\hbar c\ln2}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>対象</th><th>質量</th><th>半径</th><th>情報量の上限 [bit]</th></tr></thead>
+<tbody>
+<tr><th>USB メモリ（10 g）</th><td class="mid">0.01 kg</td><td class="mid">2 cm</td><td class="mid">\(5.2\times10^{39}\)</td></tr>
+<tr class="hi"><th><strong>人間</strong></th><td class="mid">70 kg</td><td class="mid">0.5 m</td><td class="mid"><strong>\(9.0\times10^{44}\)</strong></td></tr>
+<tr><th>地球</th><td class="mid">\(6.0\times10^{24}\) kg</td><td class="mid">6371 km</td><td class="mid">\(9.8\times10^{74}\)</td></tr>
+<tr class="hi"><th><strong>観測可能な宇宙（ホログラフィック）</strong></th><td class="mid">──</td><td class="mid">\(1.3\times10^{26}\) m</td><td class="mid"><strong>\(3.0\times10^{122}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">06</span>★ 宇宙のビットレートを、微分してみる</h2>
+
+<p>ホログラフィック限界は面積に比例し、面積は \((ct)^2\) です。<strong>だから微分できます。</strong></p>
+
+<div class="calc">
+<span class="tag">情報量を時間で微分する</span>
+$$I(t)=\frac{\pi c^2t^2}{l_P^2\ln2}\quad\Longrightarrow\quad \frac{dI}{dt}=\frac{2I}{t}=1.36\times10^{105}\ \text{bit/s}$$
+$$\frac{d^2I}{dt^2}=\frac{2\pi c^2}{l_P^2\ln2}=3.12\times10^{87}\ \text{bit/s}^2\qquad\textbf{★ 一定！}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>時刻</th><th>\(ct\) [m]</th><th>情報量 \(I\) [bit]</th><th>ビットレート [bit/s]</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>プランク時間</strong></th><td class="mid">\(1.6\times10^{-35}\)</td><td class="mid"><strong>4.53</strong></td><td class="mid">\(1.7\times10^{44}\)</td></tr>
+<tr><th>1 秒</th><td class="mid">\(3.0\times10^{8}\)</td><td class="mid">\(1.6\times10^{87}\)</td><td class="mid">\(3.1\times10^{87}\)</td></tr>
+<tr><th>元素合成 3 分</th><td class="mid">\(5.4\times10^{10}\)</td><td class="mid">\(5.1\times10^{91}\)</td><td class="mid">\(5.6\times10^{89}\)</td></tr>
+<tr><th>晴れ上がり 38 万年</th><td class="mid">\(3.6\times10^{21}\)</td><td class="mid">\(2.2\times10^{113}\)</td><td class="mid">\(3.7\times10^{100}\)</td></tr>
+<tr class="hi"><th><strong>現在</strong></th><td class="mid">\(1.3\times10^{26}\)</td><td class="mid"><strong>\(3.0\times10^{122}\)</strong></td><td class="mid"><strong>\(1.4\times10^{105}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心 ── 第 20 回とつながる</p>
+<p style="margin:6px 0 0"><strong>プランク時間には 4.5 ビット（\(\pi/\ln2\)）しかありませんでした。</strong>いま \(3\times10^{122}\) ビット ── <em>122 桁 増えています。</em></p>
+<p style="margin:10px 0 0">そして「宇宙の情報加速度は一定」── <em>第 1 回で「等加速度運動は \(x\propto t^2\)」と書いたのと、同じ形です。</em></p>
+<p style="margin:10px 0 0">★★ ここで第 20 回とつながります ── \(I\propto(ct)^2\) なので：</p>
+<p style="margin:8px 0 0;text-align:center;font-size:17px"><strong>\(c\cdot t=\) 一定 の座標系とは、<br>「宇宙の情報量を一定に保つ座標系」でもあった。</strong></p>
+<p style="margin:10px 0 0">第 20 回では「時間を対数目盛りで測ること」と分かりました。<em>情報の言葉では ── 情報量そのものを目盛りにすること。</em></p>
+</div>
+
+<h2><span class="n">07</span>★ 情報は虚軸に住んでいる</h2>
+
+<p>第 19 回で、実軸（振動）と虚軸（減衰）を分けました。<strong>情報量・エントロピーは、どちらでしょうか。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>種類</th><th>軸</th><th>例</th><th>性質</th></tr></thead>
+<tbody>
+<tr><th>振動する量</th><td class="mid">実軸 \(\omega\)</td><td>エネルギー、位相、振幅</td><td>可逆。時間反転で戻る</td></tr>
+<tr class="hi"><th><strong>単調に増える量</strong></th><td class="mid"><strong>虚軸 \(i\lambda\)</strong></td><td><strong>★ エントロピー、情報量</strong></td><td><strong>★ 不可逆。時間の矢</strong></td></tr>
+<tr><th>単調に減る量</th><td class="mid">虚軸 \(i\lambda\)</td><td>放射性核種の数、自由エネルギー</td><td>同上</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心 ── 三つの「不可逆」が合流する</p>
+<p style="margin:6px 0 0"><strong>エントロピーは振動しません。単調に増えるだけ</strong> ── つまり虚軸です。<em>これが熱力学第二法則の、波としての言い方でした。</em></p>
+<p style="margin:10px 0 0">そして、この連載で出てきた三つの「不可逆」が、ここで合流します：</p>
+<p style="margin:8px 0 0">・第 10 回：<strong>奇数階の微分</strong> → 時間反転で符号が変わる → 不可逆<br>
+・第 19 回：<strong>虚軸の周波数</strong> → 単調に増減する → 不可逆<br>
+・本回：<strong>情報量の増加</strong> → 熱力学第二法則 → 不可逆</p>
+<p style="margin:10px 0 0;text-align:center;font-size:17px">★ <strong>「時間の矢」とは、複素周波数平面の虚軸のことだった。</strong></p>
+</div>
+
+<h2><span class="n">08</span>位相空間のセルを数える ── 1 ビットの大きさ</h2>
+
+<div class="calc">
+<span class="tag">二つの「これ以上 細かくできない」</span>
+$$\text{位相空間のセル}:\ \Delta x\,\Delta p\ge\frac{\hbar}{2},\qquad \text{時間 × 帯域}:\ \Delta t\,\Delta\omega\ge\frac12$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>信号</th><th>帯域 [Hz]</th><th>時間 [s]</th><th>モード数 \(2BT\)</th><th>情報量 [bit]</th></tr></thead>
+<tbody>
+<tr><th>電話 1 分</th><td class="mid">3100</td><td class="mid">60</td><td class="mid">\(3.7\times10^5\)</td><td class="mid">\(1.9\times10^6\)</td></tr>
+<tr class="hi"><th><strong>CD 1 曲（ステレオ）</strong></th><td class="mid">\(4.0\times10^4\)</td><td class="mid">240</td><td class="mid">\(1.9\times10^7\)</td><td class="mid"><strong>\(3.1\times10^8\)</strong></td></tr>
+<tr><th>4K 動画 1 秒</th><td class="mid">\(1.0\times10^7\)</td><td class="mid">1</td><td class="mid">\(2.0\times10^7\)</td><td class="mid">\(1.3\times10^8\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">08節の結論</p>
+<p style="margin:6px 0 0;text-align:center"><strong>情報量 ＝ モードの数 × 1 モードあたりのビット数</strong></p>
+<p style="margin:10px 0 0">そして<strong>モードの数を決めているのは、帯域幅定理</strong>（第 9 回）でした。<br>
+★ <em>ガボール限界も、不確定性原理も、シャノンの公式も、「1 モードの大きさ」を決める同じ一つの定理です。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>「S/N を無限に上げれば、どんな細い帯域でも無限の情報が送れる」は正しいか。
+<details><summary>答えを見る</summary><div class="ans"><strong>式の上では正しく、物理的には正しくありません。</strong><br>\(C=B\log_2(1+S/N)\) は \(S/N\to\infty\) で発散します。でも \(S\) を上げるにはエネルギーが要り、<em>エネルギーを上げると第 4 節の上限（\(\nu\le2E/\pi\hbar\)）に当たります。</em><br>★ さらに \(N\) には下限があります ── <strong>量子雑音</strong>。1 モードあたり最低 \(\hbar\omega/2\) の零点振動があり、これは消せません（第 9 回の帯域幅定理そのもの）。<br>★ <em>だから「帯域を増やすしかない」という結論は、物理的にも正しい。</em></div></details></li>
+
+<li>情報量が「虚軸に住む」ことの、実用上の意味は。
+<details><summary>答えを見る</summary><div class="ans"><strong>第 19 回と同じ ── 一周期 待たずに測れる、ということです。</strong><br>エントロピー生成率は、短時間の観測で決まります（単調だから傾きを見ればいい）。<br>★ 逆に言えば<strong>元に戻らない</strong>。実軸の量は位相を保存するので巻き戻せますが、虚軸の量は情報を捨てているので戻せません。<br>★ <em>「計算を消すとエネルギーが要る」（ランダウアー）のは、まさにこれ</em> ── 消去は虚軸の操作だから、熱として払うしかない。</div></details></li>
+
+<li>\(c\cdot t=\) 一定 と「情報量一定」が同じことだとすると、宇宙の膨張は情報の言葉で何か。
+<details><summary>答えを見る</summary><div class="ans"><strong>「目盛りが増えている」ということです。</strong><br>\(I\propto(ct)^2\) なので、地平線が広がるとは<em>区別できる状態の数が増える</em>ことでした。<br>★ \(c\cdot t=\) 一定 の座標系は、その増分を単位の変化として繰り込んでいます ── <strong>だからその座標系では何も増えず、代わりに時間が対数目盛りになる</strong>（第 20 回）。<br>★ <em>判定：これは対応関係の指摘であって、宇宙論の主張ではありません。</em>ホログラフィック限界は<strong>上限</strong>であって、実際に使われているビット数ではない点にも注意が要ります。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　情報の限界は、全部 帯域幅定理だった</h2>
+<p>ビットレート [bit/s] を積分すると情報量 [bit] ── <strong>速さと距離の関係と、まったく同じ形</strong>です。そして<em>情報量の積分定数 ＝ 初期情報量</em>で、これは原理的に決まりません（第 3 回）。</p>
+<p>シャノンの公式は <strong>\(I=BT\log_2(1+S/N)\)</strong>、つまり<strong>「帯域幅 × 時間」</strong>。第 9 回の帯域幅定理そのものでした。<em>電話回線の 30.9 kbps がダイヤルアップの壁の正体で、光ファイバが 9 桁 速いのは帯域が 9 桁 広いから。</em></p>
+<p>ランダウアー限界は室温で <strong>0.0179 eV/bit</strong>、現代の半導体はまだ <strong>1 万倍</strong> 上。速度の上限（\(5.4\times10^{50}\) 回/秒·kg）も、容量の上限（人間 \(9\times10^{44}\) bit）も、<em>どれも「エネルギーが帯域を決める」という一つの定理の言い換え</em>でした。</p>
+<p>宇宙の情報量は \(I\propto(ct)^2\) なので微分できて、<strong>いま \(1.4\times10^{105}\) bit/s、そして情報加速度は \(3.1\times10^{87}\) bit/s² で一定</strong>。プランク時間には 4.5 ビットしかありませんでした。</p>
+<p>★ そして ── <strong>\(c\cdot t=\) 一定 の座標系とは、宇宙の情報量を一定に保つ座標系でもありました</strong>（第 20 回では「時間を対数目盛りで測ること」）。</p>
+<p style="text-align:center"><strong>★ 情報は虚軸に住んでいる。だから戻らない。<br>「時間の矢」とは、複素周波数平面の虚軸のことだった。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 IX 部はもう少し続きます。<br>
+<em>測ることそのものを波として見ると、何が出るか</em> ── そして<strong>「観測する」とは、波のどの成分を取り出す操作なのか。</strong>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 21 回です。計算は kenshou/joho.js で行っています。<strong>本回の数値について：</strong>シャノン容量の表は<em>代表的な帯域と S/N を仮定した理論値</em>で、実際の通信規格は符号化・多重化・多入力多出力（MIMO）などで条件が違います（光ファイバの実用値が計算値を超えるのは、波長多重や偏波多重で実効的な帯域を増やしているためです）。<strong>トランジスタのスイッチングエネルギー \(\frac12CV^2\) は世代・設計で桁が変わる目安で、特定の製品の値ではありません。</strong>ベケンシュタイン限界とホログラフィック限界は<em>上限</em>であって、実際に使われている情報量ではありません ── 人間が \(9\times10^{44}\) ビットを保持しているという意味ではないことに注意してください。<strong>「宇宙の情報加速度が一定」は、ホログラフィック限界を \(I=\pi(ct)^2/(l_P^2\ln2)\) と書いたときの帰結で、地平線の定義（ハッブル半径・粒子的地平線・事象の地平線）の取り方で係数も時間依存も変わります</strong> ── 本稿は \(ct\) という最も素朴な取り方をしています。「情報は虚軸に住む」は本稿の整理であり、既存の定理の言い換えです（第二法則そのものの証明ではありません）。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
