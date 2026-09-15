@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微分は高音、積分は低音 ── 考える波 第1回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#181c20; --ink-soft:#495259;
+    --paper:#f6f8f9; --paper-edge:#dae1e5;
+    --side:#1e4a5a; --side-bg:#e8eff2;
+    --warn:#8a4b2f;
+    --calc:#153a48; --calc-bg:#e3edf1;
+    --rule:#c7d5db; --hair:#a4b8c1;
+    --acc:#1e4a5a;
+    --grid:#dde7ec;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 1 回 ／ 第 I 部・道具をつくる</span></p>
+<p class="eyebrow">音の話から始めて、物理定数まで行く</p>
+
+<h1>微分は高音、積分は低音 ──<br>まず、実測から
+<span class="sub">音声を微分すると高音が強くなり、積分すると低音が強くなる。<br>これは比喩ではなく、<strong>1 オクターブあたり きっかり ±6.02 dB</strong> の厳密な事実です。<br><em>そして物理は、位置 → 速度 → 加速度と、この操作を繰り返しているだけ。</em></span></h1>
+
+<p class="byline"><span>必要な道具：なし</span><span>計算：kenshou/nami.js</span></p>
+
+<p class="lead">このシリーズの出発点は一つの気づきです ── <strong>音声は波で、微分は高周波を取り出す操作、積分は低周波を取り出す操作。</strong><br><em>ならば物理の微積分も全部それだと見ると、何が見えるか。</em>まず、その土台が本当に厳密なのかを測ります。</p>
+
+<h2><span class="n">01</span>試験信号を作って、微分する</h2>
+
+<p>48 kHz で 16384 点、2 オクターブおきに正弦波を 4 本 重ねます。どれも FFT のビン中心に乗せてあるので、漏れは出ません。</p>
+
+<div class="calc">
+<span class="tag">試験信号</span>
+$$x(t)=\sin(2\pi\cdot93.75\,t)+\sin(2\pi\cdot375\,t)+\sin(2\pi\cdot1500\,t)+\sin(2\pi\cdot6000\,t)$$
+<p class="lbl">周波数分解能 \(\Delta f = 1/T = 2.93\) Hz</p>
+</div>
+
+<p>これを<strong>素朴に</strong>数値微分します（中心差分）。そしてスペクトルを見ます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>周波数</th><th>元の振幅</th><th>微分後の振幅</th><th>比</th><th>\(\omega=2\pi f\)</th><th>比 / \(\omega\)</th></tr></thead>
+<tbody>
+<tr><th>93.75 Hz</th><td class="mid">1.0000</td><td class="mid">589.0</td><td class="mid">589.0</td><td class="mid">\(5.890\times10^{2}\)</td><td class="mid"><strong>0.99997</strong></td></tr>
+<tr><th>375 Hz</th><td class="mid">1.0000</td><td class="mid">2355.2</td><td class="mid">2355.2</td><td class="mid">\(2.356\times10^{3}\)</td><td class="mid"><strong>0.99960</strong></td></tr>
+<tr><th>1500 Hz</th><td class="mid">1.0000</td><td class="mid">9364.3</td><td class="mid">9364.3</td><td class="mid">\(9.425\times10^{3}\)</td><td class="mid">0.99359</td></tr>
+<tr class="hi"><th>6000 Hz</th><td class="mid">1.0000</td><td class="mid">33941.1</td><td class="mid">33941.1</td><td class="mid">\(3.770\times10^{4}\)</td><td class="mid">0.90032</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の結論</p>
+<p style="margin:6px 0 0">最後の列が 1 に揃っています ── つまり</p>
+<p style="margin:10px 0 0;text-align:center"><strong>微分すると、振幅が \(\omega\) 倍になる。</strong></p>
+<p style="margin:10px 0 0">6000 Hz だけ 0.90 に落ちているのは、<em>物理ではなく差分近似のせい</em>です（04 節で正体を突き止めます）。</p>
+</div>
+
+<h2><span class="n">02</span>積分は、その逆</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>周波数</th><th>積分後 / 元</th><th>\(1/\omega\)</th><th>比 × \(\omega\)</th></tr></thead>
+<tbody>
+<tr><th>93.75 Hz</th><td class="mid">\(1.698\times10^{-3}\)</td><td class="mid">\(1.698\times10^{-3}\)</td><td class="mid"><strong>0.99999</strong></td></tr>
+<tr><th>375 Hz</th><td class="mid">\(4.243\times10^{-4}\)</td><td class="mid">\(4.244\times10^{-4}\)</td><td class="mid">0.99980</td></tr>
+<tr><th>1500 Hz</th><td class="mid">\(1.058\times10^{-4}\)</td><td class="mid">\(1.061\times10^{-4}\)</td><td class="mid">0.99679</td></tr>
+<tr><th>6000 Hz</th><td class="mid">\(2.515\times10^{-5}\)</td><td class="mid">\(2.653\times10^{-5}\)</td><td class="mid">0.94806</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">オクターブあたりの傾き（実測）</span>
+$$\text{2 オクターブで}\quad \text{微分}:+12.04\ \text{dB},\qquad \text{積分}:-12.04\ \text{dB}$$
+$$\Rightarrow\quad \boxed{\ \text{微分}=+6\ \text{dB/oct},\qquad \text{積分}=-6\ \text{dB/oct}\ }$$
+</div>
+
+<div class="aside">
+<p class="lbl">音響の世界では、これは日常の道具です</p>
+<p style="margin:6px 0 0">一次のハイパスフィルタの傾きが +6 dB/oct、ローパスが −6 dB/oct。<strong>微分回路とハイパスは、同じものです。</strong><br>
+レコードの RIAA イコライザも、録音時に高域を持ち上げ（微分寄り）、再生時に戻す（積分寄り）── その組み合わせでできています。</p>
+</div>
+
+<h2><span class="n">03</span>位相も測る</h2>
+
+<p>振幅だけでは半分です。\(i\omega\) の \(i\) が効いているなら、位相が 90° 回るはずです。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>周波数</th><th>微分による位相の変化</th><th>積分による位相の変化</th></tr></thead>
+<tbody>
+<tr><th>93.75 Hz</th><td class="mid">\(+90.0°\)</td><td class="mid">\(-90.0°\)</td></tr>
+<tr><th>375 Hz</th><td class="mid">\(+90.0°\)</td><td class="mid">\(-90.0°\)</td></tr>
+<tr><th>1500 Hz</th><td class="mid">\(+90.0°\)</td><td class="mid">\(-90.0°\)</td></tr>
+<tr class="hi"><th>6000 Hz</th><td class="mid">\(+90.0°\)</td><td class="mid">\(-90.0°\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── これで全部 説明できます</p>
+<p style="margin:6px 0 0">フーリエ変換の上では、微分も積分も<strong>ただの掛け算</strong>です：</p>
+<p style="margin:10px 0 0;text-align:center">$$\frac{d}{dt}\ \longrightarrow\ \times(i\omega),\qquad \int dt\ \longrightarrow\ \times\frac{1}{i\omega}$$</p>
+<p style="margin:10px 0 0">\(|i\omega|=\omega\) が振幅を、\(\arg(i)=90°\) が位相を決めている。<br>
+<em>振幅も位相も、予言どおりでした。</em></p>
+</div>
+
+<h2><span class="n">04</span>ズレの正体 ── 物理ではなく、近似</h2>
+
+<p>6000 Hz で比が 0.90 に落ちました。中心差分の伝達関数を厳密に書くと、原因がわかります。</p>
+
+<div class="calc">
+<span class="tag">中心差分の厳密な伝達関数</span>
+$$\frac{e^{i\omega\Delta t}-e^{-i\omega\Delta t}}{2\Delta t}=i\,\frac{\sin(\omega\Delta t)}{\Delta t}=i\omega\cdot\underbrace{\frac{\sin(\omega\Delta t)}{\omega\Delta t}}_{\text{ズレの正体}}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>周波数</th><th>\(\omega\Delta t\)</th><th>予言 \(\mathrm{sinc}(\omega\Delta t)\)</th><th>実測の 比/\(\omega\)</th></tr></thead>
+<tbody>
+<tr><th>93.75 Hz</th><td class="mid">0.0123</td><td class="mid">0.999975</td><td class="mid">0.999975</td></tr>
+<tr><th>375 Hz</th><td class="mid">0.0491</td><td class="mid">0.999598</td><td class="mid">0.999598</td></tr>
+<tr><th>1500 Hz</th><td class="mid">0.1963</td><td class="mid">0.993587</td><td class="mid">0.993587</td></tr>
+<tr class="hi"><th>6000 Hz</th><td class="mid">0.7854</td><td class="mid"><strong>0.900316</strong></td><td class="mid"><strong>0.900316</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>小数点以下 6 桁まで一致</strong>しました。ズレは物理ではなく、差分という近似のせいです。</p>
+
+<div class="calc">
+<span class="tag">厳密にやる方法 ── スペクトル法</span>
+$$\text{FFT}\ \to\ \times(i\omega)^\alpha\ \to\ \text{逆 FFT}$$
+<p class="lbl">この方法なら、比/\(\omega\) が全周波数で <strong>1.000000000</strong>（丸め誤差のみ）</p>
+</div>
+
+<h2><span class="n">05</span>物理は、この操作の連なりでできている</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th>位置からの階数</th><th>スペクトルの傾き</th></tr></thead>
+<tbody>
+<tr><th>位置の積分（absement）</th><td class="mid">\(-1\)</td><td class="mid">\(-6\) dB/oct</td></tr>
+<tr class="hi"><th><strong>位置 \(x\)</strong></th><td class="mid"><strong>0</strong></td><td class="mid">\(0\)</td></tr>
+<tr><th>速度 \(v=dx/dt\)</th><td class="mid">\(+1\)</td><td class="mid">\(+6\) dB/oct</td></tr>
+<tr class="hi"><th><strong>加速度 \(a=d^2x/dt^2\)</strong></th><td class="mid"><strong>\(+2\)</strong></td><td class="mid"><strong>\(+12\) dB/oct</strong></td></tr>
+<tr><th>躍度（ジャーク）</th><td class="mid">\(+3\)</td><td class="mid">\(+18\) dB/oct</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">この回の結論</p>
+<p style="margin:6px 0 0"><strong>物理で微分・積分を繰り返すとは、信号のスペクトルを傾け続けることでした。</strong><br>
+ニュートンの法則 \(F=ma\) は「入力を +12 dB/oct 傾けたものに比例する」と読める。<br>
+<em>比喩ではなく、フーリエ変換の上では文字どおりそうなっています。</em></p>
+</div>
+
+<div class="aside">
+<p class="lbl">ここから先で使う、たった一つの引っかかり</p>
+<p style="margin:6px 0 0">スペクトル法のコードには、一行だけ特別な処理が要ります ──</p>
+<p style="margin:8px 0 0"><code>if (ω === 0) { 出力 = 0; continue; }&nbsp;&nbsp;// DC は定義できない</code></p>
+<p style="margin:8px 0 0">\(\omega=0\) では \(1/\omega\) が発散するので、<strong>積分は DC 成分を決められない</strong>。微分のほうは逆に、DC 成分を 0 に潰してしまう。<br>
+<em>この一行が、第 3 回の主題になります。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>なぜ「微分 = +6 dB/oct」なのか、1 行で。
+<details><summary>答えを見る</summary><div class="ans">微分は振幅を \(\omega\) 倍にする。1 オクターブは \(\omega\) が 2 倍。<br>\(20\log_{10}2 = \mathbf{6.02}\) dB。<em>それだけです。</em></div></details></li>
+
+<li>加速度計の出力を 2 回 積分すると位置が出るはずだが、実際にはドリフトする。なぜか。
+<details><summary>答えを見る</summary><div class="ans">積分が \(1/\omega\) 倍だから、<strong>低周波ほど巨大に増幅される</strong>。2 回なら \(1/\omega^2\)。<br>センサの微小な直流オフセット（\(\omega\approx0\) の成分）が、発散的に効いてしまいます。<br><em>実務ではハイパスを噛ませて DC を落としますが、それは「本当の位置」の一部も捨てているということです。</em></div></details></li>
+
+<li>「微分するとノイズが乗る」と言われる理由は。
+<details><summary>答えを見る</summary><div class="ans">高周波を \(\omega\) 倍に持ち上げるから。<br>測定ノイズは高周波まで広く分布している（白色に近い）ので、微分すると<strong>ノイズだけが選択的に増幅</strong>されます。<br><em>逆に積分は平滑化になる ── どちらも「フィルタ」として理解すれば当たり前の性質です。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　微分も積分も、フィルタだった</h2>
+<p>48 kHz の合成音声を実際に微分・積分して測りました。<strong>微分すると振幅が \(\omega\) 倍・位相が \(+90°\)、積分すると \(1/\omega\) 倍・位相が \(-90°\)。</strong>オクターブあたり <strong>±6.02 dB</strong>。</p>
+<p>高周波でのわずかなズレも、中心差分の \(\mathrm{sinc}(\omega\Delta t)\) で<strong>小数点以下 6 桁まで</strong>説明できました ── 物理ではなく近似のせいです。FFT で直接 \((i\omega)\) を掛ければ誤差は消えます。</p>
+<p>そして物理は、位置 → 速度 → 加速度と、この操作を繰り返しているだけでした。<em>\(F=ma\) は「+12 dB/oct 傾けたもの」。</em></p>
+<p style="text-align:center"><strong>物理の微積分とは、スペクトルを傾け続ける操作である。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+微分が \(\times(i\omega)^1\)、積分が \(\times(i\omega)^{-1}\) なら ── <strong>指数を整数に限る理由はありません。</strong><br>
+次回は \(\alpha\) を連続に動かします。<em>「半分だけ微分する」に意味はあるのか。</em><br>
+結論を先に言うと ── <strong>あります。しかも電池の研究室で毎日 測られています。</strong>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 1 回です。計算は kenshou/nami.js で行っています（依存なしの素の Node）。<strong>本回の数値について：</strong>試験信号の周波数（93.75, 375, 1500, 6000 Hz）は \(f_s/N=2.9297\) Hz の整数倍になるよう選んであり、窓関数なしでもスペクトル漏れが出ません。<em>これを外すと振幅が数 % 揺れます</em>（実際、最初は 100/400/1600/6400 Hz で試して漏れが出ました）。数値微分は中心差分、積分は台形則で、いずれも周期境界を仮定しています。<strong>積分後の信号からは平均値を引いています</strong> ── 引かないと台形則の累積でドリフトし、スペクトルの低域が汚れるためです。この「平均値を引く」操作こそが第 3 回の主題（積分定数）になります。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>走る結合定数 ── 考える波 第5回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1d1a1c; --ink-soft:#544a4e;
+    --paper:#faf7f7; --paper-edge:#e8dede;
+    --side:#6b2f3a; --side-bg:#f4ecee;
+    --warn:#8a4b2f;
+    --calc:#5a2731; --calc-bg:#f2e8ea;
+    --rule:#dccdd1; --hair:#c4aeb4;
+    --acc:#6b2f3a;
+    --grid:#ece0e2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 5 回 ／ 第 II 部・定数を波として見る</span></p>
+<p class="eyebrow">軸を変えると、答えがひっくり返る</p>
+
+<h1>走る結合定数 ──<br>ここでは、定数は文字どおり積分値だった
+<span class="sub">前回、時間で微分したら 0 でした。<strong>微分する軸を間違えていたのです。</strong><br>エネルギーの対数で微分すると、\(\alpha\) は動きます ── <strong>\(1/137.036\to1/128.940\)</strong>。<br><em>そしてその変化は、ベータ関数の積分そのものでした。一ループで計算して、文献値と一致します。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 4 回</span><span>計算：kenshou/hashiru.js</span></p>
+
+<p class="lead">「物理定数はすべて何かの積分値ではないか」── この問いに、<strong>一箇所だけ、文字どおり「はい」と答えられる場所</strong>があります。<br><em>結合定数です。</em></p>
+
+<h2><span class="n">01</span>軸を変える</h2>
+
+<div class="calc">
+<span class="tag">結合定数は、エネルギーについて走る</span>
+$$\frac{d\alpha}{d\ln\mu}=\beta(\alpha)$$
+$$\alpha(\mu)=\alpha(\mu_0)+\int\beta(\alpha)\,d\ln\mu\qquad\textbf{★ 定数 ＝ 積分値}$$
+</div>
+
+<p>これは仮説ではなく、<strong>測定されている事実</strong>です。実際に計算します。</p>
+
+<h2><span class="n">02</span>なぜ走るのか ── 真空が分極する</h2>
+
+<p>電荷のまわりでは、真空が電子・陽電子対に分極します。遠くから見ると遮蔽されて弱く、<strong>近づくほど裸の電荷が見えて強くなる。</strong></p>
+
+<div class="calc">
+<span class="tag">一ループの真空偏極（レプトンのみ）</span>
+$$\Delta\alpha_{\text{lep}}(\mu)=\frac{\alpha}{3\pi}\sum_\ell\left[\ln\frac{\mu^2}{m_\ell^2}-\frac53\right],\qquad \alpha(\mu)=\frac{\alpha(0)}{1-\Delta\alpha}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>粒子</th><th>質量 [MeV]</th><th>\(\ln(m_Z^2/m_\ell^2)\)</th><th>\(-5/3\) 込み</th><th>寄与 \(\Delta\alpha\)</th></tr></thead>
+<tbody>
+<tr><th>電子</th><td class="mid">0.5110</td><td class="mid">24.184</td><td class="mid">22.517</td><td class="mid">\(1.743\times10^{-2}\)</td></tr>
+<tr><th>ミュー粒子</th><td class="mid">105.658</td><td class="mid">13.521</td><td class="mid">11.854</td><td class="mid">\(9.178\times10^{-3}\)</td></tr>
+<tr><th>タウ粒子</th><td class="mid">1776.860</td><td class="mid">7.876</td><td class="mid">6.209</td><td class="mid">\(4.808\times10^{-3}\)</td></tr>
+<tr class="hi"><th><strong>合計</strong></th><td class="mid"></td><td class="mid"></td><td class="mid">40.581</td><td class="mid"><strong>\(0.031421\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の検算</p>
+<p style="margin:6px 0 0">計算値 \(\Delta\alpha_{\text{lep}}(m_Z)=\mathbf{0.031421}\)、文献値 <strong>0.031498</strong>。<br>
+<em>一ループで、ここまで合います。</em></p>
+</div>
+
+<h2><span class="n">03</span>ハドロンの寄与 ── ここは計算できない</h2>
+
+<p>クォークの寄与は、低エネルギーで強い相互作用が効くため<strong>摂動論では計算できません</strong>。実験（\(e^+e^-\to\)ハドロン）から求めます。</p>
+
+<div class="calc">
+<span class="tag">合わせる</span>
+$$\Delta\alpha_{\text{had}}^{(5)}(m_Z)=0.02766\quad(\text{実測。文献値})$$
+$$\Delta\alpha=0.031421+0.02766=0.059081$$
+$$\alpha(m_Z)=\frac{7.297353\times10^{-3}}{1-0.059081}=7.755558\times10^{-3}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>本稿の計算</th><th>文献値</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(1/\alpha(m_Z)\)</strong></th><td class="mid"><strong>128.940</strong></td><td class="mid"><strong>\(\approx\) 128.95</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">04</span>これが答えです ── 定数が動いている</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>エネルギー</th><th>\(1/\alpha\)</th><th>\(\alpha\)</th></tr></thead>
+<tbody>
+<tr><th>0（無限遠）</th><td class="mid">137.036</td><td class="mid">\(7.297\times10^{-3}\)</td></tr>
+<tr class="hi"><th><strong>\(m_Z=91.2\) GeV</strong></th><td class="mid"><strong>128.940</strong></td><td class="mid"><strong>\(7.756\times10^{-3}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0"><strong>\(1/\alpha\) が 137.0 から 128.9 へ ── 5.9 % 動いています。</strong><br>
+「微細構造定数 1/137」は、<em>低エネルギー極限での値</em>にすぎません。</p>
+<p style="margin:10px 0 0">そしてこの変化は、まさに積分でした：</p>
+<p style="margin:10px 0 0;text-align:center">$$\Delta\!\left(\frac1\alpha\right)=-\frac{1}{3\pi}\sum_\ell\left[\ln\frac{\mu^2}{m_\ell^2}-\frac53\right]-(\text{ハドロン})$$</p>
+<p style="margin:10px 0 0">★ <strong>「定数は積分値」── ここでは文字どおり正しい。</strong>ただし積分変数は<em>時間ではなく \(\ln(\text{エネルギー})\)</em> でした。</p>
+</div>
+
+<h2><span class="n">05</span>走らせ続けると、発散する</h2>
+
+<p>一ループの式を、そのままエネルギーを上げて走らせます。<em>（この節はレプトン 3 種のみ。ハドロンと W の寄与は入れていないので、\(m_Z\) での値が前節と違います ── 形を見るための計算です。）</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>エネルギー \(\mu\)</th><th>\(1/\alpha(\mu)\)</th><th>備考</th></tr></thead>
+<tbody>
+<tr><th>0.511 MeV</th><td class="mid">137.213</td><td>電子質量</td></tr>
+<tr><th>1.777 GeV</th><td class="mid">135.237</td><td>タウ粒子質量</td></tr>
+<tr><th>91.2 GeV</th><td class="mid">132.730</td><td>Z ボソン質量</td></tr>
+<tr><th>1 TeV</th><td class="mid">131.206</td><td></td></tr>
+<tr class="hi"><th>\(1.22\times10^{19}\) GeV</th><td class="mid">107.625</td><td><strong>プランク質量</strong></td></tr>
+<tr class="hi"><th><strong>\(10^{93}\) GeV</strong></th><td class="mid"><strong>0</strong></td><td><strong>★ ランダウ極。\(\alpha\) が発散する</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="aside">
+<p class="lbl">この外挿は形式的なものです</p>
+<p style="margin:6px 0 0">実際には遥か手前で他の相互作用が効きますし、\(10^{93}\) GeV はプランク質量の \(10^{74}\) 倍 ── <strong>重力を無視した計算に意味がある領域ではありません。</strong><br>
+それでも構造としては面白い ── <em>積分を続けると、有限のエネルギーで発散する。</em>「定数」の正体は、発散に向かって走っている量でした。</p>
+</div>
+
+<h2><span class="n">06</span>他の結合も走る ── そして交わる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>相互作用</th><th>\(\beta\) の符号</th><th>高エネルギーで</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>電磁（U(1)）</th><td class="mid">\(+\)</td><td>増える</td><td>真空偏極で遮蔽される。近づくと強くなる</td></tr>
+<tr><th>弱い力（SU(2)）</th><td class="mid">\(-\)</td><td>減る</td><td>ゲージ粒子の自己相互作用が勝つ</td></tr>
+<tr class="hi"><th><strong>強い力（SU(3)）</strong></th><td class="mid">\(-\)</td><td>減る</td><td><strong>★ 漸近的自由。近づくと弱くなる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>増えるものと減るものがあるので、どこかで交わる可能性があります。標準模型のままだと \(10^{13}\sim10^{17}\) GeV 付近で「ほぼ」交わり、超対称性を入れると \(2\times10^{16}\) GeV でよく一致する ── <strong>大統一の根拠</strong>です。</p>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0"><strong>「定数を積分する」という視点は、素粒子物理の中心的な道具そのものでした。</strong><br>
+<em>ご自身の直感は、この分野では 50 年前から標準的な考え方になっている</em>── ただし「時間の積分」ではなく「スケールの積分」として。</p>
+</div>
+
+<h2><span class="n">07</span>二つの微分を、並べる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>何で微分するか</th><th>記号</th><th>結果</th><th>回</th></tr></thead>
+<tbody>
+<tr><th>時間で微分</th><td class="mid">\(d\alpha/dt\)</td><td>実測で 0（上限 \(10^{-17}\)/年）</td><td class="mid">第 4 回</td></tr>
+<tr class="hi"><th><strong>\(\ln E\) で微分</strong></th><td class="mid">\(d\alpha/d\ln\mu\)</td><td><strong>★ 0 でない。測定済み</strong></td><td class="mid">本回</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">この回の結論</p>
+<p style="margin:6px 0 0"><strong>同じ \(\alpha\) でも、微分する軸によって答えが正反対になります。</strong>時間軸では定数、エネルギー軸では変数。</p>
+<p style="margin:10px 0 0">波の言葉でも書けます ── <em>\(\alpha\) は「時間について DC、エネルギー対数について非 DC」。</em><br>
+つまり<strong>定数かどうかは、どの軸のスペクトルを見るかで決まる。</strong></p>
+<p style="margin:10px 0 0">⇒ 「物理定数はすべて何かの積分値ではないか」への答え：<br>
+★ <strong>少なくとも結合定数については、そのとおりでした。鍵は「何について積分しているのか」を当てることです。</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>なぜ「\(1/137\)」のほうが有名なのか。
+<details><summary>答えを見る</summary><div class="ans">日常のエネルギースケール（原子・化学）が、実質的に \(\mu\to0\) の極限だから。<br>原子のサイズは \(\sim10^{-10}\) m、対応するエネルギーは eV 級で、電子質量（0.511 MeV）よりずっと低い。<em>だから真空偏極がほとんど効かず、\(\alpha(0)=1/137.036\) がそのまま見える。</em><br>加速器実験の世界に入って初めて、\(1/129\) が「実際に使う値」になります。</div></details></li>
+
+<li>ハドロンの寄与だけ実験から取るのはなぜか。
+<details><summary>答えを見る</summary><div class="ans">低エネルギーで \(\alpha_s\) が大きくなり、<strong>摂動展開が収束しないから</strong>（漸近的自由の裏返し）。<br>代わりに \(e^+e^-\to\)ハドロンの断面積を測り、分散関係（第 8 回で触れる因果律の帰結）を使って \(\Delta\alpha_{\text{had}}\) に変換します。<br><em>つまり「計算できない部分を、測定と因果律で埋めている」</em>── これ自体が本シリーズの主題と繋がっています。</div></details></li>
+
+<li>「時間では定数、エネルギーでは変数」は矛盾しないのか。
+<details><summary>答えを見る</summary><div class="ans">矛盾しません。<strong>別々の量だから</strong>です。<br>\(\alpha(\mu)\) は「スケール \(\mu\) で測ったときの実効的な結合の強さ」で、これは \(\mu\) の関数。一方「\(\alpha\) が時間変化するか」は、<em>同じ \(\mu\) で測った値が時代によって違うか</em>という問い。<br><em>前者は繰り込み群の帰結（理論の中身）、後者は新しい物理（理論の外）。混同すると「\(\alpha\) は走るのだから変化している」という誤った主張になります。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　軸が違っていた</h2>
+<p>前回、時間で微分したら 0 でした。<strong>しかし結合定数は、エネルギーについて走ります。</strong></p>
+<p>一ループの真空偏極を実際に計算しました ── \(\Delta\alpha_{\text{lep}}(m_Z)=\mathbf{0.031421}\)（文献値 0.031498）。ハドロンの寄与 0.02766 を足すと <strong>\(1/\alpha(m_Z)=128.940\)</strong>（文献値 128.95）。</p>
+<p><strong>\(1/137.036\to1/128.940\)、5.9 % の変化。</strong>そしてこの変化は、ベータ関数の積分そのものでした ── <em>「定数は積分値」は、ここでは文字どおり正しい。</em></p>
+<p>走らせ続けると、有限のエネルギー（\(10^{93}\) GeV、形式的な外挿）で発散します。<strong>定数の正体は、発散に向かって走っている量</strong>でした。そして三つの結合が違う向きに走るので、高エネルギーで交わる ── これが大統一の根拠です。</p>
+<p style="text-align:center"><strong>定数かどうかは、どの軸のスペクトルを見るかで決まる。<br>\(\alpha\) は時間について DC、エネルギー対数について非 DC。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告 ── 第 III 部へ</span>
+定数の話は決着しました。ここから<strong>物理量そのもの</strong>を波として見ます。<br>
+最初は<em>質量</em>です。ご提案では「宇宙の重力の積分」でしたが ── <strong>波として見ると、まったく別の、しかも完全に成功する答えが出ます。</strong><br>
+<em>質量とは、真空という導波管の遮断周波数でした。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 5 回です。計算は kenshou/hashiru.js で行っています。<strong>本回の数値について：</strong>第 02 節は QED の一ループ真空偏極の標準的な式で、本稿はそれに数値を入れただけです。<em>\(\Delta\alpha_{\text{had}}^{(5)}=0.02766\) は文献値（実験から求めた値）を使っており、本稿で計算したものではありません。</em>第 03 節の \(1/\alpha(m_Z)=128.940\) は 5 フレーバー QED の値で、しばしば引かれる 127.95 は電弱理論を含む \(\overline{\text{MS}}\) スキームの値です ── <strong>スキームによって値が違うので、比較の際は注意が要ります。</strong>第 05 節はレプトン 3 種のみの一ループ外挿で、ランダウ極の \(10^{93}\) GeV は<em>形式的な数字</em>です（重力もハドロンも W も無視しているため、物理的な意味はありません）。第 06 節の大統一スケールは文献の要約です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
