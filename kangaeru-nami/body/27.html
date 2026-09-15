@@ -1,0 +1,266 @@
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 27 回 ／ 第 XI 部・仮説に決着をつける</span></p>
+<p class="eyebrow">前回 残した最後の謎に、答えが出ます</p>
+
+<h1>対数一様は、どこから来るのか ──<br>自然が用意していたのは、指数関数だった
+<span class="sub">1/f を作るのに、べき乗分布を用意する必要はありません。<strong>指数の中に「ふつうの量」が入っていれば、それだけでいい。</strong><br>★ しかも <strong>\(\beta-1\) は二つの桁数の比</strong>なので、指数は勝手に 1 に釘づけされます。<br><em>そして予想が一つ、外れました ── 離散スケール不変性は 3 dB の痕跡を残します。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 2, 13, 19, 26 回</span><span>計算：kenshou/taisuu.js</span></p>
+
+<p class="lead">前回の結論は<strong>「分数階が現れるのは、粗視化した自由度がスケール不変に分布しているときである」</strong>でした。<br>そして 1/f 雑音だけが、形を変えて残りました ── <em>★ なぜ自然には、対数一様な時定数分布がこれほど多いのか。</em><br><strong>本回で答えます。</strong></p>
+
+<h2><span class="n">01</span>まず確認 ── 対数一様から、本当に 1/f が出るか</h2>
+
+<div class="calc">
+<span class="tag">一階緩和（ローレンツ型）の重ね合わせ</span>
+$$S(\omega)=\int g(\tau)\,\frac{2\tau}{1+\omega^2\tau^2}\,d\tau,\qquad \text{対数一様}\ \Leftrightarrow\ g(\tau)=\frac{A}{\tau}$$
+<p class="lbl">このときの積分は手で解けます</p>
+</div>
+
+<div class="calc">
+<span class="tag">解いた結果</span>
+$$\int \frac{A}{\tau}\cdot\frac{2\tau}{1+\omega^2\tau^2}\,d\tau=\frac{2A}{\omega}\Big[\arctan\omega\tau\Big]\ \xrightarrow[\ \omega\tau_1\ll1\ll\omega\tau_2\ ]{}\ \frac{\pi A}{\omega}$$
+</div>
+
+<p>数値で確かめます（\(\tau\in[10^{-6},10^{6}]\) 秒 ＝ 12 桁 を対数等分）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\) [rad/s]</th><th>\(S(\omega)\)</th><th>傾き [/dec]</th><th>予言</th></tr></thead>
+<tbody>
+<tr><th>\(10^{-4}\)</th><td class="mid">3.1216e+4</td><td class="mid">──</td><td>帯の外</td></tr>
+<tr class="hi"><th><strong>\(10^{0}\)</strong></th><td class="mid"><strong>3.141589</strong></td><td class="mid"><strong>−1.0000</strong></td><td><strong>★ \(\pi A/\omega=3.141593\)（誤差 1.3e−6）</strong></td></tr>
+<tr><th>\(10^{3}\)</th><td class="mid">3.1396e−3</td><td class="mid">−1.0002</td><td>−1</td></tr>
+<tr><th>\(10^{4}\)</th><td class="mid">3.1216e−4</td><td class="mid">−1.0025</td><td>帯の外</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0"><strong>対数一様 ⇒ 1/f は確かです</strong>（帯の中で傾きちょうど −1、振幅も \(\pi A/\omega\) と 6 桁 一致）。<br>
+★ そして<strong>帯の外では平らに寝ます</strong> ── <em>1/f には必ず上下の折れ点があります。無限には続きません。</em></p>
+</div>
+
+<h2><span class="n">02</span>★ 本題 ── 対数一様はどこから来るのか</h2>
+
+<p>\(g(\tau)\propto1/\tau\) は、\(\tau\) を直接 見ると<strong>特別な形</strong>に見えます。ところが ── <em>変数を一つ替えるだけで、いちばんありふれた形になります。</em></p>
+
+<div class="calc">
+<span class="tag">活性化過程（アレニウス）</span>
+$$\tau=\tau_0\,e^{E/kT}\qquad\Longrightarrow\qquad \ln\tau=\ln\tau_0+\frac{E}{kT}$$
+<p class="lbl">\(\ln\tau\) は障壁 \(E\) の<strong>一次関数</strong>です</p>
+</div>
+
+<div class="calc">
+<span class="tag">ヤコビアンで書く</span>
+$$g(\tau)\,d\tau=D(E)\,dE,\qquad dE=kT\frac{d\tau}{\tau}\qquad\Longrightarrow\qquad \boxed{\ g(\tau)=\frac{kT\,D(E)}{\tau}\ }$$
+<p class="lbl">\(D\) が平らなら、そのまま \(1/\tau\)</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>\(E\) が一様 ⟺ \(\ln\tau\) が一様 ⟺ \(g(\tau)\propto1/\tau\)</strong></p>
+<p style="margin:10px 0 0"><strong>べき乗分布を用意する必要はありません。</strong>「指数の中身が平らである」だけでいい ── <em>これはごく普通の状況です。</em></p>
+</div>
+
+<p>どれくらい桁が稼げるか（\(\tau_0=10^{-13}\) s、室温 300 K）。<strong>1 桁 あたりの障壁は \(kT\ln10=0.05953\) eV。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>障壁 \(E\) の幅 [eV]</th><th>\(\tau\) の広がり [桁]</th><th>\(\tau_{\max}\)</th></tr></thead>
+<tbody>
+<tr><th>0.10</th><td class="mid">1.68</td><td class="mid">5.2e−7 s</td></tr>
+<tr class="hi"><th><strong>0.36</strong></th><td class="mid"><strong>★ 6.0</strong></td><td class="mid">──</td></tr>
+<tr><th>0.70</th><td class="mid">11.76</td><td class="mid">6.3e+3 s ＝ 1.75 時間</td></tr>
+<tr><th>1.00</th><td class="mid">16.80</td><td class="mid">6.9e+8 s</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>★ 1/f が 6 桁 続くのに必要なのは、0.36 eV ぶんの障壁のばらつきだけ。</strong><em>安すぎます。</em><br>そして \(E_{\max}=1.0\) eV なら \(\tau_{\max}=1.75\) 時間 ── <strong>1/f は \(2.5\times10^{-5}\) Hz 以下で折れるはず</strong>。実験で \(10^{-6}\) Hz まで折れないなら、障壁は 1.3 eV 以上まで伸びています。</p>
+
+<h2><span class="n">03</span>なぜ「1」なのか ── 指数は二つの桁数の比で決まる</h2>
+
+<p>\(D(E)\) が平らでなかったらどうなるか。\(D(E)\propto e^{cE}\) として、帯の中で \(D\) が 10 倍・1000 倍 変わる場合を計算します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(D(E)\) の変化</th><th>測った \(\beta\)</th><th>予言 \(1+kT\,d\ln D/dE\)</th></tr></thead>
+<tbody>
+<tr><th>平ら</th><td class="mid">0.99998</td><td class="mid">1.00000</td></tr>
+<tr class="hi"><th><strong>10 倍</strong></th><td class="mid"><strong>1.08499</strong></td><td class="mid"><strong>1.08504</strong></td></tr>
+<tr><th>1000 倍</th><td class="mid">1.25485</td><td class="mid">1.25511</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">★ 1/f の「1」が動かない理由</span>
+$$\beta-1=kT\,\frac{d\ln D}{dE}=\frac{D\ \text{が変化する桁数}}{\tau\ \text{が広がる桁数}}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0">この例では \(\tau\) が 11.8 桁 広がるので ── \(D\) が <strong>10 倍</strong> 変わっても \(\beta-1=1/11.8=0.085\)、<strong>1000 倍</strong> でも 0.255。<br>
+★★ <strong>分母が大きいので、\(\beta\) は勝手に 1 の近くに釘づけされます。</strong><br>
+<em>実測の 1/f が \(\beta=0.8\)〜\(1.4\) に散らばるのは、まさにこの比です。</em>── ★ <strong>1/f は微調整の結果ではありません。避けるほうが難しい。</strong></p>
+</div>
+
+<h2><span class="n">04</span>実例① \(\alpha\) 崩壊 ── 指数写像のいちばん極端な例</h2>
+
+<p>第 19 回で「崩壊定数は虚数の周波数」と見ました。<strong>その崩壊定数こそ、指数写像の教科書的な例です</strong> ── \(\lambda\propto e^{-G}\)、\(G\) はガモフ因子 \(\propto Z/\sqrt Q\)。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>核種</th><th>\(Q\) [MeV]</th><th>半減期</th><th>\(\log_{10}T_{1/2}\)</th><th>直線の予言</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(^{232}\)Th</strong></th><td class="mid">4.0816</td><td class="mid">4.43e+17 s</td><td class="mid">17.647</td><td class="mid">17.784</td></tr>
+<tr><th>\(^{238}\)U</th><td class="mid">4.2700</td><td class="mid">1.41e+17 s</td><td class="mid">17.149</td><td class="mid">17.778</td></tr>
+<tr><th>\(^{226}\)Ra</th><td class="mid">4.8710</td><td class="mid">5.05e+10 s</td><td class="mid">10.703</td><td class="mid">10.867</td></tr>
+<tr><th>\(^{222}\)Rn</th><td class="mid">5.5900</td><td class="mid">3.30e+5 s</td><td class="mid">5.519</td><td class="mid">5.688</td></tr>
+<tr><th>\(^{214}\)Po</th><td class="mid">7.8340</td><td class="mid">164.3 µs</td><td class="mid">−3.784</td><td class="mid">−3.700</td></tr>
+<tr class="hi"><th><strong>\(^{212}\)Po</strong></th><td class="mid">8.9540</td><td class="mid">0.299 µs</td><td class="mid">−6.524</td><td class="mid">−6.552</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">最小二乗（9 核種）── ガイガー＝ナタルの法則</span>
+$$\log_{10}T_{1/2}=1.5065\,\frac{Z}{\sqrt Q}-47.835,\qquad R^2=0.9955$$
+<p class="lbl">残差の標準偏差 0.575 桁（24 桁 の範囲に対して）</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>\(Q\) は 2.19 倍 しか違わないのに、半減期は 24.2 桁 違う。</strong></p>
+<p style="margin:10px 0 0">★ 第 19 回との接続：あそこでは「崩壊定数は虚数の周波数だから観測窓の壁が効かない」と書きました。<em>本回ではもう一段 深く</em> ── <strong>崩壊定数が宇宙年齢から µ 秒まで連続に埋まっているのは、\(Q\) という「ふつうの量」が指数の中に入っているからです。</strong></p>
+</div>
+
+<h2><span class="n">05</span>実例② 離散スケール不変性 ── ★ ここで予想が外れました</h2>
+
+<p>対数一様には、もう一つの作り方があります ── <strong>等比数列 \(\tau_n=\tau_0\lambda^n\)</strong>。<em>第 13 回のエフィモフ状態（\(\lambda=e^{\pi/s_0}=22.69\)）がまさにこれ。</em>1/f は出るのか、出るならどう違うのか。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>比 \(\lambda\)</th><th>1 桁 あたりの段数</th><th>リップル [dB p-p]</th><th>予言 \(2/\cosh(\pi^2/\ln\lambda)\)</th></tr></thead>
+<tbody>
+<tr><th>2</th><td class="mid">3.32</td><td class="mid">0.00004</td><td class="mid">0.00005</td></tr>
+<tr><th>3</th><td class="mid">2.10</td><td class="mid">0.00871</td><td class="mid">0.00872</td></tr>
+<tr><th>10</th><td class="mid">1.00</td><td class="mid">0.95608</td><td class="mid">0.95662</td></tr>
+<tr class="hi"><th><strong>22.69（エフィモフ）</strong></th><td class="mid">0.74</td><td class="mid"><strong>★ 2.951</strong></td><td class="mid"><strong>2.967</strong></td></tr>
+<tr><th>100</th><td class="mid">0.50</td><td class="mid">8.301</td><td class="mid">8.700</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>どの \(\lambda\) でも 1/f 自体は出ます。<strong>違いは対数周期のリップル</strong>で、\(\lambda\) が大きいほど大きい ── <em>そして予言の式と \(\lambda\le22.7\) では 3 桁 で一致します。</em></p>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── ★ 予想が外れた</p>
+<p style="margin:6px 0 0">エフィモフ比のリップルは <strong>2.95 dB</strong>。<em>第 13 回の「対数周期性は見つけにくい」とは逆の結論です。</em><br>
+★ 第 13 回で消えていたのは <strong>虚数階フィルタのインパルス応答</strong>（\(e^{-\beta\pi}\) で潰れる）。<br>
+★ 本回で残るのは <strong>離散した時定数の梯子がスペクトルに刻むリップル</strong>。<br>
+── <strong>「離散スケール不変性」と「虚数階」は、別の見え方をします。</strong></p>
+</div>
+
+<p>これは<strong>検証可能な予言</strong>になります ── 実測の 1/f が対数周期リップルを見せないなら、梯子の比は小さいはず。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>リップルの検出限界</th><th>許される最大の \(\lambda\)</th></tr></thead>
+<tbody>
+<tr><th>1.00 dB 以下</th><td class="mid">10.24</td></tr>
+<tr class="hi"><th><strong>0.10 dB 以下</strong></th><td class="mid"><strong>★ 4.52</strong></td></tr>
+<tr><th>0.03 dB 以下</th><td class="mid">3.57</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>★★ 1/f が 0.1 dB の平坦さで測れているなら、時定数の梯子の比は 4.5 倍 以下。</strong>── <em>つまり 1/f の背後にあるのは<strong>連続（密）な分布</strong>であって、エフィモフ型の粗い梯子ではありません。</em>02 節の活性化過程と整合します。</p>
+
+<h2><span class="n">06</span>対照実験 ── 条件はもっと緩かった</h2>
+
+<p>\(\ln\tau\) がガウス分布（幅 \(\sigma\) 桁）の場合。<strong>測るのは「傾き」ではありません</strong> ── \(\omega\tau=1\) では単一のローレンツでも傾きはちょうど −1 になってしまう（肩の点）。<em>測るべきは幅：傾きが \(-1\pm0.1\) に収まる \(\omega\) の範囲が何桁あるか。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\sigma\) [桁]</th><th>1/f に見える幅 [桁]</th><th>判定</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>≈0（単一 \(\tau\)）</strong></th><td class="mid"><strong>0.10</strong></td><td><strong>★ 肩の一点だけ。1/f ではない</strong></td></tr>
+<tr><th>0.5</th><td class="mid">0.26</td><td>中間</td></tr>
+<tr><th>1.0</th><td class="mid">0.62</td><td>中間</td></tr>
+<tr><th>2.0</th><td class="mid">2.02</td><td>★ 1/f と区別がつかない</td></tr>
+<tr><th>4.0</th><td class="mid">7.58</td><td>★ 1/f と区別がつかない</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0"><strong>\(\sigma\) を広げると、1/f に見える幅はほぼ \(\sigma\) に比例して伸びます</strong>（\(\sigma=4\) 桁 で 7.6 桁）。<br>
+── ★ <strong>「対数一様」である必要すらありません。対数軸で広ければ、それで 1/f に見える。</strong><em>自然が用意すべきものは、さらに緩かった。</em></p>
+</div>
+
+<h2><span class="n">07</span>仕組みを並べて採点する</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>仕組み</th><th>形</th><th>必要な条件</th><th>対数一様が出るか</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>活性化（アレニウス）</strong></th><td class="mid">\(\tau=\tau_0e^{E/kT}\)</td><td>障壁 \(E\) が平らに散らばる</td><td><strong>◎ ほぼ自動</strong></td></tr>
+<tr><th>トンネル効果</th><td class="mid">\(\tau\propto e^{2\kappa d}\)</td><td>距離 \(d\) が平らに散らばる</td><td>◎ ほぼ自動</td></tr>
+<tr><th>\(\alpha\) 崩壊（第 19 回）</th><td class="mid">\(\lambda\propto e^{-G}\)</td><td>\(Q\) が並ぶだけ</td><td>◎ 実測（24 桁）</td></tr>
+<tr><th>掛け算的ランダム過程</th><td class="mid">対数正規</td><td>\(\sigma\) が 2 桁 超で十分</td><td>○ 条件つき</td></tr>
+<tr><th>離散スケール不変性</th><td class="mid">\(\tau_n=\tau_0\lambda^n\)</td><td>第 13 回の梯子</td><td>◎ ただし 3 dB のリップル</td></tr>
+<tr><th>臨界現象</th><td class="mid">\(\tau\propto\xi^z\)</td><td>相関長が発散するとき</td><td>○ ★ 微調整が要る</td></tr>
+<tr><th>一様なばね鎖（第 26 回）</th><td class="mid">\(\tau\) が一定</td><td>──</td><td>× 整数階のまま</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心</p>
+<p style="margin:6px 0 0"><strong>上から三つは、どれも「指数の中に、ふつうの量が入っている」だけ。</strong><em>べき乗分布を用意する必要も、臨界点に微調整する必要もありません。</em><br>
+★ 対して<strong>臨界現象は温度をぴったり \(T_c\) に合わせないとスケール不変になりません</strong> ── 自己組織化臨界（SOC）が注目されたのは、この微調整を系が勝手にやってくれる仕組みだったからです。<br>
+<strong>でも 1/f の説明としては、活性化のほうがずっと安上がりです。</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>1/f 雑音の \(\beta\) が温度を上げると 1 に近づく系と、遠ざかる系がある。本回の式でどう読むか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(\beta-1=kT\,d\ln D/dE\) の両側が温度で動くから</strong>です。分子の \(kT\) は温度に比例して<em>増える</em>ので、\(D(E)\) が傾いていれば \(\beta\) は 1 から<strong>遠ざかります</strong>。<br>一方、温度を上げると観測周波数に効く障壁の窓 \(E^\ast=kT\ln(1/\omega\tau_0)\) が高いほうへ移動するので、<em>そこで \(D\) がたまたま平らなら \(\beta\) は 1 に近づきます</em>。<br>★ <strong>つまり \(\beta(T)\) を測ることは、\(D(E)\) を走査していることになります</strong> ── これがダッタ＝ホーンの解析の考え方です。<em>本稿はその形を数値で確認しただけで、実測データの解析はしていません。</em></div></details></li>
+
+<li>1/f が \(10^{-6}\) Hz まで折れずに続く、という報告から何が言えるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>障壁の上端が 1.3 eV 以上まで伸びている</strong>と言えます。\(\tau_{\max}=\tau_0e^{E_{\max}/kT}\) で \(\tau_0=10^{-13}\) s、300 K なら \(E=1.0\) eV で \(\tau=1.75\) 時間（\(2.5\times10^{-5}\) Hz）、\(E=1.3\) eV で \(6.9\times10^{8}\) s。<br>★ <strong>そして「無限に続く 1/f」は存在しません</strong> ── 総パワー \(\int(1/f)df\) は対数発散するので、必ずどこかで折れます。<em>折れ点が見えないのは、測定時間が足りないだけです。</em></div></details></li>
+
+<li>第 13 回で「対数周期性は見つけにくい」と結論したのに、本回で 3 dB のリップルが出たのはなぜか。矛盾か。
+<details><summary>答えを見る</summary><div class="ans"><strong>矛盾ではなく、別のものを測っています。</strong>第 13 回で潰れていたのは<em>虚数階フィルタのインパルス応答</em>で、振幅が \(e^{-\beta\pi}\) で落ちる（\(\beta=3\) で \(10^{-6}\)）。<br>本回で残るのは<em>離散した時定数の梯子がスペクトルに刻む周期的なうねり</em>で、大きさは \(2/\cosh(\pi^2/\ln\lambda)\)。<br>★ <strong>前者は「連続な虚数階が作る対数振動」、後者は「離散した実数階が作る対数振動」</strong> ── 同じ \(\ln\omega\) 軸の上の話でも、出どころが違います。<em>そして後者のほうがずっと見つけやすい。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　自然が用意していたのは、べき乗分布ではなく指数写像だった</h2>
+<p>第 26 回が残した問い ──<strong>「なぜ自然には、対数一様な時定数分布がこれほど多いのか」</strong>に答えました。</p>
+<p>まず<strong>対数一様 ⇒ 1/f</strong> を確認（帯の中で傾きちょうど −1、振幅も \(\pi A/\omega\) と 6 桁 一致）。<em>ただし帯の外は平ら ── 1/f には必ず上下の折れ点があります。</em></p>
+<p>★ そして答えは<strong>指数写像</strong>でした。\(\tau=\tau_0e^{E/kT}\) なら \(\ln\tau\) は \(E\) の一次関数なので、<strong>\(g(\tau)=kT\,D(E)/\tau\)</strong> ── <em>\(D\) が平らなだけで \(1/\tau\) が出ます。</em>べき乗分布を用意する必要はありません。1 桁 あたりの障壁は室温で 0.0595 eV なので、<strong>0.36 eV のばらつきで 6 桁 の 1/f</strong>。</p>
+<p>★★ 指数が 1 に釘づけされる理由も出ました ── <strong>\(\beta-1\) ＝（\(D\) が変化する桁数）÷（\(\tau\) が広がる桁数）</strong>。\(D\) が 1000 倍 変わっても \(\beta-1=0.25\)。<em>実測の 1/f が 0.8〜1.4 に散らばるのは、まさにこの比です。</em></p>
+<p><strong>\(\alpha\) 崩壊</strong>はこの指数写像の極端な例で、\(Q\) は 2.19 倍 しか違わないのに<strong>半減期は 24.2 桁</strong>（ガイガー＝ナタル、\(R^2=0.9955\)）── 第 19 回の「崩壊定数が連続に埋まっている」理由がこれです。</p>
+<p>★ そして<strong>予想が一つ外れました</strong>。離散スケール不変性（\(\tau_n=\tau_0\lambda^n\)）は 1/f を作りますが、<strong>エフィモフ比 22.69 では 2.95 dB の対数周期リップルを残します</strong>（予言 \(2/\cosh(\pi^2/\ln\lambda)\) と 3 桁 一致）。<em>第 13 回で潰れていたのは虚数階のインパルス応答で、これは別物でした。</em>逆にこれは検証可能な予言になります ── <strong>1/f が 0.1 dB 平坦なら、梯子の比は 4.5 倍 以下</strong>、つまり背後は連続な分布です。</p>
+<p style="text-align:center"><strong>★ 1/f は微調整の結果ではなく、避けるほうが難しい現象だった。<br>速さが「ふつうの量の指数」で決まる系なら、勝手に対数一様になる。</strong></p>
+<p>★★ そして第 26 回の扉が閉じます ── <strong>第 26 回「分数階 ⇐ スケール不変な自由度」、第 27 回「スケール不変な自由度 ⇐ 指数写像」。分数階の起源は、指数関数だった。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+本回で「指数の中に平らなものがあればいい」と分かりました。<br>
+★ <strong>次回は、その指数がどこから来るのかを追います</strong> ── トンネル効果も、熱活性化も、ボルツマン因子も、どれも \(e^{-(\text{何か})}\) の形。<em>なぜ自然はこんなに指数関数だらけなのか。</em><br>
+★ 波として見ると答えは一つです ── <strong>減衰する波はすべて指数だから。</strong>第 6 回のエバネッセント波が、ここで戻ってきます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 27 回です。計算は kenshou/taisuu.js で行っています。<strong>本回の数値について：</strong>スペクトルの重ね合わせ・障壁分布からの \(\beta\)・梯子のリップル・対数正規の幅は、すべて本稿で数値計算したものです。<em>\(\alpha\) 崩壊の 9 核種の \(Q\) 値と半減期は文献値（PDG／NNDC の代表値）で、最小二乗の傾き 1.5065 と \(R^2=0.9955\) が本稿の計算です。</em><strong>ガイガー＝ナタルの法則も、\(g(\tau)=kT\,D(E)/\tau\) という活性化からの導出（マクウォーターの模型）も、ダッタ＝ホーンの \(\beta(T)\) 解析も、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、これらを第 26 回の残した問いへの答えとして並べ、\(\beta-1\) が桁数の比になることとリップルの大きさを数値で確かめたことです。<em>リップルの予言式 \(2/\cosh(\pi^2/\ln\lambda)\) はメリン再和の \(k=1\) 項で、\(\lambda=100\) で 5 % ずれるのは高次項（\(k\ge2\)）のためです。</em>「1/f の起源」は依然として系ごとに議論がある問題で、本稿は「活性化過程で説明できる系が多い」と述べているだけです。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>

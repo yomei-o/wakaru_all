@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where does log-uniform come from? ｜ Thinking in Waves 27</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1c1d1e; --ink-soft:#4d5052;
+    --paper:#f7f8f8; --paper-edge:#e2e5e6;
+    --side:#3d4548; --side-bg:#eceeef;
+    --warn:#8a4b2f;
+    --calc:#2f3639; --calc-bg:#e9ecec;
+    --rule:#d2d6d7; --hair:#b3babc;
+    --acc:#3d4548;
+    --grid:#e5e8e9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 27 ／ Part XI · Settling the hypothesis</span></p>
+<p class="eyebrow">The last mystery left by the previous episode gets an answer</p>
+
+<h1>Where does log-uniform come from? ──<br>what nature had ready was the exponential
+<span class="sub">To make 1/f you do not need to arrange a power-law distribution. <strong>An ordinary quantity sitting inside an exponent is enough.</strong><br>★ And because <strong>\(\beta-1\) is a ratio of two decade-counts</strong>, the exponent pins itself near 1 on its own.<br><em>And one prediction failed ── discrete scale invariance leaves a 3 dB trace.</em></span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 2, 13, 19, 26</span><span>Computation: kenshou/taisuu.js</span></p>
+
+<p class="lead">Last time we concluded: <strong>"a fractional order appears when the coarse-grained degrees of freedom are distributed scale-invariantly."</strong><br>And only 1/f noise stayed open, in a changed form ── <em>★ why are log-uniform distributions of time constants so common in nature?</em><br><strong>This episode answers it.</strong></p>
+
+<h2><span class="n">01</span>First a check ── does log-uniform really give 1/f?</h2>
+
+<div class="calc">
+<span class="tag">Superposing first-order (Lorentzian) relaxations</span>
+$$S(\omega)=\int g(\tau)\,\frac{2\tau}{1+\omega^2\tau^2}\,d\tau,\qquad \text{log-uniform}\ \Leftrightarrow\ g(\tau)=\frac{A}{\tau}$$
+<p class="lbl">In this case the integral can be done by hand</p>
+</div>
+
+<div class="calc">
+<span class="tag">The result</span>
+$$\int \frac{A}{\tau}\cdot\frac{2\tau}{1+\omega^2\tau^2}\,d\tau=\frac{2A}{\omega}\Big[\arctan\omega\tau\Big]\ \xrightarrow[\ \omega\tau_1\ll1\ll\omega\tau_2\ ]{}\ \frac{\pi A}{\omega}$$
+</div>
+
+<p>Checked numerically (\(\tau\in[10^{-6},10^{6}]\) s, 12 decades, sliced logarithmically).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\) [rad/s]</th><th>\(S(\omega)\)</th><th>Slope [/dec]</th><th>Prediction</th></tr></thead>
+<tbody>
+<tr><th>\(10^{-4}\)</th><td class="mid">3.1216e+4</td><td class="mid">──</td><td>outside the band</td></tr>
+<tr class="hi"><th><strong>\(10^{0}\)</strong></th><td class="mid"><strong>3.141589</strong></td><td class="mid"><strong>−1.0000</strong></td><td><strong>★ \(\pi A/\omega=3.141593\) (error 1.3e−6)</strong></td></tr>
+<tr><th>\(10^{3}\)</th><td class="mid">3.1396e−3</td><td class="mid">−1.0002</td><td>−1</td></tr>
+<tr><th>\(10^{4}\)</th><td class="mid">3.1216e−4</td><td class="mid">−1.0025</td><td>outside the band</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §01</p>
+<p style="margin:6px 0 0"><strong>Log-uniform ⇒ 1/f, confirmed</strong> (slope exactly −1 inside the band, amplitude matching \(\pi A/\omega\) to 6 digits).<br>
+★ And <strong>outside the band it flattens</strong> ── <em>1/f always has an upper and a lower corner. It does not continue forever.</em></p>
+</div>
+
+<h2><span class="n">02</span>★ The real question ── where does log-uniform come from?</h2>
+
+<p>Looked at directly in \(\tau\), \(g(\tau)\propto1/\tau\) seems like a <strong>special shape</strong>. But ── <em>change one variable and it becomes the most ordinary shape there is.</em></p>
+
+<div class="calc">
+<span class="tag">Thermally activated processes (Arrhenius)</span>
+$$\tau=\tau_0\,e^{E/kT}\qquad\Longrightarrow\qquad \ln\tau=\ln\tau_0+\frac{E}{kT}$$
+<p class="lbl">\(\ln\tau\) is a <strong>linear function</strong> of the barrier \(E\)</p>
+</div>
+
+<div class="calc">
+<span class="tag">Write the Jacobian</span>
+$$g(\tau)\,d\tau=D(E)\,dE,\qquad dE=kT\frac{d\tau}{\tau}\qquad\Longrightarrow\qquad \boxed{\ g(\tau)=\frac{kT\,D(E)}{\tau}\ }$$
+<p class="lbl">If \(D\) is flat, you get \(1/\tau\) directly</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §02</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>\(E\) uniform ⟺ \(\ln\tau\) uniform ⟺ \(g(\tau)\propto1/\tau\)</strong></p>
+<p style="margin:10px 0 0"><strong>No power-law distribution needs arranging.</strong> All that is needed is "whatever sits in the exponent is flat" ── <em>an entirely ordinary situation.</em></p>
+</div>
+
+<p>How many decades does that buy (\(\tau_0=10^{-13}\) s, room temperature 300 K)? <strong>The barrier per decade is \(kT\ln10=0.05953\) eV.</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Spread in barrier \(E\) [eV]</th><th>Spread in \(\tau\) [decades]</th><th>\(\tau_{\max}\)</th></tr></thead>
+<tbody>
+<tr><th>0.10</th><td class="mid">1.68</td><td class="mid">5.2e−7 s</td></tr>
+<tr class="hi"><th><strong>0.36</strong></th><td class="mid"><strong>★ 6.0</strong></td><td class="mid">──</td></tr>
+<tr><th>0.70</th><td class="mid">11.76</td><td class="mid">6.3e+3 s = 1.75 hours</td></tr>
+<tr><th>1.00</th><td class="mid">16.80</td><td class="mid">6.9e+8 s</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>★ Six decades of 1/f cost only 0.36 eV of scatter in the barrier.</strong> <em>That is far too cheap.</em><br>And with \(E_{\max}=1.0\) eV, \(\tau_{\max}=1.75\) hours ── <strong>1/f should turn over below \(2.5\times10^{-5}\) Hz</strong>. If an experiment sees no turnover down to \(10^{-6}\) Hz, the barriers reach beyond 1.3 eV.</p>
+
+<h2><span class="n">03</span>Why "1"? ── the exponent is a ratio of two decade-counts</h2>
+
+<p>What if \(D(E)\) is not flat? Take \(D(E)\propto e^{cE}\) and let \(D\) vary by 10× and 1000× across the band.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Variation of \(D(E)\)</th><th>Measured \(\beta\)</th><th>Predicted \(1+kT\,d\ln D/dE\)</th></tr></thead>
+<tbody>
+<tr><th>flat</th><td class="mid">0.99998</td><td class="mid">1.00000</td></tr>
+<tr class="hi"><th><strong>10×</strong></th><td class="mid"><strong>1.08499</strong></td><td class="mid"><strong>1.08504</strong></td></tr>
+<tr><th>1000×</th><td class="mid">1.25485</td><td class="mid">1.25511</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">★ Why the "1" in 1/f does not move</span>
+$$\beta-1=kT\,\frac{d\ln D}{dE}=\frac{\text{decades over which }D\text{ varies}}{\text{decades over which }\tau\text{ spreads}}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §03</p>
+<p style="margin:6px 0 0">Here \(\tau\) spreads over 11.8 decades, so a <strong>10×</strong> variation in \(D\) gives \(\beta-1=1/11.8=0.085\), and even <strong>1000×</strong> gives only 0.255.<br>
+★★ <strong>The denominator is large, so \(\beta\) pins itself near 1.</strong><br>
+<em>That measured 1/f exponents scatter over \(\beta=0.8\)–\(1.4\) is exactly this ratio.</em> ── ★ <strong>1/f is not the result of fine-tuning. It is harder to avoid.</strong></p>
+</div>
+
+<h2><span class="n">04</span>Example ① \(\alpha\) decay ── the exponential map at its most extreme</h2>
+
+<p>In Episode 19 we saw that a decay constant is an imaginary frequency. <strong>That decay constant is the textbook case of an exponential map</strong> ── \(\lambda\propto e^{-G}\), with the Gamow factor \(G\propto Z/\sqrt Q\).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Nuclide</th><th>\(Q\) [MeV]</th><th>Half-life</th><th>\(\log_{10}T_{1/2}\)</th><th>Line prediction</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(^{232}\)Th</strong></th><td class="mid">4.0816</td><td class="mid">4.43e+17 s</td><td class="mid">17.647</td><td class="mid">17.784</td></tr>
+<tr><th>\(^{238}\)U</th><td class="mid">4.2700</td><td class="mid">1.41e+17 s</td><td class="mid">17.149</td><td class="mid">17.778</td></tr>
+<tr><th>\(^{226}\)Ra</th><td class="mid">4.8710</td><td class="mid">5.05e+10 s</td><td class="mid">10.703</td><td class="mid">10.867</td></tr>
+<tr><th>\(^{222}\)Rn</th><td class="mid">5.5900</td><td class="mid">3.30e+5 s</td><td class="mid">5.519</td><td class="mid">5.688</td></tr>
+<tr><th>\(^{214}\)Po</th><td class="mid">7.8340</td><td class="mid">164.3 µs</td><td class="mid">−3.784</td><td class="mid">−3.700</td></tr>
+<tr class="hi"><th><strong>\(^{212}\)Po</strong></th><td class="mid">8.9540</td><td class="mid">0.299 µs</td><td class="mid">−6.524</td><td class="mid">−6.552</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">Least squares over 9 nuclides ── the Geiger–Nuttall law</span>
+$$\log_{10}T_{1/2}=1.5065\,\frac{Z}{\sqrt Q}-47.835,\qquad R^2=0.9955$$
+<p class="lbl">Residual standard deviation 0.575 decades, against a 24-decade range</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §04</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>\(Q\) varies by only 2.19×, and the half-life by 24.2 decades.</strong></p>
+<p style="margin:10px 0 0">★ The link to Episode 19: there we said a decay constant is an imaginary frequency, so the observation-window wall does not apply. <em>Here we go one level deeper</em> ── <strong>decay constants fill in continuously from the age of the universe down to microseconds because \(Q\), an utterly ordinary quantity, sits inside an exponent.</strong></p>
+</div>
+
+<h2><span class="n">05</span>Example ② Discrete scale invariance ── ★ where a prediction failed</h2>
+
+<p>There is a second way to be log-uniform ── <strong>a geometric ladder \(\tau_n=\tau_0\lambda^n\)</strong>. <em>Episode 13's Efimov states (\(\lambda=e^{\pi/s_0}=22.69\)) are exactly this.</em> Does 1/f come out, and if so how does it differ?</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Ratio \(\lambda\)</th><th>Rungs per decade</th><th>Ripple [dB p-p]</th><th>Predicted \(2/\cosh(\pi^2/\ln\lambda)\)</th></tr></thead>
+<tbody>
+<tr><th>2</th><td class="mid">3.32</td><td class="mid">0.00004</td><td class="mid">0.00005</td></tr>
+<tr><th>3</th><td class="mid">2.10</td><td class="mid">0.00871</td><td class="mid">0.00872</td></tr>
+<tr><th>10</th><td class="mid">1.00</td><td class="mid">0.95608</td><td class="mid">0.95662</td></tr>
+<tr class="hi"><th><strong>22.69 (Efimov)</strong></th><td class="mid">0.74</td><td class="mid"><strong>★ 2.951</strong></td><td class="mid"><strong>2.967</strong></td></tr>
+<tr><th>100</th><td class="mid">0.50</td><td class="mid">8.301</td><td class="mid">8.700</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Every \(\lambda\) gives 1/f. <strong>The difference is a log-periodic ripple</strong>, larger for larger \(\lambda\) ── <em>and it agrees with the predicted formula to 3 digits for \(\lambda\le22.7\).</em></p>
+
+<div class="keybox">
+<p class="lbl">The heart of §05 ── ★ a failed prediction</p>
+<p style="margin:6px 0 0">The Efimov ratio leaves a ripple of <strong>2.95 dB</strong>. <em>That is the opposite of Episode 13's "log-periodicity is hard to see".</em><br>
+★ What vanished in Episode 13 was the <strong>impulse response of an imaginary-order filter</strong> (crushed by \(e^{-\beta\pi}\)).<br>
+★ What survives here is the <strong>ripple a discrete ladder of time constants carves into the spectrum</strong>.<br>
+── <strong>"Discrete scale invariance" and "imaginary order" show up differently.</strong></p>
+</div>
+
+<p>That turns into a <strong>testable prediction</strong> ── if measured 1/f spectra show no log-periodic ripple, the ladder ratio must be small.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Ripple detection limit</th><th>Largest allowed \(\lambda\)</th></tr></thead>
+<tbody>
+<tr><th>below 1.00 dB</th><td class="mid">10.24</td></tr>
+<tr class="hi"><th><strong>below 0.10 dB</strong></th><td class="mid"><strong>★ 4.52</strong></td></tr>
+<tr><th>below 0.03 dB</th><td class="mid">3.57</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>★★ If 1/f is measured flat to 0.1 dB, the ladder ratio of time constants is at most 4.5.</strong> ── <em>So what lies behind 1/f is a <strong>continuous (dense)</strong> distribution, not an Efimov-style coarse ladder.</em> That is consistent with the activated processes of §02.</p>
+
+<h2><span class="n">06</span>Control experiment ── the condition was looser still</h2>
+
+<p>Take \(\ln\tau\) Gaussian with width \(\sigma\) decades. <strong>What we measure is not the slope</strong> ── at \(\omega\tau=1\) even a single Lorentzian has slope exactly −1 (the corner point). <em>What to measure is the width: over how many decades of \(\omega\) does the slope stay within \(-1\pm0.1\)?</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\sigma\) [decades]</th><th>Width that looks like 1/f [decades]</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>≈0 (single \(\tau\))</strong></th><td class="mid"><strong>0.10</strong></td><td><strong>★ just the corner. Not 1/f</strong></td></tr>
+<tr><th>0.5</th><td class="mid">0.26</td><td>intermediate</td></tr>
+<tr><th>1.0</th><td class="mid">0.62</td><td>intermediate</td></tr>
+<tr><th>2.0</th><td class="mid">2.02</td><td>★ indistinguishable from 1/f</td></tr>
+<tr><th>4.0</th><td class="mid">7.58</td><td>★ indistinguishable from 1/f</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §06</p>
+<p style="margin:6px 0 0"><strong>Widen \(\sigma\) and the 1/f-looking width grows roughly in proportion</strong> (\(\sigma=4\) decades gives 7.6).<br>
+── ★ <strong>It need not even be log-uniform. Wide on a log axis is enough to look like 1/f.</strong> <em>What nature has to supply is looser still.</em></p>
+</div>
+
+<h2><span class="n">07</span>Grading the mechanisms side by side</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Mechanism</th><th>Form</th><th>What it needs</th><th>Log-uniform?</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>Activation (Arrhenius)</strong></th><td class="mid">\(\tau=\tau_0e^{E/kT}\)</td><td>barriers \(E\) scattered flatly</td><td><strong>◎ near-automatic</strong></td></tr>
+<tr><th>Tunnelling</th><td class="mid">\(\tau\propto e^{2\kappa d}\)</td><td>distances \(d\) scattered flatly</td><td>◎ near-automatic</td></tr>
+<tr><th>\(\alpha\) decay (Ep. 19)</th><td class="mid">\(\lambda\propto e^{-G}\)</td><td>just line up \(Q\)</td><td>◎ measured (24 decades)</td></tr>
+<tr><th>Multiplicative random process</th><td class="mid">lognormal</td><td>\(\sigma\) above 2 decades suffices</td><td>○ conditional</td></tr>
+<tr><th>Discrete scale invariance</th><td class="mid">\(\tau_n=\tau_0\lambda^n\)</td><td>Episode 13's ladder</td><td>◎ but a 3 dB ripple</td></tr>
+<tr><th>Criticality</th><td class="mid">\(\tau\propto\xi^z\)</td><td>correlation length diverging</td><td>○ ★ needs tuning</td></tr>
+<tr><th>Uniform spring chain (Ep. 26)</th><td class="mid">\(\tau\) constant</td><td>──</td><td>× stays integer order</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §07</p>
+<p style="margin:6px 0 0"><strong>The top three are all just "an ordinary quantity sitting inside an exponent".</strong> <em>No power-law distribution to arrange, no critical point to tune to.</em><br>
+★ Criticality, by contrast, <strong>requires the temperature to sit exactly at \(T_c\)</strong> ── self-organised criticality drew attention because it is a way for a system to do that tuning by itself.<br>
+<strong>But as an explanation of 1/f, activation is far cheaper.</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>In some systems the 1/f exponent \(\beta\) approaches 1 as the temperature rises, in others it moves away. How does the formula here read that?
+<details><summary>Show the answer</summary><div class="ans"><strong>Because both sides of \(\beta-1=kT\,d\ln D/dE\) move with temperature.</strong> The numerator \(kT\) <em>grows</em> with \(T\), so if \(D(E)\) is sloped, \(\beta\) moves <strong>away</strong> from 1.<br>On the other hand, raising \(T\) shifts the barrier window that matters at the observation frequency, \(E^\ast=kT\ln(1/\omega\tau_0)\), to higher barriers ── <em>and if \(D\) happens to be flat there, \(\beta\) moves toward 1.</em><br>★ <strong>So measuring \(\beta(T)\) amounts to scanning \(D(E)\)</strong> ── this is the idea behind the Dutta–Horn analysis. <em>This article only confirmed the shape numerically; it analysed no measured data.</em></div></details></li>
+
+<li>What follows from a report that 1/f continues without a turnover down to \(10^{-6}\) Hz?
+<details><summary>Show the answer</summary><div class="ans"><strong>That the barriers extend beyond 1.3 eV.</strong> With \(\tau_{\max}=\tau_0e^{E_{\max}/kT}\), \(\tau_0=10^{-13}\) s at 300 K: \(E=1.0\) eV gives 1.75 hours (\(2.5\times10^{-5}\) Hz), \(E=1.3\) eV gives \(6.9\times10^{8}\) s.<br>★ <strong>And "1/f continuing forever" does not exist</strong> ── the total power \(\int(1/f)df\) diverges logarithmically, so there must be a corner somewhere. <em>Not seeing it just means the measurement was not long enough.</em></div></details></li>
+
+<li>Episode 13 concluded that log-periodicity is hard to see, yet here a 3 dB ripple appears. Is that a contradiction?
+<details><summary>Show the answer</summary><div class="ans"><strong>Not a contradiction ── they measure different things.</strong> What was crushed in Episode 13 was the <em>impulse response of an imaginary-order filter</em>, whose amplitude falls as \(e^{-\beta\pi}\) (\(10^{-6}\) at \(\beta=3\)).<br>What survives here is the <em>periodic undulation a discrete ladder of time constants carves into the spectrum</em>, of size \(2/\cosh(\pi^2/\ln\lambda)\).<br>★ <strong>The first is a log-oscillation made by a continuous imaginary order; the second is one made by discrete real orders</strong> ── both live on the \(\ln\omega\) axis, but they come from different places. <em>And the second is much easier to find.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　What nature had ready was not a power law but an exponential</h2>
+<p>We answered the question Episode 26 left ── <strong>"why are log-uniform distributions of time constants so common in nature?"</strong></p>
+<p>First, <strong>log-uniform ⇒ 1/f</strong> confirmed (slope exactly −1 inside the band, amplitude matching \(\pi A/\omega\) to 6 digits). <em>Outside the band it flattens ── 1/f always has an upper and a lower corner.</em></p>
+<p>★ And the answer was the <strong>exponential map</strong>. With \(\tau=\tau_0e^{E/kT}\), \(\ln\tau\) is linear in \(E\), so <strong>\(g(\tau)=kT\,D(E)/\tau\)</strong> ── <em>a flat \(D\) alone gives \(1/\tau\).</em> No power-law distribution needs arranging. The barrier per decade is 0.0595 eV at room temperature, so <strong>0.36 eV of scatter buys 6 decades of 1/f</strong>.</p>
+<p>★★ Why the exponent pins near 1 came out too ── <strong>\(\beta-1\) = (decades over which \(D\) varies) ÷ (decades over which \(\tau\) spreads)</strong>. Even a 1000× variation in \(D\) gives \(\beta-1=0.25\). <em>The 0.8–1.4 scatter of measured exponents is exactly this ratio.</em></p>
+<p><strong>\(\alpha\) decay</strong> is this map at its most extreme: \(Q\) varies by 2.19× while the half-life varies by <strong>24.2 decades</strong> (Geiger–Nuttall, \(R^2=0.9955\)) ── which is why Episode 19's decay constants fill in continuously.</p>
+<p>★ And <strong>one prediction failed</strong>. Discrete scale invariance (\(\tau_n=\tau_0\lambda^n\)) does make 1/f, but at the Efimov ratio 22.69 it leaves a <strong>2.95 dB log-periodic ripple</strong> (matching \(2/\cosh(\pi^2/\ln\lambda)\) to 3 digits). <em>What was crushed in Episode 13 was the imaginary-order impulse response ── a different thing.</em> Turned around, this is a testable prediction ── <strong>1/f flat to 0.1 dB means a ladder ratio of at most 4.5</strong>, i.e. a continuous distribution behind it.</p>
+<p style="text-align:center"><strong>★ 1/f is not the result of fine-tuning but a phenomenon that is hard to avoid.<br>Any system whose rates are exponentials of ordinary quantities becomes log-uniform on its own.</strong></p>
+<p>★★ And Episode 26's door closes ── <strong>Episode 26: "fractional order ⇐ scale-invariant degrees of freedom"; Episode 27: "scale-invariant degrees of freedom ⇐ the exponential map". The origin of fractional order was the exponential function.</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next episode</span>
+This episode showed that a flat quantity inside an exponent is all it takes.<br>
+★ <strong>Next time we chase where that exponent comes from</strong> ── tunnelling, thermal activation, the Boltzmann factor: all of the form \(e^{-(\text{something})}\). <em>Why is nature so full of exponentials?</em><br>
+★ Seen as waves the answer is one thing ── <strong>because every decaying wave is an exponential.</strong> Episode 6's evanescent waves come back here.
+</div>
+
+<p class="foot">This document is Episode 27 of the "Thinking in Waves" series. The computations are in kenshou/taisuu.js. <strong>On the numbers here:</strong> the spectral superpositions, the \(\beta\) from barrier distributions, the ladder ripple and the lognormal widths were all computed for this article. <em>The \(Q\) values and half-lives of the 9 \(\alpha\) emitters are literature values (representative PDG/NNDC numbers); the least-squares slope 1.5065 and \(R^2=0.9955\) are this article's calculation.</em> <strong>The Geiger–Nuttall law, the derivation of \(g(\tau)=kT\,D(E)/\tau\) from activation (the McWhorter model) and the Dutta–Horn \(\beta(T)\) analysis are all well-known results and not discoveries of this article</strong> ── what this article did was line them up as an answer to the question Episode 26 left, and check numerically that \(\beta-1\) is a ratio of decade-counts and how large the ripple is. <em>The ripple formula \(2/\cosh(\pi^2/\ln\lambda)\) is the \(k=1\) term of a Mellin resummation; the 5 % discrepancy at \(\lambda=100\) comes from the higher terms (\(k\ge2\)).</em> The origin of 1/f noise is still debated system by system; this article only claims that many systems are explained by activated processes. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show the answer" opens the solutions.</p>
+</body>
+</html>
