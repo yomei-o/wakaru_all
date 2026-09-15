@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The running coupling ── here the constant really was an integral｜Thinking in Waves, Episode 5</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1d1a1c; --ink-soft:#544a4e;
+    --paper:#faf7f7; --paper-edge:#e8dede;
+    --side:#6b2f3a; --side-bg:#f4ecee;
+    --warn:#8a4b2f;
+    --calc:#5a2731; --calc-bg:#f2e8ea;
+    --rule:#dccdd1; --hair:#c4aeb4;
+    --acc:#6b2f3a;
+    --grid:#ece0e2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 5 ／ Part II · Constants as waves</span></p>
+<p class="eyebrow">Change the axis and the answer flips</p>
+
+<h1>The running coupling ──<br>here the constant really was an integral
+<span class="sub">Last time, differentiating with respect to time gave zero. <strong>We had the wrong axis.</strong><br>Differentiate with respect to the logarithm of energy and \(\alpha\) does move ── <strong>\(1/137.036\to1/128.940\)</strong>.<br><em>And that change is precisely the integral of the beta function. A one-loop calculation reproduces the published value.</em></span></h1>
+
+<p class="byline"><span>Prerequisites: Episode 4</span><span>Computation: kenshou/hashiru.js</span></p>
+
+<p class="lead">"Are all physical constants integrals of something?" ── there is <strong>exactly one place where the answer is literally yes</strong>.<br><em>The coupling constants.</em></p>
+
+<h2><span class="n">01</span>Change the axis</h2>
+
+<div class="calc">
+<span class="tag">Couplings run with energy</span>
+$$\frac{d\alpha}{d\ln\mu}=\beta(\alpha)$$
+$$\alpha(\mu)=\alpha(\mu_0)+\int\beta(\alpha)\,d\ln\mu\qquad\textbf{★ constant ＝ integral}$$
+</div>
+
+<p>This is not a hypothesis but <strong>a measured fact</strong>. Let us compute it.</p>
+
+<h2><span class="n">02</span>Why does it run? ── the vacuum polarises</h2>
+
+<p>Around a charge the vacuum polarises into electron–positron pairs. Seen from afar it is screened and weak; <strong>get closer and you see more of the bare charge, so it grows.</strong></p>
+
+<div class="calc">
+<span class="tag">One-loop vacuum polarisation (leptons only)</span>
+$$\Delta\alpha_{\text{lep}}(\mu)=\frac{\alpha}{3\pi}\sum_\ell\left[\ln\frac{\mu^2}{m_\ell^2}-\frac53\right],\qquad \alpha(\mu)=\frac{\alpha(0)}{1-\Delta\alpha}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Particle</th><th>Mass [MeV]</th><th>\(\ln(m_Z^2/m_\ell^2)\)</th><th>incl. \(-5/3\)</th><th>Contribution \(\Delta\alpha\)</th></tr></thead>
+<tbody>
+<tr><th>electron</th><td class="mid">0.5110</td><td class="mid">24.184</td><td class="mid">22.517</td><td class="mid">\(1.743\times10^{-2}\)</td></tr>
+<tr><th>muon</th><td class="mid">105.658</td><td class="mid">13.521</td><td class="mid">11.854</td><td class="mid">\(9.178\times10^{-3}\)</td></tr>
+<tr><th>tau</th><td class="mid">1776.860</td><td class="mid">7.876</td><td class="mid">6.209</td><td class="mid">\(4.808\times10^{-3}\)</td></tr>
+<tr class="hi"><th><strong>total</strong></th><td class="mid"></td><td class="mid"></td><td class="mid">40.581</td><td class="mid"><strong>\(0.031421\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Cross-check for §02</p>
+<p style="margin:6px 0 0">Computed \(\Delta\alpha_{\text{lep}}(m_Z)=\mathbf{0.031421}\); published <strong>0.031498</strong>.<br>
+<em>One loop gets you that far.</em></p>
+</div>
+
+<h2><span class="n">03</span>The hadronic contribution ── this part cannot be computed</h2>
+
+<p>The quark contribution cannot be obtained perturbatively, because the strong interaction takes over at low energy. It is extracted from experiment (\(e^+e^-\to\)hadrons).</p>
+
+<div class="calc">
+<span class="tag">Putting it together</span>
+$$\Delta\alpha_{\text{had}}^{(5)}(m_Z)=0.02766\quad(\text{measured; published value})$$
+$$\Delta\alpha=0.031421+0.02766=0.059081$$
+$$\alpha(m_Z)=\frac{7.297353\times10^{-3}}{1-0.059081}=7.755558\times10^{-3}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>Our calculation</th><th>Published</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(1/\alpha(m_Z)\)</strong></th><td class="mid"><strong>128.940</strong></td><td class="mid"><strong>\(\approx\) 128.95</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">04</span>This is the answer ── the constant is moving</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Energy</th><th>\(1/\alpha\)</th><th>\(\alpha\)</th></tr></thead>
+<tbody>
+<tr><th>0 (infinite distance)</th><td class="mid">137.036</td><td class="mid">\(7.297\times10^{-3}\)</td></tr>
+<tr class="hi"><th><strong>\(m_Z=91.2\) GeV</strong></th><td class="mid"><strong>128.940</strong></td><td class="mid"><strong>\(7.756\times10^{-3}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §04</p>
+<p style="margin:6px 0 0"><strong>\(1/\alpha\) moves from 137.0 to 128.9 ── a 5.9 % change.</strong><br>
+"The fine-structure constant, 1/137" is only <em>its low-energy limit</em>.</p>
+<p style="margin:10px 0 0">And that change is exactly an integral:</p>
+<p style="margin:10px 0 0;text-align:center">$$\Delta\!\left(\frac1\alpha\right)=-\frac{1}{3\pi}\sum_\ell\left[\ln\frac{\mu^2}{m_\ell^2}-\frac53\right]-(\text{hadrons})$$</p>
+<p style="margin:10px 0 0">★ <strong>"Constants are integrals" ── here it is literally true.</strong> But the integration variable is <em>not time; it is \(\ln(\text{energy})\)</em>.</p>
+</div>
+
+<h2><span class="n">05</span>Keep running it and it diverges</h2>
+
+<p>Take the one-loop formula and keep pushing the energy up. <em>(Leptons only in this section — hadrons and the W are omitted, so the value at \(m_Z\) differs from the previous section. This is about the shape.)</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Energy \(\mu\)</th><th>\(1/\alpha(\mu)\)</th><th>Note</th></tr></thead>
+<tbody>
+<tr><th>0.511 MeV</th><td class="mid">137.213</td><td>electron mass</td></tr>
+<tr><th>1.777 GeV</th><td class="mid">135.237</td><td>tau mass</td></tr>
+<tr><th>91.2 GeV</th><td class="mid">132.730</td><td>Z boson mass</td></tr>
+<tr><th>1 TeV</th><td class="mid">131.206</td><td></td></tr>
+<tr class="hi"><th>\(1.22\times10^{19}\) GeV</th><td class="mid">107.625</td><td><strong>Planck mass</strong></td></tr>
+<tr class="hi"><th><strong>\(10^{93}\) GeV</strong></th><td class="mid"><strong>0</strong></td><td><strong>★ Landau pole. \(\alpha\) diverges</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="aside">
+<p class="lbl">This extrapolation is formal</p>
+<p style="margin:6px 0 0">In reality other interactions take over long before, and \(10^{93}\) GeV is \(10^{74}\) times the Planck mass ── <strong>not a regime where a gravity-free calculation means anything.</strong><br>
+Still, the structure is interesting ── <em>keep integrating and it diverges at a finite energy.</em> The "constant" turns out to be a quantity running toward a divergence.</p>
+</div>
+
+<h2><span class="n">06</span>The other couplings run too ── and they cross</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Interaction</th><th>Sign of \(\beta\)</th><th>At high energy</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><th>Electromagnetic (U(1))</th><td class="mid">\(+\)</td><td>grows</td><td>screened by vacuum polarisation; stronger up close</td></tr>
+<tr><th>Weak (SU(2))</th><td class="mid">\(-\)</td><td>shrinks</td><td>gauge-boson self-interaction wins</td></tr>
+<tr class="hi"><th><strong>Strong (SU(3))</strong></th><td class="mid">\(-\)</td><td>shrinks</td><td><strong>★ asymptotic freedom; weaker up close</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Since some grow and some shrink, they may cross somewhere. In the Standard Model they "nearly" meet around \(10^{13}\sim10^{17}\) GeV; adding supersymmetry they agree well at \(2\times10^{16}\) GeV ── <strong>the case for grand unification</strong>.</p>
+
+<div class="keybox">
+<p class="lbl">The heart of §06</p>
+<p style="margin:6px 0 0"><strong>"Integrating the constants" is itself the central tool of particle physics.</strong><br>
+<em>The intuition has been standard in the field for fifty years</em> ── only as an integral over <em>scale</em>, not over time.</p>
+</div>
+
+<h2><span class="n">07</span>Put the two derivatives side by side</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Differentiate with respect to</th><th>Symbol</th><th>Result</th><th>Episode</th></tr></thead>
+<tbody>
+<tr><th>time</th><td class="mid">\(d\alpha/dt\)</td><td>measured zero (bound \(10^{-17}\)/yr)</td><td class="mid">Ep. 4</td></tr>
+<tr class="hi"><th><strong>\(\ln E\)</strong></th><td class="mid">\(d\alpha/d\ln\mu\)</td><td><strong>★ non-zero. Measured</strong></td><td class="mid">this episode</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of this episode</p>
+<p style="margin:6px 0 0"><strong>For the same \(\alpha\), the answer flips depending on the axis you differentiate along.</strong> Constant in time, variable in energy.</p>
+<p style="margin:10px 0 0">In wave language ── <em>\(\alpha\) is DC in time and non-DC in log-energy.</em><br>
+So <strong>whether something is a constant depends on which axis's spectrum you look at.</strong></p>
+<p style="margin:10px 0 0">⇒ Answer to "are all physical constants integrals of something?":<br>
+★ <strong>for the coupling constants, exactly so. The key is guessing what the integration variable is.</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Why is "1/137" the famous number?
+<details><summary>Show answer</summary><div class="ans">Because everyday energy scales (atoms, chemistry) are effectively the \(\mu\to0\) limit.<br>An atom is \(\sim10^{-10}\) m across, corresponding to energies of eV, far below the electron mass (0.511 MeV). <em>So vacuum polarisation barely acts and \(\alpha(0)=1/137.036\) is what you see.</em><br>Only at accelerator energies does \(1/129\) become the number you actually use.</div></details></li>
+
+<li>Why is the hadronic contribution taken from experiment alone?
+<details><summary>Show answer</summary><div class="ans">Because \(\alpha_s\) grows at low energy and <strong>the perturbative expansion does not converge</strong> (the flip side of asymptotic freedom).<br>Instead one measures the \(e^+e^-\to\)hadrons cross-section and converts it via a dispersion relation (a consequence of causality — Episode 8) into \(\Delta\alpha_{\text{had}}\).<br><em>In other words, "the incomputable part is filled in with measurement plus causality"</em> ── which is itself a theme of this series.</div></details></li>
+
+<li>Is "constant in time but variable in energy" a contradiction?
+<details><summary>Show answer</summary><div class="ans">No, because <strong>they are different quantities</strong>.<br>\(\alpha(\mu)\) is the effective coupling strength measured at scale \(\mu\), a function of \(\mu\). Whether "\(\alpha\) varies in time" asks whether <em>the value measured at the same \(\mu\) differs between epochs</em>.<br><em>The former is a consequence of the renormalisation group (inside the theory); the latter would be new physics (outside it). Conflating them produces the false claim "\(\alpha\) runs, therefore it varies".</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　It was the axis that was wrong</h2>
+<p>Last time, differentiating in time gave zero. <strong>But couplings run with energy.</strong></p>
+<p>We computed the one-loop vacuum polarisation ── \(\Delta\alpha_{\text{lep}}(m_Z)=\mathbf{0.031421}\) (published 0.031498). Adding the hadronic 0.02766 gives <strong>\(1/\alpha(m_Z)=128.940\)</strong> (published 128.95).</p>
+<p><strong>\(1/137.036\to1/128.940\): a 5.9 % change.</strong> And the change is precisely the integral of the beta function ── <em>"constants are integrals" is literally true here.</em></p>
+<p>Keep running and it diverges at a finite energy (\(10^{93}\) GeV, a formal extrapolation). <strong>The constant turns out to be a quantity racing toward a divergence.</strong> And because the three couplings run in different directions, they cross at high energy ── the case for grand unification.</p>
+<p style="text-align:center"><strong>Whether something is a constant depends on which axis's spectrum you look at.<br>\(\alpha\) is DC in time and non-DC in log-energy.</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time ── into Part III</span>
+The constants are settled. From here we look at <strong>physical quantities themselves</strong> as waves.<br>
+First, <em>mass</em>. The proposal was "the integral of the universe's gravity", but ── <strong>seen as a wave, a completely different and completely successful answer appears.</strong><br>
+<em>Mass is the cutoff frequency of the vacuum, regarded as a waveguide.</em>
+</div>
+
+<p class="foot">This document is Episode 5 of the series "Thinking in Waves". The computation is in kenshou/hashiru.js. <strong>On the numbers:</strong> §02 uses the standard one-loop QED vacuum-polarisation formula; we merely put numbers into it. <em>\(\Delta\alpha_{\text{had}}^{(5)}=0.02766\) is a published value derived from experiment, not computed here.</em> The \(1/\alpha(m_Z)=128.940\) in §03 is the five-flavour QED value; the frequently quoted 127.95 is the \(\overline{\text{MS}}\) value including the electroweak sector ── <strong>the value is scheme-dependent, so compare with care.</strong> §05 is a one-loop extrapolation with three leptons only, and the Landau pole at \(10^{93}\) GeV is a <em>formal number</em> (gravity, hadrons and the W are all ignored, so it has no physical meaning). The unification scales in §06 summarise the literature. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens the solutions.</p>
+</body>
+</html>

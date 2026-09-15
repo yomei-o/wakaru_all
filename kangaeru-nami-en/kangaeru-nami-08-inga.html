@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Causality ── a filter does not know the future｜Thinking in Waves, Episode 8</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 8 ／ Part IV · Constraints imposed on waves</span></p>
+<p class="eyebrow">A single line binds everything</p>
+
+<h1>Causality ──<br>a filter does not know the future
+<span class="sub">To the view that "everything is a filter", physics adds exactly one condition ── <strong>\(h(t)=0\) for \(t<0\)</strong>.<br>No output before the input. That is all.<br><em>And from that one line come dispersion, sum rules, and the ban on ideal filters.</em></span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 1–2</span><span>Computation: kenshou/inga.js</span></p>
+
+<p class="lead">So far we have seen physics as a chain of filters. <strong>But is any filter allowed?</strong><br><em>No. And the way they are forbidden is remarkably strong.</em></p>
+
+<h2><span class="n">01</span>First, look at what is forbidden</h2>
+
+<p>"Pass everything below the cutoff, block everything above" ── the ideal low-pass filter. Inverse Fourier transform that transfer function:</p>
+
+<div class="calc">
+<span class="tag">Impulse response of the ideal filter</span>
+$$h(t)=2f_c\,\mathrm{sinc}(2f_c t)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(t\) [ms]</th><th>\(h(t)/h(0)\)</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr class="hi"><th>\(-2.00\)</th><td class="mid">0.000000</td><td><strong>★ uses the future</strong></td></tr>
+<tr class="hi"><th>\(-1.00\)</th><td class="mid">\(-0.000000\)</td><td><strong>★ uses the future</strong></td></tr>
+<tr class="hi"><th>\(-0.50\)</th><td class="mid">\(-0.000000\)</td><td><strong>★ uses the future</strong></td></tr>
+<tr class="hi"><th>\(-0.25\)</th><td class="mid">0.636620</td><td><strong>★ uses the future</strong></td></tr>
+<tr><th>0.00</th><td class="mid">1.000000</td><td></td></tr>
+<tr><th>\(+0.25\)</th><td class="mid">0.636620</td><td></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">Conclusion of §01</p>
+<p style="margin:6px 0 0"><strong>The ideal filter is physically unrealisable.</strong><br>
+At \(t=-0.25\) ms the response is already 0.64 ── <em>output appears 0.25 ms before the input arrives.</em></p>
+<p style="margin:10px 0 0">"You need a transition band" is not an engineering limitation but <strong>a consequence of causality</strong>.</p>
+</div>
+
+<h2><span class="n">02</span>The general law ── the Kramers–Kronig relations</h2>
+
+<p>If \(h(t)\) is one-sided, its transform \(\chi(\omega)=\chi'+i\chi''\) is analytic in the upper half-plane. From Cauchy's theorem:</p>
+
+<div class="calc">
+<span class="tag">Kramers–Kronig</span>
+$$\chi'(\omega)=\frac1\pi\,\mathrm{P}\!\!\int\frac{\chi''(\omega')}{\omega'-\omega}d\omega',\qquad \chi''(\omega)=-\frac1\pi\,\mathrm{P}\!\!\int\frac{\chi'(\omega')}{\omega'-\omega}d\omega'$$
+<p class="lbl">★ Real and imaginary parts are not independent. Either determines the other</p>
+</div>
+
+<p>Let us check it. With a Lorentz oscillator (a damped harmonic oscillator) \(\chi(\omega)=1/(\omega_0^2-\omega^2-i\gamma\omega)\), we <strong>reconstruct the real part from the imaginary part alone</strong>.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>\(\chi'\) (direct)</th><th>\(\chi'\) (K–K integral)</th><th>Relative difference</th></tr></thead>
+<tbody>
+<tr><th>0.30</th><td class="mid">1.094145</td><td class="mid">1.094145</td><td class="mid">\(6.1\times10^{-13}\)</td></tr>
+<tr><th>0.60</th><td class="mid">1.509434</td><td class="mid">1.509434</td><td class="mid">\(4.1\times10^{-13}\)</td></tr>
+<tr class="hi"><th><strong>0.90</strong></th><td class="mid"><strong>2.773723</strong></td><td class="mid"><strong>2.773723</strong></td><td class="mid"><strong>\(2.0\times10^{-13}\)</strong></td></tr>
+<tr><th>1.20</th><td class="mid">\(-1.751592\)</td><td class="mid">\(-1.751592\)</td><td class="mid">\(3.8\times10^{-13}\)</td></tr>
+<tr><th>2.00</th><td class="mid">\(-0.327511\)</td><td class="mid">\(-0.327511\)</td><td class="mid">\(2.0\times10^{-12}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §02</p>
+<p style="margin:6px 0 0"><strong>Agreement to 13 digits.</strong> Absorption (the imaginary part) alone reproduces dispersion (the real part) completely.</p>
+<p style="margin:10px 0 0"><em>This is not an approximation. It is an exact relation following from one line: causality.</em></p>
+</div>
+
+<h2><span class="n">03</span>The physical meaning ── no dispersion without absorption</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Condition</th><th>Consequence</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><th>If absorption is zero</th><td class="mid">\(\chi''\equiv0\Rightarrow\chi'=\)const</td><td>refractive index independent of frequency ＝ no dispersion</td></tr>
+<tr><th>If there is absorption anywhere</th><td class="mid">\(\chi'\) depends on frequency</td><td>dispersion is unavoidable</td></tr>
+<tr class="hi"><th><strong>And conversely</strong></th><td class="mid"><strong>dispersion implies absorption</strong></td><td><strong>★ a transparent dispersive medium cannot exist</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="aside">
+<p class="lbl">Why glass splits colours</p>
+<p style="margin:6px 0 0">A prism makes a rainbow because glass <strong>has absorption bands in the ultraviolet</strong>. It is perfectly transparent in the visible, yet those distant absorption lines create the dispersion ── <em>causality demands it.</em><br>
+(This is the same story as "refraction and absorption are the same function" in the sister series <strong>"Understanding Refraction"</strong>.)</p>
+<p style="margin:10px 0 0">And <strong>the \(\Delta\alpha_{\text{had}}\) used in Episode 5 was obtained by this very relation</strong> ── measure the \(e^+e^-\to\)hadrons cross-section (the imaginary part) and convert to the real part by a dispersion relation. <em>What cannot be computed is filled in by measurement plus causality.</em></p>
+</div>
+
+<h2><span class="n">04</span>The sum rule ── integrate and you count the electrons</h2>
+
+<div class="calc">
+<span class="tag">f-sum rule</span>
+$$\int_0^\infty \omega\,\varepsilon''(\omega)\,d\omega=\frac\pi2\,\omega_p^2,\qquad \omega_p^2=\frac{ne^2}{\varepsilon_0 m}$$
+<p class="lbl">★ Integrate the absorption spectrum over all frequencies and out comes the electron number density</p>
+</div>
+
+<p>What is striking is that <strong>this depends on neither the position nor the width of the oscillator</strong>. We varied both to check.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega_0\)</th><th>\(\gamma\)</th><th>\(\int\omega\varepsilon''d\omega\)</th><th>Relative difference from \(\pi/2\)</th></tr></thead>
+<tbody>
+<tr><th>0.5</th><td class="mid">0.10</td><td class="mid">1.570791</td><td class="mid">\(3.2\times10^{-6}\)</td></tr>
+<tr><th>1.0</th><td class="mid">0.20</td><td class="mid">1.570786</td><td class="mid">\(6.4\times10^{-6}\)</td></tr>
+<tr><th>2.0</th><td class="mid">0.50</td><td class="mid">1.570771</td><td class="mid">\(1.6\times10^{-5}\)</td></tr>
+<tr class="hi"><th><strong>5.0</strong></th><td class="mid"><strong>1.00</strong></td><td class="mid"><strong>1.570746</strong></td><td class="mid"><strong>\(3.2\times10^{-5}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §04</p>
+<p style="margin:6px 0 0"><strong>Position and width both changed, and every result is \(\pi/2\).</strong><br>
+The sum rule counts only "how many there are", <em>not how they absorb.</em></p>
+<p style="margin:10px 0 0">★ So it can be used to check measured spectra ── <strong>if the integral does not come out right, you have missed an absorption band.</strong></p>
+</div>
+
+<h2><span class="n">05</span>Scoring the operations of Episodes 1–2 against causality</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Operation</th><th>Verdict</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><th>Differentiation \(d/dt\)</th><td class="mid">○ just barely causal</td><td>\(h(t)=\delta'(t)\), concentrated at \(t=0\), nothing at \(t<0\)</td></tr>
+<tr><th>Integration \(\int_0^t\)</th><td class="mid">○ causal</td><td>\(h(t)=\) step function; looks only at the past</td></tr>
+<tr class="hi"><th><strong>Fractional order (forward)</strong></th><td class="mid"><strong>○ causal</strong></td><td><strong>the memory kernel \((t-\tau)^{-\alpha}\) is past-only</strong></td></tr>
+<tr><th>Ideal low-pass</th><td class="mid">× non-causal</td><td>the sinc spreads both ways (§01)</td></tr>
+<tr class="hi"><th><strong>Hilbert transform</strong></th><td class="mid"><strong>× non-causal</strong></td><td><strong>★ even "just rotate the phase by 90°" needs the future</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §05</p>
+<p style="margin:6px 0 0">The last two are the interesting ones. <strong>"Leave the amplitude alone and rotate the phase by 90°" — an apparently harmless operation — is non-causal.</strong><br>
+<em>Causality constrains not "what passes" but "the relation between real and imaginary parts".</em></p>
+<p style="margin:10px 0 0">And <strong>Episode 2's fractional derivative is properly causal</strong> ── its memory kernel looks only at the past. <em>That "memory" was shaped to be compatible with causality all along.</em></p>
+</div>
+
+<h2><span class="n">06</span>How sharply can it cut? ── Paley–Wiener</h2>
+
+<div class="calc">
+<span class="tag">Upper bound on the sharpness a causal response can have</span>
+$$\int\frac{\bigl|\ln|\chi(\omega)|\bigr|}{1+\omega^2}\,d\omega<\infty$$
+<p class="lbl">Violate it ＝ decay too fast ＝ not realisable causally</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Form of the roll-off</th><th>Allowed?</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><th>\(1/\omega\) (first-order filter)</th><td class="mid">○</td><td>\(\ln\) grows only logarithmically</td></tr>
+<tr><th>\(e^{-\omega/\omega_c}\)</th><td class="mid">○</td><td>\(\ln\) is linear; the integral converges</td></tr>
+<tr class="hi"><th><strong>\(e^{-\omega^2/\omega_c^2}\) (Gaussian)</strong></th><td class="mid"><strong>×</strong></td><td><strong>★ \(\ln\) grows as \(\omega^2\); diverges ── unrealisable</strong></td></tr>
+<tr><th>exactly zero above some frequency</th><td class="mid">×</td><td>\(\ln\to-\infty\); the ideal filter</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="aside">
+<p class="lbl">A Gaussian filter is not strictly causal</p>
+<p style="margin:6px 0 0">The reason image processing uses it every day is that <strong>it acts along space, not time</strong>.<br>
+<em>Space has no "future", so causality imposes nothing.</em> ── The same formula is allowed or forbidden depending on which axis you apply it to.</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Illustrate "no absorption means no dispersion" with an everyday example.
+<details><summary>Show answer</summary><div class="ans">The vacuum. <strong>It absorbs at no frequency, so every frequency travels at the same speed \(c\)</strong> (no dispersion).<br>Glass and water, by contrast, have absorption bands in the UV and IR, so they disperse even in the visible ── <em>hence rainbows.</em><br>"A transparent substance that makes no rainbow" is forbidden by causality.</div></details></li>
+
+<li>Why can the sum rule be used to check an experiment?
+<details><summary>Show answer</summary><div class="ans">Because the integral is fixed by <strong>the electron number density alone, independent of the spectrum's shape</strong>.<br>If integrating your measured spectrum falls short of \(\pi\omega_p^2/2\), <em>there is an absorption band you have missed</em>.<br><strong>You can know what you failed to measure before measuring it</strong> ── a powerful tool.</div></details></li>
+
+<li>If the Hilbert transform is non-causal, why is it used in real signal processing?
+<details><summary>Show answer</summary><div class="ans"><strong>Because one inserts a delay.</strong> Delay everything by \(T\) and the response on \(-T<t<0\) is pushed into "the past of the delayed signal".<br>It is never exact, so one uses a <em>finite-length truncation</em>.<br><strong>"Non-causal operation" = "an operation you can approximate if you can afford latency"</strong> ── where real-time work forbids latency, accuracy suffers.</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　Do not use the future. That is all</h2>
+<p>To the view that "everything is a filter", physics adds exactly one condition ── <strong>\(h(t)=0\) for \(t<0\)</strong>.</p>
+<p>From it follows <strong>the ban on ideal filters</strong> (the sinc spreads both ways ── response 0.64 at \(t=-0.25\) ms). A transition band is a matter of principle, not of engineering.</p>
+<p>Then the <strong>Kramers–Kronig relations</strong>: the imaginary part (absorption) determines the real part (dispersion) ── verified <em>to 13 digits</em> on a Lorentz oscillator. The consequence: "a transparent dispersive medium cannot exist". A prism makes a rainbow because glass absorbs in the ultraviolet.</p>
+<p>The <strong>sum rule</strong> is stronger still: \(\int\omega\varepsilon''d\omega=\pi\omega_p^2/2\) depends on <em>neither position nor width</em> of the oscillator (confirmed to \(10^{-5}\)). It counts only how many there are.</p>
+<p>And scoring Episodes 1–2 against causality ── <strong>the fractional derivative is properly causal</strong> (its memory kernel is past-only), while the Hilbert transform, which "only rotates the phase", is not.</p>
+<p style="text-align:center"><strong>Causality constrains not "what passes" but "the relation between real and imaginary parts".</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+Causality constrained a filter's <strong>real and imaginary parts</strong>.<br>
+Next time, a theorem constraining a filter's <strong>time width and frequency width</strong> ── <em>\(\Delta\omega\,\Delta t\ge1/2\)</em>.<br>
+It is a pure Fourier theorem with nothing to do with quantum mechanics. <strong>Yet multiply by \(\hbar\) and it becomes the uncertainty principle itself.</strong>
+</div>
+
+<p class="foot">This document is Episode 8 of the series "Thinking in Waves". The computation is in kenshou/inga.js. <strong>On the numbers:</strong> the K–K check evaluates the principal value by subtracting the singularity before integrating (naively skipping grid points gives a 30 % error near resonance ── we stepped on that rake once). <em>The 13-digit agreement reflects a smooth rational integrand; applied to measured spectra the accuracy is far lower.</em> The sum-rule integral is truncated at \(\omega=2\times10^4\), and the \(10^{-5}\) discrepancy comes from that truncation (for a narrow resonance with \(\gamma=0.02\) the grid is too coarse and it degrades to \(4\times10^{-3}\)). <strong>Kramers–Kronig and the Paley–Wiener criterion are established theorems, not derived here</strong> ── what we did is confirm them numerically. The Lorentz oscillator is an idealisation with a single oscillator of unit strength; real materials are sums over many. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens the solutions.</p>
+</body>
+</html>
