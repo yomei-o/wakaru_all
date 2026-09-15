@@ -1,0 +1,274 @@
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 23 回 ／ 第 X 部・仮定を壊す</span></p>
+<p class="eyebrow">この連載がずっと置いてきた仮定を、正面から壊す</p>
+
+<h1>非線形 ──<br>「フィルタ」という言葉が使えなくなる場所
+<span class="sub">第 1 回から使ってきた「フィルタ」「伝達関数」は、<strong>すべて線形性を前提にしています。</strong><br>壊すと ── <em>入れていない周波数が生まれ、伝達関数が定義できなくなる。</em><br>★ ところが<strong>第 IV 部の三つの制約は、全部 生き残りました。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 8, 9, 10, 14, 16 回</span><span>計算：kenshou/hisenkei.js</span></p>
+
+<p class="lead">第 15 回で枠組みの限界を四つ挙げました。第 22 回で①（定常性）を塞ぎました。<br><strong>残るいちばん大きな穴が、②の線形性です。</strong><em>今回はそこを正面から壊します。</em></p>
+
+<h2><span class="n">01</span>この連載が置いてきた仮定</h2>
+
+<div class="calc">
+<span class="tag">「フィルタ」という言葉の中身</span>
+$$L[a\,x+b\,y]=a\,L[x]+b\,L[y]\qquad\textbf{★ 重ね合わせ}$$
+<p class="lbl">重ね合わせが効くから、正弦波ごとに分けて考えられた ── 効かないなら「周波数応答」という概念自体が成り立たない</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>性質</th><th>線形では</th><th>非線形では</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>重ね合わせ</strong></th><td class="mid">成り立つ</td><td class="mid"><strong>★ 壊れる</strong></td><td>入力を分けて考えられない</td></tr>
+<tr class="hi"><th><strong>伝達関数 \(H(\omega)\)</strong></th><td class="mid">定義できる</td><td class="mid"><strong>★ 定義できない</strong></td><td>応答が入力の大きさに依る</td></tr>
+<tr><th>周波数の保存</th><td class="mid">保たれる</td><td class="mid">★ 混ざる</td><td>入れていない周波数が出る</td></tr>
+<tr><th>フーリエ分解の意味</th><td class="mid">完全</td><td class="mid">限定的</td><td>分けても独立に扱えない</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">02</span>いちばん簡単な非線形 ── 新しい周波数が生まれる</h2>
+
+<div class="calc">
+<span class="tag">二乗の項を足すだけ</span>
+$$y=x+\varepsilon x^2,\qquad x=\sin(2\pi\cdot1000\,t)+\sin(2\pi\cdot1100\,t),\qquad \varepsilon=0.1$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>周波数 [Hz]</th><th>振幅</th><th>正体</th></tr></thead>
+<tbody>
+<tr><th>1000</th><td class="mid">1.000000</td><td>入力 \(f_1\)</td></tr>
+<tr><th>1100</th><td class="mid">1.000000</td><td>入力 \(f_2\)</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>0.200000</strong></td><td><strong>★ 直流（整流された分）</strong></td></tr>
+<tr class="hi"><th><strong>100</strong></th><td class="mid"><strong>0.100000</strong></td><td><strong>★ 差 \(f_2-f_1\)</strong></td></tr>
+<tr><th>2100</th><td class="mid">0.100000</td><td>★ 和 \(f_1+f_2\)</td></tr>
+<tr><th>2000</th><td class="mid">0.050000</td><td>★ 二倍音 \(2f_1\)</td></tr>
+<tr><th>2200</th><td class="mid">0.050000</td><td>★ 二倍音 \(2f_2\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0"><strong>二つ入れたのに、七つ出てきました。</strong><br>
+★ <em>線形フィルタには絶対にできないことです</em> ── 線形なら「入れた周波数を強めるか弱めるか」しかできない。</p>
+<p style="margin:10px 0 0">差の <strong>100 Hz</strong> に注目してください。★ <em>入力より低い周波数が生まれています。</em><br>
+これが<strong>混変調</strong>で、オーディオでは最も嫌われる歪みです ── 高調波は倍音なので音楽的ですが、差音は不協和になるから。</p>
+</div>
+
+<h2><span class="n">03</span>歪みを数値で測る ── 線形性は「小ささ」だった</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(a_2\)</th><th>\(a_3\)</th><th>THD [%]</th><th>たとえ</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">0</td><td class="mid">0.0000</td><td>完全に線形</td></tr>
+<tr><th>\(10^{-4}\)</th><td class="mid">0</td><td class="mid">0.0050</td><td>高級オーディオ</td></tr>
+<tr class="hi"><th><strong>\(10^{-3}\)</strong></th><td class="mid">0</td><td class="mid"><strong>0.0500</strong></td><td><strong>ふつうのアンプ</strong></td></tr>
+<tr><th>\(10^{-2}\)</th><td class="mid">0</td><td class="mid">0.5000</td><td>安物のスピーカー</td></tr>
+<tr><th>0.1</th><td class="mid">0</td><td class="mid">5.0000</td><td>★ 02節で使った値</td></tr>
+<tr class="hi"><th><strong>0.3</strong></th><td class="mid">0.3</td><td class="mid"><strong>13.69</strong></td><td><strong>★ ギターの歪みエフェクタ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の結論</p>
+<p style="margin:6px 0 0">人間が歪みに気づくのは、おおよそ <strong>1 % 以上</strong> からと言われます。<br>
+★ <em>つまり日常の「線形な世界」は、0.1 % 程度の非線形を無視した近似でした。</em></p>
+<p style="margin:10px 0 0;text-align:center"><strong>線形性は自然の性質ではなく、小ささの結果だった。</strong></p>
+</div>
+
+<h2><span class="n">04</span>伝達関数が定義できなくなる ── ダフィング振動子</h2>
+
+<div class="calc">
+<span class="tag">ばねを少しだけ硬くする（振幅が大きいほど硬い）</span>
+$$\ddot x+2\gamma\dot x+\omega_0^2x+\beta x^3=F\cos(\omega t),\qquad \gamma=0.05,\ \beta=0.3,\ F=0.3$$
+</div>
+
+<p>周波数をゆっくり<strong>上げたとき</strong>と<strong>下げたとき</strong>の応答を比べます。<em>線形なら同じになるはずです。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>上げたとき</th><th>下げたとき</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>1.00</th><td class="mid">1.08409</td><td class="mid">1.08409</td><td class="mid">0.00000</td></tr>
+<tr><th>1.20</th><td class="mid">1.62561</td><td class="mid">1.62561</td><td class="mid">0.00000</td></tr>
+<tr class="hi"><th><strong>1.24</strong></th><td class="mid"><strong>1.73233</strong></td><td class="mid"><strong>0.65685</strong></td><td class="mid"><strong>★ 1.07548</strong></td></tr>
+<tr><th>1.30</th><td class="mid">1.88817</td><td class="mid">0.45790</td><td class="mid">1.43028</td></tr>
+<tr><th>1.40</th><td class="mid">2.12379</td><td class="mid">0.31664</td><td class="mid">1.80714</td></tr>
+<tr class="hi"><th><strong>1.42</strong></th><td class="mid"><strong>2.15049</strong></td><td class="mid"><strong>0.29819</strong></td><td class="mid"><strong>★ 1.85230（最大）</strong></td></tr>
+<tr><th>1.50</th><td class="mid">0.24082</td><td class="mid">0.24082</td><td class="mid">0.00000</td></tr>
+<tr><th>2.00</th><td class="mid">0.09985</td><td class="mid">0.09986</td><td class="mid">0.00001</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ここが決定的</p>
+<p style="margin:6px 0 0"><strong>同じ周波数・同じ入力なのに、答えが二つあります。</strong>どちらになるかは「そこへ至った経路」で決まる ── <em>ヒステリシス</em>。<br>
+\(\omega=1.24\) から \(1.42\) までが二値領域で、上げると \(1.44\) で落ち、下げると \(1.22\) で跳ね上がります。</p>
+<p style="margin:10px 0 0">★ <strong>伝達関数 \(H(\omega)\) は「周波数を入れたら応答が決まる」という関数です。</strong><br>
+<em>答えが二つある以上、関数として定義できません。</em></p>
+<p style="margin:10px 0 0;text-align:center">── <strong>第 1 回から使ってきた「フィルタ」という言葉が、ここで使えなくなります。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ 何が壊れ、何が生き残るか ── ここが本題</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>道具</th><th>出た回</th><th>非線形では</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>重ね合わせ</th><td class="mid">第 1 回</td><td class="mid">★ 壊れる</td><td>非線形の定義そのもの</td></tr>
+<tr><th>伝達関数・フィルタ描像</th><td class="mid">第 1 回</td><td class="mid">★ 壊れる</td><td>04節のヒステリシス</td></tr>
+<tr><th>スペクトルを傾ける描像</th><td class="mid">第 1 回</td><td class="mid">△ 限定的</td><td>周波数が混ざるため</td></tr>
+<tr class="hi"><th><strong>★ 因果律</strong></th><td class="mid">第 8 回</td><td class="mid"><strong>◎ 生き残る</strong></td><td><strong>出力が入力より先に出ないのは変わらない</strong></td></tr>
+<tr class="hi"><th><strong>★ 帯域幅定理</strong></th><td class="mid">第 9 回</td><td class="mid"><strong>◎ 生き残る</strong></td><td><strong>フーリエ変換自体の性質だから</strong></td></tr>
+<tr class="hi"><th><strong>★ 時間の矢（階数の偶奇）</strong></th><td class="mid">第 10 回</td><td class="mid"><strong>◎ 生き残る</strong></td><td><strong>\(t\to-t\) の性質は非線形でも同じ</strong></td></tr>
+<tr class="hi"><th><strong>★ 次元解析</strong></th><td class="mid">第 14 回</td><td class="mid"><strong>◎ 生き残る</strong></td><td><strong>むしろ非線形でこそ主役（乱流）</strong></td></tr>
+<tr class="hi"><th><strong>★ 情報は虚軸に住む</strong></th><td class="mid">第 21 回</td><td class="mid"><strong>◎ 生き残る</strong></td><td>第二法則は非線形でも成り立つ</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節 ── この回いちばんの発見</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>壊れるのは第 I 部の「フィルタ」という描像だけ。<br>第 IV 部の三つの制約は、全部 生き残る。</strong></p>
+<p style="margin:10px 0 0">理由も明確です ── 「フィルタ」は<em>線形性</em>の言葉ですが、</p>
+<p style="margin:8px 0 0;text-align:center">★ <strong>因果律・帯域幅・時間の矢は、線形性ではなく<br>「時間が一方向にしか進まない」ことから来ている。</strong></p>
+<p style="margin:10px 0 0">★ そして第 21 回で見たとおり、<em>その一方向性は複素周波数平面の虚軸のこと</em>でした。<br>
+<strong>虚軸から来た制約は、非線形でも生き残る。</strong></p>
+</div>
+
+<h2><span class="n">06</span>非線形の強さを測る ── 全部 同じ形の無次元量</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>分野</th><th>量</th><th>中身</th><th>記号</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>流体</strong></th><td>レイノルズ数 \(Re\)</td><td class="mid">\((u\cdot\nabla)u\ /\ \nu\nabla^2u\)</td><td class="mid">\(UL/\nu\)</td></tr>
+<tr><th>非線形光学</th><td>非線形位相 \(\varphi_{\rm NL}\)</td><td class="mid">\(n_2I/n_0\)</td><td class="mid">\(\gamma PL\)</td></tr>
+<tr><th>重力</th><td>コンパクト性</td><td class="mid">\(GM/(rc^2)\)</td><td class="mid">第 15 回</td></tr>
+<tr><th>音響</th><td>非線形パラメータ</td><td class="mid">\((B/A)\cdot(u/c)\)</td><td class="mid">音の大きさに比例</td></tr>
+<tr><th>場の理論</th><td>結合定数</td><td class="mid">相互作用項 / 自由項</td><td class="mid">\(\alpha,\ \alpha_s\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>全部「非線形項を線形項で割った無次元量」です。</strong><em>第 7 回の「意味があるのは無次元量だけ」が、ここでも効いています。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>場面</th><th>\(U\) [m/s]</th><th>\(L\) [m]</th><th>\(Re=UL/\nu\)</th><th>流れ</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>精子の遊泳</strong></th><td class="mid">\(10^{-5}\)</td><td class="mid">\(5\times10^{-5}\)</td><td class="mid"><strong>\(5\times10^{-4}\)</strong></td><td><strong>★ 完全に線形（粘性が支配）</strong></td></tr>
+<tr><th>毛細血管の血流</th><td class="mid">\(10^{-3}\)</td><td class="mid">\(8\times10^{-6}\)</td><td class="mid">\(2.7\times10^{-3}\)</td><td>★ 完全に線形</td></tr>
+<tr><th>水道の蛇口</th><td class="mid">1</td><td class="mid">0.01</td><td class="mid">\(10^{4}\)</td><td>乱流</td></tr>
+<tr><th>自動車（100 km/h）</th><td class="mid">27.8</td><td class="mid">4</td><td class="mid">\(7.4\times10^{6}\)</td><td>乱流</td></tr>
+<tr class="hi"><th><strong>地球の大気</strong></th><td class="mid">10</td><td class="mid">\(10^{7}\)</td><td class="mid"><strong>\(6.7\times10^{12}\)</strong></td><td><strong>★ 完全に非線形</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節 ── 線形な世界に住むと、泳ぎ方が変わる</p>
+<p style="margin:6px 0 0"><strong>精子の世界は \(Re\sim10^{-4}\) ── 完全に線形です。</strong>だから「慣性で滑る」ことができず、鞭毛を止めた瞬間に止まる。</p>
+<p style="margin:10px 0 0">★ さらに深い帰結があります ── <strong>線形な世界では、時間反転対称な動きでは前に進めません</strong>（ホタテ貝定理）。<br>
+<em>貝のように「開いて閉じる」を繰り返しても、元の場所に戻るだけ。</em>だから微生物は<strong>らせん状に回る鞭毛</strong>のような、時間反転で元に戻らない動きを使います。</p>
+<p style="margin:10px 0 0">★ <em>第 10 回の「時間の矢は階数の偶奇に住む」が、生物の形を決めていました。</em></p>
+</div>
+
+<h2><span class="n">07</span>非線形が作るもの ── ソリトン</h2>
+
+<p>非線形は壊すだけではありません。<strong>分散と釣り合うと、形が保たれます。</strong></p>
+
+<div class="calc">
+<span class="tag">二つの効果が打ち消しあう</span>
+$$\text{分散：波は広がろうとする（第 16 回）}\qquad\text{非線形：強いところほど位相が遅れる}$$
+$$N^2=\frac{\gamma P_0T_0^2}{|\beta_2|}=1\qquad\textbf{★ 基本ソリトンの条件}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>パルス幅 \(T_0\) [ps]</th><th>必要なピーク電力 \(P_0\) [mW]</th><th>分散長 \(L_D\) [km]</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">15385</td><td class="mid">0.05</td></tr>
+<tr><th>5</th><td class="mid">615</td><td class="mid">1.25</td></tr>
+<tr class="hi"><th><strong>10</strong></th><td class="mid"><strong>154</strong></td><td class="mid"><strong>5.00</strong></td></tr>
+<tr class="hi"><th><strong>20</strong></th><td class="mid"><strong>38</strong></td><td class="mid"><strong>20.0</strong></td></tr>
+<tr><th>50</th><td class="mid">6.2</td><td class="mid">125</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の結論</p>
+<p style="margin:6px 0 0">20 ps のパルスなら 38 mW ── <strong>実用的な値です。</strong>実際、ソリトン伝送は長距離光通信で検討され、一部で使われました。</p>
+<p style="margin:10px 0 0">★ 波の言葉でまとめると ──<br>
+<em>線形な分散だけなら、パルスは必ず広がる（第 16 回）。<br>
+非線形だけなら、波形は歪んで壊れる（02節）。</em><br>
+<strong>★ 二つが釣り合うと、どちらも起きない ── これがソリトン。</strong></p>
+</div>
+
+<h2><span class="n">08</span>摂動論はいつまで効くか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>系</th><th>展開パラメータ</th><th>摂動論</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>QED（電子の \(g-2\)）</strong></th><td class="mid">\(1/137\)</td><td>◎ 5 ループまで計算済み</td></tr>
+<tr><th>QCD（高エネルギー）</th><td class="mid">0.118</td><td>○ 3〜4 ループ</td></tr>
+<tr><th>QCD（低エネルギー）</th><td class="mid">\(\sim1\)</td><td>× 摂動論が使えない → 格子計算</td></tr>
+<tr class="hi"><th><strong>グラフェン（裸）</strong></th><td class="mid"><strong>2.19</strong></td><td><strong>× 第 17 回。机の上の強結合</strong></td></tr>
+<tr class="hi"><th><strong>重力（地表）</strong></th><td class="mid"><strong>\(7\times10^{-10}\)</strong></td><td><strong>◎ 線形近似で 10 桁</strong></td></tr>
+<tr><th>重力（中性子星表面）</th><td class="mid">0.345</td><td>△ 非線形が効く</td></tr>
+<tr><th>重力（地平面）</th><td class="mid">0.5</td><td>× 枠組みごと使えない</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">08節の結論</p>
+<p style="margin:6px 0 0">第 15 回で「地球上では 10 桁 の精度で線形」と書きました。<br>
+★ <em>だから「波の言葉」がこれほどよく効いた</em> ── <strong>それは幸運であって、自然の性質ではありませんでした。</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>ラジオの「混変調」と、オーディオの「高調波歪み」の違いを、02節の表で説明せよ。
+<details><summary>答えを見る</summary><div class="ans">どちらも同じ二乗の項から出ますが、<strong>出る場所が違います</strong>。<br>高調波（2000, 2200 Hz）は入力の整数倍 ── <em>倍音なので音楽的に許容されます</em>。<br>混変調（100, 2100 Hz）は入力の和と差 ── <em>入力と無関係な周波数なので、不協和に聞こえます</em>。<br>★ ラジオでは強い局の信号が弱い局に混入する原因になり、<strong>02節の「差の 100 Hz」がまさにそれ</strong>です。</div></details></li>
+
+<li>非線形なのに「因果律が生き残る」のはなぜか。
+<details><summary>答えを見る</summary><div class="ans">因果律は「出力が入力より先に出ない」という<strong>時間順序の条件</strong>で、線形性とは無関係だから。<br>ただし第 8 回のクラマース＝クローニッヒ関係は<em>線形応答関数</em>についての定理なので、そのままでは使えません。<br>★ <strong>非線形にも拡張があります</strong>（非線形感受率 \(\chi^{(2)}, \chi^{(3)}\) に対する分散関係）── <em>「因果律 ＝ 解析性」という構造自体は、次数ごとに保たれます。</em></div></details></li>
+
+<li>精子が「ホタテ貝のように泳げない」ことと、第 10 回の関係は。
+<details><summary>答えを見る</summary><div class="ans">どちらも<strong>時間反転で何が起きるか</strong>の話です。<br>第 10 回：偶数階の項は \(t\to-t\) で不変 ── だから可逆。<br>本回：\(Re\ll1\) の流れは慣性項（非線形）が消え、<em>粘性項だけの線形方程式になります</em>。その方程式は時間について 1 階で、しかも係数が時間に依らないので、<strong>「開いて閉じる」を逆回しすると完全に元へ戻る</strong>。<br>★ <em>だから前に進むには、形の変化そのものが時間反転で元に戻らない必要がある</em> ── らせんを回す、波を打つ、といった動き。<br>★ <strong>流体のレイノルズ数が、生き物の推進機構を決めていました。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　壊れたのは線形性の言葉だけ</h2>
+<p>第 1 回から使ってきた「フィルタ」「伝達関数」は、すべて<strong>重ね合わせ</strong>を前提にしていました。二乗の項を足すだけで ── <strong>二つ入れて七つ出る</strong>（直流・差・和・二倍音）。<em>線形フィルタには絶対にできないことです。</em></p>
+<p>歪み率で測ると、<strong>人間が気づくのは 1 % 以上</strong>から。<em>日常の「線形な世界」は 0.1 % 程度の非線形を無視した近似</em>で ── <strong>線形性は自然の性質ではなく、小ささの結果でした。</strong></p>
+<p>ダフィング振動子では、<strong>同じ周波数・同じ入力に対して答えが二つ</strong>あります（\(\omega=1.24\sim1.42\) で二値、差は最大 1.85）。<em>関数として定義できない以上、「伝達関数」という言葉が使えません。</em></p>
+<p style="text-align:center"><strong>★ ところが第 IV 部の制約は、全部 生き残りました ──<br>因果律・帯域幅定理・時間の矢、そして次元解析。</strong></p>
+<p>理由は明確です ── <strong>「フィルタ」は線形性の言葉ですが、三つの制約は「時間が一方向にしか進まない」ことから来ている。</strong><em>第 21 回の言葉では、虚軸から来た制約は非線形でも生き残る。</em></p>
+<p>非線形の強さはどの分野でも<strong>「非線形項/線形項」という無次元量</strong>で測られます（\(Re\)、\(n_2I/n_0\)、\(GM/rc^2\)）。<em>精子の世界は \(Re\sim10^{-4}\) で完全に線形 ── だからホタテ貝のようには泳げず、らせんを回す。</em>そして<strong>分散と非線形が釣り合うとソリトン</strong>になります（20 ps なら 38 mW）。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 15 回で挙げた枠組みの限界は四つでした ── <em>定常性・線形性・\(\omega=0\)・小さい効果。</em><br>
+第 22 回で①を、今回で②を扱いました。<strong>残る③は原理的な壁で、④は測定の問題。</strong><br>
+★ 次回は、この連載でまだ一度も正面から扱っていないものを波として見ます ── <strong>時空そのものが波である場合、つまり重力波。</strong><em>階数の言葉では、それは何階なのか。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 23 回です。計算は kenshou/hisenkei.js で行っています。<strong>本回の数値について：</strong>第 02・03 節の非線形は「出力が入力の多項式」という最も単純な形（無記憶非線形）で、実際の増幅器やスピーカーは<em>記憶を持つ非線形</em>（前の状態に依存する）なので、歪みの出方はもっと複雑です。<strong>THD の値は \(a_2, a_3\) を仮定した計算値で、実機の測定値ではありません</strong>（「高級オーディオ」等のたとえは桁の目安）。第 04 節のダフィング振動子は \(\gamma=0.05,\beta=0.3,F=0.3\) での数値解で、<em>跳躍の位置はこれらの値に強く依存します</em>。掃引は各周波数で 60 周期の過渡を捨ててから振幅を測っており、より遅い掃引では跳躍点がわずかに動きます。第 06 節のレイノルズ数は代表値からの概算です。<strong>ホタテ貝定理（パーセルの定理）は低レイノルズ数流れについての厳密な結果ですが、本稿はその要旨を述べただけで導出していません。</strong>ソリトンの条件式は非線形シュレーディンガー方程式の基本ソリトンの標準的な形で、\(\gamma=1.3\times10^{-3}\)/(W·m)、\(\beta_2=-20\) ps²/km という標準的な光ファイバの値を使っています。第 05 節の「非線形でも生き残る」という判定は本稿の整理であり、各項目について厳密な証明を与えたものではありません ── <em>とくに非線形版のクラマース＝クローニッヒは次数ごとの定式化が必要で、線形の場合ほど単純ではありません。</em> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
