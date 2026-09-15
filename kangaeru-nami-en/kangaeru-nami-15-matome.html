@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What physics can be written in wave language, and what cannot｜Thinking in Waves, Episode 15</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1c1d1e; --ink-soft:#4d5052;
+    --paper:#f7f8f8; --paper-edge:#e2e5e6;
+    --side:#3d4548; --side-bg:#eceeef;
+    --warn:#8a4b2f;
+    --calc:#2f3639; --calc-bg:#e9ecec;
+    --rule:#d2d6d7; --hair:#b3babc;
+    --acc:#3d4548;
+    --grid:#e5e8e9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 15 ／ Part VII · Interim summing-up</span></p>
+<p class="eyebrow">The protagonist was never the constants — it was the order</p>
+
+<h1>What physics can be written in wave language,<br>and what cannot ── plus the questions nobody has closed
+<span class="sub">Folding fourteen episodes onto one page. <strong>The opening question (are constants integrals?) came out half right.</strong><br>But somewhere along the way <em>the protagonist had changed</em> ──<br>★ what this series was really chasing was not the constants but the <strong>order</strong>.</span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 1–14</span><span>Computation: all 13 scripts in kenshou/</span></p>
+
+<p class="lead">It began with one observation: differentiating audio makes it brighter.<br><strong>We walked from there to the physical constants; now let us count how far we got.</strong></p>
+
+<h2><span class="n">01</span>The protagonist had changed</h2>
+
+<p>The opening question was <strong>"are all physical constants integrals of something?"</strong> Episode 7 scored it ── <em>half right</em>. Yet the series did not stop there; seven more episodes followed. <strong>What were they chasing?</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Ep.</th><th>Nominal subject</th><th>What was actually being decided</th></tr></thead>
+<tbody>
+<tr><th>1・2</th><td>calculus, and fractional orders</td><td class="mid">the order \(\alpha\) itself</td></tr>
+<tr><th>8</th><td>causality and Kramers–Kronig</td><td class="mid">analyticity of \((i\omega)^\alpha\)</td></tr>
+<tr><th>9</th><td>the uncertainty principle</td><td class="mid">joint resolution in time and frequency</td></tr>
+<tr class="hi"><th><strong>10</strong></th><td><strong>the arrow of time</strong></td><td class="mid"><strong>★ parity of the order</strong></td></tr>
+<tr class="hi"><th><strong>11</strong></th><td><strong>why heat does not travel</strong></td><td class="mid"><strong>★ a mismatch: 1 in time, 2 in space</strong></td></tr>
+<tr class="hi"><th><strong>12</strong></th><td><strong>why the sky is blue</strong></td><td class="mid"><strong>★ squaring a second derivative</strong></td></tr>
+<tr class="hi"><th><strong>13</strong></th><td><strong>imaginary-order differentiation</strong></td><td class="mid"><strong>★ widening the order into a plane</strong></td></tr>
+<tr class="hi"><th><strong>14</strong></th><td><strong>the ladder of spectral exponents</strong></td><td class="mid"><strong>★ three ways to leave the integers</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §01</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>From Part IV onward, this series' protagonist was the order.</strong></p>
+<p style="margin:10px 0 0">Causality, uncertainty, the arrow of time, why heat does not travel, why the sky is blue, turbulence's \(-5/3\) ── <em>all of it reduced to statements about order.</em><br>
+★ <strong>"Are constants integrals?" was the doorway to "what is an order?"</strong></p>
+</div>
+
+<h2><span class="n">02</span>What stood</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Claim</th><th>Verdict</th><th>Evidence</th><th>Ep.</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>differentiation = treble, integration = bass</strong></th><td class="mid"><strong>◎</strong></td><td>\(\pm6.02\) dB/oct, phase \(\pm90°\); 9 digits</td><td class="mid">1</td></tr>
+<tr><th>the order can be moved continuously</th><td class="mid">◎</td><td>dB/oct \(=6\alpha\), phase \(=90\alpha\)</td><td class="mid">2</td></tr>
+<tr><th>half-differentiation is real</th><td class="mid">◎</td><td>Warburg impedance \((i\omega)^{-1/2}\)</td><td class="mid">2</td></tr>
+<tr class="hi"><th><strong>constants are integrals (couplings)</strong></th><td class="mid"><strong>◎</strong></td><td><strong>\(1/\alpha:137.036\to128.940\); matches literature</strong></td><td class="mid">5</td></tr>
+<tr class="hi"><th><strong>mass = cutoff frequency</strong></th><td class="mid"><strong>◎</strong></td><td><strong>Yukawa's 1.41 fm, \(E^2=(pc)^2+(mc^2)^2\)</strong></td><td class="mid">6</td></tr>
+<tr class="hi"><th><strong>causality = analyticity</strong></th><td class="mid"><strong>◎</strong></td><td><strong>Kramers–Kronig verified to 13 digits</strong></td><td class="mid">8</td></tr>
+<tr><th>uncertainty = bandwidth theorem</th><td class="mid">◎</td><td>exactly \(0.5000\) for a Gaussian</td><td class="mid">9</td></tr>
+<tr class="hi"><th><strong>arrow of time = parity of the order</strong></th><td class="mid"><strong>◎</strong></td><td><strong>dissipation \(\propto\sin(\alpha\pi/2)\) to \(10^{-14}\)</strong></td><td class="mid">10</td></tr>
+<tr><th>heat and skin effect share one equation</th><td class="mid">◎</td><td>\(\delta=\sqrt{2D/\omega}\); soil 2.24 m, copper 9.23 mm</td><td class="mid">11</td></tr>
+<tr><th>radiation = second derivative; scattering \(\propto\omega^4\)</th><td class="mid">◎</td><td>blue 4.35× red</td><td class="mid">12</td></tr>
+<tr class="hi"><th><strong>imaginary order = generator of scale transformations</strong></th><td class="mid"><strong>◎</strong></td><td><strong>all-pass to 12 digits; group delay \(-\beta/\omega\)</strong></td><td class="mid">13</td></tr>
+<tr class="hi"><th><strong>exponent denominators divide \(|\det M|\)</strong></th><td class="mid"><strong>◎</strong></td><td><strong>consistent across all six cascades</strong></td><td class="mid">14</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">03</span>What fell</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Claim</th><th>Verdict</th><th>Why</th><th>Ep.</th></tr></thead>
+<tbody>
+<tr><th>mass = integral of the universe's gravity</th><td class="mid">×</td><td>Sciama's 1/2 is an identity; Brans–Dicke excluded at \(10^{-5}\)</td><td class="mid">7</td></tr>
+<tr><th>light speed = integral of information</th><td class="mid">×</td><td>\(c\) is defined; \(l_P/t_P=c\) is a definition, not a discovery</td><td class="mid">7</td></tr>
+<tr><th>the constants vary in time</th><td class="mid">×</td><td>bounds only, in every band; \(|\dot\alpha/\alpha|<10^{-17}\)/yr</td><td class="mid">4</td></tr>
+<tr class="hi"><th><strong>turbulence's \(-5/3\) proves fractional order</strong></th><td class="mid"><strong>×</strong></td><td><strong>★ Navier–Stokes is integer-order; the fraction is dimensional</strong></td><td class="mid">14</td></tr>
+<tr><th>measuring log-periodicity from the impulse response</th><td class="mid">×</td><td>★ the tail is crushed by \(e^{-\beta\pi}\) and loses to a DC artefact</td><td class="mid">13</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§02–03 ── two dividing lines</p>
+<p style="margin:6px 0 0"><strong>Line 1 (Episode 7): hits are dimensionless, misses are dimensionful.</strong><br>
+\(\alpha\) and \(\mu=m_p/m_e\) really are integrals and really run. \(c\), \(\hbar\), \(k_B\) turn into unit conventions and differentiate to zero by definition.</p>
+<p style="margin:10px 0 0">★ <strong>Line 2 (Episode 14): the order of a law and the exponent of a statistic are different things.</strong><br>
+<em>Warburg's \(\alpha=-1/2\) is an equation that is genuinely half-order. Turbulence's \(-5/3\) comes from an integer-order equation, after statistics.</em><br>
+── The same "fraction", entirely different provenance.</p>
+</div>
+
+<h2><span class="n">04</span>Limits of the framework itself</h2>
+
+<p>Precisely because it worked, it is worth writing down where it breaks.</p>
+
+<div class="seven">
+<div class="row"><div class="mk">①</div><div class="txt"><strong>It assumes stationarity</strong><span>Fourier is the tool for things that oscillate the same way forever. A one-off jump spreads thinly over all frequencies and escapes (Episode 4)</span></div></div>
+<div class="row"><div class="mk">②</div><div class="txt"><strong>It assumes linearity</strong><span>waves superpose, but general relativity is non-linear. In strong fields nothing can be written as a "filter"</span></div></div>
+<div class="row hi"><div class="mk">③</div><div class="txt"><strong>\(\omega=0\) is out of reach</strong><span>in principle, because it is the value itself (Episode 3)</span></div></div>
+<div class="row hi"><div class="mk">④</div><div class="txt"><strong>Small effects are invisible</strong><span>★ we failed at this in Episode 13. The log-periodic tail is crushed by \(e^{-\beta\pi}\), \(10^{-6}\) at \(\beta=3\) ── smaller than the numerical artefact</span></div></div>
+</div>
+
+<div class="calc">
+<span class="tag">Putting a number on ② ── how linear is it?</span>
+$$\frac{GM}{Rc^2}:\quad \text{Earth's surface}\ 7\times10^{-10},\quad \text{solar surface}\ 2\times10^{-6},\quad \text{neutron star}\ 0.2,\quad \text{horizon}\ 0.5$$
+<p class="lbl">On Earth it is linear to 10 digits ── which is why wave language works so well<br>★ Near a black hole the framework itself is unusable</p>
+</div>
+
+<h2><span class="n">05</span>The map of orders ── where does physics live?</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Order \(\alpha+i\beta\)</th><th>Physics</th><th>Character</th><th>Ep.</th></tr></thead>
+<tbody>
+<tr><th>\(\alpha=-1\)</th><td>integration (position, potential)</td><td class="mid">\(-6\) dB/oct</td><td class="mid">1</td></tr>
+<tr class="hi"><th><strong>\(\alpha=-1/2\)</strong></th><td><strong>diffusion boundary (Warburg)</strong></td><td class="mid"><strong>★ lower bound</strong></td><td class="mid">2, 11</td></tr>
+<tr><th>\(\alpha=0\)</th><td>identity (elastic, conservative)</td><td class="mid">zero dissipation</td><td class="mid">10</td></tr>
+<tr><th>\(0<\alpha<1\)</th><td>real materials (silica \(6.4\times10^{-6}\), asphalt \(0.5\))</td><td class="mid">dissipation \(\propto\sin(\alpha\pi/2)\)</td><td class="mid">10</td></tr>
+<tr><th>\(\alpha=1\)</th><td>viscosity, diffusion, conduction</td><td class="mid">fully irreversible</td><td class="mid">10, 11</td></tr>
+<tr><th>\(\alpha=2\)</th><td>Newton's law, the wave equation</td><td class="mid">reversible</td><td class="mid">1, 10</td></tr>
+<tr class="hi"><th><strong>\(\alpha=3\)</strong></th><td><strong>radiation reaction (Abraham–Lorentz)</strong></td><td class="mid"><strong>★ past the ceiling; pre-acceleration</strong></td><td class="mid">2, 12</td></tr>
+<tr class="hi"><th><strong>\(\beta\neq0\)</strong></th><td><strong>critical \(1/r^2\), Efimov states</strong></td><td class="mid"><strong>★ log-periodic; ratio 22.7</strong></td><td class="mid">13</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§05 ── a narrow corner</p>
+<p style="margin:6px 0 0"><strong>Physics lives in the narrow rectangle \(\alpha\in[-1/2,\,2]\), \(\beta\approx0\).</strong></p>
+<p style="margin:10px 0 0">Lower bound \(-1/2\): below it no causal response can be built (the diffusion boundary).<br>
+Upper bound 2: above it the Ostrogradsky instability sets in (and indeed order-3 radiation reaction produces pre-acceleration).<br>
+Imaginary part 0: \(\beta\neq0\) requires a special balance such as \(1/r^2\).</p>
+<p style="margin:10px 0 0">★ <em>"Why does physics live in this rectangle?" ── that is the question this series arrived at.</em></p>
+</div>
+
+<h2><span class="n">06</span>Doors still open</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Question</th><th>State</th><th>What would close it</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>Why is \(1/f\) noise universal?</strong></th><td class="mid"><strong>unsolved</strong></td><td>a <em>reason</em> for the \(1/\tau\) distribution. Our "half-integral" story is a restatement</td></tr>
+<tr><th>Is a fractional order always a coarse-graining?</th><td class="mid">hypothesis</td><td>one counterexample refutes it ── <strong>falsifiable</strong></td></tr>
+<tr><th>Where does \(\alpha\approx1/137\) come from?</th><td class="mid">unsolved</td><td>a framework deriving a dimensionless number as an integral. Nobody has one</td></tr>
+<tr><th>Non-zero \(\omega\) components of the constants</th><td class="mid">bounds only</td><td>a few more digits of sensitivity; the Th-229 nuclear clock is a candidate</td></tr>
+<tr><th>The \(10^{-11}\sim10^{-17}\) Hz band</th><td class="mid">thin</td><td>periods of \(10^4\sim10^{10}\) yr; ice cores and varves are unused records</td></tr>
+<tr class="hi"><th><strong>Why are the bounds on the order what they are?</strong></th><td class="mid"><strong>★ new</strong></td><td><strong>can \(-1/2\) and \(2\) come from a single principle?</strong></td></tr>
+<tr class="hi"><th><strong>Is \(\beta\neq0\) only for \(1/r^2\)?</strong></th><td class="mid"><strong>★ new</strong></td><td>is there another mechanism for discrete scale invariance? (Episode 13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§06 ── two new doors</p>
+<p style="margin:6px 0 0">Parts IV–VI <strong>added two questions</strong>, both about the order.</p>
+<p style="margin:10px 0 0"><strong>① Where the bounds \(-1/2\) and \(2\) come from.</strong> At present they are explained separately (the diffusion boundary; Ostrogradsky). <em>If one principle gave both, that would be close to an answer to "why is physics shaped this way".</em></p>
+<p style="margin:10px 0 0"><strong>② What turns the imaginary part on.</strong> The only known case is a critical \(1/r^2\). <em>Are there others, or is \(1/r^2\) essentially unique?</em> ── if Episode 13's hypothesis is right (that \(1/r^2\) is the only potential with the same \(r\)-dependence as the kinetic energy), then the latter.</p>
+<p style="margin:10px 0 0">※ We have solved neither. <strong>Putting them into the form of questions is the result.</strong></p>
+</div>
+
+<h2><span class="n">07</span>Folding it onto one page</h2>
+
+<div class="calc">
+<span class="tag">The whole series</span>
+$$\frac{d}{dt}\ \to\ \times(i\omega),\qquad \int dt\ \to\ \times\frac{1}{i\omega},\qquad D^{\alpha+i\beta}\ \to\ \times\,\omega^\alpha e^{-\beta\pi/2}e^{i(\alpha\pi/2+\beta\ln\omega)}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Concept in physics</th><th>In wave language</th></tr></thead>
+<tbody>
+<tr><th>position → velocity → acceleration</th><td>tilt the spectrum by \(+6\) dB/oct each time</td></tr>
+<tr><th>the constant of integration \(+C\)</th><td>the \(\omega=0\) component (undeterminable)</td></tr>
+<tr><th>physical constants</th><td>components with period longer than the observation window</td></tr>
+<tr class="hi"><th><strong>mass</strong></th><td><strong>cutoff frequency \(mc^2/\hbar\)</strong></td></tr>
+<tr><th>range of a force</th><td>evanescent decay length below cutoff</td></tr>
+<tr class="hi"><th><strong>coupling constants</strong></th><td><strong>non-DC components on the \(\ln E\) axis</strong></td></tr>
+<tr class="hi"><th><strong>causality</strong></th><td><strong>analyticity in the upper half-plane (real and imaginary parts determine each other)</strong></td></tr>
+<tr><th>the uncertainty principle</th><td>the bandwidth theorem times \(\hbar\)</td></tr>
+<tr class="hi"><th><strong>the arrow of time</strong></th><td><strong>parity of the order; dissipation is \(\sin(\alpha\pi/2)\)</strong></td></tr>
+<tr><th>heat conduction / skin effect</th><td>1 in time, 2 in space → \(\omega=-iDk^2\)</td></tr>
+<tr><th>radiation, Rayleigh scattering</th><td>second derivative squared → \(\omega^4\)</td></tr>
+<tr class="hi"><th><strong>scale invariance</strong></th><td><strong>the imaginary part of the order; phase \(\beta\ln\omega\)</strong></td></tr>
+<tr><th>turbulence's \(-5/3\)</th><td>the dimensional matrix has determinant 3</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The final answer</p>
+<p style="margin:6px 0 0">"Are all physical constants integrals of something?" ──<br>
+<strong>Half right, and the right half sits at the centre of particle physics.</strong></p>
+<p style="margin:10px 0 0">The right half: <em>couplings are literally the integral of a beta function.</em> \(1/\alpha\) runs from 137.036 to 128.940.<br>
+The wrong half: <em>dimensionful constants cannot be integrated into.</em> They turn into unit conventions.</p>
+<p style="margin:10px 0 0;text-align:center;font-size:17px">★ <strong>And the real answer lay outside the question ──<br>what this series found was not "what constants are" but "the axis of order".</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Name this series' biggest hit and biggest miss.
+<details><summary>Show answer</summary><div class="ans"><strong>Hit: mass = cutoff frequency (Episode 6).</strong> The Yukawa potential, \(E=mc^2\) and the relativistic energy relation all came out of one dispersion relation.<br><strong>Miss: mass = the integral of the universe's gravity (Episode 7).</strong> A beautiful 1/2 appeared, but it was an identity, and the testable version is excluded at \(10^{-5}\).<br><em>What is striking is that the same "mass" succeeded completely one way and failed completely the other.</em> The difference: seen as a wave, or seen as an integral.<br>★ And <strong>the biggest surprise was Episode 13</strong> ── making the order imaginary moved us from time translation to scale transformation, an entirely different symmetry.</div></details></li>
+
+<li>There are two kinds of "fractional order". Distinguish them.
+<details><summary>Show answer</summary><div class="ans"><strong>① The law itself is fractional-order</strong>: the Warburg impedance \((i\omega)^{-1/2}\), the springpot of viscoelasticity. <em>A fractional operator literally appears in the equation.</em><br><strong>② The exponent of a statistic is fractional</strong>: turbulence's \(-5/3\). <em>The governing equation (Navier–Stokes) stays integer-order; the fraction comes from dividing dimensions.</em><br>★ How to tell: <strong>① has memory (an integral kernel), ② does not.</strong> ① is one system's response; ② is the statistical average over many degrees of freedom.<br><em>Episode 14 is where we noticed we had been conflating them.</em></div></details></li>
+
+<li>Where should this view be taken next?
+<details><summary>Show answer</summary><div class="ans">Two directions.<br><strong>A: toward dimensionless quantities</strong> (Episode 8's answer). Of the Standard Model's twenty-odd dimensionless parameters, <em>not one</em> has been derived as "the integral of" anything. Couplings run, but their initial values remain inputs.<br><strong>B: toward the boundaries of the order</strong> (this episode's answer). <em>Why \(\alpha\in[-1/2,\,2]\)?</em> The lower bound is causality, the upper stability ── but <strong>both look as though they come from time running one way only.</strong><br>★ B has the narrower reach but <em>a sharper question</em>, which makes it easier to start on ── that is the impression after fifteen episodes.</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　The framework stood, and the protagonist changed</h2>
+<p>It began with "differentiating audio makes it brighter". Measured: <strong>\(\pm6.02\) dB/oct, phase \(\pm90°\), nine digits</strong> ── the foundation was exact.</p>
+<p>Making the order continuous, \(\alpha=-1/2\) turned out to be real, and at \(\omega=0\) the \(1/\omega\) diverges ── <strong>the true identity of the constant of integration</strong>, where the physical constants live. In time they are flat, but <strong>change the axis to \(\ln E\) and \(1/\alpha\) runs from 137.036 to 128.940</strong> ── <em>"constants are integrals" is literally true there.</em></p>
+<p>Seen as a wave, mass is a <strong>cutoff frequency</strong>. Seen as an integral of gravity, the beautiful 1/2 is an identity and the testable form is excluded. <em>Hits are dimensionless, misses are dimensionful.</em></p>
+<p>And from Part IV the protagonist changed ── <strong>causality is analyticity, uncertainty is the bandwidth theorem, the arrow of time is the parity of the order, heat does not travel because the orders are mismatched, the sky is blue because a second derivative was squared, and turbulence's \(-5/3\) is a determinant.</strong> Then in Episode 13 the order widened into the imaginary direction and became <strong>the generator of scale transformations</strong>.</p>
+<p style="text-align:center"><strong>★ Physics lives in the narrow rectangle \(\alpha\in[-1/2,\,2]\), \(\beta\approx0\).<br>"Why this rectangle?" ── that is the wall this series reached.</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">A pause here (Episodes 1–15)</span>
+Doors closed: <em>mass = integral of gravity (refuted), light speed = integral of information (a matter of definition), time variation of the constants (bounds only), turbulence = evidence of fractional order (a different animal).</em><br>
+Doors still open: <strong>the origin of \(1/f\), fractional order versus coarse-graining, the value of \(\alpha\), the \(10^{4}\sim10^{10}\) yr observational gap, why the bounds on the order are what they are, and whether \(\beta\neq0\) needs \(1/r^2\).</strong><br>
+── And <strong>Part VIII begins</strong>. We have said repeatedly that \(c\) is a defined value and cannot be differentiated; <em>but an effective speed of light can be</em>. Do the same for mass and ── ★ <strong>the Taylor expansion of the dispersion relation gives mass, speed and mass again at orders 0, 1 and 2.</strong>
+</div>
+
+<p class="foot">This document is Episode 15 of the series "Thinking in Waves". The computations are the 13 scripts in kenshou/ (nami.js, bunsuu.js, teisu.js, hashiru.js, shadan.js, shitsuryo.js, inga.js, fukakutei.js, yajirushi.js, netsu.js, housha.js, kyosu.js, hashigo.js), all plain Node with no dependencies. <strong>On this episode:</strong> there is no new computation; it summarises Episodes 1–14. <strong>We folded the series here once, but reader questions have led to Part VIII and beyond</strong> (effective light speed, effective mass, the origin of mass, decay constants, the \(c\cdot t=\)const coordinate system, information). <em>The \(GM/(Rc^2)\) values in §04 are rough figures from representative parameters.</em> The "open doors" in §06 are our own framing and do not imply that researchers in those fields see them that way ── <strong>in particular "filling the \(\alpha\) gap with ice cores and varves", "deriving both bounds on the order from one principle" and "is \(\beta\neq0\) only \(1/r^2\)?" are all our own speculations.</strong> That the origin of \(1/f\) noise is unsolved is widely accepted, but our "half-integral" story is a restatement rather than an explanation. The bounds \(-1/2\) and \(2\) are <em>boundaries within the scope we treated</em>, not statements about the mathematical domain of fractional calculus. "Dimensionful is bookkeeping, dimensionless is physics" is the framing established in the sister series "Understanding c·t = constant", rediscovered here from the wave side. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens the solutions.</p>
+</body>
+</html>
