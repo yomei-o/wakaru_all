@@ -1,0 +1,202 @@
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 54 回 ／ 第 XVIII 部・誤差棒をつける</span></p>
+<p class="eyebrow">「範囲は \(\log N\)」に、抜け道はあるのか</p>
+
+<h1>範囲を「買う」方法はあるのか ──<br><strong>時間では買えないが、装置の数では買える</strong>
+<span class="sub">第 53 回の結論は<strong>「範囲は \(\log N\)」</strong>でした。<em>★ ではどうすれば範囲を増やせるのか。</em><br>★ 買い方は三つ ── <strong>貼り合わせる、別の観測量を使う、系そのものを変える。</strong><br>★★ そして値段も出ました ── <em>貼り合わせは「\(1\) dB の較正ずれを 3 桁 離れた帯域の間に置くと 0.1 dB/oct」。</em><strong>第 42 回の目標（0.081）と同じ大きさです。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 8, 42, 51, 52, 53 回</span><span>計算：kenshou/kau.js</span></p>
+
+<p class="lead">第 53 回で<strong>「範囲が足りない問題は、測定を増やしても解けない」</strong>と分かりました。<br><em>★ この回は、実験家が実際にやっている抜け道を、本シリーズの言葉で数えます。</em></p>
+
+<h2><span class="n">01</span>買い方は三つしかない</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>買い方</th><th>中身</th><th>要るもの</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① 貼り合わせる</strong></th><td>違う帯域の測定をつなぐ</td><td><strong>★ 装置を増やす</strong></td></tr>
+<tr class="hi"><th><strong>② 別の観測量を使う</strong></th><td>同じ物理を別の量で見る</td><td><strong>★ 補正が打ち消しあう形を探す</strong></td></tr>
+<tr class="hi"><th><strong>③ 系そのものを変える</strong></th><td>より広い慣性領域を持つ対象へ</td><td><strong>★ レイノルズ数を上げる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>「もっと長く測る」は入っていません</strong> ── <em>第 53 回のとおり \(\log N\) だから。</em></p>
+
+<h2><span class="n">02</span>★ 貼り合わせ ── 較正誤差が、そのまま傾きの誤差になる</h2>
+
+<p>帯域 A と B をつないで直線を当てます。B の利得が \(\delta\) dB ずれていると、傾きがどれだけずれるか。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>帯域の間隔［桁］</th><th>\(\delta=0.2\) dB</th><th>\(\delta=0.5\) dB</th><th>\(\delta=1\) dB</th><th>\(\delta=2\) dB</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.04499</td><td class="mid">0.11247</td><td class="mid">0.22494</td><td class="mid">0.44989</td></tr>
+<tr><th>2</th><td class="mid">0.02769</td><td class="mid">0.06923</td><td class="mid">0.13845</td><td class="mid">0.27690</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">0.01929</td><td class="mid">0.04821</td><td class="mid"><strong>★ 0.09643</strong></td><td class="mid">0.19285</td></tr>
+<tr><th>6</th><td class="mid">0.00991</td><td class="mid">0.02477</td><td class="mid">0.04954</td><td class="mid">0.09908</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">解析での見積もり（帯域を点とみなした場合）</span>
+$$\text{傾きのずれ [dB/oct]}\approx\frac{0.3\times\delta\,[\mathrm{dB}]}{\text{中心間の桁数}}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">\(S=3,\ \delta=1\) dB で実測 0.0964、予言 0.1000 ── <em>帯域に幅があるぶん実測のほうが少し小さくなります。</em><br>
+★★★ <strong>1 dB の較正ずれを 3 桁 離れた帯域の間に置くと 0.1 dB/oct。</strong><em>第 42 回の 0.081 dB/oct と同じ大きさです。</em><br>
+★★ <strong>つまり貼り合わせで 3 桁 稼ぐには、較正を 0.8 dB より良くする必要があります。</strong><br>
+★ <em>逆に言うと ── <strong>離れた帯域どうしなら、較正の要求は緩くなります</strong></em>（6 桁 離せば 1 dB で 0.05）。<strong>「遠くの装置ほど、つなぐのが楽」という一見 逆の結論です。</strong></p>
+</div>
+
+<h2><span class="n">03</span>★★ 別の観測量 ── 補正が打ち消しあう形を探す</h2>
+
+<div class="calc">
+<span class="tag">仮定：すべての \(S_p\) が共通の \(\rho\) の冪</span>
+$$S_p(r)=\rho(r)^{\zeta_p},\qquad \rho(r)=r\,h(r)\ (h\ \text{は端の補正})$$
+</div>
+
+<p>この形なら \(\ln S_p\) 対 \(\ln r\) は曲がりますが、<strong>\(\ln S_p\) 対 \(\ln S_3\) は \(h\) の形によらず傾き \(\zeta_p/\zeta_3\) の直線</strong>になります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\)</th><th>\(\zeta_p\)（真）</th><th>\(\ln S_p\) 対 \(\ln r\)</th><th>★ \(\ln S_p\) 対 \(\ln S_3\)</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.360919</td><td class="mid">4.45 桁</td><td class="mid">★ 9.00 桁</td></tr>
+<tr><th>2</th><td class="mid">0.693721</td><td class="mid">4.16 桁</td><td class="mid">★ 9.00 桁</td></tr>
+<tr><th>3</th><td class="mid">1.000000</td><td class="mid">4.00 桁</td><td class="mid">★ 9.00 桁</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid"><strong>1.785875</strong></td><td class="mid"><strong>3.75 桁</strong></td><td class="mid"><strong>★ 9.00 桁（全域）</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>\(\ln S_3\) を横軸にすると、補正 \(h(r)\) が完全に打ち消えます</strong> ── <em>4 桁 が 9 桁（全域）に。</em><br>
+★★ <em>これが実験で使われている<strong>「拡張自己相似（ESS）」</strong>の考え方です。</em><br>
+★★★ <strong>ただし ── 打ち消えるのは「\(S_p\) が共通の \(\rho\) の冪」という仮定を置いたからで、それ自体は証明ではありません。</strong><br>
+★ <em>本稿が示したのは<strong>「その仮定が成り立つなら範囲は買える」</strong>までです。</em>第 43 回の作法どおり、<strong>仮定は仮定と書きます。</strong></p>
+</div>
+
+<h2><span class="n">04</span>★ 系を変える ── 慣性領域はレイノルズ数の 3/4 乗</h2>
+
+<div class="calc">
+<span class="tag">コルモゴロフ長 \(\eta\) と外部スケール \(L\) の比</span>
+$$\frac{L}{\eta}=Re^{3/4}\qquad\Longrightarrow\qquad \text{慣性領域の桁数}=\frac34\log_{10}Re$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>場面</th><th>\(Re\)</th><th>★ 慣性領域［桁］</th><th>第 51 回の最良誤差</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>実験室の乱流</strong></th><td class="mid">\(10^4\)</td><td class="mid"><strong>3.00</strong></td><td class="mid"><strong>≈ 0.1793 dB/oct</strong></td></tr>
+<tr><th>風洞</th><td class="mid">\(10^6\)</td><td class="mid">4.50</td><td class="mid"></td></tr>
+<tr><th>自動車のまわり</th><td class="mid">\(10^7\)</td><td class="mid">5.25</td><td class="mid"></td></tr>
+<tr><th>大型の風洞</th><td class="mid">\(10^9\)</td><td class="mid">6.75</td><td class="mid">&lt; 0.06 dB/oct</td></tr>
+<tr class="hi"><th><strong>地球の大気</strong></th><td class="mid">\(10^{12}\)</td><td class="mid"><strong>9.00</strong></td><td class="mid"><strong>&lt; 0.06 dB/oct</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>慣性領域を 1 桁 増やすには \(Re\) を \(10^{4/3}=21.5\) 倍 にする必要があります。</strong><br>
+★★★ <em>ここでも対数です</em> ── <strong>ただし「対象を変えるだけで桁が動く」のが違います。</strong><br>
+★ <em>実験室（\(Re=10^4\)、3 桁）から大気（\(Re=10^{12}\)、9 桁）まで 6 桁 の差</em> ── <strong>第 51 回の表では 3 桁 で 0.18、6 桁 で 0.059 dB/oct でした。</strong></p>
+</div>
+
+<h2><span class="n">05</span>三つを合わせると、どこまで行けるか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>手段</th><th>得られるもの</th><th>代償</th></tr></thead>
+<tbody>
+<tr><th>測定時間を増やす</th><td>精度 \(N^{-1/2}\)</td><td>範囲は \(\log N\) でしか伸びない</td></tr>
+<tr class="hi"><th><strong>★ 装置を貼り合わせる</strong></th><td><strong>★ 範囲が装置の数に比例</strong></td><td><strong>★ 較正 0.8 dB 以内（02 節）</strong></td></tr>
+<tr class="hi"><th><strong>★ ESS など別の観測量</strong></th><td><strong>★ 範囲がほぼ全域に</strong></td><td><strong>★ 仮定を一つ置く（03 節）</strong></td></tr>
+<tr class="hi"><th><strong>★ \(Re\) を上げる</strong></th><td><strong>★ 慣性領域 \(\propto\frac34\log Re\)</strong></td><td><strong>★ 装置の規模</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>三つとも「範囲」を買っていますが、買い方が違います ──<br>貼り合わせは<em>装置の数に比例（線形）</em>、<br>別の観測量は<em>仮定と引き換えに一気に</em>、<br>系を変えるのは<em>\(Re\) の対数（でも対象を変えれば大きく動く）</em>。</strong></p>
+<p style="margin:10px 0 0">★★ <strong>第 53 回の「範囲は \(\log N\)」は、「同じ系を、同じ装置で、長く測る」場合に限った話でした。</strong><br>
+★★★ <em>装置を増やせば、範囲は<strong>線形に</strong>買えます</em> ── <strong>そこが抜け道です。</strong></p>
+</div>
+
+<h2><span class="n">06</span>買えないもの</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>やりたいこと</th><th>判定</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>同じ系を長く測って範囲を買う</th><td class="mid">× 無理</td><td>★ \(\log N\)（第 53 回）</td></tr>
+<tr class="hi"><th><strong>較正なしで貼り合わせる</strong></th><td class="mid"><strong>× 無理</strong></td><td><strong>★ 1 dB / 3 桁 = 0.1 dB/oct</strong></td></tr>
+<tr class="hi"><th><strong>仮定なしで ESS を使う</strong></th><td class="mid"><strong>× 無理</strong></td><td><strong>★ 共通の \(\rho\) を仮定している</strong></td></tr>
+<tr><th>\(f(\alpha)\) の端に届く</th><td class="mid">× 無理</td><td>★ 第 52 回。標本の対数で決まる</td></tr>
+<tr><th>系に無い慣性領域を作る</th><td class="mid">× 無理</td><td>★ \(Re\) が決める</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">07</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>★ 貼り合わせの較正要求</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ \(0.3\delta/\)（桁の間隔）</strong></td></tr>
+<tr><th>1 dB / 3 桁 = 0.1 dB/oct</th><td class="mid">◎ 数値</td><td>★ 第 42 回の目標と同じ大きさ</td></tr>
+<tr class="hi"><th><strong>★★ ESS は補正を打ち消す</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 4 桁 → 9 桁（全域）</strong></td></tr>
+<tr><th>ただし仮定を一つ置く</th><td class="mid">◎ 明記</td><td>★ 共通の \(\rho\) の冪という形</td></tr>
+<tr><th>慣性領域 \(=\frac34\log_{10}Re\)</th><td class="mid">◎ 数値</td><td>実験室 3 桁、大気 9 桁</td></tr>
+<tr><th>1 桁 増やすには \(Re\) を 21.5 倍</th><td class="mid">◎ 数値</td><td>ここでも対数</td></tr>
+<tr class="hi"><th><strong>★★ 装置の数には線形</strong></th><td class="mid"><strong>◎ 論理</strong></td><td><strong>★ 第 53 回の抜け道</strong></td></tr>
+<tr class="hi"><th><strong>★ 実データでの検証</strong></th><td class="mid"><strong>× 未着手</strong></td><td><strong>★ 本稿も合成データのみ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>02 節で「離れた帯域どうしほど較正が楽」と出た。直観に反するが、なぜか。
+<details><summary>答えを見る</summary><div class="ans"><strong>傾きは「縦のずれ ÷ 横の距離」だからです。</strong>同じ縦のずれ \(\delta\) でも、横に離れているほど傾きへの影響は小さくなります。<br>★ <em>1 dB のずれは、1 桁 離れていれば 0.22 dB/oct、6 桁 離れていれば 0.05 dB/oct。</em><br>★★ <strong>ただし「離す」と、その間に何もない空白ができます</strong> ── <em>空白の中で本当に同じ冪則が続いているかは、別に確かめなければなりません。</em><br>★ <strong>つまり離すほど較正は楽になり、外挿の仮定は重くなる</strong> ── <em>ここでも何かと引き換えです。</em></div></details></li>
+
+<li>03 節の ESS は「範囲を買った」と言ってよいか。
+<details><summary>答えを見る</summary><div class="ans"><strong>条件つきで、はい。</strong>買ったのは<em>「\(S_p\) がすべて共通の \(\rho\) の冪である」という仮定と引き換え</em>です。<br>★ <em>その仮定が正しければ、補正 \(h(r)\) は完全に打ち消え、全域が使えます</em>（本稿の数値では 4 桁 → 9 桁）。<br>★★ <strong>正しくなければ、打ち消しは不完全で、しかも「直線に見える」ので気づきにくい</strong> ── <em>これがいちばん危険なところです。</em><br>★★★ <strong>本シリーズの立場では、ESS で出した \(\zeta_p\) は「仮定つきの値」と明記すべきです。</strong><em>第 43 回の「整理を発見と呼ばない」と同じ作法 ── <strong>仮定を測定結果と呼ばない。</strong></em></div></details></li>
+
+<li>04 節で \(Re\) を上げれば慣性領域が広がると出た。では \(Re\) はいくらでも上げられるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>実験室ではほぼ頭打ちです。</strong>\(Re=UL/\nu\) なので、上げる手は三つ ── <em>速さ \(U\)、大きさ \(L\)、動粘度 \(\nu\)。</em><br>★ <em>\(U\) は音速で頭打ち（圧縮性が入ると別の物理になる）、\(L\) は建物の大きさ、\(\nu\) は流体の選択（低温ヘリウムで \(\nu\) を数桁 下げられる）。</em><br>★★ <strong>だから \(Re=10^7\) 程度が実験室の実用上限で、それ以上は大気や海洋を「使う」ことになります</strong>（\(Re=10^{12}\)）。<br>★★★ <em>ただし自然を使うと、今度は<strong>制御できない</strong>という代償がつきます</em> ── <strong>等方性も定常性も保証されません。</strong>★ <em>第 22 回の「定常性の仮定」が、ここで戻ってきます。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　時間では買えないが、装置の数では買える</h2>
+<p>第 53 回の結論は<strong>「範囲は \(\log N\)」</strong>でした。この回では、その抜け道を三つ数えました ── <em>貼り合わせる、別の観測量を使う、系そのものを変える。</em></p>
+<p>★ <strong>貼り合わせの値段</strong>：傾きのずれ \(\approx0.3\delta[\mathrm{dB}]/\)（中心間の桁数）。<em>\(1\) dB の較正ずれを 3 桁 離れた帯域の間に置くと <strong>0.1 dB/oct</strong> ── 第 42 回の目標（0.081）と同じ大きさです。</em><strong>3 桁 稼ぐには較正を 0.8 dB より良くする必要があります。</strong></p>
+<p>★★ <strong>別の観測量</strong>：\(S_p=\rho^{\zeta_p}\) という形なら、\(\ln S_3\) を横軸にすると補正が<em>完全に打ち消え</em>、<strong>4 桁 が 9 桁（全域）に</strong>。<em>これが実験で使われる ESS の考え方ですが ── <strong>打ち消えるのは仮定を置いたからで、それ自体は証明ではありません。</strong></em></p>
+<p>★ <strong>系を変える</strong>：慣性領域の桁数 \(=\frac34\log_{10}Re\)。<em>実験室（\(10^4\)）で 3 桁、大気（\(10^{12}\)）で 9 桁。1 桁 増やすには \(Re\) を 21.5 倍。</em></p>
+<p style="text-align:center"><strong>★★★ 本回の要 ── 三つとも範囲を買っていますが、買い方が違います。<br>貼り合わせは<em>装置の数に比例（線形）</em>、<br>別の観測量は<em>仮定と引き換えに一気に</em>、<br>系を変えるのは<em>\(Re\) の対数</em>。</strong></p>
+<p>★★ <strong>第 53 回の「範囲は \(\log N\)」は、「同じ系を、同じ装置で、長く測る」場合に限った話でした。</strong><em>装置を増やせば、範囲は<strong>線形に</strong>買えます。</em><br>
+★ <strong>正直に</strong>：<em>本稿も合成データのみで、実データには当てていません。</em>★ そして<strong>三つとも代償があります</strong> ── 較正、仮定、装置の規模。<em>ただで手に入る範囲は、やはりありませんでした。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 51 回から 4 回、<strong>「どこまで言えるか」</strong>を数えてきました。<br>
+★ <strong>次回は第 XVIII 部を締めます</strong> ── <em>この 4 回で手引き（第 49 回）がどう変わったかを、一枚に書き直します。</em><br>
+★★ <strong>そして本シリーズが最初から使ってきた数字のうち、どれが「仮定つき」だったかを洗い直します。</strong><em>第 43・50 回の採点を、もう一段 細かくする回です。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 54 回です。計算は kenshou/kau.js で行っています。<strong>本回の数値について：</strong>貼り合わせによる傾きのずれ、ESS 形式での平坦領域の比較、レイノルズ数と慣性領域の桁数は、すべて本稿で計算したものです。<strong>拡張自己相似（ESS）の考え方、\(L/\eta=Re^{3/4}\)、そして較正誤差が傾きに与える影響の一般的な形 ── これらはいずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>それらを「範囲をどう買うか」という一つの問いの下に並べ、値段を dB/oct という本シリーズの単位で数字にしたこと</em>です。<em>03 節の ESS は「すべての \(S_p\) が共通の \(\rho\) の冪である」という仮定の下での計算で、その仮定の妥当性は本稿では検証していません。実験で ESS を用いて得られた \(\zeta_p\) は、本シリーズの基準では「仮定つきの値」です。</em>02 節の解析的な見積もり \(0.3\delta/\)（桁の間隔）は帯域を点とみなした近似で、帯域に幅があると実測のほうが小さくなります（\(S=3\) で 0.0964 対 0.1000）。04 節の \(Re\) と慣性領域の対応は標準的な次元解析によるもので、実際の慣性領域は等方性・定常性の程度にも依存します。<strong>本稿も合成データのみで、実際の測定データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
