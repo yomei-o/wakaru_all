@@ -1,0 +1,274 @@
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 23 / Part X — Breaking the Assumption</span></p>
+<p class="eyebrow">Breaking, head-on, the assumption this series has carried throughout</p>
+
+<h1>Nonlinearity —<br>Where the word "filter" stops working
+<span class="sub">"Filter" and "transfer function," used since Episode 1, <strong>all presuppose linearity.</strong><br>Break it and — <em>frequencies you never put in are born, and the transfer function stops being definable.</em><br>★ And yet <strong>all three constraints of Part IV survived.</strong></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 1, 8, 9, 10, 14, 16</span><span>Computation: kenshou/hisenkei.js</span></p>
+
+<p class="lead">Episode 15 listed four limitations of the framework. Episode 22 plugged ① (stationarity).<br><strong>The largest remaining hole is ②, linearity.</strong> <em>This time we break it head-on.</em></p>
+
+<h2><span class="n">01</span>The assumption this series has carried</h2>
+
+<div class="calc">
+<span class="tag">What the word "filter" actually contains</span>
+$$L[a\,x+b\,y]=a\,L[x]+b\,L[y]\qquad\textbf{★ superposition}$$
+<p class="lbl">Superposition is what let us think sinusoid by sinusoid — without it, the very idea of a "frequency response" does not exist</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Property</th><th>Linear</th><th>Nonlinear</th><th>What it means</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>superposition</strong></th><td class="mid">holds</td><td class="mid"><strong>★ breaks</strong></td><td>the input cannot be split up</td></tr>
+<tr class="hi"><th><strong>transfer function \(H(\omega)\)</strong></th><td class="mid">definable</td><td class="mid"><strong>★ not definable</strong></td><td>the response depends on the input's size</td></tr>
+<tr><th>conservation of frequency</th><td class="mid">holds</td><td class="mid">★ they mix</td><td>frequencies you never put in come out</td></tr>
+<tr><th>meaning of Fourier decomposition</th><td class="mid">complete</td><td class="mid">limited</td><td>splitting no longer makes the parts independent</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">02</span>The simplest nonlinearity — new frequencies are born</h2>
+
+<div class="calc">
+<span class="tag">Just add a squared term</span>
+$$y=x+\varepsilon x^2,\qquad x=\sin(2\pi\cdot1000\,t)+\sin(2\pi\cdot1100\,t),\qquad \varepsilon=0.1$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>frequency [Hz]</th><th>amplitude</th><th>what it is</th></tr></thead>
+<tbody>
+<tr><th>1000</th><td class="mid">1.000000</td><td>input \(f_1\)</td></tr>
+<tr><th>1100</th><td class="mid">1.000000</td><td>input \(f_2\)</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>0.200000</strong></td><td><strong>★ DC (the rectified part)</strong></td></tr>
+<tr class="hi"><th><strong>100</strong></th><td class="mid"><strong>0.100000</strong></td><td><strong>★ difference \(f_2-f_1\)</strong></td></tr>
+<tr><th>2100</th><td class="mid">0.100000</td><td>★ sum \(f_1+f_2\)</td></tr>
+<tr><th>2000</th><td class="mid">0.050000</td><td>★ second harmonic \(2f_1\)</td></tr>
+<tr><th>2200</th><td class="mid">0.050000</td><td>★ second harmonic \(2f_2\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §02</p>
+<p style="margin:6px 0 0"><strong>Two went in; seven came out.</strong><br>
+★ <em>A linear filter can never do this</em> — all it can do is strengthen or weaken the frequencies you put in.</p>
+<p style="margin:10px 0 0">Look at the difference frequency, <strong>100 Hz</strong>. ★ <em>A frequency lower than either input has been born.</em><br>
+This is <strong>intermodulation</strong>, the most disliked distortion in audio — harmonics are octave-related and musical, but difference tones are dissonant.</p>
+</div>
+
+<h2><span class="n">03</span>Measuring distortion — linearity turned out to mean smallness</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(a_2\)</th><th>\(a_3\)</th><th>THD [%]</th><th>Comparable to</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">0</td><td class="mid">0.0000</td><td>perfectly linear</td></tr>
+<tr><th>\(10^{-4}\)</th><td class="mid">0</td><td class="mid">0.0050</td><td>high-end audio</td></tr>
+<tr class="hi"><th><strong>\(10^{-3}\)</strong></th><td class="mid">0</td><td class="mid"><strong>0.0500</strong></td><td><strong>an ordinary amplifier</strong></td></tr>
+<tr><th>\(10^{-2}\)</th><td class="mid">0</td><td class="mid">0.5000</td><td>a cheap loudspeaker</td></tr>
+<tr><th>0.1</th><td class="mid">0</td><td class="mid">5.0000</td><td>★ the value used in §02</td></tr>
+<tr class="hi"><th><strong>0.3</strong></th><td class="mid">0.3</td><td class="mid"><strong>13.69</strong></td><td><strong>★ a guitar distortion pedal</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The conclusion of §03</p>
+<p style="margin:6px 0 0">People are usually said to notice distortion from about <strong>1 % upward</strong>.<br>
+★ <em>So the everyday "linear world" was an approximation that ignored nonlinearity at the 0.1 % level.</em></p>
+<p style="margin:10px 0 0;text-align:center"><strong>Linearity is not a property of nature but a consequence of smallness.</strong></p>
+</div>
+
+<h2><span class="n">04</span>The transfer function stops being definable — the Duffing oscillator</h2>
+
+<div class="calc">
+<span class="tag">Make the spring slightly stiffer at larger amplitude</span>
+$$\ddot x+2\gamma\dot x+\omega_0^2x+\beta x^3=F\cos(\omega t),\qquad \gamma=0.05,\ \beta=0.3,\ F=0.3$$
+</div>
+
+<p>We compare the response while sweeping the frequency slowly <strong>up</strong> and then <strong>down</strong>. <em>If it were linear they would be identical.</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>sweeping up</th><th>sweeping down</th><th>difference</th></tr></thead>
+<tbody>
+<tr><th>1.00</th><td class="mid">1.08409</td><td class="mid">1.08409</td><td class="mid">0.00000</td></tr>
+<tr><th>1.20</th><td class="mid">1.62561</td><td class="mid">1.62561</td><td class="mid">0.00000</td></tr>
+<tr class="hi"><th><strong>1.24</strong></th><td class="mid"><strong>1.73233</strong></td><td class="mid"><strong>0.65685</strong></td><td class="mid"><strong>★ 1.07548</strong></td></tr>
+<tr><th>1.30</th><td class="mid">1.88817</td><td class="mid">0.45790</td><td class="mid">1.43028</td></tr>
+<tr><th>1.40</th><td class="mid">2.12379</td><td class="mid">0.31664</td><td class="mid">1.80714</td></tr>
+<tr class="hi"><th><strong>1.42</strong></th><td class="mid"><strong>2.15049</strong></td><td class="mid"><strong>0.29819</strong></td><td class="mid"><strong>★ 1.85230 (max)</strong></td></tr>
+<tr><th>1.50</th><td class="mid">0.24082</td><td class="mid">0.24082</td><td class="mid">0.00000</td></tr>
+<tr><th>2.00</th><td class="mid">0.09985</td><td class="mid">0.09986</td><td class="mid">0.00001</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §04 — this is decisive</p>
+<p style="margin:6px 0 0"><strong>Same frequency, same input, two different answers.</strong> Which one you get depends on how you arrived — <em>hysteresis</em>.<br>
+Between \(\omega=1.24\) and \(1.42\) the response is two-valued; sweeping up it drops at \(1.44\), sweeping down it jumps at \(1.22\).</p>
+<p style="margin:10px 0 0">★ <strong>A transfer function \(H(\omega)\) is a function: put in a frequency, get a response.</strong><br>
+<em>With two answers, it cannot be a function at all.</em></p>
+<p style="margin:10px 0 0;text-align:center">── <strong>The word "filter," used since Episode 1, stops working here.</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ What breaks and what survives — the real question</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Tool</th><th>From</th><th>Under nonlinearity</th><th>Why</th></tr></thead>
+<tbody>
+<tr><th>superposition</th><td class="mid">Ep. 1</td><td class="mid">★ breaks</td><td>it is the definition of nonlinear</td></tr>
+<tr><th>transfer function / filter picture</th><td class="mid">Ep. 1</td><td class="mid">★ breaks</td><td>the hysteresis of §04</td></tr>
+<tr><th>"tilting the spectrum" picture</th><td class="mid">Ep. 1</td><td class="mid">△ limited</td><td>frequencies mix</td></tr>
+<tr class="hi"><th><strong>★ causality</strong></th><td class="mid">Ep. 8</td><td class="mid"><strong>◎ survives</strong></td><td><strong>output still cannot precede input</strong></td></tr>
+<tr class="hi"><th><strong>★ the bandwidth theorem</strong></th><td class="mid">Ep. 9</td><td class="mid"><strong>◎ survives</strong></td><td><strong>it is a property of the Fourier transform itself</strong></td></tr>
+<tr class="hi"><th><strong>★ the arrow of time (parity of order)</strong></th><td class="mid">Ep. 10</td><td class="mid"><strong>◎ survives</strong></td><td><strong>\(t\to-t\) behaves the same way</strong></td></tr>
+<tr class="hi"><th><strong>★ dimensional analysis</strong></th><td class="mid">Ep. 14</td><td class="mid"><strong>◎ survives</strong></td><td><strong>if anything it stars here (turbulence)</strong></td></tr>
+<tr class="hi"><th><strong>★ information lives on the imaginary axis</strong></th><td class="mid">Ep. 21</td><td class="mid"><strong>◎ survives</strong></td><td>the second law holds for nonlinear systems too</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§05 — the best find of this episode</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><strong>What breaks is only Part I's "filter" picture.<br>All three constraints of Part IV survive.</strong></p>
+<p style="margin:10px 0 0">The reason is clear — "filter" is a word from <em>linearity</em>, whereas</p>
+<p style="margin:8px 0 0;text-align:center">★ <strong>causality, bandwidth and the arrow of time come not from linearity<br>but from time running in one direction only.</strong></p>
+<p style="margin:10px 0 0">★ And as Episode 21 showed, <em>that one-directionality is the imaginary axis of the complex frequency plane</em>.<br>
+<strong>Constraints that came from the imaginary axis survive nonlinearity.</strong></p>
+</div>
+
+<h2><span class="n">06</span>Measuring the strength of nonlinearity — always the same dimensionless form</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Field</th><th>Quantity</th><th>Contents</th><th>Symbol</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>fluids</strong></th><td>Reynolds number \(Re\)</td><td class="mid">\((u\cdot\nabla)u\ /\ \nu\nabla^2u\)</td><td class="mid">\(UL/\nu\)</td></tr>
+<tr><th>nonlinear optics</th><td>nonlinear phase \(\varphi_{\rm NL}\)</td><td class="mid">\(n_2I/n_0\)</td><td class="mid">\(\gamma PL\)</td></tr>
+<tr><th>gravity</th><td>compactness</td><td class="mid">\(GM/(rc^2)\)</td><td class="mid">Ep. 15</td></tr>
+<tr><th>acoustics</th><td>nonlinearity parameter</td><td class="mid">\((B/A)\cdot(u/c)\)</td><td class="mid">grows with loudness</td></tr>
+<tr><th>field theory</th><td>coupling constant</td><td class="mid">interaction / free term</td><td class="mid">\(\alpha,\ \alpha_s\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>All of them are "the nonlinear term divided by the linear term," dimensionless.</strong> <em>Episode 7's "only dimensionless quantities mean anything" is at work here too.</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Situation</th><th>\(U\) [m/s]</th><th>\(L\) [m]</th><th>\(Re=UL/\nu\)</th><th>Flow</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>a swimming sperm cell</strong></th><td class="mid">\(10^{-5}\)</td><td class="mid">\(5\times10^{-5}\)</td><td class="mid"><strong>\(5\times10^{-4}\)</strong></td><td><strong>★ completely linear (viscosity rules)</strong></td></tr>
+<tr><th>blood in a capillary</th><td class="mid">\(10^{-3}\)</td><td class="mid">\(8\times10^{-6}\)</td><td class="mid">\(2.7\times10^{-3}\)</td><td>★ completely linear</td></tr>
+<tr><th>a kitchen tap</th><td class="mid">1</td><td class="mid">0.01</td><td class="mid">\(10^{4}\)</td><td>turbulent</td></tr>
+<tr><th>a car at 100 km/h</th><td class="mid">27.8</td><td class="mid">4</td><td class="mid">\(7.4\times10^{6}\)</td><td>turbulent</td></tr>
+<tr class="hi"><th><strong>Earth's atmosphere</strong></th><td class="mid">10</td><td class="mid">\(10^{7}\)</td><td class="mid"><strong>\(6.7\times10^{12}\)</strong></td><td><strong>★ completely nonlinear</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">§06 — living in a linear world changes how you swim</p>
+<p style="margin:6px 0 0"><strong>A sperm cell's world is \(Re\sim10^{-4}\) — completely linear.</strong> It cannot coast on inertia; stop the flagellum and it stops instantly.</p>
+<p style="margin:10px 0 0">★ There is a deeper consequence — <strong>in a linear world, a time-reversible motion cannot propel you</strong> (the scallop theorem).<br>
+<em>Opening and closing like a scallop just returns you to where you started.</em> So microorganisms use motions that do <em>not</em> retrace under time reversal, such as <strong>a rotating helical flagellum</strong>.</p>
+<p style="margin:10px 0 0">★ <em>Episode 10's "the arrow of time lives in the parity of the order" was deciding the shape of living things.</em></p>
+</div>
+
+<h2><span class="n">07</span>What nonlinearity builds — solitons</h2>
+
+<p>Nonlinearity does not only break things. <strong>Balanced against dispersion, it preserves a shape.</strong></p>
+
+<div class="calc">
+<span class="tag">Two effects cancelling</span>
+$$\text{dispersion: the wave wants to spread (Ep. 16)}\qquad\text{nonlinearity: the strong parts are retarded in phase}$$
+$$N^2=\frac{\gamma P_0T_0^2}{|\beta_2|}=1\qquad\textbf{★ the fundamental-soliton condition}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>pulse width \(T_0\) [ps]</th><th>peak power required \(P_0\) [mW]</th><th>dispersion length \(L_D\) [km]</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">15385</td><td class="mid">0.05</td></tr>
+<tr><th>5</th><td class="mid">615</td><td class="mid">1.25</td></tr>
+<tr class="hi"><th><strong>10</strong></th><td class="mid"><strong>154</strong></td><td class="mid"><strong>5.00</strong></td></tr>
+<tr class="hi"><th><strong>20</strong></th><td class="mid"><strong>38</strong></td><td class="mid"><strong>20.0</strong></td></tr>
+<tr><th>50</th><td class="mid">6.2</td><td class="mid">125</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The conclusion of §07</p>
+<p style="margin:6px 0 0">A 20 ps pulse needs 38 mW — <strong>a practical figure.</strong> Soliton transmission was indeed studied for long-haul optical communication and used in places.</p>
+<p style="margin:10px 0 0">★ In wave language —<br>
+<em>with linear dispersion alone, a pulse must spread (Ep. 16).<br>
+With nonlinearity alone, the waveform distorts and breaks (§02).</em><br>
+<strong>★ Balance the two and neither happens — that is a soliton.</strong></p>
+</div>
+
+<h2><span class="n">08</span>How long does perturbation theory hold?</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>System</th><th>expansion parameter</th><th>perturbation theory</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>QED (the electron's \(g-2\))</strong></th><td class="mid">\(1/137\)</td><td>◎ computed to five loops</td></tr>
+<tr><th>QCD (high energy)</th><td class="mid">0.118</td><td>○ three to four loops</td></tr>
+<tr><th>QCD (low energy)</th><td class="mid">\(\sim1\)</td><td>× unusable → lattice</td></tr>
+<tr class="hi"><th><strong>graphene (bare)</strong></th><td class="mid"><strong>2.19</strong></td><td><strong>× Episode 17. Strong coupling on a desk</strong></td></tr>
+<tr class="hi"><th><strong>gravity (Earth's surface)</strong></th><td class="mid"><strong>\(7\times10^{-10}\)</strong></td><td><strong>◎ linear to ten digits</strong></td></tr>
+<tr><th>gravity (neutron-star surface)</th><td class="mid">0.345</td><td>△ nonlinearity matters</td></tr>
+<tr><th>gravity (horizon)</th><td class="mid">0.5</td><td>× the whole framework fails</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The conclusion of §08</p>
+<p style="margin:6px 0 0">Episode 15 said "on Earth we are linear to ten digits."<br>
+★ <em>That is why "the language of waves" worked so well</em> — <strong>which was luck, not a property of nature.</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Explain the difference between radio "intermodulation" and audio "harmonic distortion" using §02's table.
+<details><summary>Show answer</summary><div class="ans">Both come from the same squared term, but <strong>they land in different places</strong>.<br>Harmonics (2000, 2200 Hz) are integer multiples of the input — <em>octave-related, so musically tolerable</em>.<br>Intermodulation (100, 2100 Hz) is the sum and difference — <em>frequencies unrelated to the input, so they sound dissonant</em>.<br>★ In radio this is how a strong station leaks into a weak one, and <strong>§02's 100 Hz difference tone is exactly that</strong>.</div></details></li>
+
+<li>Why does causality survive nonlinearity?
+<details><summary>Show answer</summary><div class="ans">Because causality is a <strong>condition on time ordering</strong> — output does not precede input — and has nothing to do with linearity.<br>That said, Episode 8's Kramers–Kronig relations are a theorem about <em>linear</em> response functions and do not carry over unchanged.<br>★ <strong>There are nonlinear extensions</strong> (dispersion relations for the nonlinear susceptibilities \(\chi^{(2)}, \chi^{(3)}\)) — <em>the structure "causality = analyticity" is preserved order by order.</em></div></details></li>
+
+<li>How does a sperm cell's inability to "swim like a scallop" relate to Episode 10?
+<details><summary>Show answer</summary><div class="ans">Both are about <strong>what happens under time reversal</strong>.<br>Episode 10: even-order terms are invariant under \(t\to-t\), hence reversible.<br>Here: at \(Re\ll1\) the inertial (nonlinear) term vanishes and <em>only the viscous, linear equation remains</em>. That equation is first order in time with time-independent coefficients, so <strong>running "open and close" backwards returns you exactly to the start</strong>.<br>★ <em>To move forward, the shape change itself must fail to retrace under time reversal</em> — turning a helix, sending a travelling wave.<br>★ <strong>The Reynolds number of the fluid was deciding the propulsion mechanism of living things.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — what broke was only the vocabulary of linearity</h2>
+<p>"Filter" and "transfer function," used since Episode 1, all presupposed <strong>superposition</strong>. Add nothing but a squared term and — <strong>two go in, seven come out</strong> (DC, difference, sum, two harmonics). <em>Something a linear filter can never do.</em></p>
+<p>By distortion figures, <strong>people notice from about 1 %</strong>. <em>The everyday "linear world" was an approximation ignoring nonlinearity at the 0.1 % level</em> — <strong>linearity is not a property of nature but a consequence of smallness.</strong></p>
+<p>For the Duffing oscillator, <strong>the same frequency and the same input give two answers</strong> (two-valued from \(\omega=1.24\) to \(1.42\), with a maximum gap of 1.85). <em>With no function to speak of, the word "transfer function" cannot be used.</em></p>
+<p style="text-align:center"><strong>★ And yet every constraint of Part IV survived —<br>causality, the bandwidth theorem, the arrow of time, and dimensional analysis.</strong></p>
+<p>The reason is clear — <strong>"filter" is a word from linearity, while the three constraints come from time running in one direction only.</strong> <em>In Episode 21's language: constraints that came from the imaginary axis survive nonlinearity.</em></p>
+<p>Across every field, the strength of nonlinearity is measured by the same <strong>dimensionless "nonlinear over linear"</strong> (\(Re\), \(n_2I/n_0\), \(GM/rc^2\)). <em>A sperm cell's world is \(Re\sim10^{-4}\), completely linear — so it cannot swim like a scallop and turns a helix instead.</em> And <strong>when dispersion and nonlinearity balance, you get a soliton</strong> (38 mW for 20 ps).</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+Episode 15 listed four limitations of the framework — <em>stationarity, linearity, \(\omega=0\), and small effects.</em><br>
+Episode 22 handled ①; this episode handled ②. <strong>③ is a limit of principle, and ④ is a matter of measurement.</strong><br>
+★ Next time we look, as a wave, at something this series has never faced directly — <strong>spacetime itself being the wave: gravitational waves.</strong> <em>In the language of order, what order are they?</em>
+</div>
+
+<p class="foot">This document is Episode 23 of the "Thinking in Waves" series. Computations are in kenshou/hisenkei.js. <strong>On the numbers here:</strong> the nonlinearity of §02–03 is the simplest possible form, "output is a polynomial in the input" (memoryless nonlinearity); real amplifiers and loudspeakers have <em>nonlinearity with memory</em> (dependent on previous state), so their distortion is more complicated. <strong>The THD values are computed from assumed \(a_2, a_3\), not measured from hardware</strong> (the "high-end audio" comparisons are order-of-magnitude labels). The Duffing oscillator of §04 is a numerical solution at \(\gamma=0.05,\beta=0.3,F=0.3\), and <em>the jump positions depend strongly on those values</em>. Each sweep point discards 60 periods of transient before measuring the amplitude; a slower sweep moves the jump points slightly. The Reynolds numbers of §06 are estimates from representative values. <strong>The scallop theorem (Purcell's theorem) is a rigorous result about low-Reynolds-number flow, but this article only states its content and does not derive it.</strong> The soliton condition is the standard fundamental-soliton form of the nonlinear Schrödinger equation, using standard optical-fibre values \(\gamma=1.3\times10^{-3}\)/(W·m) and \(\beta_2=-20\) ps²/km. The "survives nonlinearity" verdicts of §05 are this article's organization and are not rigorous proofs item by item — <em>in particular, the nonlinear Kramers–Kronig relations require an order-by-order formulation and are not as simple as the linear case.</em> — To print, use your browser's Print and "Save as PDF."</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens each solution.</p>
