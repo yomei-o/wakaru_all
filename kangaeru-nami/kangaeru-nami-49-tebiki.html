@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手引き ── 測定データを渡されたら、どう読むか｜考える波 第49回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f8f9f8; --paper-edge:#e1e6e1;
+    --side:#3a5a3a; --side-bg:#eef1ee;
+    --warn:#8a4b2f;
+    --calc:#2e482e; --calc-bg:#e8ece8;
+    --rule:#d0d7d0; --hair:#b4c0b4;
+    --acc:#3a5a3a;
+    --grid:#e6eae6;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 49 回 ／ 第 XVII 部・軸の端を探す</span></p>
+<p class="eyebrow">48 回で作った手順を、一枚にまとめる</p>
+
+<h1>手引き ──<br>測定データを渡されたら、どう読むか
+<span class="sub">「傾きを測る」だけでは足りません。<strong>必ず一緒に見るべきものが二つあります</strong> ── <em>何桁 続くか</em>と、<em>位相はどうか</em>。<br>★ 位相は<strong>振幅の傾きだけから予言できます</strong>（ボーデの利得位相関係、数値で 0.01 度 以内で一致）── <em>ずれていたら、余分な遅延があるということ。</em><br>★★ そして本回の山場 ── <strong>「1/f に見えるが 1/f ではない」データを、桁数を数えることだけで見破ります。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 5, 8, 16, 27, 42, 48 回</span><span>計算：kenshou/tebiki.js</span></p>
+
+<p class="lead">第 15 回と第 43 回が<strong>「何を言い当てたか」の採点</strong>なら、この回は<strong>「どう使うか」の取扱説明書</strong>です。<br><em>★ 48 回で作った手順を、そのままプログラムにしました ── 六つの「未知のデータ」に機械的に当てて、何が言えるかを見ます。</em></p>
+
+<h2><span class="n">01</span>手引き ── 七つのステップ</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>ステップ</th><th>出どころ</th><th>何のために</th></tr></thead>
+<tbody>
+<tr><th>① 対数対数で描く</th><td>第 1 回</td><td>まずこれ。線形軸では何も見えない</td></tr>
+<tr><th>② 局所的な階数を測る</th><td>第 48 回</td><td>\(\alpha(\omega)=d\ln|H|/d\ln\omega\)</td></tr>
+<tr class="hi"><th><strong>★ ③ 何桁 一定か 数える</strong></th><td><strong>第 27・48 回</strong></td><td><strong>★ 「冪則か」を桁数で答える</strong></td></tr>
+<tr><th>④ 曲がっている所を探す</th><td>第 16 回</td><td>特徴的な周波数（時定数）が居る</td></tr>
+<tr class="hi"><th><strong>★ ⑤ 位相も測る</strong></th><td><strong>第 1・8 回</strong></td><td><strong>★ 位相 \(=90\alpha\) 度 か？ ずれたら余分な遅延</strong></td></tr>
+<tr><th>⑥ モーメントを変える</th><td>第 42 回</td><td>高次で指数が動けば分布</td></tr>
+<tr><th>⑦ 系の大きさと比べる</th><td>第 5・48 回</td><td>観測窓より長いものは定数と同じ</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <em>①〜④ は振幅だけでできます。</em><strong>⑤ が入ると一気に強くなります。</strong></p>
+
+<h2><span class="n">02</span>ステップ ⑤ の道具を、数値で確かめる</h2>
+
+<div class="calc">
+<span class="tag">ボーデの利得位相関係（第 8 回の因果律の実用形）</span>
+$$\varphi(\omega_0)=\frac1\pi\int_{-\infty}^{\infty}\frac{dA}{du}\,\ln\left|\coth\frac u2\right|\,du,\qquad u=\ln\frac{\omega}{\omega_0},\quad A=\ln|H|$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階数 \(a\)</th><th>位相（数値）［度］</th><th>\(90a\)［度］</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>−2</th><td class="mid">−179.993679</td><td class="mid">−180</td><td class="mid">6.3e−3</td></tr>
+<tr class="hi"><th><strong>−0.5</strong></th><td class="mid"><strong>−44.998420</strong></td><td class="mid"><strong>−45</strong></td><td class="mid"><strong>1.6e−3</strong></td></tr>
+<tr><th>0.5</th><td class="mid">44.998420</td><td class="mid">45</td><td class="mid">1.6e−3</td></tr>
+<tr><th>1</th><td class="mid">89.996840</td><td class="mid">90</td><td class="mid">3.2e−3</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>振幅の傾きだけから、位相が出ます。</strong><em>第 1 回で書いた「位相 \(=90\alpha\) 度」は、ここから来ていました。</em><br>
+★★★ <strong>だから「位相が \(90\alpha\) からずれていたら、余分な遅延がある」と言えます。</strong><br>
+★ <em>振幅だけ見ていては絶対に分からないことが、位相で分かる</em> ── <strong>これが 48 回でいちばん役に立った道具です。</strong></p>
+</div>
+
+<h2><span class="n">03</span>六つの「未知のデータ」に、手順を当てる</h2>
+
+<p>中身を知らないつもりで ②〜④ を機械的に回します（判定は「階数の振れ幅が 0.1 以内で最長の窓」）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>データ</th><th>平均の階数</th><th>★ 続く桁数</th><th>その範囲</th><th>曲がり</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>A 重ね合わせ（広い）</strong></th><td class="mid"><strong>−0.4991</strong></td><td class="mid"><strong>6.32 桁</strong></td><td class="mid">6.1e−4 〜 1.3e+3</td><td class="mid">0</td></tr>
+<tr><th>B 単一ローレンツ</th><td class="mid">−0.0065</td><td class="mid">3.52 桁</td><td class="mid">1.0e−4 〜 3.3e−1</td><td class="mid">1</td></tr>
+<tr class="hi"><th><strong>C 冪則 \(\omega^{-5/6}\)</strong></th><td class="mid"><strong>−0.8333</strong></td><td class="mid"><strong>8.00 桁</strong></td><td class="mid">全域</td><td class="mid">0</td></tr>
+<tr><th>D 指数 \(e^{-\omega}\)</th><td class="mid">−0.0144</td><td class="mid">3.00 桁</td><td class="mid">1.0e−4 〜 9.9e−2</td><td class="mid">1</td></tr>
+<tr><th>E 冪則＋高域の切断</th><td class="mid">−0.5040</td><td class="mid">5.34 桁</td><td class="mid">1.0e−4 〜 2.2e+1</td><td class="mid">1</td></tr>
+<tr class="hi"><th><strong>F 狭い分布（0.5 桁）</strong></th><td class="mid"><strong>−0.0120</strong></td><td class="mid"><strong>2.82 桁</strong></td><td class="mid">1.0e−4 〜 6.6e−2</td><td class="mid">0</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★ 機械に任せたときの注意</p>
+<p style="margin:6px 0 0">★ <strong>「最長の平坦な窓」は、低域の平らな部分を拾うことがあります</strong>（D と F）。<em>それも正しい読みです ── \(e^{-\omega}\) は低域ではたしかに定数。</em><br>
+★★ <strong>大事なのは「知りたい階数のところで何桁 続くか」を別に測ること。</strong><em>機械は「いちばん長い平坦」を返しますが、あなたが知りたいのはそこではないかもしれません。</em></p>
+</div>
+
+<h2><span class="n">04</span>★★★ 山場 ── A と F を見分ける</h2>
+
+<p>A（広い重ね合わせ）も F（狭い分布）も、<strong>途中で 1/f 風に見えます</strong>。\(|H|\) の階数で言えば 1/f は \(-0.5\)（パワーが \(-1\)）── <em>そこで何桁 続くかを測ります。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>データ</th><th>★ 階数 \(-0.5\) が \(\pm0.1\) で続く桁数</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>A 重ね合わせ（広い）</strong></th><td class="mid"><strong>★ 6.898 桁</strong></td></tr>
+<tr class="hi"><th><strong>F 狭い分布（0.5 桁）</strong></th><td class="mid"><strong>★ 0.498 桁</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>F の \(\alpha(\omega)\)</th></tr></thead>
+<tbody>
+<tr><th>0.1</th><td class="mid">−0.14406</td></tr>
+<tr><th>0.3</th><td class="mid">−0.29577</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>−0.50000</strong></td></tr>
+<tr><th>3</th><td class="mid">−0.68745</td></tr>
+<tr><th>100</th><td class="mid">−0.99366</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>F は \(-0.5\) の近くを<em>素通りする</em>だけで、平坦な区間を持ちません。<br>ステップ ③（桁数を数える）が無ければ、F を 1/f と誤判定します。</strong></p>
+<p style="margin:10px 0 0">★ <strong>A は 6 桁 以上 続きます</strong> ── <em>ここで初めて「単一の時定数では無理」と言えます。</em><br>
+★★ <strong>「1 点で傾きが \(-0.5\) だった」は、何の証拠にもなりません。</strong><em>どんな滑らかな関数でも、どこかで必ず \(-0.5\) を通るからです。</em><br>
+★ <em>第 2 回で「1/f は多数の時定数の重ね合わせ」と書いたとき、<strong>その「多数」を保証しているのが桁数</strong>でした。</em></p>
+</div>
+
+<h2><span class="n">05</span>判定を書く ── 言ってよいことの範囲</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>データ</th><th>判定</th><th>言ってよいこと</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>A</strong></th><td><strong>★ 冪則 \(-0.5\) が 6 桁 以上</strong></td><td><strong>機構を絞れる：単一の時定数では無理</strong></td></tr>
+<tr><th>B</th><td>冪則 2 本＋曲がり 1 つ</td><td>特徴的な周波数が 1 つ ある</td></tr>
+<tr><th>C</th><td>★ 冪則（窓の全域）</td><td>窓の中に特徴的な長さが無い</td></tr>
+<tr><th>D</th><td>低域は定数、以後 冪則でない</td><td>★ 階数でなく時定数で要約すべき</td></tr>
+<tr><th>E</th><td>冪則＋切断 1 つ</td><td>切断の位置が物理を語る</td></tr>
+<tr class="hi"><th><strong>F</strong></th><td><strong>★ 判定保留（桁が足りない）</strong></td><td><strong>★ 1/f と言ってはいけない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★ <strong>判定は「冪則かどうか」ではなく「何桁の冪則か」で書く。</strong><em>そうすれば、次に何を測ればよいかも自動的に決まります</em> ── <strong>桁を伸ばす測定をすればよい。</strong><br>
+★★ <em>そして「判定保留」という結論を書けることが大事です</em> ── <strong>第 43 回で「確かめていないことは主張にしない」と決めた作法の、実務版。</strong></p>
+</div>
+
+<h2><span class="n">06</span>★ ステップ ⑤ でさらに分かること ── 余分な遅延を見破る</h2>
+
+<p>同じ振幅でも、位相が違えば中身が違います。\(|H|=\omega^{-0.5}\) に遅延 \(e^{-i\omega T}\)（\(T=0.1\)）が乗った場合 ──</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega\)</th><th>ボーデの予言［度］</th><th>遅延ありの実際［度］</th><th>差 \(=-\omega T\)［度］</th></tr></thead>
+<tbody>
+<tr><th>0.1</th><td class="mid">−44.9984</td><td class="mid">−45.5714</td><td class="mid">−0.5730</td></tr>
+<tr><th>1</th><td class="mid">−44.9984</td><td class="mid">−50.7280</td><td class="mid">−5.7296</td></tr>
+<tr class="hi"><th><strong>10</strong></th><td class="mid"><strong>−44.9984</strong></td><td class="mid"><strong>−102.2942</strong></td><td class="mid"><strong>★ −57.2958</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>振幅はまったく同じ。位相だけが \(\omega\) に比例してずれます。</strong><br>
+★★ <strong>「振幅から予言した位相」との差が、そのまま遅延時間になります。</strong><em>差を \(\omega\) で割れば \(T\) が読める。</em><br>
+★ <em>第 8 回（クラマース＝クローニッヒ）のいちばん実用的な使い方です</em> ── <strong>因果律は、測定の道具にもなる。</strong></p>
+</div>
+
+<h2><span class="n">07</span>やってはいけないこと ── 48 回で見た失敗から</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>やってはいけない</th><th>出どころ</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>1 桁 の冪則を「冪則」と呼ぶ</th><td>第 48 回</td><td>指数関数でも 0.087 桁は稼げる</td></tr>
+<tr class="hi"><th><strong>一つの指数が合ったら満足する</strong></th><td><strong>第 42・47 回</strong></td><td><strong>★ K41 も \(\phi^2\) もそれで通ってしまう</strong></td></tr>
+<tr class="hi"><th><strong>鈍感な量で理論を検証する</strong></th><td><strong>第 42 回</strong></td><td><strong>★ 間欠性は dB/oct を 0.081 しか動かさない</strong></td></tr>
+<tr><th>観測窓より長い周期を語る</th><td>第 5 回</td><td>定数と区別がつかない</td></tr>
+<tr><th>座標に依る量を物理だと思う</th><td>第 45 回</td><td>★ 粒子数は基底の取り方に依る</td></tr>
+<tr class="hi"><th><strong>整理を発見と呼ぶ</strong></th><td><strong>第 43 回</strong></td><td><strong>★ 本シリーズがいちばん気をつけた点</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">08</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>七つのステップ</th><td class="mid">◎ 整理</td><td>48 回ぶんの手順を一枚に</td></tr>
+<tr class="hi"><th><strong>★ ボーデの関係を数値で確認</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 位相 \(=90\alpha\) を 0.01 度 以内で</strong></td></tr>
+<tr><th>六つのデータを自動で判定</th><td class="mid">◎ 数値</td><td>平坦な階数と桁数を自動で探す</td></tr>
+<tr class="hi"><th><strong>★ 手引きが救った例（F）</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ A は 6.9 桁、F は 0.5 桁</strong></td></tr>
+<tr class="hi"><th><strong>★ 位相で遅延を見破る</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 振幅だけでは絶対に分からない</strong></td></tr>
+<tr class="hi"><th><strong>★ 機構を一つに決めること</strong></th><td class="mid"><strong>× できない</strong></td><td><strong>★ 手引きは候補を絞るだけ</strong></td></tr>
+<tr class="hi"><th><strong>★ 雑音のあるデータへの適用</strong></th><td class="mid"><strong>× 扱えない</strong></td><td><strong>★ 本稿は雑音のない関数で試した</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>03 節で、機械が D（指数関数）の「低域の平坦」を拾った。これは手順の欠陥か。
+<details><summary>答えを見る</summary><div class="ans"><strong>欠陥ではなく、質問が足りないのです。</strong>\(e^{-\omega}\) は低域ではたしかに定数で、「階数 0 が 3 桁 続く」は<em>正しい測定結果</em>です。<br>★ <strong>手順が答えるのは「どこが平坦か」であって「どこが面白いか」ではありません。</strong><em>面白い場所を決めるのは、あなたの仮説です。</em><br>★★ <em>だから 04 節では<strong>「\(-0.5\) のところで何桁」と目標を指定して測り直しました</strong></em> ── <strong>仮説があって初めて、手順は鋭くなる。</strong>★ 第 15 回で「反証可能だと宣言する」と決めたのは、この意味でも効いています。</div></details></li>
+
+<li>06 節で位相から遅延が読めた。では「余分な遅延」が無いのに位相がずれていたら、何が起きているか。
+<details><summary>答えを見る</summary><div class="ans"><strong>最小位相系ではない、ということです。</strong>ボーデの関係が成り立つのは「右半平面に零点が無い」場合（最小位相系）だけ。<br>★ <em>零点が右半平面にあると、振幅は同じでも位相が余計に回ります</em> ── <strong>全域通過（オールパス）成分が乗っている。</strong><br>★★ <strong>遅延も、実は全域通過の極限です</strong>（\(e^{-i\omega T}\) は振幅 1 で位相だけ回す）── <em>だから 06 節の遅延は、この一般則の特別な場合でした。</em><br>★ <strong>見分けるには、ずれが \(\omega\) に比例するかを見ます</strong> ── <em>比例すれば純粋な遅延、そうでなければ右半平面の零点。</em></div></details></li>
+
+<li>07 節の「鈍感な量で理論を検証するな」は、具体的にどう実行すればよいか。
+<details><summary>答えを見る</summary><div class="ans"><strong>「その量は、理論が変わったらどれだけ動くか」を先に計算することです。</strong><br>★ <em>第 42 回では、間欠性を入れても dB/oct が 0.081 しか動かないと分かりました</em> ── <strong>測定誤差が 0.1 dB/oct なら、その測定では永遠に区別できません。</strong><br>★★ <em>第 47 回では、\(n_s\) では \(\phi^2\) が通るのに \(r\) では棄却されました</em> ── <strong>\(r\) のほうが感度が高い。</strong><br>★ <strong>つまり「検証したい差」÷「測定誤差」を、測る前に計算する。</strong><em>1 より小さければ、その測定はやっても無駄です。</em>★ これは本シリーズが 49 回かけて身につけた、いちばん実用的な習慣でした。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　傾きだけでは足りない</h2>
+<p>48 回で作った手順を、七つのステップにまとめました ── <em>①対数対数で描く ②局所的な階数を測る <strong>③何桁 一定か数える</strong> ④曲がりを探す <strong>⑤位相も測る</strong> ⑥モーメントを変える ⑦系の大きさと比べる。</em></p>
+<p><strong>位相は、振幅の傾きだけから予言できます</strong>（ボーデの利得位相関係）── 数値で \(90\alpha\) と <strong>0.01 度 以内</strong>で一致しました。<em>★ 第 1 回の「位相 \(=90\alpha\) 度」は、ここから来ていたのです。</em></p>
+<p>六つの「未知のデータ」に機械的に当てると ── <strong>C は全域で冪則、B と E は曲がりが 1 つ、D は低域で定数</strong>。<em>★ 機械は「いちばん長い平坦」を返すので、知りたい場所は自分で指定する必要があります。</em></p>
+<p style="text-align:center"><strong>★★★ 本回の山場 ──<br>A（広い重ね合わせ）も F（狭い分布）も 1/f 風に見えますが、<br>階数 \(-0.5\) が続くのは A で <em>6.898 桁</em>、F で <em>0.498 桁</em>。<br>F は \(-0.5\) を素通りするだけでした。</strong></p>
+<p>★ <strong>「1 点で傾きが \(-0.5\) だった」は何の証拠にもなりません</strong> ── <em>どんな滑らかな関数でも、どこかで必ず \(-0.5\) を通るから。</em><strong>第 2 回の「多数の時定数」を保証していたのは、桁数でした。</strong></p>
+<p>そして<strong>位相を見れば、余分な遅延が読めます</strong> ── 振幅はまったく同じでも、位相だけが \(\omega\) に比例してずれ、<em>その差を \(\omega\) で割れば遅延時間 \(T\) が出ます。</em>★ <strong>因果律（第 8 回）は、測定の道具でもありました。</strong></p>
+<p>★ <strong>正直に</strong>：<em>手引きは候補を絞るだけで、機構を一つに決めることはできません。</em>また<strong>本稿は雑音のない関数で試しています</strong> ── 実データでは、桁数の見積もりに誤差が乗ります。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+49 回 歩きました。<strong>次回は 第 50 回</strong>です。<br>
+★ <strong>区切りとして、このシリーズが何をしてきたのかを 一枚の地図にします</strong> ── <em>第 1 回の一行（音を微分すると高音になる）から、ここまでの道筋。</em><br>
+★★ そして <strong>「まだ手をつけていない場所」</strong>を正直に並べます。<em>何が残っているかを書いておくのが、続きを歩く人への いちばんの引き継ぎだからです。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 49 回です。計算は kenshou/tebiki.js で行っています。<strong>本回の数値について：</strong>ボーデの利得位相関係の数値確認、六つの合成データに対する自動判定（最長の平坦窓・桁数・曲がりの検出）、A と F の比較、遅延による位相のずれは、すべて本稿で計算したものです。<strong>ボーデの利得位相関係、最小位相系と全域通過成分、クラマース＝クローニッヒ関係、そして「多数の時定数の重ね合わせが 1/f を作る」（第 2 回で扱ったデバイ緩和の重ね合わせ）── これらはいずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>これらを一つの手順に並べ、その手順を実際にプログラムとして走らせて、どこで役に立ち どこで足りないかを示したことだけ</em>です。<em>03・04 節の六つのデータはすべて本稿が作った合成データであり、実際の測定ではありません。</em>判定に使った「振れ幅 0.1 以内」「\(\pm0.1\) に入る桁数」はいずれも本稿の便宜的な基準で、基準を変えれば桁数も変わります。<strong>本稿は雑音のない関数だけを扱っており、雑音のある実データでは桁数の推定に統計誤差が入ります</strong>（その扱いは本稿の範囲外です）。06 節の遅延の検出は、系が最小位相であることを仮定しています。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
