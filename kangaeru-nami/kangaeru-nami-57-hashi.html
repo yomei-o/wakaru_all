@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端で何が起きるか ── 端はすべて「最低次の補正項」だった</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 57 回 ／ 第 XIX 部・道具を持って 物理へ戻る</span></p>
+<p class="eyebrow">2.2 桁 の出どころを突き止める</p>
+
+<h1>端で何が起きるか ──<br>端はすべて<strong>「最低次の補正項」</strong>だった
+<span class="sub">第 56 回の<strong>「端で 2.2 桁 失う」</strong>を、測るのではなく<em>導きます</em>。\(\gamma=1\) なら厳密解があり、答えは <strong>\(2\log_{10}\!\big(2/(\pi\varepsilon)\big)=2.2098\)</strong>。<br>★ そこから一般法則 ── <strong>失う桁数 \(=(1/n)\log_{10}(1/\varepsilon)+\)定数</strong>。\(n\) は最低次の補正のべき。<br>★★★ そして予想が外れました ── <em>傾きは \(2\) ではなく \(2/[\gamma(2-\gamma)]\)。<strong>これは \(\gamma=1\)、ちょうど \(1/f\) で最小になります。</strong></em></span></h1>
+
+<p class="byline"><span>必要な道具：第 5, 16, 44, 51, 53, 56 回</span><span>計算：kenshou/hashi.js</span></p>
+
+<p class="lead">第 56 回は<strong>「端で 2.2 桁 失う」</strong>を実測しました。<em>★ 今回はその 2.2 が<strong>どこから来るのか</strong>を突き止め、シリーズ中の「端」を一つの式に畳みます。</em></p>
+
+<h2><span class="n">01</span>まずローレンツ 1 個の「曲がりの幅」</h2>
+
+<div class="calc">
+<span class="tag">解析で出る</span>
+$$\frac{d\ln S}{d\ln\omega}=-\frac{2x^2}{1+x^2},\quad x=\omega\tau\ \Longrightarrow\ \text{曲がりの幅}=\log_{10}\frac{2}{\varepsilon}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\varepsilon\)</th><th>平らな側の端 \(x\)</th><th>\(-2\) 側の端 \(x\)</th><th>幅［桁］</th><th>\(\log_{10}(2/\varepsilon)\)</th></tr></thead>
+<tbody>
+<tr><th>0.2</th><td class="mid">0.3333</td><td class="mid">3.000</td><td class="mid">0.9542</td><td class="mid">1.0000</td></tr>
+<tr class="hi"><th><strong>0.05</strong></th><td class="mid"><strong>0.1601</strong></td><td class="mid"><strong>6.245</strong></td><td class="mid"><strong>1.5911</strong></td><td class="mid"><strong>1.6021</strong></td></tr>
+<tr><th>0.01</th><td class="mid">0.0709</td><td class="mid">14.107</td><td class="mid">2.2989</td><td class="mid">2.3010</td></tr>
+<tr><th>0.005</th><td class="mid">0.0501</td><td class="mid">19.975</td><td class="mid">2.6010</td><td class="mid">2.6021</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 幅 vs \(\log_{10}(1/\varepsilon)\) の傾きは <strong>1.000299</strong>（予言 1）。<em>両側とも最低次の補正が \(x^2\) なので、各側 \(1/2\) 桁ずつ、合計 1 です。</em></p>
+
+<h2><span class="n">02</span>★★★ 第 56 回の「2.2 桁」を導く</h2>
+
+<p>\(\gamma=1\) なら重ね合わせの積分は<strong>厳密に解けます</strong>。</p>
+
+<div class="calc">
+<span class="tag">厳密解</span>
+$$S(\omega)=\frac{\arctan(\omega\tau_{\max})-\arctan(\omega\tau_{\min})}{\omega},\qquad \beta(\omega)=1-\frac{\omega A'}{A}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\varepsilon\)</th><th>\(1/f\)［桁］</th><th>★ 失った［桁］</th><th>\(2\log_{10}\!\frac{2}{\pi\varepsilon}\)</th></tr></thead>
+<tbody>
+<tr><th>0.2</th><td class="mid">10.894</td><td class="mid">1.106</td><td class="mid">1.006</td></tr>
+<tr><th>0.1</th><td class="mid">10.327</td><td class="mid">1.673</td><td class="mid">1.608</td></tr>
+<tr class="hi"><th><strong>0.05</strong></th><td class="mid"><strong>9.753</strong></td><td class="mid"><strong>★ 2.2475</strong></td><td class="mid"><strong>★ 2.2098</strong></td></tr>
+<tr><th>0.01</th><td class="mid">8.384</td><td class="mid">3.616</td><td class="mid">3.608</td></tr>
+<tr><th>0.005</th><td class="mid">7.786</td><td class="mid">4.214</td><td class="mid">4.210</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心 ── 2.2 の正体</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(\varepsilon=0.05\) での失う桁数 \(=2\log_{10}\dfrac{2}{\pi\varepsilon}=2.2098\)</strong></p>
+<p style="margin:10px 0 0">★ <strong>第 56 回が測った 2.249 / 2.255 と一致します</strong> ── <em>あの 2.2 は、両端の \(\arctan\) の裾 \(2/(\pi x)\) から来ていました。</em><br>
+★★ <strong>測った数字が、導けた。</strong><em>第 49 回の手引きが言う「数値が出たら解析形を探す」を、シリーズ自身に適用した一例です。</em><br>
+★ <em>傾きは \(\varepsilon\le0.002\) で測って <strong>1.9988</strong>（予言 2）。両端がそれぞれ \(1/x\) の補正（\(n=1\)）を持ち、各側 1 桁ずつです。</em></p>
+</div>
+
+<h2><span class="n">03</span>★★ 予想が外れました ── 傾きは \(\gamma\) に依存する</h2>
+
+<p><em>ここで私は「傾きはどの \(\gamma\) でも 2 だろう」と予想しました。外れました。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\gamma\)</th><th>\(\varepsilon=0.05\) で失う</th><th>★ 傾き（実測）</th><th>★ 予言 \(\frac{2}{\gamma(2-\gamma)}\)</th></tr></thead>
+<tbody>
+<tr><th>0.6</th><td class="mid">2.4695</td><td class="mid">2.3695</td><td class="mid">2.3810</td></tr>
+<tr><th>0.8</th><td class="mid">2.2980</td><td class="mid">2.0751</td><td class="mid">2.0833</td></tr>
+<tr class="hi"><th><strong>1.0</strong></th><td class="mid"><strong>2.2475</strong></td><td class="mid"><strong>★ 1.9926</strong></td><td class="mid"><strong>★ 2.0000</strong></td></tr>
+<tr><th>1.2</th><td class="mid">2.2980</td><td class="mid">2.0751</td><td class="mid">2.0833</td></tr>
+<tr><th>1.4</th><td class="mid">2.4695</td><td class="mid">2.3695</td><td class="mid">2.3810</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>外れたので理由を探すと、端の漸近形が見えました ── <em>低域側で \(\tau_{\max}\) を切ったことの効き目は \((\omega\tau_{\max})^{-\gamma}\)、高域側は \((\omega\tau_{\min})^{2-\gamma}\)</em>（\(\tau\to1/\tau\) の裏返しで \(\gamma\to2-\gamma\) になるため）。<strong>よって傾きは \(1/\gamma+1/(2-\gamma)=2/[\gamma(2-\gamma)]\)。</strong></p>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★★★ 本回いちばんの収穫</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(2/[\gamma(2-\gamma)]\) は \(\gamma=1\) で最小値 2 をとる。</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>\(\gamma=1\) はちょうど \(\beta=1\)、つまり \(1/f\) です。</strong><br>
+★★ <em>つまり <strong>\(1/f\) は「端の代金がいちばん安い」スペクトル</strong>でもありました</em> ── \(\beta\) がどちらへずれても、同じ \(\tau\) の桁数から取れる桁数は減ります。<br>
+★ <em>予想（傾き 2）が外れたおかげで出てきた結果です。</em><strong>外れた予想のほうが、当たった予想より多くを教えることがあります。</strong></p>
+</div>
+
+<h2><span class="n">04</span>別の端 ── 第 16 回の分散、第 44 回のバンド端</h2>
+
+<p>離散化した弦の分散 \(\omega=(2c/a)\sin(ka/2)\)。直線 \(\omega=ck\) からのずれが \(\varepsilon\) 以内の範囲は？</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\varepsilon\)</th><th>\(x_{\max}=ka/2\)</th><th>\(\sqrt{6\varepsilon}\)</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>0.2</th><td class="mid">1.13110</td><td class="mid">1.09545</td><td class="mid">3.6e−2</td></tr>
+<tr class="hi"><th><strong>0.05</strong></th><td class="mid"><strong>0.55191</strong></td><td class="mid"><strong>0.54772</strong></td><td class="mid"><strong>4.2e−3</strong></td></tr>
+<tr><th>0.01</th><td class="mid">0.24532</td><td class="mid">0.24495</td><td class="mid">3.7e−4</td></tr>
+<tr><th>0.005</th><td class="mid">0.17334</td><td class="mid">0.17321</td><td class="mid">1.3e−4</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 失う桁数の傾きは <strong>0.5030</strong>（予言 \(1/2\)）。<em>\(\sin x/x=1-x^2/6+\cdots\) の \(x^2\) が最低次の補正なので \(n=2\) です。</em><strong>バンド端（第 44 回）も \((k-k_c)^2\) で同じ族。</strong></p>
+
+<h2><span class="n">05</span>第 51 回の「窓の端」も同じ族だった</h2>
+
+<p>第 51 回 04 節では<em>「対称な窓＋対称な曲率では偏りが消える」</em>と分かりました。では 3 次項が残るときは？</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>半幅 \(h\)</th><th>実測の偏り</th><th>\(\frac{3}{5}dh^2\)</th><th>比</th></tr></thead>
+<tbody>
+<tr><th>0.1</th><td class="mid">0.0060030</td><td class="mid">0.0060000</td><td class="mid">1.0005</td></tr>
+<tr><th>0.5</th><td class="mid">0.1500750</td><td class="mid">0.1500000</td><td class="mid">1.0005</td></tr>
+<tr class="hi"><th><strong>2.0</strong></th><td class="mid"><strong>2.4011998</strong></td><td class="mid"><strong>2.4000000</strong></td><td class="mid"><strong>1.0005</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 偏り \(\propto h^2\) なので、偏りを \(\varepsilon\) 以内に収める窓幅は \(h\propto\sqrt{\varepsilon}\) ── <strong>傾き 0.500000、第 44 回の端とまったく同じ族</strong>です。</p>
+
+<h2><span class="n">06</span>★★★ 一般法則</h2>
+
+<div class="calc">
+<span class="tag">端の一般形</span>
+$$Q(x)=Q_0\big(1+Ax^n+\cdots\big)\ \Longrightarrow\ \boxed{\ \text{失う桁数}=\frac{1}{n}\log_{10}\frac{1}{\varepsilon}+\text{定数}\ }$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(n\)</th><th>\(A\)</th><th>実測の傾き</th><th>予言 \(1/n\)</th><th>差</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>1</strong></th><td class="mid">1 / 0.1</td><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>1.000000</strong></td><td class="mid">2.4e−15</td></tr>
+<tr><th>2</th><td class="mid">1 / 0.1</td><td class="mid">0.500000</td><td class="mid">0.500000</td><td class="mid">0.0</td></tr>
+<tr><th>3</th><td class="mid">1 / 0.1</td><td class="mid">0.333333</td><td class="mid">0.333333</td><td class="mid">6.7e−16</td></tr>
+<tr><th>4</th><td class="mid">1 / 0.1</td><td class="mid">0.250000</td><td class="mid">0.250000</td><td class="mid">6.1e−16</td></tr>
+<tr><th>6</th><td class="mid">1 / 0.1</td><td class="mid">0.166667</td><td class="mid">0.166667</td><td class="mid">3.3e−16</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>\(A\)（補正の大きさ）は切片だけを動かし、傾きは \(n\) だけで決まります。</strong><em>端の「性質」は補正の大きさではなく、そのべきに宿っていました。</em></p>
+
+<h2><span class="n">07</span>シリーズに出てきた「端」を並べる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>端</th><th>最低次の補正</th><th>\(n\)</th><th>桁/桁</th><th>出典</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>重ね合わせの下端</strong></th><td class="mid"><strong>\((\omega\tau_{\max})^{-\gamma}\)</strong></td><td class="mid"><strong>\(\gamma\)</strong></td><td class="mid"><strong>1.0</strong></td><td>第 2, 56 回</td></tr>
+<tr class="hi"><th><strong>重ね合わせの上端</strong></th><td class="mid"><strong>\((\omega\tau_{\min})^{2-\gamma}\)</strong></td><td class="mid"><strong>\(2-\gamma\)</strong></td><td class="mid"><strong>1.0</strong></td><td>第 2, 56 回</td></tr>
+<tr><th>ローレンツ 1 個の端</th><td class="mid">\(x^2\)</td><td class="mid">2</td><td class="mid">0.5</td><td>第 5, 48 回</td></tr>
+<tr><th>離散弦の分散</th><td class="mid">\(x^2/6\)</td><td class="mid">2</td><td class="mid">0.5</td><td>第 16 回</td></tr>
+<tr><th>バンド端</th><td class="mid">\((k-k_c)^2\)</td><td class="mid">2</td><td class="mid">0.5</td><td>第 44 回</td></tr>
+<tr><th>窓当てはめ</th><td class="mid">\(\frac{3}{5}h^2\)</td><td class="mid">2</td><td class="mid">0.5</td><td>第 51 回</td></tr>
+<tr><th>周期の分解能</th><td class="mid">\(1/N\)</td><td class="mid">1</td><td class="mid">1.0</td><td>第 51, 53 回</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心</p>
+<p style="margin:6px 0 0">★ <strong>「端」は種類ではなく、\(n\) という連続の量で並んでいました。</strong><em>（桁/桁 の欄は \(\gamma=1\) の場合。）</em><br>
+★★ <strong>\(n=1\) の端（重ね合わせ・分解能）は \(\varepsilon\) を 10 倍 きびしくすると 1 桁 失う。\(n=2\) の端（テイラー展開・窓）は 0.5 桁 で済む。</strong><br>
+★★★ <em>ただし \(n\) が小さいことは<strong>「端の外側の情報が遠くまで効いている」</strong>ことでもあります</em> ── <strong>取りにくい端と、外が見えている端は、同じことの裏表です。</strong></p>
+</div>
+
+<h2><span class="n">08</span>第 53 回との関係</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>投資</th><th>桁数の伸び方</th><th>10 倍 で</th><th>出典</th></tr></thead>
+<tbody>
+<tr><th>観測時間 \(T\)</th><td class="mid">\(\log_{10}T\)</td><td class="mid">＋1.0 桁</td><td>第 53 回</td></tr>
+<tr><th>標本数 \(N\)（精度）</th><td class="mid">\(-\frac12\log_{10}N\)</td><td class="mid">精度 3.2 倍</td><td>第 53 回</td></tr>
+<tr class="hi"><th><strong>厳しさ \(\varepsilon\)（\(n=1\)）</strong></th><td class="mid"><strong>\(\log_{10}(1/\varepsilon)\)</strong></td><td class="mid"><strong>−1.0 桁</strong></td><td><strong>本回</strong></td></tr>
+<tr><th>厳しさ \(\varepsilon\)（\(n=2\)）</th><td class="mid">\(\frac12\log_{10}(1/\varepsilon)\)</td><td class="mid">−0.5 桁</td><td>本回</td></tr>
+<tr class="hi"><th><strong>\(1/f\) の両端（\(\gamma=1\)）</strong></th><td class="mid"><strong>\(2\log_{10}(1/\varepsilon)\)</strong></td><td class="mid"><strong>−2.0 桁</strong></td><td><strong>本回</strong></td></tr>
+<tr><th>温度（活性化）</th><td class="mid">\(E/kT\) を直接</td><td class="mid">桁違い</td><td>第 56 回</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>第 53 回の「範囲は対数でしか買えない」は、端でもそのまま成り立ちます。</strong><em>ただし係数が \(1/n\) ── <strong>端の \(n\) を知らないと、必要な精度を 2 倍 見誤ります。</strong></em></p>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>03 節で予想（傾きはどの \(\gamma\) でも 2）が外れた。外れ方から何が分かったか。
+<details><summary>答えを見る</summary><div class="ans"><strong>傾きが \(\gamma=1\) で最小になること ── つまり \(1/f\) の特別さが、もう一つ見つかりました。</strong><br>★ <em>予想どおり 2 だったら、「端は \(\gamma\) によらない」で話は終わっていました。</em>★★ <strong>外れたので端の漸近形を調べ直し、\((\omega\tau_{\max})^{-\gamma}\) と \((\omega\tau_{\min})^{2-\gamma}\) という非対称な組が見えました。</strong><br>★★★ <em>\(\tau\to1/\tau\) の裏返しで \(\gamma\to2-\gamma\) になる ── この対称性の不動点が \(\gamma=1\) です。</em><strong>\(1/f\) が「端の代金が最小」なのは、それが唯一の自己双対な点だから</strong>。<br>★ <em>第 30 回で「\(1/f\) はスケール不変の固定点」と書いたのと同じ場所に、測定の側から到達したことになります。</em></div></details></li>
+
+<li>07 節で「\(n\) が小さいほど端の外の情報が遠くまで効く」と書いた。これは良いことか悪いことか。
+<details><summary>答えを見る</summary><div class="ans"><strong>測る側には悪く、系を知る側には良いことです。</strong><br>★ <strong>悪い面</strong>：\(n=1\) の端は裾が \(1/x\) でゆっくり落ちるので、<em>窓の外にある \(\tau\) がいつまでも測定に影響し、きれいな冪が取れる範囲が狭くなる。</em><br>★★ <strong>良い面</strong>：同じ理由で、<em>窓の外にある \(\tau_{\max}\) の情報が窓の中に漏れてきている。</em><strong>第 56 回で「観測時間より長い \(\tau\) は見えない」と書きましたが、厳密には「折れ曲がりは見えないが、裾は効いている」</strong>。<br>★★★ <em>原理的には、端の形を精密に測れば \(\tau_{\max}\) を窓の外から推定できます</em> ── <strong>ただしそれは形に模型を仮定することなので、第 55 回の分類では「模型を仮定した値」になります。</strong></div></details></li>
+
+<li>06 節の法則は \(n\) が整数でないときも使えるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>使えます ── 03 節がまさにその例です。</strong>\(\gamma=0.6\) のとき低域端の \(n\) は 0.6、高域端は 1.4 で、どちらも整数ではありません。<em>測った傾き 2.3695 は \(1/0.6+1/1.4=2.3810\) と 0.5 % で一致しました。</em><br>★ <strong>\(n\) が整数になるのはテイラー展開が使える場合だけ</strong>で、<em>冪則の裾から来る端では \(n\) は連続量です。</em><br>★★ <strong>これは第 41〜42 回と同じ構造</strong>：<em>階数が整数から離れるのと同じ理由で、端の \(n\) も整数から離れます。</em>★ <strong>どちらも「冪則が整数を要求しない」という同じ事実の現れです。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　端は「最低次の補正項」だった</h2>
+<p>第 56 回の<strong>「端で 2.2 桁 失う」</strong>を、今回は測るのではなく<em>導きました</em>。</p>
+<p>\(\gamma=1\) なら \(S(\omega)=[\arctan(\omega\tau_{\max})-\arctan(\omega\tau_{\min})]/\omega\) と厳密に解け、<strong>失う桁数 \(=2\log_{10}[2/(\pi\varepsilon)]\)</strong>。\(\varepsilon=0.05\) で <strong>2.2098</strong> ── <em>第 56 回の実測 2.249 / 2.255 と一致します。</em><strong>あの 2.2 は、両端の \(\arctan\) の裾から来ていました。</strong></p>
+<p style="text-align:center"><strong>★★★ 一般法則 ──<br>失う桁数 \(=\dfrac{1}{n}\log_{10}\dfrac{1}{\varepsilon}+\)定数。<br>\(n\) は最低次の補正のべき。</strong></p>
+<p>★ <strong>シリーズ中の端はすべてこの式に入りました</strong> ── <em>ローレンツ 1 個（\(n=2\)）、離散弦の分散（\(n=2\)、第 16 回）、バンド端（\(n=2\)、第 44 回）、窓当てはめ（\(n=2\)、第 51 回）、分解能（\(n=1\)）、重ね合わせ（\(n=\gamma\) と \(2-\gamma\)）。</em><strong>端は種類ではなく、\(n\) という連続の量で並んでいました。</strong></p>
+<p>★★ <strong>そして予想が外れました。</strong><em>「傾きはどの \(\gamma\) でも 2」と思っていましたが、正しくは \(2/[\gamma(2-\gamma)]\) です。</em><strong>これは \(\gamma=1\) ── ちょうど \(1/f\) ── で最小値 2 をとります。</strong>★★★ <em>\(\tau\to1/\tau\) の裏返しが \(\gamma\to2-\gamma\) を引き起こし、その不動点が \(\gamma=1\) だから</em> ── <strong>\(1/f\) は「端の代金がいちばん安い」スペクトルでもありました。</strong></p>
+<p>★ <strong>第 53 回の「範囲は対数でしか買えない」は端でも成り立ちます</strong> ── <em>ただし係数が \(1/n\)。端の \(n\) を知らないと、必要な精度を 2 倍 見誤ります。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+07 節で「\(n\) が小さいほど端の外の情報が遠くまで効く」と書きました。<br>
+★ <strong>次回はそれを裏返します</strong> ── <em>窓の外にあるものが、窓の中にどう漏れてくるか。</em><br>
+★★ <strong>第 40 回の窓関数、第 51 回の漏れ、そして第 45 回のボゴリューボフ変換</strong> ── <em>「外のものが中に現れる」という点で、これらは同じ形をしているかもしれません。</em>★ 測れる形にして調べます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 57 回です。計算は kenshou/hashi.js で行っています。<strong>本回の数値について：</strong>ローレンツの曲がりの幅、\(\gamma=1\) の厳密解からの失う桁数、\(\gamma\) を振ったときの傾き、離散弦の分散の有効範囲、窓当てはめの偏り、\(Q=1+Ax^n\) の一般則は、すべて本稿で計算したものです。<strong>\(\arctan\) による \(\gamma=1\) の閉じた形、\(\sin x/x\) の展開、最小二乗の偏りが \(h^2\) で効くこと ── これらは標準的な結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>それらを「失う桁数 \(=(1/n)\log_{10}(1/\varepsilon)\)」という一つの形にまとめ、シリーズ中の端を並べたこと、および傾きが \(2/[\gamma(2-\gamma)]\) で \(\gamma=1\) に最小をもつことを示したこと</em>です。<em>03 節の傾きは \(\varepsilon\le0.01\)、01・02・04 節の傾きは \(\varepsilon\le0.002\) で測っています ── 大きい \(\varepsilon\) では高次の補正が残り、傾きが漸近値に達しません（表の値が予言から 4 % ほどずれているのはこのためです）。</em>07 節の「桁/桁」は \(\gamma=1\) の場合の値です。<strong>本稿も合成データのみで、実際の測定データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
