@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乱流の間欠性 ── 階数は「分布」だった｜考える波 第42回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 42 回 ／ 第 XIII 部・最先端を波として見る</span></p>
+<p class="eyebrow">階数が、ひとつの数ですらなくなる</p>
+
+<h1>乱流の間欠性 ──<br>階数は「分布」だった
+<span class="sub">コルモゴロフの \(-5/3\) を本シリーズの言葉に直すと ── <strong>乱流は「5/6 階」の波</strong>、dB/oct = 5、位相 75°。<em>1/f（1/2 階）とブラウン運動（1 階）の ちょうど 間です。</em><br>★★ ところが実測は そこから系統的にずれます。ずれの正体は ── <strong>階数が一つの数ではなく、幅 1.222 の分布になっている</strong>こと。<br>★ そして<strong>平均だけは動きません</strong> ── \(\zeta_3=1\) はどんな間欠性があっても厳密に 1。</span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 2, 13, 14, 22, 30, 39 回</span><span>計算：kenshou/ranryu.js</span></p>
+
+<p class="lead">第 14 回で<strong>「階数が整数から外れる理由は三つ」</strong>と整理し、第 39 回で四つめ（バルクの質量）を足しました。<br><em>★ この回で<strong>五つめ</strong>が出ます ── いちばん厄介なもの、<strong>「階数が一つに決まらない」</strong>。</em></p>
+
+<h2><span class="n">01</span>\(-5/3\) を、階数として読む</h2>
+
+<div class="calc">
+<span class="tag">使えるのは \(\varepsilon\)（単位質量あたりの散逸率）と \(k\) だけ</span>
+$$E(k)\ [\mathrm{m^3/s^2}]=\varepsilon^a k^b\ \Longrightarrow\ \text{長さ}:2a-b=3,\ \ \text{時間}:-3a=-2\ \Longrightarrow\ a=\tfrac23,\ b=-\tfrac53$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>量</th><th>値</th><th>本シリーズの言葉</th></tr></thead>
+<tbody>
+<tr><th>パワーの傾き \(\beta\)</th><td class="mid">1.666667</td><td>\(E(k)\propto k^{-\beta}\)</td></tr>
+<tr class="hi"><th><strong>★ 階数 \(\alpha=\beta/2\)</strong></th><td class="mid"><strong>0.833333</strong></td><td><strong>★ 振幅が \(k^{-\alpha}\)</strong></td></tr>
+<tr><th>dB/oct \(=6\alpha\)</th><td class="mid">5.000000</td><td>第 1 回</td></tr>
+<tr><th>位相 \(=90\alpha\)［度］</th><td class="mid">75.000000</td><td>第 1 回</td></tr>
+<tr class="hi"><th><strong>★ ハースト \(H=\alpha-1/2\)</strong></th><td class="mid"><strong>0.333333</strong></td><td><strong>★ ちょうど \(1/3\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>乱流は「5/6 階」の波。<br>1/f（1/2 階、第 2 回）とブラウン運動（1 階）の ちょうど 間。</strong></p>
+<p style="margin:10px 0 0">★ そして \(H=1/3\) は、K41 の \(\zeta_p=p/3\) の \(p=1\) そのものです ── <em>「階数」「dB/oct」「ハースト指数」「構造関数の指数」が、<strong>全部ひとつの数の言い換え</strong>だということ。</em><br>
+★★ <strong>ただしそれは「階数がひとつなら」の話です。</strong></p>
+</div>
+
+<h2><span class="n">02</span>階数がひとつなら、どの指数も一致する</h2>
+
+<p>\(f^{-\beta}\) の雑音を合成して、構造関数 \(S_p(r)=\langle|\delta u|^p\rangle\propto r^{\zeta_p}\) の指数を \(p\) ごとに測ります。<strong>単一の階数なら \(\zeta_p/p\) は \(p\) によらないはず。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(H=(\beta-1)/2\)</th><th>\(\zeta_1\)</th><th>\(\zeta_2/2\)</th><th>\(\zeta_4/4\)</th><th>\(\zeta_6/6\)</th></tr></thead>
+<tbody>
+<tr><th>1.2</th><td class="mid">0.100000</td><td class="mid">0.15906</td><td class="mid">0.15932</td><td class="mid">0.15928</td><td class="mid">0.15833</td></tr>
+<tr class="hi"><th><strong>5/3</strong></th><td class="mid"><strong>0.333333</strong></td><td class="mid"><strong>0.34639</strong></td><td class="mid"><strong>0.34697</strong></td><td class="mid"><strong>0.34732</strong></td><td class="mid"><strong>0.34747</strong></td></tr>
+<tr><th>2.0</th><td class="mid">0.500000</td><td class="mid">0.50260</td><td class="mid">0.50269</td><td class="mid">0.50277</td><td class="mid">0.50352</td></tr>
+<tr><th>2.5</th><td class="mid">0.750000</td><td class="mid">0.75138</td><td class="mid">0.74998</td><td class="mid">0.74798</td><td class="mid">0.74887</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★ <strong>\(\zeta_p/p\) が \(p\) によらず一定</strong> ── これが「階数がひとつ」ということです（単一フラクタル）。<br>
+★ \(\beta=1.2\) の行だけ 0.100 でなく 0.159 とずれています ── <em>\(H<0.2\) では有限の刻み幅の影響が残るためで、<strong>本稿の合成法の限界</strong>です。他の三行は 0.3 % 以内。</em></p>
+</div>
+
+<h2><span class="n">03</span>ところが実際の乱流は、掛け算で散逸を分ける</h2>
+
+<p>エネルギーは大きな渦から小さな渦へ渡されますが、<strong>均等には分かれません</strong>。各段で \(p\) と \(1-p\) に分ける模型（p 模型）で、測度の \(q\) 次モーメント \(Z(q,r)=\sum\mu_i^q\propto r^{\tau(q)}\) を測ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\tau\)（実測）</th><th>\(\tau\)（厳密 \(-\log_2(p^q+(1-p)^q)\)）</th><th>差</th><th>もし単一なら \(q-1\)</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">−1.000000</td><td class="mid">−1.000000</td><td class="mid">0</td><td class="mid">−1.000</td></tr>
+<tr><th>1</th><td class="mid">−0.000000</td><td class="mid">0.000000</td><td class="mid">1.7e−14</td><td class="mid">0.000</td></tr>
+<tr class="hi"><th><strong>2</strong></th><td class="mid"><strong>0.785875</strong></td><td class="mid"><strong>0.785875</strong></td><td class="mid"><strong>2.4e−14</strong></td><td class="mid"><strong>1.000</strong></td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid"><strong>2.010425</strong></td><td class="mid"><strong>2.010425</strong></td><td class="mid"><strong>4.4e−14</strong></td><td class="mid"><strong>3.000</strong></td></tr>
+<tr><th>5</th><td class="mid">2.552156</td><td class="mid">2.552156</td><td class="mid">3.2e−14</td><td class="mid">4.000</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0">実測は厳密解と <strong>\(10^{-14}\)</strong> で一致（\(p=0.7\)、18 段 ＝ 262144 箱）。<br>
+★ <strong>そして \(\tau(q)\) は \(q\) の一次式ではありません</strong> ── \(q=4\) で 2.010 に対し、単一なら 3.000。<em>この「曲がり」が間欠性そのもの。</em><br>
+★★ <em>\(p=0.5\)（均等に分ける）なら \(\tau(q)=q-1\) の直線に戻ります</em>（数値でも 0, 1.000000, 3.000000 と確認）。<strong>曲がりは「不均等に分けること」から来ている。</strong></p>
+</div>
+
+<h2><span class="n">04</span>★★ ルジャンドル変換すると、分布が見える</h2>
+
+<div class="calc">
+<span class="tag">\(q\) はどの強さの領域を拾うかを選ぶつまみ</span>
+$$\alpha(q)=\frac{d\tau}{dq}\quad(\text{その }q\text{ が拾う局所的な指数}),\qquad f(\alpha)=q\alpha-\tau(q)\quad(\text{その指数を持つ点の次元})$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\alpha\)（局所指数）</th><th>\(f(\alpha)\)</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>−4</th><td class="mid">1.697073</td><td class="mid">0.207439</td><td>弱い領域を拾う</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>1.125769</strong></td><td class="mid"><strong>1.000000</strong></td><td><strong>★ \(f=1\)＝台の次元</strong></td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>0.881291</strong></td><td class="mid"><strong>0.881291</strong></td><td><strong>★ ここが「代表値」</strong></td></tr>
+<tr><th>4</th><td class="mid">0.554466</td><td class="mid">0.207439</td><td>強い領域を拾う</td></tr>
+<tr><th>8</th><td class="mid">0.515963</td><td class="mid">0.012758</td><td>いちばん強い所</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(\alpha\) は 0.514573 から 1.736966 まで動く（幅 1.222392）。<br>一つの数ではなく、幅のある集合。</strong></p>
+<p style="margin:10px 0 0">厳密には \(-\log_2 p=0.514573\) から \(-\log_2(1-p)=1.736966\) まで ── <em>幅は \(\log_2\frac{1-p}{p}\)。</em><br>
+★ <strong>\(p=0.5\) なら幅はゼロ</strong>（\(\alpha=1\) の一点）。<em>不均等さが、そのまま分布の幅になります。</em><br>
+★★ <em>本シリーズの言葉では ── <strong>場所ごとに違う階数を持つ波</strong>。第 22 回のウェーブレットで局所的に測れば、<strong>測る場所ごとに違う dB/oct が出る</strong>ということです。</em></p>
+</div>
+
+<h2><span class="n">05</span>速度の構造関数へ ── \(p/3\) から曲がる</h2>
+
+<div class="calc">
+<span class="tag">箱の測度は \(\mu=\varepsilon_r\cdot r\) なので、散逸そのものの指数は \(\tau_\varepsilon(q)=1-q+\tau(q)\)</span>
+$$\zeta_p=\frac p3+\tau_\varepsilon\!\left(\frac p3\right)\qquad(\text{精緻化された相似仮説})$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\)</th><th>K41: \(p/3\)</th><th>★ p 模型（\(p=0.7\)）</th><th>ずれ</th><th>文献の実測値</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.333333</td><td class="mid">0.360919</td><td class="mid">+0.027586</td><td class="mid">0.37</td></tr>
+<tr><th>2</th><td class="mid">0.666667</td><td class="mid">0.693721</td><td class="mid">+0.027055</td><td class="mid">0.70</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>★ 0.000000</strong></td><td class="mid"><strong>1.00</strong></td></tr>
+<tr><th>4</th><td class="mid">1.333333</td><td class="mid">1.282153</td><td class="mid">−0.051180</td><td class="mid">1.28</td></tr>
+<tr><th>5</th><td class="mid">1.666667</td><td class="mid">1.543081</td><td class="mid">−0.123586</td><td class="mid">1.53</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid"><strong>2.000000</strong></td><td class="mid"><strong>1.785875</strong></td><td class="mid"><strong>−0.214125</strong></td><td class="mid"><strong>1.78</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>つまみ一つ（\(p=0.7\)）だけで、\(\zeta_1\) から \(\zeta_6\) までの文献値を 1〜2 % で再現できます。</strong><br>
+★ <em>\(p\) が大きいほど下に曲がる</em> ── <strong>高次のモーメントは「いちばん強い渦」を拾うが、それはまれだから。</strong><br>
+★ <em>第 2 回で「1/f は多数の時定数の重ね合わせ」と見ました。ここは<strong>掛け算の重ね合わせ</strong>です</em> ── <em>足し算なら中心極限定理でガウス分布に、掛け算なら対数正規に近づく。</em><strong>間欠性は「掛け算だから」起きています。</strong></p>
+</div>
+
+<h2><span class="n">06</span>★ それでも \(\zeta_3=1\) は動かない</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\)</th><th>★ \(\zeta_3\)</th><th>\(\zeta_2\)</th><th>\(\zeta_6\)</th><th>\(\beta=1+\zeta_2\)</th><th>dB/oct</th></tr></thead>
+<tbody>
+<tr><th>0.5</th><td class="mid">1.00000000</td><td class="mid">0.666667</td><td class="mid">2.000000</td><td class="mid">1.666667</td><td class="mid">5.0000</td></tr>
+<tr class="hi"><th><strong>0.7</strong></th><td class="mid"><strong>1.00000000</strong></td><td class="mid"><strong>0.693721</strong></td><td class="mid"><strong>1.785875</strong></td><td class="mid"><strong>1.693721</strong></td><td class="mid"><strong>5.0812</strong></td></tr>
+<tr><th>0.8</th><td class="mid">1.00000000</td><td class="mid">0.732441</td><td class="mid">1.556393</td><td class="mid">1.732441</td><td class="mid">5.1973</td></tr>
+<tr><th>0.9</th><td class="mid">1.00000000</td><td class="mid">0.801364</td><td class="mid">1.286304</td><td class="mid">1.801364</td><td class="mid">5.4041</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">\(\tau_\varepsilon(1)=1-1+\tau(1)=0\) は \(p\) に依りません（<em>平均散逸は保存される</em>）── <strong>だから \(\zeta_3=1\) はどんな \(p\) でも厳密に 1</strong>。これが「4/5 の法則」です。<br>
+★★★ <strong>そして肝心なこと</strong> ── \(p=0.7\) でも \(\beta\) は 1.6937、K41 の 1.6667 との差は <strong>0.0271</strong>。<em>dB/oct にすると <strong>0.081 dB/oct</strong> の差しかありません。</em><br>
+★ <strong>だからパワースペクトルだけ見ていると、間欠性はほとんど見えない。</strong><em>「−5/3 はよく合う」と言われるのは、<strong>2 次モーメントが たまたま鈍感</strong>だからでした。</em></p>
+</div>
+
+<h2><span class="n">07</span>本シリーズの言葉に直すと ── 五つめの理由</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階数が整数から外れる理由</th><th>回</th></tr></thead>
+<tbody>
+<tr><th>① 多数の時定数の重ね合わせ</th><td>第 2 回</td></tr>
+<tr><th>② 次元（\(\alpha=(d-3)/2\)）</th><td>第 30 回</td></tr>
+<tr><th>③ 臨界点での連続変化</th><td>第 13 回</td></tr>
+<tr><th>④ バルクの質量（\(\alpha=2\nu\)）</th><td>第 39 回</td></tr>
+<tr class="hi"><th><strong>★ ⑤ 階数が一つの数ではない（分布になる）</strong></th><td><strong>★ 本回</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>測り方</th><th>得られる階数</th><th>第 1 回の量</th></tr></thead>
+<tbody>
+<tr><th>パワースペクトルの傾き</th><td>\(\zeta_2\) から一つ</td><td>dB/oct</td></tr>
+<tr><th>1 次の構造関数</th><td>\(\zeta_1\) から一つ</td><td>—</td></tr>
+<tr class="hi"><th><strong>★ 高次モーメント</strong></th><td><strong>★ \(p\) ごとに違う値</strong></td><td><strong>★ 一致しない</strong></td></tr>
+<tr class="hi"><th><strong>★ 局所的に測る</strong></th><td><strong>★ 場所ごとに違う値</strong></td><td><strong>★ 分布になる</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>「dB/oct を測る」という操作そのものが、どのモーメントで測るかに依ります。</strong><br>
+★ <em>単一フラクタルなら、どれで測っても同じ値が出ます（02 節で確認）。乱流はそうではない。</em><br>
+★★ <strong>第 1 回から続いてきた「階数」という一本の軸は、ここで<em>一本ではなくなります</em>。</strong></p>
+</div>
+
+<h2><span class="n">08</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>\(-5/3\) は次元解析で一行</th><td class="mid">◎ 解析</td><td>階数 5/6、dB/oct 5、位相 75°</td></tr>
+<tr><th>\(H=\alpha-1/2=1/3\)</th><td class="mid">◎ 数値</td><td>合成雑音で確認</td></tr>
+<tr><th>単一階数なら \(\zeta_p/p\) 一定</th><td class="mid">◎ 数値</td><td>\(p=1,2,4,6\) で一致</td></tr>
+<tr class="hi"><th><strong>★ \(\tau(q)\) が一次式でない</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 厳密解と \(10^{-14}\)</strong></td></tr>
+<tr class="hi"><th><strong>★ 階数が分布になる</strong></th><td class="mid"><strong>◎ 解析</strong></td><td><strong>★ 幅 \(=\log_2\frac{1-p}{p}\)</strong></td></tr>
+<tr><th>\(\zeta_p\) が下に曲がる</th><td class="mid">◎ 解析</td><td>\(p=0.7\) で文献値を 1〜2 %</td></tr>
+<tr><th>\(\zeta_3=1\) は \(p\) によらない</th><td class="mid">◎ 解析</td><td>4/5 の法則は生き残る</td></tr>
+<tr class="hi"><th><strong>★ 実際の乱流の \(p\) の値</strong></th><td class="mid"><strong>× 決められない</strong></td><td><strong>★ 模型の当てはめ</strong></td></tr>
+<tr class="hi"><th><strong>★ なぜカスケードが掛け算か</strong></th><td class="mid"><strong>× 扱えない</strong></td><td><strong>★ 本稿は仮定した</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>06 節で「\(-5/3\) はよく合う」の理由が分かった。これは K41 が正しいということか。
+<details><summary>答えを見る</summary><div class="ans"><strong>いいえ ── 「2 次モーメントが鈍感だった」ということです。</strong>\(\zeta_2\) のずれはたった 0.027、dB/oct では 0.081。<em>測定誤差に埋もれます。</em><br>★ <strong>K41 が間違っていた所は、6 次モーメントではっきり出ます</strong> ── 予言 2.000 に対し実測 1.78、<em>11 % のずれ</em>。<br>★★ <em>教訓は「よく合う指数を一つ見ただけでは、理論を検証したことにならない」</em>。<strong>本シリーズが毎回「どのモーメントで測ったか」を書くのは、このためです。</strong>★ 第 5 回の「宇宙年齢より長いものは定数と区別がつかない」と同じ構図 ── <em>感度のない量で見ている限り、違いは無いのと同じ。</em></div></details></li>
+
+<li>04 節で \(\alpha\) が 0.51 から 1.74 まで分布した。負の \(\alpha\) や 2 を超える \(\alpha\) はなぜ出ないのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>各段の分け方が \(p\) と \(1-p\) の二通りしかないからです。</strong>いちばん強い所は毎回 \(p\) を引き当てた場所で \(\mu=p^n\)、つまり \(\alpha=-\log_2p\)。いちばん弱い所は \(\alpha=-\log_2(1-p)\)。<br>★ <strong>つまり分布の端は「最も極端な経路」で決まります。</strong><em>模型を変えれば端も変わる</em>── 対数正規カスケードなら形式的には端が無くなります。<br>★★ <em>ただし現実の乱流では、<strong>粘性の効く長さ（コルモゴロフ長）で段数が止まる</strong>ので、いくらでも極端にはなれません。</em>★ 第 5 回・第 22 回と同じく ── <strong>「どこまで細かく見るか」が答えを決めます。</strong></div></details></li>
+
+<li>第 2 回の 1/f も「重ね合わせ」だった。本回の間欠性とどう違うか。
+<details><summary>答えを見る</summary><div class="ans"><strong>足し算か、掛け算かの違いです。</strong>第 2 回は<em>多数の緩和過程を足し合わせて</em> \(1/f\) を作りました ── 足し算の重ね合わせは中心極限定理でガウス分布に向かい、<strong>階数は一つに決まります</strong>。<br>★ 本回は<em>各段で掛け算</em>。<strong>掛け算の重ね合わせは対数が足し算になるので、対数正規に向かう</strong>── <em>裾が重く、まれな大きい値が効く。</em>だから高次モーメントが曲がる。<br>★★ <strong>「階数が一つに決まるか、分布になるか」は、重ね合わせが足し算か掛け算かで決まっていました。</strong>★ 第 28 回で「指数関数が出る源は二つ」と整理しましたが、その一つ<em>「足し算→掛け算」</em>が、ここでも効いています。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　階数は「分布」だった</h2>
+<p>コルモゴロフの \(-5/3\) は<strong>次元解析で一行</strong>で出ます。本シリーズの言葉に直すと ── <strong>乱流は「5/6 階」の波</strong>、dB/oct = 5、位相 75°、ハースト \(H=1/3\)。<em>1/f（1/2 階）とブラウン運動（1 階）の ちょうど 間でした。</em></p>
+<p>まず<strong>階数がひとつならどう見えるか</strong>を確かめました ── \(f^{-\beta}\) の合成雑音では \(\zeta_p/p\) が \(p\) によらず一定で、その値は \((\beta-1)/2\) に一致します。</p>
+<p>ところが<strong>実際のカスケードは掛け算</strong>です。p 模型で測度の \(\tau(q)\) を測ると厳密解と \(10^{-14}\) で一致し、<strong>\(\tau(q)\) は \(q\) の一次式になりません</strong>（\(q=4\) で 2.010、単一なら 3.000）。<em>\(p=0.5\) なら直線に戻ります ── 曲がりは「不均等に分けること」から来ている。</em></p>
+<p style="text-align:center"><strong>★★★ 本回の要 ── ルジャンドル変換すると \(\alpha\) は<br>0.514573 から 1.736966 まで分布する（幅 \(\log_2\frac{1-p}{p}=1.222\)）。<br>階数は一つの数ではなく、幅のある集合だった。</strong></p>
+<p>速度の構造関数に直すと \(\zeta_p\) は \(p/3\) から下に曲がり ── <strong>つまみ一つ（\(p=0.7\)）で \(\zeta_1\) から \(\zeta_6\) までの文献値を 1〜2 % で再現できます</strong>（0.361/0.37、0.694/0.70、1.000/1.00、1.282/1.28、1.543/1.53、1.786/1.78）。</p>
+<p>★ <strong>それでも \(\zeta_3=1\) は動きません</strong> ── 平均散逸が保存されるので \(\tau_\varepsilon(1)=0\)、どんな \(p\) でも厳密に 1（4/5 の法則）。<br>★★★ <strong>そして肝心なこと</strong>：\(p=0.7\) でも \(\beta=1.6937\)、K41 との差は <strong>0.081 dB/oct</strong> しかありません。<em>「\(-5/3\) はよく合う」と言われるのは、<strong>2 次モーメントが たまたま鈍感</strong>だったからでした。</em></p>
+<p>★ 第 14 回の三つ、第 39 回の四つめに続いて ── <strong>⑤ 階数が一つの数ではない</strong>。<em>「dB/oct を測る」という操作そのものが、どのモーメントで測るかに依ります。</em>★ <strong>第 1 回から続いてきた一本の軸は、ここで一本ではなくなりました。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+ここまで 42 回、<strong>階数という一本の軸</strong>で物理を並べてきました。<br>
+★ 前回は<strong>整数（巻き数・チャーン数）</strong>という別種の量が出て、今回は<strong>階数が分布になりました</strong>。<br>
+★★ <strong>次回は、この第 XIII 部をいったん締めます</strong> ── 第 15 回でやったように、<em>最先端を波として見た 26 回ぶんを採点</em>します。<strong>当たったのはどこか、外れたのはどこか、そして「翻訳しただけ」だったのはどこか。</strong>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 42 回です。計算は kenshou/ranryu.js で行っています。<strong>本回の数値について：</strong>合成雑音の構造関数の指数、p 模型のカスケードと \(\tau(q)\) の実測、ルジャンドル変換、\(\zeta_p\) と \(\beta\) の計算は、すべて本稿で計算したものです。<strong>コルモゴロフの \(-5/3\) 則と \(\zeta_p=p/3\)、4/5 の法則（\(\zeta_3=1\)）、マンデルブロの掛け算カスケードと p 模型、\(\tau(q)=-\log_2(p^q+(1-p)^q)\)、マルチフラクタル形式（ルジャンドル変換）、精緻化された相似仮説、そして \(\zeta_p\) の実測値（\(\zeta_6\approx1.78\) など）は、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>これらを「階数」という本シリーズの軸に載せ、「階数が分布になる」を第 14 回の一覧に五つめとして加え、間欠性が dB/oct では 0.081 しか動かないことを数字で示したこと</em>です。<em>05 節で \(p=0.7\) が文献値をよく再現しますが、これは一つのパラメータを当てはめた結果であり、p 模型が正しい模型だということではありません。実際の乱流の間欠性の模型は複数あり（対数正規、She–Lévêque など）、本稿はいちばん単純なものを一つ選んだだけです。</em>02 節の \(\beta=1.2\) の行は合成法の限界により 0.06 ずれています。文献の \(\zeta_p\) の実測値は測定条件やレイノルズ数に依存し、ここに挙げたのは代表的な値です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
