@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>圧搾光 ── AM の雑音を、FM へ寄せる ｜ 考える波 第 36 回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f7fa; --paper-edge:#d7dee8;
+    --side:#17304f; --side-bg:#e9eef6;
+    --warn:#8a4b2f;
+    --calc:#132c48; --calc-bg:#e4ebf4;
+    --rule:#c9d4e2; --hair:#a8b8cc;
+    --acc:#1c3f63;
+    --grid:#dde5ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 36 回 ／ 第 XIII 部・最先端を波として見る</span></p>
+<p class="eyebrow">不確定性は「総量」の話であって、「配分」の話ではない</p>
+
+<h1>圧搾光 ──<br>AM の雑音を、FM へ寄せる
+<span class="sub">\(\Delta X_1\cdot\Delta X_2\ge1/4\) が破れないのは ── <strong>力学が位相空間の面積を保つから</strong>でした（数値で \(\det M=1.0000000000\)）。<br>★★ <em>だから片方を \(e^{-r}\) に縮めれば、もう片方は必ず \(e^{+r}\) に伸びる。</em>6 dB の圧搾で<strong>観測体積が 8 倍</strong>。<br>★ そして<strong>損失 5 % で 13 dB が上限</strong> ── 減衰は真空ゆらぎを混ぜ、二度と戻せません。</span></h1>
+
+<p class="byline"><span>必要な道具：第 9, 22, 23, 32, 34, 35 回</span><span>計算：kenshou/asshuku.js</span></p>
+
+<p class="lead">第 35 回で<strong>位相の自由度</strong>（角度・経路）を見ました。本回は<strong>位相の雑音</strong>です。<br>単色の光を二つの直交成分に分けます ── <em>\(E(t)=X_1\cos\omega_0t+X_2\sin\omega_0t\)。\(X_1\) が振幅側（AM）、\(X_2\) が位相側（FM）</em>（第 32 回と同じ分け方）。</p>
+
+<div class="calc">
+<span class="tag">量子力学が課す下限</span>
+$$\Delta X_1\cdot\Delta X_2\ge\frac14$$
+<p class="lbl">第 9 回の \(\Delta t\cdot\Delta\omega\ge1/2\) と同じ形 ── <strong>フーリエ対だから</strong></p>
+</div>
+
+<p>★ すると当然こう考えます ── <strong>積が一定なら、片方を減らしてもう片方に押しつけられるのでは？</strong><em>それが圧搾光です。</em></p>
+
+<h2><span class="n">01</span>圧搾の量を数える</h2>
+
+<div class="calc">
+<span class="tag">一つの実数 \(r\) で書ける</span>
+$$\Delta X_1=\tfrac12e^{-r},\qquad \Delta X_2=\tfrac12e^{+r}\qquad\Longrightarrow\qquad \text{積はいつも }\tfrac14$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(r\)</th><th>\(\Delta X_1\)</th><th>\(\Delta X_2\)</th><th>積</th><th>圧搾 [dB]</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">0.500000</td><td class="mid">0.500000</td><td class="mid">0.25000000</td><td class="mid">0.00</td></tr>
+<tr><th>0.5</th><td class="mid">0.303265</td><td class="mid">0.824361</td><td class="mid">0.25000000</td><td class="mid">−4.34</td></tr>
+<tr class="hi"><th><strong>1.151</strong></th><td class="mid"><strong>0.158160</strong></td><td class="mid"><strong>1.580676</strong></td><td class="mid"><strong>0.25000000</strong></td><td class="mid"><strong>−10.00</strong></td></tr>
+<tr><th>1.727</th><td class="mid">0.088909</td><td class="mid">2.811879</td><td class="mid">0.25000000</td><td class="mid">−15.00</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0"><strong>積はどこでも 0.25 ── 不確定性は破っていません。配分を変えただけ。</strong><br>
+★ 実測の目安：LIGO（2019〜）約 3 dB、最近 約 6 dB、研究室の最高記録 約 15 dB。<br>
+<em>音の言葉では ── 雑音を「イコライザで動かした」のと同じ。総量は変えられないが、どの直交成分に乗せるかは選べる。</em></p>
+</div>
+
+<h2><span class="n">02</span>★★ AM 側波帯と FM 側波帯 ── 第 32 回の続き</h2>
+
+<p>搬送波 \(\omega_0\) の上下に、\(\Omega\) 離れた側波帯が一対 あるとします。搬送波を基準にした複素表示で書くと、摂動はこうまとまります。</p>
+
+<div class="calc">
+<span class="tag">側波帯 二本のまとめ方</span>
+$$P(t)=2a\,e^{i\theta}\cos(\Omega t+\delta),\qquad \theta=\frac{\theta_++\theta_-}{2},\quad \delta=\frac{\theta_+-\theta_-}{2}$$
+<p class="lbl">★ <strong>平均 \(\theta\) だけが AM か FM かを決め、差 \(\delta\) はタイミングだけ</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\theta_+\)</th><th>\(\theta_-\)</th><th>\(\theta\)</th><th>振幅の振れ</th><th>位相の振れ</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong></th><td class="mid">0</td><td class="mid">0</td><td class="mid"><strong>0.100000</strong></td><td class="mid"><strong>0.000000</strong></td><td><strong>★ 純 AM</strong></td></tr>
+<tr><th>\(\pi/2\)</th><td class="mid">\(-\pi/2\)</td><td class="mid">0</td><td class="mid">0.100000</td><td class="mid">0.000000</td><td>★ 純 AM（\(\delta\) だけ違う）</td></tr>
+<tr class="hi"><th><strong>\(\pi/2\)</strong></th><td class="mid">\(\pi/2\)</td><td class="mid">\(\pi/2\)</td><td class="mid"><strong>0.002494</strong></td><td class="mid"><strong>0.099669</strong></td><td><strong>★ 純 FM</strong></td></tr>
+<tr><th>\(\pi\)</th><td class="mid">0</td><td class="mid">\(\pi/2\)</td><td class="mid">0.002494</td><td class="mid">0.099669</td><td>★ 純 FM（\(\delta\) だけ違う）</td></tr>
+<tr><th>\(\pi/4\)</th><td class="mid">\(\pi/4\)</td><td class="mid">\(\pi/4\)</td><td class="mid">0.070534</td><td class="mid">0.070945</td><td>45 度 の混合</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★★ <strong>圧搾光とは ── 側波帯の対に相関をつけて、AM 側の雑音を FM 側へ寄せること。</strong></p>
+<p style="margin:10px 0 0">第 32 回では<em>ヒッグス＝AM、ゴールドストーン＝FM</em> と見ました。<strong>同じ分け方が、ここでは「雑音をどちらに置くか」の設計になっています。</strong></p>
+</div>
+
+<h2><span class="n">03</span>★ 何が圧搾するのか ── 位相に依存する増幅</h2>
+
+<p>圧搾を作るのは<strong>非線形</strong>（第 23 回）です。二倍の周波数でばね定数を揺すります ── \(\ddot x+\omega_0^2(1+h\cos2\omega_0t)x=0\)。<br>増幅と減衰をきちんと分けるため、<strong>一周期の写像（フロケ行列 \(M\)）の固有値</strong>を見ます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(h\)</th><th>\(\det M\)</th><th>\(|\mu_+|\)</th><th>\(|\mu_-|\)</th><th>積</th><th>成長率</th><th>予言 \(h\omega_0/4\)</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">1.0000000000</td><td class="mid">1.00000000</td><td class="mid">1.00000000</td><td class="mid">1.000000</td><td class="mid">0.000000</td><td class="mid">0.000000</td></tr>
+<tr><th>0.05</th><td class="mid">1.0000000000</td><td class="mid">1.04004817</td><td class="mid">0.96149392</td><td class="mid">1.000000</td><td class="mid">0.012499</td><td class="mid">0.012500</td></tr>
+<tr class="hi"><th><strong>0.10</strong></th><td class="mid"><strong>1.0000000000</strong></td><td class="mid"><strong>1.08168155</strong></td><td class="mid"><strong>0.92448651</strong></td><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>0.024993</strong></td><td class="mid"><strong>0.025000</strong></td></tr>
+<tr><th>0.20</th><td class="mid">1.0000000000</td><td class="mid">1.16987402</td><td class="mid">0.85479289</td><td class="mid">1.000000</td><td class="mid">0.049942</td><td class="mid">0.050000</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(\det M=1\) ＝ 位相空間の面積が保存する ＝ \(\Delta X_1\cdot\Delta X_2\) が保存する。</strong></p>
+<p style="margin:10px 0 0">★ <em>だから片方を \(e^{-r}\) に縮めると、もう片方は<strong>必ず</strong> \(e^{+r}\) に伸びます。</em><strong>不確定性が破れないのは、力学が面積を保つからでした。</strong><br>
+成長率は \(h\omega_0/4\) と 4 桁 一致。</p>
+<p style="margin:10px 0 0">★ <strong>第 34 回では揺すりの周波数が合っていなかったので育ちませんでした。</strong>パラメトリック増幅は<em>ちょうど二倍</em>でないと効きません ── <strong>ブランコの立ち漕ぎが「一往復に二回しゃがむ」のと同じ理由です。</strong></p>
+</div>
+
+<h2><span class="n">04</span>重力波にどれだけ効くか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>圧搾 [dB]</th><th>雑音の振幅</th><th>到達距離</th><th>★ 観測体積</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">1.00000</td><td class="mid">1.00 倍</td><td class="mid">1.00 倍</td></tr>
+<tr><th>3</th><td class="mid">0.70795</td><td class="mid">1.41 倍</td><td class="mid">2.82 倍</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid"><strong>0.50119</strong></td><td class="mid"><strong>2.00 倍</strong></td><td class="mid"><strong>★ 7.94 倍</strong></td></tr>
+<tr><th>10</th><td class="mid">0.31623</td><td class="mid">3.16 倍</td><td class="mid">31.6 倍</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>6 dB の圧搾で到達距離が 2 倍、観測体積が 8 倍。</strong><em>「見える宇宙が 8 倍 になる」── 鏡もレーザーも変えずに。</em></p>
+<p style="margin:10px 0 0">★ ただし<strong>ただではありません</strong>（第 22 回の標準量子限界）── <em>位相の雑音を減らすと振幅の雑音が増え、その振幅の雑音が鏡を蹴ります（輻射圧雑音）。</em>低周波では輻射圧が、高周波ではショット雑音が効くので、<strong>周波数ごとに圧搾の向きを変える必要があります（周波数依存圧搾）。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ 限界は「損失」── 減衰が真空を混ぜる</h2>
+
+<div class="calc">
+<span class="tag">透過率 \(\eta\) の素子を通すと</span>
+$$S=\eta\,e^{-2r}+(1-\eta)$$
+<p class="lbl">第二項が<strong>混ざってきた真空ゆらぎ</strong> ── 失った光の代わりに入ってくる</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>透過率 \(\eta\)</th><th>損失</th><th>\(r=1.5\) のとき [dB]</th><th>★ \(r\to\infty\) の限界 [dB]</th></tr></thead>
+<tbody>
+<tr><th>1.00</th><td class="mid">0 %</td><td class="mid">−13.03</td><td class="mid">（無限に圧搾できる）</td></tr>
+<tr><th>0.99</th><td class="mid">1 %</td><td class="mid">−12.27</td><td class="mid">−20.00</td></tr>
+<tr class="hi"><th><strong>0.95</strong></th><td class="mid"><strong>5 %</strong></td><td class="mid">−10.12</td><td class="mid"><strong>★ −13.01</strong></td></tr>
+<tr><th>0.90</th><td class="mid">10 %</td><td class="mid">−8.39</td><td class="mid">−10.00</td></tr>
+<tr><th>0.50</th><td class="mid">50 %</td><td class="mid">−2.80</td><td class="mid">−3.01</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>損失 5 % で、どんなに頑張っても 13 dB が上限。</strong>損失 10 % なら 10 dB ── <em>これが実験の壁です。</em><br>
+★ 波の言葉では ── <strong>減衰は真空ゆらぎを混ぜる操作</strong>。第 22 回の「デコヒーレンスは単調に減る」と同じで、<em>一度 薄まったら戻せません（虚軸の現象）。</em><br>
+★ だから圧搾光の実験は<strong>損失との戦い</strong>になります ── <em>「増幅して信号を大きくする」では解決しません。増幅も雑音を足すからです。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>「不確定性を破らずに雑音を減らす」と聞くと矛盾に聞こえる。どこが矛盾していないか。
+<details><summary>答えを見る</summary><div class="ans"><strong>減らしているのは「測る成分の」雑音だけだからです。</strong>03 節のとおり \(\det M=1\) なので<em>二つの直交成分の雑音の積は一定</em>。片方を減らせば片方は増えます。<br>★ <strong>干渉計は片方の直交成分しか測りません</strong> ── だから「測らないほうに捨てる」ことができる。<em>全部を同時に測ろうとした瞬間に、得は消えます。</em><br>★★ これは第 22 回の「観測とはどの基底に射影するかの選択」そのもの。<strong>選べるのは配分だけ、という結論がここでも効いています。</strong></div></details></li>
+
+<li>03 節で \(\det M=1\) が本質だと分かった。摩擦のある系ではどうなるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(\det M<1\) になり、面積が縮みます。</strong>古典的にはそれは「位相空間が収縮する」＝散逸で、一見よさそうに聞こえます。<br>★ <strong>ところが量子ではそうなりません</strong> ── 05 節のとおり、散逸は<em>必ず真空ゆらぎを一緒に入れてくる</em>（揺動散逸定理）。減った分だけ雑音が足される。<br>★★ <strong>「面積を縮める」ことはできず、できるのは「面積の形を変える」ことだけ</strong>。第 12 回の「散逸は \(\sin(\alpha\pi/2)\) に住む」が、ここでは<em>圧搾の上限</em>として現れています。</div></details></li>
+
+<li>6 dB で観測体積が 8 倍になるなら、20 dB を目指せばよいのでは。
+<details><summary>答えを見る</summary><div class="ans"><strong>損失が許しません。</strong>05 節のとおり、20 dB には<em>損失 1 % 以下</em>が要ります ── 光学素子を何枚も通り、km 級の腕を往復し、検出器で受ける全経路で、です。<br>★ <strong>しかも輻射圧雑音とのトレードオフがあります</strong>（第 22 回）── 位相側を絞りすぎると振幅側が鏡を蹴り、低周波の感度が落ちる。<br>★★ <em>だから実機は「周波数依存圧搾」を使います</em> ── <strong>周波数ごとに圧搾の向きを変える</strong>（低周波では振幅側を、高周波では位相側を絞る）。フィルター共振器を一本 足すことで実現されています。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　不確定性は総量の話で、配分の話ではなかった</h2>
+<p>\(\Delta X_1\cdot\Delta X_2\ge1/4\) は<strong>積</strong>の話です。<em>だから片方を減らして、もう片方に押しつけられます。</em></p>
+<p>★ <strong>側波帯の言葉に直すと見通しがよくなります</strong> ── 摂動は \(P(t)=2ae^{i\theta}\cos(\Omega t+\delta)\) とまとまり、<strong>二つの側波帯の位相の平均 \(\theta\) だけが AM か FM かを決めます</strong>（差 \(\delta\) はタイミングだけ）。<em>圧搾光とは、側波帯の対に相関をつけて AM 側の雑音を FM 側へ寄せること</em>でした ── 第 32 回の AM/FM がそのまま設計指針になります。</p>
+<p style="text-align:center"><strong>★★★ そして本回の要は \(\det M=1\) でした。<br>フロケ行列の固有値は \(|\mu_+||\mu_-|=1.000000\) で、成長率は \(h\omega_0/4\) と 4 桁 一致。<br>位相空間の面積が保存するから、片方を縮めればもう片方が必ず伸びる。</strong></p>
+<p><em>★ 不確定性が破れないのは「力学が面積を保つから」</em> ── 第 34 回でパラメトリック増幅が効かなかったのは<strong>揺すりの周波数がちょうど二倍でなかったから</strong>で、その伏線もここで回収されました。</p>
+<p>効果は大きく、<strong>6 dB の圧搾で到達距離 2 倍、観測体積 8 倍</strong>（鏡もレーザーも変えずに）。<em>ただし標準量子限界のトレードオフがあるので、周波数ごとに圧搾の向きを変える必要があります。</em></p>
+<p>★ そして<strong>限界は損失</strong>でした ── <strong>5 % の損失で 13 dB が上限、10 % なら 10 dB。</strong><em>減衰は真空ゆらぎを混ぜる操作で、一度 薄まったら戻せません。増幅で取り返すこともできません（増幅も雑音を足すから）。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+ここまで、媒質は<strong>きれいに揃っている</strong>としてきました。<strong>★ 次回はそれを壊します。</strong><br>
+★ 乱れた媒質に波を入れると ── <em>ある条件を超えると波は伝わらなくなります</em>（アンダーソン局在）。<strong>吸収がないのに止まる。</strong><br>
+★★ そして<strong>それは次元に依ります</strong> ── <em>1 次元と 2 次元では必ず止まり、3 次元だけが「移動度端」を持つ。</em>第 30 回の「次元と階数」が、ここでもう一度 効きます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 36 回です。計算は kenshou/asshuku.js で行っています。<strong>本回の数値について：</strong>圧搾パラメータの表、側波帯の解析、フロケ行列の固有値、感度と体積、損失の効果は、すべて本稿で計算したものです。<strong>圧搾状態と \(\Delta X_1\Delta X_2=1/4\)、パラメトリック増幅による圧搾の生成、損失による \(S=\eta e^{-2r}+(1-\eta)\)、LIGO での利用と周波数依存圧搾は、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>これらを「AM 雑音と FM 雑音の配分」という一つの言葉に翻訳し、\(\det M=1\) が不確定性の保存そのものであることを数値で示したこと</em>です。<em>03 節は古典のマシュー方程式による類推で、量子的な圧搾の生成（縮退パラメトリック下方変換）そのものを解いてはいません。ただし「二つの直交成分が \(e^{\pm r}\) 倍され、面積が保たれる」という構造は同じです。</em>圧搾量の実測値（LIGO 約 3〜6 dB、研究室 約 15 dB）は報告値で、本稿が検証したものではありません。04 節の「体積 8 倍」は感度が距離に反比例し、天体が一様分布するという単純化の下での値です。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
