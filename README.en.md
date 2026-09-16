@@ -14,7 +14,7 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 | Series | About | Read (published site) |
 |---|---|---|
-| **Thinking in Waves**〔*new series, **ongoing***〕| Differentiate a sound and it goes high, integrate it and it goes low ── so is every physical constant the integral of something? One line to start from, ending at the order of differentiation itself (52 episodes, 18 parts, ongoing) | [open](https://yomei-o.github.io/wakaru_all/kangaeru-nami-en/index.html) |
+| **Thinking in Waves**〔*new series, **ongoing***〕| Differentiate a sound and it goes high, integrate it and it goes low ── so is every physical constant the integral of something? One line to start from, ending at the order of differentiation itself (53 episodes, 18 parts, ongoing) | [open](https://yomei-o.github.io/wakaru_all/kangaeru-nami-en/index.html) |
 | **c·t = const, That Clicks**〔*sequel to Conformal Transformations That Click*〕| c·t = const holds in any universe, so it can be substituted into every equation. Treated as the shortest notation for cosmology, with that shortness measured in bits (50 episodes, 6 parts, complete) | [open](https://yomei-o.github.io/wakaru_all/wakaru-ct-en/index.html) |
 | **Conformal Transformations That Click**〔*sequel to Cosmology That Clicks*〕| Swap the ruler from place to place and see how far the universe can be rewritten. Expansion may just be atoms shrinking (10 episodes, complete + 1 extra) | [open](https://yomei-o.github.io/wakaru_all/wakaru-kyokei-en/index.html) |
 | **Cosmology That Clicks** | Read the universe through the speed of light, the fine-structure constant, and gauge | [open](https://yomei-o.github.io/wakaru_all/wakaru-uchuron-en/index.html) |

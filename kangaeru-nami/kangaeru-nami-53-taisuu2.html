@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>なぜ「測れる範囲」はいつも対数で効くのか｜考える波 第53回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#181c20; --ink-soft:#495259;
+    --paper:#f6f8f9; --paper-edge:#dae1e5;
+    --side:#1e4a5a; --side-bg:#e8eff2;
+    --warn:#8a4b2f;
+    --calc:#153a48; --calc-bg:#e3edf1;
+    --rule:#c7d5db; --hair:#a4b8c1;
+    --acc:#1e4a5a;
+    --grid:#dde7ec;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 53 回 ／ 第 XVIII 部・誤差棒をつける</span></p>
+<p class="eyebrow">第 51・52 回の壁は、同じ壁だったのか</p>
+
+<h1>なぜ「測れる範囲」は<br>いつも対数で効くのか
+<span class="sub">シリーズ中に<strong>対数が 10 か所</strong>出てきました ── <em>桁数、\(e\) 倍の回数、\(q^*\)、情報量、固有距離。</em><br>★ 根は一つでした ── <strong>\(f(xy)=f(x)+f(y)\)</strong>。<em>連続な解は \(c\ln x\) しかありません（数値でも確認）。</em><br>★★ そして対になる事実 ── <strong>「範囲」は \(\log N\)、「精度」は \(N^{-1/2}\)。</strong><em>データを 100 万倍 にすると、精度は 1000 倍 よくなるのに、範囲は 3 倍 にしかなりません。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 5, 21, 22, 28, 39, 45, 51, 52 回</span><span>計算：kenshou/taisuu2.js</span></p>
+
+<p class="lead">第 51 回で<strong>桁数</strong>、第 52 回で<strong>\(q^*\)</strong> ── どちらも上限が「データの対数」でした。<br><em>★ 偶然なのか、同じ根から来ているのか。この回はそれを調べます。</em></p>
+
+<h2><span class="n">01</span>シリーズ中の「対数」を並べる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>出た所</th><th>量</th><th>中身</th></tr></thead>
+<tbody>
+<tr><th>第 5 回</th><td>宇宙年齢との比</td><td class="mid">\(\ln(T_{\rm universe}/T_{\rm signal})\)</td></tr>
+<tr><th>第 20 回</th><td>\(c\cdot t=\)一定 の座標</td><td class="mid">位相が \(\ln t\) に比例</td></tr>
+<tr><th>第 21 回</th><td>情報量</td><td class="mid">\(\log_2(\text{状態の数})\)</td></tr>
+<tr><th>第 22 回</th><td>ウェーブレット平面</td><td class="mid">\(\ln\omega\) の軸で等分解能</td></tr>
+<tr><th>第 39 回</th><td>AdS の固有距離</td><td class="mid">\(|\ln(z_2/z_1)|\)</td></tr>
+<tr><th>第 45 回</th><td>リンドラー時間</td><td class="mid">\(at=e^{a\eta}\)</td></tr>
+<tr><th>第 46 回</th><td>測定帯域を出るまで</td><td class="mid">\(e\) 倍 74.5 回</td></tr>
+<tr><th>第 47 回</th><td>地平線問題</td><td class="mid">\(e\) 倍 63.6 回</td></tr>
+<tr class="hi"><th><strong>★ 第 51 回</strong></th><td><strong>冪則の桁数</strong></td><td class="mid"><strong>\(\log_{10}(f_{\rm hi}/f_{\rm lo})\)</strong></td></tr>
+<tr class="hi"><th><strong>★ 第 52 回</strong></th><td><strong>到達できる \(q^*\)</strong></td><td class="mid"><strong>\(\log_2(\text{箱の数})\) に比例</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>10 か所。偶然にしては多すぎます。</strong></p>
+
+<h2><span class="n">02</span>掛け算に対して不変な測度は \(dx/x\) だけ</h2>
+
+<p>区間 \([a,b]\) を \([\lambda a,\lambda b]\) に伸ばしたとき、\(\int w(x)dx\) が変わらない \(w\) はどれか ── 数値で確かめます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\lambda\)</th><th>\(w=1\)</th><th>★ \(w=1/x\)</th><th>\(w=1/x^2\)</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">2.00000000</td><td class="mid">1.09861229</td><td class="mid">0.66666667</td></tr>
+<tr><th>10</th><td class="mid">20.00000000</td><td class="mid">1.09861229</td><td class="mid">0.06666667</td></tr>
+<tr class="hi"><th><strong>100</strong></th><td class="mid"><strong>200.00000000</strong></td><td class="mid"><strong>★ 1.09861229</strong></td><td class="mid"><strong>0.00666667</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>\(1/x\) だけが変わりません</strong>（いつでも \(\ln3=1.098612\)）。<br>
+★★ <em>これが「掛け算の群（スケール変換）の不変測度」です。</em><br>
+★ <strong>不変測度が \(dx/x\) なら、自然な座標は \(\int dx/x=\ln x\)</strong> ── だから対数。<br>
+★ <em>第 39 回で「AdS の固有距離が \(|\ln(z_2/z_1)|\)」だったのも、第 22 回でウェーブレットが \(\ln\omega\) 軸だったのも、同じ理由でした。</em></p>
+</div>
+
+<h2><span class="n">03</span>相対分解能が一定なら、区別できる目盛りの数は対数</h2>
+
+<div class="calc">
+<span class="tag">第 22 回の定 Q 分析（\(\Delta f/f=1/Q\) が一定）</span>
+$$N=\frac{\ln(f_{\rm hi}/f_{\rm lo})}{\ln(1+1/Q)}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(Q\)</th><th>意味</th><th>2 桁</th><th>3 桁</th><th>6 桁</th><th>12 桁</th></tr></thead>
+<tbody>
+<tr><th>1</th><td>1 オクターブごと</td><td class="mid">6.6</td><td class="mid">10.0</td><td class="mid">19.9</td><td class="mid">39.9</td></tr>
+<tr class="hi"><th><strong>16.8</strong></th><td><strong>★ 半音（第 22 回）</strong></td><td class="mid"><strong>79.6</strong></td><td class="mid"><strong>119.5</strong></td><td class="mid"><strong>238.9</strong></td><td class="mid"><strong>477.9</strong></td></tr>
+<tr><th>100</th><td>1 % 分解能</td><td class="mid">462.8</td><td class="mid">694.2</td><td class="mid">1388.4</td><td class="mid">2776.9</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>「区別できる目盛りの数」が、桁数にきれいに比例します。</strong><br>
+★★★ <em>だから「何桁」が、そのまま「いくつ区別できたか」になる。</em><br>
+★ <strong>第 51 回の桁数も、第 52 回の \(q^*\) も、この数え方の上に乗っていました。</strong></p>
+</div>
+
+<h2><span class="n">04</span>★★★ 全部、同じ関数方程式から来ている</h2>
+
+<div class="calc">
+<span class="tag">「掛け算を足し算にする」関数</span>
+$$f(xy)=f(x)+f(y)\qquad\Longrightarrow\qquad f(x)=c\ln x\ \ (\text{連続な解はこれだけ})$$
+</div>
+
+<p>数値で確かめます ── \(f(2)=a,\ f(3)=b\) と置くと、\(2^p\approx3^q\) のとき \(pa\approx qb\) でなければ連続になりません。したがって \(b/a=p/q\to\ln3/\ln2\)。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\)</th><th>\(q\)</th><th>\(2^p/3^q\)</th><th>\(p/q\)</th><th>\(\ln3/\ln2\)</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>8</th><td class="mid">5</td><td class="mid">1.053498</td><td class="mid">1.60000000</td><td class="mid">1.58496250</td><td class="mid">1.5e−2</td></tr>
+<tr><th>84</th><td class="mid">53</td><td class="mid">0.997914</td><td class="mid">1.58490566</td><td class="mid">1.58496250</td><td class="mid">5.7e−5</td></tr>
+<tr class="hi"><th><strong>1054</strong></th><td class="mid"><strong>665</strong></td><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>1.58496241</strong></td><td class="mid"><strong>1.58496250</strong></td><td class="mid"><strong>★ 9.5e−8</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>「掛け算を足し算にしたい」と決めた瞬間に、対数が一意に決まる。</strong></p>
+<p style="margin:10px 0 0">★ <em>良い近似ほど \(p/q\) が \(\ln3/\ln2\) に近づきます</em> ── <strong>他の（連続な）解はありません。</strong><br>
+★★★ <strong>第 28 回で「指数関数が出る源のひとつは、足し算が掛け算になること」と整理しました。</strong><em>本回はその裏返しです ── <strong>掛け算を足し算に戻すと対数。</strong></em><br>
+★ <em>だから「数える」という操作をした瞬間に、必ず対数が出てきます。</em></p>
+</div>
+
+<h2><span class="n">05</span>それぞれの対数を、この観点で読み直す</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>出た所</th><th>何が掛け算か</th><th>何を足したいか</th></tr></thead>
+<tbody>
+<tr><th>第 5 回</th><td>時間スケールの比</td><td>「何桁 離れているか」</td></tr>
+<tr class="hi"><th><strong>第 21 回</strong></th><td><strong>独立な系を並べる</strong></td><td><strong>★ 情報量（加法的にしたい）</strong></td></tr>
+<tr><th>第 22 回</th><td>周波数を定 Q で刻む</td><td>目盛りの数</td></tr>
+<tr><th>第 39 回</th><td>動径方向のスケール変換</td><td>固有距離</td></tr>
+<tr><th>第 45 回</th><td>加速で時間が伸び縮み</td><td>固有時</td></tr>
+<tr class="hi"><th><strong>★ 第 51 回</strong></th><td><strong>周波数の比</strong></td><td><strong>★ 冪則の桁数</strong></td></tr>
+<tr class="hi"><th><strong>★ 第 52 回</strong></th><td><strong>箱の数が 2 倍 ずつ</strong></td><td><strong>★ 到達できる \(q^*\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>どれも「掛け算で増えるものを、足し算で数えたい」という形でした。</strong><br>
+★ <em>情報量（第 21 回）だけは少し違って見えますが</em> ── <strong>「独立な系を並べると、状態数は掛け算、情報量は足し算」</strong>なので、まったく同じ形です。<br>
+★★ <em>シャノンが \(\log\) を選んだ理由と、本シリーズが「桁数」で語ってきた理由は、同じものでした。</em></p>
+</div>
+
+<h2><span class="n">06</span>★ 素朴な判定は、どれくらい甘いか</h2>
+
+<p>第 52 回の \(q^*\) には、教科書的な素朴な判定があります ── <em>「その \(q\) を支配する \(\alpha\) の集合が空でない（\(f(\alpha)\ge0\)）なら、標本に入るはず」。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(f(\alpha(q))\)</th><th>判定</th></tr></thead>
+<tbody>
+<tr><th>2</th><td class="mid">0.62263432</td><td>素朴にも実測にも OK</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid"><strong>0.20743868</strong></td><td><strong>★ 第 52 回の実測はここまで</strong></td></tr>
+<tr><th>10</th><td class="mid">0.00285631</td><td>素朴には OK、実測では届かない</td></tr>
+<tr class="hi"><th><strong>25.9</strong></th><td class="mid"><strong>0（ここで \(f=0\)）</strong></td><td><strong>★ 素朴な判定の上限</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>素朴な判定は \(q\approx25.9\) まで許しますが、実測は \(q^*\approx4\)</strong> ── <em>6 倍 以上 甘い。</em><br>
+★★ <strong>理由</strong>：\(f(\alpha)\ge0\) は「<em>平均すれば</em> 1 個は入る」という条件であって、<em>実際にはその 1 個のゆらぎが傾きを壊します。</em><br>
+★ <em>「平均して 1 個」は「毎回 1 個」ではない</em> ── <strong>第 52 回の実測のほうを使うべきです。</strong></p>
+</div>
+
+<h2><span class="n">07</span>★★ 対数にならないもの ── 精度は冪</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>問い</th><th>\(N\) への依存</th><th>出た回</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>どこまで広い範囲を見られるか</strong></th><td class="mid"><strong>★ \(\log N\)</strong></td><td>第 51・52 回</td></tr>
+<tr class="hi"><th><strong>どこまで精密に測れるか</strong></th><td class="mid"><strong>★ \(N^{-1/2}\)</strong></td><td>第 51 回</td></tr>
+<tr><th>いくつ目盛りを区別できるか</th><td class="mid">\(\log N\)</td><td>第 22 回・本回 03 節</td></tr>
+<tr><th>雑音をどこまで減らせるか</th><td class="mid">\(N^{-1/2}\)</td><td>第 51 回 01 節</td></tr>
+<tr><th>どこまで深い極値に届くか</th><td class="mid">\(\log N\)</td><td>第 52 回</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>データを増やすと</th><th>範囲</th><th>精度</th></tr></thead>
+<tbody>
+<tr><th>\(\times10^2\)</th><td class="mid">×1.00</td><td class="mid">×1.0</td></tr>
+<tr><th>\(\times10^4\)</th><td class="mid">×2.00</td><td class="mid">×10.0</td></tr>
+<tr class="hi"><th><strong>\(\times10^6\)</strong></th><td class="mid"><strong>★ ×3.00</strong></td><td class="mid"><strong>★ ×100.0</strong></td></tr>
+<tr><th>\(\times10^8\)</th><td class="mid">×4.00</td><td class="mid">×1000.0</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心 ── ★★★ 二つめの要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>データを 100 万倍 にすると、精度は 100 倍 よくなるのに、<br>範囲は 3 倍 にしかならない。</strong></p>
+<p style="margin:10px 0 0">★★ <strong>「細かく測る」は努力で届き、「広く測る」はほとんど届かない。</strong><br>
+★ <em>これが第 51・52 回で出会った壁の正体でした</em> ── <strong>どちらも「範囲」の問題だったから、対数に阻まれた。</strong><br>
+★★ <em>裏を返すと ── <strong>「範囲が足りない」問題は、測定を増やしても解けません。</strong>系そのものを選び直すしかない</em>（第 51 回 05 節の「広い慣性領域を持つ系を選ぶ」）。</p>
+</div>
+
+<h2><span class="n">08</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>シリーズ中の対数は 10 か所</th><td class="mid">◎ 整理</td><td>偶然にしては多い</td></tr>
+<tr class="hi"><th><strong>★ 掛け算の不変測度は \(dx/x\)</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ \(1/x\) だけがスケール不変</strong></td></tr>
+<tr><th>相対分解能一定 → 目盛りは対数</th><td class="mid">◎ 数値</td><td>第 22 回の定 Q</td></tr>
+<tr class="hi"><th><strong>★★ 根は \(f(xy)=f(x)+f(y)\)</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 連続解は \(c\ln x\) だけ</strong></td></tr>
+<tr><th>第 28 回の裏返し</th><td class="mid">◎ 対応</td><td>足し算 ↔ 掛け算</td></tr>
+<tr class="hi"><th><strong>★ 素朴な \(q^*\) の判定は甘い</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ \(f\ge0\) は \(q\approx26\)、実測は 4</strong></td></tr>
+<tr class="hi"><th><strong>★★ 範囲は \(\log N\)、精度は \(N^{-1/2}\)</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 100 万倍 で範囲 3 倍</strong></td></tr>
+<tr class="hi"><th><strong>★ なぜ物理がスケール不変なのか</strong></th><td class="mid"><strong>× 扱えない</strong></td><td><strong>★ 本稿は結果から遡っただけ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>04 節で「連続な解は \(c\ln x\) だけ」と書いた。「連続な」という条件を外すとどうなるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>病的な解が無数に現れます。</strong>\(f(xy)=f(x)+f(y)\) は \(g(u)=f(e^u)\) と置くと \(g(u+v)=g(u)+g(v)\) ── コーシーの加法方程式です。<br>★ <em>連続性（あるいは可測性、局所有界性のいずれか一つ）を課せば解は \(g(u)=cu\)、つまり \(f=c\ln x\) だけ</em>。<br>★★ <strong>外すと、\(\mathbb{R}\) を \(\mathbb{Q}\) 上のベクトル空間と見た基底を使って、至る所 不連続な解が構成できます</strong>（選択公理が要ります）。<em>グラフは平面で稠密になる。</em><br>★ <strong>物理では連続性は当然の要請なので、実質「対数だけ」です</strong> ── <em>ただし「当然」と書くときは、何を仮定したかを書くべきでした。</em></div></details></li>
+
+<li>07 節の「範囲は \(\log N\)、精度は \(N^{-1/2}\)」から、実験計画にどう活かすか。
+<details><summary>答えを見る</summary><div class="ans"><strong>「範囲が足りない」と「精度が足りない」を、まず区別することです。</strong><br>★ <em>精度が足りないなら、測定時間を増やせば \(N^{-1/2}\) で改善します</em> ── <strong>4 倍 の時間で 2 倍。努力が報われる。</strong><br>★★ <em>範囲が足りないなら、測定時間を増やしても \(\log N\) でしか伸びません</em> ── <strong>1000 倍 の時間で 1.3 倍。ほぼ無駄。</strong><br>★★★ <strong>そのときは装置ではなく<em>対象</em>を変えます</strong> ── 第 51 回の「広い慣性領域を持つ流れを選ぶ」、第 47 回の「慣性領域が 6 桁 あれば 0.059 dB/oct」。<em>実験計画としては、そちらが先です。</em></div></details></li>
+
+<li>02 節で「不変測度が \(dx/x\) だから対数」と言った。これは説明になっているか。
+<details><summary>答えを見る</summary><div class="ans"><strong>半分だけです。</strong>「スケール変換に対して不変な量を使いたい」という<em>前提を置けば</em>、対数が出ることは説明できます。<br>★ <em>しかし<strong>「なぜ物理はスケール変換に対して不変なのか」は説明していません</strong></em> ── <strong>本稿は結果から遡っただけです。</strong><br>★★ <em>第 48 回の結論と同じ形です</em> ── <strong>「軸が使える条件はスケール不変性」と分かったが、スケール不変性そのものの由来は分からない。</strong><br>★ <em>臨界点では説明がつきます（相関距離が発散して特徴的な長さが消える）。しかし「なぜ臨界点の近くの現象が多いのか」は、また別の問いです。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　同じ壁の、二つの顔だった</h2>
+<p>シリーズ中に<strong>対数が 10 か所</strong>出てきました ── <em>第 5 回の宇宙年齢との比、第 21 回の情報量、第 22 回のウェーブレット平面、第 39 回の固有距離、第 45 回のリンドラー時間、第 46・47 回の \(e\) 倍の回数、そして第 51 回の桁数と第 52 回の \(q^*\)。</em></p>
+<p>★ <strong>掛け算に対して不変な測度は \(dx/x\) だけ</strong>です（数値で確認 ── \(\lambda\) を 100 倍 しても \(\ln3\) のまま）。<em>不変測度が \(dx/x\) なら、自然な座標は \(\ln x\)。</em><br>
+★ そして<strong>相対分解能が一定なら、区別できる目盛りの数は桁数に比例</strong>します（定 Q、第 22 回）── <em>だから「何桁」が、そのまま「いくつ区別できたか」になる。</em></p>
+<p style="text-align:center"><strong>★★★ 本回の要 ── 根は一つ、\(f(xy)=f(x)+f(y)\)。<br>連続な解は \(c\ln x\) だけです（\(p/q\to\ln3/\ln2\) を \(10^{-8}\) で確認）。<br>「掛け算を足し算にしたい」と決めた瞬間に、対数が一意に決まる。</strong></p>
+<p>★ <em>第 28 回で「指数関数が出る源のひとつは、足し算が掛け算になること」と整理しました。<strong>本回はその裏返しです。</strong></em>情報量（第 21 回）も同じ形 ── <em>独立な系を並べると、状態数は掛け算、情報量は足し算。</em></p>
+<p>★ ついでに分かったこと ── <strong>第 52 回の \(q^*\) について、教科書的な素朴な判定（\(f(\alpha)\ge0\)）は \(q\approx25.9\) まで許しますが、実測は \(q^*\approx4\)。6 倍 以上 甘い。</strong><em>「平均して 1 個」は「毎回 1 個」ではないからです。</em></p>
+<p style="text-align:center"><strong>★★ そして二つめの要 ──<br>「範囲」は \(\log N\)、「精度」は \(N^{-1/2}\)。<br>データを 100 万倍 にすると、精度は 100 倍 よくなるのに、範囲は 3 倍 にしかならない。</strong></p>
+<p>★ <strong>「細かく測る」は努力で届き、「広く測る」はほとんど届かない</strong> ── <em>これが第 51・52 回で出会った壁の正体でした。</em>★ <strong>正直に</strong>：<em>「なぜ物理がスケール不変なのか」は説明していません。本稿は結果から遡っただけです。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+07 節で<strong>「範囲が足りない問題は、測定を増やしても解けない」</strong>と分かりました。<br>
+★ <strong>次回はその抜け道を探します</strong> ── <em>範囲を「買う」方法はあるのか。</em><br>
+★★ <strong>複数の測定を貼り合わせる、別の物理量を使う、系そのものを変える</strong> ── <em>実験家が実際にやっていることを、本シリーズの言葉で数えます。</em>★ 第 51 回の「慣性領域を選ぶ」が、その一つでした。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 53 回です。計算は kenshou/taisuu2.js で行っています。<strong>本回の数値について：</strong>不変測度の数値検証、定 Q での目盛りの数、\(p/q\to\ln3/\ln2\) の収束、素朴な \(q^*\) 判定との比較、範囲と精度の \(N\) 依存は、すべて本稿で計算したものです。<strong>スケール変換群の不変（ハール）測度が \(dx/x\) であること、コーシーの関数方程式 \(f(xy)=f(x)+f(y)\) の連続解が \(c\ln x\) に限ること、シャノン情報量が加法性から対数になること、そして有限標本におけるマルチフラクタルの \(f(\alpha)\ge0\) 判定 ── これらはいずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>本シリーズに現れた 10 か所の対数を並べ、同じ関数方程式に帰着することを示し、「範囲は \(\log N\)、精度は \(N^{-1/2}\)」という対比を数字にしたこと</em>です。<em>04 節の「解は \(c\ln x\) だけ」は連続性（または可測性・局所有界性のいずれか）を仮定した場合の話で、仮定を外せば至る所 不連続な解が存在します（練習問題 1）。</em>06 節の比較は第 52 回の測定条件（\(|\Delta\tau|\le0.1\)、5 つの種の中央値）に依存し、基準を緩めれば \(q^*\) は伸びます。07 節の \(N^{-1/2}\) は独立な推定値を仮定した場合で、相関があれば改善は遅くなります。<strong>「なぜ物理にスケール不変性が現れるのか」は本稿では扱えていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>

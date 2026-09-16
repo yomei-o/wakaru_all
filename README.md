@@ -19,7 +19,7 @@
 | **量子重力自由研究**〔※「わかる共形変換」続編・進行中〕| 解説ではなく**自由研究**。間違いも罠もそのまま載せる。重力の経路積分を離散にして数え直す（全6話・進行中） | [開く](https://yomei-o.github.io/wakaru_all/ryoushi-juryoku/index.html) |
 | **わかる c·t=一定**〔※「わかる共形変換」続編・**完結**〕| c·t=一定 はどんな宇宙でも実現できる ── だからあらゆる式に代入できる。宇宙論を最短で書く記法として扱い、その短さを情報理論で測る（全50話・6部構成・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-ct/index.html) |
 | **物理を簡単にする**〔※「わかる c·t=一定」から生まれた・**完結**〕| 「もっと単純な法則にできないか」を実行できる形にする。簡単さを記述長・計算量・前提概念の三つで測る（全16話・5部構成・完結） | [開く](https://yomei-o.github.io/wakaru_all/butsuri-kantan/index.html) |
-| **考える波**〔※新シリーズ・**継続中**〕| 音声を微分すると高音、積分すると低音 ── ならば物理定数はすべて何かの積分値ではないか。その一行から歩き出して「階数」に行き着く（全52話・18部構成・継続中） | [開く](https://yomei-o.github.io/wakaru_all/kangaeru-nami/index.html) |
+| **考える波**〔※新シリーズ・**継続中**〕| 音声を微分すると高音、積分すると低音 ── ならば物理定数はすべて何かの積分値ではないか。その一行から歩き出して「階数」に行き着く（全53話・18部構成・継続中） | [開く](https://yomei-o.github.io/wakaru_all/kangaeru-nami/index.html) |
 | **わかる場** | なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
 | **わかる相対論** | すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力＝曲率（全7話・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
 | **わかる量子** | ℏ の物語。S/ℏ で古典と量子を分ける。粒と波・経路和・不確定性・測定（全6話・完結＋番外） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) |
