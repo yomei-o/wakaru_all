@@ -1,0 +1,202 @@
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 60 / Part XIX — Back to Physics, with the Tools</span></p>
+<p class="eyebrow">Where did the subtracted part go?</p>
+
+<h1>Where a trend ends and a signal begins ──<br>the boundary is set by <strong>the record, not the system</strong>
+<span class="sub">★ Removing a degree-\(q\) trend is <strong>a high-pass filter of order \(\alpha=q+1\)</strong> ── <em>\(\text{dB/oct}=6\alpha\) again. Episode 1’s yardstick turns up here too.</em><br>★★ From it follows <strong>the condition for finite leakage, \(\beta\le2q+3\)</strong>, <em>which explains all five rows of Episode 59 §03.</em><br>★★★ And <strong>the “variance” of a \(1/f^\beta\) process is not a number</strong> ── <em>it runs as \(N^{\beta-1}\) for \(\beta>1\), and as \(\log N\) at exactly \(\beta=1\). The same structure as Episode 29’s renormalisation.</em></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 1, 5, 29, 51, 58, 59</span><span>Computation: kenshou/torendo.js</span></p>
+
+<p class="lead">Episode 59 concluded: <strong>subtract a degree 1–2 trend and the leakage goes away.</strong> <em>★ So <strong>where did the subtracted part go</strong> ── and where exactly is the boundary between trend and signal?</em></p>
+
+<h2><span class="n">01</span>★★★ Detrending is a high-pass filter</h2>
+
+<p>Feed a sinusoid at frequency \(f\) [bins] into a record of length 1024 and measure the residual energy.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(f\) [bins]</th><th>\(q{=}0\) (mean)</th><th>\(q{=}1\) (line)</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.01</strong></th><td class="mid"><strong>−34.83</strong></td><td class="mid"><strong>−76.65</strong></td><td class="mid"><strong>−122.14</strong></td><td class="mid"><strong>−170.19</strong></td></tr>
+<tr><th>0.1</th><td class="mid">−14.89</td><td class="mid">−36.70</td><td class="mid">−62.18</td><td class="mid">−90.23</td></tr>
+<tr><th>1</th><td class="mid">0.00</td><td class="mid">−1.57</td><td class="mid">−6.31</td><td class="mid">−13.72</td></tr>
+<tr><th>3</th><td class="mid">0.00</td><td class="mid">−0.15</td><td class="mid">−0.17</td><td class="mid">−0.43</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><em>(The table is gain² in dB; 0 dB means it passes unchanged.)</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>low-frequency slope dB/oct</th><th>predicted \(6(q{+}1)\)</th><th>\(\alpha\)</th><th>\(-3\)dB point [bins]</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>6.014</strong></td><td class="mid"><strong>6.021</strong></td><td class="mid"><strong>1</strong></td><td class="mid">0.4436</td></tr>
+<tr><th>1</th><td class="mid">12.036</td><td class="mid">12.041</td><td class="mid">2</td><td class="mid">0.8527</td></tr>
+<tr><th>2</th><td class="mid">18.057</td><td class="mid">18.062</td><td class="mid">3</td><td class="mid">1.2391</td></tr>
+<tr><th>3</th><td class="mid">24.078</td><td class="mid">24.082</td><td class="mid">4</td><td class="mid">1.6152</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §01</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>degree-\(q\) detrending \(=\) a high-pass filter of order \(\alpha=q+1\)</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>\(\text{dB/oct}=6(q+1)\)</strong> ── <em>Episode 1’s yardstick appears here too: the third time, after Episode 57’s edges and Episode 58’s windows.</em><br>
+★★ <strong>The \(-3\)dB points are 0.44 / 0.85 / 1.24 / 1.62 bins ── about \(0.4(q+1)\)</strong>. <em>All of them sit at “roughly one cycle per record.”</em><br>
+★★★ <strong>So the boundary between trend and signal is set by the record’s length, not by the system.</strong> <em>Make the record ten times longer and what was a trend becomes a signal</em> ── <strong>exactly the shape of Episode 5’s “a period longer than the age of the universe is indistinguishable from a constant.”</strong></p>
+</div>
+
+<h2><span class="n">02</span>★★★ The condition for finite leakage ── \(\beta\le2q+3\)</h2>
+
+<div class="calc">
+<span class="tag">Derivation</span>
+$$\mathrm{Leak}(k)=\int f^{-\beta}G_q(f)\,|W_\alpha(k-f)|^2df,\quad G_q\propto f^{2(q+1)}\ \Longrightarrow\ \text{converges iff}\ \beta\le2q+3$$
+</div>
+
+<p>Hann window (\(\alpha=3\)), leakage into bin \(k=64\). <strong>By what factor does it grow when the lower limit drops from 1/16 to 1/64?</strong> (Near 1 means converged.)</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q{=}0\)</th><th>\(q{=}1\)</th><th>\(q{=}2\)</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">1.018</td><td class="mid">1.000</td><td class="mid">1.000</td></tr>
+<tr><th>4</th><td class="mid">1.136</td><td class="mid">1.002</td><td class="mid">1.000</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>1.797</strong></td><td class="mid"><strong>1.018</strong></td><td class="mid">1.000</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">4.805</td><td class="mid"><strong>1.134</strong></td><td class="mid"><strong>1.002</strong></td></tr>
+<tr><th>7</th><td class="mid">17.145</td><td class="mid">1.790</td><td class="mid">1.017</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>Exactly at \(\beta=2q+3\)</strong> (\(\beta{=}5,q{=}1\) and \(\beta{=}7,q{=}2\)) <strong>the divergence is logarithmic</strong>: <em>dropping the lower limit by 4× raises the leakage only 1.02× ── in practice the same as converged.</em></p>
+
+<p>★★ <strong>This explains Episode 59 §03.</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q\)</th><th>\(2q{+}3\)</th><th>leakage ratio</th><th>Episode 59 measured</th><th>ceiling \(2\alpha{=}6\)</th></tr></thead>
+<tbody>
+<tr><th>5</th><td class="mid">0</td><td class="mid">3</td><td class="mid">1.80 diverges</td><td class="mid">5.512 (overshoot)</td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">1</td><td class="mid">5</td><td class="mid"><strong>1.02 converges</strong></td><td class="mid"><strong>4.992 (fixed)</strong></td><td class="mid">—</td></tr>
+<tr><th>6</th><td class="mid">1</td><td class="mid">5</td><td class="mid">1.13 diverges</td><td class="mid">6.035 (not yet)</td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">2</td><td class="mid">7</td><td class="mid"><strong>1.00 converges</strong></td><td class="mid"><strong>5.994 (fixed)</strong></td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>7</strong></th><td class="mid">2</td><td class="mid">7</td><td class="mid">1.02 converges</td><td class="mid">6.039 (ceiling)</td><td class="mid"><strong>clamped</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §02 ── two separate conditions</p>
+<p style="margin:6px 0 0">★★★ <strong>Only the converging rows are fixed.</strong> <em>\(\beta=6,q=1\) has a ratio of 1.13 and the measurement stayed at 6.035.</em><br>
+★★ <strong>\(\beta=7,q=2\) has its leakage under control and is still wrong</strong> ── <em>because it is hitting the window ceiling \(2\alpha=6\).</em> <strong>That is how you tell two causes apart.</strong><br>
+★★★ <strong>There are two conditions, and they are separate</strong>:<br>
+　<em>① leakage from waves longer than the record → \(\beta\le2q+3\) (<strong>bought with detrending</strong>)</em><br>
+　<em>② the window’s sidelobe ceiling → \(\beta<2\alpha\) (<strong>bought with the window</strong>)</em><br>
+★ <strong>Episode 58’s “raise the window” and Episode 59’s “subtract a trend” were different conditions</strong> ── <em>neither one alone is enough.</em></p>
+</div>
+
+<h2><span class="n">03</span>What is the subtracted trend a measurement of?</h2>
+
+<p>Segment length 1024. Compare <strong>the fitted degree-1 polynomial</strong> against <strong>the true low-frequency part</strong> (the series with only components below the record’s 1-bin resolution).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>correlation</th><th>trend variance / low-part variance</th><th>low part’s share of total variance</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.6175</td><td class="mid">0.7906</td><td class="mid">0.1121</td></tr>
+<tr><th>2</th><td class="mid">0.7078</td><td class="mid">0.7744</td><td class="mid">0.5700</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>0.8801</strong></td><td class="mid">0.8194</td><td class="mid">0.9067</td></tr>
+<tr><th>4</th><td class="mid">0.9564</td><td class="mid">0.9350</td><td class="mid">0.9684</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>0.9987</strong></td><td class="mid"><strong>0.9968</strong></td><td class="mid">1.0007</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §03 ── what you subtract is not gone</p>
+<p style="margin:6px 0 0">★ <strong>The larger \(\beta\), the higher the correlation</strong> ── <em>because the low end dominates (0.999 at \(\beta=5\)).</em><br>
+★★ <strong>The subtracted trend is not waste; it is a measurement of “waves longer than the record.”</strong> <em>At \(\beta=5\) it reproduces the true low-frequency part almost exactly.</em><br>
+★★★ <strong>But a very coarse measurement, with two degrees of freedom</strong> ── <em>one straight line’s worth of information.</em> <strong>Episode 51’s “a periodogram point has two degrees of freedom” shows up here too.</strong><br>
+★ <em>What Episode 59 thought it was throwing away was still in hand ── whether to use it is another matter.</em></p>
+</div>
+
+<h2><span class="n">04</span>★★ The “variance” of \(1/f^\beta\) is not a number</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(N{=}256\)</th><th>\(N{=}1024\)</th><th>\(N{=}4096\)</th><th>slope (dec/dec)</th><th>predicted</th></tr></thead>
+<tbody>
+<tr><th>0.5</th><td class="mid">3.25e−7</td><td class="mid">3.40e−7</td><td class="mid">3.40e−7</td><td class="mid">0.016</td><td class="mid">0 (converges)</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid">5.10e−9</td><td class="mid">6.33e−9</td><td class="mid">7.97e−9</td><td class="mid"><strong>0.161</strong></td><td class="mid"><strong>0.146 (\(\log N\))</strong></td></tr>
+<tr><th>2</th><td class="mid">8.99e−12</td><td class="mid">3.32e−11</td><td class="mid">2.16e−10</td><td class="mid">1.147</td><td class="mid">1.0</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">2.24e−13</td><td class="mid">3.01e−12</td><td class="mid">5.43e−11</td><td class="mid"><strong>1.980</strong></td><td class="mid"><strong>2.0</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §04 ── the structure of Episode 29’s renormalisation</p>
+<p style="margin:6px 0 0">★★★ <strong>For \(\beta>1\) the variance keeps growing as the record lengthens (\(N^{\beta-1}\)).</strong> <em>“What is this signal’s variance?” has no answer ── not until you state the record length.</em><br>
+★ <strong>For \(\beta<1\) the high end dominates and it converges</strong> (measured 0.016).<br>
+★★★ <strong>And at exactly \(\beta=1\) it grows as \(\log N\)</strong> ── <em>neither a power nor a constant.</em> Over \(N{=}256\to4096\) the prediction \(\ln(\ln4096/\ln256)/\ln16=0.146\) against a <strong>measured 0.161</strong>. <strong>\(1/f\) sits exactly on the boundary here too.</strong><br>
+★★ <em>This is the structure of Episode 29’s renormalisation</em>: <strong>a physical quantity depends on where you cut, and it runs as you move the cut ── with the logarithmically running point playing the role of the fixed point.</strong></p>
+</div>
+
+<h2><span class="n">05</span>How much variance does detrending remove?</h2>
+
+<p>\(N=1024\). Residual variance, with the original variance set to 1.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q{=}0\)</th><th>\(q{=}1\)</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th><th>\(q{=}5\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.5</strong></th><td class="mid">1.0000</td><td class="mid"><strong>0.9861</strong></td><td class="mid">0.9768</td><td class="mid">0.9674</td><td class="mid">0.9532</td></tr>
+<tr><th>1</th><td class="mid">1.0000</td><td class="mid">0.8999</td><td class="mid">0.8495</td><td class="mid">0.8064</td><td class="mid">0.7502</td></tr>
+<tr><th>2</th><td class="mid">1.0000</td><td class="mid">0.5517</td><td class="mid">0.3958</td><td class="mid">0.3059</td><td class="mid">0.2130</td></tr>
+<tr><th>3</th><td class="mid">1.0000</td><td class="mid">0.2145</td><td class="mid">0.1032</td><td class="mid">0.0545</td><td class="mid">0.0255</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid">1.0000</td><td class="mid"><strong>0.0920</strong></td><td class="mid">0.0184</td><td class="mid">0.0077</td><td class="mid">0.0029</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>At \(\beta=4\), one straight line takes the variance below a tenth.</strong> <em>That shows how thoroughly “the variance” was dominated by the low end.</em></p>
+
+<p>★★ <strong>At \(\beta=0.5\) almost nothing changes</strong> (0.986) ── <em>subtracting does little harm.</em> <strong>“When in doubt, detrend” is sound advice in exactly this sense.</strong></p>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>§01 says the record sets the boundary. Does the system itself distinguish trend from signal?
+<details><summary>Show answer</summary><div class="ans"><strong>A pure \(1/f^\beta\) process does not.</strong> It is scale invariant ── <em>if every frequency looks the same, no line can be drawn from the system’s side saying “below here is trend.”</em><br>★ <strong>A distinction exists only when the system has a characteristic time</strong>: <em>Episode 56’s \(\tau_{\max}\), or Episode 44’s band edge.</em><br>★★ <strong>So “subtract the trend” is not a claim about the system but a declaration about the measurement</strong> ── <em>“I have decided not to measure waves longer than this record.”</em><br>★★★ <strong>In Episode 55’s classification, detrending is not an assumption but a statement of range.</strong> <em>What must be written honestly is therefore not a count of assumptions but \(q\) and the record length.</em></div></details></li>
+
+<li>§04 says the variance “runs.” Is it really the same as Episode 29’s renormalisation?
+<details><summary>Show answer</summary><div class="ans"><strong>The shape is the same; the substance is not.</strong><br>★ <strong>The same</strong>: <em>in both, an observable depends on the cutoff and runs as you move it, and the point that runs logarithmically is special (Episode 29’s fixed point, this episode’s \(\beta=1\)).</em><br>★★ <strong>Different</strong>: <em>in field theory you can fix the running quantity (a coupling) to an experimental value and thereby remove the cutoff dependence from observables.</em> <strong>There is no such step here</strong> ── <em>the variance simply keeps running.</em><br>★★★ <strong>Honestly stated: this is “the same structure as renormalisation,” not “renormalisation is available.”</strong> <em>This series enjoys finding analogies, but as Episode 55 insisted, <strong>an analogy is not a claim until you say how far it goes.</strong></em></div></details></li>
+
+<li>§03 calls the trend a two-degree-of-freedom measurement. Can it be used?
+<details><summary>Show answer</summary><div class="ans"><strong>Barely, from one record ── but usefully from many.</strong><br>★ <strong>One record gives two degrees of freedom</strong> ── <em>Episode 51’s formula gives \(\mathrm{sd}=1.2825/\sqrt2\approx0.91\) nats, just under <strong>4 dB</strong> of scatter. Poor for a single point.</em><br>★★ <strong>But \(M\) records improve it as \(\sqrt M\)</strong>: <em>pooling the trends of 100 independent records would measure the power one decade below the record to about 0.4 dB.</em><br>★★★ <strong>That is a fourth way to buy range, alongside Episode 54’s three</strong> ── <em>① measure longer ② take more samples ③ change the system, plus <strong>④ collect many short records and turn their “trends” into a statistic.</strong></em> ★ <em>It requires the records to be independent, which in \(1/f\) is itself doubtful. Not verified here.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — the boundary belongs to the record, not the system</h2>
+<p>Episode 59 said “subtract the trend.” This time we looked at it from the side of <strong>what was subtracted</strong>.</p>
+<p style="text-align:center"><strong>★★★ degree-\(q\) detrending \(=\) a high-pass filter of order \(\alpha=q+1\).<br>\(\text{dB/oct}=6(q+1)\) (measured 6.014 / 12.036 / 18.057 / 24.078).</strong></p>
+<p>★ <strong>Episode 1’s yardstick turns up for the third time</strong> ── <em>Episode 57’s edges, Episode 58’s windows, and now detrending.</em> ★★ <strong>The \(-3\)dB point is \(0.4(q+1)\) bins, i.e. about one cycle per record</strong> ── <em>the boundary is set by the record, and lengthening it tenfold turns a trend into a signal. <strong>Exactly Episode 5’s shape.</strong></em></p>
+<p>★★ <strong>From this follows the leakage condition \(\beta\le2q+3\)</strong> ── <em>which explains all five rows of Episode 59 §03.</em> <strong>And \(\beta=7,q=2\) has its leakage under control yet is still wrong, because it hits the window ceiling \(2\alpha=6\): the two conditions are separate.</strong> <em>① leakage: \(\beta\le2q+3\), bought with detrending; ② the ceiling: \(\beta<2\alpha\), bought with the window. Neither alone suffices.</em></p>
+<p>★★★ <strong>The subtracted trend had not vanished</strong> ── <em>at \(\beta=5\) it correlates 0.999 with the true low-frequency part. It is a measurement of “waves longer than the record.”</em> <strong>A very coarse one, with two degrees of freedom</strong> (Episode 51).</p>
+<p>★★★ <strong>And the “variance” of \(1/f^\beta\) is not a number.</strong> <em>It runs as \(N^{\beta-1}\) for \(\beta>1\) (measured 1.147 / 1.980 against 1 / 2), converges for \(\beta<1\), and grows as <strong>\(\log N\)</strong> at exactly \(\beta=1\) (0.146 predicted, 0.161 measured).</em> ★ <strong>“What is this signal’s variance?” has no answer without the record length</strong> ── <em>the structure of Episode 29’s renormalisation, with the logarithmic point as the fixed point.</em> ★★ <em>But “the same structure” is not “renormalisation is available” (Exercise 2).</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+Part XIX opened as <strong>“back to physics, carrying Part XVIII’s tools.”</strong><br>
+★ <strong>Next episode closes it</strong> ── <em>the five results of Episodes 56–60, folded back into the handbooks of Episodes 49 and 55.</em><br>
+★★ <strong>And we count how many times this series’ \(\alpha\) appeared across those five episodes</strong> ── <em>how far one line from Episode 1, “differentiate a sound and it goes high,” has travelled.</em>
+</div>
+
+<p class="foot">This document is Episode 60 of the “Thinking in Waves” series. The computations are in kenshou/torendo.js (own FFT, zero dependencies). <strong>On the numbers in this episode:</strong> the detrending gain, its low-frequency slope and \(-3\)dB points, the leakage-integral convergence ratios, the correlation between trend and low-frequency part, the \(N\) dependence of the variance, and the variance removed by detrending are all computed here. <strong>That polynomial detrending acts as a high-pass, and that a \(1/f\) process’s variance depends on record length, are well-known facts and are not discoveries of this episode</strong> ── what this episode did was <em>re-measure them on Episode 1’s \(\text{dB/oct}=6\alpha\) yardstick, derive the leakage condition \(\beta\le2q+3\) and check it against Episode 59’s table, and compare the \(\log N\) growth at \(\beta=1\) against the predicted 0.146.</em> <em>§01 uses a record of 1024; §02 uses a Hann window at \(k=64\) comparing lower limits 1/16 and 1/64; §§03–05 cut segments from a synthesis of length 65536 ── all are condition-dependent. The “converges/diverges” verdict in §02 uses a convenience threshold of 1.1, and exactly \(\beta=2q+3\) diverges logarithmically (ratio 1.02).</em> The §04 slopes are fitted from only three points (\(N=256,1024,4096\)). <strong>This episode also uses synthetic data only, and has not been applied to real measurements.</strong> ── To print, use your browser’s Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). “Show answer” opens the solutions.</p>

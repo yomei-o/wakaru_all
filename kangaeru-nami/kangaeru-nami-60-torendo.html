@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>トレンドと信号は どこで分かれるか ── 境目を決めているのは記録の長さ</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1c1d1e; --ink-soft:#4d5052;
+    --paper:#f7f8f8; --paper-edge:#e2e5e6;
+    --side:#3d4548; --side-bg:#eceeef;
+    --warn:#8a4b2f;
+    --calc:#2f3639; --calc-bg:#e9ecec;
+    --rule:#d2d6d7; --hair:#b3babc;
+    --acc:#3d4548;
+    --grid:#e5e8e9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 60 回 ／ 第 XIX 部・道具を持って 物理へ戻る</span></p>
+<p class="eyebrow">引いたものは、どこへ行ったのか</p>
+
+<h1>トレンドと信号は どこで分かれるか ──<br>境目を決めているのは<strong>系ではなく、記録の長さ</strong>
+<span class="sub">★ \(q\) 次のトレンド除去は<strong>階数 \(\alpha=q+1\) の高域通過フィルタ</strong>でした ── <em>また \(\text{dB/oct}=6\alpha\)。第 1 回の物差しがここにも出ます。</em><br>★★ そこから<strong>漏れが有限になる条件 \(\beta\le2q+3\)</strong> が出て、<em>第 59 回 03 節の表が 5 行 すべて説明できました。</em><br>★★★ そして <strong>\(1/f^\beta\) の「分散」は数ではありません</strong> ── <em>\(\beta>1\) では \(N^{\beta-1}\) で走り、\(\beta=1\) ちょうどでは \(\log N\)。第 29 回の繰り込みと同じ構造です。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 5, 29, 51, 58, 59 回</span><span>計算：kenshou/torendo.js</span></p>
+
+<p class="lead">第 59 回で<strong>「1〜2 次のトレンドを引けば漏れが消える」</strong>と分かりました。<em>★ では<strong>引いたものはどこへ行ったのか</strong>。そして、トレンドと信号の境目はどこにあるのか。</em></p>
+
+<h2><span class="n">01</span>★★★ トレンド除去は、高域通過フィルタだった</h2>
+
+<p>長さ 1024 の記録に周波数 \(f\)［bin］の正弦波を入れ、残差のエネルギーを測ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(f\)［bin］</th><th>\(q{=}0\)（平均）</th><th>\(q{=}1\)（直線）</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.01</strong></th><td class="mid"><strong>−34.83</strong></td><td class="mid"><strong>−76.65</strong></td><td class="mid"><strong>−122.14</strong></td><td class="mid"><strong>−170.19</strong></td></tr>
+<tr><th>0.1</th><td class="mid">−14.89</td><td class="mid">−36.70</td><td class="mid">−62.18</td><td class="mid">−90.23</td></tr>
+<tr><th>1</th><td class="mid">0.00</td><td class="mid">−1.57</td><td class="mid">−6.31</td><td class="mid">−13.72</td></tr>
+<tr><th>3</th><td class="mid">0.00</td><td class="mid">−0.15</td><td class="mid">−0.17</td><td class="mid">−0.43</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><em>（表は利得² を dB で。0 dB ならそのまま通す。）</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>低域の傾き dB/oct</th><th>予言 \(6(q{+}1)\)</th><th>\(\alpha\)</th><th>\(-3\)dB 点［bin］</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>6.014</strong></td><td class="mid"><strong>6.021</strong></td><td class="mid"><strong>1</strong></td><td class="mid">0.4436</td></tr>
+<tr><th>1</th><td class="mid">12.036</td><td class="mid">12.041</td><td class="mid">2</td><td class="mid">0.8527</td></tr>
+<tr><th>2</th><td class="mid">18.057</td><td class="mid">18.062</td><td class="mid">3</td><td class="mid">1.2391</td></tr>
+<tr><th>3</th><td class="mid">24.078</td><td class="mid">24.082</td><td class="mid">4</td><td class="mid">1.6152</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(q\) 次のトレンド除去 \(=\) 階数 \(\alpha=q+1\) の高域通過フィルタ</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>\(\text{dB/oct}=6(q+1)\)</strong> ── <em>第 1 回の物差しが、ここにも出ました。第 58 回の窓、第 57 回の端に続いて三度目です。</em><br>
+★★ <strong>\(-3\)dB 点は 0.44 / 0.85 / 1.24 / 1.62 bin ── およそ \(0.4(q+1)\) bin</strong>。<em>どれも「記録 1 本のあいだに 1 周期ほど」の所にあります。</em><br>
+★★★ <strong>つまり「トレンドか信号か」の境目は、系ではなく記録の長さが決めています。</strong><em>同じ信号でも記録を 10 倍 長くすれば、いままでトレンドだったものが信号になる</em> ── <strong>第 5 回の「宇宙年齢より長い周期は定数と区別がつかない」と、まったく同じ形です。</strong></p>
+</div>
+
+<h2><span class="n">02</span>★★★ 漏れが有限になる条件 ── \(\beta\le2q+3\)</h2>
+
+<div class="calc">
+<span class="tag">導出</span>
+$$\mathrm{Leak}(k)=\int f^{-\beta}G_q(f)\,|W_\alpha(k-f)|^2df,\quad G_q\propto f^{2(q+1)}\ \Longrightarrow\ \text{収束条件}\ \beta\le2q+3$$
+</div>
+
+<p>ハン窓（\(\alpha=3\)）、bin \(k=64\) への漏れ。<strong>積分の下端を 1/16 から 1/64 に下げたとき、漏れが何倍になるか</strong>（1 に近ければ収束）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q{=}0\)</th><th>\(q{=}1\)</th><th>\(q{=}2\)</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">1.018</td><td class="mid">1.000</td><td class="mid">1.000</td></tr>
+<tr><th>4</th><td class="mid">1.136</td><td class="mid">1.002</td><td class="mid">1.000</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>1.797</strong></td><td class="mid"><strong>1.018</strong></td><td class="mid">1.000</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">4.805</td><td class="mid"><strong>1.134</strong></td><td class="mid"><strong>1.002</strong></td></tr>
+<tr><th>7</th><td class="mid">17.145</td><td class="mid">1.790</td><td class="mid">1.017</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>\(\beta=2q+3\) ちょうど</strong>（\(\beta{=}5,q{=}1\) と \(\beta{=}7,q{=}2\)）<strong>は対数発散</strong>で、<em>下端を 4 倍 下げても 1.02 倍 にしかなりません ── 実用上は収束と同じ。</em></p>
+
+<p>★★ <strong>これで第 59 回 03 節の表が説明できます。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q\)</th><th>\(2q{+}3\)</th><th>漏れの比</th><th>第 59 回の実測</th><th>天井 \(2\alpha{=}6\)</th></tr></thead>
+<tbody>
+<tr><th>5</th><td class="mid">0</td><td class="mid">3</td><td class="mid">1.80 発散</td><td class="mid">5.512（行きすぎ）</td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">1</td><td class="mid">5</td><td class="mid"><strong>1.02 収束</strong></td><td class="mid"><strong>4.992（直った）</strong></td><td class="mid">—</td></tr>
+<tr><th>6</th><td class="mid">1</td><td class="mid">5</td><td class="mid">1.13 発散</td><td class="mid">6.035（まだ）</td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">2</td><td class="mid">7</td><td class="mid"><strong>1.00 収束</strong></td><td class="mid"><strong>5.994（直った）</strong></td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>7</strong></th><td class="mid">2</td><td class="mid">7</td><td class="mid">1.02 収束</td><td class="mid">6.039（天井）</td><td class="mid"><strong>貼りつき</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心 ── 二つの条件は別物だった</p>
+<p style="margin:6px 0 0">★★★ <strong>「収束」の行だけが直っています。</strong><em>\(\beta=6,q=1\) は比 1.13 の発散で、実測も 6.035 のまま。</em><br>
+★★ <strong>\(\beta=7,q=2\) は漏れのほうは収まっているのに直りません</strong> ── <em>窓の天井 \(2\alpha=6\) に当たっているからです。</em><strong>原因が別だと、こうして分けられます。</strong><br>
+★★★ <strong>満たすべき条件は二つ、別々にあります</strong>：<br>
+　<em>① 記録より長い波からの漏れ → \(\beta\le2q+3\)（<strong>トレンド除去で買う</strong>）</em><br>
+　<em>② 窓の裾からの天井 → \(\beta<2\alpha\)（<strong>窓で買う</strong>）</em><br>
+★ <strong>第 58 回で「窓を上げろ」、第 59 回で「トレンドを引け」と言ったのは、別々の条件でした</strong> ── <em>どちらか一方では足りません。</em></p>
+</div>
+
+<h2><span class="n">03</span>引いたトレンドは、何の測定値か</h2>
+
+<p>切り出し長 1024。<strong>当てはめた 1 次多項式</strong>と、<strong>「真の低域部分」</strong>（記録の 1 bin より低い成分だけを残した系列）を比べます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>相関係数</th><th>トレンドの分散 / 低域の分散</th><th>低域が全分散に占める割合</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.6175</td><td class="mid">0.7906</td><td class="mid">0.1121</td></tr>
+<tr><th>2</th><td class="mid">0.7078</td><td class="mid">0.7744</td><td class="mid">0.5700</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>0.8801</strong></td><td class="mid">0.8194</td><td class="mid">0.9067</td></tr>
+<tr><th>4</th><td class="mid">0.9564</td><td class="mid">0.9350</td><td class="mid">0.9684</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>0.9987</strong></td><td class="mid"><strong>0.9968</strong></td><td class="mid">1.0007</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── 引いたものは消えていない</p>
+<p style="margin:6px 0 0">★ <strong>\(\beta\) が大きいほど相関が高い</strong> ── <em>低域が支配的になるからです（\(\beta=5\) では相関 0.999）。</em><br>
+★★ <strong>引いたトレンドは捨てものではなく、「記録より長い波」の測定値です。</strong><em>\(\beta=5\) では、真の低域部分をほぼ完全に再現しています。</em><br>
+★★★ <strong>ただし自由度 2 の、ひどく粗い測定値</strong> ── <em>直線 1 本 ぶんの情報しかありません。</em><strong>第 51 回の「周期図 1 点は自由度 2」が、ここにも顔を出しています。</strong><br>
+★ <em>第 59 回で「捨てた」つもりのものは、手元に残っていました ── 使うかどうかは別として。</em></p>
+</div>
+
+<h2><span class="n">04</span>★★ \(1/f^\beta\) の「分散」は、数ではない</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(N{=}256\)</th><th>\(N{=}1024\)</th><th>\(N{=}4096\)</th><th>傾き（桁/桁）</th><th>予言</th></tr></thead>
+<tbody>
+<tr><th>0.5</th><td class="mid">3.25e−7</td><td class="mid">3.40e−7</td><td class="mid">3.40e−7</td><td class="mid">0.016</td><td class="mid">0（収束）</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid">5.10e−9</td><td class="mid">6.33e−9</td><td class="mid">7.97e−9</td><td class="mid"><strong>0.161</strong></td><td class="mid"><strong>0.146 (\(\log N\))</strong></td></tr>
+<tr><th>2</th><td class="mid">8.99e−12</td><td class="mid">3.32e−11</td><td class="mid">2.16e−10</td><td class="mid">1.147</td><td class="mid">1.0</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">2.24e−13</td><td class="mid">3.01e−12</td><td class="mid">5.43e−11</td><td class="mid"><strong>1.980</strong></td><td class="mid"><strong>2.0</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── 第 29 回の繰り込みと同じ構造</p>
+<p style="margin:6px 0 0">★★★ <strong>\(\beta>1\) では、分散が記録を伸ばすほど増え続けます（\(N^{\beta-1}\)）。</strong><em>「この信号の分散はいくつか」という問いに答えはありません ── 記録の長さを言わなければ決まらない。</em><br>
+★ <strong>\(\beta<1\) では高域が支配して収束</strong>（実測 0.016）。<br>
+★★★ <strong>そして \(\beta=1\) ちょうどでは \(\log N\)</strong> ── <em>べきでも定数でもない。</em>\(N{=}256\to4096\) での予言 \(\ln(\ln4096/\ln256)/\ln16=0.146\) に対し<strong>実測 0.161</strong>。<strong>\(1/f\) はここでも、ちょうど境目にいます。</strong><br>
+★★ <em>これが第 29 回の繰り込みと同じ構造です</em>：<strong>物理量は「どこで切ったか」に依存し、切り方を変えると走る。そして対数で走る点が、繰り込み群の固定点にあたります。</strong></p>
+</div>
+
+<h2><span class="n">05</span>トレンドを引くと、分散はどれだけ減るか</h2>
+
+<p>\(N=1024\)。引く前の分散を 1 としたときの、残差の分散。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\beta\)</th><th>\(q{=}0\)</th><th>\(q{=}1\)</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th><th>\(q{=}5\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.5</strong></th><td class="mid">1.0000</td><td class="mid"><strong>0.9861</strong></td><td class="mid">0.9768</td><td class="mid">0.9674</td><td class="mid">0.9532</td></tr>
+<tr><th>1</th><td class="mid">1.0000</td><td class="mid">0.8999</td><td class="mid">0.8495</td><td class="mid">0.8064</td><td class="mid">0.7502</td></tr>
+<tr><th>2</th><td class="mid">1.0000</td><td class="mid">0.5517</td><td class="mid">0.3958</td><td class="mid">0.3059</td><td class="mid">0.2130</td></tr>
+<tr><th>3</th><td class="mid">1.0000</td><td class="mid">0.2145</td><td class="mid">0.1032</td><td class="mid">0.0545</td><td class="mid">0.0255</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid">1.0000</td><td class="mid"><strong>0.0920</strong></td><td class="mid">0.0184</td><td class="mid">0.0077</td><td class="mid">0.0029</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>\(\beta=4\) では、直線を引くだけで分散が 1 割 以下 になります。</strong><em>「分散」という量がどれだけ低域に支配されていたかが、これで見えます。</em></p>
+
+<p>★★ <strong>逆に \(\beta=0.5\) ではほとんど変わりません</strong>（0.986）── <em>引いても害が小さい。</em><strong>「迷ったら引いてよい」というのは、この意味で正しい助言です。</strong></p>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>01 節で「境目は記録の長さが決める」と出た。では、系そのものにトレンドと信号の区別はあるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>純粋な \(1/f^\beta\) 過程には、ありません。</strong>スケール不変だからです ── <em>どの周波数を見ても同じ形をしている以上、「ここから下はトレンド」という線を系の側から引けません。</em><br>★ <strong>区別が生まれるのは、系に特徴的な時間がある場合だけ</strong>：<em>第 56 回の \(\tau_{\max}\) や、第 44 回のバンド端のように。</em><br>★★ <strong>つまり「トレンドを引く」という操作は、系についての主張ではなく、測定についての宣言です</strong> ── <em>「私はこの記録より長い波を測らないことにした」。</em><br>★★★ <strong>第 55 回の分類に足すなら、トレンド除去は「仮定」ではなく「範囲の宣言」</strong>。<em>だから正直に書くべきなのは仮定の数ではなく、\(q\) と記録長です。</em></div></details></li>
+
+<li>04 節で「分散が走る」と出た。第 29 回の繰り込みと本当に同じなのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>形は同じで、中身が違います。</strong><br>★ <strong>同じところ</strong>：<em>どちらも「観測量がカットオフに依存し、カットオフを動かすと走る」。そして \(\log\) で走る点が特別（第 29 回の固定点、本回の \(\beta=1\)）。</em><br>★★ <strong>違うところ</strong>：<em>場の理論の繰り込みでは、走る量（結合定数）を実験値に合わせることで、カットオフ依存性を観測量から消せます。</em><strong>本回にはその手続きがありません</strong> ── <em>分散は分散のまま走り続けます。</em><br>★★★ <strong>正直に言えば、これは「繰り込みと同じ構造」であって「繰り込みができる」ではありません。</strong><em>本シリーズは類似を見つけるのが好きですが、第 55 回のとおり、<strong>どこまでが同じかを書かないと類似は主張になりません。</strong></em></div></details></li>
+
+<li>03 節で「引いたトレンドは自由度 2 の測定値」と出た。それを使えるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>1 本の記録では ほとんど使えませんが、多数の記録があれば使えます。</strong><br>★ <strong>1 本では自由度 2</strong> ── <em>第 51 回の式では \(\mathrm{sd}=1.2825/\sqrt{2}\approx0.91\) nats、つまり <strong>4 dB 弱</strong>のばらつき。1 点の測定としてはひどい。</em><br>★★ <strong>ところが \(M\) 本 集めれば \(\sqrt{M}\) で良くなります</strong>：<em>100 本 の独立な記録のトレンドを集めれば、記録より 1 桁 低い周波数の力を 0.4 dB で測れる計算になります。</em><br>★★★ <strong>これは第 54 回の「範囲を買う」の四つ目の手にあたります</strong> ── <em>①長く測る ②数を増やす ③系を変える、に加えて<strong>④短い記録を多数集め、その「トレンド」を統計にする</strong>。</em>★ <em>ただし記録どうしが独立であることが要ります ── \(1/f\) ではそれ自体が怪しい。検証は未着手です。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　境目は系ではなく、記録が決めていた</h2>
+<p>第 59 回の「トレンドを引け」を、今度は<strong>引いたもの</strong>の側から見ました。</p>
+<p style="text-align:center"><strong>★★★ \(q\) 次のトレンド除去 \(=\) 階数 \(\alpha=q+1\) の高域通過フィルタ。<br>\(\text{dB/oct}=6(q+1)\)（実測 6.014 / 12.036 / 18.057 / 24.078）。</strong></p>
+<p>★ <strong>第 1 回の物差しが三度目に出ました</strong> ── <em>第 57 回の端、第 58 回の窓、そして本回のトレンド除去。</em>★★ <strong>\(-3\)dB 点は \(0.4(q+1)\) bin、つまり「記録 1 本のあいだに 1 周期ほど」</strong> ── <em>境目を決めているのは系ではなく記録の長さで、記録を 10 倍 にすれば、トレンドだったものが信号になります。<strong>第 5 回とまったく同じ形です。</strong></em></p>
+<p>★★ <strong>そこから漏れの収束条件 \(\beta\le2q+3\) が出ました</strong> ── <em>これで第 59 回 03 節の表が 5 行 すべて説明できます。</em><strong>そして \(\beta=7,q=2\) は漏れが収まっているのに直らない ── 窓の天井 \(2\alpha=6\) に当たっているからで、二つの条件は別物でした。</strong><em>① 漏れは \(\beta\le2q+3\)（トレンド除去で買う）、② 天井は \(\beta<2\alpha\)（窓で買う）。どちらか一方では足りません。</em></p>
+<p>★★★ <strong>引いたトレンドは消えていませんでした</strong> ── <em>\(\beta=5\) では真の低域部分と相関 0.999。「記録より長い波」の測定値です。</em><strong>ただし自由度 2 の、ひどく粗い測定値</strong>（第 51 回）。</p>
+<p>★★★ <strong>そして \(1/f^\beta\) の「分散」は数ではありませんでした。</strong><em>\(\beta>1\) では \(N^{\beta-1}\) で走り（実測 1.147 / 1.980 対 予言 1 / 2）、\(\beta<1\) では収束し、<strong>\(\beta=1\) ちょうどでは \(\log N\)</strong>（予言 0.146 対 実測 0.161）。</em>★ <strong>「この信号の分散はいくつか」に答えはなく、記録の長さを言わなければ決まりません</strong> ── <em>第 29 回の繰り込みと同じ構造で、対数で走る点が固定点にあたります。</em>★★ <em>ただし「構造が同じ」であって「繰り込みができる」ではありません（練習問題 2）。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 XIX 部は<strong>「第 XVIII 部の道具を持って物理へ戻る」</strong>として始まりました。<br>
+★ <strong>次回で締めます</strong> ── <em>第 56〜60 回で出た五つの結果を並べ、第 49・55 回の手引きに畳み直します。</em><br>
+★★ <strong>そして本シリーズの \(\alpha\) が、この 5 回で何回 顔を出したか</strong>を数えます ── <em>第 1 回の「音を微分すると高音になる」という一行が、どこまで来たのか。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 60 回です。計算は kenshou/torendo.js で行っています（FFT は自前、依存ライブラリ 0）。<strong>本回の数値について：</strong>トレンド除去の利得と低域の傾き・\(-3\)dB 点、漏れ積分の収束比、トレンドと低域部分の相関、分散の \(N\) 依存、トレンド除去による分散の減り方は、すべて本稿で計算したものです。<strong>多項式トレンド除去が高域通過として働くこと、\(1/f\) 過程の分散が記録長に依存すること ── これらはよく知られた事実で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>それらを第 1 回の \(\text{dB/oct}=6\alpha\) という物差しで測り直し、漏れの収束条件 \(\beta\le2q+3\) を導いて第 59 回の表と突き合わせ、\(\beta=1\) での \(\log N\) 成長を予言 0.146 と比べたこと</em>です。<em>01 節は記録長 1024、02 節はハン窓・\(k=64\)・下端 1/16 と 1/64 の比較、03〜05 節は合成長 65536 からの切り出しで、いずれも条件に依存します。02 節の「発散／収束」は比 1.1 を境にした便宜的な判定で、\(\beta=2q+3\) ちょうどは対数発散（比 1.02）です。</em>04 節の傾きは \(N=256,1024,4096\) の 3 点だけからの当てはめです。<strong>本稿も合成データのみで、実際の測定データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
