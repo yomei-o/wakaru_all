@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measuring the systematic error — what helped most was not the window</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 59 / Part XIX — Back to Physics, with the Tools</span></p>
+<p class="eyebrow">From estimating systematic error to measuring it</p>
+
+<h1>Measuring the systematic error ──<br>and <strong>what helped most was not the window</strong>
+<span class="sub">Turning Episode 58’s <strong>“change the window and the value moves”</strong> around, we built a procedure that hunts for the region where it does <em>not</em> move.<br>★★★ What turned up on the way ── <em>that overshoot <strong>appears with zero noise too</strong>. Its source is <strong>frequencies below the record’s resolution</strong> ── the part that, inside the record, looks like nothing but a trend.</em><br>★★ <strong>So drawing one straight line removes it</strong> (\(\beta=5\): \(5.512\to4.992\)) ── <em>Episode 58 said “raise the window order,” but there was a much cheaper move.</em></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 51, 55, 57, 58</span><span>Computation: kenshou/keito.js</span></p>
+
+<p class="lead">Episode 58 produced a <strong>systematic error with a fixed sign</strong>. <em>★ Here we turn it into an instrument ── <strong>extract both the true value and its uncertainty from how the estimate moves.</strong></em></p>
+
+<h2><span class="n">01</span>Sweeping \(\hat\beta\) over \(\alpha\)</h2>
+
+<p>Window order \(\alpha=1\) (rectangular) through 8, averaged over 32 realizations.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.990</td><td class="mid">0.989</td><td class="mid">0.991</td><td class="mid">0.988</td><td class="mid">0.988</td><td class="mid">0.987</td><td class="mid">0.988</td><td class="mid">0.990</td></tr>
+<tr><th>3</th><td class="mid">2.033</td><td class="mid">3.160</td><td class="mid">2.992</td><td class="mid">2.990</td><td class="mid">2.989</td><td class="mid">2.988</td><td class="mid">2.989</td><td class="mid">2.990</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">1.984</td><td class="mid">4.020</td><td class="mid"><strong>5.512</strong></td><td class="mid">5.061</td><td class="mid"><strong>4.990</strong></td><td class="mid">4.990</td><td class="mid">4.990</td><td class="mid">4.991</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">1.981</td><td class="mid">4.021</td><td class="mid">6.000</td><td class="mid"><strong>7.623</strong></td><td class="mid"><strong>5.997</strong></td><td class="mid">5.992</td><td class="mid">5.990</td><td class="mid">5.992</td></tr>
+<tr><th>7</th><td class="mid">1.981</td><td class="mid">4.021</td><td class="mid">6.004</td><td class="mid"><strong>8.001</strong></td><td class="mid">7.633</td><td class="mid">7.182</td><td class="mid">6.992</td><td class="mid">6.994</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §01</p>
+<p style="margin:6px 0 0">★ At small \(\alpha\) the estimate is <strong>clamped by leakage</strong> (Episode 58’s ceiling \(2\alpha\)).<br>
+★★ <strong>Just below the ceiling it overshoots</strong> ── 7.623 at \(\beta=6,\alpha=4\) and 8.001 at \(\beta=7,\alpha=4\), <em>both pushing up towards the ceiling \(2\alpha=8\).</em><br>
+★ <strong>At larger \(\alpha\) it settles, lining up at a constant about 0.01 below the truth for every \(\beta\)</strong> ── <em>that is the plateau.</em><br>
+★★★ <strong>That is the backbone of the procedure</strong>: <em>find the plateau automatically and report its width as the systematic error.</em></p>
+</div>
+
+<h2><span class="n">02</span>★★★ Killing the noise to see the bias alone</h2>
+
+<p>Convolving the expected periodogram \(E[P(k)]=\int S(f)|W(k-f)|^2df\) directly gives <strong>the bias with zero statistical error</strong>.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.005</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td></tr>
+<tr><th>3</th><td class="mid">−1.009</td><td class="mid">+0.125</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.002</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">−3.012</td><td class="mid">−0.988</td><td class="mid"><strong>+0.625</strong></td><td class="mid">+0.068</td><td class="mid">0.003</td><td class="mid">0.003</td><td class="mid">0.004</td><td class="mid">0.004</td></tr>
+<tr><th>7</th><td class="mid">−5.012</td><td class="mid">−2.988</td><td class="mid">−1.000</td><td class="mid">+1.002</td><td class="mid">+0.918</td><td class="mid">+0.252</td><td class="mid">0.007</td><td class="mid">0.008</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>The overshoot appears with zero noise</strong> (\(+0.625\) at \(\beta=5,\alpha=3\)) ── <em>matching the \(+0.61\) measured in Episode 58. It is not a statistical effect but the shape of the expected spectrum itself.</em></p>
+
+<p>★★ <em>A prediction failed</em>: <strong>I expected a main-lobe smoothing bias to grow at large \(\alpha\), but it is only \(+0.002\) to \(+0.008\).</strong> <em>What limits the large-\(\alpha\) side is not bias but variance (§04).</em></p>
+
+<p>★ <strong>So where does the leakage come from?</strong> Move the lower limit of the integral (\(\beta=5,\alpha=3\)):</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>lower limit \(f\) [bins]</th><th>0.0625</th><th>0.25</th><th>0.5</th><th>1.0</th></tr></thead>
+<tbody>
+<tr><th>estimated \(\beta\)</th><td class="mid"><strong>5.625</strong></td><td class="mid">5.062</td><td class="mid">5.006</td><td class="mid">5.002</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §02 ── the culprit identified</p>
+<p style="margin:6px 0 0">★★★ <strong>The overshoot appears only when frequencies below the record’s 1-bin resolution (0.0625–1 bin) are included.</strong><br>
+★★ <em>The leakage is dominated by <strong>“the part that looks like nothing but a trend inside the record”</strong></em> ── waves whose period exceeds the record. <strong>Exactly the component Episodes 5 and 56 called “indistinguishable from a constant.”</strong><br>
+★ <em>Not merely indistinguishable ── <strong>it was contaminating the measurement.</strong></em></p>
+</div>
+
+<h2><span class="n">03</span>★★★ Then subtract the trend</h2>
+
+<p>If it looks like a trend inside the record, <strong>fitting and subtracting one should remove it.</strong> With a Hann window (\(\alpha=3\)), subtracting a degree-\(q\) polynomial first:</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>none</th><th>\(q{=}0\) (mean)</th><th>\(q{=}1\) (line)</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">2.992</td><td class="mid">2.992</td><td class="mid">2.991</td><td class="mid">2.991</td><td class="mid">2.991</td></tr>
+<tr><th>4</th><td class="mid">4.000</td><td class="mid">4.000</td><td class="mid">3.992</td><td class="mid">3.992</td><td class="mid">3.991</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>5.512</strong></td><td class="mid">5.512</td><td class="mid"><strong>4.992</strong></td><td class="mid">4.993</td><td class="mid">4.992</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">6.000</td><td class="mid">6.000</td><td class="mid">6.035</td><td class="mid"><strong>5.994</strong></td><td class="mid">5.992</td></tr>
+<tr><th>7</th><td class="mid">6.004</td><td class="mid">6.004</td><td class="mid">6.504</td><td class="mid">6.039</td><td class="mid">6.574</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §03 ── the most practical thing here</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>One straight line removes the overshoot.<br>\(\beta=5\): \(5.512\to4.992\)</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>Episode 58 said “raise the window order”; there was a cheaper move.</strong> <em>Raising the order costs variance (§04); subtracting a trend is nearly free.</em><br>
+★ <em>Subtracting the mean alone (\(q=0\)) does nothing</em> ── <strong>it takes degree 1.</strong><br>
+★★ <strong>But the ceiling does not move</strong> ── <em>\(\beta=7\) measured with \(\alpha=3\) (ceiling 6) stays at 6.04–6.57 for every \(q\).</em> <strong>Detrending removes the overshoot but not the clamping.</strong><br>
+★ <strong>Over-subtracting hurts too</strong> (\(\beta=7\) with \(q=3\) worsens to 6.57). <em>The handbook entry: subtract a degree 1–2 trend, then choose a window with \(2\alpha\ge\beta+2\).</em></p>
+</div>
+
+<h2><span class="n">04</span>The scatter grows with \(\alpha\)</h2>
+
+<p>A window reduces the number of independent points. Equivalent noise bandwidth \(\mathrm{ENBW}=N\sum w^2/(\sum w)^2\).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\alpha\)</th><th>ENBW [bins]</th><th>measured sd(\(\beta\))</th><th>Episode 51’s prediction</th><th>ratio</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">1.000</td><td class="mid">0.1170</td><td class="mid">0.0865</td><td class="mid">(biased)</td></tr>
+<tr><th>2</th><td class="mid">1.234</td><td class="mid">0.1815</td><td class="mid">0.0961</td><td class="mid">(biased)</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">1.500</td><td class="mid"><strong>0.0839</strong></td><td class="mid"><strong>0.1059</strong></td><td class="mid"><strong>0.792</strong></td></tr>
+<tr><th>5</th><td class="mid">1.944</td><td class="mid">0.1011</td><td class="mid">0.1206</td><td class="mid">0.838</td></tr>
+<tr><th>8</th><td class="mid">2.473</td><td class="mid">0.1193</td><td class="mid">0.1360</td><td class="mid">0.877</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ The prediction is Episode 51’s \(\mathrm{sd}=1.2825/\sqrt{\text{effective points}}\) with effective points \(=S_{xx}/\mathrm{ENBW}\). <em>At \(\alpha=1,2\) the estimator is still biased at \(\beta=3\), so those sd values are meaningless.</em></p>
+
+<p>★★ <strong>In the unbiased range \(\alpha\ge3\) the ratio is 0.79–0.88 ── the prediction runs 15–20 % high.</strong> <em>The periodogram’s points are correlated by the window, and ENBW alone overstates that correlation.</em> <strong>Use it as an upper bound.</strong></p>
+
+<h2><span class="n">05</span>The best \(\alpha\) ── and a minimum you must not trust</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">1.011</td><td class="mid">0.242</td><td class="mid"><strong>0.085</strong></td><td class="mid">0.093</td><td class="mid">0.100</td><td class="mid">0.106</td><td class="mid">0.112</td><td class="mid">0.116</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid">2.019</td><td class="mid"><strong>0.026</strong></td><td class="mid">0.085</td><td class="mid">0.093</td><td class="mid">0.099</td><td class="mid">0.105</td><td class="mid">0.111</td><td class="mid">0.116</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">4.019</td><td class="mid">1.978</td><td class="mid"><strong>0.008</strong></td><td class="mid">1.686</td><td class="mid">0.097</td><td class="mid">0.104</td><td class="mid">0.110</td><td class="mid">0.115</td></tr>
+<tr><th>7</th><td class="mid">5.019</td><td class="mid">2.979</td><td class="mid">0.998</td><td class="mid">1.001</td><td class="mid">0.885</td><td class="mid">0.254</td><td class="mid"><strong>0.110</strong></td><td class="mid">0.115</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §05 (the table is RMS error)</p>
+<p style="margin:6px 0 0">★★★ <strong>The 0.026 at \(\beta=4,\alpha=2\) and the 0.008 at \(\beta=6,\alpha=3\) are two biases cancelling by accident.</strong> <em>Without knowing \(\beta\) you cannot aim at them ── <strong>do not ride that minimum.</strong></em><br>
+★ <em>The neighbours give it away</em>: at \(\beta=6\), \(\alpha=3\) gives 0.008 but \(\alpha=4\) gives 1.686. <strong>A minimum that unstable is not a usable minimum.</strong><br>
+★★ <strong>The safe rule is \(2\alpha\ge\beta+2\)</strong> (\(\alpha\ge3\) for \(\beta=4\), \(\alpha\ge4\) for \(\beta=6\)). <em>You cannot apply it without knowing \(\beta\), which is why the §01 sweep is needed.</em></p>
+</div>
+
+<h2><span class="n">06</span>★★ Making it a procedure ── and measuring how often it is right</h2>
+
+<div class="calc">
+<span class="tag">Steps</span>
+<p style="margin:0;text-align:left">① measure \(\hat\beta\) for \(\alpha=1\ldots8\) ② find the longest run whose spread is within \(\mathrm{tol}=0.15\) ③ the value is its mean, the systematic error its half-spread ④ the statistical error from Episode 51’s formula (with ENBW) ⑤ add in quadrature and report</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>mean estimate</th><th>total error</th><th>\(|\)err\(|\) median</th><th>68th pct</th><th>95th pct</th><th>actual sd</th><th>coverage</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">1.015</td><td class="mid">0.129</td><td class="mid">0.057</td><td class="mid">0.078</td><td class="mid">0.178</td><td class="mid">0.317</td><td class="mid">87.0 %</td></tr>
+<tr><th>3</th><td class="mid">3.021</td><td class="mid">0.129</td><td class="mid">0.060</td><td class="mid">0.092</td><td class="mid">0.187</td><td class="mid">0.366</td><td class="mid">84.0 %</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>5.014</strong></td><td class="mid">0.132</td><td class="mid">0.062</td><td class="mid">0.093</td><td class="mid">0.201</td><td class="mid">0.224</td><td class="mid"><strong>84.5 %</strong></td></tr>
+<tr><th>7</th><td class="mid">7.009</td><td class="mid">0.136</td><td class="mid">0.068</td><td class="mid">0.105</td><td class="mid">0.216</td><td class="mid">0.121</td><td class="mid">79.5 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §06 ── the error distribution is not Gaussian</p>
+<p style="margin:6px 0 0">★ <strong>Against a nominal 68 %, the measured coverage is 79–87 %</strong> ── <em>the quoted error runs about 1.4× high (the 68th percentile of \(|\)error\(|\) is 0.08–0.11 while the quoted total is 0.13).</em><br>
+★★★ <strong>Yet the actual sd is far larger than the quoted error</strong> (0.32 against 0.13 at \(\beta=1\)). <em>No contradiction ── <strong>the error distribution is not Gaussian.</strong></em><br>
+★★ <strong>The core is narrow and it misses badly on rare occasions</strong> (the 95th percentile is about twice the 68th, and the sd runs 0.12–0.41). <em>Those rare misses are what inflate the sd.</em><br>
+★★★ <strong>So this procedure’s error must not be written as an sd.</strong> <em>“68 % fall within this width” ── stated as coverage ── is the right form</em>, <strong>for exactly the reason Episode 51’s \(\ln(\chi^2_2/2)\) was asymmetric.</strong></p>
+</div>
+
+<h2><span class="n">07</span>Where the procedure breaks</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>fitting band</th><th>true \(\beta\)</th><th>estimate</th><th>total error</th><th>coverage</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(k=32\ldots512\)</strong></th><td class="mid">3</td><td class="mid">3.021</td><td class="mid">0.129</td><td class="mid"><strong>84.0 %</strong></td></tr>
+<tr><th>\(k=32\ldots512\)</th><td class="mid">6</td><td class="mid">6.006</td><td class="mid">0.133</td><td class="mid">83.0 %</td></tr>
+<tr class="hi"><th><strong>\(k=64\ldots256\)</strong></th><td class="mid">3</td><td class="mid">3.027</td><td class="mid">0.352</td><td class="mid"><strong>75.5 %</strong></td></tr>
+<tr><th>\(k=64\ldots256\)</th><td class="mid">6</td><td class="mid">6.015</td><td class="mid">0.367</td><td class="mid">78.5 %</td></tr>
+<tr><th>\(k=16\ldots1024\)</th><td class="mid">3</td><td class="mid">3.019</td><td class="mid">0.074</td><td class="mid">86.5 %</td></tr>
+<tr><th>\(k=16\ldots1024\)</th><td class="mid">6</td><td class="mid">6.008</td><td class="mid">0.075</td><td class="mid">85.0 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>Change the band and the coverage moves</strong> (75.5–86.5 %) ── <em>even though the estimate itself barely moves (around 3.02).</em></p>
+
+<p>★★ <strong>So this procedure is “conditional” too (Episode 55).</strong> <em>Three assumptions: ① the fitting band ② tol ③ the window family.</em> <strong>Building a procedure does not make the assumptions go away.</strong></p>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>§02 identified the culprit as periods longer than the record. How does that connect to Episode 56?
+<details><summary>Show answer</summary><div class="ans"><strong>Episode 56 said they are invisible; here we learn they are invisible and still doing damage.</strong><br>★ Episode 56: <em>“the knee from \(\tau\) longer than the observation cannot be seen.”</em> ★★ Here: <em><strong>the tail still leaks through the window into high frequency and shifts the slope by \(+0.6\).</strong></em><br>★★★ <strong>This is what Episode 57’s exercise meant by “a smaller \(n\) lets outside information reach further in.”</strong> <em>There I wrote that one might in principle estimate \(\tau_{\max}\) from it; what actually happens first is <strong>contamination</strong>.</em><br>★ <strong>The order matters: subtract first (§03), then measure.</strong> <em>Inference about the outside comes after that.</em></div></details></li>
+
+<li>§03 found that subtracting the mean does nothing. Why does it take degree 1?
+<details><summary>Show answer</summary><div class="ans"><strong>Because the window has already killed the zeroth-order leakage.</strong> A Hann window (\(\alpha=3\)) has both value and derivative vanishing at the ends, so <em>leakage from a constant (\(f=0\)) is already down by \(f^{-3}\).</em><br>★ <strong>What remains is low but nonzero frequency</strong> ── <em>the part that looks like a straight line inside the record.</em> ★★ <strong>Subtracting a line removes most of it.</strong><br>★★★ <em>Generally</em>: <strong>subtracting degree \(q\) removes “low frequencies that look like a degree-\(q\) polynomial inside the record,”</strong> <em>which acts like raising the window order.</em> ★ <strong>The difference is the price</strong>: <em>raising the order costs variance (§04), while detrending costs only \(q+1\) degrees of freedom ── nearly free at 4096 points.</em></div></details></li>
+
+<li>§06 says not to write this as an sd. Are the series’ earlier numbers safe?
+<details><summary>Show answer</summary><div class="ans"><strong>Episode 51’s \(\mathrm{sd}(\beta)=1.2825/\sqrt{M}\) is fine</strong> ── <em>that is the standard deviation of \(\ln(\chi^2_2/2)\) itself, not the output of a procedure.</em><br>★ <strong>The risky ones are the five Episode 55 classified as “conditional on a model”</strong> ── <em>those are closer to procedure outputs, and their distributions need not be Gaussian.</em><br>★★ <strong>To add to Episode 55’s audit</strong>: <em>for a “conditional” number, also state <strong>the shape of its error</strong> (Gaussian, or narrow-core with heavy tails).</em><br>★★★ <em>And measuring the coverage, as here, is the surest way</em> ── <strong>measure the error’s shape before its size.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — systematic error is measurable, but the window was not the point</h2>
+<p>Turning Episode 58’s “change the window and the value moves” around, we built <strong>a procedure that hunts for where it does not move.</strong></p>
+<p>★ <strong>\(\hat\beta(\alpha)\) has a plateau</strong> ── <em>clamped at the ceiling \(2\alpha\) for small \(\alpha\), overshooting just below it, settling for large \(\alpha\).</em></p>
+<p style="text-align:center"><strong>★★★ And what turned up on the way ──<br>the overshoot appears with zero noise.<br>Its source is <em>the part that looks like nothing but a trend inside the record</em>.</strong></p>
+<p>★★ <strong>Moving the integral’s lower limit settled it</strong> ── <em>the \(+0.625\) overshoot appears only when frequencies below the 1-bin resolution (0.0625–1 bin) are included.</em> <strong>Episodes 5 and 56’s “a period longer than the observation is indistinguishable from a constant” becomes “not merely indistinguishable ── it was contaminating the measurement.”</strong></p>
+<p>★★★ <strong>So one straight line removes it</strong> (\(\beta=5\): \(5.512\to4.992\); \(\beta=6\) needs \(q=2\), giving 5.994). <em>Episode 58 said “raise the window order,” but there was a cheaper move ── raising the order costs variance, while detrending is nearly free at 4096 points.</em> ★ <strong>The ceiling does not move, though</strong> (\(\beta=7\) with \(\alpha=3\) stays at 6.04–6.57 for every \(q\)).</p>
+<p>★★ <strong>One prediction failed</strong>: <em>I expected a smoothing bias to grow at large \(\alpha\), but it is \(+0.002\) to \(+0.008\) and negligible; what limits the large-\(\alpha\) side is <strong>variance</strong>.</em> ★ <em>And the \(\alpha\) with minimum RMS is sometimes set by two biases cancelling by accident (0.008 at \(\beta=6,\alpha=3\), against 1.686 at \(\alpha=4\)) ── <strong>a minimum not to ride.</strong> The safe rule is \(2\alpha\ge\beta+2\).</em></p>
+<p>★★★ <strong>We also measured how often the procedure is right</strong> ── <em>coverage 79–87 % against a nominal 68 %, while the actual sd runs 1–3× the quoted error.</em> <strong>Not a contradiction: the error distribution is not Gaussian ── a narrow core with rare large misses.</strong> ★ <em>So this procedure’s error belongs in coverage, not in an sd, for exactly the reason Episode 51’s \(\ln(\chi^2_2/2)\) was asymmetric.</em></p>
+<p>★ <strong>And the procedure itself is conditional</strong> ── <em>on the fitting band, on tol, and on the window family; changing the band moves coverage between 75.5 % and 86.5 %.</em> <strong>Building a procedure does not make the assumptions go away.</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+§03 showed that <strong>“the part that looks like nothing but a trend”</strong> is the culprit.<br>
+★ <strong>Next we look at that part itself</strong> ── <em>where exactly does a trend end and a signal begin?</em><br>
+★★ <strong>Episode 5’s “indistinguishable from a constant,” Episode 29’s renormalisation, and this episode’s detrending</strong> ── <em>all of them cut off the long end.</em> ★ <strong>We ask where what was cut off goes.</strong>
+</div>
+
+<p class="foot">This document is Episode 59 of the “Thinking in Waves” series. The computations are in kenshou/keito.js (own FFT, zero dependencies). <strong>On the numbers in this episode:</strong> the \(\hat\beta(\alpha)\) sweep, the bias from the noiseless expected periodogram, the dependence on the integral’s lower limit, the effect of detrending, ENBW and scatter, the RMS errors, and the procedure’s coverage and error quantiles are all computed here. <strong>Spectral leakage in the periodogram, equivalent noise bandwidth, and the practice of detrending before taking a periodogram are all well-established and are not discoveries of this episode</strong> ── what this episode did was <em>organise them on Episode 58’s \(\alpha\) yardstick, locate the overshoot’s source through the lower-limit dependence, and measure the procedure’s coverage over 200 realizations.</em> <em>Every number depends on a record length of 4096, a synthesis length of 65536, a fitting band \(k=32\)–512 and \(\mathrm{tol}=0.15\); as §07 shows, changing the band moves coverage between 75.5 % and 86.5 %. The “0.79–0.88 of the prediction” in §04 is for \(\beta=3\) over 200 realizations.</em> The “minimum not to ride” in §05 is specific to these synthesis conditions; which \(\beta\) and \(\alpha\) happen to cancel varies with them. <strong>This episode also uses synthetic data only, and has not been applied to real measurements.</strong> ── To print, use your browser’s Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). “Show answer” opens the solutions.</p>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系統誤差を測る ── いちばん効いたのは、窓ではなかった</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 59 回 ／ 第 XIX 部・道具を持って 物理へ戻る</span></p>
+<p class="eyebrow">系統誤差を「見積もる」から「測る」へ</p>
+
+<h1>系統誤差を測る ──<br>そして<strong>いちばん効いたのは、窓ではなかった</strong>
+<span class="sub">第 58 回の<strong>「窓を変えると値が動く」</strong>を逆手に取り、動かない区間を探す手続きを作りました。<br>★★★ 途中で分かったこと ── <em>あの「行きすぎ」は<strong>雑音ゼロでも出ます</strong>。主役は<strong>記録の分解能より低い周波数</strong>、つまり<strong>記録の中では傾きにしか見えない成分</strong>でした。</em><br>★★ <strong>だから直線を 1 本引くだけで消えます</strong>（\(\beta=5\) で \(5.512\to4.992\)）── <em>第 58 回で「窓の階数を上げろ」と書きましたが、もっと安い手がありました。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 51, 55, 57, 58 回</span><span>計算：kenshou/keito.js</span></p>
+
+<p class="lead">第 58 回で<strong>符号の決まった系統誤差</strong>が出ました。<em>★ 今回はそれを測定の道具に変えます ── <strong>動かし方から、真の値と誤差の両方を取り出す。</strong></em></p>
+
+<h2><span class="n">01</span>\(\hat\beta\) を \(\alpha\) について走らせる</h2>
+
+<p>窓の階数 \(\alpha=1\)（矩形）から 8 まで。32 realization の平均です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>真の \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.990</td><td class="mid">0.989</td><td class="mid">0.991</td><td class="mid">0.988</td><td class="mid">0.988</td><td class="mid">0.987</td><td class="mid">0.988</td><td class="mid">0.990</td></tr>
+<tr><th>3</th><td class="mid">2.033</td><td class="mid">3.160</td><td class="mid">2.992</td><td class="mid">2.990</td><td class="mid">2.989</td><td class="mid">2.988</td><td class="mid">2.989</td><td class="mid">2.990</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">1.984</td><td class="mid">4.020</td><td class="mid"><strong>5.512</strong></td><td class="mid">5.061</td><td class="mid"><strong>4.990</strong></td><td class="mid">4.990</td><td class="mid">4.990</td><td class="mid">4.991</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">1.981</td><td class="mid">4.021</td><td class="mid">6.000</td><td class="mid"><strong>7.623</strong></td><td class="mid"><strong>5.997</strong></td><td class="mid">5.992</td><td class="mid">5.990</td><td class="mid">5.992</td></tr>
+<tr><th>7</th><td class="mid">1.981</td><td class="mid">4.021</td><td class="mid">6.004</td><td class="mid"><strong>8.001</strong></td><td class="mid">7.633</td><td class="mid">7.182</td><td class="mid">6.992</td><td class="mid">6.994</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0">★ 小さい \(\alpha\) では<strong>漏れで頭打ち</strong>（第 58 回の天井 \(2\alpha\)）。<br>
+★★ <strong>天井のすぐ手前では行きすぎる</strong> ── \(\beta=6\) で \(\alpha=4\) が 7.623、\(\beta=7\) で \(\alpha=4\) が 8.001。<em>いずれも天井 \(2\alpha=8\) に向かって突き上げています。</em><br>
+★ <strong>大きい \(\alpha\) では落ち着き、どの \(\beta\) でも真値より 0.01 ほど低い一定値に並びます</strong> ── <em>ここが「平らな区間」。</em><br>
+★★★ <strong>手続きの骨はこれです</strong>：<em>平らな区間を自動で見つけ、その幅を系統誤差として報告する。</em></p>
+</div>
+
+<h2><span class="n">02</span>★★★ 雑音を消して、「行きすぎ」が本物か調べる</h2>
+
+<p>期待される周期図 \(E[P(k)]=\int S(f)|W(k-f)|^2df\) を直接たたみこんで、<strong>統計誤差ゼロの偏りだけ</strong>を出します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>真の \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.005</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td><td class="mid">0.000</td></tr>
+<tr><th>3</th><td class="mid">−1.009</td><td class="mid">+0.125</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.001</td><td class="mid">0.002</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid">−3.012</td><td class="mid">−0.988</td><td class="mid"><strong>+0.625</strong></td><td class="mid">+0.068</td><td class="mid">0.003</td><td class="mid">0.003</td><td class="mid">0.004</td><td class="mid">0.004</td></tr>
+<tr><th>7</th><td class="mid">−5.012</td><td class="mid">−2.988</td><td class="mid">−1.000</td><td class="mid">+1.002</td><td class="mid">+0.918</td><td class="mid">+0.252</td><td class="mid">0.007</td><td class="mid">0.008</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>行きすぎは雑音ゼロでも出ました</strong>（\(\beta=5\)、\(\alpha=3\) で \(+0.625\)）── <em>第 58 回で測った \(+0.61\) とほぼ一致。統計の効果ではなく、期待されるスペクトルそのものの形です。</em></p>
+
+<p>★★ <em>予想が外れました</em>：<strong>大きい \(\alpha\) で主ローブの平滑化による偏りが育つと思っていましたが、\(+0.002\sim+0.008\) しかありません。</strong><em>大きい \(\alpha\) 側を止めているのは偏りではなく、ばらつきでした（04 節）。</em></p>
+
+<p>★ <strong>では、どこから漏れているのか。</strong>積分の下端を動かしてみます（\(\beta=5\)、\(\alpha=3\)）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>積分の下端 \(f\)［bin］</th><th>0.0625</th><th>0.25</th><th>0.5</th><th>1.0</th></tr></thead>
+<tbody>
+<tr><th>推定 \(\beta\)</th><td class="mid"><strong>5.625</strong></td><td class="mid">5.062</td><td class="mid">5.006</td><td class="mid">5.002</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心 ── 漏れの主役が分かった</p>
+<p style="margin:6px 0 0">★★★ <strong>記録の分解能 1 bin より下（0.0625〜1 bin）を入れたときだけ、行きすぎが出ます。</strong><br>
+★★ <em>漏れの主役は<strong>「記録の中では傾きにしか見えない成分」</strong>でした</em> ── 周期が記録より長い波。<strong>第 5 回・第 56 回で「観測時間より長い周期は定数と区別がつかない」と書いた、まさにその成分です。</strong><br>
+★ <em>区別がつかないだけでなく、<strong>測定を汚していた</strong>。</em></p>
+</div>
+
+<h2><span class="n">03</span>★★★ ならば、傾きを引けばよい</h2>
+
+<p>記録の中で傾きにしか見えないなら、<strong>当てはめて引いてしまえば消えるはず</strong>です。ハン窓（\(\alpha=3\)）で、\(q\) 次多項式を引いてから測ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>真の \(\beta\)</th><th>引かない</th><th>\(q{=}0\)（平均）</th><th>\(q{=}1\)（直線）</th><th>\(q{=}2\)</th><th>\(q{=}3\)</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">2.992</td><td class="mid">2.992</td><td class="mid">2.991</td><td class="mid">2.991</td><td class="mid">2.991</td></tr>
+<tr><th>4</th><td class="mid">4.000</td><td class="mid">4.000</td><td class="mid">3.992</td><td class="mid">3.992</td><td class="mid">3.991</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>5.512</strong></td><td class="mid">5.512</td><td class="mid"><strong>4.992</strong></td><td class="mid">4.993</td><td class="mid">4.992</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">6.000</td><td class="mid">6.000</td><td class="mid">6.035</td><td class="mid"><strong>5.994</strong></td><td class="mid">5.992</td></tr>
+<tr><th>7</th><td class="mid">6.004</td><td class="mid">6.004</td><td class="mid">6.504</td><td class="mid">6.039</td><td class="mid">6.574</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── 本回いちばんの実用的な収穫</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>直線を 1 本引くだけで、行きすぎが消える。<br>\(\beta=5\)：\(5.512\to4.992\)</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>第 58 回では「窓の階数を上げろ」と書きましたが、もっと安い手がありました。</strong><em>階数を上げるとばらつきが増えます（04 節）が、トレンドを引くのはほぼ無料です。</em><br>
+★ <em>平均を引くだけ（\(q=0\)）では効きません</em> ── <strong>効くのは 1 次から。</strong><br>
+★★ <strong>ただし天井は動きません</strong> ── <em>\(\beta=7\) を \(\alpha=3\)（天井 6）で測ると、どの \(q\) でも 6.04〜6.57 のまま。</em><strong>トレンド除去は「行きすぎ」を消しますが、「貼りつき」は消しません。</strong><br>
+★ <strong>引きすぎも害になります</strong>（\(\beta=7\) で \(q=3\) にすると 6.57 と悪化）。<em>手引きに足すべきは「1〜2 次を引き、そのうえで \(2\alpha\ge\beta+2\) になるよう窓を選ぶ」。</em></p>
+</div>
+
+<h2><span class="n">04</span>ばらつきは \(\alpha\) とともに増える</h2>
+
+<p>窓をかけると独立な点が減ります。等価雑音帯域 \(\mathrm{ENBW}=N\sum w^2/(\sum w)^2\)。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\alpha\)</th><th>ENBW［bin］</th><th>実測 sd(\(\beta\))</th><th>第 51 回の予言</th><th>比</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">1.000</td><td class="mid">0.1170</td><td class="mid">0.0865</td><td class="mid">（偏りあり）</td></tr>
+<tr><th>2</th><td class="mid">1.234</td><td class="mid">0.1815</td><td class="mid">0.0961</td><td class="mid">（偏りあり）</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">1.500</td><td class="mid"><strong>0.0839</strong></td><td class="mid"><strong>0.1059</strong></td><td class="mid"><strong>0.792</strong></td></tr>
+<tr><th>5</th><td class="mid">1.944</td><td class="mid">0.1011</td><td class="mid">0.1206</td><td class="mid">0.838</td></tr>
+<tr><th>8</th><td class="mid">2.473</td><td class="mid">0.1193</td><td class="mid">0.1360</td><td class="mid">0.877</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 予言は第 51 回の \(\mathrm{sd}=1.2825/\sqrt{\text{有効点数}}\)、有効点数 \(=S_{xx}/\mathrm{ENBW}\)。<em>\(\alpha=1,2\) は \(\beta=3\) では偏っているので、この sd は意味を持ちません。</em></p>
+
+<p>★★ <strong>偏りの無い \(\alpha\ge3\) では比が 0.79〜0.88 ── 予言は 15〜20 % 大きめ</strong>でした。<em>周期図の点が窓のせいで相関しており、ENBW だけではその相関を過大に見積もるためです。</em><strong>使うなら上限として。</strong></p>
+
+<h2><span class="n">05</span>最良の \(\alpha\) ── ただし乗ってはいけない最小値がある</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>真の \(\beta\)</th><th>\(a{=}1\)</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">1.011</td><td class="mid">0.242</td><td class="mid"><strong>0.085</strong></td><td class="mid">0.093</td><td class="mid">0.100</td><td class="mid">0.106</td><td class="mid">0.112</td><td class="mid">0.116</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid">2.019</td><td class="mid"><strong>0.026</strong></td><td class="mid">0.085</td><td class="mid">0.093</td><td class="mid">0.099</td><td class="mid">0.105</td><td class="mid">0.111</td><td class="mid">0.116</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid">4.019</td><td class="mid">1.978</td><td class="mid"><strong>0.008</strong></td><td class="mid">1.686</td><td class="mid">0.097</td><td class="mid">0.104</td><td class="mid">0.110</td><td class="mid">0.115</td></tr>
+<tr><th>7</th><td class="mid">5.019</td><td class="mid">2.979</td><td class="mid">0.998</td><td class="mid">1.001</td><td class="mid">0.885</td><td class="mid">0.254</td><td class="mid"><strong>0.110</strong></td><td class="mid">0.115</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心（表は RMS 誤差）</p>
+<p style="margin:6px 0 0">★★★ <strong>\(\beta=4\) の \(\alpha=2\)（0.026）や \(\beta=6\) の \(\alpha=3\)（0.008）は、偏りがたまたま打ち消し合っただけ。</strong><em>\(\beta\) を知らなければ狙って当てられません ── <strong>この最小値に乗ってはいけない。</strong></em><br>
+★ <em>隣を見れば分かります</em>：\(\beta=6\) で \(\alpha=3\) は 0.008 ですが、\(\alpha=4\) は 1.686。<strong>これほど不安定な最小値は、使える最小値ではありません。</strong><br>
+★★ <strong>安全な目安は \(2\alpha\ge\beta+2\)</strong>（\(\beta=4\) なら \(\alpha\ge3\)、\(\beta=6\) なら \(\alpha\ge4\)）。<em>\(\beta\) を知らないと選べないので、01 節の走査が要ります。</em></p>
+</div>
+
+<h2><span class="n">06</span>★★ 手続きにする ── そして当たり具合を測る</h2>
+
+<div class="calc">
+<span class="tag">手順</span>
+<p style="margin:0;text-align:left">① \(\alpha=1\ldots8\) で \(\hat\beta\) を測る　② 幅が \(\mathrm{tol}=0.15\) 以内で続く いちばん長い区間を探す　③ 値はその平均、系統誤差はその半値幅　④ 統計誤差は第 51 回の式（ENBW 込み）　⑤ 二乗和で足して報告する</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>真の \(\beta\)</th><th>平均の推定</th><th>合計誤差</th><th>\(|\)誤差\(|\) 中央</th><th>68 % 点</th><th>95 % 点</th><th>実測 sd</th><th>被覆率</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">1.015</td><td class="mid">0.129</td><td class="mid">0.057</td><td class="mid">0.078</td><td class="mid">0.178</td><td class="mid">0.317</td><td class="mid">87.0 %</td></tr>
+<tr><th>3</th><td class="mid">3.021</td><td class="mid">0.129</td><td class="mid">0.060</td><td class="mid">0.092</td><td class="mid">0.187</td><td class="mid">0.366</td><td class="mid">84.0 %</td></tr>
+<tr class="hi"><th><strong>5</strong></th><td class="mid"><strong>5.014</strong></td><td class="mid">0.132</td><td class="mid">0.062</td><td class="mid">0.093</td><td class="mid">0.201</td><td class="mid">0.224</td><td class="mid"><strong>84.5 %</strong></td></tr>
+<tr><th>7</th><td class="mid">7.009</td><td class="mid">0.136</td><td class="mid">0.068</td><td class="mid">0.105</td><td class="mid">0.216</td><td class="mid">0.121</td><td class="mid">79.5 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心 ── 誤差の分布が正規分布ではない</p>
+<p style="margin:6px 0 0">★ <strong>名目 68 % に対して実測の被覆率は 79〜87 %</strong> ── <em>誤差を 1.4 倍 ほど大きめに出しています（\(|\)誤差\(|\) の 68 % 点が 0.08〜0.11 なのに、報告する合計誤差が 0.13）。</em><br>
+★★★ <strong>ところが実測 sd は合計誤差よりずっと大きい</strong>（\(\beta=1\) で 0.32 対 0.13）。<em>矛盾ではありません ── <strong>誤差の分布が正規分布ではないから。</strong></em><br>
+★★ <strong>芯は細く、まれに大きく外します</strong>（95 % 点は 68 % 点の 2 倍 ほど、sd は 0.12〜0.41）。<em>その稀な外れが sd を膨らませています。</em><br>
+★★★ <strong>だからこの手続きの誤差は sd で書いてはいけません。</strong><em>「68 % がこの幅に入る」と被覆率で書くのが正しい</em> ── <strong>第 51 回の \(\ln(\chi^2_2/2)\) が非対称だったのと、同じ理由です。</strong></p>
+</div>
+
+<h2><span class="n">07</span>手続きが破れるところ</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>当てはめ帯域</th><th>真の \(\beta\)</th><th>推定</th><th>合計誤差</th><th>被覆率</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(k=32\ldots512\)</strong></th><td class="mid">3</td><td class="mid">3.021</td><td class="mid">0.129</td><td class="mid"><strong>84.0 %</strong></td></tr>
+<tr><th>\(k=32\ldots512\)</th><td class="mid">6</td><td class="mid">6.006</td><td class="mid">0.133</td><td class="mid">83.0 %</td></tr>
+<tr class="hi"><th><strong>\(k=64\ldots256\)</strong></th><td class="mid">3</td><td class="mid">3.027</td><td class="mid">0.352</td><td class="mid"><strong>75.5 %</strong></td></tr>
+<tr><th>\(k=64\ldots256\)</th><td class="mid">6</td><td class="mid">6.015</td><td class="mid">0.367</td><td class="mid">78.5 %</td></tr>
+<tr><th>\(k=16\ldots1024\)</th><td class="mid">3</td><td class="mid">3.019</td><td class="mid">0.074</td><td class="mid">86.5 %</td></tr>
+<tr><th>\(k=16\ldots1024\)</th><td class="mid">6</td><td class="mid">6.008</td><td class="mid">0.075</td><td class="mid">85.0 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>帯域を変えると被覆率も動きます</strong>（75.5〜86.5 %）── <em>推定値そのものはほとんど動かない（3.02 前後）のに。</em></p>
+
+<p>★★ <strong>つまりこの手続きも「仮定つき」（第 55 回）</strong>。<em>仮定は三つ ── ① 当てはめ帯域 ② tol ③ 窓の族。</em><strong>手続きを作ったからといって、仮定が消えたわけではありません。</strong></p>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>02 節で「漏れの主役は記録より長い周期」と分かった。第 56 回とどうつながるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>第 56 回は「見えない」と書きましたが、今回は「見えないのに効いている」が分かりました。</strong><br>★ 第 56 回：<em>「観測時間より長い \(\tau\) は折れ曲がりが見えない」。</em>★★ 本回：<em><strong>それでも裾は窓を通って高周波に漏れ、傾きを \(+0.6\) も汚す。</strong></em><br>★★★ <strong>第 57 回 07 節の練習問題で「\(n\) が小さいほど端の外の情報が遠くまで効く」と書いたのは、これのことでした</strong> ── <em>あのときは「原理的には \(\tau_{\max}\) を推定できるかもしれない」と書きましたが、実際に起きるのは<strong>まず汚染</strong>です。</em><br>★ <strong>順序としては：まず引いて（03 節）、それから測る。</strong><em>推定に使うのはその後の話。</em></div></details></li>
+
+<li>03 節で「平均を引くだけでは効かない」と出た。なぜ 1 次から効くのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>窓が 0 次の漏れをすでに消しているからです。</strong>ハン窓（\(\alpha=3\)）は端で値も傾きも 0 なので、<em>一定成分（\(f=0\)）の漏れは \(f^{-3}\) で十分に落ちています。</em><br>★ <strong>残るのは \(f\) が 0 でない低周波</strong> ── <em>記録の中では「直線」に見える成分。</em>★★ <strong>直線を引くと、その成分の大半が消えます。</strong><br>★★★ <em>一般化すると</em>：<strong>\(q\) 次を引くのは「記録の中で \(q\) 次多項式に見える低周波」を消すこと</strong>で、<em>それは実効的に窓の階数を上げるのと同じ働きをします。</em>★ <strong>違いは代金</strong>：<em>窓の階数を上げるとばらつきが増えますが（04 節）、トレンド除去は自由度を \(q+1\) 個 減らすだけ ── 4096 点なら ほぼ無料です。</em></div></details></li>
+
+<li>06 節で「sd で書いてはいけない」と出た。ではシリーズの過去の数字は大丈夫か。
+<details><summary>答えを見る</summary><div class="ans"><strong>第 51 回の \(\mathrm{sd}(\beta)=1.2825/\sqrt{M}\) は「そのまま sd」なので問題ありません</strong> ── <em>あれは \(\ln(\chi^2_2/2)\) の標準偏差そのもので、手続きの出力ではないからです。</em><br>★ <strong>危ないのは第 55 回で「模型を仮定した値」に分類した 5 件</strong> ── <em>あれらは手続きの出力に近く、分布が正規とは限りません。</em><br>★★ <strong>本回の教訓を第 55 回の洗い直しに足すなら</strong>：<em>「模型を仮定した値」には、<strong>誤差の形（正規か、芯が細く裾が重いか）も書く</strong>。</em><br>★★★ <em>そして本回のように<strong>被覆率を実測する</strong>のがいちばん確実です</em> ── <strong>誤差の「大きさ」より先に、誤差の「形」を測る。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　系統誤差は測れる。ただし、いちばん効いたのは窓ではなかった</h2>
+<p>第 58 回の「窓を変えると値が動く」を逆手に取り、<strong>動かない区間を探す手続き</strong>を作りました。</p>
+<p>★ <strong>\(\hat\beta(\alpha)\) には平らな区間ができます</strong> ── <em>小さい \(\alpha\) では天井 \(2\alpha\) に貼りつき、その手前で行きすぎ、大きい \(\alpha\) で落ち着く。</em></p>
+<p style="text-align:center"><strong>★★★ そして途中で分かったこと ──<br>あの「行きすぎ」は雑音ゼロでも出る。<br>主役は<em>記録の中では傾きにしか見えない成分</em>だった。</strong></p>
+<p>★★ <strong>積分の下端を動かすと決着しました</strong> ── <em>分解能 1 bin より下（0.0625〜1 bin）を入れたときだけ、\(+0.625\) の行きすぎが出る。</em><strong>第 5 回・第 56 回の「観測時間より長い周期は定数と区別がつかない」は、「区別がつかないだけでなく、測定を汚していた」でもありました。</strong></p>
+<p>★★★ <strong>だから直線を 1 本引くだけで消えます</strong>（\(\beta=5\) で \(5.512\to4.992\)、\(\beta=6\) は \(q=2\) で 5.994）。<em>第 58 回で「窓の階数を上げろ」と書きましたが、もっと安い手がありました ── 階数を上げるとばらつきが増えるのに対し、トレンド除去は 4096 点なら ほぼ無料です。</em>★ <strong>ただし天井は動きません</strong>（\(\beta=7\) を \(\alpha=3\) で測ると どの \(q\) でも 6.04〜6.57）。</p>
+<p>★★ <strong>予想が一つ外れました</strong>：<em>大きい \(\alpha\) で平滑化の偏りが育つと思っていましたが \(+0.002\sim+0.008\) で無視でき、大きい \(\alpha\) 側を止めているのは<strong>ばらつき</strong>でした。</em>★ <em>そして「RMS が最小の \(\alpha\)」は偏りの偶然の打ち消しで決まることがあり（\(\beta=6\) の \(\alpha=3\) で 0.008、隣の \(\alpha=4\) は 1.686）、<strong>乗ってはいけない最小値</strong>です。安全な目安は \(2\alpha\ge\beta+2\)。</em></p>
+<p>★★★ <strong>手続きの当たり具合も測りました</strong> ── <em>名目 68 % に対し被覆率 79〜87 %。ところが実測 sd は合計誤差の 1〜3 倍。</em><strong>矛盾ではなく、誤差の分布が正規でないからです ── 芯は細く、まれに大きく外す。</strong>★ <em>だからこの手続きの誤差は sd ではなく<strong>被覆率</strong>で書くべきで、それは第 51 回の \(\ln(\chi^2_2/2)\) が非対称だったのと同じ理由です。</em></p>
+<p>★ <strong>そして手続き自体も「仮定つき」でした</strong> ── <em>当てはめ帯域・tol・窓の族 の三つ。帯域を変えると被覆率が 75.5〜86.5 % と動きます。</em><strong>手続きを作っても、仮定は消えません。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+03 節で<strong>「記録の中では傾きにしか見えない成分」</strong>が主役だと分かりました。<br>
+★ <strong>次回はその成分そのものを見ます</strong> ── <em>トレンドと信号は、どこで分かれるのか。</em><br>
+★★ <strong>第 5 回の「定数と区別がつかない」、第 29 回の繰り込み、そして本回のトレンド除去</strong> ── <em>どれも「長い方を切る」操作です。</em>★ <strong>切ったものはどこへ行くのか</strong>を調べます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 59 回です。計算は kenshou/keito.js で行っています（FFT は自前、依存ライブラリ 0）。<strong>本回の数値について：</strong>\(\hat\beta(\alpha)\) の走査、雑音ゼロの期待周期図からの偏り、積分下端の依存性、トレンド除去の効果、ENBW とばらつき、RMS 誤差、手続きの被覆率と誤差分位点は、すべて本稿で計算したものです。<strong>周期図のスペクトル漏れ、等価雑音帯域、周期図を取る前にトレンドを除くべきこと ── これらはいずれもよく知られた実務で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>それらを第 58 回の \(\alpha\) という物差しで整理し、行きすぎの出どころを積分下端の依存性として特定し、手続きの被覆率を 200 realization で実測したこと</em>です。<em>すべての数値は記録長 4096 点・合成長 65536 点・当てはめ帯域 \(k=32\sim512\)・tol \(=0.15\) に依存します。07 節のとおり帯域を変えれば被覆率は 75.5〜86.5 % の範囲で動きます。04 節の「予言の 0.79〜0.88 倍」は \(\beta=3\)・200 realization での値です。</em>05 節の「乗ってはいけない最小値」は本稿の合成条件でのもので、一般にどの \(\beta\) でどの \(\alpha\) が偶然当たるかは条件によって変わります。<strong>本稿も合成データのみで、実際の測定データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
