@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extracting the Order's Distribution from Finite Data — Only the Tails Are Out of Reach | Thinking in Waves Ep.52</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1c1d1e; --ink-soft:#4d5052;
+    --paper:#f7f8f8; --paper-edge:#e2e5e6;
+    --side:#3d4548; --side-bg:#eceeef;
+    --warn:#8a4b2f;
+    --calc:#2f3639; --calc-bg:#e9ecec;
+    --rule:#d2d6d7; --hair:#b3babc;
+    --acc:#3d4548;
+    --grid:#e5e8e9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 52 / Part XVIII — Putting Error Bars On It</span></p>
+<p class="eyebrow">How much of Episode 42's \(f(\alpha)\) curve can actually be measured?</p>
+
+<h1>Extracting the Order's Distribution from Finite Data —<br><strong>Only the tails are out of reach</strong>
+<span class="sub">Episode 42 said <strong>"the order is not one number but a distribution."</strong> <em>★ But can the <strong>shape</strong> of that distribution actually be measured?</em><br>★ Multiply the number of boxes by <strong>a thousand</strong> (1,024 → 1,048,576) and the reachable \(q\) grows <strong>only from 2 to 4</strong>.<br>★★ The <strong>peak of \(f(\alpha)\) is always measurable; only the two tails are out of reach in principle</strong> — <em>and the tails are the interesting part.</em></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 22, 42, 49, 51</span><span>Computation: kenshou/multi.js</span></p>
+
+<p class="lead">Episode 51 put <strong>error bars on the decade count</strong>.<br><em>★ This episode does the same in the \(q\) direction — <strong>"how far out in \(q\) may you believe the answer?"</strong></em></p>
+
+<h2><span class="n">01</span>Why sweep \(q\)? — recalling Episode 42</h2>
+
+<div class="calc">
+<span class="tag">\(q\) is the dial selecting which strength of region you look at</span>
+$$Z(q,r)=\sum\mu^q\propto r^{\tau(q)},\qquad \alpha=\frac{d\tau}{dq},\qquad f(\alpha)=q\alpha-\tau(q)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\alpha\) (exact)</th><th>\(f(\alpha)\) (exact)</th><th>What it picks up</th></tr></thead>
+<tbody>
+<tr><th>−4</th><td class="mid">1.697073</td><td class="mid">0.207439</td><td>the weakest regions</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>1.125769</strong></td><td class="mid"><strong>1.000000</strong></td><td><strong>★ the dimension of the support</strong></td></tr>
+<tr><th>1</th><td class="mid">0.881291</td><td class="mid">0.881291</td><td>the representative regions</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>0.515963</strong></td><td class="mid"><strong>0.012758</strong></td><td><strong>the strongest regions</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ The exact range of \(\alpha\) is <strong>0.514573 to 1.736966</strong> (the p-model at \(p=0.7\)).</p>
+
+<h2><span class="n">02</span>From a single realization, large \(q\) goes wrong</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>exact \(\tau\)</th><th>\(n=12\) (4,096)</th><th>\(n=16\) (65,536)</th><th>\(n=20\) (1M)</th></tr></thead>
+<tbody>
+<tr><th>−2</th><td class="mid">−3.71720</td><td class="mid">−3.66379</td><td class="mid">−3.67331</td><td class="mid">−3.68473</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td></tr>
+<tr><th>2</th><td class="mid">0.78588</td><td class="mid">0.75142</td><td class="mid">0.81498</td><td class="mid">0.78468</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>4.11494</strong></td><td class="mid"><strong>3.85103</strong></td><td class="mid"><strong>4.40179</strong></td><td class="mid"><strong>3.96955</strong></td></tr>
+<tr><th>12</th><td class="mid">6.17482</td><td class="mid">5.83527</td><td class="mid">6.63394</td><td class="mid">6.00266</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §02</p>
+<p style="margin:6px 0 0">★ Small \(|q|\) agrees well, but <strong>larger \(q\) departs — and not even with a consistent sign</strong> (high at \(n=16\), low at \(n=20\)).<br>
+★★★ <strong>The cause: large \(q\) is decided by a single strongest box.</strong> <em>Whether that one box happens to be in your sample decides the answer.</em><br>
+★ <em>Only \(q=0\) is exactly \(-1\)</em> — <strong>because it is just counting boxes.</strong></p>
+</div>
+
+<h2><span class="n">03</span>★ There is a ceiling on the reachable \(q\)</h2>
+
+<p>We measure the range of \(q\) that keeps \(|\tau_{\rm emp}-\tau_{\rm exact}|\le0.1\), over five seeds, taking the median.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>levels \(n\)</th><th>boxes</th><th>★ \(q^*\) (+)</th><th>\(q^*\) (−)</th><th>reachable \(\alpha\) width</th><th>of the full range</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>10</strong></th><td class="mid">1,024</td><td class="mid"><strong>2.0</strong></td><td class="mid">−1.0</td><td class="mid">0.6660 / 1.2224</td><td class="mid"><strong>54.5 %</strong></td></tr>
+<tr><th>12</th><td class="mid">4,096</td><td class="mid">3.0</td><td class="mid">−2.0</td><td class="mid">0.9435 / 1.2224</td><td class="mid">77.2 %</td></tr>
+<tr><th>14</th><td class="mid">16,384</td><td class="mid">3.0</td><td class="mid">−3.0</td><td class="mid">1.0440 / 1.2224</td><td class="mid">85.4 %</td></tr>
+<tr><th>16</th><td class="mid">65,536</td><td class="mid">4.0</td><td class="mid">−2.0</td><td class="mid">0.9928 / 1.2224</td><td class="mid">81.2 %</td></tr>
+<tr class="hi"><th><strong>18</strong></th><td class="mid">262,144</td><td class="mid"><strong>4.0</strong></td><td class="mid">−3.0</td><td class="mid">1.0933 / 1.2224</td><td class="mid"><strong>89.4 %</strong></td></tr>
+<tr class="hi"><th><strong>20</strong></th><td class="mid">1,048,576</td><td class="mid"><strong>4.0</strong></td><td class="mid">−3.0</td><td class="mid">1.0933 / 1.2224</td><td class="mid"><strong>89.4 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §03 — ★★★ the core of this episode</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>A thousandfold increase in boxes (1,024 → 1M) moves \(q^*\) only from 2 to 4.<br>The \(\alpha\) width goes 54.5 % → 89.4 % and stops.</strong></p>
+<p style="margin:10px 0 0">★ <strong>The remaining 10 % is the very edge</strong>, and it does not improve with more boxes.<br>
+★★ <em>\(q^*\) grows <strong>logarithmically</strong></em> — <strong>reaching the tails requires exponentially more data.</strong><br>
+★ <em>So "collect a longer record and you will see the ends of \(f(\alpha)\)" does not hold.</em></p>
+</div>
+
+<h2><span class="n">04</span>★ Which part of \(f(\alpha)\) is measurable</h2>
+
+<p>At \(n=18\) (262,144 boxes), the reachable range is \(q=-3.0\) to \(4.0\).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\alpha\)</th><th>\(f(\alpha)\)</th><th>Measurable?</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><th>−8</th><td class="mid">1.735576</td><td class="mid">0.012758</td><td>× out of reach</td><td>the weakest regions</td></tr>
+<tr><th>−4</th><td class="mid">1.697073</td><td class="mid">0.207439</td><td>× out of reach</td><td>the weakest regions</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>1.125769</strong></td><td class="mid"><strong>1.000000</strong></td><td><strong>★ yes</strong></td><td><strong>★ dimension of the support</strong></td></tr>
+<tr><th>2</th><td class="mid">0.704255</td><td class="mid">0.622634</td><td>★ yes</td><td></td></tr>
+<tr><th>4</th><td class="mid">0.554466</td><td class="mid">0.207439</td><td>★ yes</td><td>the strongest regions</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>0.515963</strong></td><td class="mid"><strong>0.012758</strong></td><td><strong>× out of reach</strong></td><td><strong>the strongest regions</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §04</p>
+<p style="margin:6px 0 0">★ <strong>The peak of \(f(\alpha)\) (\(q=0\), \(f=1\)) is always measurable</strong> — <em>it is the dimension of the support.</em><br>
+★★ <strong>What is not measurable is both tails</strong> — <em>the strongest and the weakest regions.</em><br>
+★★★ <strong>And those are the interesting part.</strong> <em>Intermittency is about rare, violent events — and being rare is exactly why they are not in your sample.</em></p>
+</div>
+
+<h2><span class="n">05</span>Adding noise — and a prediction that failed</h2>
+
+<p>Each box's measure is multiplied by relative noise (log-normal, sd \(=s\)) and re-measured.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>noise \(s\)</th><th>\(q=-2\)</th><th>\(q=0\)</th><th>\(q=2\)</th><th>\(q=4\)</th><th>\(q=6\)</th></tr></thead>
+<tbody>
+<tr><th>(exact)</th><td class="mid">−3.71720</td><td class="mid">−1.00000</td><td class="mid">0.78588</td><td class="mid">2.01042</td><td class="mid">3.07853</td></tr>
+<tr><th>0</th><td class="mid">−3.65544</td><td class="mid">−1.00000</td><td class="mid">0.80059</td><td class="mid">2.09530</td><td class="mid">3.21716</td></tr>
+<tr><th>0.3</th><td class="mid">−3.67155</td><td class="mid">−1.00000</td><td class="mid">0.79565</td><td class="mid">2.11265</td><td class="mid">3.30442</td></tr>
+<tr class="hi"><th><strong>1.0</strong></th><td class="mid"><strong>−3.89711</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>0.71160</strong></td><td class="mid"><strong>★ 1.72184</strong></td><td class="mid"><strong>★ 2.59398</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §05 — ★ where our prediction failed</p>
+<p style="margin:6px 0 0">★ <strong>\(q=0\) is completely unaffected by noise</strong> (it only counts boxes). For small noise (\(s\le0.3\)) nothing moves much.<br>
+★★★ <em>We initially predicted <strong>"negative \(q\) will be the most fragile" — and were wrong.</strong></em> At \(s=1.0\) the shifts are <strong>0.24 (6 %) at \(q=-2\), 0.37 (18 %) at \(q=4\), 0.62 (19 %) at \(q=6\)</strong> — <em>the positive side moves more.</em><br>
+★ <strong>Why</strong>: <em>with log-normal noise the large values scatter more in absolute terms, so positive \(q\) breaks first.</em><br>
+★★ <em>Either way it is large \(|q|\) that suffers</em> — <strong>the same direction as §03's conclusion.</strong></p>
+</div>
+
+<h2><span class="n">06</span>What can and cannot be done</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Goal</th><th>Verdict</th><th>Why</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>Say "it is a distribution"</strong></th><td class="mid"><strong>◎ yes</strong></td><td><strong>★ the bend in \(\tau(q)\) suffices</strong></td></tr>
+<tr><th>Decide the \(q\) range from the data</th><td class="mid">◎ yes</td><td>measure §03's \(q^*\) every time</td></tr>
+<tr><th>Report only near \(q=0\)</th><td class="mid">◎ yes</td><td>the peak and the curvature are measurable</td></tr>
+<tr><th>Average many realizations</th><td class="mid">△ limited</td><td>★ the tails are set by one sample's extremes</td></tr>
+<tr class="hi"><th><strong>Use large \(|q|\)</strong></th><td class="mid"><strong>× not advised</strong></td><td><strong>★ fragile to both sampling and noise</strong></td></tr>
+<tr class="hi"><th><strong>Publish the whole \(f(\alpha)\)</strong></th><td class="mid"><strong>× no</strong></td><td><strong>★ the ends are unreachable in principle</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The point of §06</p>
+<p style="margin:6px 0 0">★★ <strong>Episode 42's claim, "the order is not a single number," holds using only a narrow range of \(q\).</strong> <em>All you need is to see \(\tau(q)\) bend away from a straight line, and \(q=0\)–2 is enough.</em><br>
+★★ <strong>What cannot be said is what shape the distribution has</strong> — <em>that is decided by the size of your sample.</em></p>
+</div>
+
+<h2><span class="n">07</span>Amendments to Episodes 49 and 51</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Step</th><th>Note</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>★ ⑥-a measure \(q^*\) before sweeping \(q\)</strong></th><td><strong>★ test on synthetic data of the same sample size</strong></td></tr>
+<tr><th>⑥-b report only inside \(q^*\)</th><td>outside it you are watching your sample's maximum</td></tr>
+<tr><th>⑥-c treat large \(|q|\) separately</th><td>★ if you report it, report the sensitivity too</td></tr>
+<tr class="hi"><th><strong>★ ⑥-d stop at "it bends"</strong></th><td><strong>★ naming the shape usually needs more sample than you have</strong></td></tr>
+<tr><th>⑥-e treat it like the decade count (Ep. 51)</th><td>the \(q\) range is also a "how far can you speak" indicator</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">08</span>What wave language can and cannot say</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Item</th><th>Verdict</th><th>Basis</th></tr></thead>
+<tbody>
+<tr><th>Small \(|q|\) agrees well</th><td class="mid">◎ numerics</td><td>\(q=0\)–2 nearly exact at 1M boxes</td></tr>
+<tr class="hi"><th><strong>★ Large \(q\) departs</strong></th><td class="mid"><strong>◎ numerics</strong></td><td><strong>★ decided by a single strongest box</strong></td></tr>
+<tr class="hi"><th><strong>★ A ceiling on reachable \(q\)</strong></th><td class="mid"><strong>◎ numerics</strong></td><td><strong>★ 1000× boxes moves \(q^*\) only 2 → 4</strong></td></tr>
+<tr class="hi"><th><strong>★★ The ends of \(f(\alpha)\) are unreachable</strong></th><td class="mid"><strong>◎ numerics</strong></td><td><strong>★ 89 % of the range even at 1M boxes</strong></td></tr>
+<tr><th>\(q=0\) is noise-proof</th><td class="mid">◎ numerics</td><td>it only counts boxes</td></tr>
+<tr class="hi"><th><strong>★ The positive side was the fragile one</strong></th><td class="mid"><strong>◎ numerics</strong></td><td><strong>★ our prediction failed (log-normal tails)</strong></td></tr>
+<tr><th>"It is a distribution" is sayable</th><td class="mid">◎ logic</td><td>the bend in \(\tau(q)\) suffices</td></tr>
+<tr class="hi"><th><strong>★ Naming the distribution's shape</strong></th><td class="mid"><strong>× no</strong></td><td><strong>★ the sample size sets the ceiling</strong></td></tr>
+<tr class="hi"><th><strong>★ Validation on real data</strong></th><td class="mid"><strong>× not done</strong></td><td><strong>★ synthetic data only, here too</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>§02 notes that the cascade was changed to a non-conservative one. Why?
+<details><summary>Show answer</summary><div class="ans"><strong>Because in the conservative version the sampling fluctuation vanishes entirely.</strong> If each level always hands out \(p\) and \(1-p\) <em>as a pair</em>, the final <strong>multiset of box values is identical every time</strong> (\(C(n,k)\) boxes at \(p^k(1-p)^{n-k}\)).<br>★ Then \(Z(q)=(p^q+(1-p)^q)^n\) holds <strong>exactly</strong> and \(\tau_{\rm emp}\) always equals the exact answer — <em>indeed the first version did exactly that and showed zero departure.</em><br>★★ <strong>The departure exists only when the <em>multiset</em> of values fluctuates, not merely their arrangement.</strong> <em>Hence the switch to drawing each child independently.</em><br>★ <strong>A practical lesson about choosing models</strong> — <em>check that the effect you are studying has not been erased by how you built the model.</em></div></details></li>
+
+<li>§03 found \(q^*\) growing only logarithmically. What is the physical reason?
+<details><summary>Show answer</summary><div class="ans"><strong>Because the probability of the box that dominates the \(q\)-th moment falls exponentially.</strong> The larger \(q\), the more extreme the dominating box, and its chance of appearing rises in proportion to the number of boxes.<br>★ <em>So reaching "one level deeper into the extremes" requires a fixed multiple more boxes</em> — <strong>the logarithm of the box count sets \(q^*\).</strong><br>★★ Indeed \(n\) (\(=\log_2\) of the count) going 10 → 20 takes \(q^*\) from 2 to 4, <em>roughly proportional to \(n\)</em>.<br>★ <strong>This is exactly Episode 51's "decades" again</strong> — <em>both have the logarithm of the available data as their ceiling.</em></div></details></li>
+
+<li>§04 says the interesting ends are unreachable. What does one do in practice?
+<details><summary>Show answer</summary><div class="ans"><strong>Three things.</strong><br>★ ① <strong>Fit a model and extrapolate</strong>: fit \(\tau(q)\) over the reachable range and get the ends from the model. <em>But that is "assumed," not "measured" — per Episode 43, say which.</em><br>★ ② <strong>Measure something else that is sensitive to the tails</strong>: extreme-value statistics (the distribution of maxima), for instance, reaches the tail with fewer samples than moments do.<br>★ ③ <strong>Do not claim the ends</strong>: <em>stop at "\(\tau(q)\) bends"</em> — as §06 says, that suffices for Episode 42's claim.<br>★★ <strong>This series' default is ③, and if ① is used it must be labelled "a model assumption."</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — "it is a distribution" is sayable; "which distribution" is not</h2>
+<p>We asked whether Episode 42's \(f(\alpha)\) curve can actually be <strong>extracted from finite data</strong>.</p>
+<p>Measuring \(\tau(q)\) from a single realization, <strong>small \(|q|\) agrees and large \(q\) departs</strong> — with an inconsistent sign, because <em>large \(q\) is decided by a single strongest box.</em> Only \(q=0\) is exactly \(-1\) (it just counts boxes).</p>
+<p style="text-align:center"><strong>★★★ The core —<br>a thousandfold increase in boxes (1,024 → 1M) moves \(q^*\) only from 2 to 4.<br>The \(\alpha\) width goes 54.5 % → 89.4 % and stops.</strong></p>
+<p>★ <em>\(q^*\) grows <strong>logarithmically</strong>; reaching the tails needs exponentially more data.</em><br>
+★★ <strong>The peak of \(f(\alpha)\) (the support dimension) is always measurable; only the tails are not</strong> — <em>intermittency is about rare, violent events, and being rare is exactly why they are missing from the sample.</em></p>
+<p>★ <strong>One prediction failed</strong>: <em>we expected negative \(q\) to be the most noise-fragile, but the positive side moved more</em> (at \(s=1.0\): 6 % at \(q=-2\), 19 % at \(q=6\)) — <strong>with log-normal noise the large values scatter more.</strong></p>
+<p style="text-align:center"><strong>★ Conclusion — Episode 42's "the order was a distribution" survives finite data.<br>But only as far as "it is a distribution."<br>Which distribution is decided by the size of your sample.</strong></p>
+<p>★ <em>As with Episode 51's decades, the ceiling here is set not by the measurement but by <strong>the logarithm of the data you have</strong>.</em> ★ <strong>Honestly</strong>: synthetic data only here too; nothing was applied to a real measurement.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+Episodes 51 and 52 both found that <strong>the ceiling is set by the logarithm of the data</strong> — for decades and for the \(q\) range alike.<br>
+★ <strong>Next time we face that logarithm directly</strong> — <em>why is what we can measure always governed logarithmically?</em><br>
+★★ <strong>Episode 21's information, Episode 46's count of e-folds, and this episode's \(q^*\)</strong> — <em>all three are quantities counted in logarithms.</em> ★ We ask whether that is a coincidence or a common root.
+</div>
+
+<p class="foot">This document is Episode 52 of the "Thinking in Waves" series. Computations are in kenshou/multi.js. <strong>On the numbers here:</strong> the cascade generation, the estimation of \(\tau(q)\) from a single realization, the measurement of \(q^*\) (median over five seeds), the reachable portion of \(f(\alpha)\), and the effect of added noise were all computed here. <strong>The multifractal formalism (\(\tau(q)\), the Legendre transform, \(f(\alpha)\)), multiplicative cascades, and the fact that in a finite sample the high-order moments are dominated by extremes so that \(\tau(q)\) linearizes are all well-known results and none are discoveries of this article</strong> — what this article did was <em>connect them to this series' handbook (Episodes 49 and 51) and write "the \(q\) range" as an indicator of the same kind as the decade count.</em> <em>As noted in §02, a conservative cascade (handing out \(p\) and \(1-p\) in pairs) produces an identical multiset of box values every time, erasing the sampling fluctuation; this article therefore draws each child's multiplier independently and normalizes. That choice affects the results.</em> The criterion \(|\Delta\tau|\le0.1\) defining \(q^*\) is a convention adopted here, and a different criterion gives different values. The \(q^*\) figures in §03 are medians over five seeds; the scatter from one realization to the next is larger. <strong>This article too used only synthetic data and was not applied to any real measurement.</strong> — To print, use your browser's Print and "Save as PDF."</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). "Show answer" opens each solution.</p>
+</body>
+</html>

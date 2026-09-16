@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>階数の分布を、有限のデータから取り出す ── 端だけが、届かない｜考える波 第52回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1c1d1e; --ink-soft:#4d5052;
+    --paper:#f7f8f8; --paper-edge:#e2e5e6;
+    --side:#3d4548; --side-bg:#eceeef;
+    --warn:#8a4b2f;
+    --calc:#2f3639; --calc-bg:#e9ecec;
+    --rule:#d2d6d7; --hair:#b3babc;
+    --acc:#3d4548;
+    --grid:#e5e8e9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 52 回 ／ 第 XVIII 部・誤差棒をつける</span></p>
+<p class="eyebrow">第 42 回の \(f(\alpha)\) 曲線は、どこまで測れるのか</p>
+
+<h1>階数の分布を、有限のデータから取り出す ──<br><strong>端だけが、届かない</strong>
+<span class="sub">第 42 回で<strong>「階数は一つの数ではなく分布だった」</strong>と書きました。<em>★ ではその分布の<strong>形</strong>は、実際に測れるのでしょうか。</em><br>★ 箱を <strong>1000 倍</strong>（1024 → 100 万）にしても、到達できる \(q\) は <strong>2 から 4 にしか伸びません</strong>。<br>★★ \(f(\alpha)\) 曲線の <strong>頂上は必ず測れ、両裾だけが原理的に届かない</strong> ── <em>そこがいちばん面白い所なのに。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 22, 42, 49, 51 回</span><span>計算：kenshou/multi.js</span></p>
+
+<p class="lead">第 51 回で<strong>桁数に誤差棒</strong>をつけました。<br><em>★ この回は同じことを \(q\) の方向でやります ── <strong>「どこまでの \(q\) なら信じてよいか」。</strong></em></p>
+
+<h2><span class="n">01</span>なぜ \(q\) を振るのか ── 第 42 回の復習</h2>
+
+<div class="calc">
+<span class="tag">\(q\) は「どの強さの領域を拾うか」を選ぶつまみ</span>
+$$Z(q,r)=\sum\mu^q\propto r^{\tau(q)},\qquad \alpha=\frac{d\tau}{dq},\qquad f(\alpha)=q\alpha-\tau(q)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\alpha\)（厳密）</th><th>\(f(\alpha)\)（厳密）</th><th>拾っている場所</th></tr></thead>
+<tbody>
+<tr><th>−4</th><td class="mid">1.697073</td><td class="mid">0.207439</td><td>いちばん弱い所</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>1.125769</strong></td><td class="mid"><strong>1.000000</strong></td><td><strong>★ 台の次元</strong></td></tr>
+<tr><th>1</th><td class="mid">0.881291</td><td class="mid">0.881291</td><td>代表的な所</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>0.515963</strong></td><td class="mid"><strong>0.012758</strong></td><td><strong>いちばん強い所</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 厳密な \(\alpha\) の幅は <strong>0.514573 〜 1.736966</strong>（\(p=0.7\) の p 模型）。</p>
+
+<h2><span class="n">02</span>1 回の実現から測ると、大きい \(q\) で外れる</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>厳密な \(\tau\)</th><th>\(n=12\)（4096 箱）</th><th>\(n=16\)（65536 箱）</th><th>\(n=20\)（100 万箱）</th></tr></thead>
+<tbody>
+<tr><th>−2</th><td class="mid">−3.71720</td><td class="mid">−3.66379</td><td class="mid">−3.67331</td><td class="mid">−3.68473</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>−1.00000</strong></td></tr>
+<tr><th>2</th><td class="mid">0.78588</td><td class="mid">0.75142</td><td class="mid">0.81498</td><td class="mid">0.78468</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>4.11494</strong></td><td class="mid"><strong>3.85103</strong></td><td class="mid"><strong>4.40179</strong></td><td class="mid"><strong>3.96955</strong></td></tr>
+<tr><th>12</th><td class="mid">6.17482</td><td class="mid">5.83527</td><td class="mid">6.63394</td><td class="mid">6.00266</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★ 小さい \(|q|\) ではよく合いますが、<strong>\(q\) が大きいほど ずれ、しかも符号も一定しません</strong>（\(n=16\) では高め、\(n=20\) では低め）。<br>
+★★★ <strong>原因：大きい \(q\) は「いちばん強い 1 個の箱」だけで決まるからです。</strong><em>その 1 個が標本の中に出てくるかどうかが、答えを左右する。</em><br>
+★ <em>\(q=0\) だけは厳密に \(-1\) です</em> ── <strong>箱の数を数えているだけだから。</strong></p>
+</div>
+
+<h2><span class="n">03</span>★ 到達できる \(q\) には上限がある</h2>
+
+<p>\(|\tau_{\rm emp}-\tau_{\rm exact}|\le0.1\) を保てる \(q\) の範囲を、5 つの種で測って中央値を取ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>段数 \(n\)</th><th>箱の数</th><th>★ \(q^*\)（正）</th><th>\(q^*\)（負）</th><th>到達できる \(\alpha\) の幅</th><th>全幅に対して</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>10</strong></th><td class="mid">1,024</td><td class="mid"><strong>2.0</strong></td><td class="mid">−1.0</td><td class="mid">0.6660 / 1.2224</td><td class="mid"><strong>54.5 %</strong></td></tr>
+<tr><th>12</th><td class="mid">4,096</td><td class="mid">3.0</td><td class="mid">−2.0</td><td class="mid">0.9435 / 1.2224</td><td class="mid">77.2 %</td></tr>
+<tr><th>14</th><td class="mid">16,384</td><td class="mid">3.0</td><td class="mid">−3.0</td><td class="mid">1.0440 / 1.2224</td><td class="mid">85.4 %</td></tr>
+<tr><th>16</th><td class="mid">65,536</td><td class="mid">4.0</td><td class="mid">−2.0</td><td class="mid">0.9928 / 1.2224</td><td class="mid">81.2 %</td></tr>
+<tr class="hi"><th><strong>18</strong></th><td class="mid">262,144</td><td class="mid"><strong>4.0</strong></td><td class="mid">−3.0</td><td class="mid">1.0933 / 1.2224</td><td class="mid"><strong>89.4 %</strong></td></tr>
+<tr class="hi"><th><strong>20</strong></th><td class="mid">1,048,576</td><td class="mid"><strong>4.0</strong></td><td class="mid">−3.0</td><td class="mid">1.0933 / 1.2224</td><td class="mid"><strong>89.4 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>箱を 1000 倍（1024 → 100 万）にして、\(q^*\) は 2 から 4 にしか伸びない。<br>\(\alpha\) の幅は 54.5 % → 89.4 % で頭打ち。</strong></p>
+<p style="margin:10px 0 0">★ <strong>残る 10 % がいちばん端</strong>で、そこは箱を増やしても伸びていません。<br>
+★★ <em>\(q^*\) の伸びは<strong>対数的</strong></em> ── <strong>指数関数的にデータを増やさないと、端には届きません。</strong><br>
+★ <em>つまり「もっと長いデータを取れば \(f(\alpha)\) の端まで見える」は、成り立ちません。</em></p>
+</div>
+
+<h2><span class="n">04</span>★ \(f(\alpha)\) のうち、測れるのはどこか</h2>
+
+<p>\(n=18\)（262,144 箱）で到達できる \(q\) は \(-3.0\sim4.0\)。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(q\)</th><th>\(\alpha\)</th><th>\(f(\alpha)\)</th><th>測れるか</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>−8</th><td class="mid">1.735576</td><td class="mid">0.012758</td><td>× 届かない</td><td>いちばん弱い所</td></tr>
+<tr><th>−4</th><td class="mid">1.697073</td><td class="mid">0.207439</td><td>× 届かない</td><td>いちばん弱い所</td></tr>
+<tr class="hi"><th><strong>0</strong></th><td class="mid"><strong>1.125769</strong></td><td class="mid"><strong>1.000000</strong></td><td><strong>★ 測れる</strong></td><td><strong>★ 台の次元</strong></td></tr>
+<tr><th>2</th><td class="mid">0.704255</td><td class="mid">0.622634</td><td>★ 測れる</td><td></td></tr>
+<tr><th>4</th><td class="mid">0.554466</td><td class="mid">0.207439</td><td>★ 測れる</td><td>いちばん強い所</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>0.515963</strong></td><td class="mid"><strong>0.012758</strong></td><td><strong>× 届かない</strong></td><td><strong>いちばん強い所</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">★ <strong>\(f(\alpha)\) の頂上（\(q=0\)、\(f=1\)）は必ず測れます</strong> ── <em>台の次元だから。</em><br>
+★★ <strong>測れないのは両裾</strong> ── つまり<em>「いちばん強い所」と「いちばん弱い所」</em>。<br>
+★★★ <strong>そこがいちばん面白い所なのに、そこだけ届きません。</strong><em>間欠性の本質は「まれで強い出来事」なのに、まれだからこそ標本に入らない。</em></p>
+</div>
+
+<h2><span class="n">05</span>雑音を足すとどうなるか ── 予想は外れました</h2>
+
+<p>各箱の測度に相対的な雑音（対数正規、sd \(=s\)）を掛けて測り直します。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>雑音 \(s\)</th><th>\(q=-2\)</th><th>\(q=0\)</th><th>\(q=2\)</th><th>\(q=4\)</th><th>\(q=6\)</th></tr></thead>
+<tbody>
+<tr><th>（厳密）</th><td class="mid">−3.71720</td><td class="mid">−1.00000</td><td class="mid">0.78588</td><td class="mid">2.01042</td><td class="mid">3.07853</td></tr>
+<tr><th>0</th><td class="mid">−3.65544</td><td class="mid">−1.00000</td><td class="mid">0.80059</td><td class="mid">2.09530</td><td class="mid">3.21716</td></tr>
+<tr><th>0.3</th><td class="mid">−3.67155</td><td class="mid">−1.00000</td><td class="mid">0.79565</td><td class="mid">2.11265</td><td class="mid">3.30442</td></tr>
+<tr class="hi"><th><strong>1.0</strong></th><td class="mid"><strong>−3.89711</strong></td><td class="mid"><strong>−1.00000</strong></td><td class="mid"><strong>0.71160</strong></td><td class="mid"><strong>★ 1.72184</strong></td><td class="mid"><strong>★ 2.59398</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── ★ 予想が外れた所</p>
+<p style="margin:6px 0 0">★ <strong>\(q=0\) は雑音にまったく影響されません</strong>（箱の数を数えているだけ）。小さい雑音（\(s\le0.3\)）ではどの \(q\) もほとんど動きません。<br>
+★★★ <em>本稿は当初<strong>「負の \(q\) がいちばん弱い」と予想しましたが、外れました。</strong></em>\(s=1.0\) でのずれは ── <strong>\(q=-2\) で 0.24（6 %）、\(q=4\) で 0.37（18 %）、\(q=6\) で 0.62（19 %）</strong>。<em>正の側のほうが大きい。</em><br>
+★ <strong>理由</strong>：<em>雑音が対数正規だと、大きい値のほうが絶対量として大きくばらつくので、正の \(q\) が先に壊れます。</em><br>
+★★ <em>いずれにせよ効くのは \(|q|\) が大きい側</em> ── <strong>03 節の結論と同じ向きでした。</strong></p>
+</div>
+
+<h2><span class="n">06</span>何ができて、何ができないか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>やりたいこと</th><th>判定</th><th>理由</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>「分布になっている」と言う</strong></th><td class="mid"><strong>◎ できる</strong></td><td><strong>★ \(\tau(q)\) の曲がりだけで十分</strong></td></tr>
+<tr><th>\(q\) の範囲をデータから決める</th><td class="mid">◎ できる</td><td>03 節の \(q^*\) を毎回 測る</td></tr>
+<tr><th>\(q=0\) の周りだけ報告する</th><td class="mid">◎ できる</td><td>頂上と曲率は測れる</td></tr>
+<tr><th>多数の実現を平均する</th><td class="mid">△ 限定的</td><td>★ 裾は 1 回ぶんの標本で決まるので効きにくい</td></tr>
+<tr class="hi"><th><strong>大きい \(|q|\) を使う</strong></th><td class="mid"><strong>× 勧めない</strong></td><td><strong>★ 標本にも雑音にも弱い</strong></td></tr>
+<tr class="hi"><th><strong>\(f(\alpha)\) の全体像を出す</strong></th><td class="mid"><strong>× できない</strong></td><td><strong>★ 端は原理的に届かない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>第 42 回の主張「階数が一つの数ではない」は、狭い \(q\) の範囲だけで言えます。</strong><em>\(\tau(q)\) が直線から曲がっていることさえ見えればよいので、\(q=0\sim2\) で足ります。</em><br>
+★★ <strong>言えないのは「分布がどんな形か」のほう</strong> ── <em>そこは標本の大きさが決めます。</em></p>
+</div>
+
+<h2><span class="n">07</span>第 49・51 回の手引きへの追記</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>手順</th><th>注意</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>★ ⑥-a \(q\) を振る前に \(q^*\) を測る</strong></th><td><strong>★ 同じ標本数の合成データで試す</strong></td></tr>
+<tr><th>⑥-b 報告は \(q^*\) の内側だけ</th><td>外側は標本の最大値を見ているだけ</td></tr>
+<tr><th>⑥-c 大きい \(|q|\) は別扱い</th><td>★ 報告するなら感度も一緒に</td></tr>
+<tr class="hi"><th><strong>★ ⑥-d 「曲がっている」で止める</strong></th><td><strong>★ 形まで言うには標本が足りないことが多い</strong></td></tr>
+<tr><th>⑥-e 桁数（第 51 回）と同じ扱い</th><td>\(q\) の範囲も「どこまで言えるか」の指標</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">08</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>小さい \(|q|\) ではよく合う</th><td class="mid">◎ 数値</td><td>\(q=0\sim2\) は 100 万箱でほぼ厳密</td></tr>
+<tr class="hi"><th><strong>★ 大きい \(q\) で外れる</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 最強の 1 箱で決まるため</strong></td></tr>
+<tr class="hi"><th><strong>★ 到達できる \(q\) に上限</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 箱 1000 倍 で \(q^*\) は 2 → 4 のみ</strong></td></tr>
+<tr class="hi"><th><strong>★★ \(f(\alpha)\) の端は届かない</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 100 万箱でも全幅の 89 %</strong></td></tr>
+<tr><th>\(q=0\) は雑音に強い</th><td class="mid">◎ 数値</td><td>箱の数を数えているだけ</td></tr>
+<tr class="hi"><th><strong>★ 雑音に弱いのは正の側だった</strong></th><td class="mid"><strong>◎ 数値</strong></td><td><strong>★ 予想は外れ（対数正規の裾のため）</strong></td></tr>
+<tr><th>「分布になっている」は言える</th><td class="mid">◎ 論理</td><td>\(\tau(q)\) の曲がりだけで十分</td></tr>
+<tr class="hi"><th><strong>★ 分布の形を言うこと</strong></th><td class="mid"><strong>× できない</strong></td><td><strong>★ 標本の大きさが上限を決める</strong></td></tr>
+<tr class="hi"><th><strong>★ 実データでの検証</strong></th><td class="mid"><strong>× 未着手</strong></td><td><strong>★ 本稿も合成データのみ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>02 節で、保存型でないカスケードに変えたと書いてある。なぜか。
+<details><summary>答えを見る</summary><div class="ans"><strong>保存型では、標本のゆらぎが消えてしまうからです。</strong>各段で \(p\) と \(1-p\) を<em>必ず対で</em>配ると、最終的な箱の値の<strong>多重集合が毎回まったく同じ</strong>になります（\(C(n,k)\) 個の箱が \(p^k(1-p)^{n-k}\)）。<br>★ すると \(Z(q)=(p^q+(1-p)^q)^n\) が<strong>厳密に</strong>成り立ち、\(\tau_{\rm emp}\) は常に厳密解と一致します ── <em>実際、最初の版はそうなって「ずれが 0」になりました。</em><br>★★ <strong>ずれるのは「値の並び方」ではなく「値の多重集合」がゆらぐときだけ</strong>です。<em>だから子ごとに独立に引く形に変えました。</em><br>★ <strong>これは模型を選ぶときの実務的な教訓です</strong> ── <em>調べたい効果が、模型の作り方で消えていないか確かめること。</em></div></details></li>
+
+<li>03 節で \(q^*\) が対数的にしか伸びないと分かった。物理的な理由は。
+<details><summary>答えを見る</summary><div class="ans"><strong>\(q\) 次モーメントを支配する箱の「出現確率」が、指数的に小さいからです。</strong>\(q\) が大きいほど極端な箱だけが効き、その箱が標本に含まれる確率は箱の数に比例して増えます。<br>★ <em>つまり「もう 1 段 深い極値」に届くには、箱の数を一定倍する必要がある</em> ── <strong>箱の数の対数が \(q^*\) を決める。</strong><br>★★ 実際 \(n\)（＝\(\log_2\) 箱数）が 10 → 20 で \(q^*\) が 2 → 4、<em>ほぼ \(n\) に比例</em>しています。<br>★ <strong>これは第 51 回の「桁数」とまったく同じ構図です</strong> ── <em>どちらも「持っているデータの対数」が上限を決めている。</em></div></details></li>
+
+<li>04 節で「端がいちばん面白いのに届かない」と書いた。では実務ではどうするか。
+<details><summary>答えを見る</summary><div class="ans"><strong>三つあります。</strong><br>★ ① <strong>模型を当てはめて外挿する</strong>：測れる範囲で \(\tau(q)\) にパラメータを合わせ、端は模型から出す。<em>ただしそれは「測った」ではなく「仮定した」です ── 第 43 回の作法どおり、区別して書く。</em><br>★ ② <strong>端に感度のある別の量を測る</strong>：たとえば極値統計（最大値の分布）は、モーメントより少ない標本で裾に届きます。<br>★ ③ <strong>端を主張しない</strong>：<em>「\(\tau(q)\) が曲がっている」で止める</em>── 06 節のとおり、第 42 回の主張にはそれで十分です。<br>★★ <strong>本シリーズの立場では ③ が既定で、① を使うなら必ず「模型の仮定」と明記します。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　「分布である」は言える。「どんな分布か」は言えない</h2>
+<p>第 42 回の \(f(\alpha)\) 曲線を、<strong>有限のデータから実際に取り出せるか</strong>を調べました。</p>
+<p>1 回の実現から \(\tau(q)\) を測ると、<strong>小さい \(|q|\) ではよく合い、大きい \(q\) で外れます</strong>（ずれの符号も一定しません）── <em>大きい \(q\) は「いちばん強い 1 個の箱」だけで決まるからです。</em>\(q=0\) だけは厳密に \(-1\)（箱の数を数えているだけ）。</p>
+<p style="text-align:center"><strong>★★★ 本回の要 ──<br>箱を 1000 倍（1024 → 100 万）にして、到達できる \(q^*\) は 2 から 4 にしか伸びない。<br>\(\alpha\) の幅は 54.5 % → 89.4 % で頭打ち。</strong></p>
+<p>★ <em>\(q^*\) の伸びは<strong>対数的</strong>で、指数関数的にデータを増やさないと端には届きません。</em><br>
+★★ <strong>\(f(\alpha)\) の頂上（台の次元）は必ず測れ、両裾だけが届きません</strong> ── <em>間欠性の本質は「まれで強い出来事」なのに、まれだからこそ標本に入らない。</em></p>
+<p>★ <strong>予想が一つ外れました</strong>：<em>当初「負の \(q\) がいちばん雑音に弱い」と考えましたが、実際は正の側のほうが大きく動きました</em>（\(s=1.0\) で \(q=-2\) が 6 %、\(q=6\) が 19 %）── <strong>雑音が対数正規だと大きい値のほうが大きくばらつくから。</strong></p>
+<p style="text-align:center"><strong>★ 結論 ── 第 42 回の「階数は分布だった」は、有限のデータでも言えます。<br>ただし言えるのは「分布である」ところまで。<br>「どんな分布か」は、標本の大きさが決めていました。</strong></p>
+<p>★ <em>第 51 回の「桁数」と同じで、ここでも上限は測定そのものではなく<strong>持っているデータの大きさ（の対数）</strong>にありました。</em>★ <strong>正直に</strong>：本稿も合成データのみで、実データには当てていません。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 51・52 回で、<strong>桁数にも \(q\) の範囲にも「データの対数」が上限を与える</strong>と分かりました。<br>
+★ <strong>次回はその「対数」を正面から見ます</strong> ── <em>なぜ、測れる範囲はいつも対数で効くのか。</em><br>
+★★ <strong>第 21 回の情報量、第 46 回の \(e\) 倍の回数、そして本回の \(q^*\)</strong> ── <em>三つとも「対数で数える量」でした。</em>★ それが偶然なのか、同じ根から来ているのかを調べます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 52 回です。計算は kenshou/multi.js で行っています。<strong>本回の数値について：</strong>カスケードの生成、1 回の実現からの \(\tau(q)\) の推定、\(q^*\) の測定（5 つの種の中央値）、\(f(\alpha)\) の到達範囲、雑音を加えたときの変化は、すべて本稿で計算したものです。<strong>マルチフラクタル形式（\(\tau(q)\)・ルジャンドル変換・\(f(\alpha)\)）、掛け算カスケード、そして有限標本では高次モーメントの推定が極値に支配され \(\tau(q)\) が線形化すること ── これらはいずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>それを本シリーズの手引き（第 49・51 回）に接続し、「\(q\) の範囲」を桁数と同じ扱いの指標として書いたこと</em>です。<em>02 節で述べたとおり、保存型（\(p\) と \(1-p\) を対で配る）カスケードでは箱の値の多重集合が毎回同一になり標本ゆらぎが消えるため、本稿では子ごとに独立に掛け算子を引く形（非保存型を規格化）を用いています。この選択は結果に影響します。</em>\(q^*\) の判定基準 \(|\Delta\tau|\le0.1\) は本稿の便宜的なもので、基準を変えれば値も変わります。03 節の \(q^*\) は 5 つの種の中央値で、1 回ごとのばらつきはこれより大きくなります。<strong>本稿も合成データのみで、実際の測定データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
