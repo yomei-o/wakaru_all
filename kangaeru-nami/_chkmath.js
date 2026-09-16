@@ -1,6 +1,7 @@
 const fs = require('fs');
 const BS = String.fromCharCode(92);
-const CMD = /(Delta|alpha|beta|omega|lambda|sqrt|frac|times|approx|cdot|ell|tau|phi|mu|Gamma|gamma|infty|propto|Box|partial|pi)/g;
+// 英文の中の "pi"（predictions など）を拾わないよう、前後が英字でない場合だけ数える
+const CMD = /(?<![A-Za-z])(Delta|alpha|beta|omega|lambda|sqrt|frac|times|approx|cdot|ell|tau|phi|mu|Gamma|gamma|infty|propto|Box|partial|pi)(?![A-Za-z])/g;
 
 ['body/index.html', 'body-en/index.html'].forEach(function (p) {
   const L = fs.readFileSync(p, 'utf8').split('\n');
