@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>なぜ波の方程式は二階なのか ── 二階とは「両方向」のことだった ｜ 考える波 第 29 回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1d1a1c; --ink-soft:#544a4e;
+    --paper:#faf7f7; --paper-edge:#e8dede;
+    --side:#6b2f3a; --side-bg:#f4ecee;
+    --warn:#8a4b2f;
+    --calc:#5a2731; --calc-bg:#f2e8ea;
+    --rule:#dccdd1; --hair:#c4aeb4;
+    --acc:#6b2f3a;
+    --grid:#ece0e2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 29 回 ／ 第 XI 部・仮説に決着をつける</span></p>
+<p class="eyebrow">自分の回を、自分で採点し直す</p>
+
+<h1>なぜ波の方程式は二階なのか ──<br>二階とは「両方向」のことだった
+<span class="sub"><strong>一階では振動できず、三階では暴走し、四階には負のエネルギーが住む。</strong><br>そして帯の幅 2 は、★ <strong>受動性とオストログラツキーが交互に決めていました</strong> ── 奇数階は前者が、偶数階は後者が落とす。<br><em>★ 本回は、このシリーズ自身の第 15 回を二か所 訂正します。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 6, 11, 12, 15, 28 回</span><span>計算：kenshou/nikai.js</span></p>
+
+<p class="lead">第 28 回で鎖の底に残ったのは、これでした ── <strong>★ 波の方程式は、なぜ二階なのか。</strong><br>第 15 回では「物理は \(\alpha\in[-1/2,\,2]\) の狭い長方形に住む」と書き、下限は因果律・上限はオストログラツキーだと言いました。<em>本回はこれを測り直します。</em></p>
+
+<h2><span class="n">01</span>一階だと何が起きるか ── 拡散は波にならない</h2>
+
+<div class="calc">
+<span class="tag">時間について一階の代表 ── 拡散方程式</span>
+$$\frac{\partial u}{\partial t}=D\frac{\partial^2u}{\partial x^2}\quad\xrightarrow{\ e^{i(kx-\omega t)}\ }\quad -i\omega=-Dk^2\quad\Longrightarrow\quad \omega=-iDk^2$$
+<p class="lbl">\(\omega\) が<strong>純虚数</strong> ── 実部がない</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0"><strong>\(\omega\) に実部がないので、振動できません。減衰だけ。</strong><br>
+二階（\(\partial_t^2u=c^2\partial_x^2u\)）なら \(\omega^2=c^2k^2\) で \(\omega=\pm ck\) ── <em>実数。だから振動できる。</em></p>
+</div>
+
+<p>もう一つの症状が<strong>伝播速度の無限大</strong>です。拡散の解 \(u=e^{-x^2/4Dt}/\sqrt{4\pi Dt}\) は、どんな \(t&gt;0\) でも全 \(x\) でゼロではありません。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(t\) [s]</th><th>\(x\) [m]</th><th>\(x^2/4Dt\)</th><th>振幅の桁</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(10^{-9}\)</strong></th><td class="mid">1.0</td><td class="mid">2.5e+12</td><td class="mid"><strong>\(10^{-1.1\times10^{12}}\)</strong></td></tr>
+<tr><th>\(10^{-3}\)</th><td class="mid">1.0</td><td class="mid">2.5e+6</td><td class="mid">\(10^{-1.1\times10^{6}}\)</td></tr>
+<tr><th>\(10^{0}\)</th><td class="mid">1.0</td><td class="mid">2.5e+3</td><td class="mid">\(10^{-1086}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>数学的には「無限の速さ」。でも 1 ns 後の 1 m 先は \(10^{-1.1\times10^{12}}\)</strong> ── <em>観測できる量ではありません</em>（第 11 回で熱伝導について書いたのと同じ話）。</p>
+
+<p>ただし公平のため ── <strong>時間も空間も一階なら、波は出ます</strong>。\(\partial_tu+c\partial_xu=0\) は \(\omega=ck\)（実数）で、ちゃんと進む。<em>★ ただし片方向だけ。</em></p>
+
+<h2><span class="n">02</span>★ 二階の正体 ── 「両方向」という意味だった</h2>
+
+<div class="calc">
+<span class="tag">波動作用素は、一階の作用素二つに分解できる</span>
+$$\frac{\partial^2}{\partial t^2}-c^2\frac{\partial^2}{\partial x^2}=\left(\frac{\partial}{\partial t}-c\frac{\partial}{\partial x}\right)\left(\frac{\partial}{\partial t}+c\frac{\partial}{\partial x}\right)$$
+<p class="lbl">右向きの移流 × 左向きの移流</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\((x,t)\)</th><th>\(\Box g\) 直接</th><th>因数分解から</th><th>相対差</th></tr></thead>
+<tbody>
+<tr><th>(0.2, 0.5)</th><td class="mid">2.62360253</td><td class="mid">2.62359274</td><td class="mid">3.7e−6</td></tr>
+<tr><th>(1.0, 0.3)</th><td class="mid">−3.25306111</td><td class="mid">−3.25305532</td><td class="mid">1.8e−6</td></tr>
+<tr><th>(−0.7, 1.2)</th><td class="mid">−0.39724006</td><td class="mid">−0.39723333</td><td class="mid">1.7e−5</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>差分の打ち切り誤差の範囲で一致します。<strong>帰結は、初期の山ひとつが必ず左右 半分ずつに割れること</strong>（ダランベール）。波動方程式を数値で解いて確かめます。</p>
+
+<div class="calc">
+<span class="tag">\(c=1\)、5 秒後</span>
+$$\text{右の山: 高さ }0.49996,\ \text{位置 }+5.000\qquad \text{左の山: 高さ }0.49996,\ \text{位置 }-5.000$$
+<p class="lbl">高さは 0.5（半分ずつ）、位置は \(\pm ct=\pm5.0\) の予言どおり</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>二階とは「両方向」のことでした。</strong></p>
+<p style="margin:10px 0 0">一階（移流）なら山は割れず、<em>高さ 1 のまま片方向へ進みます。</em>── <strong>二階が要るのは「両方向へ行けること」のためでした。</strong></p>
+</div>
+
+<h2><span class="n">03</span>一階のまま波にする唯一の道 ── 平方根をとると、スピンが生える</h2>
+
+<p>では「一階で、しかも両方向」は無理なのか。<strong>一つだけ道があります</strong> ── 波動作用素の<strong>平方根</strong>をとる。</p>
+
+<div class="calc">
+<span class="tag">ディラックのやり方</span>
+$$(i\gamma^\mu\partial_\mu)^2=\Box\qquad\Longleftrightarrow\qquad \{\gamma^\mu,\gamma^\nu\}=2\eta^{\mu\nu}I$$
+<p class="lbl">この条件を満たす「数」は存在しません。行列が要る ── 何次の行列が要るか</p>
+</div>
+
+<p>まず \(2\times2\) を試します。パウリ行列 \(\sigma_1,\sigma_2,\sigma_3\) は互いに反交換します（数値でちょうど 0）。<strong>では 4 本目 \(M=aI+b\sigma_1+c\sigma_2+d\sigma_3\) は作れるか。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\{\cdot,\cdot\}\)</th><th>\(\sigma_1\)</th><th>\(\sigma_2\)</th><th>\(\sigma_3\)</th></tr></thead>
+<tbody>
+<tr><th>\(I\)</th><td class="mid">\(2\sigma_1\)</td><td class="mid">\(2\sigma_2\)</td><td class="mid">\(2\sigma_3\)</td></tr>
+<tr><th>\(\sigma_1\)</th><td class="mid">\(2I\)</td><td class="mid">0</td><td class="mid">0</td></tr>
+<tr><th>\(\sigma_2\)</th><td class="mid">0</td><td class="mid">\(2I\)</td><td class="mid">0</td></tr>
+<tr><th>\(\sigma_3\)</th><td class="mid">0</td><td class="mid">0</td><td class="mid">\(2I\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>\(\{M,\sigma_1\}=0\) を課すと \(\sigma_1\) 列で消えねばならないので \(a=b=0\)。同じことを \(\sigma_2,\sigma_3\) でやると \(c=d=0\)。<strong>★ 4 本目は零行列だけ ── \(2\times2\) では 3 本が限界です。</strong></p>
+
+<div class="calc">
+<span class="tag">\(4\times4\)（ディラック表示）で検算 ── 全 10 通り</span>
+$$\max_{\mu\nu}\big|\{\gamma^\mu,\gamma^\nu\}-2\eta^{\mu\nu}I\big|=0.00$$
+<p class="lbl">丸め誤差もゼロ（成分がすべて 0, ±1）</p>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>4 成分 ── これがスピンです。</strong></p>
+<p style="margin:10px 0 0"><strong>「一階のまま両方向へ進みたい」と言った代償が、4 成分の内部自由度でした。</strong><em>反粒子（2 成分ぶん）も、ここで一緒についてきます。</em></p>
+</div>
+
+<h2><span class="n">04</span>三階にすると何が壊れるか ── アブラハム＝ローレンツ</h2>
+
+<div class="calc">
+<span class="tag">放射反作用を古典的に書くと、三階微分が出る</span>
+$$m(\ddot x-\tau_0\dddot x)=F,\qquad \tau_0=\frac{2e^2}{3\cdot4\pi\varepsilon_0mc^3}=\frac{2r_e}{3c}=6.2664\times10^{-24}\ \text{s}$$
+</div>
+
+<p>\(F=0\)（力ゼロ）でも \(\ddot x=Ae^{t/\tau_0}\) という解が残ります ── <strong>暴走解</strong>。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>経過時間</th><th>\(t/\tau_0\)</th><th>増幅率</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>\(\tau_0\ln2=4.34\times10^{-24}\) s</strong></th><td class="mid">0.693</td><td class="mid"><strong>2.000</strong></td></tr>
+<tr><th>1 as</th><td class="mid">159.6</td><td class="mid">\(10^{69.3}\)</td></tr>
+<tr><th>1 ps</th><td class="mid">\(1.6\times10^{11}\)</td><td class="mid">\(10^{6.9\times10^{10}}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>数値積分（RK4）でも 2 倍になる時刻は \(4.3458\times10^{-24}\) s で、予言 \(\tau_0\ln2=4.3436\times10^{-24}\) と 5e−4 で一致します。<em>暴走を避けようと境界条件を未来側で決めると、こんどは<strong>前加速</strong>が出ます</em>（第 12 回）。</p>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ただし公平のため</p>
+<p style="margin:6px 0 0">\(\tau_0=6.27\times10^{-24}\) s に対し、電子のコンプトン時間 \(\hbar/mc^2=1.29\times10^{-21}\) s。<strong>比は 206 倍</strong> ── <em>\(\tau_0\) は古典電磁気が通用しない領域の深く内側です。</em><br>
+★ <strong>だから「因果律が壊れた」のではなく「使ってはいけない所で使った」が正確です。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ 梯子で読むと、三階が壊れる理由が一行で出る</h2>
+
+<div class="calc">
+<span class="tag">第 12 回で測った、一周期あたりに系へ入る仕事</span>
+$$W=\pi k\,\omega^\alpha|x|^2\sin\frac{\alpha\pi}{2},\qquad F=k\,D^\alpha x$$
+<p class="lbl">インピーダンス \(Z=F/v\) の階数 \(\beta\) とは \(\beta=\alpha-1\)（\(v=i\omega x\) だから）</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\alpha\)</th><th>\(\beta\)</th><th>部品</th><th>数値 \(W\)</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>−0.5</th><td class="mid">−1.5</td><td>（禁止領域）</td><td class="mid">−2.22144</td><td>★★ 供給（能動）</td></tr>
+<tr><th>0</th><td class="mid">−1</td><td>ばね</td><td class="mid">0.00000</td><td>無散逸</td></tr>
+<tr class="hi"><th><strong>0.5</strong></th><td class="mid">−0.5</td><td><strong>★ ワールブルグ</strong></td><td class="mid"><strong>2.22144</strong></td><td><strong>散逸</strong></td></tr>
+<tr><th>1</th><td class="mid">0</td><td>ダンパ</td><td class="mid">3.14159</td><td>散逸</td></tr>
+<tr><th>2</th><td class="mid">1</td><td>質量</td><td class="mid">0.00000</td><td>無散逸</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">2</td><td><strong>★ 放射反作用</strong></td><td class="mid"><strong>−3.14159</strong></td><td><strong>★★ 供給（能動）</strong></td></tr>
+<tr><th>4</th><td class="mid">3</td><td>パイス＝ウーレンベック</td><td class="mid">0.00000</td><td>無散逸</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★★ <strong>\(\alpha=3\) で \(W\) が負 ── 系がエネルギーを受け取り続ける。</strong>これが 04 節の \(e^{t/\tau_0}\) の正体でした。<br>
+<em>第 12 回の \(\sin(\alpha\pi/2)\) と、アブラハム＝ローレンツの暴走が<strong>同じ一つのこと</strong>だった。</em><br>
+★ そして<strong>\(\alpha=4\) は \(W=0\) ── 散逸の符号では捕まりません。</strong>これが 07 節の主題です。</p>
+</div>
+
+<h2><span class="n">06</span>★★ 第 15 回の長方形を測り直す</h2>
+
+<div class="calc">
+<span class="tag">受動性 ── 外へ出しこそすれ、湧き出させない</span>
+$$\operatorname{Re}Z(\omega)\ge0\ \ (\forall\omega),\qquad Z=(i\omega)^\beta\ \Longrightarrow\ \operatorname{Re}Z=\omega^\beta\cos\frac{\beta\pi}{2}$$
+<p class="lbl">符号は \(\cos\) だけで決まります</p>
+</div>
+
+<p>ここが本回の要点です ── <strong>受動性が許すのは一つの帯ではありません。</strong></p>
+
+<div class="calc">
+<span class="tag">★ 4 おきに、幅 2 の帯が並ぶ</span>
+$$\cos\frac{\beta\pi}{2}\ge0\quad\Longleftrightarrow\quad \beta\in[-1,1]\cup[3,5]\cup[7,9]\cup\cdots$$
+</div>
+
+<p>\(\beta=3\)（＝ \(\alpha=4\)）は無損失なので<strong>受動性では落とせません</strong>。ここを落とすのがオストログラツキーです。<em>★ つまり二つの定理が交互に効いています。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階数 \(\alpha\)</th><th>例</th><th>受動性</th><th>オストログラツキー</th><th>結論</th></tr></thead>
+<tbody>
+<tr><th>0</th><td>ばね</td><td class="mid">◯ 通す</td><td class="mid">◯ 通す</td><td>許される</td></tr>
+<tr><th>1</th><td>ダンパ</td><td class="mid">◯ 通す</td><td class="mid">◯ 通す</td><td>許される</td></tr>
+<tr class="hi"><th><strong>2</strong></th><td><strong>質量・波動方程式</strong></td><td class="mid">◯ 通す（境界）</td><td class="mid">◯ 通す</td><td><strong>★ 許される</strong></td></tr>
+<tr><th>3</th><td>放射反作用</td><td class="mid">★ 落とす</td><td class="mid">──</td><td>★ 禁止（暴走）</td></tr>
+<tr><th>4</th><td>パイス＝ウーレンベック</td><td class="mid">◯ 通してしまう</td><td class="mid">★ 落とす</td><td>★ 禁止（ゴースト）</td></tr>
+<tr><th>5</th><td>──</td><td class="mid">★ 落とす</td><td class="mid">──</td><td>禁止</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★ <strong>奇数階は受動性が、偶数階はオストログラツキーが落とす。</strong></p>
+<p style="margin:10px 0 0"><strong>どちらか一方では足りません。</strong>第 15 回は上端の理由をオストログラツキーだけに帰していましたが、<em>\(\alpha=3\) を落とすのは受動性のほうです。</em></p>
+</div>
+
+<p>そのうえで、<strong>第 15 回を採点します。</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>第 15 回の主張</th><th>判定</th><th>理由</th></tr></thead>
+<tbody>
+<tr><th>長方形（幅 2 の帯）に住む</th><td class="mid">◎ 正しい</td><td>単位を揃えると \(\beta\in[-1,+1]\)</td></tr>
+<tr><th>上端は 2</th><td class="mid">△ 単位違い</td><td>上端 \(\alpha=2\) は「方程式の階数」。\(\beta\) では \(+1\)</td></tr>
+<tr class="hi"><th><strong>下端は \(-1/2\)</strong></th><td class="mid"><strong>× 誤り</strong></td><td><strong>★ \(-1/2\) は「インピーダンスの階数」で、しかも端ではない</strong></td></tr>
+<tr class="hi"><th><strong>下端の理由は因果律</strong></th><td class="mid"><strong>× 誤り</strong></td><td><strong>★ 因果律ではなく受動性。\((i\omega)^{-2}\) は因果的だが能動</strong></td></tr>
+<tr><th>上端の理由はオストログラツキー</th><td class="mid">△ 半分</td><td>\(\alpha=3\) を落とすのは受動性</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">何が起きていたか</p>
+<p style="margin:6px 0 0">★ <strong>長方形の両端を、別々の単位で測っていました。</strong><br>
+下端 \(-1/2\)：ワールブルグ ＝ <em>インピーダンスの階数 \(\beta\)</em><br>
+上端 \(+2\)　：波動方程式 ＝ <em>方程式の階数 \(\alpha\)</em>（\(\beta\) では \(+1\)）<br>
+★ <strong>ワールブルグの \(\beta=-1/2\) は端ではなく、帯のまん中あたりです。</strong>端に見えたのは「手持ちで一番 負だった」から ── <em>定理ではなく観測でした。</em></p>
+<p style="margin:10px 0 0;text-align:center"><strong>★★ 書き直した帯：\(\beta\in[-1,+1]\)（＝ \(\alpha\in[0,2]\)）、虚部 ≈ 0。<br>両端は無損失、内側が散逸、外は物理ではない。幅はちょうど 2。</strong></p>
+</div>
+
+<h2><span class="n">07</span>四階を落とすのは誰か ── オストログラツキーを数値で見る</h2>
+
+<div class="calc">
+<span class="tag">パイス＝ウーレンベック振動子（四階の代表）</span>
+$$L=\tfrac12\big[\ddot x^2-(\omega_1^2+\omega_2^2)\dot x^2+\omega_1^2\omega_2^2x^2\big]\ \Longrightarrow\ x''''+(\omega_1^2+\omega_2^2)\ddot x+\omega_1^2\omega_2^2x=0$$
+$$H=\tfrac12\ddot x^2-\dot x\,\dddot x-\tfrac12(\omega_1^2+\omega_2^2)\dot x^2-\tfrac12\omega_1^2\omega_2^2x^2\ =\ \tfrac12(\omega_1^2-\omega_2^2)(A^2\omega_1^2-B^2\omega_2^2)$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>状態（\(\omega_1=2,\omega_2=1\)）</th><th>\(H\)（数値）</th><th>\(H\)（解析）</th><th>符号</th></tr></thead>
+<tbody>
+<tr><th>モード1だけ \(A=1\)</th><td class="mid">6.000000</td><td class="mid">6.000000</td><td>正</td></tr>
+<tr><th>モード1だけ \(A=2\)</th><td class="mid">24.000000</td><td class="mid">24.000000</td><td>正</td></tr>
+<tr class="hi"><th><strong>モード2だけ \(B=1\)</strong></th><td class="mid"><strong>−1.500000</strong></td><td class="mid"><strong>−1.500000</strong></td><td><strong>★★ 負</strong></td></tr>
+<tr class="hi"><th><strong>モード2だけ \(B=2\)</strong></th><td class="mid"><strong>−6.000000</strong></td><td class="mid"><strong>−6.000000</strong></td><td><strong>★★ 負</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>モード 2 のエネルギーは負。\(B\) を大きくすれば \(H\) はいくらでも下がります</strong> ── 下に有界でない。これがオストログラツキーの不安定性です。</p>
+
+<p>では実際に暴走するのか。<strong>\(\lambda x^3\) の結合を入れて探しました</strong>（\(A=B=1\) から 400 秒、\(|x|&gt;10^6\) を暴走と判定。\(\lambda=0\) では \(H\) が \(10^{-12}\) で保存し、積分は信頼できます）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\omega_1/\omega_2\)</th><th>\(\lambda=0.01\)</th><th>\(\lambda=0.1\)</th><th>\(\lambda=1\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>2.00</strong></th><td class="mid"><strong>— 起きない</strong></td><td class="mid"><strong>— 起きない</strong></td><td class="mid">★ 6.8 秒</td></tr>
+<tr><th>1.50</th><td class="mid">— 起きない</td><td class="mid">— 起きない</td><td class="mid">★ 5.0 秒</td></tr>
+<tr><th>1.10</th><td class="mid">★ 28.6 秒</td><td class="mid">★ 10.2 秒</td><td class="mid">★ 4.7 秒</td></tr>
+<tr><th>1.01</th><td class="mid">★ 24.9 秒</td><td class="mid">★ 9.9 秒</td><td class="mid">★ 4.6 秒</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心 ── ★ 予想が外れました</p>
+<p style="margin:6px 0 0"><strong>\(\omega_1/\omega_2=2\) の弱結合では、400 秒 走らせても暴走しません。</strong>ところが \(\omega_1\) を \(\omega_2\) に近づけると、弱い結合でも暴走します。<em>★ 縮退に近いほど危ない ── 正負の部門の周波数が近いと、やり取りが効くからです。</em></p>
+<p style="margin:10px 0 0">★ <strong>正直に書きます：「四階は必ず即 暴走する」ではありません。</strong>確実に言えるのは \(H\) が下に有界でないこと。<br>
+── <em>それでも下に有界でない以上、基礎理論としては使えません。<strong>「たまたま落ちないだけの椅子」に座り続ける理由がないからです。</strong></em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>「二階が要るのは両方向のため」なら、電磁波が横波で二つの偏光を持つこととどう違うか。
+<details><summary>答えを見る</summary><div class="ans"><strong>別の勘定です。</strong>本回の「二階＝両方向」は<em>時間軸</em>の話で、\(\Box=(\partial_t-c\partial_x)(\partial_t+c\partial_x)\) の 2 因子 ＝ 右進行波と左進行波。<br>偏光の 2 は<em>空間の横方向</em>の自由度（3 次元で進行方向を除いた 2）で、階数とは関係ありません。<br>★ <strong>同じ「2」でも、一方は時間微分の数、もう一方は空間次元から来ています。</strong>第 14 回の「指数が整数から外れる理由は三つ」と同じで、<em>同じ数字を見たら出どころを確かめる</em>のがこの連載の作法です。</div></details></li>
+
+<li>ワールブルグ（\(\beta=-1/2\)）が帯のまん中だとすると、帯の端 \(\beta=-1\) に当たる実在の素子は何か。
+<details><summary>答えを見る</summary><div class="ans"><strong>ただのばね（コンデンサ）です。</strong>\(Z=k/(i\omega)\) なので \(\beta=-1\)、\(\operatorname{Re}Z=0\) ── <em>無損失の境界</em>。反対の端 \(\beta=+1\) は質量（インダクタ）で、こちらも無損失。<br>★ <strong>帯の両端が「損をしない素子」で、内側がすべて「損をする素子」</strong>という構造です。<br>★ そして第 2 回のワールブルグは、ばねとダンパのちょうど中間（\(\beta=-1/2\)）── <em>「半分だけ損をする」素子でした。</em></div></details></li>
+
+<li>第 15 回の誤りは「計算間違い」か。そうでないなら何か。
+<details><summary>答えを見る</summary><div class="ans"><strong>計算ではなく、単位（何を \(\alpha\) と呼ぶか）の取り違えです。</strong>数値はどれも正しく、ワールブルグは \(-1/2\)、波動方程式は 2 で合っています。<em>違ったのは、その二つを同じ軸に並べたこと。</em><br>★ <strong>これは物理でいちばん多い間違いの型です</strong> ── 第 7 回の「意味があるのは無次元量だけ」も、第 14 回の \(|\det M|\) も、根は同じ「何で割ったか」の管理でした。<br>★ そして今回それに気づけたのは、<em>\(\alpha=3\) と \(\alpha=4\) という帯の外側まで計算を伸ばしたから</em>です。<strong>端を越えて初めて、端の定義が曖昧だったと分かりました。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　二階とは「両方向」、帯の幅 2 は二つの定理が交互に決めていた</h2>
+<p>第 28 回が残した<strong>「なぜ二階なのか」</strong>に答えました。</p>
+<p><strong>一階では振動できません</strong>（拡散は \(\omega=-iDk^2\) で純虚数）。おまけに伝播速度が無限大ですが、<em>1 ns 後の 1 m 先は \(10^{-1.1\times10^{12}}\) ── 観測できる量ではありません。</em>時間も空間も一階なら波は出ますが、<strong>片方向だけ。</strong></p>
+<p>★ <strong>二階の正体は「両方向」でした。</strong>\(\Box=(\partial_t-c\partial_x)(\partial_t+c\partial_x)\) と分解でき、数値でも山が<strong>高さ 0.5 ずつ左右に割れて \(\pm ct\) へ進みます</strong>。一階のまま両方向にしたければ平方根をとるしかなく、<em>\(2\times2\) では反交換行列が 3 本しか作れない</em>（表で確認）ので \(4\times4\) が要る ── <strong>★ その代償がスピンでした。</strong></p>
+<p><strong>三階は暴走します。</strong>\(\tau_0=6.27\times10^{-24}\) s で \(e^{t/\tau_0}\)、倍加時間 \(4.34\times10^{-24}\) s。<em>ただしコンプトン時間の 1/206 なので、これは「古典電磁気を使ってはいけない所で使った」だけです。</em>★ そして梯子で読むと一行で出ます ── <strong>\(W\propto\sin(\alpha\pi/2)\) が \(\alpha=3\) で負。第 12 回の式とアブラハム＝ローレンツの暴走は同じ一つのことでした。</strong></p>
+<p>★★ <strong>帯の幅 2 は、二つの定理が交互に決めていました。</strong>受動性 \(\cos(\beta\pi/2)\ge0\) が許すのは \(\beta\in[-1,1]\cup[3,5]\cup\cdots\) と<em>4 おきの帯</em>なので、\(\alpha=4\)（\(\beta=3\)）は受動性では落ちません。<strong>奇数階は受動性が、偶数階はオストログラツキーが落とす。</strong>四階の \(H=\frac12(\omega_1^2-\omega_2^2)(A^2\omega_1^2-B^2\omega_2^2)\) は下に有界でなく、<em>ただし実際に暴走するかは周波数比しだい ── \(\omega_1/\omega_2=2\) の弱結合では 400 秒 何も起きませんでした。</em></p>
+<p style="text-align:center"><strong>★ そして本回は、このシリーズ自身の第 15 回を二か所 訂正しました。<br>① 長方形の両端は別々の単位で測られていた（\(\beta\) と \(\alpha\)）。<br>② 下端の理由は因果律ではなく受動性。そもそも \(-1/2\) は端ではない。</strong></p>
+<p><em>反証可能だと宣言した以上、自分の回も採点対象です。</em>正しい帯は <strong>\(\beta\in[-1,+1]\)、幅ちょうど 2 ── 一階ぶん ずつ 両側</strong>でした。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+帯の幅が 2 だと分かりました。では<strong>幅 2 の帯は、空間の次元とどう関係しているのか。</strong><br>
+★ <strong>次回は次元を動かします</strong> ── 波動方程式を \(d\) 次元で解くと、<em>偶数次元では波が「尾を引く」</em>（ホイヘンスの原理が破れる）。2 次元の池の波紋がいつまでも消えないのに、3 次元の音が鋭く切れるのはなぜか。<br>★ そして<strong>\(d=3\) だけが特別に見える理由</strong>を、階数の言葉で数えます。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 29 回です。計算は kenshou/nikai.js で行っています。<strong>本回の数値について：</strong>波動方程式の数値解、作用素の因数分解の検算、パウリ／ディラック行列の反交換子、アブラハム＝ローレンツの暴走、一周期の仕事 \(W\)、パイス＝ウーレンベックの \(H\) と暴走の走査は、すべて本稿で計算したものです。<strong>ダランベールの解、ディラック方程式と \(\gamma\) 行列、アブラハム＝ローレンツの \(\tau_0\)、受動性と正実関数の関係、オストログラツキーの定理、パイス＝ウーレンベック振動子は、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、これらを「階数」という一本の軸に並べ、<em>第 15 回の主張を採点し直したこと</em>です。<em>07 節の暴走の走査は \(\lambda x^3\) という特定の結合・特定の初期条件（\(A=B=1\)）での結果で、パラメータ空間を尽くしてはいません。「安定に見える島」の存在自体は文献でも報告されていますが、本稿はその分類をしていません。</em>03 節の「\(2\times2\) では 3 本が限界」は 3+1 次元に必要な 4 本が作れないことを示したもので、クリフォード代数の一般論（\(N\times N\) では \(2\log_2N+1\) 本まで）は導出していません。04 節の前加速は式から従う性質を述べたもので、本稿は数値計算していません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
