@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digging further into light ｜ Thinking in Waves 35</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1f1b14; --ink-soft:#574e3c;
+    --paper:#fbf9f4; --paper-edge:#e6dfcd;
+    --side:#6b5320; --side-bg:#f4efe2;
+    --warn:#8a4b2f;
+    --calc:#5a4418; --calc-bg:#f2ecdd;
+    --rule:#dbd2bc; --hair:#c2b598;
+    --acc:#6b5320;
+    --grid:#ece4d2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 35 ／ Part XIII · Frontier physics as waves</span></p>
+<p class="eyebrow">Phase was never only about time</p>
+
+<h1>Digging further into light ──<br>when phase becomes a function of angle, and when it becomes an area
+<span class="sub">Make the phase a function of <strong>azimuthal angle</strong> and \(\ell\) <em>can only be an integer</em> ── and that integer survives being moved around (topology).<br>★★ And take a polarization state once around the sphere ── <strong>a phase remains, equal to half the solid angle</strong> (agreeing to \(10^{-16}\)).<br><em>★ Phase turns out to have at least three origins: time, angle, and path.</em></span></h1>
+
+<p class="byline"><span>Prerequisites: Episodes 1, 5, 9, 13, 21, 31</span><span>Computation: kenshou/hikari2.js</span></p>
+
+<p class="lead">From Episode 1 through 34, <strong>phase was always a function of time</strong> ── \(\varphi(t)=\omega t\), with order \(\alpha\) meaning "the phase turns by \(90\alpha\) degrees".<br><em>★ This episode adds two new axes to phase.</em></p>
+
+<h2><span class="n">01</span>Phase as a function of angle ── a helical wavefront</h2>
+
+<div class="calc">
+<span class="tag">Laguerre–Gauss ── a field whose phase is proportional to the azimuthal angle \(\phi\)</span>
+$$u(r,\phi)\propto r^{|\ell|}e^{-r^2/w^2}\,e^{i\ell\phi}$$
+<p class="lbl">The wavefront becomes a <strong>spiral staircase</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\ell\)</th><th>Intensity at \(r=0\)</th><th>Peak radius (numeric)</th><th>Predicted \(w\sqrt{|\ell|/2}\)</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">1.0000</td><td class="mid">0 (centre)</td><td class="mid">──</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>0.0000</strong></td><td class="mid"><strong>0.70710</strong></td><td class="mid"><strong>0.70711</strong></td></tr>
+<tr><th>5</th><td class="mid">0.0000</td><td class="mid">1.58110</td><td class="mid">1.58114</td></tr>
+<tr><th>10</th><td class="mid">0.0000</td><td class="mid">2.23610</td><td class="mid">2.23607</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §01</p>
+<p style="margin:6px 0 0">★ ① <strong>For \(\ell\ne0\) the intensity at the centre is exactly zero</strong> (the phase is undefined there) ── a doughnut beam, with peak radius \(w\sqrt{|\ell|/2}\).<br>
+★★ ② <strong>\(\ell\) can only be an integer</strong> ── going once around must return the same value, so \(e^{i\ell\cdot2\pi}=1\).<br>
+<em>This is the <strong>angular version</strong> of Episode 5's "boundary conditions make discrete modes". There a transverse wall did it; here it is "come back after one turn".</em></p>
+</div>
+
+<h2><span class="n">02</span>The winding number survives being moved</h2>
+
+<p>We count the <strong>winding number</strong> numerically ── go around a closed loop and add up the phase increments (\(\frac{1}{2\pi}\oint d\varphi\)). The testbed is \(u=(x+iy)^2-a^2\) (two vortices at \(x=\pm a\)).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(a\)</th><th>Big circle \(R=10\)</th><th>Around \(+a\), \(R=0.1a\)</th><th>Around the origin, \(R=0.1a\)</th></tr></thead>
+<tbody>
+<tr><th>0.001</th><td class="mid">2.000000</td><td class="mid">1.000000</td><td class="mid">0.000000</td></tr>
+<tr><th>0.1</th><td class="mid">2.000000</td><td class="mid">1.000000</td><td class="mid">0.000000</td></tr>
+<tr class="hi"><th><strong>3.0</strong></th><td class="mid"><strong>2.000000</strong></td><td class="mid"><strong>1.000000</strong></td><td class="mid"><strong>0.000000</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §02</p>
+<p style="margin:6px 0 0"><strong>The big circle always gives exactly 2 ── move the vortices anywhere and it does not change.</strong> A small circle gives 1 if a vortex is inside and 0 if not ── <em>only integers appear.</em><br>
+★★★ <strong>The winding number cannot be varied continuously (a topological conserved quantity).</strong> Amplitude and phase can be moved as smoothly as you like, but <em>the winding number jumps.</em></p>
+<p style="margin:10px 0 0">★ This is a <strong>different discreteness</strong> from Episode 13's discrete scale invariance ── there it was <em>equal spacing on a log axis</em> (a continuous symmetry broken to a discrete one), here it is <em>"return after one turn"</em> (topology). <strong>Both are "discrete", but they come from different places.</strong></p>
+</div>
+
+<h2><span class="n">03</span>★★ Phase as an area ── the geometric phase</h2>
+
+<p>Now polarization. A polarization state is a point on the <strong>Poincaré sphere</strong> ── \(|\psi(\theta,\phi)\rangle=(\cos\frac\theta2,\ \sin\frac\theta2 e^{i\phi})\), with the poles circular and the equator linear.</p>
+
+<div class="calc">
+<span class="tag">The Pancharatnam phase against the solid angle</span>
+$$\gamma=-\arg\big[\langle A|B\rangle\langle B|C\rangle\langle C|A\rangle\big]\qquad\text{vs}\qquad -\frac{\Omega}{2}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Triangle</th><th>\(\gamma\) [rad]</th><th>\(-\Omega/2\) [rad]</th><th>Difference</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>One octant</strong></th><td class="mid"><strong>−0.78539816</strong></td><td class="mid"><strong>−0.78539816</strong></td><td class="mid"><strong>1.1e−16</strong></td></tr>
+<tr><th>A small triangle</th><td class="mid">0.01680306</td><td class="mid">0.01680306</td><td class="mid">6.9e−18</td></tr>
+<tr><th>A large triangle</th><td class="mid">−2.13508004</td><td class="mid">−2.13508004</td><td class="mid">0</td></tr>
+<tr><th>A nearly degenerate one</th><td class="mid">0.00000022</td><td class="mid">0.00000022</td><td class="mid">3.3e−19</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §03</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px">★★★ <strong>\(\gamma=-\Omega/2\) ── phase has appeared as an area (a solid angle).</strong></p>
+<p style="margin:10px 0 0">★ Episode 1's phase was <em>a delay in time</em>. <strong>This phase has nothing to do with time at all ── it is fixed by the shape of the path.</strong></p>
+</div>
+
+<p>Does refining the path change it? We approximate a circle at colatitude \(\theta\) by an \(N\)-gon.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\theta\)</th><th>\(N\)</th><th>Accumulated \(\gamma\)</th><th>\(-\pi(1-\cos\theta)\)</th><th>Difference</th></tr></thead>
+<tbody>
+<tr><th>1.00</th><td class="mid">12</td><td class="mid">−1.41629693</td><td class="mid">−1.44418290</td><td class="mid">2.8e−2</td></tr>
+<tr><th>1.00</th><td class="mid">100</td><td class="mid">−1.44378740</td><td class="mid">−1.44418290</td><td class="mid">4.0e−4</td></tr>
+<tr class="hi"><th><strong>1.00</strong></th><td class="mid"><strong>2000</strong></td><td class="mid"><strong>−1.44418191</strong></td><td class="mid"><strong>−1.44418290</strong></td><td class="mid"><strong>9.9e−7</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>It converges to \(-\pi(1-\cos\theta)\)</strong> ── <em>the same value at any speed and any subdivision. Hence "geometric".</em></p>
+
+<h2><span class="n">04</span>★ Angle and \(\ell\) are a Fourier pair ── but one of them is periodic</h2>
+
+<p>If the phase is \(e^{i\ell\phi}\), then \(\phi\) and \(\ell\) are Fourier conjugates. <strong>But \(\phi\) is periodic (\(0\) to \(2\pi\)) ── so \(\ell\) is discrete (an integer).</strong> The same structure as Episode 31.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>The periodic one</th><th>The one that goes discrete</th><th>Where it shows up</th></tr></thead>
+<tbody>
+<tr><th>Sampling time (period \(T\))</th><td class="mid">frequency folds at \(2\pi/T\)</td><td>Episode 31, the unit circle</td></tr>
+<tr class="hi"><th><strong>★ Angle \(\phi\) (period \(2\pi\))</strong></th><td class="mid"><strong>★ orbital angular momentum \(\ell\) is an integer</strong></td><td><strong>★ here</strong></td></tr>
+<tr><th>A crystal lattice (period \(a\))</th><td class="mid">reciprocal lattice, Brillouin zone</td><td>solid-state physics</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="calc">
+<span class="tag">★ The angular version of the bandwidth theorem</span>
+$$\ell\le\frac{2\pi r}{\lambda}\qquad\text{── "how many wavelengths fit around the circumference"}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Aperture radius \(r\)</th><th>Wavelength \(\lambda\)</th><th>★ Limit on \(\ell\)</th><th></th></tr></thead>
+<tbody>
+<tr><th>1 mm</th><td class="mid">1.55 µm</td><td class="mid">4054</td><td>fibre scale</td></tr>
+<tr class="hi"><th><strong>1 cm</strong></th><td class="mid">1.55 µm</td><td class="mid"><strong>40537</strong></td><td>small telescope</td></tr>
+<tr><th>1 m</th><td class="mid">1.55 µm</td><td class="mid">4.05e+6</td><td>large aperture</td></tr>
+<tr><th>1 cm</th><td class="mid">1 cm (30 GHz)</td><td class="mid">6.28</td><td>microwave</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §04</p>
+<p style="margin:6px 0 0"><strong>"The number of usable \(\ell\) ＝ how many wavelengths fit around the circumference."</strong> <em>Episode 9's \(\Delta t\cdot\Delta\omega\ge1/2\) has simply become \(\Delta\phi\cdot\Delta\ell\ge1/2\).</em> It also sets how many channels can carry information (Episode 21).</p>
+</div>
+
+<h2><span class="n">05</span>Spin versus orbit, in numbers</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>Kind</th><th>Per photon</th><th>Allowed values</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><th>Spin (polarization)</th><td class="mid">\(\pm\hbar\)</td><td class="mid">★ only 2</td><td>the direction of the field vector</td></tr>
+<tr class="hi"><th><strong>★ Orbital (OAM)</strong></th><td class="mid"><strong>\(\ell\hbar\)</strong></td><td class="mid"><strong>★ every integer</strong></td><td><strong>the twist of the phase</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The heart of §05</p>
+<p style="margin:6px 0 0"><strong>Spin offers only two states while orbit has no ceiling</strong> (as far as the aperture allows). <em>So orbit is the better place to carry information; \(\ell=10010\) has been reported.</em></p>
+<p style="margin:10px 0 0">★ In wave language ── <strong>polarization ＝ which way the field points (an amplitude-side freedom, two of them); OAM ＝ how many times the phase winds (a phase-side freedom, infinitely many).</strong><br>
+<em>Episode 32 said "the Higgs is AM, the Goldstone is FM". The same split is at work here.</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Can a beam with two vortices be deformed continuously into one with a single vortex?
+<details><summary>Show the answer</summary><div class="ans"><strong>Not without changing the winding number outside.</strong> As §02 showed, the winding on a big circle is <em>always 2</em> however the vortices move.<br>★ To reduce it you must <strong>bring in an opposite vortex (\(\ell=-1\)) from outside and annihilate</strong> ── <em>and that changes the outer winding too.</em><br>★★ <strong>"A quantity that continuous deformation cannot change" ＝ a topological quantity</strong>, which is also why OAM is attractive for communication (mild disturbances do not flip an integer).</div></details></li>
+
+<li>The geometric phase is said not to depend on time. So where did the phase accumulated while waiting go?
+<details><summary>Show the answer</summary><div class="ans"><strong>It is a separate account.</strong> The real phase is the sum of a <em>dynamical phase</em> (\(-Et/\hbar\), proportional to time) and a <em>geometric phase</em> (fixed by the path alone).<br>★ §03 measured only the latter, and <strong>it was the same whether the loop was traversed slowly or quickly</strong> (the dynamical phase would not be).<br>★ <em>Experiments must separate them</em> ── the standard trick is to compare two paths with the same endpoints.<br>★★ In this series' language ── <strong>the dynamical phase lives on the time axis, the geometric phase in state space.</strong> Different spaces, so they add (the habit of Episodes 29–30).</div></details></li>
+
+<li>Is §04's \(\ell\le2\pi r/\lambda\) the same thing as Episode 9's uncertainty?
+<details><summary>Show the answer</summary><div class="ans"><strong>The same theorem stated on a different axis.</strong> The general Fourier rule \(\Delta x\cdot\Delta k\gtrsim1\) with \(x\to\phi\) and \(k\to\ell\).<br>★ With <strong>one difference</strong> ── \(\phi\) is <em>periodic</em>, so \(\Delta\phi\le2\pi\), and that is exactly what makes \(\ell\) <strong>discrete</strong>. <em>Time and frequency have no such periodicity, so this does not happen there.</em><br>★★ Episode 31's "sampling makes frequency fold" was <strong>the same duality used in the opposite direction.</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary　Phase has at least three origins</h2>
+<p>For 34 episodes <strong>phase was always a function of time</strong>. This episode added two axes.</p>
+<p>★ <strong>① Make phase a function of azimuthal angle (orbital angular momentum).</strong> The centre of \(u\propto r^{|\ell|}e^{-r^2/w^2}e^{i\ell\phi}\) has exactly zero intensity and the peak sits at \(w\sqrt{|\ell|/2}\) (5-digit agreement out to \(\ell=10\)). And <strong>\(\ell\) can only be an integer</strong> ── the return-after-one-turn condition. <em>The angular version of Episode 5's "boundary conditions make discrete modes".</em></p>
+<p>That integer <strong>survives being moved</strong>. In \(u=(x+iy)^2-a^2\), moving the vortices leaves the winding on a big circle <em>always exactly 2</em>; small circles give only 1 or 0. ★ <strong>The winding number cannot vary continuously ── a topological conserved quantity</strong>, a different kind of discreteness from Episode 13's.</p>
+<p style="text-align:center"><strong>★★ ② Take a polarization state once around the sphere and a phase remains, equal to half the solid angle.<br>\(\gamma=-\Omega/2\) (agreeing to \(10^{-16}\)), and an \(N\)-gon path converges to \(-\pi(1-\cos\theta)\).</strong></p>
+<p><em>The same value at any speed and any subdivision ── hence "geometric". Episode 1's phase was a delay in time; this one has nothing to do with time.</em></p>
+<p>The structure came into view too ── <strong>angle and \(\ell\) are Fourier conjugates, and because angle is periodic, \(\ell\) is discrete</strong> (the same duality as Episode 31's unit circle). The bandwidth theorem has an angular version, <strong>\(\ell\le2\pi r/\lambda\) ＝ "how many wavelengths fit around the circumference"</strong> (40,000 for a 1 cm aperture at telecom wavelength). And <em>spin offers two states while orbit offers infinitely many ── an amplitude-side freedom versus a phase-side freedom</em>, the same split as Episode 32.</p>
+</div>
+
+<div class="next">
+<span class="lbl">Next episode</span>
+Having looked at the freedoms of phase, <strong>★ next comes the noise of phase.</strong><br>
+★ Light has <em>amplitude noise</em> and <em>phase noise</em>, and their product has a floor (Episode 9's uncertainty).<br>
+★★ <strong>Which means one can be reduced by pushing it into the other.</strong> That is <em>squeezed light</em>, and LIGO actually uses it. <em>Trading AM noise for FM noise ── a continuation of Episode 32.</em>
+</div>
+
+<p class="foot">This document is Episode 35 of the "Thinking in Waves" series. The computations are in kenshou/hikari2.js. <strong>On the numbers here:</strong> the Laguerre–Gauss intensity and peak radii, the numerical winding numbers, the Pancharatnam phase against the solid angle, and the \(N\)-gon convergence were all computed for this article. <strong>Laguerre–Gauss beams and phase singularities, the \(\ell\hbar\) of orbital angular momentum, the Pancharatnam–Berry phase being half the solid angle, and the topological conservation of winding number are all well-known results and not discoveries of this article</strong> ── what this article did was <em>place them on a single axis, "where phase comes from", and sort it into time, angle and path.</em> <em>The formula in §01 omits the radial Laguerre polynomial (\(p\ne0\)), which would add further rings.</em> The bound \(\ell\le2\pi r/\lambda\) in §04 is a naive Nyquist estimate for fringes around a circle; real channel capacity depends on aperture shape, propagation distance and turbulence. The \(\ell=10010\) figure is a reported value, not verified here. "Two spin states" in §05 is the count for a transverse wave in free space. ── To print, use your browser's Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Print / PDF: ⌘+P (Ctrl+P on Windows). "Show the answer" opens the solutions.</p>
+</body>
+</html>
