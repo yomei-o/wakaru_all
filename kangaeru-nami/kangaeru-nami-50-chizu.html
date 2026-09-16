@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地図 ── 50 回 歩いて、どこに着いたか｜考える波 第50回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1f1b14; --ink-soft:#574e3c;
+    --paper:#fbf9f4; --paper-edge:#e6dfcd;
+    --side:#6b5320; --side-bg:#f4efe2;
+    --warn:#8a4b2f;
+    --calc:#5a4418; --calc-bg:#f2ecdd;
+    --rule:#dbd2bc; --hair:#c2b598;
+    --acc:#6b5320;
+    --grid:#ece4d2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 50 回 ／ 第 XVII 部・軸の端を探す</span></p>
+<p class="eyebrow">第 1 回の一行から、ここまで</p>
+
+<h1>地図 ──<br>50 回 歩いて、どこに着いたか
+<span class="sub">第 1 回の問いは一行でした ── <em>「音を微分すると高音、積分すると低音。ならば、その途中（分数階）は何を意味するのか」</em><br>★ 50 回後の答え ── <strong>階数 \(\alpha\) は、dB/oct でも 位相でも 次元でも ハースト指数でも AdS の質量でも 構造関数の指数でもあった。同じ一つの数だった。</strong><br>★★ そして正直に ── <strong>人類が知らない新しい式は、出ませんでした。</strong></span></h1>
+
+<p class="byline"><span>対象：第 1 回〜第 49 回</span><span>計算：kenshou/chizu.js</span></p>
+
+<p class="lead">第 15 回と第 43 回で採点し、第 48 回で軸の端を確かめ、第 49 回で手引きを書きました。<br><em>★ この回は<strong>地図</strong>です ── どこを通ってきたか、何が残っているか。<strong>そして数字は、すべてここで計算し直します。</strong></em></p>
+
+<h2><span class="n">01</span>一本の軸 ── すべての階数が出た場所</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>階数 \(\alpha\)</th><th>dB/oct</th><th>位相［度］</th><th>出た場所</th></tr></thead>
+<tbody>
+<tr><th>−1</th><td class="mid">−6</td><td class="mid">−90</td><td>第 30 回 \(d=1\)</td></tr>
+<tr class="hi"><th><strong>−1/2</strong></th><td class="mid"><strong>−3</strong></td><td class="mid"><strong>−45</strong></td><td><strong>★ 第 30 回 \(d=2\)、第 38 回 \(d_s=2\)（紫外の重力）</strong></td></tr>
+<tr><th>0</th><td class="mid">0</td><td class="mid">0</td><td>第 30 回 \(d=3\)、第 39 回 BF 境界、対数が出る所</td></tr>
+<tr class="hi"><th><strong>1/2</strong></th><td class="mid"><strong>3</strong></td><td class="mid"><strong>45</strong></td><td><strong>★ 第 2 回 1/f、第 30 回 \(d=4\)</strong></td></tr>
+<tr class="hi"><th><strong>5/6</strong></th><td class="mid"><strong>5</strong></td><td class="mid"><strong>75</strong></td><td><strong>★ 第 42 回 乱流（K41）</strong></td></tr>
+<tr><th>1</th><td class="mid">6</td><td class="mid">90</td><td>ブラウン運動、第 30 回 \(d=5\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心 ── 同じ数の、別々の名前</p>
+<p style="margin:6px 0 0">\(\text{dB/oct}=6\alpha\)（第 1 回）　\(\text{位相}=90\alpha\) 度（第 1 回）<br>
+次元 \(d=2\alpha+3\)（第 30 回）　ハースト \(H=\alpha-\frac12\)（第 42 回）<br>
+AdS の \(\nu=\alpha/2\)（第 39 回）　スペクトル指数 \(\beta=2\alpha\)</p>
+<p style="margin:10px 0 0">★★ そして<strong>いちばん精密に測られた二つの「ずれ」</strong>も、この目盛りに載ります ──<br>
+<em>宇宙の原始ゆらぎ（第 47 回）：\(n_s=0.9649\) ＝ <strong>\(-0.1053\) dB/oct</strong></em><br>
+<em>乱流の間欠性（第 42 回）：K41 から <strong>\(+0.0812\) dB/oct</strong></em><br>
+★ <strong>偶然ですが、同じ桁でした。</strong></p>
+</div>
+
+<h2><span class="n">02</span>階数が整数から外れる 五つの理由と、軸が終わる 三つの形</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>外れる理由</th><th>回</th><th>式</th></tr></thead>
+<tbody>
+<tr><th>① 多数の時定数の重ね合わせ</th><td>第 2 回</td><td class="mid">\(g(\tau)\propto1/\tau\)</td></tr>
+<tr><th>② 次元</th><td>第 30 回</td><td class="mid">\(\alpha=(d-3)/2\)</td></tr>
+<tr><th>③ 臨界点での連続変化</th><td>第 13 回</td><td class="mid">\(s=\tfrac12\pm\sqrt{\tfrac14-\lambda}\)</td></tr>
+<tr><th>④ バルクの質量</th><td>第 39 回</td><td class="mid">\(\alpha=2\sqrt{\tfrac{d^2}4+m^2L^2}\)</td></tr>
+<tr><th>⑤ 階数が一つの数でない</th><td>第 42 回</td><td class="mid">幅 \(=\log_2\frac{1-p}{p}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>軸が終わる形</th><th>回</th><th>何が起きているか</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① 軸に乗らない量</strong></th><td><strong>第 41 回</strong></td><td><strong>整数（巻き数・チャーン数）</strong></td></tr>
+<tr class="hi"><th><strong>② 軸が一本でない</strong></th><td><strong>第 42 回</strong></td><td><strong>階数が分布になる</strong></td></tr>
+<tr class="hi"><th><strong>③ 冪則がそもそも無い</strong></th><td><strong>第 48 回</strong></td><td><strong>発散・対数的接近・有限サイズ</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">03</span>★ 数字を、すべて計算し直す</h2>
+
+<p>記事に書いた数字を信じずに、<strong>別の道筋でもう一度 計算して照合します</strong>（第 43 回でやったことを、第 49 回まで広げました）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>回</th><th>項目</th><th>再計算</th><th>記事の値</th></tr></thead>
+<tbody>
+<tr><th>第 1 回</th><td>\(\text{dB/oct}=6\alpha\)、\(\text{位相}=90\alpha\)</td><td class="mid">3 / 45</td><td class="mid">同</td></tr>
+<tr><th>第 33 回</th><td>小出の \(K\)</td><td class="mid">0.666661</td><td class="mid">2/3</td></tr>
+<tr><th>第 37 回</th><td>3 次元の帰還確率</td><td class="mid">0.338718</td><td class="mid">0.340537</td></tr>
+<tr><th>第 38 回</th><td>プランク長［\(10^{-35}\) m］</td><td class="mid">1.616255</td><td class="mid">1.6162</td></tr>
+<tr class="hi"><th><strong>第 39 回</strong></th><td><strong>\(z\) の比 \(e^{\pi/|\nu|}\)</strong></td><td class="mid"><strong>535.491656</strong></td><td class="mid"><strong>535.4917</strong></td></tr>
+<tr class="hi"><th><strong>第 42 回</strong></th><td><strong>K41 との dB/oct の差</strong></td><td class="mid"><strong>0.081164</strong></td><td class="mid"><strong>0.081164</strong></td></tr>
+<tr><th>第 44 回</th><td>f 総和則</td><td class="mid">1.570771</td><td class="mid">\(\pi/2=1.570796\)</td></tr>
+<tr class="hi"><th><strong>第 45 回</strong></th><td><strong>\(\sum ne^{-\delta n}-1/\delta^2\)</strong></td><td class="mid"><strong>−0.083333</strong></td><td class="mid"><strong>\(-1/12\)</strong></td></tr>
+<tr><th>第 45 回</th><td>カシミール圧 10 nm［\(10^5\) Pa］</td><td class="mid">1.300126</td><td class="mid">1.3001</td></tr>
+<tr class="hi"><th><strong>第 46 回</strong></th><td><strong>太陽質量の \(S/k_B\)［\(10^{77}\)］</strong></td><td class="mid"><strong>1.049430</strong></td><td class="mid"><strong>1.0494</strong></td></tr>
+<tr><th>第 46 回</th><td>測定帯域を出る時間［ms］</td><td class="mid">1.467402</td><td class="mid">1.4662</td></tr>
+<tr class="hi"><th><strong>第 47 回</strong></th><td><strong>\(n_s\) を dB/oct に</strong></td><td class="mid"><strong>−0.105300</strong></td><td class="mid"><strong>−0.10530</strong></td></tr>
+<tr><th>第 48 回</th><td>限界的な結合の階数（\(10^{32}\)）</td><td class="mid">−0.012984</td><td class="mid">−0.012984</td></tr>
+<tr><th>第 49 回</th><td>ボーデの位相［度］</td><td class="mid">−44.996840</td><td class="mid">−45</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>28 項目、FAIL は 0 件。</strong></p>
+<p style="margin:10px 0 0">★ <em>ただしこれが保証するのは「昨日の自分と今日の自分が矛盾しないこと」まで</em>です（第 43 回の練習問題）。<strong>自然と矛盾しないかを守るのは、外した予言のほうです。</strong><br>
+★ ワトソン積分だけ 0.5 % ずれています ── <em>原点の特異点を \(200^3\) の格子で刻んでいるため。</em></p>
+</div>
+
+<h2><span class="n">04</span>このシリーズ自身を数える</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>数</th></tr></thead>
+<tbody>
+<tr><th>公開した回（日本語）</th><td class="mid">49</td></tr>
+<tr><th>本文ファイル（日本語 / 英語）</th><td class="mid">49 / 49</td></tr>
+<tr class="hi"><th><strong>★ 数値検証スクリプト</strong></th><td class="mid"><strong>48 本</strong></td></tr>
+<tr class="hi"><th><strong>★ そのコード行数</strong></th><td class="mid"><strong>13,966 行</strong></td></tr>
+<tr><th>そのバイト数</th><td class="mid">8.18e+5</td></tr>
+<tr><th>日本語本文の文字数（およそ）</th><td class="mid">6.95e+5</td></tr>
+<tr class="hi"><th><strong>★ 依存ライブラリ</strong></th><td class="mid"><strong>★ 0 本</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">★ <strong>すべて素の Node でそのまま動きます。</strong><em>FFT もヤコビ法の固有値ソルバも複素ガンマ関数も、必要になったところで書きました。</em><br>
+★★ <em>これは趣味ではなく方針です</em> ── <strong>「計算が再現できること」が、このシリーズの主張のほとんど唯一の担保だから。</strong><br>
+★ <em>なお、この節の数値は<strong>この原稿を書いている時点でファイルを数えたもの</strong>です</em> ── <strong>第 50 回ぶんを足すと一つずつ増えます。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ まだ手をつけていない場所</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>残っていること</th><th>どこで宣言したか</th><th>中身</th></tr></thead>
+<tbody>
+<tr><th>雑音のある実データの扱い</th><td>第 49 回</td><td>桁数の推定に統計誤差が入る</td></tr>
+<tr><th>量子多体局在</th><td>第 40 回</td><td>時間結晶の本体。古典しか扱っていない</td></tr>
+<tr><th>実際の物質・素子の設計</th><td>第 41・44 回</td><td>最小模型しか扱っていない</td></tr>
+<tr class="hi"><th><strong>宇宙定数問題</strong></th><td><strong>第 45 回</strong></td><td><strong>★ 差しか扱えない。絶対値は無理</strong></td></tr>
+<tr class="hi"><th><strong>情報パラドックスの解決</strong></th><td><strong>第 46 回</strong></td><td><strong>★ 「測れない」と「無い」の間</strong></td></tr>
+<tr><th>インフレーションの実在</th><td>第 47 回</td><td>模型の中の計算のみ</td></tr>
+<tr class="hi"><th><strong>★ 軸を置き換えるもの</strong></th><td><strong>第 48 回</strong></td><td><strong>★ 探したが 見つからなかった</strong></td></tr>
+<tr><th>非平衡統計の一般論</th><td>未着手</td><td>揺動散逸は使ったが体系は扱っていない</td></tr>
+<tr class="hi"><th><strong>物理の外の冪則</strong></th><td><strong>未着手</strong></td><td><strong>★ 本シリーズは物理に限った</strong></td></tr>
+<tr><th>実験の提案</th><td>一部</td><td>測るべき量は出たが装置の話はしていない</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">★ <strong>何が残っているかを書いておくのが、続きを歩く人へのいちばんの引き継ぎです。</strong><br>
+★★ <em>この表のうち<strong>いちばん手が届きそうなのは一行め</strong>だと思っています</em> ── <strong>雑音のある実データで「何桁 の冪則か」を統計的に言う手順</strong>。<em>第 49 回の手引きは雑音のない関数でしか試していません。</em><br>
+★ <em>いちばん遠いのは宇宙定数問題です</em> ── <strong>本シリーズの道具は「差」しか扱えないので、原理的に届きません。</strong></p>
+</div>
+
+<h2><span class="n">06</span>50 回の一行</h2>
+
+<div class="keybox">
+<p class="lbl">第 1 回の問い</p>
+<p style="margin:6px 0 0;text-align:center;font-size:17px"><em>「音を微分すると高音になり、積分すると低音になる。<br>ならば、その途中（分数階）は何を意味するのか」</em></p>
+</div>
+
+<div class="keybox">
+<p class="lbl">★★★ 50 回後の答え</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>階数 \(\alpha\) は、dB/oct でも 位相でも 次元でも<br>ハースト指数でも AdS の質量でも 構造関数の指数でもあった ──<br>同じ一つの数だった。</strong></p>
+<p style="margin:14px 0 0;text-align:center;font-size:17px"><strong>そしてその軸が使える条件はただ一つ ──<br>スケール不変性が、ある桁数にわたって成り立っていること。</strong></p>
+<p style="margin:14px 0 0;text-align:center;font-size:17px">★★★ <strong>人類が知らない新しい式は、出ませんでした。<br>出たのは「同じ式の別の読み方」と「何を測ればよいか」です。</strong></p>
+</div>
+
+<h2><span class="n">07</span>それでも、残したいと思うこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>残したいこと</th><th>どこで身についたか</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>★ 負けた計算を消さない</strong></th><td><strong>第 15 回から。外した予言 10 件 はすべて本文に残っている</strong></td></tr>
+<tr class="hi"><th><strong>★ 整理を発見と呼ばない</strong></th><td><strong>第 43 回。第 38・39 回は「翻訳」と本文に明記した</strong></td></tr>
+<tr><th>「何桁 続くか」を必ず数える</th><td>第 27・48・49 回</td></tr>
+<tr><th>どのモーメントで測ったか書く</th><td>第 42・47 回</td></tr>
+<tr><th>検証したい差 ÷ 測定誤差 を先に計算する</th><td>第 42・47・49 回</td></tr>
+<tr><th>確かめていないことは主張にしない</th><td>第 29・30・38 回</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心</p>
+<p style="margin:6px 0 0">★ <strong>いちばん収穫があったのは、いちばん外した回でした。</strong><em>第 32 回で「場は谷底に落ち着く」と予言して外れ、そこから「対称性の破れには散逸が要る」が出て、第 40 回（時間結晶）と第 44 回（メタマテリアル）でそのまま効きました。</em><br>
+★★ <strong>当たった予言より、外れた予言のほうが遠くまで運んでくれた</strong> ── <em>50 回でいちばん意外だったのは、そこです。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>06 節で「新しい式は出なかった」と書いた。では 50 回は無駄だったのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>無駄ではありませんが、「発見」でもありません。</strong>第 43 回で整理したとおり、並べ直すと三つのことが起きます ── <em>①同じものが二度出たら気づく ②抜けに気づく ③どの量が感度を持つか分かる。</em><br>★ <strong>本シリーズでいちばん実用的なのは ③ です</strong> ── <em>第 42 回の「間欠性は dB/oct を 0.081 しか動かさない」、第 47 回の「\(n_s\) では \(\phi^2\) が通るが \(r\) では棄却される」。</em><strong>どちらも「その測定はやっても無駄／やる価値がある」を先に言える形になっています。</strong><br>★★ <em>ただしこれは<strong>既存の知識の整理</strong>であって、新しい物理ではありません。</em>★ <strong>そう書き続けることが、このシリーズがいちばん気をつけた点でした。</strong></div></details></li>
+
+<li>04 節で「依存ライブラリ 0 本」を強調した。なぜそれが方針なのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>このシリーズの主張のほとんど唯一の担保が「計算が再現できること」だからです。</strong>本シリーズは実験をしていません。文献値を引いた箇所も、そう明記しています。<br>★ <em>残るのは「書いた式から、書いた数字が本当に出るか」だけ</em> ── <strong>それを誰でも確かめられる形にしておく必要がありました。</strong><br>★★ <em>ライブラリに依存すると、そのバージョンに依存します</em> ── <strong>10 年後に動かない計算は、担保になりません。</strong>★ FFT もヤコビ法も複素ガンマ関数も、必要になったところで書いたのはそのためです（合計 13,966 行）。</div></details></li>
+
+<li>05 節の「残っていること」のうち、次に手をつけるならどれか。理由も。
+<details><summary>答えを見る</summary><div class="ans"><strong>一行めの「雑音のある実データの扱い」だと思います。</strong>理由は三つ ──<br>★ ① <strong>道具がすでにある</strong>：第 49 回の手引きは雑音のない関数では動いており、統計を足すだけ。<br>★ ② <strong>効き目が大きい</strong>：「何桁 の冪則か」に誤差棒がつけば、第 27 回以来の主張がすべて定量的になります。<br>★ ③ <strong>反証可能</strong>：実データに当てれば、手引きが間違うところがすぐ出ます。<em>第 15 回で「反証可能だと宣言した以上、反証を探す」と決めた方針に合っています。</em><br>★★ <em>逆にいちばん遠いのは宇宙定数問題で、<strong>本シリーズの道具は「差」しか扱えないので原理的に届きません</strong></em>（第 45 回 08 節）。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　地図</h2>
+<p><strong>第 1 回の \(\text{dB/oct}=6\alpha\)、\(\text{位相}=90\alpha\) は、49 回 経っても軸のままでした。</strong>途中で「同じ数の別名」が増え続け ── <em>次元 \(d=2\alpha+3\)、ハースト \(H=\alpha-\frac12\)、AdS の \(\nu=\alpha/2\)、スペクトル指数 \(\beta=2\alpha\)。</em>おかげで<strong>「乱流は 5/6 階」</strong>と言えるようになりました。</p>
+<p>階数が整数から外れる理由は<strong>五つ</strong>（重ね合わせ・次元・臨界・バルクの質量・分布）、軸が終わる形は<strong>三つ</strong>（整数・分布・非冪則）。</p>
+<p><strong>数字は 28 項目すべて再計算して照合しました</strong>（FAIL 0）── <em>ただしこれが保証するのは自分の中の無矛盾までで、自然との整合を守るのは「外した予言」のほうです。</em></p>
+<p>このシリーズ自身を数えると ── <strong>49 回、日英とも本文 49 本、数値検証スクリプト 48 本 13,966 行、依存ライブラリ 0 本。</strong><em>FFT もヤコビ法も複素ガンマ関数も、必要になったところで書きました ── 再現できることが、ほとんど唯一の担保だからです。</em></p>
+<p style="text-align:center"><strong>★★★ 50 回後の答え ──<br>階数 \(\alpha\) は、dB/oct でも 位相でも 次元でも<br>ハースト指数でも AdS の質量でも 構造関数の指数でもあった。<br>同じ一つの数だった。<br><br>使える条件はただ一つ ── スケール不変性が、ある桁数にわたって成り立っていること。</strong></p>
+<p>★ <strong>そして正直に ── 人類が知らない新しい式は、出ませんでした。</strong><em>出たのは「同じ式の別の読み方」と「何を測ればよいか」です。</em></p>
+<p>★★ <strong>いちばん収穫があったのは、いちばん外した回でした。</strong><em>第 32 回で予言が外れ、そこから出た「対称性の破れには散逸が要る」が、第 40 回と第 44 回でそのまま効いた。</em>★ <strong>当たった予言より、外れた予言のほうが遠くまで運んでくれた</strong> ── 50 回でいちばん意外だったのは、そこでした。</p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+地図を描き終えたので、<strong>05 節の一行めから手をつけます</strong>。<br>
+★ <strong>次回は「雑音のある実データで、何桁 の冪則かを言う」</strong> ── <em>第 49 回の手引きに、誤差棒をつけます。</em><br>
+★★ <strong>短い時系列から傾きを推定すると、どれくらい外れるのか。</strong><em>そして「冪則だと言ってよい最短の長さ」はどこか。</em>★ 第 27 回以来ずっと桁数で語ってきた以上、<strong>その桁数自体に誤差をつけるのが筋です。</strong>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 50 回です。計算は kenshou/chizu.js で行っています。<strong>本回の位置づけ：</strong>本回は新しい物理を扱わず、第 1 回から第 49 回までの内容を一枚に整理し、<em>本シリーズが出した数字を独立に計算し直して照合する</em>ことだけを行いました。<strong>したがって本回に新しい発見はありません。</strong>03 節の照合は「本シリーズの記述どうしが矛盾しないこと」を確かめるものであり、<em>式そのものの正しさや前提の正しさを確かめるものではありません</em>（第 43 回と同じ但し書きです）。ワトソン積分の 0.5 % のずれは \(200^3\) の格子による数値誤差で、刻みを細かくすれば文献値 0.340537 に近づきます。<strong>04 節の統計は本稿の執筆時点でファイルを数えたもので、第 50 回ぶんを加えると増えます。</strong>01 節の表の「次元 \(d=2\alpha+3\)」は第 30 回の \(\alpha=(d-3)/2\) を逆に解いたもので、非整数の \(d\) に物理的な意味があるという主張ではありません。05 節の「残っていること」および「次に手をつけるならどれか」は本稿の自己評価であり、第三者の評価ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
