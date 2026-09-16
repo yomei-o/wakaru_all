@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ホログラフィーを波として見る ── 余分な次元は、対数スケールの軸だった｜考える波 第39回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#181c20; --ink-soft:#495259;
+    --paper:#f6f8f9; --paper-edge:#dae1e5;
+    --side:#1e4a5a; --side-bg:#e8eff2;
+    --warn:#8a4b2f;
+    --calc:#153a48; --calc-bg:#e3edf1;
+    --rule:#c7d5db; --hair:#a4b8c1;
+    --acc:#1e4a5a;
+    --grid:#dde7ec;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 39 回 ／ 第 XIII 部・最先端を波として見る</span></p>
+<p class="eyebrow">第 22 回で引いた軸が、次元になる</p>
+
+<h1>ホログラフィーを波として見る ──<br>余分な次元は、対数スケールの軸だった
+<span class="sub">AdS の \(\Delta=\frac d2\pm\sqrt{\frac{d^2}4+m^2L^2}\) は、★ <strong>第 13 回の \(s=\frac12\pm\sqrt{\frac14-\lambda}\) と同じ二次方程式</strong>です。<br>★★ そして境界の<strong>階数は平方根そのもの</strong> ── \(\alpha=2\sqrt{\frac{d^2}4+m^2L^2}\)。<em>BF 境界とはそれがゼロになる点で、その下では虚数になります。</em><br>★ さらに ── <strong>ウェーブレット平面の計量は、文字どおり AdS の計量でした。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 2, 5, 6, 13, 22, 25, 30, 38 回</span><span>計算：kenshou/horo.js</span></p>
+
+<p class="lead">第 13 回で<strong>「虚数階 ＝ スケール変換の生成子」</strong>と見ました。第 22 回では<strong>ウェーブレットが \(\ln\omega\) の軸を引く</strong>と見ました。<br><em>★ この回は、その軸が物理で<strong>「余分な次元」</strong>と呼ばれている、という話です。</em></p>
+
+<h2><span class="n">01</span>同じ二次方程式が、二回出てくる</h2>
+
+<div class="calc">
+<span class="tag">第 13 回：\(u''+\lambda u/r^2=0\) ── 臨界 \(1/r^2\) ポテンシャル</span>
+$$u\sim r^s,\qquad s(s-1)+\lambda=0\qquad\Longrightarrow\qquad s=\frac12\pm\sqrt{\frac14-\lambda}$$
+</div>
+
+<div class="calc">
+<span class="tag">AdS の中のスカラー場（ポアンカレ座標、\(z\) が動径）</span>
+$$\varphi''-\frac{d-1}{z}\varphi'-\frac{m^2L^2}{z^2}\varphi=0\ \Longrightarrow\ \Delta^2-d\,\Delta-m^2L^2=0\ \Longrightarrow\ \Delta=\frac d2\pm\sqrt{\frac{d^2}4+m^2L^2}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>\(d\to1\)、\(m^2L^2\to-\lambda\) と置くと ── ★ 文字どおり同じ式です。</strong></p>
+<p style="margin:10px 0 0">どちらも \(1/(\text{距離})^2\) というポテンシャルで、<em>どちらも「冪が二つ」出て、<strong>判別式が符号を変える所に臨界がある</strong></em>。</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m^2L^2\)（\(d=4\)）</th><th>\(\nu=\sqrt{d^2/4+m^2L^2}\)</th><th>\(\Delta_+\)</th><th>\(\Delta_-\)</th><th>判定</th></tr></thead>
+<tbody>
+<tr><th>0</th><td class="mid">2.000000</td><td class="mid">4</td><td class="mid">0</td><td>安定</td></tr>
+<tr><th>−1</th><td class="mid">1.732051</td><td class="mid">3.7321</td><td class="mid">0.2679</td><td>安定</td></tr>
+<tr><th>−3.75</th><td class="mid">0.500000</td><td class="mid">2.5</td><td class="mid">1.5</td><td>安定</td></tr>
+<tr class="hi"><th><strong>−4</strong></th><td class="mid"><strong>0</strong></td><td class="mid"><strong>2</strong></td><td class="mid"><strong>2</strong></td><td><strong>★ BF 境界（重根）</strong></td></tr>
+<tr class="hi"><th><strong>−4.25</strong></th><td class="mid"><strong>0.5 i</strong></td><td class="mid"><strong>複素</strong></td><td class="mid"><strong>複素</strong></td><td><strong>★ BF 違反 → 不安定</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>BF 境界 \(m^2L^2=-d^2/4\) は、第 13 回の臨界 \(\lambda=1/4\) そのもの</strong>です。<em>負の質量二乗が許されるのは、\(1/r^2\) ポテンシャルが「臨界までは落ち込まない」のと同じ理由。</em></p>
+
+<h2><span class="n">02</span>実際に解いて、境界の二点関数を測る</h2>
+
+<p>言葉だけでは怪しいので、波動方程式を<strong>数値で解きます</strong>。境界方向の運動量 \(k\) を入れた式</p>
+
+<div class="calc">
+<span class="tag">\(t=\ln z\) と置くと、動径方向がきれいな一次系になる</span>
+$$\frac{d\varphi}{dt}=\psi,\qquad \frac{d\psi}{dt}=d\,\psi+\bigl(k^2e^{2t}+m^2L^2\bigr)\varphi$$
+</div>
+
+<p>奥（\(z\) 大）から<strong>減衰する解</strong>で始めて境界（\(z\to0\)）まで積分し、そこで \(\varphi=A z^{\Delta_-}+B z^{\Delta_+}\) と分解します。<br>\(d=4,\ m^2L^2=-3.75\)（\(\nu=1/2\)）で ── <em>解析解は \(B/A=\frac{\Gamma(-\nu)}{\Gamma(\nu)}(k/2)^{2\nu}=-k\)。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(k\)</th><th>\(B/A\)（数値）</th><th>\(B/A\)（解析）</th><th>比</th></tr></thead>
+<tbody>
+<tr><th>0.25</th><td class="mid">−0.24999750</td><td class="mid">−0.25</td><td class="mid">0.999990</td></tr>
+<tr><th>1</th><td class="mid">−0.99999000</td><td class="mid">−1.00</td><td class="mid">0.999990</td></tr>
+<tr><th>4</th><td class="mid">−3.99996000</td><td class="mid">−4.00</td><td class="mid">0.999990</td></tr>
+<tr class="hi"><th><strong>8</strong></th><td class="mid"><strong>−7.99992000</strong></td><td class="mid"><strong>−8.00</strong></td><td class="mid"><strong>0.999990</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">\(\ln|B/A|\) 対 \(\ln k\) の傾き ＝ <strong>1.000000</strong>（予言 \(2\nu=1\)）。<br>
+★ この \(B/A\) が、境界の二点関数です ── <strong>\(\langle OO\rangle(k)\propto k^{2\nu}\)</strong>。<br>
+★★ <em>「奥から手前へ波を積分しただけ」で、境界の相関関数の冪が出てきました。</em></p>
+</div>
+
+<h2><span class="n">03</span>★★ 階数は、平方根そのものだった</h2>
+
+<div class="calc">
+<span class="tag">第 1 回の言葉に直すと</span>
+$$\alpha=2\nu=2\sqrt{\frac{d^2}4+m^2L^2}\qquad\Longrightarrow\qquad \text{dB/oct}=6\alpha,\quad \text{位相}=90\alpha\ \text{度}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m^2L^2\)（\(d=4\)）</th><th>\(\nu\)</th><th>★ 階数 \(\alpha=2\nu\)</th><th>dB/oct</th><th>位相［度］</th></tr></thead>
+<tbody>
+<tr><th>+4</th><td class="mid">2.828427</td><td class="mid">5.656854</td><td class="mid">33.941</td><td class="mid">509.12</td></tr>
+<tr><th>0</th><td class="mid">2</td><td class="mid">4</td><td class="mid">24.000</td><td class="mid">360.00</td></tr>
+<tr><th>−3</th><td class="mid">1</td><td class="mid">2</td><td class="mid">12.000</td><td class="mid">180.00</td></tr>
+<tr><th>−3.75</th><td class="mid">0.5</td><td class="mid">1</td><td class="mid">6.000</td><td class="mid">90.00</td></tr>
+<tr class="hi"><th><strong>−4（BF）</strong></th><td class="mid"><strong>0</strong></td><td class="mid"><strong>★ 0</strong></td><td class="mid"><strong>0.000</strong></td><td class="mid"><strong>0.00</strong></td></tr>
+<tr class="hi"><th><strong>−4.25</strong></th><td class="mid"><strong>0.5 i</strong></td><td class="mid"><strong>★ 虚数</strong></td><td class="mid"><strong>★ 虚数</strong></td><td class="mid"><strong>★ 虚数</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★★★ 本回の要</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>バルクの質量が、境界の<em>階数</em>を決めている。<br>\(\alpha=2\sqrt{d^2/4+m^2L^2}\)</strong></p>
+<p style="margin:10px 0 0">★ <strong>BF 境界は「階数がゼロになる点」</strong>です ── 冪が消えて<em>対数</em>になる点。<br>
+★★ <em>そしてその下では階数が虚数 ── <strong>第 13 回とまったく同じ構図</strong>。</em><br>
+★ 第 14 回の「整数から外れる理由は三つ」に、<strong>四つめ ── バルクの質量</strong>が加わりました。</p>
+</div>
+
+<h2><span class="n">04</span>BF 境界を越えると、対数周期が出る</h2>
+
+<p>\(d=4,\ m^2L^2=-4.25\)（\(\nu=0.5i\)）で解くと \(\varphi=z^{d/2}\cos(\nu\ln z+\delta)\) ── <strong>零点が \(\ln z\) で等間隔</strong>になるはずです。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>零点 #</th><th>\(\ln z\)</th><th>前との差</th><th>\(z\) の比</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">−5.793228</td><td class="mid">—</td><td class="mid">—</td></tr>
+<tr class="hi"><th><strong>2</strong></th><td class="mid"><strong>−12.076413</strong></td><td class="mid"><strong>6.283185</strong></td><td class="mid"><strong>535.4917</strong></td></tr>
+<tr><th>3</th><td class="mid">−18.359599</td><td class="mid">6.283185</td><td class="mid">535.4917</td></tr>
+<tr><th>4</th><td class="mid">−24.642784</td><td class="mid">6.283185</td><td class="mid">535.4917</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">測定した間隔 <strong>6.283185</strong>、予言 \(\pi/|\nu|=6.283185\) ── 差 \(1.7\times10^{-9}\)。<br>
+★ <strong>これは第 13 回のエフィモフ状態とまったく同じ仕組み</strong>です。<em>あちらの比 22.7 に対して、こちらは 535.49 ── 比の値が違うだけで、<strong>「対数周期」という現象は同一</strong>。</em><br>
+★★ <em>物理的には、BF 違反は「境界の理論に不安定な演算子がある」ことを意味します</em> ── 第 32 回のヒッグスの \(m^2&lt;0\) と同じく、<strong>真空が違う所にある</strong>という合図。</p>
+</div>
+
+<h2><span class="n">05</span>★★ 余分な次元は、ウェーブレット平面そのものだった</h2>
+
+<div class="calc">
+<span class="tag">並べてみます</span>
+$$\text{AdS（ポアンカレ座標）}\quad ds^2=L^2\frac{dx^2+dz^2}{z^2}$$
+$$\text{ウェーブレット平面（第 22 回）}\quad ds^2=\frac{db^2+da^2}{a^2}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── ★★★</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>同じ計量です。<br>動径 \(z\) ＝ スケール \(a\) ＝ \(1/\omega\)。</strong></p>
+<p style="margin:10px 0 0">★ ウェーブレット平面の自然な計量は<strong>アフィン群</strong>（平行移動＋拡大縮小）の不変計量で、それが<em>双曲上半平面</em>── つまり \(\mathrm{AdS}_2\) です。<br>
+★★ <strong>スケール変換 \((b,a)\to(\lambda b+c,\ \lambda a)\) が「等長変換」</strong>── 数値でも \(ds^2\) が \(\lambda\) を \(10^6\) 倍しても<strong>まったく変わりません</strong>（比 1.00000000）。<br>
+★ <em>だから「対数スケールの軸」に距離が入り、次元として振る舞える。</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(z_1\to z_2\)</th><th>固有距離（数値）</th><th>\(|\ln(z_2/z_1)|\)</th></tr></thead>
+<tbody>
+<tr><th>1 → 10</th><td class="mid">2.302585</td><td class="mid">2.302585</td></tr>
+<tr><th>1 → \(10^3\)</th><td class="mid">6.907755</td><td class="mid">6.907755</td></tr>
+<tr class="hi"><th><strong>1 → \(10^{17}\)</strong></th><td class="mid"><strong>39.143947</strong></td><td class="mid"><strong>39.143947</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">★ 第 38 回との接続</p>
+<p style="margin:6px 0 0">1 桁（10 倍）＝ \(\ln10=2.302585\) 倍の \(L\)。<br>
+★★ 第 38 回で見た<strong>「電弱からプランクまで 17 桁」は、固有距離 39.14 \(L\)</strong> ── <em>階層問題が、ホログラフィーでは<strong>余分な次元の「長さ」</strong>になります。</em><br>
+★ <em>これが第 15 回で「階層問題を幾何にする」と言われていたものの正体です。</em></p>
+</div>
+
+<h2><span class="n">06</span>もつれのエントロピーが対数になる ── 階数ゼロ</h2>
+
+<p>\(\mathrm{AdS}_3\) で境界の 2 点（間隔 \(\ell\)）を結ぶ測地線は半円です。長さを数値で測ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\ell\)</th><th>\(\varepsilon\)</th><th>測地線長（数値）</th><th>\(2\ln(\ell/\varepsilon)\)</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">\(10^{-2}\)</td><td class="mid">9.21014034</td><td class="mid">9.21034037</td><td class="mid">2.0e−4</td></tr>
+<tr><th>1</th><td class="mid">\(10^{-4}\)</td><td class="mid">18.42068072</td><td class="mid">18.42068074</td><td class="mid">2.0e−8</td></tr>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>\(10^{-6}\)</strong></td><td class="mid"><strong>27.63102112</strong></td><td class="mid"><strong>27.63102112</strong></td><td class="mid"><strong>1.0e−11</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">\(S=\dfrac{\text{測地線長}}{4G}=\dfrac c3\ln\dfrac{\ell}{\varepsilon}\) ── <strong>対数</strong>です。<br>
+★ 本シリーズの言葉では、<strong>対数は「階数ゼロ」の印</strong>（第 2 回の 1/f、第 37 回の弱局在、そして 03 節の BF 境界）。<em>冪でなく対数になるのが、1+1 次元の臨界の印でした。</em><br>
+★★ <em>そして \(\varepsilon\) は<strong>動径の切断</strong>── つまり<strong>周波数の切断</strong>（第 22 回の窓）。「エントロピーが \(\varepsilon\) に依る」は「どこまで細かく見たか」に依るということです。</em></p>
+</div>
+
+<h2><span class="n">07</span>自由度の数え上げと、くりこみ群</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(\varepsilon\)</th><th>\((L/\varepsilon)^{d-1}\)</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>2</th><td class="mid">\(10^{-3}\)</td><td class="mid">\(10^{3}\)</td><td>格子のセル数</td></tr>
+<tr><th>4</th><td class="mid">\(10^{-3}\)</td><td class="mid">\(10^{9}\)</td><td>格子のセル数</td></tr>
+<tr class="hi"><th><strong>4</strong></th><td class="mid"><strong>\(10^{-6}\)</strong></td><td class="mid"><strong>\(10^{18}\)</strong></td><td><strong>★ 面積で数える</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 第 6 回の<strong>ホログラフィック限界</strong>（情報は体積でなく面積で数える）と同じ数え方です。<em>動径を切ることが、周波数を切ることでした。</em></p>
+
+<div class="keybox">
+<p class="lbl">07節の中心 ── くりこみ群 ＝ 動径方向の運動</p>
+<p style="margin:6px 0 0">\(\ln\mu=-\ln z\) なので ── <strong>第 5 回で見た「走る結合定数」は、余分な次元では<em>ただの移動</em>でした。</strong><br>
+★ 「エネルギースケールを上げる」＝「境界に近づく」。<em>第 25 回の次元転移（無次元から次元が生まれる）も、この軸の上では「どこまで歩いたか」の話になります。</em></p>
+</div>
+
+<h2><span class="n">08</span>波として言えること・言えないこと</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>項目</th><th>判定</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>\(\Delta\) の式 ＝ 第 13 回の式</th><td class="mid">◎ 解析</td><td>\(d\to1,\ m^2L^2\to-\lambda\)</td></tr>
+<tr><th>BF 境界 ＝ 臨界 \(\lambda=1/4\)</th><td class="mid">◎ 解析</td><td>階数がゼロになる点</td></tr>
+<tr><th>\(\langle OO\rangle\propto k^{2\nu}\)</th><td class="mid">◎ 数値</td><td>傾き 1.000000（予言 1）</td></tr>
+<tr class="hi"><th><strong>★ 階数 \(\alpha=2\nu\)</strong></th><td class="mid"><strong>◎ 対応</strong></td><td><strong>★ 階数は平方根そのもの</strong></td></tr>
+<tr><th>BF 違反 → 対数周期</th><td class="mid">◎ 数値</td><td>間隔 \(\pi/|\nu|\) を実測</td></tr>
+<tr class="hi"><th><strong>★ 余分な次元 ＝ ウェーブレット平面</strong></th><td class="mid"><strong>◎ 解析</strong></td><td><strong>★ 計量が文字どおり同じ</strong></td></tr>
+<tr><th>もつれ ＝ 測地線長 ＝ 対数</th><td class="mid">◎ 数値</td><td>\(2\ln(\ell/\varepsilon)\) と一致</td></tr>
+<tr class="hi"><th><strong>★ 対応そのものが正しいか</strong></th><td class="mid"><strong>× できない</strong></td><td><strong>本稿は仮定して使っただけ</strong></td></tr>
+<tr class="hi"><th><strong>★ 現実の世界に使えるか</strong></th><td class="mid"><strong>× できない</strong></td><td><strong>AdS は我々の宇宙ではない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">08節の中心 ── ★ 正直に</p>
+<p style="margin:6px 0 0"><strong>「重力の理論 ＝ 境界の場の理論」という対応そのものは、本稿では検証していません。</strong>仮定して、その内側の計算をしただけです。<br>
+★ そして<strong>AdS（負の曲率）は我々の宇宙（正の宇宙定数）ではありません</strong> ── <em>この回で出た数値は、どれも現実の測定と比べられるものではない。</em><br>
+★★ <em>本稿が言えるのは「もし対応が正しいなら、余分な次元とは対数スケールの軸である」という<strong>言い換え</strong>だけ</em>です。第 38 回と同じく ── <strong>新しい予言は出ていません。</strong></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>05 節で「ウェーブレット平面と AdS の計量が同じ」と言った。これは偶然か。
+<details><summary>答えを見る</summary><div class="ans"><strong>偶然ではありません。</strong>どちらも<em>同じ対称性</em>から出ています ── 平行移動と拡大縮小（アフィン群）。<br>★ 双曲上半平面は<strong>アフィン群の等質空間</strong>そのもので、\(\mathrm{AdS}_2\) はその別名。<em>「スケール不変な理論」は自動的にこの幾何を持ちます。</em><br>★★ ただし<strong>「同じ計量だから同じ物理」ではありません</strong> ── ウェーブレット平面には<em>動力学（アインシュタイン方程式）がありません</em>。<strong>舞台の形が同じでも、舞台の上で何が起きるかは別の話です。</strong>第 29・30 回の作法どおり、<em>ここは「対称性が同じ」までにとどめます。</em></div></details></li>
+
+<li>03 節で「階数は平方根そのもの」と分かった。第 14 回の「整数から外れる理由」に何を足すか。
+<details><summary>答えを見る</summary><div class="ans">第 14 回の三つは ①多数の時定数の重ね合わせ（第 2 回）②次元（第 30 回）③臨界点での連続変化（第 13 回）でした。<br>★ 四つめは <strong>「バルクの質量」</strong>── \(\alpha=2\sqrt{d^2/4+m^2L^2}\)。<em>質量という<strong>連続に変えられる量</strong>が階数を連続に動かします。</em><br>★★ そして面白いのは ── <strong>これが ② と ③ を<em>両方</em>含んでいる</strong>ことです。\(d\) が入っているので次元の話でもあり、平方根の中身が符号を変えるので臨界の話でもある。<em>ホログラフィーは、階数が外れる理由を一本の式にまとめた形になっています。</em></div></details></li>
+
+<li>06 節でエントロピーが \(\varepsilon\) に依存した。これは理論の欠陥か。
+<details><summary>答えを見る</summary><div class="ans"><strong>欠陥ではなく、当たり前です。</strong>「どこまで細かく見るか」を決めないと自由度の数が決まらないから ── 第 22 回の<em>窓</em>と同じ話。<br>★ 物理的に意味があるのは<strong>差</strong>です ── \(S(\ell_2)-S(\ell_1)=\frac c3\ln(\ell_2/\ell_1)\) には \(\varepsilon\) が入りません。<em>第 7・15 回の「無次元量だけが物理」がここでも効いています。</em><br>★★ <strong>そしてこの「\(\varepsilon\) を含む項と含まない項」の分離が、くりこみそのもの</strong>です ── 07 節で見たとおり、くりこみ群は動径方向の運動でした。</div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　余分な次元は、対数スケールの軸だった</h2>
+<p>AdS のスカラー場が満たす \(\Delta=\frac d2\pm\sqrt{\frac{d^2}4+m^2L^2}\) は、<strong>第 13 回の \(s=\frac12\pm\sqrt{\frac14-\lambda}\) と同じ二次方程式</strong>です（\(d\to1,\ m^2L^2\to-\lambda\)）。<em>したがって BF 境界 \(m^2L^2=-d^2/4\) は、第 13 回の臨界 \(\lambda=1/4\) そのもの。</em></p>
+<p>波動方程式を<strong>実際に数値で解いて</strong>、境界の二点関数を測りました ── \(\ln|B/A|\) 対 \(\ln k\) の傾きは <strong>1.000000</strong>（予言 \(2\nu=1\)）、解析解 \(B/A=-k\) と 5 桁一致。<em>「奥から手前へ波を積分しただけ」で相関関数の冪が出ます。</em></p>
+<p style="text-align:center"><strong>★★★ 本回の要 ── バルクの質量が、境界の<em>階数</em>を決めている。<br>\(\alpha=2\sqrt{d^2/4+m^2L^2}\)<br>BF 境界はそれがゼロになる点（対数）で、その下では虚数になる。</strong></p>
+<p>実際、BF を越えた \(m^2L^2=-4.25\) では<strong>零点が \(\ln z\) で等間隔</strong>（間隔 6.283185、予言 \(\pi/|\nu|\) と \(1.7\times10^{-9}\) 一致、\(z\) の比 535.49）── <em>第 13 回のエフィモフ状態と同じ「対数周期」です。</em></p>
+<p>★★ そして ── <strong>ウェーブレット平面の計量 \((db^2+da^2)/a^2\) は、文字どおり AdS の計量でした。</strong>動径 \(z\) ＝ スケール \(a\) ＝ \(1/\omega\)。<em>スケール変換が等長変換になるので、対数スケールの軸に「距離」が入り、次元として振る舞える。</em>第 38 回の「電弱からプランクまで 17 桁」は、この軸では<strong>固有距離 39.14 \(L\)</strong> ── 階層問題が<em>長さ</em>になります。</p>
+<p>もつれのエントロピーは測地線長 \(2\ln(\ell/\varepsilon)\)（数値と \(10^{-11}\) 一致）── <strong>対数 ＝ 階数ゼロ</strong>で、第 2 回の 1/f と同じ場所です。自由度は \((L/\varepsilon)^{d-1}\) ── 第 6 回のホログラフィック限界の数え方。そして<strong>くりこみ群は、余分な次元では ただの移動</strong>でした（第 5 回）。</p>
+<p>★ <strong>正直に</strong>：対応そのものは仮定して使っただけで、検証していません。<em>AdS は我々の宇宙でもありません。</em>★ 本回もまた ── <strong>翻訳であって、新しい予言ではありません。</strong></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+第 36 回で、周期的に揺すられた波の<strong>フロケ乗数</strong>を見ました。\(\det M=1\) ── 面積が保存される。<br>
+★ <strong>次回は、その揺すり方に対して<em>半分の周期</em>で答える波の話です</strong> ── 時間結晶。<br>
+★★ 分数調波は第 23 回の非線形でも出ましたが、<em>今度は「破れる対称性が時間の並進」</em>。<strong>第 32 回で「対称性の破れには散逸が要る」と分かった話が、時間方向で繰り返されます。</strong>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 39 回です。計算は kenshou/horo.js で行っています。<strong>本回の数値について：</strong>AdS 波動方程式の数値解と \(B/A\) の測定、BF 違反時の零点間隔、測地線長、固有距離、計量の不変性の確認は、すべて本稿で計算したものです。<strong>AdS/CFT 対応、\(\Delta=\frac d2\pm\sqrt{\frac{d^2}4+m^2L^2}\)、ブライテンローナー＝フリードマン境界、\(\langle OO\rangle\propto k^{2\nu}\)、笠＝高柳公式によるもつれエントロピー \(\frac c3\ln(\ell/\varepsilon)\)、くりこみ群と動径方向の対応、そして上半平面がアフィン群の等質空間であることは、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、<em>これらを「階数」という一本の軸に載せ、第 13 回・第 22 回と同じものだと示したことだけ</em>です。<strong>新しい予言は出していません。</strong><em>とくに 05 節の「ウェーブレット平面 ＝ \(\mathrm{AdS}_2\)」は、計量と対称性が一致するという意味であり、ウェーブレット変換に重力の動力学があるという主張ではありません。</em>また 02 節の数値は \(\nu=1/2\) という<strong>整数でない</strong>場合に限った計算で、\(\nu\) が整数のときは対数項が現れて分解の仕方が変わります。AdS は負の宇宙定数を持つ時空で、我々の宇宙（正の宇宙定数）ではありません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
