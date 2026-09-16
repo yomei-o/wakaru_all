@@ -52,11 +52,12 @@
 
 ## 🌐 English editions（英語版）
 
-英語版を各シリーズごとに `*-en/` フォルダで公開しています。An English translation of every series is available.
+18 シリーズの英語版を `*-en/` フォルダで公開しています（「量子重力自由研究」「物理を簡単にする」は日本語のみ）。
 
 | Series | Read (published site) |
 |---|---|
 | **Thinking in Waves**（考える波）| [open](https://yomei-o.github.io/wakaru_all/kangaeru-nami-en/index.html) |
+| **c·t = const, That Clicks**（わかる c·t=一定）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ct-en/index.html) |
 | **Conformal Transformations That Click**（わかる共形変換）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kyokei-en/index.html) |
 | **Cosmology That Clicks**（わかる宇宙論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchuron-en/index.html) |
 | **Relativity That Clicks**（わかる相対論）| [open](https://yomei-o.github.io/wakaru_all/wakaru-soutai-en/index.html) |

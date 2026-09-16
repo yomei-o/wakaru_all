@@ -35,11 +35,34 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 **★ Map of the whole collection: [The Physics Cube](https://yomei-o.github.io/wakaru_all/butsuri-rittai-en.html)** ── take in every series at a glance along the three axes c · ℏ · G (and the fourth axis k_B — "Temperature That Clicks").
 
-(English folders: `wakaru-uchuron-en/` · `wakaru-soutai-en/` · `wakaru-ryoushi-en/` · `wakaru-ba-en/` · `wakaru-blackhole-en/` · `wakaru-kurikomi-en/` · `wakaru-ondo-en/` · `wakaru-surinuke-en/` · `wakaru-kussetsu-en/` · `butsuri-tsukuru-en/` · `wakaru-chikara-en/` · `wakaru-shitsuryo-en/` · `wakaru-uchu-keisanki-en/` · `wakaru-gakushuron-en/` · `wakaru-unix-en/`)
+(English folders: `kangaeru-nami-en/` · `wakaru-ct-en/` · `wakaru-kyokei-en/` · `wakaru-uchuron-en/` · `wakaru-soutai-en/` · `wakaru-ryoushi-en/` · `wakaru-ba-en/` · `wakaru-blackhole-en/` · `wakaru-kurikomi-en/` · `wakaru-ondo-en/` · `wakaru-surinuke-en/` · `wakaru-kussetsu-en/` · `butsuri-tsukuru-en/` · `wakaru-chikara-en/` · `wakaru-shitsuryo-en/` · `wakaru-uchu-keisanki-en/` · `wakaru-gakushuron-en/` · `wakaru-unix-en/`)
 
 ## 日本語版 (Japanese originals)
 
-The Japanese originals live in sibling folders and are listed in the [Japanese README](README.md). Quick links: [Conformal Transformations](https://yomei-o.github.io/wakaru_all/wakaru-kyokei/index.html) · [Fields](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) · [Relativity](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) · [Quantum](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) · [Renormalization](https://yomei-o.github.io/wakaru_all/wakaru-kurikomi/index.html) · [Temperature](https://yomei-o.github.io/wakaru_all/wakaru-ondo/index.html) · [Tunneling](https://yomei-o.github.io/wakaru_all/wakaru-surinuke/index.html) · [Refraction](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu/index.html) · [The Lattice We Build](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html) · [Cosmology](https://yomei-o.github.io/wakaru_all/wakaru/index.html) · [Force](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) · [Mass](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) · [Universe-as-Computer](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki/uchu-keisanki-index.html) · [Learning](https://yomei-o.github.io/wakaru_all/wakaru_learn/index.html) · [UNIX](https://yomei-o.github.io/wakaru_all/wakaru-unix/index.html).
+The Japanese originals live in sibling folders — all 20 series. The two marked *Japanese only* have no English edition yet.
+
+| Series | Read (published site) |
+|---|---|
+| **わかる共形変換**（Conformal Transformations That Click）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kyokei/index.html) |
+| **量子重力自由研究**（Quantum Gravity: A Free-Research Notebook — Japanese only）| [open](https://yomei-o.github.io/wakaru_all/ryoushi-juryoku/index.html) |
+| **わかる c·t=一定**（c·t = const, That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ct/index.html) |
+| **物理を簡単にする**（Making Physics Simpler — Japanese only）| [open](https://yomei-o.github.io/wakaru_all/butsuri-kantan/index.html) |
+| **考える波**（Thinking in Waves）| [open](https://yomei-o.github.io/wakaru_all/kangaeru-nami/index.html) |
+| **わかる場**（Fields That Click）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
+| **わかる相対論**（Relativity That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
+| **わかる量子**（Quantum That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ryoushi/index.html) |
+| **わかるブラックホール**（Black Holes That Click）| [open](https://yomei-o.github.io/wakaru_all/wakaru-blackhole/index.html) |
+| **わかる繰り込み**（Renormalization That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kurikomi/index.html) |
+| **わかる温度**（Temperature That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ondo/index.html) |
+| **わかるすり抜け**（Tunneling That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-surinuke/index.html) |
+| **わかる屈折**（Refraction That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kussetsu/index.html) |
+| **つくる格子**（The Lattice We Build）| [open](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html) |
+| **わかる宇宙論**（Cosmology That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru/index.html) |
+| **わかる力**（Force That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-chikara/index.html) |
+| **わかる質量**（Mass That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru_shitsuryo/index.html) |
+| **宇宙は計算機**（The Universe Is a Computer）| [open](https://yomei-o.github.io/wakaru_all/wakaru-uchu-keisanki/uchu-keisanki-index.html) |
+| **わかる学習論**（Learning That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru_learn/index.html) |
+| **わかるUNIXの歴史**（A History of UNIX That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-unix/index.html) |
 
 ## 🔧 *The Lattice We Build* — the one series with the stance reversed
 
