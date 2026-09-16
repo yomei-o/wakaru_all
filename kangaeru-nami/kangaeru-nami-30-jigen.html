@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>次元を動かすと、階数が半階ずつ動いた ── 3 次元だけが α=0 だった ｜ 考える波 第 30 回</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1a1c22; --ink-soft:#4a4e5a;
+    --paper:#f5f7fa; --paper-edge:#d7dee8;
+    --side:#17304f; --side-bg:#e9eef6;
+    --warn:#8a4b2f;
+    --calc:#132c48; --calc-bg:#e4ebf4;
+    --rule:#c9d4e2; --hair:#a8b8cc;
+    --acc:#1c3f63;
+    --grid:#dde5ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 30 回 ／ 第 XII 部・次元を動かす</span></p>
+<p class="eyebrow">方程式を一文字だけ変えてみる</p>
+
+<h1>次元を動かすと、階数が半階ずつ動いた ──<br>3 次元だけが \(\alpha=0\) だった
+<span class="sub">波動方程式で <strong>\(d\) の一文字だけ</strong>を動かします。すると ── <em>偶数次元では波が尾を引き、奇数次元では鋭く通り過ぎる。</em><br>★ <strong>尾の階数は \(\alpha=(d-3)/2\)</strong>。次元と階数は同じ梯子で、<strong>一次元がちょうど半階</strong>でした。<br>★★ そして第 26 回の仮説が、<em>真空の幾何という まったく別の分野で検証されます。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 2, 13, 26, 29 回</span><span>計算：kenshou/jigen.js</span></p>
+
+<p class="lead">第 29 回で「二階とは両方向のことだった」と分かりました。<strong>今回は方程式をほとんど変えません。</strong>球対称にすると、\(d\) はたった一か所にしか出てきません ── <em>係数 \((d-1)\) だけ。</em>これを動かします。</p>
+
+<div class="calc">
+<span class="tag">変えるのは一文字だけ</span>
+$$\frac{\partial^2u}{\partial t^2}=c^2\left(\frac{\partial^2u}{\partial r^2}+\frac{d-1}{r}\frac{\partial u}{\partial r}\right)$$
+</div>
+
+<h2><span class="n">01</span>厳密解を並べる ── 遅延グリーン関数</h2>
+
+<p>点源への応答は次元ごとに知られています。\(c=1\)、\(s=t-r\)（前面からの経過）と書きます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>グリーン関数</th><th>前面の後ろ</th><th>階数 \(\alpha\)</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">\(\tfrac12\theta(s)\)</td><td>★ 段差が永久に残る</td><td class="mid">−1</td></tr>
+<tr><th>2</th><td class="mid">\(\dfrac{1}{2\pi\sqrt{t^2-r^2}}\)</td><td>★ 尾を引く \(s^{-1/2}\)</td><td class="mid">−1/2</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>\(\dfrac{\delta(s)}{4\pi r}\)</strong></td><td><strong>★ 鋭い（尾なし）</strong></td><td class="mid"><strong>0</strong></td></tr>
+<tr><th>4</th><td class="mid">\(\propto\partial_t\big[\theta(s)/\sqrt{t^2-r^2}\big]\)</td><td>★ 尾を引く \(s^{-3/2}\)</td><td class="mid">+1/2</td></tr>
+<tr><th>5</th><td class="mid">\(\propto\delta'(s)/r^3+\delta(s)/r^2\)</td><td>鋭いが微分される</td><td class="mid">+1</td></tr>
+<tr><th>6</th><td class="mid">──</td><td>★ 尾を引く</td><td class="mid">+3/2</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>階数 \(\alpha\) の定義は <strong>\(G\propto D^\alpha\delta(s)\)</strong>（\(D=d/dt\)）。\(\delta\) そのものが \(\alpha=0\)、\(\theta(s)\) は \(\delta\) の積分だから \(-1\)、<em>\(s^{-1/2}\) は<strong>半階の積分</strong>（第 2 回のワールブルグと同じ形）で \(-1/2\)。</em></p>
+
+<div class="calc">
+<span class="tag">★ 右端の列を読むと</span>
+$$\boxed{\ \alpha=\frac{d-3}{2}\quad\Longleftrightarrow\quad d=2\alpha+3\ }$$
+</div>
+
+<h2><span class="n">02</span>前面の指数を数値で測る</h2>
+
+<p>\(G\propto s^\lambda\) とすると \(\lambda=-\alpha-1\) のはずです。厳密解から測ります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(s=t-r\)</th><th>\(G\)</th><th>測った \(\lambda\)</th><th>予言</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">\(10^{-6}\)</td><td class="mid">5.0000e−1</td><td class="mid">0.00000</td><td class="mid">0</td></tr>
+<tr class="hi"><th><strong>2</strong></th><td class="mid">\(10^{-6}\)</td><td class="mid">1.1254e+2</td><td class="mid"><strong>−0.50000</strong></td><td class="mid"><strong>−0.5</strong></td></tr>
+<tr><th>4</th><td class="mid">\(10^{-6}\)</td><td class="mid">3.5355e+8</td><td class="mid">−1.50000</td><td class="mid">−1.5</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0"><strong>\(\alpha=-\lambda-1\) に直すと \(-1,\ -1/2,\ +1/2\) ── \((d-3)/2\) と一致します。</strong><br>
+★ そして<strong>\(d=3\) だけは \(s^\lambda\) の形になりません</strong>（\(\delta\) そのもの、幅ゼロ）── <em>これがホイヘンスの原理です。</em></p>
+</div>
+
+<h2><span class="n">03</span>★ なぜ半階が出るのか ── 次元を一つ消すと半階になる</h2>
+
+<p>ここが本回の中心です。<strong>アダマールの降下法</strong> ── \(d\) 次元の解は、\(d+1\) 次元の解を一方向に積分したもの。2 次元の波は「3 次元で \(z\) 軸に一様に並べた線源」を見ているのと同じです。</p>
+
+<div class="calc">
+<span class="tag">降下法</span>
+$$G_2(r,t)=\int_{-\infty}^{\infty}G_3\!\left(\sqrt{r^2+z^2},\,t\right)dz$$
+<p class="lbl">\(G_3\) は<strong>鋭い \(\delta\)</strong> なのに、\(z\) で積分すると<strong>尾が出る</strong></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(r\)</th><th>\(t\)</th><th>降下法の積分</th><th>2 次元の厳密解</th><th>相対誤差</th></tr></thead>
+<tbody>
+<tr><th>1.0</th><td class="mid">2.0</td><td class="mid">0.09188888</td><td class="mid">0.09188815</td><td class="mid">8.0e−6</td></tr>
+<tr class="hi"><th><strong>1.0</strong></th><td class="mid">5.0</td><td class="mid"><strong>0.03248739</strong></td><td class="mid"><strong>0.03248737</strong></td><td class="mid"><strong>7.1e−7</strong></td></tr>
+<tr><th>2.0</th><td class="mid">6.0</td><td class="mid">0.02813490</td><td class="mid">0.02813488</td><td class="mid">5.9e−7</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>なぜ \(1/\sqrt{\ }\) なのか。<strong>\(z\) 軸上の各点からの「到着の遅れ」を数えます。</strong></p>
+
+<div class="calc">
+<span class="tag">遅れの分布</span>
+$$s(z)=\sqrt{r^2+z^2}-r\quad\Longrightarrow\quad z=\sqrt{s^2+2rs},\qquad \frac{dz}{ds}\xrightarrow[s\to0]{}\sqrt{\frac{r}{2s}}\propto s^{-1/2}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(s\)</th><th>\(dz/ds\)（数値）</th><th>\(\sqrt{r/2s}\)</th><th>比</th></tr></thead>
+<tbody>
+<tr><th>\(10^{-3}\)</th><td class="mid">22.377447</td><td class="mid">22.360680</td><td class="mid">1.000750</td></tr>
+<tr class="hi"><th><strong>\(10^{-5}\)</strong></th><td class="mid"><strong>223.608475</strong></td><td class="mid"><strong>223.606798</strong></td><td class="mid"><strong>1.000008</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ★★★ 第 26 回の仮説が、別分野で検証された</p>
+<p style="margin:6px 0 0"><strong>第 26 回【書き直した仮説】</strong>：分数階が現れるのは、粗視化した自由度が<em>スケール不変に（べき乗で）分布している</em>とき。</p>
+<p style="margin:10px 0 0">★ <strong>本回</strong>：消した自由度は「\(z\) 軸の直線」、その遅れの分布は \(s^{-1/2}\) のべき乗。<strong>出てきた階数はちょうど \(-1/2\)。</strong><em>仮説どおりです。</em><br>
+★ しかも第 26 回の反例（一様なばね鎖は整数階）とも矛盾しません ── <strong>\(z\) 軸は「空間として」は一様ですが、遅れに直すとべき乗になります。</strong><em>効くのは「何について一様か」。光円錐の幾何が、べき乗を作っていました。</em></p>
+</div>
+
+<h2><span class="n">04</span>★ 尾はどこから来るのか ── 階数が \(1/r^2\) ポテンシャルとして現れる</h2>
+
+<p>\(d\) を含む項は一つだけでした。<strong>それを消してみます。</strong></p>
+
+<div class="calc">
+<span class="tag">\(v=r^{(d-1)/2}u\) と置く</span>
+$$\frac{\partial^2v}{\partial t^2}=c^2\left(\frac{\partial^2v}{\partial r^2}-\frac{l(l+1)}{r^2}\,v\right),\qquad l=\frac{d-3}{2}$$
+<p class="lbl">一次元の波動方程式 ＋ \(1/r^2\) のポテンシャル。\(d\) は \(l\) にしか残りません</p>
+</div>
+
+<p>★★★ そして <strong>\(l=(d-3)/2\) は、01 節で出した階数 \(\alpha\) そのものです</strong> ── <em>\(\alpha=l\)。階数が、\(1/r^2\) ポテンシャルの強さとして現れました。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(l=\alpha\)</th><th>\(l(l+1)\)</th><th>第 13 回の \(\lambda=-l(l+1)\)</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>1</strong></th><td class="mid">−1</td><td class="mid">0</td><td class="mid">0</td><td><strong>★ ポテンシャルなし</strong></td></tr>
+<tr class="hi"><th><strong>2</strong></th><td class="mid">−1/2</td><td class="mid">−0.25</td><td class="mid"><strong>0.25</strong></td><td><strong>★★ 第 13 回の臨界 \(\lambda=1/4\) ちょうど</strong></td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">0</td><td class="mid">0</td><td class="mid">0</td><td><strong>★ ポテンシャルなし</strong></td></tr>
+<tr><th>4</th><td class="mid">+1/2</td><td class="mid">0.75</td><td class="mid">−0.75</td><td>斥力</td></tr>
+<tr><th>5</th><td class="mid">+1</td><td class="mid">2</td><td class="mid">−2</td><td>斥力</td></tr>
+<tr><th>7</th><td class="mid">+2</td><td class="mid">6</td><td class="mid">−6</td><td>斥力</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── ★★ 第 13 回に戻ってきた</p>
+<p style="margin:6px 0 0"><strong>\(d=1\) と \(d=3\) だけ、ポテンシャルがちょうど消えます。</strong>そこでは方程式は<em>ただの一次元の波動方程式</em> ── 尾が出ようがありません。</p>
+<p style="margin:10px 0 0">★★★ そして <strong>\(d=2\) は、第 13 回の臨界 \(1/r^2\) ちょうど</strong>です。<br>
+\(l(l+1)\) は \(l=-1/2\) で最小値 \(-1/4\) をとるので \(\lambda=-l(l+1)\le1/4\) ── <strong>どの次元も臨界を超えません。</strong>等号になるのは \(l=-1/2\)、つまり \(d=2\) だけ。<br>
+<em>第 13 回では \(\lambda&gt;1/4\) で指数が複素数になる（虚数階・エフィモフ）と書きました。</em>★ <strong>空間の次元からは、そこへは行けません ── \(d=2\) がぎりぎり端です。</strong></p>
+</div>
+
+<p>この形で数値を走らせます（吸収境界つき、\(r=10\) から外向きパルスを出して \(r=30\) で受ける）。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(l=\alpha\)</th><th>+2 秒/ピーク</th><th>+10 秒</th><th>+20 秒</th><th>尾の行方</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>1</strong></th><td class="mid">−1</td><td class="mid">3.7e−6</td><td class="mid">2.7e−13</td><td class="mid"><strong>5.1e−12</strong></td><td><strong>★★ 完全にゼロ</strong></td></tr>
+<tr><th>2</th><td class="mid">−1/2</td><td class="mid">8.7e−3</td><td class="mid">9.6e−3</td><td class="mid">1.2e−2</td><td>★ 残り続ける</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">0</td><td class="mid">3.7e−6</td><td class="mid">2.7e−13</td><td class="mid"><strong>5.1e−12</strong></td><td><strong>★★ 完全にゼロ</strong></td></tr>
+<tr><th>4</th><td class="mid">+1/2</td><td class="mid">2.5e−2</td><td class="mid">2.3e−2</td><td class="mid">1.3e−2</td><td>★ 残り続ける</td></tr>
+<tr><th>5</th><td class="mid">+1</td><td class="mid">6.6e−2</td><td class="mid">4.3e−2</td><td class="mid">2.2e−3</td><td>減っていく</td></tr>
+<tr><th>6</th><td class="mid">+3/2</td><td class="mid">1.2e−1</td><td class="mid">4.6e−2</td><td class="mid">1.2e−2</td><td>★ 残り続ける</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>\(d=1\) と \(d=3\) は \(10^{-13}\) ── 丸め誤差の水準。尾は本当にありません。</strong>それ以外は尾が出て、<em>偶数次元（\(l\) が半整数）では残り、奇数次元（\(l\) が整数）では減っていきます。</em></p>
+
+<div class="keybox">
+<p class="lbl">正直に書いておくこと</p>
+<p style="margin:6px 0 0"><strong>この 1 次元に落とした計算だけでは、ホイヘンスの原理の証明にはなりません。</strong>原点を吸収境界で置き換えているので、<em>「奇数次元で厳密にゼロ」を示せているのは \(d=1\) と \(d=3\) だけ</em>です。<br>
+★ <strong>\(d=5\) 以上の鋭さの根拠は、01〜02 節の厳密なグリーン関数のほうです。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★ なぜ 3 次元だけが特別なのか</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(\alpha=(d-3)/2\)</th><th>前面の後ろ</th><th>聞こえ方</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">−1</td><td>段差が永久に残る</td><td>鳴りっぱなし</td></tr>
+<tr><th>2</th><td class="mid">−1/2</td><td>\(s^{-1/2}\) の尾</td><td>池の波紋が消えない</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>0</strong></td><td><strong>★ \(\delta\) そのもの</strong></td><td><strong>★ 歪まず、通り過ぎたら終わり</strong></td></tr>
+<tr><th>4</th><td class="mid">+1/2</td><td>\(s^{-3/2}\) の尾</td><td>尾が出る</td></tr>
+<tr><th>5</th><td class="mid">+1</td><td>\(\delta'\)（微分される）</td><td>鋭いが波形が歪む</td></tr>
+<tr><th>7</th><td class="mid">+2</td><td>\(\delta''\)（二回 微分される）</td><td>鋭いがさらに歪む</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心</p>
+<p style="margin:6px 0 0">鋭い（尾がない）のは<strong>奇数次元の \(d\ge3\) だけ</strong>。<em>しかし奇数でも \(d\ge5\) では \(\alpha\ge1\) ── 波形が微分されて歪みます。</em></p>
+<p style="margin:10px 0 0;text-align:center;font-size:18px">★★★ <strong>\(\alpha=0\) ちょうどになる次元は \(d=3\) しかありません。</strong></p>
+<p style="margin:10px 0 0">★ つまり <strong>3 次元は「波が歪まずに届き、しかも通り過ぎたら消える」唯一の次元</strong>です。<em>会話ができるのも、音楽が濁らないのも、これが理由。2 次元なら、話すたびに部屋に音が溜まり続けます。</em></p>
+</div>
+
+<h2><span class="n">06</span>★ 第 29 回で学んだ作法 ── この \(\alpha\) は、あの \(\alpha\) と同じか</h2>
+
+<p>第 29 回で「第 15 回は二つの \(\alpha\) を混ぜていた」と訂正しました。<strong>だから本回も自分で点検します。</strong>気になる一致があります ── 第 29 回の受動性の帯は \(\beta\in[-1,+1]\)（幅 2）、本回の \(\alpha=(d-3)/2\) が \([-1,+1]\) に入るのは \(1\le d\le5\)。<em>同じ幅 2 の帯です。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(d\)</th><th>\(\alpha\)</th><th>\(\cos(\alpha\pi/2)\)</th><th>受動性の判定</th><th>実際はどうか</th></tr></thead>
+<tbody>
+<tr><th>3</th><td class="mid">0</td><td class="mid">1.00000</td><td class="mid">受動</td><td>──</td></tr>
+<tr><th>5</th><td class="mid">+1</td><td class="mid">0.00000</td><td class="mid">受動（境界）</td><td>──</td></tr>
+<tr class="hi"><th><strong>7</strong></th><td class="mid">+2</td><td class="mid">−1.00000</td><td class="mid"><strong>★ 能動 ＝ 禁止？</strong></td><td><strong>★ でも 7 次元の自由場は何も湧かせない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心 ── ★★ 却下します</p>
+<p style="margin:6px 0 0"><strong>これは意味のある一致ではありません。</strong><br>
+受動性 \(\operatorname{Re}Z\ge0\) は<em>「媒質が持つインピーダンス」</em>についての条件です。一方 \(\alpha=(d-3)/2\) は<em>「何もない空間の幾何」</em>から出る指数で、<strong>そもそも散逸する相手がいません。</strong>7 次元の自由場は歪むだけで、エネルギーを湧かせたりしません。<br>
+★ 幅 2 が両方に出たのは、<em>どちらも「\(\delta\) から \(\pm1\) 階ぶん」という同じ数え方をしているから</em>で、<strong>同じ制約から来たのではありません。</strong><br>
+── ★★ <em>第 29 回で覚えた作法を、さっそく自分に使いました。同じ数字を見たら、まず「何で割ったか」を確かめる。</em></p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>2 次元で暮らすと、会話はどうなるか。\(\alpha=-1/2\) から言え。
+<details><summary>答えを見る</summary><div class="ans"><strong>音が消えず、溜まり続けます。</strong>\(G_2\propto1/\sqrt{t^2-r^2}\) は前面のあとも \(t^{-1}\) 程度でしか減らないので、<em>ひとこと話すたびに残響が残る。</em><br>しかも尾は \(s^{-1/2}\) の<strong>半階の積分</strong> ── 第 2 回のワールブルグと同じ形です。★ <strong>2 次元の部屋は「半階のフィルタ」として鳴ります。</strong><br>★ 実際、水面波（2 次元）の波紋が長く残るのはこれです。<em>ただし水面波は分散もあるので、原因は一つではありません。</em></div></details></li>
+
+<li>\(\alpha=(d-3)/2\) を逆に解くと \(d=2\alpha+3\)。半階（\(\alpha=1/2\)）に対応する次元は 4 だが、\(\alpha=-1/2\) に対応する次元は 2。第 2 回のワールブルグはどちらか。
+<details><summary>答えを見る</summary><div class="ans"><strong>どちらでもありません。</strong>ワールブルグの \(-1/2\) は<em>半無限拡散</em>から来ていて、空間次元とは別の由来です。<br>★ <strong>これが本回 06 節と同じ注意です</strong> ── 同じ \(-1/2\) でも、出どころが「拡散の \(\sqrt t\)」か「光円錐の幾何」かで別物。<em>数値が同じことは、同じ原因の証拠になりません。</em><br>★ ただし<strong>構造は同じ</strong>です：どちらも「べき乗で分布した自由度を消した」結果（第 26 回）。<em>原因は違うが、仕組みは同じ ── ここが本回の収穫です。</em></div></details></li>
+
+<li>\(d=2\) が第 13 回の臨界ちょうどだと分かった。では虚数階（\(\lambda&gt;1/4\)）に対応する「次元」はあるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>ありません。</strong>\(\lambda=-l(l+1)\) で \(l(l+1)\) は \(l=-1/2\) で最小値 \(-1/4\) をとるので、\(\lambda\le1/4\) が常に成り立ちます。<em>等号は \(l=-1/2\)、つまり \(d=2\) のみ。</em><br>★ <strong>空間の次元を実数まで許しても、臨界を超えることはできません。</strong><br>★ 第 13 回でエフィモフ状態が \(\lambda&gt;1/4\) に住んでいたのは、<em>あちらのポテンシャルが幾何ではなく粒子間の引力だったから</em>です。<strong>同じ \(1/r^2\) でも、幾何が作るものには上限があった。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　次元と階数は、同じ一本の梯子だった</h2>
+<p>波動方程式の <strong>\(d\) の一文字だけ</strong>を動かしました。</p>
+<p><strong>★ 尾の階数は \(\alpha=(d-3)/2\)</strong>。前面の指数を厳密解から測ると \(d=1,2,4\) で \(\lambda=0,\ -1/2,\ -3/2\) ── <em>予言 \(\lambda=-\alpha-1\) とぴったり。</em>\(d=3\) だけは \(s^\lambda\) の形にならず \(\delta\) そのもの（ホイヘンスの原理）。</p>
+<p>★★ <strong>半階の正体はアダマールの降下法でした。</strong>\(G_2=\int G_3\,dz\) が厳密解と \(10^{-7}\) で一致し、<em>\(z\) 軸上の点からの遅れの分布が \(dz/ds=\sqrt{r/2s}\propto s^{-1/2}\)</em> ── <strong>消した自由度がべき乗で分布していた。</strong></p>
+<p>★★★ <strong>これは第 26 回の仮説の、独立な検証です。</strong>電気化学でも粘弾性でもなく<em>真空の幾何</em>から、同じ半階が出ました。しかも第 26 回の反例（一様なばね鎖）とも矛盾しません ── <strong>\(z\) 軸は空間としては一様でも、遅れに直すとべき乗になる。効くのは「何について一様か」でした。</strong></p>
+<p>★ 尾の原因も分かりました。\(v=r^{(d-1)/2}u\) と置くと<strong>一次元の波動方程式 ＋ \(l(l+1)/r^2\) のポテンシャル</strong>になり、<em>\(l=\alpha\)</em> ── <strong>階数がポテンシャルの強さとして現れます。</strong>\(d=1\) と \(d=3\) ではこれがちょうど消え（数値でも \(10^{-13}\)）、★★ <strong>\(d=2\) は第 13 回の臨界 \(\lambda=1/4\) ちょうど</strong>。<em>そしてどの次元も臨界を超えません（\(l(l+1)\ge-1/4\)）。</em></p>
+<p style="text-align:center"><strong>★ \(\alpha=0\)（歪まず、残らない）になるのは \(d=3\) だけ。<br>3 次元は「波が歪まずに届き、通り過ぎたら消える」唯一の次元でした。</strong></p>
+<p>最後に、第 29 回で覚えた作法を自分に使いました ── <strong>受動性の帯（幅 2）と本回の帯（幅 2）の一致は偶然です。</strong><em>自由場に散逸する相手はいないので、別の物。同じ数字を見たら、まず「何で割ったか」を確かめる。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+ここまでずっと<strong>アナログ ── ラプラス変換と \(s\) 平面</strong>で考えてきました。<br>
+★ <strong>次回はデジタルに移します</strong> ── \(z\) 変換と単位円。微分 \(D\) は \((1-z^{-1})/T\) になり、\(D^\alpha=(1-z^{-1})^\alpha\) は<em>グリュンワルト＝レトニコフの分数階微分そのもの</em>。<br>
+★★ そして本回と直結します ── <strong>尾がない＝FIR、尾がある＝IIR。「奇数次元は FIR、偶数次元は IIR」</strong>だったのです。
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 30 回です。計算は kenshou/jigen.js で行っています。<strong>本回の数値について：</strong>前面の指数の測定、降下法の積分、遅れの分布、1 次元に落とした波の数値解は、すべて本稿で計算したものです。<strong>各次元の遅延グリーン関数、ホイヘンスの原理（奇数次元 \(d\ge3\) で強い形が成り立つこと）、アダマールの降下法、\(v=r^{(d-1)/2}u\) による \(1/r^2\) ポテンシャルへの帰着は、いずれもよく知られた結果で本稿の発見ではありません</strong> ── 本稿がしたのは、これらを<em>階数 \(\alpha\) という一本の軸に載せ、\(\alpha=(d-3)/2\) と \(\alpha=l\) を明示し、第 26 回の仮説の検証に使ったこと</em>です。<em>04 節の数値実験は原点を吸収境界で置き換えているため、ホイヘンスの原理の数値的証明にはなっていません（厳密にゼロを示せたのは \(d=1,3\) のみ）。</em>\(d=6\) のグリーン関数は表に形を書いていません（階数のみ）。「2 次元では音が溜まる」は \(G_2\) の形から述べた定性的な帰結で、実在の 2 次元系（水面波など）は分散も効くため本稿の計算だけでは説明できません。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+</body>
+</html>
