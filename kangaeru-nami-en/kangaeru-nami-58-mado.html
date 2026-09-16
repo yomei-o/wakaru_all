@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is outside the window leaks in — the smoothness of the cut sets the price</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1b1a22; --ink-soft:#4c4a5a;
+    --paper:#f8f7fb; --paper-edge:#e0dee9;
+    --side:#3e3466; --side-bg:#eeecf5;
+    --warn:#8a4b2f;
+    --calc:#332b56; --calc-bg:#eae7f3;
+    --rule:#d4d0e2; --hair:#b6b1cc;
+    --acc:#3e3466;
+    --grid:#e4e1ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 58 / Part XIX — Back to Physics, with the Tools</span></p>
+<p class="eyebrow">Window sidelobes and particle creation are the same formula</p>
+
+<h1>What is outside the window leaks in ──<br><strong>the smoothness of the cut</strong> sets the price
+<span class="sub">How fast a window’s sidelobes fall is set by <strong>how many derivatives vanish at its ends</strong>, and that is <em>exactly this series’ order \(\alpha\)</em> ── <strong>dB/oct \(=-6\alpha\)</strong>.<br>★ That \(\alpha\) sets <strong>the ceiling on the \(\beta\) you can measure</strong> (ceiling \(=2\alpha\): 2 for a rectangular window, 6 for Hann).<br>★★★ And <em>the same rule governs Episode 45’s Bogoliubov coefficient</em> ── <strong>spectral leakage and particle creation are the same calculation.</strong></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 1, 40, 45, 51, 57</span><span>Computation: kenshou/mado.js</span></p>
+
+<p class="lead">Episode 57 concluded that <strong>an edge is set by its leading correction term.</strong> <em>★ Now we turn it around ── <strong>what does a window’s edge bring inside?</strong></em></p>
+
+<h2><span class="n">01</span>Sidelobes are set by how smooth the edge is</h2>
+
+<p>Take \(w_p(x)=\cos^p(\pi x)\) on \(x\in[-\tfrac12,\tfrac12]\) ── <em>a window that vanishes to order \(p\) at its ends.</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\)</th><th>window</th><th>measured dB/oct</th><th>predicted \(-6(p{+}1)\)</th><th>\(\alpha=p{+}1\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong></th><td><strong>rectangular</strong></td><td class="mid"><strong>−5.934</strong></td><td class="mid"><strong>−6.021</strong></td><td class="mid"><strong>1</strong></td></tr>
+<tr><th>1</th><td>cosine</td><td class="mid">−11.990</td><td class="mid">−12.041</td><td class="mid">2</td></tr>
+<tr class="hi"><th><strong>2</strong></th><td><strong>Hann</strong></td><td class="mid"><strong>−17.876</strong></td><td class="mid"><strong>−18.062</strong></td><td class="mid"><strong>3</strong></td></tr>
+<tr><th>3</th><td>\(\cos^3\)</td><td class="mid">−23.985</td><td class="mid">−24.082</td><td class="mid">4</td></tr>
+<tr><th>4</th><td>\(\cos^4\)</td><td class="mid">−29.873</td><td class="mid">−30.103</td><td class="mid">5</td></tr>
+<tr><th>5</th><td>\(\cos^5\)</td><td class="mid">−36.097</td><td class="mid">−36.124</td><td class="mid">6</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §01</p>
+<p style="margin:6px 0 0;text-align:center;font-size:18px"><strong>dB/oct \(=-6\alpha\), with \(\alpha=\) how many derivatives vanish at the edge</strong></p>
+<p style="margin:10px 0 0">★★★ <strong>Episode 1’s yardstick applies to window sidelobes unchanged.</strong> <em>There \(\alpha\) was “how many times differentiated”; here it is “how smooth the cut is.”</em><br>
+★ <em>It is also the window-side face of Episode 57’s \(n\)</em> ── <strong>whichever way you look at an edge, its character collapses onto a single number.</strong></p>
+</div>
+
+<h2><span class="n">02</span>The common windows on the same yardstick</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>window</th><th>value at the edge</th><th>measured dB/oct</th><th>\(\alpha\)</th><th>first sidelobe</th></tr></thead>
+<tbody>
+<tr><th>rectangular</th><td class="mid">1.0000</td><td class="mid">−5.934</td><td class="mid">0.99</td><td class="mid">−13.3 dB</td></tr>
+<tr><th>Bartlett</th><td class="mid">0.0000</td><td class="mid">−11.685</td><td class="mid">1.94</td><td class="mid">−26.5 dB</td></tr>
+<tr class="hi"><th><strong>Hann</strong></th><td class="mid"><strong>0.0000</strong></td><td class="mid"><strong>−17.880</strong></td><td class="mid"><strong>2.97</strong></td><td class="mid"><strong>−31.5 dB</strong></td></tr>
+<tr class="hi"><th><strong>Hamming</strong></th><td class="mid"><strong>0.0800</strong></td><td class="mid"><strong>−5.840</strong></td><td class="mid"><strong>0.97</strong></td><td class="mid"><strong>−42.7 dB</strong></td></tr>
+<tr><th>Blackman</th><td class="mid">0.0000</td><td class="mid">−17.789</td><td class="mid">2.95</td><td class="mid">−58.1 dB</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §02 ── Hamming’s two faces</p>
+<p style="margin:6px 0 0">★★ <strong>Hamming’s first sidelobe is 11 dB below Hann’s (−42.7 against −31.5), yet its sidelobes fall like a rectangular window’s, \(\alpha\approx1\).</strong> <em>Because 0.08 is left at the edge.</em><br>
+★★★ <strong>“Low first sidelobe” and “falls far” are different things.</strong> <em>The near field is set by tuning coefficients; the far field is set by edge smoothness alone</em> ── <strong>exactly Episode 57’s division of labour, where \(A\) moves the intercept and \(n\) the slope.</strong></p>
+</div>
+
+<h2><span class="n">03</span>The leakage floor ── what a strong low tone leaves up high</h2>
+
+<p>A single tone at \(f_0=4.3\) bins (off the grid). What is left at high frequency (dB relative to the peak)?</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>window</th><th>\(f=16\)</th><th>\(f=64\)</th><th>\(f=256\)</th><th>\(f=512\)</th><th>slope dB/oct</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>rectangular</strong></th><td class="mid">−33.1</td><td class="mid">−47.3</td><td class="mid">−59.7</td><td class="mid">−65.7</td><td class="mid"><strong>−6.47</strong></td></tr>
+<tr><th>cosine</th><td class="mid">−59.4</td><td class="mid">−87.7</td><td class="mid">−112.7</td><td class="mid">−125.1</td><td class="mid">−13.05</td></tr>
+<tr class="hi"><th><strong>Hann</strong></th><td class="mid">−75.8</td><td class="mid">−118.3</td><td class="mid">−155.8</td><td class="mid">−174.1</td><td class="mid"><strong>−19.51</strong></td></tr>
+<tr><th>\(\cos^3\)</th><td class="mid">−94.9</td><td class="mid">−151.7</td><td class="mid">−201.7</td><td class="mid">−226.1</td><td class="mid">−26.03</td></tr>
+<tr><th>\(\cos^4\)</th><td class="mid">−106.2</td><td class="mid">−177.3</td><td class="mid">−239.8</td><td class="mid">−270.2</td><td class="mid">−32.55</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>The leakage floor falls at \(-6\alpha\) dB/oct too</strong> ── <em>the same quantity as §01, because the window’s sidelobes become the measurement’s floor.</em></p>
+
+<h2><span class="n">04</span>★★★ There is a ceiling on the \(\beta\) you can measure ── \(2\alpha\)</h2>
+
+<p>If the true spectrum is \(S\propto f^{-\beta}\), what you measure is \(S(f)+\)(leakage from low frequency). <strong>The leakage goes as \(f^{-2\alpha}\) in power, so for \(\beta>2\alpha\) it overtakes the signal.</strong></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>rect (\(\alpha{=}1\))</th><th>cosine (2)</th><th>Hann (3)</th><th>\(\cos^4\) (5)</th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.994</td><td class="mid">0.978</td><td class="mid">0.979</td><td class="mid">0.979</td></tr>
+<tr><th>2</th><td class="mid">2.002</td><td class="mid">1.979</td><td class="mid">1.979</td><td class="mid">1.979</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid"><strong>1.986</strong></td><td class="mid">3.099</td><td class="mid">2.980</td><td class="mid">2.979</td></tr>
+<tr><th>4</th><td class="mid">1.981</td><td class="mid">4.020</td><td class="mid">3.983</td><td class="mid">3.979</td></tr>
+<tr><th>5</th><td class="mid">1.981</td><td class="mid">4.021</td><td class="mid">5.521</td><td class="mid">4.980</td></tr>
+<tr class="hi"><th><strong>6</strong></th><td class="mid"><strong>1.981</strong></td><td class="mid"><strong>4.021</strong></td><td class="mid"><strong>5.998</strong></td><td class="mid">5.988</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>The ceiling it sticks to is exactly \(2\alpha\)</strong> ── rectangular 2.0 (measured 1.981), cosine 4.0 (4.021), Hann 6.0 (5.998).</p>
+
+<p>★★ <em>But the ceiling is not a cliff.</em> Sweeping \(\beta\) finely with a Hann window (\(\alpha=3\), ceiling 6):</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>true \(\beta\)</th><th>3</th><th>4</th><th>4.5</th><th>5</th><th>5.5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+<tbody>
+<tr><th>estimate</th><td class="mid">2.967</td><td class="mid">3.968</td><td class="mid">4.567</td><td class="mid"><strong>5.605</strong></td><td class="mid"><strong>6.000</strong></td><td class="mid">5.999</td><td class="mid">6.000</td><td class="mid">6.000</td></tr>
+<tr><th>difference</th><td class="mid">−0.03</td><td class="mid">−0.03</td><td class="mid">+0.07</td><td class="mid"><strong>+0.61</strong></td><td class="mid"><strong>+0.50</strong></td><td class="mid">0.00</td><td class="mid">−1.00</td><td class="mid">−2.00</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §04 ── an overshoot just below the ceiling</p>
+<p style="margin:6px 0 0">★★★ <strong>As \(\beta\) approaches \(2\alpha\) the estimate first <em>overshoots</em> (\(+0.61\) at \(\beta=5\)), then sticks to \(2\alpha\).</strong><br>
+★ <em>Why: the leakage floor \(f^{-2\alpha}\) is <strong>steeper</strong> than the signal \(f^{-\beta}\), so it lifts only the low-frequency side of the fitting band and makes the slope look steeper.</em><br>
+★★ <strong>So “\(\beta<2\alpha\)” is a rule of thumb; in practice leave a margin of about 1</strong> ── <em>with Hann, \(\beta\lesssim5\) is the safe zone.</em><br>
+★ <strong>Episode 40 needed to cut at an integer number of periods precisely to dodge the rectangular window’s \(\alpha=1\) (ceiling \(\beta=2\)).</strong></p>
+</div>
+
+<h2><span class="n">05</span>★★★ The same rule governs Episode 45’s particle creation</h2>
+
+<div class="calc">
+<span class="tag">The mode equation</span>
+$$\chi''+\omega^2(t)\chi=0,\qquad \omega:\ \omega_1\to\omega_2\ \text{switched over a time}\ T$$
+</div>
+
+<p>What if the switching profile \(f(x)\) is smooth to order \(p\) at its ends?</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(p\) (edge smoothness)</th><th>\(T=8\)</th><th>\(T=16\)</th><th>\(T=64\)</th><th>★ slope</th><th>predicted \(-(p{+}1)\)</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0</strong> (linear ramp)</th><td class="mid">2.77e−2</td><td class="mid">1.82e−2</td><td class="mid">4.83e−3</td><td class="mid"><strong>−1.060</strong></td><td class="mid"><strong>−1</strong></td></tr>
+<tr><th>1</th><td class="mid">1.46e−2</td><td class="mid">2.88e−3</td><td class="mid">1.63e−4</td><td class="mid">−1.984</td><td class="mid">−2</td></tr>
+<tr><th>2</th><td class="mid">1.06e−2</td><td class="mid">9.79e−4</td><td class="mid">1.51e−5</td><td class="mid">−3.025</td><td class="mid">−3</td></tr>
+<tr class="hi"><th><strong>3</strong></th><td class="mid">1.28e−2</td><td class="mid">3.70e−4</td><td class="mid">1.52e−6</td><td class="mid"><strong>−3.962</strong></td><td class="mid"><strong>−4</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §05 ── the two are one thing</p>
+<p style="margin:6px 0 0">★★★ <strong>\(|\beta|\propto T^{-(p+1)}\) ── exactly the rule for window sidelobes.</strong> <em>The smoother the switch at its ends, the fewer particles are made.</em><br>
+★ <em>\(|\alpha|^2-|\beta|^2=1\) holds to 8.3e−14</em> (Episodes 36 and 45’s \(\det=1\)).<br>
+★★ <strong>Why they are the same</strong>: <em>\(\beta\) is the Fourier component of \(d\omega/dt\) at frequency \(2\omega\), so the smoothness of the switch’s edges sets how fast it falls</em> ── <strong>the very same integral that sets a window’s sidelobes.</strong><br>
+★★★ <em>Episode 45’s “the vacuum depends on the observer” turns out to be <strong>the physics-side phrasing of “what is outside the window leaks in.”</strong></em></p>
+</div>
+
+<h2><span class="n">06</span>Four faces side by side</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>setting</th><th>what the “edge” is</th><th>its effect</th><th>what \(\alpha\) means</th></tr></thead>
+<tbody>
+<tr><th>window functions (Ep. 40)</th><td>the window’s ends</td><td class="mid">sidelobes \(f^{-\alpha}\)</td><td>edge smoothness</td></tr>
+<tr class="hi"><th><strong>periodogram (Ep. 51)</strong></th><td><strong>the record’s ends</strong></td><td class="mid"><strong>the leakage floor</strong></td><td><strong>ceiling \(\beta=2\alpha\)</strong></td></tr>
+<tr class="hi"><th><strong>particle creation (Ep. 45)</strong></th><td><strong>before and after the switch</strong></td><td class="mid"><strong>\(|\beta|\propto T^{-\alpha}\)</strong></td><td><strong>switch smoothness</strong></td></tr>
+<tr><th>superposition (Ep. 56)</th><td>the ends of \(\tau\)</td><td class="mid">decades lost</td><td>the correction’s power</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>All four are the price of having cut something off at a finite point, and the size of that price is set by the smoothness of the cut alone.</strong></p>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>Is the Hamming window a bad window?
+<details><summary>Show answer</summary><div class="ans"><strong>It depends on the job ── it is bad only far away.</strong><br>★ <strong>Excellent up close</strong>: its first sidelobe is −42.7 dB, 11 dB below Hann’s −31.5. <em>For separating two closely spaced lines, Hamming is the better choice.</em><br>★★ <strong>Among the worst far away</strong>: its sidelobes fall with \(\alpha\approx1\), no better than a rectangular window. <em>For a steep continuous spectrum (§04) its ceiling is \(\beta=2\).</em><br>★★★ <strong>So for “separating lines” and “measuring a continuum’s slope,” the preferred window is reversed.</strong> <em>To add to Episode 49’s handbook: <strong>decide what you are measuring before you choose a window.</strong></em></div></details></li>
+
+<li>§04 found an overshoot below the ceiling. Which of Episode 51’s two errors is it?
+<details><summary>Show answer</summary><div class="ans"><strong>Systematic (a bias) ── not statistical.</strong> Averaging 32 realizations leaves 5.521 unmoved; more samples will not remove it.<br>★ <em>This is exactly the systematic side of Episode 51’s “split the error into statistical and systematic.”</em> <strong>And its sign is fixed (always towards steeper), which makes it worse.</strong><br>★★ <strong>How to spot it</strong>: <em>if the estimate moves when you change the window, the window is the cause.</em> Reading the \(\beta=5\) row of §04 across gives cosine 4.021, Hann 5.521, \(\cos^4\) 4.980 ── <strong>all different</strong>, <em>which is the evidence that the window is to blame.</em><br>★★★ <strong>A step worth adding to the handbook: measure the same data with two or more windows; if they disagree, you are touching the ceiling.</strong></div></details></li>
+
+<li>§05 concludes that a smooth switch makes no particles. How does that bear on cosmology?
+<details><summary>Show answer</summary><div class="ans"><strong>It bears on how inflation ends (Episode 47).</strong> A sharp transition from inflation to radiation domination makes particles in quantity (preheating); a smooth one does not.<br>★ <em>In §05’s language ── <strong>the yield is set by the order of the transition.</strong></em><br>★★ <strong>But this episode computed a simple monotone switch \(\omega_1=1\to\omega_2=2\), while in the real universe \(\omega\) oscillates</strong> (parametric resonance ── Episode 40’s Floquet). <em>With resonance the story changes: even a smooth switch can grow exponentially.</em><br>★★★ <strong>So this conclusion applies only in the absence of resonance</strong> ── <em>in Episode 55’s classification, a value conditional on a model. It should be written that way.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — leakage and particle creation are the same calculation</h2>
+<p>Turning Episode 57’s “an edge is its leading correction term” around, we measured <strong>what a window’s edge brings inside.</strong></p>
+<p style="text-align:center"><strong>★★★ Window sidelobes ── dB/oct \(=-6\alpha\),<br>with \(\alpha=\) how many derivatives vanish at the edge.</strong></p>
+<p>★ <strong>Episode 1’s yardstick works on the smoothness of a cut, unchanged.</strong> <em>Rectangular \(\alpha=1\), Bartlett 2, Hann 3, \(\cos^p\) gives \(p+1\) ── measured within 0.2 dB of prediction.</em></p>
+<p>★★ <strong>Hamming’s first sidelobe is 11 dB below Hann’s, yet its sidelobes fall like a rectangular window’s</strong> (0.08 is left at the edge). <em>“Low first sidelobe” and “falls far” are different things ── the same division of labour as Episode 57’s “\(A\) sets the intercept, \(n\) the slope.”</em></p>
+<p>★★★ <strong>There is a ceiling on the measurable \(\beta\), and it is exactly \(2\alpha\)</strong> ── <em>rectangular 2.0, cosine 4.0, Hann 6.0 (measured 1.981 / 4.021 / 5.998).</em> ★ <strong>But it is not a cliff: the estimate overshoots below it</strong> (\(+0.61\) at \(\beta=5\) with Hann). <em>Leave a margin of about 1 in practice; this is a fixed-sign systematic error, not statistical scatter.</em> <strong>Episode 40 had to cut at an integer number of periods precisely to avoid the rectangular ceiling \(\beta=2\).</strong></p>
+<p>★★★ <strong>And the same rule governs Episode 45’s particle creation</strong> ── <em>a switch smooth to order \(p\) at its ends gives \(|\beta|\propto T^{-(p+1)}\) (measured −1.06 / −1.98 / −3.03 / −3.96).</em> <strong>Because \(\beta\) is the Fourier component of \(d\omega/dt\), it is literally the same integral that sets a window’s sidelobes.</strong> <em>Episode 45’s “the vacuum depends on the observer” was the physics-side phrasing of “what is outside the window leaks in.”</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+§04 produced a <strong>systematic error with a fixed sign</strong> ── <em>change the window and the value moves.</em><br>
+★ <strong>Next we exploit that</strong> ── <em>measure with many different windows and infer the true value from how the estimate moves.</em><br>
+★★ <strong>Episode 51’s split of the errors, Episode 55’s “count the assumptions,” and this episode’s \(\alpha\)</strong> ── <em>together they should make a procedure for measuring the systematic error itself.</em>
+</div>
+
+<p class="foot">This document is Episode 58 of the “Thinking in Waves” series. The computations are in kenshou/mado.js (own FFT, own RK4, zero dependencies). <strong>On the numbers in this episode:</strong> the window sidelobe slopes in dB/oct, the \(\alpha\) and first sidelobe of the named windows, the leakage floor, the \(\beta\) estimates and their ceiling, and the \(T\) dependence of the Bogoliubov coefficient are all computed here. <strong>That a window’s sidelobe decay follows from the order of its endpoint discontinuity, that Hamming trades far-field decay for a lower first sidelobe, and that a sudden switch creates particles are all well-known results and are not discoveries of this episode</strong> ── what this episode did was <em>unify them under Episode 1’s yardstick “dB/oct \(=-6\alpha\),” show numerically that the measurable \(\beta\) has a ceiling at \(2\alpha\), and verify on the same yardstick that window sidelobes and particle creation obey the same power law.</em> <em>The §04 estimates use 4096 points averaged over 32 realizations, fitted over \(k=32\)–512; changing the band or the length changes the size of the overshoot. That the estimate reads 0.98 even at \(\beta=1\) is the finite-band fitting bias of Episode 51.</em> §05 is limited to a monotone switch \(\omega_1=1\to\omega_2=2\) and <strong>does not apply when there is parametric resonance</strong> (in Episode 55’s classification, a value conditional on a model). <strong>This episode also uses synthetic data only, and has not been applied to real measurements.</strong> ── To print, use your browser’s Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). “Show answer” opens the solutions.</p>
+</body>
+</html>
