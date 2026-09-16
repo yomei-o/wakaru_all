@@ -40,16 +40,6 @@
 
 （フォルダ名：`kangaeru-nami/`・`ryoushi-juryoku/`・`wakaru-ct/`・`butsuri-kantan/`・`wakaru-kyokei/`・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
-## 🔧 「つくる格子」だけは、立場が逆
-
-上の表で1本だけ「わかる」ではなく**つくる**なのが「つくる格子」です。「わかる」が**既知の物理を解説する**のに対し、こちらは空白に対して**道具を作り、走らせ、出た結果をそのまま読む**。作る道具が**格子**です ── 時空を格子にすると何が壊れるのか、そして平坦な格子のままなら何がそっくり回るのか。うまくいかなかった回も、**自分が間違えた回も**、そのまま載せます。主役は結論ではなく、作業のほうです。
-
-背骨は一文 ── **物理を作るとは、予想することではなく、予想が死ぬ条件を先に作ることである。**
-
-各話に**動く図**つき。検算コードは純 C++／純 Python・依存なし（[kuuhaku_cpp](https://github.com/yomei-o/kuuhaku_cpp)）。
-
-**負の結果は負のまま、訂正は隠さず載せています** ── 訂正バナー＋台帳を各話に付けています。方針は「良くなったから開いてよかった」ではなく「向きが読めないから開く」です。
-
 ## 🌐 English editions（英語版）
 
 18 シリーズの英語版を `*-en/` フォルダで公開しています（「量子重力自由研究」「物理を簡単にする」は日本語のみ）。

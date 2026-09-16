@@ -37,18 +37,6 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 (English folders: `kangaeru-nami-en/` · `wakaru-ct-en/` · `wakaru-kyokei-en/` · `wakaru-uchuron-en/` · `wakaru-soutai-en/` · `wakaru-ryoushi-en/` · `wakaru-ba-en/` · `wakaru-blackhole-en/` · `wakaru-kurikomi-en/` · `wakaru-ondo-en/` · `wakaru-surinuke-en/` · `wakaru-kussetsu-en/` · `butsuri-tsukuru-en/` · `wakaru-chikara-en/` · `wakaru-shitsuryo-en/` · `wakaru-uchu-keisanki-en/` · `wakaru-gakushuron-en/` · `wakaru-unix-en/`)
 
-## 🔧 *The Lattice We Build* — the one series with the stance reversed
-
-Exactly one row in the table above does not say "That Clicks." Where the "Wakaru" series **explains** known physics, this one flips the stance: it **builds a tool, runs it, and reads the result as it comes** — including the runs that failed, and the runs where the author was simply wrong. The tool it builds is a **lattice**: what breaks when you declare spacetime to *be* a lattice, and what still turns over perfectly when you keep the lattice flat.
-
-Spine, in one line: *making physics is not about predicting, but about deciding in advance how a prediction would die.*
-
-19 main episodes + 4 bonus, complete. Every episode carries an interactive figure; the check code is dependency-free pure C++ / pure Python ([kuuhaku_cpp](https://github.com/yomei-o/kuuhaku_cpp)).
-
-**Negative results are published as negative, and corrections are not hidden** — every episode carries a correction banner plus a ledger.
-
-➡ English: [butsuri-tsukuru-en/](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru-en/index.html) ｜ Japanese original: [butsuri-tsukuru/](https://yomei-o.github.io/wakaru_all/butsuri-tsukuru/index.html)
-
 ## 日本語版 (Japanese originals)
 
 The Japanese originals live in sibling folders — all 20 series. The two marked *Japanese only* have no English edition yet.
