@@ -1,0 +1,525 @@
+<style>
+/* 第 62 回だけで使う 計算パネル */
+.panel{background:#f0eee2;border:1px solid #cdc8b4;padding:18px 20px;margin:22px 0;border-radius:3px;}
+.panel .ttl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:13px;letter-spacing:.1em;font-weight:700;margin:0 0 13px;
+  display:flex;align-items:center;gap:8px;}
+.panel .ttl::before{content:"";width:8px;height:8px;background:currentColor;
+  border-radius:50%;display:inline-block;}
+.ctl{display:grid;grid-template-columns:minmax(118px,auto) 1fr minmax(94px,auto);
+  gap:9px 14px;align-items:center;margin:9px 0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:13.5px;}
+.ctl label{opacity:.8;}
+.ctl input[type=range]{width:100%;}
+.ctl .val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+  text-align:right;font-weight:600;}
+.ctl select{font-size:13.5px;padding:3px 6px;grid-column:2 / span 2;
+  font-family:inherit;border:1px solid #cdc8b4;background:#fff;border-radius:2px;}
+.out{margin-top:15px;padding-top:13px;border-top:1px dashed #bdb8a6;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.95;}
+.out b{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-weight:700;}
+.out .big{font-size:19px;font-weight:700;}
+.verdict{margin-top:11px;padding:9px 13px;border-radius:2px;font-size:13.5px;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;line-height:1.7;}
+.v-ok{background:#e6f1ea;border-left:3px solid #2c6e49;color:#1d4a31;}
+.v-bad{background:#f7eae6;border-left:3px solid #8a3a2a;color:#6e2a1c;}
+.v-mid{background:#f4efe0;border-left:3px solid #8a7326;color:#5a4a12;}
+@media(max-width:700px){.ctl{grid-template-columns:1fr;gap:4px;}
+  .ctl .val{text-align:left;}.ctl select{grid-column:1;}}
+</style>
+
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 62 回 ／ 第 XX 部・トンネルするものたち</span></p>
+<p class="eyebrow">核融合も 超伝導も、同じ一本の積分だった</p>
+
+<h1>トンネルするものたち ──<br><strong>桁数 \(=G/\ln 10\)</strong> で 全部 数える
+<span class="sub">\(G=\frac{2}{\hbar}\int\sqrt{2m(V-E)}\,dr\) ── <strong>この一行で、核融合・常温核融合・超伝導接合・STM・\(\alpha\) 崩壊が 全部 計算できます。</strong>違うのは \(V(r)\) の形だけ。<br>★★ 本シリーズの癖どおり、<em>「何桁 抑えられるか」で 数えます</em> ── STM は 5 桁、炉は 3 桁、常温の \(\mathrm{D_2}\) は <strong>83 桁</strong>。<br>★★★ そして <strong>「波だからコヒーレントに足せる」という 常温核融合の救済は、数を数えるだけで 否定できました</strong> ── <em>地球の海の重水素 全部でも 9 桁 足りない。</em></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 5, 45, 53, 54, 57 回</span><span>計算：kenshou/tunnel.js（検算 18 件）</span><span>★ 本回は 動かせます</span></p>
+
+<p class="lead">「超伝導も核融合もみんなトンネル効果じゃん」── <strong>そのとおりでした。</strong><br><em>★ 第 XIX 部で「測定の限界は どこで切ったか で決まる」と分かりました。今回は切る場所ではなく<strong>障壁</strong>です。</em><br>★★ そして本回は、シリーズで初めて<strong>読者が動かせる計算機</strong>を置きます。</p>
+
+<h2><span class="n">01</span>たった一本の積分から、有名な公式が 3 つ 出る</h2>
+
+<div class="calc">
+<span class="tag">これだけ</span>
+$$G=\frac{2}{\hbar}\int_{r_1}^{r_2}\sqrt{2m\bigl(V(r)-E\bigr)}\,dr,\qquad P=e^{-G},\qquad \text{桁数}=\frac{G}{\ln 10}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>障壁</th><th>\(V\)</th><th>\(G\)</th><th>効くつまみ</th><th>現れる場所</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>クーロン</strong></th><td class="mid">\(kZ_1Z_2/r\)</td><td class="mid"><strong>\(\sqrt{E_G/E}\)</strong></td><td class="mid">\(E^{-1/2}\)</td><td>核融合・\(\alpha\) 崩壊</td></tr>
+<tr><th>角形</th><td class="mid">\(V_0\)（幅 \(d\)）</td><td class="mid">\(\frac{2d}{\hbar}\sqrt{2m(V_0-E)}\)</td><td class="mid">\(d\) に比例</td><td>STM・ジョセフソン</td></tr>
+<tr><th>三角</th><td class="mid">\(\phi-eFx\)</td><td class="mid">\(\frac{4\sqrt{2m}}{3\hbar eF}\phi^{3/2}\)</td><td class="mid">\(F^{-1}\)</td><td>電界放出</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 数値エンジンと解析解を突き合わせると、クーロンは \(10^{-7}\)、角形と三角は \(10^{-9}\) で一致しました。<em>ガモフ因子・角形障壁・ファウラー＝ノルドハイム則が、同じ積分の三つの顔です。</em></p>
+
+<p>★★ そして<strong>ガモフエネルギー \(E_G=2\mu c^2(\pi\alpha Z_1Z_2)^2\) は 質量と電荷だけ</strong>で決まります ── <em>核物理の中身は一切 要りません。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>反応</th><th>\(\mu c^2\)［MeV］</th><th>\(E_G\)［keV］</th><th>本稿の \(B_G\)</th><th>文献 \(B_G\)</th></tr></thead>
+<tbody>
+<tr><th>p + p</th><td class="mid">469.14</td><td class="mid">493.1</td><td class="mid">22.2065</td><td class="mid">22.20</td></tr>
+<tr class="hi"><th><strong>d + d</strong></th><td class="mid">937.81</td><td class="mid">985.8</td><td class="mid"><strong>31.3969</strong></td><td class="mid"><strong>31.3970</strong></td></tr>
+<tr class="hi"><th><strong>d + t</strong></th><td class="mid">1124.65</td><td class="mid">1182.2</td><td class="mid"><strong>34.3826</strong></td><td class="mid"><strong>34.3827</strong></td></tr>
+<tr><th>d + ³He</th><td class="mid">1124.56</td><td class="mid">4728.3</td><td class="mid">68.7626</td><td class="mid">68.7508</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>4 桁 まで一致</strong>（文献は Bosch–Hale 1992）。<em>核融合の「むずかしさ」は、この一つの数に全部 入っています。</em></p>
+
+<h2><span class="n">02</span>熱核融合 ── 動かしてみてください</h2>
+
+<div class="panel">
+<p class="ttl">熱核融合 計算機</p>
+<div class="ctl">
+  <label>反応</label>
+  <select id="fx-rx">
+    <option value="dt">d + t → n + ⁴He（炉が狙う反応）</option>
+    <option value="dd">d + d（重水素だけ）</option>
+    <option value="dhe3">d + ³He（中性子が出ない）</option>
+    <option value="pp">p + p（太陽の一段目）</option>
+  </select>
+</div>
+<div class="ctl">
+  <label>温度 \(kT\)</label>
+  <input type="range" id="fx-T" min="-1" max="2.3" step="0.01" value="1.0">
+  <span class="val" id="fx-Tv">10.0 keV</span>
+</div>
+<div class="out" id="fx-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★ <strong>反応しているのは 平均の粒子ではありません。</strong><em>マクスウェル分布の尾（\(e^{-E/kT}\)）と、\(E\) が上がると急に増えるトンネル確率（\(e^{-\sqrt{E_G/E}}\)）の積が作る<strong>ガモフピーク</strong>だけが燃えています。</em><br>
+★★ <strong>太陽の中心（1.35 keV ＝ 1570 万 K）でもピークは 6.1 keV</strong> ── <em>平均の 4.5 倍 の尾 だけ。</em><br>
+★★★ <strong>反応率は文献と 1 % 以内で一致しました</strong>：\(\langle\sigma v\rangle_{dt}\) が 10 keV で \(1.089\times10^{-22}\)（文献 \(1.1\times10^{-22}\)）、20 keV で \(4.244\times10^{-22}\)（文献 \(4.3\times10^{-22}\)）m³/s。ピークは 66.5 keV（文献 約 64）。</p>
+</div>
+
+<h2><span class="n">03</span>同じクーロン障壁で、\(\alpha\) 崩壊も出る</h2>
+
+<div class="panel">
+<p class="ttl">アルファ崩壊 計算機</p>
+<div class="ctl">
+  <label>核種</label>
+  <select id="al-nuc">
+    <option value="0">²¹²Po（実測 0.3 μs）</option>
+    <option value="1">²²⁰Rn（実測 55.6 秒）</option>
+    <option value="2">²²⁶Ra（実測 1600 年）</option>
+    <option value="3" selected>²³⁸U（実測 44.7 億年）</option>
+  </select>
+</div>
+<div class="ctl">
+  <label>\(\alpha\) のエネルギー</label>
+  <input type="range" id="al-E" min="3.5" max="10" step="0.01" value="4.27">
+  <span class="val" id="al-Ev">4.27 MeV</span>
+</div>
+<div class="out" id="al-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── 指数の中の \(E^{-1/2}\) が すべてを決める</p>
+<p style="margin:6px 0 0">★ ²³⁸U（4.27 MeV）と ²¹²Po（8.95 MeV）は<strong>エネルギーが 2.1 倍 違うだけ</strong>。<br>
+★★★ それで寿命は <strong>24 桁</strong> 変わります ── <em>44.7 億年 と 0.3 マイクロ秒。</em><br>
+★★ 本稿の計算では ²³⁸U が \(\log_{10}(T/\mathrm{s})=17.16\)、<strong>実測 17.15</strong>。<em>試行頻度も核半径も 雑な見積もりなのに当たるのは、指数が全部を支配しているから</em> ── <strong>第 53 回の「対数でしか動かない量」の、いちばん極端な例です。</strong></p>
+</div>
+
+<h2><span class="n">04</span>固体のトンネル ── STM と 超伝導接合</h2>
+
+<div class="panel">
+<p class="ttl">角形障壁 計算機</p>
+<div class="ctl">
+  <label>障壁の高さ \(\phi\)</label>
+  <input type="range" id="sq-phi" min="0.1" max="6" step="0.05" value="4.5">
+  <span class="val" id="sq-phiv">4.50 eV</span>
+</div>
+<div class="ctl">
+  <label>幅 \(d\)</label>
+  <input type="range" id="sq-d" min="0.1" max="3" step="0.01" value="0.5">
+  <span class="val" id="sq-dv">0.50 nm</span>
+</div>
+<div class="out" id="sq-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── なぜ 原子が 見えるのか</p>
+<p style="margin:6px 0 0">★ \(\phi=4.5\) eV（金属の仕事関数）で探針を <strong>1 Å 近づけると電流は 8.8 倍</strong> ── ちょうど 0.94 桁。<br>
+★★★ <strong>STM の経験則「1 Å で 1 桁」は この式そのもの</strong>で、<em>原子 1 個 の凹凸が見える理由です。</em><br>
+★★ ジョセフソン接合（AlOx, \(\phi\approx2\) eV）は 1 nm で 6.3 桁。<em>厚さを 0.5 nm 増やすと さらに 3 桁 落ちる</em> ── <strong>超伝導量子ビットの製造が オングストローム精度を要求されるのは これが理由です。</strong><br>
+★ <em>クーロン障壁が \(E^{-1/2}\) なのに対し、角形は \(d\) に<strong>比例</strong></em> ── <strong>だから STM は「距離を買えば 桁が線形に買える」。第 54 回の「範囲の買い方」でいえば、いちばん良心的な相手です。</strong></p>
+</div>
+
+<h2><span class="n">05</span>★★★ 常温核融合 ── 何桁 足りないのかを 数える</h2>
+
+<p>電子が障壁を下げる効果は、実験では<strong>遮蔽エネルギー \(U_e\) ひとつ</strong>で表されます（\(\sigma_{\text{遮蔽}}(E)=\sigma_{\text{裸}}(E+U_e)\)）。束縛した分子の中では \(E\approx0\) なので、実効的に \(E\to U_e\)。</p>
+
+<div class="calc">
+<span class="tag">常温核融合は この一行に 帰着する</span>
+$$\lambda_{\text{対}}=\frac{A_{dd}}{V_{\text{分子}}}\exp\!\left(-\sqrt{\frac{E_G}{U_e}}\right),\qquad E_G(dd)=986\ \text{keV}$$
+</div>
+
+<p>★★ この模型は <strong>\(\mathrm{D_2}\) の 1 点だけ</strong>を合わせると（\(U_e=36\) eV で Koonin–Nauenberg の \(3\times10^{-64}\,\mathrm{s^{-1}}\) に一致）、<em>ミューオン分子の融合速度を自動的に \(10^{9.7}\,\mathrm{s^{-1}}\) と出します</em>（文献 約 \(10^9\)）── <strong>較正 1 点 で 73 桁 をまたいで 数倍 以内。だから使えます。</strong></p>
+
+<div class="panel">
+<p class="ttl">常温核融合 計算機 ── \(U_e\) を動かしてみてください</p>
+<div class="ctl">
+  <label>遮蔽 \(U_e\)</label>
+  <input type="range" id="cf-U" min="10" max="700" step="1" value="27">
+  <span class="val" id="cf-Uv">27 eV</span>
+</div>
+<div class="ctl">
+  <label>d–d 距離 \(R\)</label>
+  <input type="range" id="cf-R" min="0.3" max="3.0" step="0.01" value="0.741">
+  <span class="val" id="cf-Rv">0.741 Å</span>
+</div>
+<div class="out" id="cf-out"></div>
+<div class="verdict" id="cf-verdict"></div>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>系</th><th>\(U_e\)［eV］</th><th>出典</th><th>\(G\)</th><th>\(\lambda\)［/s/対］</th><th>1 モルで［/s］</th></tr></thead>
+<tbody>
+<tr><th>\(\mathrm{D_2}\) ガス標的（実測）</th><td class="mid">25</td><td class="mid">Raiola 2002</td><td class="mid">198.6</td><td class="mid">\(10^{-78.3}\)</td><td class="mid">\(10^{-54.5}\)</td></tr>
+<tr><th>理論の断熱極限</th><td class="mid">27</td><td class="mid">教科書</td><td class="mid">191.1</td><td class="mid">\(10^{-75.0}\)</td><td class="mid">\(10^{-51.3}\)</td></tr>
+<tr><th>重水素化 Ti</th><td class="mid">36</td><td class="mid">Raiola 2002</td><td class="mid">165.5</td><td class="mid">\(10^{-63.9}\)</td><td class="mid">\(10^{-40.1}\)</td></tr>
+<tr class="hi"><th><strong>重水素化 Pd</strong></th><td class="mid"><strong>250</strong></td><td class="mid">Raiola 2002</td><td class="mid">62.8</td><td class="mid"><strong>\(10^{-19.3}\)</strong></td><td class="mid"><strong>\(10^{+4.5}\)</strong></td></tr>
+<tr class="hi"><th>重水素化 Ta</th><td class="mid">309</td><td class="mid">Kasagi 2002</td><td class="mid">56.5</td><td class="mid">\(10^{-16.6}\)</td><td class="mid">\(10^{+7.2}\)</td></tr>
+<tr><th>Au/Pd/PdO 多層</th><td class="mid">601</td><td class="mid">Raiola 2002</td><td class="mid">40.5</td><td class="mid">\(10^{-9.6}\)</td><td class="mid">\(10^{+14.1}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── ここが 本当に 面白いところ</p>
+<p style="margin:6px 0 0">★ 実験の上限は 1 対あたり \(10^{-24}\sim10^{-23}\,\mathrm{s^{-1}}\)（Jones 1989 ほか）。それに対応する \(U_e\) は <strong>194 eV</strong>。<br>
+★★★ ところが<strong>重水素化 Pd で実測された \(U_e\) は 250 eV</strong> ── <em>上限を 超えています。</em><br>
+★★ <strong>この模型をそのまま信じれば「常温核融合は観測されるはず」という結論になります。</strong>実際には観測されない。<br>
+★★★ <em>つまりこの計算の結論は「常温核融合は 無い」ではなく、</em><strong>「\(U_e\) を \(E\to0\) まで外挿する近似が 壊れている」</strong> ── <em>第 55 回の言葉では、これは「仮定つきの値」を 仮定の外で 使っている状態です。</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>どこが壊れているか</th><th>中身</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① 外挿</strong></th><td>\(U_e\) は \(E=5\sim20\) keV のビーム実験で測った量。「\(E\to E+U_e\)」は \(U_e\ll E\) のときだけ正しく、\(E\to0\) は保証の外</td></tr>
+<tr><th>② 電子密度</th><td>250 eV を静的な遮蔽で作るには遮蔽長が 0.06 Å 程度 必要。金属の電子密度では桁が足りない</td></tr>
+<tr><th>③ 距離</th><td>金属中の d–d 距離は約 2.9 Å で、\(\mathrm{D_2}\) の 0.74 Å よりはるかに遠い。障壁は下がるどころか<em>幅が広い</em></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">06</span>★★★「波として見ると 何か出るか」── 正直に 3 つ 数えた</h2>
+
+<p>先に前提を。<strong>核融合を波として扱うのは ガモフ 1928 年 がやったことそのもの</strong>で、それ自体は新しくありません。<em>トンネル効果＝古典的に入れない所へ波がしみ出すこと。</em>その上で、波の言葉で<strong>数えられる形</strong>に落ちるものを 3 つ 出します。</p>
+
+<h3 style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-size:16px;margin:28px 0 10px">(A) d+t が選ばれている理由は 障壁ではなく 共鳴</h3>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>反応</th><th>\(B_G\)</th><th>\(E_{cm}\)</th><th>ガモフ因子</th><th>\(\sigma\)［mb］</th><th>\(S(E)\)［keV·b］</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>d + t</strong></th><td class="mid"><strong>34.38</strong></td><td class="mid">50 keV</td><td class="mid">7.73e−3</td><td class="mid"><strong>3970</strong></td><td class="mid"><strong>25675</strong></td></tr>
+<tr><th>d + d</th><td class="mid">31.40</td><td class="mid">50 keV</td><td class="mid">1.18e−2</td><td class="mid">33.2</td><td class="mid">141</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>\(B_G\) は d+t のほうが 2.99 大きい</strong> ── <em>トンネルは d+t のほうが 1.53 倍 不利。</em><br>
+★★★ それなのに断面積は <strong>120 倍</strong>。差は全部 \(S(E)\) の中（182 倍）。<br>
+★★ <strong>d+t の利点は 64 keV の ⁵He 共鳴 ── 核の側の「波の 定在状態」です。</strong><em>「炉が d+t を使うのは障壁が低いから」という説明は、正確には<strong>逆</strong>でした。</em></p>
+
+<h3 style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-size:16px;margin:28px 0 10px">(B) ミューオンは「たまたま」足りているのか</h3>
+
+<p>質量比 \(x\) の粒子で電子を置き換えると、分子は \(1/x\) に縮み、\(U_e\) は \(x\) 倍、\(G\) は \(1/\sqrt{x}\) 倍。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>質量比 \(x\)</th><th>分子の大きさ</th><th>\(G\)</th><th>\(\lambda\)［/s］</th><th></th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.741 Å</td><td class="mid">164.6</td><td class="mid">\(10^{-63.5}\)</td><td>電子（\(\mathrm{D_2}\)）</td></tr>
+<tr><th>30</th><td class="mid">0.0247 Å</td><td class="mid">30.0</td><td class="mid">\(10^{-0.7}\)</td><td>遅すぎる</td></tr>
+<tr class="hi"><th><strong>85</strong></th><td class="mid">0.0087 Å</td><td class="mid">17.9</td><td class="mid">\(10^{6.0}\)</td><td><strong>★ 閾値</strong></td></tr>
+<tr class="hi"><th><strong>195.7</strong></th><td class="mid">0.0038 Å</td><td class="mid">11.8</td><td class="mid">\(10^{9.7}\)</td><td><strong>ミューオン（\(\tau=2.2\,\mu\)s）</strong></td></tr>
+<tr><th>273</th><td class="mid">0.0027 Å</td><td class="mid">10.0</td><td class="mid">\(10^{10.9}\)</td><td>パイ中間子（\(\tau=26\) ns）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ 触媒として使える閾値は <strong>質量比 \(x\approx85\)</strong>。ミューオンは 195.7 で 2.3 倍 ── ぎりぎりではありません。<br>
+★★ <strong>ところが電子とミューオンの間に、荷電粒子は存在しません。</strong><em>閾値を超える荷電粒子はミューオンとパイ中間子だけで、パイは 26 ns で崩壊して触媒にならない。</em><br>
+★ つまり<strong>ミューオン触媒核融合は「選択肢が 1 つしかない」</strong> ── <em>質量と寿命の両方を満たす粒子が、自然界にミューオンしかないから。そしてその閾値を決めているのが \(x^{-1/2}\) というしみ出しの法則です。</em></p>
+
+<h3 style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-size:16px;margin:28px 0 10px">(C) ★★★ 波なら コヒーレントに 足せるはず ── それで 埋まるか</h3>
+
+<p>これが本回で<strong>いちばん強く言えたこと</strong>です。「常温核融合は波の集団効果で説明できる」という型の主張は、<em>模型の中身を見ずに、数を数えるだけで判定できます。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>値</th></tr></thead>
+<tbody>
+<tr><th>理論（\(U_e=27\) eV、\(\mathrm{D_2}\) の幾何）</th><td class="mid">\(10^{-75.0}\) /s/対</td></tr>
+<tr><th>実験の上限（Jones 1989 ほか）</th><td class="mid">\(10^{-23.0}\) /s/対</td></tr>
+<tr class="hi"><th><strong>埋めるべき差</strong></th><td class="mid"><strong>52 桁</strong></td></tr>
+<tr><th>必要なコヒーレント数 \(N\)（\(N^2\) 超放射でも）</th><td class="mid">\(10^{52}\)</td></tr>
+<tr class="hi"><th>1 モル</th><td class="mid">\(10^{23.8}\) ── <strong>28 桁 足りない</strong></td></tr>
+<tr class="hi"><th>地球の海の重水素 全部</th><td class="mid">\(\approx10^{43}\) ── <strong>9 桁 足りない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>考えうる最大のコヒーレンス（完全な超放射）を、地球の海の重水素すべてにかけても、まだ 9 桁 足りません。</strong><br>
+★★ したがって<em>「波だからコヒーレントに足せる」という救済は、どんな具体的な模型であれ成立しません</em> ── <strong>数を数えるだけで否定できます。</strong><br>
+★ <strong>ただしこれは「常温核融合が無い」の証明ではありません。</strong><em>「コヒーレンス機構では説明できない」という限定的な主張</em>で、残る道は 05 節の ①（遮蔽の外挿）だけです。</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>つまみは 3 つ しかない</th><th>必要な値</th><th>実際にあるもの</th><th>判定</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① 遮蔽 \(U_e\) を上げる</strong></th><td class="mid">194 eV</td><td>理論 27 eV / 金属 実測 250 eV</td><td class="mid"><strong>？</strong></td></tr>
+<tr><th>② 距離 \(R\) を縮める</th><td class="mid">0.103 Å</td><td>\(\mathrm{D_2}\) 0.741 Å / PdD 約 2.9 Å</td><td class="mid">×</td></tr>
+<tr><th>③ エネルギー \(E\) を上げる</th><td class="mid">194 eV ＝ 225 万 K</td><td>常温 0.025 eV</td><td class="mid">×</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>残るのは ① だけ。だから常温核融合の議論は 必ず「\(U_e\) をどこまで信じるか」に収束します。</strong><br>
+★★ そして ① は<strong>測れます</strong>：<em>エネルギーを下げながら \(U_e\) の見かけの値が一定かどうかを見ればよい。一定なら模型が正しく、ずれるなら外挿が壊れている</em> ── <strong>第 55 回の手引きが要求する形の問いです。</strong></p>
+
+<h2><span class="n">07</span>全部を 1 枚に ── 桁数 \(=G/\ln 10\)</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>現象</th><th>障壁</th><th>\(G\)</th><th>抑制の桁数</th><th>効かせ方</th></tr></thead>
+<tbody>
+<tr><th>d+t（20 keV・炉）</th><td>クーロン</td><td class="mid">7.7</td><td class="mid">3.3 桁</td><td>温度</td></tr>
+<tr class="hi"><th><strong>STM（0.5 nm 真空）</strong></th><td>角形 4.5 eV</td><td class="mid">10.9</td><td class="mid">4.7 桁</td><td>距離</td></tr>
+<tr><th>dd-μ 分子</th><td>クーロン＋遮蔽</td><td class="mid">11.8</td><td class="mid">5.1 桁</td><td>ミューオンの重さ</td></tr>
+<tr><th>ジョセフソン（1 nm）</th><td>角形 2 eV</td><td class="mid">14.5</td><td class="mid">6.3 桁</td><td>酸化膜の厚さ</td></tr>
+<tr><th>電界放出（3 GV/m）</th><td>三角 4.5 eV</td><td class="mid">21.7</td><td class="mid">9.4 桁</td><td>電場</td></tr>
+<tr><th>d+d（太陽 1.35 keV）</th><td>クーロン</td><td class="mid">27.0</td><td class="mid">11.7 桁</td><td>温度</td></tr>
+<tr><th>²³⁸U の \(\alpha\) 崩壊</th><td>クーロン</td><td class="mid">88.0</td><td class="mid">38.2 桁</td><td>── 変えられない</td></tr>
+<tr class="hi"><th><strong>\(\mathrm{D_2}\) 分子（常温）</strong></th><td>クーロン＋遮蔽</td><td class="mid"><strong>191</strong></td><td class="mid"><strong>83 桁</strong></td><td><strong>── 手がない</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">07節の中心 ── この表が 全部</p>
+<p style="margin:6px 0 0">★★★ 上から下まで<strong>同じ一本の積分</strong>。違うのは \(V(r)\) の形だけ。<br>
+★★ <strong>「使える」現象は 桁数が 10 前後、「使えない」現象は 80 桁。</strong><em>その間に つまみがあるかどうか ── それが全部の分かれ目です。</em><br>
+★ <strong>ミューオンは 実際に 桁数を 83 → 5 に落とします。</strong><em>だから 動く。</em>（動くが、寿命 2.2 μs で 150 回 程度しか触媒できず採算に届かない ── <strong>これはトンネルではなく別の問題</strong>です。）</p>
+</div>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>04 節で「STM は距離を買えば桁が線形に買える」と書いた。第 53・54 回の言い方では何にあたるか。
+<details><summary>答えを見る</summary><div class="ans"><strong>いちばん良心的な「範囲の買い方」です。</strong><br>★ 第 53 回：<em>「範囲は対数でしか買えない」</em>（観測時間 \(T\) を 10 倍 して 1 桁）。★★ ところが<strong>角形障壁は \(G\propto d\) なので、距離を<em>線形</em>に縮めれば 桁が<em>線形</em>に増えます</strong> ── <em>1 Å ごとに 1 桁。</em><br>★★★ <strong>クーロン障壁は \(G\propto E^{-1/2}\) なので、桁を 2 倍 買うにはエネルギーを 4 倍 に。</strong><em>こちらは第 53 回の「べきでしか買えない」側。</em><br>★★ <strong>つまり「何を買えば桁が来るか」は 障壁の形が決めています</strong> ── <em>STM が原子分解能に届き、核融合が 1 億 K を要求するのは、同じ式の中の指数の違いだけ。</em></div></details></li>
+
+<li>06 節 (C) で「数を数えるだけで否定できる」と書いた。これはなぜ強い論法なのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>機構の中身に一切 依存しないからです。</strong><br>★ <em>普通の反論は「その機構は成り立たない」と個別に潰していく形になり、新しい機構が出るたびにやり直しになります。</em><br>★★ <strong>ところがコヒーレンスによる増幅は、どんな機構でも上限が \(N\)（超放射でも \(N\) 倍）です。</strong><em>だから必要な \(N\) を数えて、手に入る \(N\) と比べれば それで終わる。</em><br>★★★ <strong>これは第 55 回の「仮定を数える」の一番強い形</strong> ── <em>仮定の中身を問わず、仮定が使える上限だけで判定する。</em><br>★ <strong>ただし限界もはっきりしています</strong>：<em>コヒーレンス以外の機構（遮蔽そのものが違う、など）には この論法は効きません。</em>★★ <strong>「何を否定して、何を否定していないか」を書かないと、この論法は乱用されます。</strong></div></details></li>
+
+<li>05 節で「実測 \(U_e\) が上限を超えている」と出た。これは矛盾か。
+<details><summary>答えを見る</summary><div class="ans"><strong>矛盾ではなく、外挿の破れです。</strong><br>★ \(U_e\) は \(E=5\sim20\) keV で<em>「\(\sigma\) の増え方」</em>を測って出した量。★★ そこでは \(U_e/E\sim0.02\) で、<strong>\(E\to E+U_e\) というずらしは 1 次の近似として正しい</strong>。<br>★★★ <strong>ところが \(E\to0\) では \(U_e/E\to\infty\) ── 1 次の近似が使える範囲を、5 桁 ぶん 外れています。</strong><br>★ <em>第 57 回の言い方では</em>：<strong>これは「端」です。</strong><em>展開の最低次だけを持って、その展開が効く範囲の外へ出た。</em><br>★★ <strong>第 60 回の言い方では</strong>：<em>「どこで切ったか」を言わずに値を使った ── \(U_e\) は「\(E=5\sim20\) keV で測った \(U_e\)」であって、\(U_e\) という定数ではありません。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　同じ一本の積分で、83 桁 を 数える</h2>
+<p>「超伝導も核融合もみんなトンネル効果じゃん」── <strong>そのとおりでした。</strong></p>
+<p style="text-align:center"><strong>★★★ \(G=\dfrac{2}{\hbar}\displaystyle\int\sqrt{2m(V-E)}\,dr\)、\(\;\)桁数 \(=G/\ln 10\)。<br>違うのは \(V(r)\) の形だけ。</strong></p>
+<p>★ <strong>検算 18 件 すべて合格</strong>：<em>\(B_G\) が文献と 4 桁一致、\(\langle\sigma v\rangle_{dt}\) が 1 % 以内、²³⁸U の \(\alpha\) 崩壊が \(\log_{10}(T/\mathrm{s})=17.16\) 対 実測 17.15、STM が「1 Å で 0.94 桁」、dd-μ が \(5.2\times10^9\) 対 文献 \(1.5\times10^9\)。</em></p>
+<p>★★ <strong>常温核融合は \(U_e\) ひとつの問題に帰着しました。</strong><em>\(\mathrm{D_2}\) の 1 点較正でミューオン分子まで 73 桁 を再現できる模型で数えると、実験上限に対応する \(U_e\) は 194 eV。ところが重水素化 Pd の実測は 250 eV。</em>★★★ <strong>だから結論は「常温核融合は無い」ではなく、「\(U_e\) を \(E\to0\) へ外挿する近似が壊れている」</strong> ── <em>測れる形の問いです。</em></p>
+<p>★★★ <strong>そして波として見た収穫が 3 つ。</strong><em>(A) d+t の利点は障壁ではなく ⁵He 共鳴（\(B_G\) はむしろ 1.53 倍 不利で、差は全部 \(S(E)\)）。(B) 触媒の閾値は質量比 85 で、それを超える荷電粒子はミューオンとパイ中間子だけ、パイは 26 ns で崩壊 ── だから選択肢が 1 つしかない。(C) コヒーレンス機構は、地球の海の重水素すべてを完全な超放射にしても 9 桁 足りない。</em></p>
+<p>★ <strong>(C) が本回いちばん強い言明です</strong> ── <em>機構の中身を一切 見ずに、数を数えるだけで、ある型の説明を まとめて否定できました。</em>★★ <strong>ただし否定できたのは「コヒーレンス機構」だけで、「常温核融合」ではありません。</strong><em>そこを書き分けないと、この論法は乱用されます（練習問題 2）。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+07 節の表で、<strong>ミューオンだけが 83 桁 を 5 桁 に落としていました</strong>。<br>
+★ <em>そして 06 節 (B) で、それが「自然界に 1 つしかない選択肢」だと分かりました。</em><br>
+★★ <strong>次回はこの「1 つしかない」を掘ります</strong> ── <em>触媒とは何か。トンネルを助けるとは何をすることか。</em>★ <strong>第 45 回のボゴリューボフ、第 58 回の窓の裾、そして本回のミューオン</strong> ── <em>「外から手を入れて指数を変える」という同じ操作かどうかを調べます。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 62 回、第 XX 部の開始です。計算は kenshou/tunnel.js で行っています（依存ライブラリ 0、乱数なし、検算 18 件）。<strong>本回は シリーズで初めて、読者が動かせる計算機を置きました</strong>（02・03・04・05 節のスライダー）。表示される値は すべて同じスクリプトと同じ式から その場で計算しています。<strong>本稿の発見ではないもの：</strong>WKB 近似とガモフ因子（Gamow 1928）、ガモフピーク、ファウラー＝ノルドハイム則、ガイガー＝ヌッタル則、遮蔽エネルギー \(U_e\) の枠組み、ミューオン触媒核融合、Koonin–Nauenberg の \(\mathrm{D_2}\) 融合速度 \(3\times10^{-64}\,\mathrm{s^{-1}}\)、d+t の ⁵He 共鳴 ── <strong>いずれも標準的な既知の結果です。</strong>本稿がしたのは、<em>それらを \(G/\ln10\)（＝抑制の桁数）という一つの物差しに載せ直し、① \(\mathrm{D_2}\) の 1 点較正でミューオン分子まで 73 桁 を再現できることを確かめ、② 実験上限に対応する \(U_e\) を 194 eV と数え、③ コヒーレンス機構に必要な \(N\) を \(10^{52}\) と数えて地球の重水素全量でも 9 桁 不足することを示したこと</em>です。<strong>模型の限界：</strong><em>05・06 節の融合速度は \(\lambda=A_{dd}|\psi(0)|^2\)、\(|\psi(0)|^2\approx e^{-G}/V\) という粗い見積もりで、絶対値には数倍の不定性があります（\(\mathrm{D_2}\) の 1 点で較正）。桁数の議論はこの不定性に影響されませんが、「194 eV」のような境目の値は模型依存です。</em>06 節 (B) の閾値 85 は \(\lambda>10^6\,\mathrm{s^{-1}}\) という便宜的な基準での値で、基準を変えれば動きます。03 節の \(\alpha\) 崩壊は試行頻度を \(v/2r_n\)、核半径を \(1.2(A^{1/3}+4^{1/3})\) fm とした粗い見積もりです。<strong>本稿も 合成・解析のみで、実測データには当てていません</strong>（すべて文献値と解析式からの計算です）。<strong>主な参照：</strong>Bosch &amp; Hale, Nucl. Fusion 32, 611 (1992)／NRL Plasma Formulary／Kasagi et al., Eur. Phys. J. A (2002)／Raiola et al. (2002)／Koonin &amp; Nauenberg, Nature 339, 690 (1989)／Jones et al., Nature 338, 737 (1989)／CODATA 2018。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。★ スライダーは印刷には出ません。</p>
+
+<script>
+(function(){
+  'use strict';
+  var HBAR=1.054571817e-34, QE=1.602176634e-19, KE=2.30707751e-28;
+  var ME=9.1093837015e-31, ALPHA=7.2973525693e-3, NA=6.02214076e23;
+  var KB_EV=8.617333262e-5, C=2.99792458e8, MEV_KG=1e6*QE/(C*C);
+  var MC2={e:0.51099895,mu:105.6583755,p:938.27208816,
+           d:1875.61294257,t:2808.92113298,he3:2808.39132};
+  function d10(x){return Math.log(x)/Math.LN10;}
+  function dec(G){return G/Math.LN10;}
+  function pow10s(x){
+    if(x>-4&&x<6) return (Math.pow(10,x)).toPrecision(3);
+    return '10<sup>'+(x>=0?'':'−')+Math.abs(x).toFixed(1)+'</sup>';
+  }
+  function red(a,b){return MC2[a]*MC2[b]/(MC2[a]+MC2[b]);}
+  function EG_keV(a,b,z1,z2){return 2*red(a,b)*1e3*Math.pow(Math.PI*ALPHA*z1*z2,2);}
+
+  /* ---- 02 熱核融合 ---- */
+  var RX={
+    dt:{a:'d',b:'t',z1:1,z2:1,nrl:[45.95,50200,1.368e-2,1.076,409]},
+    dd:{a:'d',b:'d',z1:1,z2:1,nrl:[46.097,372,4.36e-4,1.220,0],
+        nrl2:[47.88,482,3.08e-4,1.177,0]},
+    dhe3:{a:'d',b:'he3',z1:1,z2:2,nrl:[89.27,25900,3.98e-3,1.297,647]},
+    pp:{a:'p',b:'p',z1:1,z2:1,nrl:null}
+  };
+  function sigNRL(A,E){
+    if(!A||E<=0) return 0;
+    var den=E*(Math.exp(A[0]/Math.sqrt(E))-1);
+    if(!isFinite(den)||den<=0) return 0;
+    return (A[4]+A[1]/(Math.pow(A[3]-A[2]*E,2)+1))/den;
+  }
+  function sigvOf(key,kT){
+    var r=RX[key]; if(!r.nrl) return null;
+    var mu=red(r.a,r.b)*MEV_KG, labF=(MC2[r.a]+MC2[r.b])/MC2[r.b];
+    var kTj=kT*1e3*QE, n=6000, h=40*kTj/n, s=0;
+    for(var i=0;i<n;i++){
+      var E=h*(i+0.5), El=E/(1e3*QE)*labF;
+      var sg=(sigNRL(r.nrl,El)+(r.nrl2?sigNRL(r.nrl2,El):0))*1e-28;
+      s+=E*sg*Math.exp(-E/kTj)*h;
+    }
+    return Math.sqrt(8/(Math.PI*mu))*Math.pow(kTj,-1.5)*s;
+  }
+  function fxUpdate(){
+    var key=document.getElementById('fx-rx').value;
+    var T=Math.pow(10,parseFloat(document.getElementById('fx-T').value));
+    document.getElementById('fx-Tv').textContent=(T<1?T.toFixed(2):T.toFixed(1))+' keV';
+    var r=RX[key], eg=EG_keV(r.a,r.b,r.z1,r.z2), bg=Math.sqrt(eg);
+    var E0=Math.pow(eg*T*T/4,1/3), W=4*Math.sqrt(E0*T/3), G0=bg/Math.sqrt(E0);
+    var sv=sigvOf(key,T);
+    var o='<b>ガモフエネルギー</b> E<sub>G</sub> = '+eg.toFixed(0)+' keV'+
+      '　（B<sub>G</sub> = '+bg.toFixed(2)+'）<br>'+
+      '<b>ガモフピーク</b> E<sub>0</sub> = <span class="big">'+E0.toFixed(2)+' keV</span>'+
+      '　＝ 平均の '+(E0/T).toFixed(1)+' 倍　（幅 '+W.toFixed(1)+' keV）<br>'+
+      '<b>ピークでの G</b> = '+G0.toFixed(2)+'　→ 抑制 '+dec(G0).toFixed(1)+' 桁<br>'+
+      '<b>温度</b> = '+(T*1e3/KB_EV/1e6).toFixed(1)+' 百万 K';
+    o+= sv!==null
+      ? '<br><b>反応率</b> &lt;σv&gt; = <span class="big">'+sv.toExponential(3)+'</span> m³/s'
+      : '<br><b>反応率</b> ── p+p は弱い相互作用が要るため S(0)≈4×10<sup>−22</sup> keV·b と桁違いに小さい（太陽が 100 億年 燃える理由）';
+    document.getElementById('fx-out').innerHTML=o;
+  }
+
+  /* ---- 03 アルファ崩壊 ---- */
+  var NUC=[{Zd:82,Ad:208,E:8.954,T:2.99e-7},{Zd:84,Ad:216,E:6.405,T:55.6},
+           {Zd:86,Ad:222,E:4.871,T:1600*3.156e7},{Zd:90,Ad:234,E:4.270,T:4.468e9*3.156e7}];
+  var MHE4=3727.3794066;
+  function wkbNum(V,m,E,r1,r2,n){
+    var s=0,h=(r2-r1)/n;
+    for(var i=0;i<n;i++){var dv=V(r1+h*(i+0.5))-E; if(dv>0) s+=Math.sqrt(2*m*dv);}
+    return 2*s*h/HBAR;
+  }
+  function alphaCalc(Zd,Ad,EM){
+    var mu=(MHE4*(Ad*931.494))/(MHE4+Ad*931.494)*MEV_KG;
+    var rn=1.2e-15*(Math.pow(4,1/3)+Math.pow(Ad,1/3));
+    var E=EM*1e6*QE, b=KE*2*Zd/E;
+    if(b<=rn) return {G:0,logT:-Infinity,rn:rn,b:b};
+    var G=wkbNum(function(r){return KE*2*Zd/r;},mu,E,rn,b,20000);
+    var v=Math.sqrt(2*E/mu), nu=v/(2*rn);
+    return {G:G,logT:d10(Math.LN2/nu)+dec(G),rn:rn,b:b};
+  }
+  function fmtT(L){
+    if(L<-6) return (Math.pow(10,L+9)).toPrecision(3)+' ナノ秒';
+    if(L<0)  return (Math.pow(10,L+6)).toPrecision(3)+' マイクロ秒';
+    if(L<2)  return (Math.pow(10,L)).toPrecision(3)+' 秒';
+    var yr=L-d10(3.156e7);
+    if(yr<0) return (Math.pow(10,L-4.9365)).toPrecision(3)+' 日';
+    if(yr<4) return (Math.pow(10,yr)).toPrecision(3)+' 年';
+    return pow10s(yr)+' 年';
+  }
+  function alUpdate(){
+    var i=parseInt(document.getElementById('al-nuc').value,10);
+    var E=parseFloat(document.getElementById('al-E').value);
+    document.getElementById('al-Ev').textContent=E.toFixed(2)+' MeV';
+    var n=NUC[i], r=alphaCalc(n.Zd,n.Ad,E), ref=alphaCalc(n.Zd,n.Ad,n.E);
+    document.getElementById('al-out').innerHTML=
+      '<b>核半径</b> r<sub>n</sub> = '+(r.rn*1e15).toFixed(1)+' fm'+
+      '　<b>転回点</b> b = '+(r.b*1e15).toFixed(1)+' fm<br>'+
+      '<b>G</b> = <span class="big">'+r.G.toFixed(1)+'</span>'+
+      '　→ 抑制 '+dec(r.G).toFixed(1)+' 桁<br>'+
+      '<b>半減期</b> = <span class="big">'+fmtT(r.logT)+'</span>'+
+      '　（log<sub>10</sub>(T/s) = '+r.logT.toFixed(2)+'）<br>'+
+      '<b>この核種の実測</b> log<sub>10</sub>(T/s) = '+d10(n.T).toFixed(2)+
+      '　（E = '+n.E.toFixed(3)+' MeV で 本計算は '+ref.logT.toFixed(2)+'）';
+  }
+
+  /* ---- 04 角形障壁 ---- */
+  function sqUpdate(){
+    var phi=parseFloat(document.getElementById('sq-phi').value);
+    var d=parseFloat(document.getElementById('sq-d').value);
+    document.getElementById('sq-phiv').textContent=phi.toFixed(2)+' eV';
+    document.getElementById('sq-dv').textContent=d.toFixed(2)+' nm';
+    var k=Math.sqrt(2*ME*phi*QE)/HBAR, G=2*k*d*1e-9, perA=2*k*1e-10;
+    document.getElementById('sq-out').innerHTML=
+      '<b>減衰定数</b> 2κ = '+(2*k*1e-9).toFixed(2)+' /nm<br>'+
+      '<b>G</b> = <span class="big">'+G.toFixed(2)+'</span>'+
+      '　→ 透過率 P = '+pow10s(-dec(G))+'　＝ '+dec(G).toFixed(1)+' 桁 の抑制<br>'+
+      '<b>1 Å 近づけると</b> ×'+Math.exp(perA).toFixed(1)+
+      '　＝ '+dec(perA).toFixed(2)+' 桁<br>'+
+      '<b>幅を半分にすると</b> '+(dec(G)/2).toFixed(1)+' 桁 回復する';
+  }
+
+  /* ---- 05 常温核融合 ---- */
+  var A_DD=1.5e-16, EG_DD_eV=EG_keV('d','d',1,1)*1e3;
+  function cfUpdate(){
+    var U=parseFloat(document.getElementById('cf-U').value);
+    var R=parseFloat(document.getElementById('cf-R').value);
+    document.getElementById('cf-Uv').textContent=U.toFixed(0)+' eV';
+    document.getElementById('cf-Rv').textContent=R.toFixed(3)+' Å';
+    var G=Math.sqrt(EG_DD_eV/U), V=(4*Math.PI/3)*Math.pow(R*1e-8,3);
+    var logLam=d10(A_DD/V)-dec(G), logMole=logLam+d10(NA);
+    document.getElementById('cf-out').innerHTML=
+      '<b>G</b> = '+G.toFixed(1)+'　→ トンネルの抑制 '+dec(G).toFixed(1)+' 桁<br>'+
+      '<b>1 対 あたりの融合速度</b> λ = <span class="big">'+pow10s(logLam)+'</span> /s<br>'+
+      '<b>1 モルの重水素で</b> '+pow10s(logMole)+' /s'+
+      (logMole<0?'　（1 回 起きるのに '+pow10s(-logMole)+' 秒）':'　← 十分 検出できる量')+'<br>'+
+      '<b>比較</b>：実験の上限 10<sup>−23</sup> /s/対、宇宙年齢 = 4×10<sup>17</sup> 秒';
+    var v=document.getElementById('cf-verdict');
+    if(logLam>-23){
+      v.className='verdict v-bad';
+      v.innerHTML='★ この値だと <b>観測されるはず</b>（上限 10<sup>−23</sup> を '+
+        (logLam+23).toFixed(1)+' 桁 超えている）。実際には観測されない ── だから '+
+        '<b>この模型のどこかが壊れている</b>。いちばん怪しいのは U<sub>e</sub> を E→0 まで外挿したこと。';
+    }else if(logLam>-40){
+      v.className='verdict v-mid';
+      v.innerHTML='★ 実験上限の下だが <b>桁としては惜しい</b>領域 ── ここが「測れば決着がつく」帯です。';
+    }else{
+      v.className='verdict v-ok';
+      v.innerHTML='★ 完全に手が届かない領域。<b>理論値（U<sub>e</sub>=27 eV）はここです。</b>'+
+        '1 モル 集めても宇宙年齢のあいだに '+pow10s(logMole+d10(4e17))+' 回。';
+    }
+  }
+
+  function on(id,fn,ev){var e=document.getElementById(id);
+    if(e) e.addEventListener(ev||'input',fn);}
+  on('fx-rx',fxUpdate,'change'); on('fx-T',fxUpdate);
+  on('al-E',alUpdate);
+  on('al-nuc',function(){
+    var i=parseInt(this.value,10);
+    document.getElementById('al-E').value=String(NUC[i].E);
+    alUpdate();
+  },'change');
+  on('sq-phi',sqUpdate); on('sq-d',sqUpdate);
+  on('cf-U',cfUpdate); on('cf-R',cfUpdate);
+  fxUpdate(); alUpdate(); sqUpdate(); cfUpdate();
+})();
+</script>

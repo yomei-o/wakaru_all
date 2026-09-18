@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The things that tunnel — counting everything in decades = G/ln10</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1e1a18; --ink-soft:#574d47;
+    --paper:#faf8f6; --paper-edge:#e7ded7;
+    --side:#6b4423; --side-bg:#f4eee8;
+    --warn:#8a4b2f;
+    --calc:#5a3a1e; --calc-bg:#f1e9e1;
+    --rule:#dbcfc4; --hair:#c2b1a2;
+    --acc:#6b4423;
+    --grid:#ece2d9;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<style>
+/* used only by Episode 62 */
+.panel{background:#f0eee2;border:1px solid #cdc8b4;padding:18px 20px;margin:22px 0;border-radius:3px;}
+.panel .ttl{font-family:"Helvetica Neue",Arial,sans-serif;
+  font-size:13px;letter-spacing:.1em;font-weight:700;margin:0 0 13px;
+  display:flex;align-items:center;gap:8px;}
+.panel .ttl::before{content:"";width:8px;height:8px;background:currentColor;
+  border-radius:50%;display:inline-block;}
+.ctl{display:grid;grid-template-columns:minmax(150px,auto) 1fr minmax(94px,auto);
+  gap:9px 14px;align-items:center;margin:9px 0;
+  font-family:"Helvetica Neue",Arial,sans-serif;font-size:13.5px;}
+.ctl label{opacity:.8;}
+.ctl input[type=range]{width:100%;}
+.ctl .val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+  text-align:right;font-weight:600;}
+.ctl select{font-size:13.5px;padding:3px 6px;grid-column:2 / span 2;
+  font-family:inherit;border:1px solid #cdc8b4;background:#fff;border-radius:2px;}
+.out{margin-top:15px;padding-top:13px;border-top:1px dashed #bdb8a6;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.95;}
+.out b{font-family:"Helvetica Neue",Arial,sans-serif;font-weight:700;}
+.out .big{font-size:19px;font-weight:700;}
+.verdict{margin-top:11px;padding:9px 13px;border-radius:2px;font-size:13.5px;
+  font-family:"Helvetica Neue",Arial,sans-serif;line-height:1.7;}
+.v-ok{background:#e6f1ea;border-left:3px solid #2c6e49;color:#1d4a31;}
+.v-bad{background:#f7eae6;border-left:3px solid #8a3a2a;color:#6e2a1c;}
+.v-mid{background:#f4efe0;border-left:3px solid #8a7326;color:#5a4a12;}
+@media(max-width:700px){.ctl{grid-template-columns:1fr;gap:4px;}
+  .ctl .val{text-align:left;}.ctl select{grid-column:1;}}
+</style>
+
+<article class="sheet">
+
+<p class="series">Thinking in Waves <span class="ep">Episode 62 / Part XX — The Things That Tunnel</span></p>
+<p class="eyebrow">Fusion and superconductivity turned out to be the same integral</p>
+
+<h1>The things that tunnel ──<br>counting everything in <strong>decades \(=G/\ln 10\)</strong>
+<span class="sub">\(G=\frac{2}{\hbar}\int\sqrt{2m(V-E)}\,dr\) ── <strong>this one line computes fusion, cold fusion, Josephson junctions, STM and \(\alpha\) decay.</strong> Only the shape of \(V(r)\) changes.<br>★★ As this series always does, we <em>count decades</em> ── STM costs 5, a reactor 3, room-temperature \(\mathrm{D_2}\) <strong>83</strong>.<br>★★★ And <strong>the “waves add coherently” rescue of cold fusion can be refuted by counting alone</strong> ── <em>all the deuterium in Earth’s oceans still falls 9 orders short.</em></span></h1>
+
+<p class="byline"><span>Tools needed: Episodes 1, 5, 45, 53, 54, 57</span><span>Computation: kenshou/tunnel.js (18 checks)</span><span>★ This episode is interactive</span></p>
+
+<p class="lead">“Superconductivity and fusion are all just tunnelling, aren’t they?” ── <strong>Yes, exactly.</strong><br><em>★ Part XIX found that the limits of a measurement are set by where you cut. This time it is not the cut but the <strong>barrier</strong>.</em><br>★★ And for the first time in this series, the page contains <strong>calculators you can drive yourself</strong>.</p>
+
+<h2><span class="n">01</span>One integral, three famous formulas</h2>
+
+<div class="calc">
+<span class="tag">This is all of it</span>
+$$G=\frac{2}{\hbar}\int_{r_1}^{r_2}\sqrt{2m\bigl(V(r)-E\bigr)}\,dr,\qquad P=e^{-G},\qquad \text{decades}=\frac{G}{\ln 10}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>barrier</th><th>\(V\)</th><th>\(G\)</th><th>the knob</th><th>where it shows up</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>Coulomb</strong></th><td class="mid">\(kZ_1Z_2/r\)</td><td class="mid"><strong>\(\sqrt{E_G/E}\)</strong></td><td class="mid">\(E^{-1/2}\)</td><td>fusion, \(\alpha\) decay</td></tr>
+<tr><th>square</th><td class="mid">\(V_0\) (width \(d\))</td><td class="mid">\(\frac{2d}{\hbar}\sqrt{2m(V_0-E)}\)</td><td class="mid">linear in \(d\)</td><td>STM, Josephson</td></tr>
+<tr><th>triangular</th><td class="mid">\(\phi-eFx\)</td><td class="mid">\(\frac{4\sqrt{2m}}{3\hbar eF}\phi^{3/2}\)</td><td class="mid">\(F^{-1}\)</td><td>field emission</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ Numerical engine against analytic solutions: Coulomb agrees to \(10^{-7}\), square and triangular to \(10^{-9}\). <em>The Gamow factor, the square barrier and Fowler–Nordheim are three faces of one integral.</em></p>
+
+<p>★★ And <strong>the Gamow energy \(E_G=2\mu c^2(\pi\alpha Z_1Z_2)^2\) depends only on mass and charge</strong> ── <em>no nuclear physics enters at all.</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>reaction</th><th>\(\mu c^2\) [MeV]</th><th>\(E_G\) [keV]</th><th>our \(B_G\)</th><th>literature \(B_G\)</th></tr></thead>
+<tbody>
+<tr><th>p + p</th><td class="mid">469.14</td><td class="mid">493.1</td><td class="mid">22.2065</td><td class="mid">22.20</td></tr>
+<tr class="hi"><th><strong>d + d</strong></th><td class="mid">937.81</td><td class="mid">985.8</td><td class="mid"><strong>31.3969</strong></td><td class="mid"><strong>31.3970</strong></td></tr>
+<tr class="hi"><th><strong>d + t</strong></th><td class="mid">1124.65</td><td class="mid">1182.2</td><td class="mid"><strong>34.3826</strong></td><td class="mid"><strong>34.3827</strong></td></tr>
+<tr><th>d + ³He</th><td class="mid">1124.56</td><td class="mid">4728.3</td><td class="mid">68.7626</td><td class="mid">68.7508</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>Agreement to four figures</strong> (literature: Bosch–Hale 1992). <em>The entire “difficulty” of fusion sits in this one number.</em></p>
+
+<h2><span class="n">02</span>Thermonuclear fusion ── try moving it</h2>
+
+<div class="panel">
+<p class="ttl">Thermonuclear calculator</p>
+<div class="ctl">
+  <label>reaction</label>
+  <select id="fx-rx">
+    <option value="dt">d + t → n + ⁴He (what reactors aim for)</option>
+    <option value="dd">d + d (deuterium only)</option>
+    <option value="dhe3">d + ³He (no neutrons)</option>
+    <option value="pp">p + p (the Sun’s first step)</option>
+  </select>
+</div>
+<div class="ctl">
+  <label>temperature \(kT\)</label>
+  <input type="range" id="fx-T" min="-1" max="2.3" step="0.01" value="1.0">
+  <span class="val" id="fx-Tv">10.0 keV</span>
+</div>
+<div class="out" id="fx-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §02</p>
+<p style="margin:6px 0 0">★ <strong>It is not the average particle that reacts.</strong> <em>The product of the Maxwell tail (\(e^{-E/kT}\)) and the sharply rising tunnelling probability (\(e^{-\sqrt{E_G/E}}\)) makes a <strong>Gamow peak</strong>, and only that burns.</em><br>
+★★ <strong>Even at the Sun’s centre (1.35 keV = 15.7 million K) the peak is at 6.1 keV</strong> ── <em>only the tail, 4.5× the average.</em><br>
+★★★ <strong>The reactivity matches the literature to within 1 %</strong>: \(\langle\sigma v\rangle_{dt}=1.089\times10^{-22}\) at 10 keV (lit. \(1.1\times10^{-22}\)) and \(4.244\times10^{-22}\) at 20 keV (lit. \(4.3\times10^{-22}\)) m³/s; the peak is at 66.5 keV (lit. ≈64).</p>
+</div>
+
+<h2><span class="n">03</span>The same Coulomb barrier also gives \(\alpha\) decay</h2>
+
+<div class="panel">
+<p class="ttl">Alpha decay calculator</p>
+<div class="ctl">
+  <label>nuclide</label>
+  <select id="al-nuc">
+    <option value="0">²¹²Po (measured 0.3 μs)</option>
+    <option value="1">²²⁰Rn (measured 55.6 s)</option>
+    <option value="2">²²⁶Ra (measured 1600 yr)</option>
+    <option value="3" selected>²³⁸U (measured 4.47 Gyr)</option>
+  </select>
+</div>
+<div class="ctl">
+  <label>\(\alpha\) energy</label>
+  <input type="range" id="al-E" min="3.5" max="10" step="0.01" value="4.27">
+  <span class="val" id="al-Ev">4.27 MeV</span>
+</div>
+<div class="out" id="al-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §03 ── the \(E^{-1/2}\) in the exponent decides everything</p>
+<p style="margin:6px 0 0">★ ²³⁸U (4.27 MeV) and ²¹²Po (8.95 MeV) differ <strong>only by a factor 2.1 in energy</strong>.<br>
+★★★ Their lifetimes differ by <strong>24 orders of magnitude</strong> ── <em>4.47 billion years versus 0.3 microseconds.</em><br>
+★★ Our calculation gives \(\log_{10}(T/\mathrm{s})=17.16\) for ²³⁸U against a <strong>measured 17.15</strong>. <em>That a crude attempt frequency and a crude nuclear radius still land on it is because the exponent dominates everything</em> ── <strong>the most extreme case of Episode 53’s “quantities that only move logarithmically.”</strong></p>
+</div>
+
+<h2><span class="n">04</span>Tunnelling in solids ── STM and superconducting junctions</h2>
+
+<div class="panel">
+<p class="ttl">Square-barrier calculator</p>
+<div class="ctl">
+  <label>barrier height \(\phi\)</label>
+  <input type="range" id="sq-phi" min="0.1" max="6" step="0.05" value="4.5">
+  <span class="val" id="sq-phiv">4.50 eV</span>
+</div>
+<div class="ctl">
+  <label>width \(d\)</label>
+  <input type="range" id="sq-d" min="0.1" max="3" step="0.01" value="0.5">
+  <span class="val" id="sq-dv">0.50 nm</span>
+</div>
+<div class="out" id="sq-out"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §04 ── why single atoms are visible</p>
+<p style="margin:6px 0 0">★ At \(\phi=4.5\) eV (a metal work function), moving the tip <strong>1 Å closer multiplies the current by 8.8</strong> ── exactly 0.94 decades.<br>
+★★★ <strong>The STM rule of thumb “one decade per ångström” is this formula itself</strong>, <em>and it is why a single atom’s corrugation is visible.</em><br>
+★★ A Josephson junction (AlOx, \(\phi\approx2\) eV) costs 6.3 decades at 1 nm; <em>another 0.5 nm of oxide costs 3 more</em> ── <strong>which is why superconducting qubit fabrication demands ångström control.</strong><br>
+★ <em>The Coulomb barrier goes as \(E^{-1/2}\), but a square barrier is <strong>linear</strong> in \(d\)</em> ── <strong>so with STM, decades can be bought linearly in distance. In Episode 54’s terms, it is the most generous counterpart there is.</strong></p>
+</div>
+
+<h2><span class="n">05</span>★★★ Cold fusion ── counting how many decades are missing</h2>
+
+<p>The barrier-lowering effect of electrons is captured experimentally by a single <strong>screening energy \(U_e\)</strong> (\(\sigma_{\text{scr}}(E)=\sigma_{\text{bare}}(E+U_e)\)). Inside a bound molecule \(E\approx0\), so effectively \(E\to U_e\).</p>
+
+<div class="calc">
+<span class="tag">Cold fusion reduces to this one line</span>
+$$\lambda_{\text{pair}}=\frac{A_{dd}}{V_{\text{mol}}}\exp\!\left(-\sqrt{\frac{E_G}{U_e}}\right),\qquad E_G(dd)=986\ \text{keV}$$
+</div>
+
+<p>★★ Calibrating this model on <strong>a single point</strong> (\(U_e=36\) eV reproduces Koonin–Nauenberg’s \(3\times10^{-64}\,\mathrm{s^{-1}}\) for \(\mathrm{D_2}\)) <em>automatically yields \(10^{9.7}\,\mathrm{s^{-1}}\) for the muonic molecule</em> (literature ≈\(10^9\)) ── <strong>one calibration point spanning 73 orders of magnitude to within a factor of a few. So the model is usable.</strong></p>
+
+<div class="panel">
+<p class="ttl">Cold fusion calculator ── try moving \(U_e\)</p>
+<div class="ctl">
+  <label>screening \(U_e\)</label>
+  <input type="range" id="cf-U" min="10" max="700" step="1" value="27">
+  <span class="val" id="cf-Uv">27 eV</span>
+</div>
+<div class="ctl">
+  <label>d–d distance \(R\)</label>
+  <input type="range" id="cf-R" min="0.3" max="3.0" step="0.01" value="0.741">
+  <span class="val" id="cf-Rv">0.741 Å</span>
+</div>
+<div class="out" id="cf-out"></div>
+<div class="verdict" id="cf-verdict"></div>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>system</th><th>\(U_e\) [eV]</th><th>source</th><th>\(G\)</th><th>\(\lambda\) [/s/pair]</th><th>per mole [/s]</th></tr></thead>
+<tbody>
+<tr><th>\(\mathrm{D_2}\) gas target (meas.)</th><td class="mid">25</td><td class="mid">Raiola 2002</td><td class="mid">198.6</td><td class="mid">\(10^{-78.3}\)</td><td class="mid">\(10^{-54.5}\)</td></tr>
+<tr><th>adiabatic limit (theory)</th><td class="mid">27</td><td class="mid">textbook</td><td class="mid">191.1</td><td class="mid">\(10^{-75.0}\)</td><td class="mid">\(10^{-51.3}\)</td></tr>
+<tr><th>deuterated Ti</th><td class="mid">36</td><td class="mid">Raiola 2002</td><td class="mid">165.5</td><td class="mid">\(10^{-63.9}\)</td><td class="mid">\(10^{-40.1}\)</td></tr>
+<tr class="hi"><th><strong>deuterated Pd</strong></th><td class="mid"><strong>250</strong></td><td class="mid">Raiola 2002</td><td class="mid">62.8</td><td class="mid"><strong>\(10^{-19.3}\)</strong></td><td class="mid"><strong>\(10^{+4.5}\)</strong></td></tr>
+<tr class="hi"><th>deuterated Ta</th><td class="mid">309</td><td class="mid">Kasagi 2002</td><td class="mid">56.5</td><td class="mid">\(10^{-16.6}\)</td><td class="mid">\(10^{+7.2}\)</td></tr>
+<tr><th>Au/Pd/PdO multilayer</th><td class="mid">601</td><td class="mid">Raiola 2002</td><td class="mid">40.5</td><td class="mid">\(10^{-9.6}\)</td><td class="mid">\(10^{+14.1}\)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §05 ── this is the genuinely interesting part</p>
+<p style="margin:6px 0 0">★ Experimental upper limits are \(10^{-24}\) to \(10^{-23}\,\mathrm{s^{-1}}\) per pair (Jones 1989 and others). The \(U_e\) corresponding to that is <strong>194 eV</strong>.<br>
+★★★ Yet <strong>the measured \(U_e\) for deuterated Pd is 250 eV</strong> ── <em>above the limit.</em><br>
+★★ <strong>Taken at face value, the model therefore predicts that cold fusion should be observed.</strong> It is not.<br>
+★★★ <em>So the conclusion is not “cold fusion does not exist” but</em> <strong>“extrapolating \(U_e\) down to \(E\to0\) breaks the approximation”</strong> ── <em>in Episode 55’s language, a conditional value being used outside its condition.</em></p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>what is broken</th><th>detail</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① extrapolation</strong></th><td>\(U_e\) is measured in beam experiments at \(E=5\)–20 keV. The shift \(E\to E+U_e\) is valid only for \(U_e\ll E\); \(E\to0\) is outside any guarantee</td></tr>
+<tr><th>② electron density</th><td>producing 250 eV by static screening needs a screening length of about 0.06 Å; metallic electron densities fall orders short</td></tr>
+<tr><th>③ distance</th><td>the d–d distance in a metal is about 2.9 Å, far larger than \(\mathrm{D_2}\)’s 0.74 Å ── the barrier is not lowered but <em>wider</em></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="n">06</span>★★★ “Does the wave picture give anything?” ── three honest counts</h2>
+
+<p>First the premise. <strong>Treating fusion as a wave is exactly what Gamow did in 1928</strong>, and that in itself is not new ── <em>tunnelling is a wave leaking where classical particles cannot go.</em> With that said, here are three things the wave language turns into <strong>something countable</strong>.</p>
+
+<h3 style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;margin:28px 0 10px">(A) d+t is chosen not for its barrier but for a resonance</h3>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>reaction</th><th>\(B_G\)</th><th>\(E_{cm}\)</th><th>Gamow factor</th><th>\(\sigma\) [mb]</th><th>\(S(E)\) [keV·b]</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>d + t</strong></th><td class="mid"><strong>34.38</strong></td><td class="mid">50 keV</td><td class="mid">7.73e−3</td><td class="mid"><strong>3970</strong></td><td class="mid"><strong>25675</strong></td></tr>
+<tr><th>d + d</th><td class="mid">31.40</td><td class="mid">50 keV</td><td class="mid">1.18e−2</td><td class="mid">33.2</td><td class="mid">141</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>\(B_G\) is 2.99 <em>larger</em> for d+t</strong> ── <em>tunnelling is 1.53× worse for it.</em><br>
+★★★ And yet the cross-section is <strong>120× larger</strong>. The whole difference lives in \(S(E)\) (182×).<br>
+★★ <strong>d+t’s advantage is the ⁵He resonance at 64 keV ── a standing wave state on the nuclear side.</strong> <em>“Reactors use d+t because its barrier is lower” is, strictly, backwards.</em></p>
+
+<h3 style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;margin:28px 0 10px">(B) Is the muon “just barely” heavy enough?</h3>
+
+<p>Replace the electron with a particle of mass ratio \(x\): the molecule shrinks to \(1/x\), \(U_e\) grows by \(x\), and \(G\) shrinks by \(1/\sqrt{x}\).</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>mass ratio \(x\)</th><th>molecule size</th><th>\(G\)</th><th>\(\lambda\) [/s]</th><th></th></tr></thead>
+<tbody>
+<tr><th>1</th><td class="mid">0.741 Å</td><td class="mid">164.6</td><td class="mid">\(10^{-63.5}\)</td><td>electron (\(\mathrm{D_2}\))</td></tr>
+<tr><th>30</th><td class="mid">0.0247 Å</td><td class="mid">30.0</td><td class="mid">\(10^{-0.7}\)</td><td>too slow</td></tr>
+<tr class="hi"><th><strong>85</strong></th><td class="mid">0.0087 Å</td><td class="mid">17.9</td><td class="mid">\(10^{6.0}\)</td><td><strong>★ threshold</strong></td></tr>
+<tr class="hi"><th><strong>195.7</strong></th><td class="mid">0.0038 Å</td><td class="mid">11.8</td><td class="mid">\(10^{9.7}\)</td><td><strong>muon (\(\tau=2.2\,\mu\)s)</strong></td></tr>
+<tr><th>273</th><td class="mid">0.0027 Å</td><td class="mid">10.0</td><td class="mid">\(10^{10.9}\)</td><td>pion (\(\tau=26\) ns)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ The threshold for useful catalysis is <strong>a mass ratio of about 85</strong>. The muon sits at 195.7, a factor 2.3 above ── not marginal.<br>
+★★ <strong>But there is no charged particle between the electron and the muon.</strong> <em>The only charged particles above the threshold are the muon and the pion, and the pion decays in 26 ns.</em><br>
+★ So <strong>muon-catalysed fusion has exactly one candidate</strong> ── <em>the muon is the only particle in nature satisfying both mass and lifetime. And what sets that threshold is the \(x^{-1/2}\) law of leakage.</em></p>
+
+<h3 style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;margin:28px 0 10px">(C) ★★★ If it is a wave, it should add coherently ── does that close the gap?</h3>
+
+<p>This is <strong>the strongest thing this episode can say</strong>. Claims of the form “cold fusion is explained by a collective wave effect” can be judged <em>without looking inside the model at all</em>, by counting.</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>value</th></tr></thead>
+<tbody>
+<tr><th>theory (\(U_e=27\) eV, \(\mathrm{D_2}\) geometry)</th><td class="mid">\(10^{-75.0}\) /s/pair</td></tr>
+<tr><th>experimental limit (Jones 1989 etc.)</th><td class="mid">\(10^{-23.0}\) /s/pair</td></tr>
+<tr class="hi"><th><strong>gap to close</strong></th><td class="mid"><strong>52 orders</strong></td></tr>
+<tr><th>coherent \(N\) required (even with \(N^2\) superradiance)</th><td class="mid">\(10^{52}\)</td></tr>
+<tr class="hi"><th>one mole</th><td class="mid">\(10^{23.8}\) ── <strong>28 orders short</strong></td></tr>
+<tr class="hi"><th>all deuterium in Earth’s oceans</th><td class="mid">\(\approx10^{43}\) ── <strong>9 orders short</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §06</p>
+<p style="margin:6px 0 0">★★★ <strong>Applying the largest conceivable coherence — perfect superradiance — to every deuteron in Earth’s oceans still falls 9 orders short.</strong><br>
+★★ <em>So the “waves add coherently” rescue fails for any specific model whatsoever</em> ── <strong>it can be refuted by counting.</strong><br>
+★ <strong>But this is not a proof that cold fusion does not exist.</strong> <em>It is the narrower claim that a coherence mechanism cannot explain it</em>, and the only road left is ① from §05.</p>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>there are only three knobs</th><th>required</th><th>what exists</th><th>verdict</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>① raise the screening \(U_e\)</strong></th><td class="mid">194 eV</td><td>theory 27 eV / metals measured 250 eV</td><td class="mid"><strong>?</strong></td></tr>
+<tr><th>② shrink the distance \(R\)</th><td class="mid">0.103 Å</td><td>\(\mathrm{D_2}\) 0.741 Å / PdD ≈2.9 Å</td><td class="mid">×</td></tr>
+<tr><th>③ raise the energy \(E\)</th><td class="mid">194 eV = 2.25 million K</td><td>room temperature 0.025 eV</td><td class="mid">×</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>Only ① remains, which is why every cold-fusion argument converges on “how far do you trust \(U_e\)”.</strong><br>
+★★ And ① <strong>is measurable</strong>: <em>lower the energy and watch whether the apparent \(U_e\) stays constant. If it does, the model holds; if it drifts, the extrapolation is broken</em> ── <strong>exactly the form of question Episode 55’s handbook demands.</strong></p>
+
+<h2><span class="n">07</span>All of it on one page ── decades \(=G/\ln 10\)</h2>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>phenomenon</th><th>barrier</th><th>\(G\)</th><th>decades of suppression</th><th>the knob</th></tr></thead>
+<tbody>
+<tr><th>d+t (20 keV, reactor)</th><td>Coulomb</td><td class="mid">7.7</td><td class="mid">3.3</td><td>temperature</td></tr>
+<tr class="hi"><th><strong>STM (0.5 nm vacuum)</strong></th><td>square 4.5 eV</td><td class="mid">10.9</td><td class="mid">4.7</td><td>distance</td></tr>
+<tr><th>dd-μ molecule</th><td>Coulomb + screening</td><td class="mid">11.8</td><td class="mid">5.1</td><td>the muon’s mass</td></tr>
+<tr><th>Josephson (1 nm)</th><td>square 2 eV</td><td class="mid">14.5</td><td class="mid">6.3</td><td>oxide thickness</td></tr>
+<tr><th>field emission (3 GV/m)</th><td>triangular 4.5 eV</td><td class="mid">21.7</td><td class="mid">9.4</td><td>electric field</td></tr>
+<tr><th>d+d (Sun, 1.35 keV)</th><td>Coulomb</td><td class="mid">27.0</td><td class="mid">11.7</td><td>temperature</td></tr>
+<tr><th>²³⁸U \(\alpha\) decay</th><td>Coulomb</td><td class="mid">88.0</td><td class="mid">38.2</td><td>── nothing to turn</td></tr>
+<tr class="hi"><th><strong>\(\mathrm{D_2}\) (room temperature)</strong></th><td>Coulomb + screening</td><td class="mid"><strong>191</strong></td><td class="mid"><strong>83</strong></td><td><strong>── no knob</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">The core of §07 ── this table is the whole thing</p>
+<p style="margin:6px 0 0">★★★ Top to bottom, <strong>one and the same integral</strong>. Only \(V(r)\) differs.<br>
+★★ <strong>The “usable” phenomena cost around 10 decades; the “unusable” ones cost 80.</strong> <em>Whether there is a knob in between is the whole difference.</em><br>
+★ <strong>The muon really does take 83 decades down to 5.</strong> <em>That is why it works.</em> (It works, but with a 2.2 μs lifetime it catalyses only ~150 times, which misses breakeven ── <strong>that is a separate problem, not a tunnelling one.</strong>)</p>
+</div>
+
+<div class="prob">
+<p class="lbl">Exercises</p>
+<ol>
+<li>§04 says STM buys decades linearly in distance. What is that in the language of Episodes 53 and 54?
+<details><summary>Show answer</summary><div class="ans"><strong>The most generous way of buying range there is.</strong><br>★ Episode 53: <em>“range can only be bought logarithmically”</em> (ten times the observation \(T\) buys one decade). ★★ But <strong>a square barrier has \(G\propto d\), so shrinking the distance <em>linearly</em> buys decades <em>linearly</em></strong> ── <em>one decade per ångström.</em><br>★★★ <strong>The Coulomb barrier has \(G\propto E^{-1/2}\), so doubling the decades needs four times the energy</strong> ── <em>that side belongs to Episode 53’s “only as a power”.</em><br>★★ <strong>So “what you must buy to gain decades” is decided by the barrier’s shape</strong> ── <em>STM reaching atomic resolution while fusion demands 100 million K is only a difference of exponent inside the same formula.</em></div></details></li>
+
+<li>§06 (C) says the claim can be refuted by counting. Why is that a strong argument?
+<details><summary>Show answer</summary><div class="ans"><strong>Because it does not depend on the mechanism at all.</strong><br>★ <em>The usual rebuttal knocks down one proposed mechanism at a time, and has to start over whenever a new one appears.</em><br>★★ <strong>But coherent amplification is bounded by \(N\) for any mechanism (even superradiance gives \(N\)).</strong> <em>So counting the required \(N\) against the available \(N\) ends it.</em><br>★★★ <strong>This is the strongest form of Episode 55’s “count the assumptions”</strong> ── <em>judging by the ceiling of what an assumption could deliver, without examining the assumption.</em><br>★ <strong>Its limits are equally sharp</strong>: <em>it says nothing about non-coherence mechanisms (a genuinely different screening, say).</em> ★★ <strong>Unless you write down what it does and does not refute, this argument gets abused.</strong></div></details></li>
+
+<li>§05 finds the measured \(U_e\) exceeding the limit. Is that a contradiction?
+<details><summary>Show answer</summary><div class="ans"><strong>Not a contradiction ── a broken extrapolation.</strong><br>★ \(U_e\) is obtained by measuring <em>how fast \(\sigma\) rises</em> at \(E=5\)–20 keV. ★★ There \(U_e/E\sim0.02\), and <strong>the shift \(E\to E+U_e\) is a correct first-order approximation.</strong><br>★★★ <strong>But at \(E\to0\), \(U_e/E\to\infty\) ── we are five decades outside where that first-order form applies.</strong><br>★ <em>In Episode 57’s language</em>: <strong>this is an edge.</strong> <em>The leading term of an expansion was carried outside the range where the expansion works.</em><br>★★ <strong>In Episode 60’s language</strong>: <em>a value was used without saying where it was cut. \(U_e\) is “the \(U_e\) measured at 5–20 keV”, not a constant.</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">Summary — one integral, counting 83 decades</h2>
+<p>“Superconductivity and fusion are all just tunnelling, aren’t they?” ── <strong>Yes.</strong></p>
+<p style="text-align:center"><strong>★★★ \(G=\dfrac{2}{\hbar}\displaystyle\int\sqrt{2m(V-E)}\,dr\), \(\;\)decades \(=G/\ln 10\).<br>Only \(V(r)\) changes.</strong></p>
+<p>★ <strong>All 18 checks pass</strong>: <em>\(B_G\) agrees with the literature to four figures, \(\langle\sigma v\rangle_{dt}\) to within 1 %, ²³⁸U’s \(\alpha\) decay gives \(\log_{10}(T/\mathrm{s})=17.16\) against a measured 17.15, STM gives 0.94 decades per ångström, and dd-μ gives \(5.2\times10^9\) against a literature \(1.5\times10^9\).</em></p>
+<p>★★ <strong>Cold fusion reduces to \(U_e\) alone.</strong> <em>In a model calibrated on one \(\mathrm{D_2}\) point that reproduces the muonic molecule 73 orders away, the \(U_e\) matching the experimental limit is 194 eV ── while deuterated Pd measures 250 eV.</em> ★★★ <strong>So the conclusion is not “cold fusion does not exist” but “extrapolating \(U_e\) to \(E\to0\) is broken”</strong> ── <em>a question that can be measured.</em></p>
+<p>★★★ <strong>And three things the wave picture yielded.</strong> <em>(A) d+t’s advantage is not the barrier but the ⁵He resonance (its \(B_G\) is in fact 1.53× worse; the difference is entirely \(S(E)\)). (B) The catalysis threshold is a mass ratio of 85, and the only charged particles above it are the muon and the pion, the latter dying in 26 ns ── hence exactly one candidate. (C) A coherence mechanism falls 9 orders short even with every deuteron in Earth’s oceans in perfect superradiance.</em></p>
+<p>★ <strong>(C) is the strongest statement here</strong> ── <em>an entire class of explanations refuted by counting, without inspecting a single mechanism.</em> ★★ <strong>But what was refuted is “coherence mechanisms”, not “cold fusion”.</strong> <em>Without writing that distinction down, the argument gets abused (Exercise 2).</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">Next time</span>
+In §07’s table, <strong>only the muon took 83 decades down to 5</strong>.<br>
+★ <em>And §06 (B) showed that it is the one option nature provides.</em><br>
+★★ <strong>Next we dig into that “only one”</strong> ── <em>what is a catalyst, and what does it mean to help something tunnel?</em> ★ <strong>Episode 45’s Bogoliubov coefficient, Episode 58’s window sidelobes, and this episode’s muon</strong> ── <em>we ask whether “reaching in from outside to change an exponent” is the same operation in all three.</em>
+</div>
+
+<p class="foot">This document is Episode 62 of the “Thinking in Waves” series, opening Part XX. The computations are in kenshou/tunnel.js (zero dependencies, no randomness, 18 checks). <strong>This is the first episode in the series to carry calculators the reader can drive</strong> (the sliders in §§02–05); every displayed value is computed on the spot from the same formulas as that script. <strong>Not discoveries of this episode:</strong> the WKB approximation and the Gamow factor (Gamow 1928), the Gamow peak, Fowler–Nordheim, Geiger–Nuttall, the screening-energy \(U_e\) framework, muon-catalysed fusion, Koonin–Nauenberg’s \(\mathrm{D_2}\) rate of \(3\times10^{-64}\,\mathrm{s^{-1}}\), and the ⁵He resonance in d+t ── <strong>all standard, known results.</strong> What this episode did was <em>re-express them on the single yardstick \(G/\ln10\) (decades of suppression), ① verify that one \(\mathrm{D_2}\) calibration point reproduces the muonic molecule 73 orders away, ② count the \(U_e\) matching the experimental limit as 194 eV, and ③ count the \(N\) a coherence mechanism would need as \(10^{52}\), leaving all of Earth’s deuterium 9 orders short.</em> <strong>Limits of the model:</strong> <em>the rates in §§05–06 use \(\lambda=A_{dd}|\psi(0)|^2\) with \(|\psi(0)|^2\approx e^{-G}/V\), a crude estimate with a factor-of-a-few uncertainty in absolute value (calibrated on one \(\mathrm{D_2}\) point). The decade-counting is unaffected, but boundary values such as “194 eV” are model-dependent.</em> The threshold of 85 in §06 (B) uses the convenience criterion \(\lambda>10^6\,\mathrm{s^{-1}}\) and moves if that changes. The \(\alpha\) decay in §03 uses an attempt frequency \(v/2r_n\) and a radius \(1.2(A^{1/3}+4^{1/3})\) fm, both crude. <strong>This episode too uses only literature values and analytic formulas; it has not been applied to raw measured data.</strong> <strong>Main references:</strong> Bosch &amp; Hale, Nucl. Fusion 32, 611 (1992); NRL Plasma Formulary; Kasagi et al., Eur. Phys. J. A (2002); Raiola et al. (2002); Koonin &amp; Nauenberg, Nature 339, 690 (1989); Jones et al., Nature 338, 737 (1989); CODATA 2018. ── To print, use your browser’s Print → Save as PDF.</p>
+
+</article>
+<p class="hint no-print">Printing / PDF: ⌘+P (Ctrl+P on Windows). “Show answer” opens the solutions. ★ Sliders do not appear in print.</p>
+
+<script>
+(function(){
+  'use strict';
+  var HBAR=1.054571817e-34, QE=1.602176634e-19, KE=2.30707751e-28;
+  var ME=9.1093837015e-31, ALPHA=7.2973525693e-3, NA=6.02214076e23;
+  var KB_EV=8.617333262e-5, C=2.99792458e8, MEV_KG=1e6*QE/(C*C);
+  var MC2={e:0.51099895,mu:105.6583755,p:938.27208816,
+           d:1875.61294257,t:2808.92113298,he3:2808.39132};
+  function d10(x){return Math.log(x)/Math.LN10;}
+  function dec(G){return G/Math.LN10;}
+  function pow10s(x){
+    if(x>-4&&x<6) return (Math.pow(10,x)).toPrecision(3);
+    return '10<sup>'+(x>=0?'':'−')+Math.abs(x).toFixed(1)+'</sup>';
+  }
+  function red(a,b){return MC2[a]*MC2[b]/(MC2[a]+MC2[b]);}
+  function EG_keV(a,b,z1,z2){return 2*red(a,b)*1e3*Math.pow(Math.PI*ALPHA*z1*z2,2);}
+
+  var RX={
+    dt:{a:'d',b:'t',z1:1,z2:1,nrl:[45.95,50200,1.368e-2,1.076,409]},
+    dd:{a:'d',b:'d',z1:1,z2:1,nrl:[46.097,372,4.36e-4,1.220,0],
+        nrl2:[47.88,482,3.08e-4,1.177,0]},
+    dhe3:{a:'d',b:'he3',z1:1,z2:2,nrl:[89.27,25900,3.98e-3,1.297,647]},
+    pp:{a:'p',b:'p',z1:1,z2:1,nrl:null}
+  };
+  function sigNRL(A,E){
+    if(!A||E<=0) return 0;
+    var den=E*(Math.exp(A[0]/Math.sqrt(E))-1);
+    if(!isFinite(den)||den<=0) return 0;
+    return (A[4]+A[1]/(Math.pow(A[3]-A[2]*E,2)+1))/den;
+  }
+  function sigvOf(key,kT){
+    var r=RX[key]; if(!r.nrl) return null;
+    var mu=red(r.a,r.b)*MEV_KG, labF=(MC2[r.a]+MC2[r.b])/MC2[r.b];
+    var kTj=kT*1e3*QE, n=6000, h=40*kTj/n, s=0;
+    for(var i=0;i<n;i++){
+      var E=h*(i+0.5), El=E/(1e3*QE)*labF;
+      var sg=(sigNRL(r.nrl,El)+(r.nrl2?sigNRL(r.nrl2,El):0))*1e-28;
+      s+=E*sg*Math.exp(-E/kTj)*h;
+    }
+    return Math.sqrt(8/(Math.PI*mu))*Math.pow(kTj,-1.5)*s;
+  }
+  function fxUpdate(){
+    var key=document.getElementById('fx-rx').value;
+    var T=Math.pow(10,parseFloat(document.getElementById('fx-T').value));
+    document.getElementById('fx-Tv').textContent=(T<1?T.toFixed(2):T.toFixed(1))+' keV';
+    var r=RX[key], eg=EG_keV(r.a,r.b,r.z1,r.z2), bg=Math.sqrt(eg);
+    var E0=Math.pow(eg*T*T/4,1/3), W=4*Math.sqrt(E0*T/3), G0=bg/Math.sqrt(E0);
+    var sv=sigvOf(key,T);
+    var o='<b>Gamow energy</b> E<sub>G</sub> = '+eg.toFixed(0)+' keV'+
+      '&nbsp;&nbsp;(B<sub>G</sub> = '+bg.toFixed(2)+')<br>'+
+      '<b>Gamow peak</b> E<sub>0</sub> = <span class="big">'+E0.toFixed(2)+' keV</span>'+
+      '&nbsp;&nbsp;= '+(E0/T).toFixed(1)+'× the average&nbsp;&nbsp;(width '+W.toFixed(1)+' keV)<br>'+
+      '<b>G at the peak</b> = '+G0.toFixed(2)+'&nbsp;&nbsp;→ '+dec(G0).toFixed(1)+' decades of suppression<br>'+
+      '<b>temperature</b> = '+(T*1e3/KB_EV/1e6).toFixed(1)+' million K';
+    o+= sv!==null
+      ? '<br><b>reactivity</b> &lt;σv&gt; = <span class="big">'+sv.toExponential(3)+'</span> m³/s'
+      : '<br><b>reactivity</b> ── p+p needs the weak interaction, so S(0)≈4×10<sup>−22</sup> keV·b, orders smaller (why the Sun burns for 10 billion years)';
+    document.getElementById('fx-out').innerHTML=o;
+  }
+
+  var NUC=[{Zd:82,Ad:208,E:8.954,T:2.99e-7},{Zd:84,Ad:216,E:6.405,T:55.6},
+           {Zd:86,Ad:222,E:4.871,T:1600*3.156e7},{Zd:90,Ad:234,E:4.270,T:4.468e9*3.156e7}];
+  var MHE4=3727.3794066;
+  function wkbNum(V,m,E,r1,r2,n){
+    var s=0,h=(r2-r1)/n;
+    for(var i=0;i<n;i++){var dv=V(r1+h*(i+0.5))-E; if(dv>0) s+=Math.sqrt(2*m*dv);}
+    return 2*s*h/HBAR;
+  }
+  function alphaCalc(Zd,Ad,EM){
+    var mu=(MHE4*(Ad*931.494))/(MHE4+Ad*931.494)*MEV_KG;
+    var rn=1.2e-15*(Math.pow(4,1/3)+Math.pow(Ad,1/3));
+    var E=EM*1e6*QE, b=KE*2*Zd/E;
+    if(b<=rn) return {G:0,logT:-Infinity,rn:rn,b:b};
+    var G=wkbNum(function(r){return KE*2*Zd/r;},mu,E,rn,b,20000);
+    var v=Math.sqrt(2*E/mu), nu=v/(2*rn);
+    return {G:G,logT:d10(Math.LN2/nu)+dec(G),rn:rn,b:b};
+  }
+  function fmtT(L){
+    if(L<-6) return (Math.pow(10,L+9)).toPrecision(3)+' ns';
+    if(L<0)  return (Math.pow(10,L+6)).toPrecision(3)+' μs';
+    if(L<2)  return (Math.pow(10,L)).toPrecision(3)+' s';
+    var yr=L-d10(3.156e7);
+    if(yr<0) return (Math.pow(10,L-4.9365)).toPrecision(3)+' days';
+    if(yr<4) return (Math.pow(10,yr)).toPrecision(3)+' yr';
+    return pow10s(yr)+' yr';
+  }
+  function alUpdate(){
+    var i=parseInt(document.getElementById('al-nuc').value,10);
+    var E=parseFloat(document.getElementById('al-E').value);
+    document.getElementById('al-Ev').textContent=E.toFixed(2)+' MeV';
+    var n=NUC[i], r=alphaCalc(n.Zd,n.Ad,E), ref=alphaCalc(n.Zd,n.Ad,n.E);
+    document.getElementById('al-out').innerHTML=
+      '<b>nuclear radius</b> r<sub>n</sub> = '+(r.rn*1e15).toFixed(1)+' fm'+
+      '&nbsp;&nbsp;<b>turning point</b> b = '+(r.b*1e15).toFixed(1)+' fm<br>'+
+      '<b>G</b> = <span class="big">'+r.G.toFixed(1)+'</span>'+
+      '&nbsp;&nbsp;→ '+dec(r.G).toFixed(1)+' decades<br>'+
+      '<b>half-life</b> = <span class="big">'+fmtT(r.logT)+'</span>'+
+      '&nbsp;&nbsp;(log<sub>10</sub>(T/s) = '+r.logT.toFixed(2)+')<br>'+
+      '<b>measured for this nuclide</b> log<sub>10</sub>(T/s) = '+d10(n.T).toFixed(2)+
+      '&nbsp;&nbsp;(at E = '+n.E.toFixed(3)+' MeV we get '+ref.logT.toFixed(2)+')';
+  }
+
+  function sqUpdate(){
+    var phi=parseFloat(document.getElementById('sq-phi').value);
+    var d=parseFloat(document.getElementById('sq-d').value);
+    document.getElementById('sq-phiv').textContent=phi.toFixed(2)+' eV';
+    document.getElementById('sq-dv').textContent=d.toFixed(2)+' nm';
+    var k=Math.sqrt(2*ME*phi*QE)/HBAR, G=2*k*d*1e-9, perA=2*k*1e-10;
+    document.getElementById('sq-out').innerHTML=
+      '<b>decay constant</b> 2κ = '+(2*k*1e-9).toFixed(2)+' /nm<br>'+
+      '<b>G</b> = <span class="big">'+G.toFixed(2)+'</span>'+
+      '&nbsp;&nbsp;→ P = '+pow10s(-dec(G))+'&nbsp;&nbsp;= '+dec(G).toFixed(1)+' decades of suppression<br>'+
+      '<b>1 Å closer</b> ×'+Math.exp(perA).toFixed(1)+
+      '&nbsp;&nbsp;= '+dec(perA).toFixed(2)+' decades<br>'+
+      '<b>halving the width</b> recovers '+(dec(G)/2).toFixed(1)+' decades';
+  }
+
+  var A_DD=1.5e-16, EG_DD_eV=EG_keV('d','d',1,1)*1e3;
+  function cfUpdate(){
+    var U=parseFloat(document.getElementById('cf-U').value);
+    var R=parseFloat(document.getElementById('cf-R').value);
+    document.getElementById('cf-Uv').textContent=U.toFixed(0)+' eV';
+    document.getElementById('cf-Rv').textContent=R.toFixed(3)+' Å';
+    var G=Math.sqrt(EG_DD_eV/U), V=(4*Math.PI/3)*Math.pow(R*1e-8,3);
+    var logLam=d10(A_DD/V)-dec(G), logMole=logLam+d10(NA);
+    document.getElementById('cf-out').innerHTML=
+      '<b>G</b> = '+G.toFixed(1)+'&nbsp;&nbsp;→ '+dec(G).toFixed(1)+' decades of suppression<br>'+
+      '<b>rate per pair</b> λ = <span class="big">'+pow10s(logLam)+'</span> /s<br>'+
+      '<b>per mole of deuterium</b> '+pow10s(logMole)+' /s'+
+      (logMole<0?'&nbsp;&nbsp;(one event every '+pow10s(-logMole)+' s)':'&nbsp;&nbsp;← easily detectable')+'<br>'+
+      '<b>for comparison</b>: experimental limit 10<sup>−23</sup> /s/pair, age of the universe = 4×10<sup>17</sup> s';
+    var v=document.getElementById('cf-verdict');
+    if(logLam>-23){
+      v.className='verdict v-bad';
+      v.innerHTML='★ At this value it <b>should be observed</b> ('+
+        (logLam+23).toFixed(1)+' orders above the 10<sup>−23</sup> limit). It is not ── so '+
+        '<b>something in this model is broken</b>, most likely extrapolating U<sub>e</sub> to E→0.';
+    }else if(logLam>-40){
+      v.className='verdict v-mid';
+      v.innerHTML='★ Below the limit, but <b>close in orders of magnitude</b> ── this is the band where measurement would settle it.';
+    }else{
+      v.className='verdict v-ok';
+      v.innerHTML='★ Completely out of reach. <b>The theoretical value (U<sub>e</sub>=27 eV) is here.</b> '+
+        'Even a whole mole gives '+pow10s(logMole+d10(4e17))+' events in the age of the universe.';
+    }
+  }
+
+  function on(id,fn,ev){var e=document.getElementById(id);
+    if(e) e.addEventListener(ev||'input',fn);}
+  on('fx-rx',fxUpdate,'change'); on('fx-T',fxUpdate);
+  on('al-E',alUpdate);
+  on('al-nuc',function(){
+    var i=parseInt(this.value,10);
+    document.getElementById('al-E').value=String(NUC[i].E);
+    alUpdate();
+  },'change');
+  on('sq-phi',sqUpdate); on('sq-d',sqUpdate);
+  on('cf-U',cfUpdate); on('cf-R',cfUpdate);
+  fxUpdate(); alUpdate(); sqUpdate(); cfUpdate();
+})();
+</script>
+</body>
+</html>
