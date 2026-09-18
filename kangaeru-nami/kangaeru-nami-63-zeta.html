@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波とゼータ ── 共鳴が並ぶと、数論に出る</title>
+<script>
+  window.MathJax = { tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$']]}, svg:{fontCache:'global'} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" id="MathJax-script"></script>
+<style>
+  :root{
+    --ink:#1b1a22; --ink-soft:#4c4a5a;
+    --paper:#f8f7fb; --paper-edge:#e0dee9;
+    --side:#3e3466; --side-bg:#eeecf5;
+    --warn:#8a4b2f;
+    --calc:#332b56; --calc-bg:#eae7f3;
+    --rule:#d4d0e2; --hair:#b6b1cc;
+    --acc:#3e3466;
+    --grid:#e4e1ee;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper-edge);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",'Noto Serif JP',serif;
+    line-height:1.92;font-size:17px;letter-spacing:.01em;}
+  .sheet{max-width:760px;margin:32px auto;background:var(--paper);
+    padding:64px 70px 90px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.10);
+    border:1px solid var(--paper-edge);}
+  .series{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.3em;color:var(--acc);margin:0 0 6px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .series .ep{color:var(--ink-soft);letter-spacing:.14em;font-weight:600;font-size:11.5px;}
+  .eyebrow{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;letter-spacing:.16em;color:var(--side);margin:0 0 22px;font-weight:600;}
+  h1{font-size:37px;line-height:1.28;margin:0 0 8px;font-weight:600;letter-spacing:.02em;}
+  h1 .sub{display:block;font-size:17.5px;color:var(--ink-soft);font-weight:400;margin-top:13px;
+    letter-spacing:.04em;line-height:1.7;}
+  .byline{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;margin-top:24px;padding-top:16px;
+    border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  h2{font-size:22px;font-weight:600;margin:52px 0 4px;letter-spacing:.03em;line-height:1.42;}
+  h2 .n{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    color:var(--acc);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px;font-weight:600;}
+  h3{font-size:17px;font-weight:600;margin:28px 0 2px;letter-spacing:.02em;color:#25272e;}
+  p{margin:15px 0;}
+  .lead{font-size:19px;line-height:1.85;}
+  em{font-style:normal;background:linear-gradient(transparent 62%, #d6dcd6 62%);padding:0 .05em;}
+  strong{font-weight:600;}
+
+  .aside{margin:24px 0;background:var(--side-bg);border-left:3px solid var(--side);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#314d31;}
+  .aside .tag,.caveat .tag,.calc .tag{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin-bottom:7px;}
+  .aside .tag{color:var(--side);}
+  .caveat{margin:24px 0;background:#f6ede4;border-left:3px solid var(--warn);padding:16px 22px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14.5px;line-height:1.8;color:#3f2a1c;}
+  .caveat .tag{color:var(--warn);}
+  .calc{margin:26px 0;background:var(--calc-bg);border:1px solid #c4cec4;border-left:3px solid var(--calc);
+    padding:18px 24px 8px;border-radius:2px;}
+  .calc .tag{color:var(--calc);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;}
+  .calc .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13px;color:var(--calc);font-weight:600;margin:12px 0 -6px;letter-spacing:.04em;}
+
+  .fig{margin:26px 0;padding:18px 20px 20px;background:#fbfcfb;border:1px solid var(--rule);border-radius:4px;}
+  .fig .cap{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:.03em;}
+  .fig canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--grid);border-radius:2px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13px;color:var(--ink-soft);}
+  .controls label{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;}
+  .controls .val{color:var(--acc);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--acc);}
+  .readout{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:13.5px;margin-top:10px;padding:9px 13px;border-radius:3px;font-weight:600;line-height:1.6;
+    background:var(--calc-bg);color:var(--calc);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  .divider{text-align:center;color:var(--hair);letter-spacing:1em;margin:46px 0;font-size:12px;}
+  .keybox{margin:30px 0;padding:20px 26px;border:1.5px solid var(--ink);background:#fdfdfd;border-radius:2px;}
+  .keybox .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+
+  .tblwrap{overflow-x:auto;margin:26px 0;}
+  table.ce{border-collapse:collapse;width:100%;min-width:520px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:13.5px;line-height:1.7;}
+  table.ce th,table.ce td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  table.ce thead th{background:var(--calc-bg);color:var(--calc);font-weight:700;font-size:12.5px;letter-spacing:.04em;}
+  table.ce tbody th{background:#f2f4f2;font-weight:600;white-space:nowrap;}
+  table.ce td.mid{text-align:center;font-variant-numeric:tabular-nums;}
+  table.ce tr.hi td,table.ce tr.hi th{background:#dae0da;}
+  table.ce tr.hi{outline:2px solid var(--acc);outline-offset:-2px;}
+  table.ce code{font-size:12.5px;}
+
+  .seven{margin:26px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;}
+  .seven .row{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;line-height:1.7;}
+  .seven .row:last-child{border-bottom:none;}
+  .seven .row.hi{background:#dae0da;}
+  .seven .mk{flex-shrink:0;width:24px;font-weight:700;font-size:13px;color:var(--acc);}
+  .seven .txt strong{display:block;margin-bottom:2px;}
+  .seven .txt span{color:var(--ink-soft);font-size:13px;}
+
+  .prob{margin:30px 0;padding:22px 26px 10px;border:1.5px dashed var(--acc);border-radius:2px;background:#f0f3f0;}
+  .prob .lbl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:10px;}
+  .prob ol{margin:0;padding-left:1.3em;} .prob li{margin:10px 0;}
+  details{margin-top:12px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;}
+  summary{cursor:pointer;color:var(--acc);font-weight:600;letter-spacing:.04em;}
+  details[open] summary{margin-bottom:8px;} .ans{color:#314d31;line-height:1.75;}
+
+  .record{margin:52px 0 8px;padding:30px 34px;border:1.5px solid var(--rule);border-radius:2px;
+    background:linear-gradient(180deg,#fdfdfd,var(--side-bg));}
+  .record h2{margin-top:0;} .record p:last-child{margin-bottom:0;}
+  .next{margin:24px 0 0;padding:16px 22px;background:var(--calc-bg);border-radius:2px;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;font-size:14px;color:#314d31;}
+  .next .lbl{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700;margin-bottom:6px;display:block;}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12px;color:var(--ink-soft);line-height:1.7;letter-spacing:.03em;}
+
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;font-size:11pt;line-height:1.72;}
+    .sheet{box-shadow:none;border:none;margin:0;max-width:none;padding:0;}
+    h1{font-size:24pt;} h1 .sub{font-size:12.5pt;}
+    h2{font-size:15pt;margin-top:24pt;break-after:avoid;} h3{font-size:12.5pt;break-after:avoid;}
+    .lead{font-size:12.5pt;}
+    .aside,.caveat,.calc,.keybox,.record,.prob,.next,.fig,.tblwrap,.seven{break-inside:avoid;}
+    .aside,.caveat,.calc{font-size:9.7pt;}
+    .controls{display:none;} details{display:none;} .no-print{display:none;}
+  }
+  @media (max-width:640px){ .sheet{padding:40px 18px 60px;margin:0;} h1{font-size:26px;} body{font-size:16px;} }
+  .hint{max-width:760px;margin:18px auto 0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",'Noto Sans JP',sans-serif;
+    font-size:12.5px;color:#859985;text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<style>
+/* 第 63 回だけで使う 計算パネル */
+.panel{background:#f0eee2;border:1px solid #cdc8b4;padding:18px 20px;margin:22px 0;border-radius:3px;}
+.panel .ttl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:13px;letter-spacing:.1em;font-weight:700;margin:0 0 13px;
+  display:flex;align-items:center;gap:8px;}
+.panel .ttl::before{content:"";width:8px;height:8px;background:currentColor;
+  border-radius:50%;display:inline-block;}
+.ctl{display:grid;grid-template-columns:minmax(128px,auto) 1fr minmax(104px,auto);
+  gap:9px 14px;align-items:center;margin:9px 0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:13.5px;}
+.ctl label{opacity:.8;}
+.ctl input[type=range]{width:100%;}
+.ctl .val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+  text-align:right;font-weight:600;}
+.btn{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:13.5px;
+  padding:7px 18px;border:1px solid #9a8f70;background:#fff;border-radius:3px;
+  cursor:pointer;font-weight:700;letter-spacing:.06em;}
+.btn:hover{background:#f6f2e4;}
+.out{margin-top:15px;padding-top:13px;border-top:1px dashed #bdb8a6;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.85;}
+.out b{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-weight:700;}
+.out .big{font-size:18px;font-weight:700;}
+.bars{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;
+  line-height:1.5;white-space:pre;overflow-x:auto;margin-top:10px;}
+@media(max-width:700px){.ctl{grid-template-columns:1fr;gap:4px;}
+  .ctl .val{text-align:left;}.bars{font-size:10px;}}
+</style>
+
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 63 回 ／ 第 XX 部・トンネルするものたち</span></p>
+<p class="eyebrow">核の準位と リーマン零点は、同じ統計だった</p>
+
+<h1>波とゼータ ──<br><strong>共鳴が並ぶと、数論に出る</strong>
+<span class="sub">「核物理を 波として考えると 計算は簡単になるか」── <strong>なります。共鳴（定在波）と しみ出し（トンネル）に分ければ、前者は数個の数、後者は質量と電荷だけ。</strong><br>★★ 「波とゼータの関係は」── <em>その二つは同じ場所で合流します。</em><strong>共鳴が並んだときの間隔の統計が、リーマンゼータの零点の統計と同じものでした</strong>（Montgomery–Dyson 1972）。<br>★★★ 本回は<strong>リーマン零点を自前で計算して</strong>確かめます ── \(\chi^2\) は Poisson 3906、GOE 495、<strong>GUE 32.7</strong>。</span></h1>
+
+<p class="byline"><span>必要な道具：第 45, 55, 61, 62 回</span><span>計算：kenshou/zeta.js（検算 10 件・依存 0）</span><span>★ 動かせます</span></p>
+
+<p class="lead">第 62 回で<strong>「d+t の利点は障壁ではなく共鳴」</strong>と分かりました。<em>★ ではその共鳴は、いくつ必要なのか。そして共鳴が<strong>並んだ</strong>とき、何が現れるのか。</em><br>★★ 答えは <strong>── 数論に出ます。</strong></p>
+
+<h2><span class="n">01</span>核を波として見る ── 共鳴と しみ出しに 分ける</h2>
+
+<div class="calc">
+<span class="tag">核物理を 2 つに 割る</span>
+$$\sigma(E)=\underbrace{\frac{S(E)}{E}}_{\text{核の側＝共鳴}}\times\underbrace{e^{-B_G/\sqrt{E}}}_{\text{外側＝しみ出し}}$$
+</div>
+
+<p>第 62 回で右側（しみ出し）は<strong>質量と電荷だけ</strong>で決まると分かりました。では左側は？ ── <em>d+t の \(S(E)\) を、ブライト＝ウィグナー<strong>1 つ</strong>で合わせてみます。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(E\)［keV］</th><th>\(S(E)\) 実際</th><th>共鳴 1 つ</th><th>比</th></tr></thead>
+<tbody>
+<tr><th>10</th><td class="mid">12155</td><td class="mid">15534</td><td class="mid">1.278</td></tr>
+<tr><th>30</th><td class="mid">21198</td><td class="mid">21110</td><td class="mid">0.996</td></tr>
+<tr class="hi"><th><strong>64</strong></th><td class="mid"><strong>23061</strong></td><td class="mid"><strong>21811</strong></td><td class="mid"><strong>0.946</strong></td></tr>
+<tr><th>100</th><td class="mid">11427</td><td class="mid">12222</td><td class="mid">1.070</td></tr>
+<tr><th>300</th><td class="mid">1202</td><td class="mid">1015</td><td class="mid">0.844</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>当てはめる窓</th><th>\(E_R\)［keV］</th><th>\(\Gamma\)［keV］</th><th>典型のずれ</th></tr></thead>
+<tbody>
+<tr><th>5〜300 keV（広い）</th><td class="mid">48.5</td><td class="mid">106.5</td><td class="mid">9.6 %</td></tr>
+<tr class="hi"><th><strong>35〜110 keV（山だけ）</strong></th><td class="mid"><strong>48.8</strong></td><td class="mid"><strong>91.9</strong></td><td class="mid"><strong>0.5 %</strong></td></tr>
+<tr><th>文献（R 行列の極）</th><td class="mid">64</td><td class="mid">約 75</td><td class="mid">別の模型</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">01節の中心 ── 簡単になる。ただし代金がある</p>
+<p style="margin:6px 0 0">★★★ <strong>共鳴 1 つ で 5〜300 keV を 10 % 程度、山だけなら 0.5 % で再現できます。</strong><em>d+t の核物理は<strong>3 つの数</strong>（\(E_R\), \(\Gamma\), 強さ）に畳めました。</em><br>
+★★ <strong>ところがその 48.8 keV は、文献の「共鳴 64 keV」とは別の量です。</strong><em>文献の 64 keV は R 行列の極（幅がエネルギーで変わる扱い）、本稿の値は「幅を定数にした BW を \(S(E)\) に合わせた中心」。<strong>どちらも同じ \(\sigma(E)\) を与えますが、数としては一致しません。</strong></em><br>
+★ <strong>これは間違いではなく模型の違い</strong> ── <em>第 55 回の分類でいう「模型を仮定した値」。断面積を作るのが目的なら 48.7 keV が正しく、共鳴の位置を言いたいなら 64 keV を使うべきです。</em><br>
+★★★ <strong>つまり：簡単にはなる。ただし出てくるのは模型の数で、共鳴のパラメータではない。</strong></p>
+</div>
+
+<h2><span class="n">02</span>共鳴が<strong>並ぶ</strong>と、何が現れるか</h2>
+
+<p>核には共鳴が 1 つではなく<strong>たくさん</strong>あります。重い核なら中性子分離エネルギーの近くに、数 eV 間隔で何百本も。<em>★ 一本一本の位置を計算するのは絶望的です ── 核力の詳細が全部効くので。</em></p>
+
+<p>★★ <strong>ところがウィグナーが 1950 年代に気づきました</strong>：<em>個々の位置は計算できなくても、<strong>間隔の分布</strong>は計算できる。しかもそれは核力の中身に依らず、<strong>対称性だけ</strong>で決まる。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>統計</th><th>\(P(s)\)</th><th>\(\langle s^2\rangle\)</th><th>\(s<0.3\) の割合</th><th>どんな系</th></tr></thead>
+<tbody>
+<tr><th>ポアソン</th><td class="mid">\(e^{-s}\)</td><td class="mid">2.0000</td><td class="mid">0.2592</td><td>無相関（可積分系）</td></tr>
+<tr class="hi"><th><strong>GOE</strong></th><td class="mid">\(\frac{\pi}{2}se^{-\pi s^2/4}\)</td><td class="mid">1.2732</td><td class="mid">0.0682</td><td><strong>時間反転対称あり ── 原子核</strong></td></tr>
+<tr class="hi"><th><strong>GUE</strong></th><td class="mid">\(\frac{32}{\pi^2}s^2e^{-4s^2/\pi}\)</td><td class="mid">1.1781</td><td class="mid">0.0187</td><td><strong>時間反転対称なし</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>要点は \(s\to0\) の振る舞い</strong>：<em>無相関なら「ぴったり重なる準位」がいちばん多いはず（\(e^{-s}\) は \(s=0\) で最大）。ところが実際の核は \(s\to0\) で <strong>0 に落ちます</strong> ── <strong>準位反発</strong>。</em><br>
+★★ <strong>落ち方が \(s^1\) か \(s^2\) かで GOE と GUE が分かれます。</strong><em>原子核データ集成（NDE）は GOE に従うことが知られています。</em></p>
+
+<h2><span class="n">03</span>リーマン零点を、自前で 計算する</h2>
+
+<p>ここで数論に移ります。<strong>リーマンゼータの非自明な零点</strong>は、リーマン＝ジーゲルの公式で計算できます。</p>
+
+<div class="calc">
+<span class="tag">リーマン＝ジーゲル</span>
+$$Z(t)=2\sum_{n\le N}\frac{\cos\bigl(\theta(t)-t\ln n\bigr)}{\sqrt n}+\text{補正},\qquad N=\left\lfloor\sqrt{t/2\pi}\right\rfloor$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>番号</th><th>本稿の計算</th><th>既知の値</th><th>差</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>1</strong></th><td class="mid"><strong>14.137196</strong></td><td class="mid"><strong>14.134725</strong></td><td class="mid">2.5e−3</td></tr>
+<tr><th>2</th><td class="mid">21.024377</td><td class="mid">21.022040</td><td class="mid">2.3e−3</td></tr>
+<tr><th>5</th><td class="mid">32.932562</td><td class="mid">32.935062</td><td class="mid">2.5e−3</td></tr>
+<tr><th>10</th><td class="mid">49.772641</td><td class="mid">49.773832</td><td class="mid">1.2e−3</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ 漸近公式なので低い \(t\) では \(10^{-3}\) 級ですが、<em>誤差は \(t^{-3/4}\) で減ります。</em><strong>統計に使うには「数え落としも偽の零点もない」ことのほうが大事</strong>で、それはリーマン＝フォン・マンゴルトの \(N(T)\simeq\theta(T)/\pi+1\) と突き合わせれば分かります。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>範囲</th><th>見つけた個数</th><th>\(N(T)\) の予想</th><th>差</th></tr></thead>
+<tbody>
+<tr><th>\(t=10\ldots1000\)</th><td class="mid">649</td><td class="mid">648.59</td><td class="mid">0.41</td></tr>
+<tr><th>\(t=10\ldots5000\)</th><td class="mid">4520</td><td class="mid">4520.31</td><td class="mid">−0.31</td></tr>
+<tr class="hi"><th><strong>\(t=10^4\ldots1.2\times10^4\)</strong></th><td class="mid"><strong>2377</strong></td><td class="mid"><strong>2376.63</strong></td><td class="mid"><strong>0.37</strong></td></tr>
+<tr><th>\(t=5\times10^4\ldots5.1\times10^4\)</th><td class="mid">1430</td><td class="mid">1431.10</td><td class="mid">−1.10</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>1 個未満のずれで合う ── 数え落としも偽の零点もありません。統計に使えます。</strong></p>
+
+<h2><span class="n">04</span>★★★ アンフォールドして、間隔を 比べる</h2>
+
+<p>零点の密度は \(t\) とともに増えます（\(dN/dt=\ln(t/2\pi)/2\pi\)）。<strong>統計を見るには密度を 1 に揃えなければなりません</strong> ── これが<em>アンフォールド</em>。幸い、その変換はすでに手元にあります：\(x_n=\theta(t_n)/\pi\)。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th></th><th>値</th></tr></thead>
+<tbody>
+<tr><th>\(t=10^4\ldots1.4\times10^4\) の零点</th><td class="mid">4808 個</td></tr>
+<tr><th>生の平均間隔（\(t\) で）</th><td class="mid">0.8321</td></tr>
+<tr><th>理論 \(2\pi/\ln(t/2\pi)\)</th><td class="mid">0.8317</td></tr>
+<tr class="hi"><th><strong>アンフォールド後の平均</strong></th><td class="mid"><strong>0.999823</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="panel">
+<p class="ttl">リーマン零点の 準位統計 ── 自分で 計算してみてください</p>
+<div class="ctl">
+  <label>窓の高さ \(t\)</label>
+  <input type="range" id="z-t" min="3" max="6" step="0.25" value="5">
+  <span class="val" id="z-tv">10^5</span>
+</div>
+<div class="ctl">
+  <label>零点の個数（目安）</label>
+  <input type="range" id="z-n" min="300" max="4000" step="100" value="1500">
+  <span class="val" id="z-nv">1500</span>
+</div>
+<div class="ctl">
+  <label></label>
+  <button class="btn" id="z-go">零点を 計算する</button>
+  <span class="val" id="z-busy"></span>
+</div>
+<div class="out" id="z-out">★ ボタンを押すと、その場で \(Z(t)\) の零点を探して統計を取ります（数秒）。</div>
+<div class="bars" id="z-bars"></div>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>零点の窓</th><th>\(\langle s^2\rangle\)</th><th>\(s<0.3\)</th><th>\(\chi^2\) Poisson</th><th>\(\chi^2\) GOE</th><th>\(\chi^2\) GUE</th></tr></thead>
+<tbody>
+<tr><th>\(t=10^4\)</th><td class="mid">1.1583</td><td class="mid">0.0221</td><td class="mid">4223</td><td class="mid">581</td><td class="mid"><strong>41.9</strong></td></tr>
+<tr class="hi"><th><strong>\(t=10^5\)</strong></th><td class="mid"><strong>1.1629</strong></td><td class="mid"><strong>0.0225</strong></td><td class="mid">3906</td><td class="mid">495</td><td class="mid"><strong>32.7</strong></td></tr>
+<tr><th>（比較）GUE</th><td class="mid">1.1781</td><td class="mid">0.0187</td><td class="mid">──</td><td class="mid">──</td><td class="mid">──</td></tr>
+<tr><th>（比較）GOE</th><td class="mid">1.2732</td><td class="mid">0.0682</td><td class="mid">──</td><td class="mid">──</td><td class="mid">──</td></tr>
+<tr><th>（比較）ポアソン</th><td class="mid">2.0000</td><td class="mid">0.2592</td><td class="mid">──</td><td class="mid">──</td><td class="mid">──</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>いちばん効くのは<strong>小さい \(s\)</strong> です。ヒストグラムの頭のほうだけ見ると：</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(s\)</th><th>★ 零点（実測）</th><th>ポアソン</th><th>GOE</th><th>GUE</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>0.07</strong></th><td class="mid"><strong>0.025</strong></td><td class="mid">0.928</td><td class="mid">0.117</td><td class="mid"><strong>0.018</strong></td></tr>
+<tr class="hi"><th><strong>0.22</strong></th><td class="mid"><strong>0.125</strong></td><td class="mid">0.799</td><td class="mid">0.340</td><td class="mid"><strong>0.154</strong></td></tr>
+<tr><th>0.38</th><td class="mid">0.333</td><td class="mid">0.687</td><td class="mid">0.527</td><td class="mid">0.381</td></tr>
+<tr><th>0.82</th><td class="mid">0.934</td><td class="mid">0.438</td><td class="mid">0.759</td><td class="mid">0.928</td></tr>
+<tr><th>1.27</th><td class="mid">0.734</td><td class="mid">0.279</td><td class="mid">0.559</td><td class="mid">0.665</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心 ── これが 本回の 山</p>
+<p style="margin:6px 0 0">★★★ <strong>\(s=0.07\) で、ポアソンは 0.928、GOE は 0.117、GUE は 0.018 を予想します。実測は 0.025。</strong><br>
+★★ <strong>零点は「重なりたがらない」</strong> ── <em>無相関ならいちばん多いはずの「ぴったり近い対」が、ほとんど無い。</em><strong>これが準位反発で、原子核の準位とまったく同じ現象です。</strong><br>
+★★★ <strong>しかも落ち方は \(s^2\)（GUE）── 核の \(s^1\)（GOE）より急。</strong><em>\(\chi^2\) で Poisson 3906、GOE 495、GUE 32.7 ── GUE が GOE より 15 倍 良い。</em><br>
+★ <strong>\(t\) を \(10^4\to10^5\) に上げると \(\chi^2\) は 41.9 → 32.7 と改善します。</strong><em>収束は遅く、Odlyzko が \(t=10^{20}\) まで行ったのはこのためです。</em></p>
+</div>
+
+<h2><span class="n">05</span>なぜ 同じなのか ── そして 何が 言えないか</h2>
+
+<p>★ <strong>答えは「対称性しか効かないから」</strong>です。<em>ランダム行列の準位統計は、行列の中身にまったく依りません ── 実対称（時間反転あり）か エルミート（なし）か、それだけで決まります。</em></p>
+
+<p>★★ <strong>だから、中身がまるで違う系が同じ統計になります。</strong><em>核力とゼータ関数に共通の物理はありません。共通なのは「たくさんの準位が、ある対称性のもとで並んでいる」という構造だけ。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>言えること</th><th>根拠</th></tr></thead>
+<tbody>
+<tr><th>d+t の \(S(E)\) は共鳴 1 つで書ける</th><td>残差 10 %（山だけなら 0.5 %）</td></tr>
+<tr><th>★ ただし \(E_R\) は模型の数</th><td>R 行列の 64 keV とは別物</td></tr>
+<tr><th>零点を自前で計算できる</th><td>\(N(T)\) と 1 個未満で一致</td></tr>
+<tr class="hi"><th><strong>★ 零点の間隔はポアソンではない</strong></th><td><strong>\(\chi^2\) が桁違い</strong></td></tr>
+<tr class="hi"><th><strong>★ 零点の間隔は GUE に近い</strong></th><td><strong>\(\langle s^2\rangle\) とヒストグラム</strong></td></tr>
+<tr><th>\(t\) を上げると GUE に近づく</th><td>\(10^4\) と \(10^5\) の比較</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>★★ 言えないこと</th><th>理由</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>零点がある演算子の固有値である</strong></th><td>ヒルベルト＝ポリア予想 ── <strong>未解決</strong></td></tr>
+<tr class="hi"><th><strong>GUE 一致がリーマン予想を示す</strong></th><td>別の問題。統計は予想を含意しない</td></tr>
+<tr><th>核の準位と零点が「同じ物理」</th><td>同じ統計であって同じ機構ではない</td></tr>
+<tr><th>本稿が何かを証明した</th><td>既知の結果の数値確認</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">05節の中心 ── いちばん大事な区別</p>
+<p style="margin:6px 0 0">★★★ <strong>「同じ統計」は「同じ物理」ではありません。</strong><em>対称性が同じなら中身が違っても同じ統計になる ── だから一致するのであって、隠れた共通機構があるからではない。</em><br>
+★★ <strong>それでも面白いのは</strong>：<em>ゼータの零点が「時間反転のない量子系」の対称性クラスに落ちることが、<strong>数論の側からは予想されていなかった</strong>点です。</em>★ <em>1972 年、モンゴメリーが零点の対相関を計算し、お茶の時間にダイソンに話したら「それは GUE だ」と即答された ── というのが有名な逸話です。</em></p>
+</div>
+
+<h2><span class="n">06</span>そして \(-1/12\) ── あれは スペクトルの ゼータだった</h2>
+
+<p>第 45 回でカシミール効果の \(-1/12\) を出し、第 61 回で 5 種類の切断に依らないことを確かめました。<em>★ ここでその<strong>由来</strong>がはっきりします。</em></p>
+
+<div class="calc">
+<span class="tag">1 次元の箱</span>
+$$\omega_n=\frac{n\pi c}{a},\qquad E=\frac{\hbar}{2}\sum_n\omega_n=\frac{\hbar\pi c}{2a}\sum_n n=\frac{\hbar\pi c}{2a}\,\zeta(-1)=-\frac{\hbar\pi c}{24a}$$
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>\(-1/12\) は「波のスペクトルのゼータ関数の値」でした。</strong><em>\(1+2+3+\cdots\) の「値」ではなく、<strong>モードの並びが決めている数</strong>です。</em><br>
+★★ <em>第 45 回は切断で、第 61 回は 5 種類の切断の一致で、そして本回は<strong>スペクトルゼータという名前</strong>で</em> ── <strong>三度目にして、同じものを三つの角度から見たことになります。</strong><br>
+★ <strong>そして本回の 04 節も、同じ「スペクトルのゼータ」の話です</strong> ── <em>零点の統計も、モードの並びの性質。ゼータ関数は、波の並びを書く言葉でした。</em></p>
+</div>
+
+<h2><span class="n">07</span>太鼓の形は 聞けるか ── ワイルの法則</h2>
+
+<p>スペクトルには形の情報が入っています。長方形の太鼓（\(a\times b\)、固定端）の固有値を数えると：</p>
+
+<div class="calc">
+<span class="tag">ワイルの法則</span>
+$$N(\Lambda)\simeq\frac{\text{面積}}{4\pi}\Lambda-\frac{\text{周長}}{4\pi}\sqrt\Lambda+\cdots$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\Lambda\)</th><th>数えた \(N(\Lambda)\)</th><th>第 1 項（面積）</th><th>第 2 項まで</th><th>残差</th></tr></thead>
+<tbody>
+<tr><th>\(10^4\)</th><td class="mid">531</td><td class="mid">557.0</td><td class="mid">530.0</td><td class="mid">1.0</td></tr>
+<tr><th>\(10^5\)</th><td class="mid">5486</td><td class="mid">5570.4</td><td class="mid">5484.9</td><td class="mid">1.1</td></tr>
+<tr class="hi"><th><strong>\(10^7\)</strong></th><td class="mid"><strong>556183</strong></td><td class="mid">557042.3</td><td class="mid"><strong>556186.7</strong></td><td class="mid"><strong>−3.7</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★ <strong>第 1 項が面積、第 2 項が周長</strong> ── <em>\(10^7\) で 0.001 % の一致。</em><strong>スペクトルから形が読めます。</strong><br>
+★★★ これが<strong>「太鼓の形は聞けるか」</strong>。答えは<em>「面積と周長は聞ける（形そのものは聞けない）」</em>。<br>
+★ <strong>ゼータの側で言えば</strong>：<em>スペクトルゼータ \(\zeta_\Delta(s)=\sum\lambda_n^{-s}\) の極の位置と留数が、面積・周長・曲率に対応します</em> ── <strong>波の並びとゼータ関数は、同じものの二つの書き方でした。</strong></p>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>01 節で \(E_R\) が模型ごとに違う値になった。これは第 55 回のどの話か。
+<details><summary>答えを見る</summary><div class="ans"><strong>「模型を仮定した値」そのものです。</strong>第 55 回で本シリーズの数字 16 件を分類したとき、5 件が これでした。<br>★ <em>ここで新しいのは、<strong>同じ観測量（\(\sigma(E)\)）を同じ精度で再現する二つの模型が、パラメータとしては 24 % 違う値を返す</strong>という具体例が出たこと。</em><br>★★ <strong>どちらも間違っていません。</strong><em>「48.7 keV」は「幅一定の BW で \(S(E)\) を合わせたときの中心」、「64 keV」は「R 行列の極」── 定義が違う量です。</em><br>★★★ <strong>だから手引きに足すべきは：パラメータを書くときは、模型の名前も一緒に書く。</strong><em>第 60 回の「分散を書くときは記録の長さも書く」（⑭）と同じ形の要求です。</em><br>★ <em>観測量（断面積）は模型に依らないのに、パラメータは依る ── その差が「測った値」と「読み取った値」の境目です。</em></div></details></li>
+
+<li>04 節で「\(t\) を上げると GUE に近づく」と出た。なぜ収束が遅いのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>零点の統計には、素数からの補正が乗っているからです。</strong><br>★ <em>対相関の補正項は \(1/\ln(t/2\pi)\) の程度で落ちます。</em>★★ \(t=10^5\) では \(\ln(t/2\pi)=9.7\) なので補正は <strong>10 % 程度</strong>。<em>これを 1 % にするには \(\ln\) を 100 にする必要があり、\(t\sim e^{100}\approx10^{43}\)。</em><br>★★★ <strong>つまり「対数でしか良くならない」</strong> ── <em>第 53 回の「範囲は対数でしか買えない」が、ここにも出ています。</em><strong>Odlyzko が \(10^{20}\) まで行っても \(\ln=45\)、まだ 2 % 級です。</strong><br>★ <em>本稿の \(\chi^2\) が 41.9 → 32.7 としか改善しないのも同じ理由</em> ── <strong>\(t\) を 10 倍 しても \(\ln\) は 9.7 → 12.0 にしか増えません。</strong></div></details></li>
+
+<li>「核の準位は GOE、零点は GUE」と出た。この違いは何を意味するか。
+<details><summary>答えを見る</summary><div class="ans"><strong>時間反転対称性の有無です。</strong><br>★ <em>原子核は時間反転に対して対称なので、ハミルトニアンは実対称行列にできる ── GOE。</em>★★ <em>零点の統計が GUE ということは、もし零点が何かの固有値なら、その「何か」は<strong>時間反転対称でない</strong>ということになります。</em><br>★★★ <strong>ここが面白いところで、同時にいちばん注意が要るところです。</strong><em>これは「そういう演算子が存在する」ことの証拠ではありません</em> ── <strong>ヒルベルト＝ポリア予想は未解決のままです。</strong><br>★ <em>言えるのは「もし存在するなら、その対称性クラスはこれ」という<strong>条件つきの手がかり</strong>だけ。</em>★★ <strong>第 55 回の言葉では、これは「仮定つきの推論」であって測定結果ではありません。</strong><em>磁場中の核（時間反転が破れる）は GUE に移ることが知られており、対応は具体的です ── が、それでも「同じ統計」止まりです。</em></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　共鳴が並ぶと、数論に出る</h2>
+<p>「核物理を波として考えると計算は簡単になるか」── <strong>なります。</strong></p>
+<p style="text-align:center"><strong>★★★ \(\sigma(E)=\dfrac{S(E)}{E}\,e^{-B_G/\sqrt E}\)。<br>右は質量と電荷だけ（第 62 回）、左は共鳴 1 つ（本回）。</strong></p>
+<p>★ <strong>d+t の \(S(E)\) は共鳴 1 つ で 10 %（山だけなら 0.5 %）まで再現できました。</strong><em>核物理が 3 つの数に畳めます。</em>★★ <strong>ただし代金があり、得られる \(E_R=48.8\) keV は文献の 64 keV とは別の量</strong>（R 行列の極ではなく、幅一定 BW の中心）。<em>同じ \(\sigma(E)\) を与えるのにパラメータは 24 % 違う ── 第 55 回の「模型を仮定した値」の教科書的な例です。</em></p>
+<p>★★★ <strong>そして共鳴が<em>並ぶ</em>と、準位統計になります。</strong><em>個々の位置は計算できなくても、間隔の分布は対称性だけで決まる（ウィグナー）。</em></p>
+<p style="text-align:center"><strong>★★★ その統計が、リーマンゼータの零点の統計と同じものでした。</strong></p>
+<p>★ <strong>本回は零点を自前で計算して確かめました</strong>（リーマン＝ジーゲル、\(N(T)\) と 1 個未満で一致）。<em>アンフォールド後の平均間隔 0.999823、\(\langle s^2\rangle=1.163\)（GUE 1.178 / GOE 1.273 / ポアソン 2.000）。</em>★★ <strong>\(\chi^2\) は Poisson 3906、GOE 495、GUE 32.7</strong> ── <em>\(s=0.07\) でポアソンは 0.928 を予想するのに、実測は 0.025。</em><strong>零点は重なりたがらない ── 原子核の準位とまったく同じ現象です。</strong></p>
+<p>★★ <strong>ただし「同じ統計」は「同じ物理」ではありません。</strong><em>ランダム行列は対称性だけで決まるので、中身が違っても一致します。</em>★ <strong>零点が何かの演算子の固有値である（ヒルベルト＝ポリア）ことは未解決のままで、本回はそれに触れてもいません。</strong></p>
+<p>★★★ <strong>おまけに \(-1/12\) の正体も片づきました</strong> ── <em>あれは波のスペクトルのゼータ関数 \(\zeta(-1)\) です。\(1+2+3+\cdots\) の値ではなく、モードの並びが決めている数。</em>★ <strong>そしてワイルの法則（\(10^7\) で 0.001 % 一致）が示すとおり、スペクトルには面積と周長が入っています</strong> ── <em>波の並びとゼータ関数は、同じものの二つの書き方でした。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+05 節で<strong>「同じ統計は同じ物理ではない」</strong>と線を引きました。<br>
+★ <em>では、統計が一致することから<strong>何なら</strong>言えるのか。</em><br>
+★★ <strong>次回はそこを詰めます</strong> ── <em>本シリーズは第 1 回から「同じ \(\alpha\) に乗る」を集めてきました。第 61 回では「四つの道すじが同じ \(6\alpha\) に乗るのは根が一つのフーリエ変換だから、道具の整理であって新しい物理ではない」と書きました。</em><br>★★★ <strong>一致には階級があります。</strong><em>「同じ式」「同じ対称性」「同じ機構」── どれがどれかを、シリーズ中の一致を全部並べて判定します。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 63 回です。計算は kenshou/zeta.js で行っています（依存ライブラリ 0、リーマン零点も自前計算、検算 10 件すべて合格）。<strong>本稿の発見ではないもの：</strong>単一準位ブライト＝ウィグナー公式、リーマン＝ジーゲル公式、リーマン＝フォン・マンゴルトの \(N(T)\)、ウィグナーの準位統計と準位反発、ランダム行列の対称性クラス（GOE / GUE）、<strong>モンゴメリーの対相関予想とダイソンとの一致（1972）</strong>、Odlyzko による大規模数値検証、ゼータ関数正則化、ワイルの法則、「太鼓の形は聞けるか」── <strong>いずれもよく知られた結果で、本稿はその数値確認です。</strong>本稿がしたのは、<em>① d+t の \(S(E)\) を共鳴 1 つで合わせ、得られる \(E_R\) が R 行列の値と 24 % 違うことを模型依存性の具体例として示したこと、② リーマン零点を自前で計算して \(N(T)\) と照合し、統計に使える精度であることを確かめたこと、③ その間隔分布を GUE / GOE / ポアソンと \(\chi^2\) で比べたこと、④ \(-1/12\) をスペクトルゼータとして位置づけ直したこと</em>です。<strong>限界：</strong><em>零点の計算はリーマン＝ジーゲルの主要項＋先頭の補正項までで、低い \(t\)（\(t<100\) 程度）では \(10^{-3}\) 級の誤差があります。統計は \(t=10^4\) と \(10^5\) の窓のみで、Odlyzko の \(10^{20}\) とは比べものになりません ── GUE への一致が不完全なのは計算の不備ではなく、\(1/\ln(t/2\pi)\) の補正が残っているためです（練習問題 2）。核の準位が GOE に従うことは文献の結果で、本稿は核データを解析していません。</em><strong>本稿は数論の未解決問題について何も主張していません</strong>（リーマン予想にもヒルベルト＝ポリア予想にも触れていません）。 ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。★ 計算ボタンは印刷には出ません。</p>
+
+<script>
+(function(){
+  'use strict';
+  var TWO_PI=2*Math.PI;
+  function theta(t){
+    return (t/2)*Math.log(t/TWO_PI)-t/2-Math.PI/8+1/(48*t)+7/(5760*Math.pow(t,3));
+  }
+  function C0(p){
+    var f=function(q){return Math.cos(TWO_PI*(q*q-q-1/16))/Math.cos(TWO_PI*q);};
+    if(Math.abs(Math.cos(TWO_PI*p))>1e-3) return f(p);
+    return 0.5*(f(p-2e-3)+f(p+2e-3));
+  }
+  function Zfun(t){
+    var th=theta(t), N=Math.floor(Math.sqrt(t/TWO_PI)), s=0;
+    for(var n=1;n<=N;n++) s+=Math.cos(th-t*Math.log(n))/Math.sqrt(n);
+    var p=Math.sqrt(t/TWO_PI)-N;
+    return 2*s+(N%2===0?-1:1)*Math.pow(TWO_PI/t,0.25)*C0(p);
+  }
+  function pPoisson(s){return Math.exp(-s);}
+  function pGOE(s){return (Math.PI/2)*s*Math.exp(-Math.PI*s*s/4);}
+  function pGUE(s){return (32/(Math.PI*Math.PI))*s*s*Math.exp(-4*s*s/Math.PI);}
+
+  var tEl=document.getElementById('z-t'), nEl=document.getElementById('z-n');
+  function showT(){
+    document.getElementById('z-tv').textContent='10^'+parseFloat(tEl.value).toFixed(2);
+    document.getElementById('z-nv').textContent=nEl.value;
+  }
+  tEl.addEventListener('input',showT); nEl.addEventListener('input',showT); showT();
+
+  document.getElementById('z-go').addEventListener('click',function(){
+    var busy=document.getElementById('z-busy');
+    busy.textContent='計算中…';
+    setTimeout(function(){
+      var t0=Math.pow(10,parseFloat(tEl.value));
+      var want=parseInt(nEl.value,10);
+      // 平均間隔から 必要な 幅を 見積もる
+      var gap=TWO_PI/Math.log(t0/TWO_PI);
+      var span=gap*want*1.05;
+      var dt=gap/40;
+      var zs=[], z0=Zfun(t0);
+      for(var t=t0+dt;t<t0+span;t+=dt){
+        var z1=Zfun(t);
+        if((z0<0)!==(z1<0)){
+          var a=t-dt,b=t,fa=z0;
+          for(var i=0;i<60;i++){
+            var m=0.5*(a+b), fm=Zfun(m);
+            if((fa<0)!==(fm<0)) b=m; else {a=m;fa=fm;}
+          }
+          zs.push(0.5*(a+b));
+        }
+        z0=z1;
+      }
+      var x=zs.map(theta).map(function(v){return v/Math.PI;});
+      var sp=[];
+      for(var k=1;k<x.length;k++) sp.push(x[k]-x[k-1]);
+      if(sp.length<50){ busy.textContent='';
+        document.getElementById('z-out').innerHTML='★ 零点が 足りません。個数を 増やしてください。'; return; }
+      var m1=0,m2=0,small=0;
+      for(var j=0;j<sp.length;j++){m1+=sp[j];m2+=sp[j]*sp[j];if(sp[j]<0.3)small++;}
+      m1/=sp.length; m2/=sp.length;
+      // ヒストグラム と chi^2
+      var nb=20, smax=3.0, w=smax/nb, h=new Array(nb).fill(0), tot=0;
+      for(var j2=0;j2<sp.length;j2++){ if(sp[j2]<smax){h[Math.floor(sp[j2]/w)]++;tot++;} }
+      var chi=[0,0,0], fns=[pPoisson,pGOE,pGUE];
+      for(var i2=0;i2<nb;i2++){
+        var sc=(i2+0.5)*w;
+        for(var k2=0;k2<3;k2++){
+          var e=fns[k2](sc)*w*sp.length;
+          if(e>5) chi[k2]+=Math.pow(h[i2]-e,2)/e;
+        }
+      }
+      var bestI=chi.indexOf(Math.min.apply(null,chi));
+      var names=['ポアソン','GOE','GUE'];
+      document.getElementById('z-out').innerHTML=
+        '<b>窓</b> t = '+t0.toExponential(2)+' … '+(t0+span).toExponential(2)+
+        '　<b>零点</b> '+zs.length+' 個<br>'+
+        '<b>アンフォールド後の平均</b> = '+m1.toFixed(5)+'（1 になるはず）<br>'+
+        '<b>&lt;s²&gt;</b> = <span class="big">'+m2.toFixed(4)+'</span>'+
+        '　（GUE 1.1781 / GOE 1.2732 / ポアソン 2）<br>'+
+        '<b>s&lt;0.3 の割合</b> = '+(small/sp.length).toFixed(4)+
+        '　（GUE 0.0187 / GOE 0.0682 / ポアソン 0.2592）<br>'+
+        '<b>χ²</b>　ポアソン '+chi[0].toFixed(0)+'　GOE '+chi[1].toFixed(0)+
+        '　GUE '+chi[2].toFixed(1)+
+        '　→ <b>いちばん近いのは '+names[bestI]+'</b>';
+      // 棒グラフ
+      var out='   s      実測      GUE\n';
+      for(var i3=0;i3<14;i3++){
+        var scc=(i3+0.5)*w, obs=h[i3]/sp.length/w, gue=pGUE(scc);
+        var nbar=Math.round(obs*28), gbar=Math.round(gue*28);
+        var bar='';
+        for(var q=0;q<Math.max(nbar,gbar);q++){
+          bar += (q<nbar && q<gbar) ? '█' : (q<nbar ? '▓' : '·');
+        }
+        out+=('  '+scc.toFixed(2)).slice(-6)+'  '+('     '+obs.toFixed(3)).slice(-6)+
+             '  '+('     '+gue.toFixed(3)).slice(-6)+'  '+bar+'\n';
+      }
+      out+='\n  █ = 実測と GUE が 重なる所、▓ = 実測だけ、· = GUE だけ';
+      document.getElementById('z-bars').textContent=out;
+      busy.textContent='';
+    },30);
+  });
+})();
+</script>
+</body>
+</html>
