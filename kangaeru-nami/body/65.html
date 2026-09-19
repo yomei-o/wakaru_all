@@ -1,0 +1,332 @@
+<style>
+/* 第 65 回だけで使う 計算パネル */
+.panel{background:#f0eee2;border:1px solid #cdc8b4;padding:18px 20px;margin:22px 0;border-radius:3px;}
+.panel .ttl{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:13px;letter-spacing:.1em;font-weight:700;margin:0 0 13px;
+  display:flex;align-items:center;gap:8px;}
+.panel .ttl::before{content:"";width:8px;height:8px;background:currentColor;
+  border-radius:50%;display:inline-block;}
+.ctl{display:grid;grid-template-columns:minmax(150px,auto) 1fr minmax(104px,auto);
+  gap:9px 14px;align-items:center;margin:9px 0;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:13.5px;}
+.ctl label{opacity:.8;}
+.ctl input[type=range]{width:100%;}
+.ctl .val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+  text-align:right;font-weight:600;}
+.out{margin-top:15px;padding-top:13px;border-top:1px dashed #bdb8a6;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.95;}
+.out b{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-weight:700;}
+.out .big{font-size:18px;font-weight:700;}
+.verdict{margin-top:11px;padding:9px 13px;border-radius:2px;font-size:13.5px;
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;line-height:1.7;}
+.v-a{background:#e9eef6;border-left:3px solid #33506e;color:#22364d;}
+.v-b{background:#f7eee6;border-left:3px solid #8a5a2a;color:#6e421c;}
+@media(max-width:700px){.ctl{grid-template-columns:1fr;gap:4px;}
+  .ctl .val{text-align:left;}}
+</style>
+
+<article class="sheet">
+
+<p class="series">考える波 <span class="ep">第 65 回 ／ 第 XX 部・トンネルするものたち</span></p>
+<p class="eyebrow">読者からの問いに、四つとも数えて答える</p>
+
+<h1>次元を落とすということ ──<br><strong>形が同じでも、情報は落ちる</strong>
+<span class="sub">「次元って積分だから 6 dB のフィルタじゃん」── <strong>惜しい。次元は 3 dB で、積分とちょうど 2 倍 違います。</strong><br>★★ 「観測すると情報が落ちるよね」── <em>そのとおりで、しかも<strong>二種類あります</strong>。スライスは形を変え、<strong>射影は形をまったく変えないのに情報を落とす</strong>（1 枚で \(1/N\)）。</em><br>★★★ 「非整数次元だと誤差が出るよね」── <em>誤差ではなく<strong>2 で頭打ち</strong>になります（マーストランドの射影定理）。しかも<strong>対称軸は定理の例外方向</strong>で、いちばん損をする。</em><br>★★★ 「質量は非整数次元の波で説明できない？」── <strong>その積分は第 2 回で書いてありました。</strong></span></h1>
+
+<p class="byline"><span>必要な道具：第 1, 2, 13, 39, 59, 60 回</span><span>計算：kenshou/jigen2.js（検算 38 件・依存 0）</span><span>★ 動かせます</span></p>
+
+<p class="lead">本回は<strong>読者からの一連の問い</strong>に答えます。<em>★ 四つとも「数えられる形」になっていたので、四つとも数えました。</em><br>★★ <strong>一つ目には訂正が要り、二つ目と三つ目は予想より鋭い答えが出て、四つ目はシリーズがすでに計算していました。</strong></p>
+
+<h2><span class="n">01</span>物差しを揃える ── 次元は 6 dB ではない</h2>
+
+<div class="calc">
+<span class="tag">換算</span>
+$$|X(f)|\propto f^{-\alpha}\ \Rightarrow\ -6.02\alpha\ \text{dB/oct},\qquad S=|X|^2\propto f^{-\beta},\ \beta=2\alpha\ \Rightarrow\ \beta\ 1\ =\ 3.01\ \text{dB/oct}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>操作</th><th>動く量</th><th>dB/oct</th><th>出典</th></tr></thead>
+<tbody>
+<tr class="hi"><th><strong>1 回 積分する</strong></th><td class="mid">\(\alpha\) +1</td><td class="mid"><strong>6.02</strong></td><td>第 1 回</td></tr>
+<tr class="hi"><th><strong>1 次元 スライスする</strong></th><td class="mid">\(\beta\) −1</td><td class="mid"><strong>3.01</strong></td><td>本回 02 節</td></tr>
+<tr><th>1 方向に 射影する</th><td class="mid">\(\beta\) 変わらず</td><td class="mid">0</td><td>本回 02 節</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ <strong>積分と次元はちょうど 2 倍 違います。</strong><em>「次元＝積分」という直感は方向としては正しいのですが、\(\alpha\) と \(\beta\) のどちらで数えるかで倍半分ずれます。</em><br>
+★★ <strong>そして射影は 0 ── スペクトルの形をまったく変えません。</strong><em>それでも情報は落ちている、というのが 03 節です。</em></p>
+
+<h2><span class="n">02</span>\(d\) 次元の場から 1 次元を取り出す</h2>
+
+<p>等方ランダム場 \(P_d(k)\propto k^{-\beta_d}\) を作り、(a) 1 本の線で切る（スライス）、(b) 1 方向に積分する（射影）を試します。<em>★ 第 59 回の教訓どおり、<strong>対数を取る前に周期図を平均</strong>しています（1 本だと自由度 2 でばらつき 0.7 桁 級）。</em></p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>場</th><th>\(\beta_d\)</th><th>★ スライス</th><th>予言 \(\beta_d-(d{-}1)\)</th><th>射影</th><th>予言 \(\beta_d\)</th></tr></thead>
+<tbody>
+<tr><th>2D</th><td class="mid">2.0</td><td class="mid"><strong>1.061</strong></td><td class="mid">1.0</td><td class="mid">2.057</td><td class="mid">2.0</td></tr>
+<tr><th>2D</th><td class="mid">3.0</td><td class="mid"><strong>2.018</strong></td><td class="mid">2.0</td><td class="mid">2.990</td><td class="mid">3.0</td></tr>
+<tr class="hi"><th><strong>2D</strong></th><td class="mid">4.0</td><td class="mid"><strong>3.011</strong></td><td class="mid">3.0</td><td class="mid">3.983</td><td class="mid">4.0</td></tr>
+<tr><th>3D</th><td class="mid">3.0</td><td class="mid">1.121</td><td class="mid">1.0</td><td class="mid">2.946</td><td class="mid">3.0</td></tr>
+<tr><th>3D</th><td class="mid">4.0</td><td class="mid"><strong>2.002</strong></td><td class="mid">2.0</td><td class="mid">4.069</td><td class="mid">4.0</td></tr>
+<tr class="hi"><th><strong>3D</strong></th><td class="mid">5.0</td><td class="mid">2.951</td><td class="mid">3.0</td><td class="mid">5.125</td><td class="mid">5.0</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">02節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>スライスは 1 次元 あたり \(\beta\) を 1（＝3.01 dB/oct）平らにします。</strong><em>3 次元を 1 次元で切ると 6 dB/oct 平らになる ── これが「次元＝6 dB」という直感の出どころだと思います。ただしそれは<strong>2 次元ぶん</strong>です。</em><br>
+★★★ <strong>射影は \(\beta\) をまったく変えません。</strong><em>フーリエ空間で \(k_\perp=0\) の断面を取るだけなので、指数は保存されます。</em></p>
+</div>
+
+<h2><span class="n">03</span>★★ それでも射影は情報を落としている ── 数えれば分かる</h2>
+
+<p>射影定理：<strong>1 方向の射影のフーリエ変換 ＝ 原点を通る断面。</strong>\(N^3\) の物体から 1 回の射影で取れるのは \(N^2\) 点 ── 全体の \(1/N\) です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>物体</th><th>全係数</th><th>1 射影で取れる</th><th>割合</th><th>全部埋めるのに</th></tr></thead>
+<tbody>
+<tr><th>\(N=64\)</th><td class="mid">2.62e+5</td><td class="mid">4.10e+3</td><td class="mid">1/64</td><td class="mid">約 101 方向</td></tr>
+<tr class="hi"><th><strong>\(N=256\)</strong></th><td class="mid">1.68e+7</td><td class="mid">6.55e+4</td><td class="mid"><strong>1/256</strong></td><td class="mid"><strong>約 402 方向</strong></td></tr>
+<tr><th>\(N=512\)</th><td class="mid">1.34e+8</td><td class="mid">2.62e+5</td><td class="mid">1/512</td><td class="mid">約 804 方向</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>2 次元で実際に \(k\) 空間を数えると（\(N=128\)）：</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(M\) 方向</th><th>1</th><th>4</th><th>16</th><th>64</th><th>128</th><th>201</th></tr></thead>
+<tbody>
+<tr><th>\(k\) 空間の被覆</th><td class="mid">0.8 %</td><td class="mid">3.1 %</td><td class="mid">15.2 %</td><td class="mid">55.7 %</td><td class="mid">89.5 %</td><td class="mid"><strong>ほぼ全部</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">03節の中心 ── ここが 本回の 一つ目の 山</p>
+<p style="margin:6px 0 0">★★★ <strong>「スペクトルの形が同じ」は「情報が落ちていない」を意味しません。</strong><em>射影は \(\beta\) を保存するのに、\(k_\perp\ne0\) の成分を丸ごと捨てています。</em><br>
+★★ <em>これは第 59・60 回の主題そのもの</em> ── <strong>見かけの量が保存されていても、失っているものはある。</strong><br>
+★ <strong>だから CT（計算機断層撮影）が成り立ちます</strong>：<em>多方向から集めれば \(k_\perp\) を埋め戻せる。必要な方向数は約 \(\pi N/2\)（標本化定理）。</em><br>
+★★ <em>そして原点近くはすぐ埋まり、外側は最後まで疎</em> ── <strong>CT の分解能が中心で良く周辺で悪いのは、この埋まり方の不均一さです。</strong></p>
+</div>
+
+<h2><span class="n">04</span>★★★ 非整数次元だと「誤差」ではなく「頭打ち」になる</h2>
+
+<div class="calc">
+<span class="tag">マーストランドの射影定理（1954）</span>
+$$\dim\bigl(\pi_u(A)\bigr)=\min\bigl(\dim A,\;k\bigr)\qquad\text{（ほとんどすべての方向 }u\text{ について）}$$
+</div>
+
+<p>3 次元カントール塵（1 辺を 3 分割＝27 個 から \(m\) 個 残す、\(D=\log m/\log3\)）で確かめます。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m\)</th><th>理論 \(D\)</th><th>3D 実測</th><th>軸射影</th><th>軸の予言</th><th>一般方向</th><th>\(\min(D,2)\)</th></tr></thead>
+<tbody>
+<tr><th>5</th><td class="mid">1.4650</td><td class="mid"><strong>1.4650</strong></td><td class="mid">1.1717</td><td class="mid">1.2619</td><td class="mid">1.2510</td><td class="mid">1.4650</td></tr>
+<tr><th>7</th><td class="mid">1.7712</td><td class="mid"><strong>1.7712</strong></td><td class="mid">1.5782</td><td class="mid">1.6309</td><td class="mid">1.5481</td><td class="mid">1.7712</td></tr>
+<tr><th>9</th><td class="mid">2.0000</td><td class="mid"><strong>2.0000</strong></td><td class="mid">1.5772</td><td class="mid">1.6309</td><td class="mid">1.7219</td><td class="mid">2.0000</td></tr>
+<tr class="hi"><th><strong>16</strong></th><td class="mid">2.5237</td><td class="mid"><strong>2.5237</strong></td><td class="mid">1.6861</td><td class="mid">1.7712</td><td class="mid"><strong>1.8710</strong></td><td class="mid"><strong>2.0000</strong></td></tr>
+<tr class="hi"><th><strong>24</strong></th><td class="mid">2.8928</td><td class="mid"><strong>2.8928</strong></td><td class="mid">1.9152</td><td class="mid">2.0000</td><td class="mid">1.8511</td><td class="mid"><strong>2.0000</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="keybox">
+<p class="lbl">04節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>3 次元での次元は理論値と完全一致</strong>（1.4650〜2.8928、箱数えで小数 4 桁）。<br>
+★★★ <strong>ところが射影は、\(D\) がいくら大きくなっても 2 を超えません。</strong><br>
+★★ <strong>「非整数次元だと誤差が出る」のではなく、2 を超えたぶんが<em>丸ごと消える</em>のです。</strong><em>\(D=2.89\) の物体を撮っても、写真に写るのは 2 次元ぶん。残りの 0.89 は誤差として現れるのではなく、最初から存在しなかったように見える。</em><br>
+★ <em>有限段数（4〜6 段）なので実測値は 2 よりやや低く出ますが、頭打ちの構造ははっきり見えます。</em></p>
+</div>
+
+<h2><span class="n">05</span>★★ 対称軸は定理の例外方向 ── いちばん損な見方</h2>
+
+<p>マーストランドは<strong>「ほとんどすべての方向で」</strong>です。その「ほとんど」の外にあるのが例外方向で ── <em>格子の対称軸がまさにそれ。</em></p>
+
+<p>軸射影の次元は、<strong>\(\log(\)射影で潰れずに残る部分セル数\()/\log3\)</strong> という組合せ量で決まります。マーストランドの値ではありません。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m=16\)（\(D=2.524\)）</th><th>値</th></tr></thead>
+<tbody>
+<tr><th>軸射影</th><td class="mid">1.686（予言 \(\log7/\log3=1.771\)）</td></tr>
+<tr class="hi"><th><strong>一般方向</strong></th><td class="mid"><strong>1.871</strong></td></tr>
+<tr><th>マーストランドの値</th><td class="mid">2.000</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★★★ <strong>観測方向を対象の対称軸に合わせるのは、見やすいけれどいちばん情報が落ちる見方です。</strong><em>定理が保証するぶんすら取り落とす。</em><br>
+★ <em>結晶を撮るときに低指数方位をわざと外すのは、この理由です。</em></p>
+
+<h2><span class="n">06</span>★★★ 質量は非整数次元の波か ── 第 2 回の積分そのもの</h2>
+
+<p><strong>単一の質量 ＝ 単一の極（ローレンツ関数）。非整数のスケーリング次元 ＝ 質量の冪分布（連続体）。</strong></p>
+
+<p>これは第 2 回<strong>「\(1/f\) は多数の時定数の重ね合わせ」</strong>と同じ積分です。</p>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>第 2 回（\(1/f\)）</th><th>アンパーティクル（Georgi 2007）</th></tr></thead>
+<tbody>
+<tr><th>時定数 \(\tau\)</th><td>質量の逆数 \(1/M\)</td></tr>
+<tr><th>ローレンツ \(\tau/(1+\omega^2\tau^2)\)</th><td>伝播関数 \(1/(p^2+M^2)\)</td></tr>
+<tr><th>\(g(\tau)\propto\tau^{-\gamma}\)</th><td>\(\rho(M^2)\propto(M^2)^{d_U-2}\)</td></tr>
+<tr class="hi"><th><strong>\(S\propto\omega^{\gamma-2}\)</strong></th><td><strong>\(\text{Prop}\propto(p^2)^{d_U-2}\)</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>同じ積分か、数値で確かめました（\(\int_0^\infty u^{a-1}/(p^2+u)\,du=\pi p^{2(a-1)}/\sin\pi a\)、比 0.9997〜1.000000）。</p>
+
+<div class="calc">
+<span class="tag">指数を合わせる</span>
+$$\gamma-2=2d_U-4\ \Rightarrow\ d_U=1+\tfrac{\gamma}{2},\qquad \beta=2-\gamma\ \Rightarrow\ \boxed{\,d_U=2-\alpha\,}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(\alpha\)</th><th>\(\beta\)</th><th>\(\gamma\)</th><th>\(d_U=2-\alpha\)</th><th>意味</th></tr></thead>
+<tbody>
+<tr><th>0.0</th><td class="mid">0.0</td><td class="mid">2.0</td><td class="mid">2.0</td><td>白色雑音</td></tr>
+<tr><th>0.5</th><td class="mid">1.0</td><td class="mid">1.0</td><td class="mid">1.5</td><td>桃色雑音</td></tr>
+<tr class="hi"><th><strong>1.0</strong></th><td class="mid">2.0</td><td class="mid">0.0</td><td class="mid"><strong>1.0</strong></td><td><strong>\(1/f\) ── 極 1 つ ＝ 普通の粒子</strong></td></tr>
+<tr><th>2.0</th><td class="mid">4.0</td><td class="mid">−2.0</td><td class="mid">0.0</td><td>ブラウン運動</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="panel">
+<p class="ttl">次元の台帳 ── \(\alpha\) を動かすと 全部つながります</p>
+<div class="ctl">
+  <label>階数 \(\alpha\)</label>
+  <input type="range" id="dg-a" min="-0.5" max="2.5" step="0.01" value="1.0">
+  <span class="val" id="dg-av">1.00</span>
+</div>
+<div class="ctl">
+  <label>場の次元 \(d\)</label>
+  <input type="range" id="dg-d" min="1" max="4" step="1" value="3">
+  <span class="val" id="dg-dv">3</span>
+</div>
+<div class="out" id="dg-out"></div>
+<div class="verdict" id="dg-verdict"></div>
+</div>
+
+<div class="keybox">
+<p class="lbl">06節の中心</p>
+<p style="margin:6px 0 0">★★★ <strong>本シリーズの \(\alpha\) が、そのままアンパーティクルの次元 \(d_U=2-\alpha\) になります。</strong><br>
+★★ <strong>\(1/f\)（\(\alpha=1\)）がちょうど \(d_U=1\) ＝ 極 1 つ ＝ 普通の粒子に当たる</strong> ── <em>第 30 回で「\(1/f\) はスケール不変の固定点」、第 57 回で「\(1/f\) は端の代金が最小」と書きましたが、ここでも \(1/f\) が特別な位置に立っています。</em><br>
+★ <strong>ただし正直に</strong>：<em>これは同じ積分の別の書き方であって、<strong>「質量の起源」を説明したわけではありません</strong>。アンパーティクルは未発見の仮説です。</em></p>
+</div>
+
+<h2><span class="n">07</span>AdS/CFT では文字どおり成り立つ（第 39 回の再掲）</h2>
+
+<div class="calc">
+<span class="tag">第 39 回</span>
+$$\Delta(\Delta-d)=m^2L^2,\qquad \Delta=\frac{d}{2}\pm\sqrt{\frac{d^2}{4}+m^2L^2}$$
+</div>
+
+<div class="tblwrap">
+<table class="ce">
+<thead><tr><th>\(m^2L^2\)</th><th>−4</th><th>0</th><th>1</th><th>2</th><th>5</th><th>7</th></tr></thead>
+<tbody>
+<tr><th>\(d=4\) の \(\Delta_+\)</th><td class="mid">2.000</td><td class="mid">4.000</td><td class="mid"><strong>4.236</strong></td><td class="mid"><strong>4.449</strong></td><td class="mid">5.000</td><td class="mid"><strong>5.317</strong></td></tr>
+<tr><th></th><td class="mid">整数</td><td class="mid">整数</td><td class="mid">非整数</td><td class="mid">非整数</td><td class="mid">整数</td><td class="mid">非整数</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>★ \(4+m^2L^2\) が平方数のときだけ整数 ── <em>ふつうは非整数です。</em><br>
+★★★ <strong>「質量 ＝ 非整数次元」は AdS/CFT では文字どおり成り立っています。</strong><em>質量が決まると次元が決まり、次元が決まると質量が決まる。</em><br>
+★★ <em>ただしこれは二つの記述の辞書であって、「なぜその質量なのか」には答えていません。</em><br>
+★ <strong>そして第 13 回の \(s=\tfrac12\pm\sqrt{\tfrac14-\lambda}\) と同じ 2 次方程式</strong> ── <em>本シリーズはこれを三度見ています（第 13・39・47 回）。</em></p>
+
+<div class="prob">
+<p class="lbl">練習問題</p>
+<ol>
+<li>03 節で「射影は \(\beta\) を変えないのに情報を落とす」と出た。では \(\beta\) を測るだけなら射影で十分か。
+<details><summary>答えを見る</summary><div class="ans"><strong>十分です ── そして、そこが要点です。</strong><br>★ <em>\(\beta\) しか知りたくないなら、1 方向の射影で正しい値が出ます。</em>★★ <strong>問題は「\(\beta\) が合っているから再構成もできるはずだ」と思ってしまうこと。</strong><br>★★★ <em>第 59 回で「窓を変えて値が動いたら窓のせい」という検定を作りました。ここではその逆</em> ── <strong>値が動かないのに情報は落ちている。</strong><em>動かないことは正しさの証拠にも、十分さの証拠にもなりません。</em><br>★ <strong>手引きに足すなら：「保存される量」と「復元に要る量」を分けて数える。</strong><em>\(\beta\) は前者、\(k_\perp\) は後者です。</em></div></details></li>
+
+<li>04 節で「2 を超えたぶんが丸ごと消える」と出た。ではその物体が \(D>2\) だと、どうやって知るのか。
+<details><summary>答えを見る</summary><div class="ans"><strong>1 枚では知れません。複数方向が要ります。</strong><br>★ <em>どの方向から撮っても射影は \(\min(D,2)=2\)。1 枚からは「\(D\ge2\)」しか言えず、2.1 なのか 2.9 なのか区別できません。</em><br>★★ <strong>03 節の数え方が答えです</strong>：<em>\(\pi N/2\) 方向 集めて 3 次元を再構成してから、3 次元で箱数えする。</em><br>★★★ <strong>つまり「非整数次元を測る」こと自体が、CT と同じ問題でした。</strong><em>断層撮影は「形を見る」ためだけでなく、「次元を測る」ためにも要る。</em><br>★ <em>逆に言えば</em>：<strong>1 枚の写真から推定したフラクタル次元が 2 に近いとき、それは「本当に 2」かもしれないし「2 以上の何か」かもしれません。</strong><em>2 に張り付いた値は、飽和の疑いを持つべき数です。</em></div></details></li>
+
+<li>06 節の \(d_U=2-\alpha\) は「発見」か。
+<details><summary>答えを見る</summary><div class="ans"><strong>いいえ、同じ積分の書き換えです。</strong>第 61 回で「四つの道すじが同じ \(6\alpha\) に乗るのは根が一つのフーリエ変換だから、道具の整理であって新しい物理ではない」と書きました。<em>これも同じ型です。</em><br>★ <em>第 2 回の重ね合わせ積分と、アンパーティクルのスペクトル表示は、変数名が違うだけの同一の積分。</em>★★ <strong>それでも並べる価値はあります</strong>：<em>「非整数次元」という言葉が、\(1/f\) の「多数の時定数」と同じものを指していると分かるから。</em><br>★★★ <strong>そして境界がはっきりします</strong>：<em>この対応は<strong>運動学</strong>（どんなスペクトルか）については何でも言えますが、<strong>力学</strong>（なぜその \(\alpha\) なのか、なぜその質量なのか）については何も言いません。</em>★ <strong>第 55 回の言い方では、これは「翻訳」であって「測定」でも「模型を仮定した値」でもありません。</strong></div></details></li>
+</ol>
+</div>
+
+<div class="record">
+<h2 style="margin-top:0">まとめ　四つの問いに、四つとも数えて答える</h2>
+<p><strong>①「次元は 6 dB のフィルタか」── 惜しい。次元は 3 dB です。</strong><em>1 回の積分が \(\alpha\) +1 ＝ 6.02 dB/oct、1 次元のスライスが \(\beta\) −1 ＝ 3.01 dB/oct。ちょうど 2 倍 違います。</em>★ <em>3 次元を 1 次元で切ると 6 dB/oct 平らになるので、直感の出どころはそこだと思います ── ただしそれは 2 次元ぶんです。</em></p>
+<p style="text-align:center"><strong>★★★ ②「観測すると情報が落ちる」── そのとおりで、しかも二種類ある。</strong></p>
+<p>★ <strong>スライスは形を変えます</strong>（\(\beta_1=\beta_d-(d-1)\)、数値で確認）。★★★ <strong>射影は形をまったく変えないのに情報を落とします</strong> ── <em>\(N^3\) の物体から 1 枚で取れるのは \(1/N\)。全部埋めるには約 \(\pi N/2\) 方向 要る（\(N=128\) で 201 方向、実測でも 201 方向でほぼ 100 %）。</em><strong>「スペクトルの形が同じ」は「情報が落ちていない」を意味しません。</strong></p>
+<p>★★★ <strong>③「非整数次元だと誤差が出る」── 誤差ではなく、2 で頭打ちになります。</strong><em>マーストランドの射影定理。3 次元での次元は理論値と完全一致（1.4650〜2.8928）するのに、射影は \(D\) がいくら大きくても 2 を超えない。</em>★★ <strong>超えたぶんは誤差として現れるのではなく、丸ごと消えます。</strong></p>
+<p>★★ <strong>おまけに ── 対称軸は定理の例外方向でした。</strong><em>軸射影の次元は「潰れずに残る部分セル数」で決まる組合せ量で、マーストランドの \(\min(D,2)\) より低い（\(m=16\) で軸 1.686 対 一般方向 1.871）。</em><strong>見やすい方向がいちばん損をする。</strong></p>
+<p>★★★ <strong>④「質量は非整数次元の波で説明できないか」── その積分は第 2 回で書いてありました。</strong><em>単一の質量＝単一の極、非整数次元＝質量の冪分布。第 2 回の重ね合わせ積分とアンパーティクルのスペクトル表示は同一の積分で、<strong>\(d_U=2-\alpha\)</strong>。\(1/f\)（\(\alpha=1\)）がちょうど \(d_U=1\) ＝ 極 1 つ ＝ 普通の粒子に当たります。</em></p>
+<p>★ <strong>そして AdS/CFT では文字どおり成り立ちます</strong>（\(\Delta(\Delta-d)=m^2L^2\)、第 39 回）── <em>第 13 回と同じ 2 次方程式の三度目。</em>★★ <strong>ただし正直に：これは翻訳であって、質量の起源の説明ではありません。</strong><em>運動学については何でも言えますが、力学については何も言っていません（練習問題 3）。</em></p>
+</div>
+
+<div class="next">
+<span class="lbl">次回予告</span>
+03 節で<strong>「保存される量」と「復元に要る量」</strong>が別だと分かりました。<br>
+★ <em>第 59 回は「窓を変えて動いたら窓のせい」、本回は「動かなくても落ちている」。</em><br>
+★★ <strong>次回はこの二つを一つの表に畳みます</strong> ── <em>シリーズが扱ってきた量を「保存されるか」「復元できるか」で分類する。</em>★ <strong>\(\beta\)、桁数、次元、作用、位相</strong> ── <em>どれが観測で生き残り、どれが死ぬのか。</em>
+</div>
+
+<p class="foot">この文書は「考える波」シリーズ第 65 回です。計算は kenshou/jigen2.js で行っています（依存ライブラリ 0、FFT も箱数えも自前、検算 38 件すべて合格）。<strong>本回は読者からの問いに答える回です。</strong><strong>本稿の発見ではないもの：</strong>ランダム場のスライス／射影の指数則、フーリエ射影切断定理（CT の原理）、標本化に要る投影数 \(\pi N/2\)、マーストランド＝マッティラの射影定理（1954）、その例外方向の存在、アンパーティクル（Georgi 2007）とそのスペクトル表示、AdS/CFT の \(\Delta(\Delta-d)=m^2L^2\) ── <strong>いずれもよく知られた結果で、本稿はその数値確認です。</strong>本稿がしたのは、<em>① 積分（6 dB）とスライス（3 dB）の混同を数値で分離したこと、② 射影が指数を保存しながら情報を落とすことを \(k\) 空間の被覆率で数えたこと、③ マーストランドの頭打ちをカントール塵で確かめ、軸射影が定理の値より低いことを「潰れずに残る部分セル数」で説明したこと、④ 第 2 回の重ね合わせ積分とアンパーティクルの伝播関数が同一であることを示し \(d_U=2-\alpha\) を得たこと</em>です。<strong>限界：</strong><em>04・05 節のカントール塵は 4〜6 段しかないため、箱数え次元は 3 次元では理論値と一致するものの、射影では \(\min(D,2)\) に届かず 1.85〜1.87 程度で止まります（頭打ちの構造は明確ですが、極限値の確認にはなっていません）。02 節の値は 2D が 24 実現、3D が 3 実現の平均で、射影の標本数は少なく ±0.1 程度の揺らぎが残ります。06 節の \(d_U=2-\alpha\) は同一の積分の変数対応であって物理的同一性の主張ではなく、アンパーティクルは未発見の仮説です。</em><strong>本稿も合成データと解析式のみで、実測データには当てていません。</strong> ── 印刷する場合はブラウザの「印刷」から「PDF に保存」を。</p>
+
+</article>
+<p class="hint no-print">印刷 / PDF 化：⌘+P（Windows は Ctrl+P）。「答えを見る」で解答が開きます。</p>
+
+<script>
+(function(){
+  'use strict';
+  var A=document.getElementById('dg-a'), D=document.getElementById('dg-d');
+  function upd(){
+    var a=parseFloat(A.value), d=parseInt(D.value,10);
+    document.getElementById('dg-av').textContent=a.toFixed(2);
+    document.getElementById('dg-dv').textContent=d;
+    var beta=2*a, gamma=2-beta, dU=2-a;
+    var dbOct=6.0206*a;
+    var sliceBeta=beta-(d-1);
+    // AdS：Delta(Delta-d)=m^2L^2 の 逆：alpha = nu/2（第39回の背骨）→ nu=2alpha
+    var nu=2*a, Delta=d/2+nu, mL2=Delta*(Delta-d);
+    var o='<b>振幅の傾き</b> −'+dbOct.toFixed(2)+' dB/oct'+
+      '　<b>β</b> = '+beta.toFixed(2)+'　<b>γ</b> = '+gamma.toFixed(2)+'<br>'+
+      '<b>'+d+'次元場を 1 次元でスライス</b> → β = <span class="big">'+sliceBeta.toFixed(2)+
+      '</span>　（'+(3.0103*(d-1)).toFixed(2)+' dB/oct 平らになる）<br>'+
+      '<b>1 方向に射影</b> → β = '+beta.toFixed(2)+'（変わらず）'+
+      '　ただし取れる情報は 1/N<br>'+
+      '<b>アンパーティクル次元</b> d<sub>U</sub> = 2 − α = <span class="big">'+dU.toFixed(2)+'</span>'+
+      (Math.abs(dU-1)<0.02?'　← 極 1 つ ＝ 普通の粒子':'')+'<br>'+
+      '<b>AdS の ν = 2α</b> = '+nu.toFixed(2)+
+      '　→ Δ = d/2+ν = '+Delta.toFixed(3)+
+      '　m²L² = Δ(Δ−d) = '+mL2.toFixed(3);
+    document.getElementById('dg-out').innerHTML=o;
+    var v=document.getElementById('dg-verdict');
+    if(Math.abs(a-1)<0.06){
+      v.className='verdict v-b';
+      v.innerHTML='★ <b>α = 1、1/f の点です。</b>d<sub>U</sub> = 1 ＝ 極 1 つ ＝ 普通の粒子。'+
+        '第 30 回では「スケール不変の固定点」、第 57 回では「端の代金が最小」── '+
+        'ここでも 1/f が特別な位置に立っています。';
+    }else if(sliceBeta<0){
+      v.className='verdict v-a';
+      v.innerHTML='★ スライスすると β が負 ── <b>高周波が持ち上がる</b>。'+
+        'この場を 1 本の線で切ると、もとの構造とは似ても似つかない系列になります。';
+    }else{
+      v.className='verdict v-a';
+      v.innerHTML='★ スライスで '+(3.0103*(d-1)).toFixed(1)+' dB/oct 平らになり、'+
+        '射影では傾きが変わりません。<b>同じ「次元を落とす」でも別物です。</b>';
+    }
+  }
+  [A,D].forEach(function(e){e.addEventListener('input',upd);});
+  upd();
+})();
+</script>
