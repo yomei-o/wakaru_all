@@ -39,11 +39,12 @@ The **canonical originals** of "Wakaru" ("It Clicks") — a reading series for p
 
 ## 日本語版 (Japanese originals)
 
-The Japanese originals live in sibling folders — all 20 series. The two marked *Japanese only* have no English edition yet.
+The Japanese originals live in sibling folders — all 21 series. The three marked *Japanese only* have no English edition yet.
 
 | Series | Read (published site) |
 |---|---|
 | **わかる共形変換**（Conformal Transformations That Click）| [open](https://yomei-o.github.io/wakaru_all/wakaru-kyokei/index.html) |
+| **考えるAIと物理**（Thinking about AI and Physics — Japanese only）| [open](https://yomei-o.github.io/wakaru_all/kangaeru-ai/index.html) |
 | **量子重力自由研究**（Quantum Gravity: A Free-Research Notebook — Japanese only）| [open](https://yomei-o.github.io/wakaru_all/ryoushi-juryoku/index.html) |
 | **わかる c·t=一定**（c·t = const, That Clicks）| [open](https://yomei-o.github.io/wakaru_all/wakaru-ct/index.html) |
 | **物理を簡単にする**（Making Physics Simpler — Japanese only）| [open](https://yomei-o.github.io/wakaru_all/butsuri-kantan/index.html) |

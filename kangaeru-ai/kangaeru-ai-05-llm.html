@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM は物理で書ける</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 5 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>LLM は物理で書ける
+<span class="sub">順伝播は冷却、逆伝播は時間反転、attention はボルツマン ── 四行で言えること</span></h1>
+<div class="byline">2026-10-20 ／ 「LLM と構造が似ている」を、比喩でなく定理の形で。検証は付録に回した</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>逆伝播は、時間を逆向きに走る物理そのもの。</b> 1950 年代の最適制御の随伴方程式と同じで、順方向が位置、逆方向が運動量。両方を合わせたハミルトニアンは保存する。</li>
+<li><b>逆伝播の信号は、物理でいう「応答」。</b> softmax の微分は出力のゆらぎ（共分散）に等しい。揺動散逸定理が一個の softmax について厳密に成り立つ。</li>
+<li><b>LLM はすでにボルツマン分布で動いている。</b> 温度は文字どおり温度。attention の一回はホップフィールド網の一更新で、エネルギーは必ず下がる。層を重ねるとトークンは凝集し、文脈内学習は順伝播の中の勾配降下である。</li>
+<li><b>情報の側は、減ることしかできない。</b> 層を通るたびに入力の情報は減る（データ処理不等式）。予測に効かない記憶は、熱のコストになる（学習の熱力学）。</li>
+</ol>
+</div>
+
+<p class="lead">ここまでの線を LLM に当てると、どれも既に名前が付いていた。新しい主張はしない。代わりに、四行のそれぞれを小さな計算で確かめて、どこまで厳密でどこから崩れるかを書いておく。</p>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>逆伝播 = 随伴方程式、H = a·f が保存</td><td class="g-text">教科書（Pontryagin 1956、Linnainmaa 1970）</td><td>H の変動 10⁻⁴、勾配一致 7×10⁻⁴</td></tr>
+<tr><td>softmax の微分 = 共分散（揺動散逸）</td><td class="g-text">教科書</td><td>恒等式 10⁻¹¹、サンプリングで 10⁻⁴</td></tr>
+<tr><td>attention = 現代ホップフィールドの一更新</td><td class="g-real">Ramsauer ら 2020（定理つき）</td><td>エネルギー単調、β で記憶が溶ける</td></tr>
+<tr><td>深さとともにトークンが凝集</td><td class="g-real">Geshkovski ら 2023</td><td>64 → 1 クラスター、β で遅れる</td></tr>
+<tr><td>文脈内学習 = 勾配降下 1 歩</td><td class="g-real">von Oswald ら 2023</td><td>構成は厳密 10⁻¹⁶、学習でも GD 1 歩と同じ精度</td></tr>
+<tr><td>データ処理不等式、学習の熱力学</td><td class="g-text">教科書 ／ Still ら 2012</td><td>— （計算なし）</td></tr>
+<tr><td>「順伝播 = 冷却、逆伝播 = 時間反転、揺動散逸が両者をつなぐ」</td><td class="g-story">この地図の語り</td><td>部品ごとには確認、全体としては未</td></tr>
+</table>
+
+<h2><span class="n">01</span>逆伝播は時間反転</h2>
+<p>層を時間とみなす（第2回）と、ネットワークは微分方程式 \(\dot x = f(x,\theta)\) で、損失は終端の \(L(x(T))\)。随伴変数 \(a = \partial L/\partial x\) は</p>
+$$\dot a = -\Big(\frac{\partial f}{\partial x}\Big)^{\!\top} a,\qquad a(T) = \nabla L,\qquad \frac{dL}{d\theta} = \int_0^T a^\top\frac{\partial f}{\partial \theta}\,dt$$
+<p>に従い、これが逆伝播である。\(x\) と \(a\) はハミルトニアン \(H = a\cdot f(x,\theta)\) の正準方程式の組になり、\(\theta\) が時間によらなければ \(H\) は保存する。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">4 次元の \(\dot x=\tanh(Wx+b)\)、RK4 で 2000 歩、逆向きに随伴を積分</span>
+<p style="margin:.3em 0">H = a·f を t = 2.0 から 0 まで 6 点で：3.73533 → 3.73532 → 3.73528 → 3.73518 → 3.73501 → 3.73479（変動 1.5×10⁻⁴、離散化誤差の程度）。dL/dW を自動微分（離散の逆伝播）と随伴の積分で比べると相対差 7×10⁻⁴。</p>
+</div>
+<p>見た目は違っても、自動微分の逆伝播と、物理の随伴方程式は同じ計算である。最初に書いた版では随伴の時間の向きを間違え、H が 20% 流れた。符号ひとつで保存が壊れる、というのがこの定理の中身そのものだった。</p>
+
+<h2><span class="n">02</span>逆伝播の信号はゆらぎ</h2>
+<p>温度 T の softmax \(p_i = e^{h_i/T}/Z\) について</p>
+$$\frac{\partial p_i}{\partial h_j} = \frac{1}{T}\,p_i(\delta_{ij} - p_j) = \frac{1}{T}\,\mathrm{Cov}(\mathbf 1_i, \mathbf 1_j)$$
+<p>左辺は「ロジットを押したときの出力の応答」で、逆伝播が出力層で運ぶ量。右辺は「出力のゆらぎ」。これは揺動散逸定理の一番小さい形で、第3回の定理 1（対数微分の恒等式）の子どもである。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">8 トークン、観測量 f(トークン) をランダムに取り、応答は微分で、ゆらぎは 200 万サンプルから</span>
+<table>
+<tr><th class="num">T</th><th class="num">max |応答 − Cov/T|</th><th class="num">応答の大きさ</th></tr>
+<tr><td class="num">1.0</td><td class="num">2.9×10⁻⁴</td><td class="num">0.26</td></tr>
+<tr><td class="num">0.5</td><td class="num">8.4×10⁻⁴</td><td class="num">0.39</td></tr>
+</table>
+<p style="margin:.3em 0">差はサンプリングの統計誤差の程度。恒等式そのものは 4×10⁻¹¹ で成立。</p>
+</div>
+
+<h2><span class="n">03</span>attention はボルツマン</h2>
+<p><b>温度。</b> LLM の「温度」は比喩ではない。ロジットが −エネルギー、softmax がボルツマン分布、サンプリング温度が \(k_BT\) で、perplexity は \(e^{\text{エントロピー}}\)。第1回の「温度」の線は、LLM では最初から部品に入っている。</p>
+<p><b>attention = ホップフィールド。</b> 記憶パターン \(X\)（鍵 = 値）に対して、エネルギー \(E(\xi) = -\frac1\beta\ln\sum_i e^{\beta\, x_i\cdot\xi} + \frac12|\xi|^2\) を定めると、\(\xi \leftarrow X^\top\mathrm{softmax}(\beta X\xi)\) はその一更新で、E は単調に下がる（Ramsauer ら 2020）。これは attention の式そのものである。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">64 次元に 20 パターン、ランダムな初期値 200 個から反復</span>
+<table>
+<tr><th class="num">β</th><th class="num">収束まで</th><th>E 単調</th><th class="num">最近接パターンとの重なり</th><th class="num">到達した固定点の数</th></tr>
+<tr><td class="num">1</td><td class="num">9.7</td><td>はい</td><td class="num">0.42</td><td class="num">1</td></tr>
+<tr><td class="num">4</td><td class="num">21.3</td><td>はい</td><td class="num">0.45</td><td class="num">1</td></tr>
+<tr><td class="num">16</td><td class="num">6.0</td><td>はい</td><td class="num">1.00</td><td class="num">20</td></tr>
+<tr><td class="num">64</td><td class="num">3.2</td><td>はい</td><td class="num">1.00</td><td class="num">20</td></tr>
+</table>
+<p style="margin:.3em 0">β が小さい（高温）と全部の記憶が溶けて平均一つに落ちる。β が大きい（低温）と 20 個の記憶がそれぞれ取り出せる。相転移の境目は β ≈ 4〜16 の間。</p>
+</div>
+<p><b>深さ = 時間、トークン = 粒子。</b> 自己注意だけの層を重ねると、トークンは互いに引き合って凝集する（Geshkovski ら 2023）。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">球面上の 64 トークン、16 次元、残差つき自己注意を L 層。クラスター数（cos > 0.99 で同一視）</span>
+<table>
+<tr><th class="num">β</th><th class="num">L=0</th><th class="num">10</th><th class="num">20</th><th class="num">50</th><th class="num">100</th><th class="num">200</th><th class="num">500</th></tr>
+<tr><td class="num">1</td><td class="num">64</td><td class="num">64</td><td class="num">64</td><td class="num">11</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr>
+<tr><td class="num">4</td><td class="num">64</td><td class="num">64</td><td class="num">64</td><td class="num">58</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr>
+<tr><td class="num">9</td><td class="num">64</td><td class="num">64</td><td class="num">64</td><td class="num">62</td><td class="num">50</td><td class="num">24</td><td class="num">6</td></tr>
+</table>
+<p style="margin:.3em 0">最後は一点に潰れる。β が大きいほど途中の準安定なクラスターが長持ちする ── 第1回のイジングの流れ、第4回の局所解と同じ構造。</p>
+</div>
+<p><b>文脈内学習 = 勾配降下。</b> 線形 attention に特定の重みを入れると、文脈中の (x, y) に対する最小二乗の勾配降下を一歩、順伝播の中で実行する（von Oswald ら 2023）。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">4 次元の線形回帰、文脈 16 点</span>
+<p style="margin:.3em 0">構成した重みでは attention の出力と GD 一歩の予測が一致（差 7×10⁻¹⁶）。重みをゼロから学習させた線形 attention の試験 MSE は 0.961、最適な歩幅の GD 一歩は 0.952、最小二乗の厳密解は 0.000、ゼロ予測は 4.08。<em>学習した一層は、GD 一歩の精度に収束し、それを超えない。</em></p>
+</div>
+
+<h2><span class="n">04</span>情報は減ることしかできない</h2>
+<p>層は \(X\to h_1\to h_2\to\cdots\) のマルコフ連鎖なので、\(I(X;h_{l+1})\le I(X;h_l)\)（データ処理不等式）。学習は情報を増やす操作ではなく、<em>捨てる順番を選ぶ</em>操作である。第1回のくりこみ群と同じ向きで、違うのは何を残すかの基準だけだった。</p>
+<p>学習の熱力学（Still ら 2012）では、系が過去について抱えている情報 \(I_{\rm mem}\) のうち、未来の予測に効かない分 \(I_{\rm mem}-I_{\rm pred}\) が散逸の下限になる。LLM に当てると、文脈のうち次の単語に効かない部分を覚えておくことが、そのまま熱のコストになる。第4回の Landauer（1 ビット消すのに \(kT\ln2\)）の、学習版である。ここは計算していない。</p>
+
+<h2><span class="n">05</span>換算表</h2>
+<table>
+<tr><th>LLM の部品</th><th>物理での名前</th><th>回</th></tr>
+<tr><td>ロジット ／ 温度 ／ perplexity</td><td>−エネルギー ／ \(k_BT\) ／ \(e^{S}\)</td><td>1</td></tr>
+<tr><td>softmax の微分</td><td>共分散、感受率（揺動散逸）</td><td>3, 5</td></tr>
+<tr><td>attention 一回</td><td>ホップフィールドのエネルギー降下一歩</td><td>5</td></tr>
+<tr><td>層</td><td>時間、虚時間</td><td>2</td></tr>
+<tr><td>トークン</td><td>球面上の相互作用する粒子</td><td>5</td></tr>
+<tr><td>順伝播</td><td>冷却、凝集</td><td>1, 5</td></tr>
+<tr><td>逆伝播</td><td>随伴方程式、時間反転、運動量</td><td>5</td></tr>
+<tr><td>文脈内学習</td><td>順伝播の中の勾配降下</td><td>5</td></tr>
+<tr><td>学習率 / バッチ</td><td>温度 η/N</td><td>1</td></tr>
+</table>
+
+<h2><span class="n">06</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>揺動散逸が厳密なのは softmax 一個まで。</b> ネットワーク全体では、応答は線形近似、ゆらぎは平衡でない。「全体で成り立つか」は測っていない。</li>
+<li><b>凝集の計算は重みのない自己注意。</b> 学習済みの LLM で隠れ状態の異方性が深さとともに増すことは知られている（Ethayarajh 2019）が、今日は確認していない。</li>
+<li><b>文脈内学習 = GD は線形 attention の話。</b> softmax attention と MLP を含む本物の Transformer で何をしているかは研究が続いている。</li>
+<li><b>H の保存は θ が層によらないとき。</b> 普通のネットワークは層ごとに重みが違うので、H は保存せず、各層で \(\partial H/\partial\theta_l\) の分だけ変わる。それがちょうど勾配である。</li>
+<li><b>四行目は計算なし。</b> 学習の熱力学を LLM で測るには、文脈の情報量を推定する必要があり、今日の道具では届かない。</li>
+<li><b>新しくはない。</b> 全部、引用先がある。新しいのは並べ方と、第1〜4回の線がそのまま通ることの確認だけ。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>逆伝播は随伴方程式で、H = a·f が保存する時間反転。</li>
+<li>softmax の微分は共分散。逆伝播の信号は、出力のゆらぎを運んでいる。</li>
+<li>attention はホップフィールドの一更新、層は時間、トークンは凝集する粒子、文脈内学習は順伝播の中の勾配降下。</li>
+<li>情報は層を通るたびに減る。予測に効かない記憶は熱になる。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+小さな Transformer を実際に学習させ、順方向の応答と逆方向の勾配の相関（揺動散逸）がどこまで合うかを測る ／ 学習済みモデルで深さとともに隠れ状態が凝集するか ／ 文脈の情報量を推定して、学習の熱力学の不等式を測る</div>
+
+<div class="foot">
+<ol>
+<li>Pontryagin ら (1956) ／ Kelley (1960)、Bryson (1961) ／ Linnainmaa (1970) ／ Chen ら (2018) Neural ODE</li>
+<li>Ramsauer ら (2020) Hopfield Networks is All You Need ／ Geshkovski, Letrouit, Polyanskiy, Rigollet (2023) A mathematical perspective on Transformers</li>
+<li>von Oswald ら (2023) Transformers learn in-context by gradient descent ／ Ethayarajh (2019)</li>
+<li>Still, Sivak, Bell, Crooks (2012) Thermodynamics of prediction ／ Tishby & Zaslavsky (2015) 情報ボトルネック</li>
+<li>スクリプト：<code>scripts/llm_lines.py</code>、出力 <code>scripts/llm_lines_out.txt</code></li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

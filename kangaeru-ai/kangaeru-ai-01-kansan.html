@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>換算係数の地図</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 1 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>c はどこにでもいる
+<span class="sub">換算係数と、その三つの形 ── 一次・二次・対数</span></h1>
+<div class="byline">2026-10-19 ／ 出発点：ES（進化戦略）を「無限次元の逆伝播」と読む小論。数値はすべてこの日に手元で回したもの</div>
+
+<p class="lead">進化戦略（ES）の式を眺めていたら、「並列にたくさん試すこと」と「順番にたくさん試すこと」が交換できそうに見えた。辿っていくと、熱方程式、統計力学、拡散モデル、くりこみ群、そして特殊相対論の光円錐まで、<em>同じ形の換算</em>が何度も出てきた。新しい発見を探すのではなく、この換算たちを一枚の地図にする。</p>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<p>話が面白くなるほど「そんな夢みたいな話ある？」と疑うべきなので、物語の前に全部の線の格付けを置く。</p>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>ES の勾配 = ガウスでぼかした損失の勾配（Stein の補題）</td><td class="g-text">教科書</td><td>4 桁一致</td></tr>
+<tr><td>ガウスぼかし = 熱方程式を時間 \(\sigma^2/2\) 進めること</td><td class="g-text">教科書</td><td>4 桁一致、半群性 \(7\times10^{-9}\)</td></tr>
+<tr><td>ES/SGD のゆらぎの強さは \(\eta/N\) だけで決まる（温度）</td><td class="g-text">教科書（SDE 極限）</td><td>定常損失が一致</td></tr>
+<tr><td>谷を越える時間はクラマースの式 \(e^{\Delta U/T}\)</td><td class="g-text">教科書</td><td>予言の 15% 以内</td></tr>
+<tr><td>集団サイズ \(N\) = 逆温度（Sella–Hirsh 2005）</td><td class="g-text">教科書（集団遺伝学）</td><td>—</td></tr>
+<tr><td>自然選択 1 世代 = 拡散モデルのノイズ除去 1 段（Lande = Tweedie）</td><td class="g-real">実在、比較的新しい整理</td><td>4 桁一致</td></tr>
+<tr><td>CNN の深さ：stride 1 は \(\sigma^2\)、stride 2 は \(\ln\sigma\)</td><td class="g-text">既知（Luo ら 2016 ほか）</td><td>綺麗に一致</td></tr>
+<tr><td>CNN の層 ↔ くりこみ群（Mehta–Schwab 2014）</td><td class="g-real">実在するが解釈は係争中</td><td>イジングの流れのみ</td></tr>
+<tr><td>大バッチ学習の双曲線 = 光円錐座標、\(B_{\rm crit}\) = c</td><td class="g-story">語り（式は McCandlish 2018）</td><td>半分だけ：双曲線は当たらず</td></tr>
+<tr><td>換算の形は「一次・二次・対数」の三つで足りる</td><td class="g-story">語り</td><td>—</td></tr>
+</table>
+<p style="font-size:14px;color:var(--ink-soft)">色：<span class="g-text">教科書</span> ／ <span class="g-real">実在するが新しめ・係争中</span> ／ <span class="g-story">この地図の語り</span> ／ <span class="g-fit">数値合わせ</span>（今回は該当なし）</p>
+
+<h2><span class="n">01</span>換算係数とは何か</h2>
+<div class="keybox"><div class="lbl">核心</div>
+二つの量が<em>一定のレートで交換できる</em>とき、必ず換算係数が一つ現れ、物理を変えない伸縮の対称性が一つ生まれる。物理ではその係数を c、ħ、k<sub>B</sub>、D と呼び、自然単位系では 1 と置いて消す。換算は何も予言しない。ただ、別の物差しで測っても同じだと言っているだけで、計算がたまに楽になる。</div>
+
+<p>この日に出てきた「c」たちを並べるとこうなる。右端の列が本体で、単位の付いた量は舞台装置にすぎない。</p>
+<table>
+<tr><th>換算</th><th>係数</th><th>交換される二つ</th><th>形</th><th>不変な無次元量</th></tr>
+<tr><td>\(x = ct\)</td><td>\(c\)</td><td>時間 ↔ 長さ</td><td>一次</td><td>\(x/ct\)</td></tr>
+<tr><td>\(\sigma^2 = 2Dt\)</td><td>\(D\)</td><td>時間 ↔ 長さ²</td><td>二次</td><td>\(\sigma^2/Dt\)</td></tr>
+<tr><td>\(T \propto \eta/N\)</td><td>\(\eta/N\)</td><td>世代数 ↔ 集団の大きさ</td><td>一次（積）</td><td>\(N\cdot T\)</td></tr>
+<tr><td>\(N\) = 逆温度</td><td>k<sub>B</sub> 相当</td><td>集団の大きさ ↔ 温度</td><td>—</td><td>\(N s\)</td></tr>
+<tr><td>\(\beta = it/\hbar\)</td><td>\(\hbar\)</td><td>時間 ↔ 逆温度</td><td>—</td><td>\(Et/\hbar\)</td></tr>
+<tr><td>\(\ell = \ln\sigma\)</td><td>\(\ln 2\)/層</td><td>深さ ↔ スケール</td><td>対数</td><td>\(\ln(\xi/a)\)</td></tr>
+<tr><td>\(B_{\rm crit}\)</td><td>\(B_{\rm crit}\)</td><td>ステップ数 ↔ サンプル数</td><td>一次（積）</td><td>\(B/B_{\rm crit}\)</td></tr>
+</table>
+
+<h2><span class="n">02</span>二次の換算：ぼかし幅の二乗は時間</h2>
+<p>ES は、パラメータ \(\theta\) にノイズ \(\sigma\epsilon\) を足して損失を測り、ノイズとの相関から下る方向を決める。微分は一度も計算しない。それでも Stein の補題（ガウスの部分積分）により</p>
+$$\frac{1}{\sigma}\,\mathbb{E}_\epsilon\!\left[L(\theta+\sigma\epsilon)\,\epsilon\right] \;=\; \nabla L_\sigma(\theta),\qquad L_\sigma = L * \mathcal{N}(0,\sigma^2)$$
+<p>が成り立つ。そしてガウスでぼかすことは、熱方程式を解くことそのものである。</p>
+$$\frac{\partial L_\sigma}{\partial(\sigma^2/2)} = \Delta L_\sigma$$
+<p>ぼかし幅 \(\sigma\) は長さだが、その<em>二乗が時間</em>として振る舞う。左辺は \(L\) が微分できなくても定義できる。段差（崖）のある地形でも ES は有限の「坂」を返す。</p>
+
+<div class="calc"><span class="tag">計算</span><span class="lbl">ES の勾配 vs 熱方程式の解の勾配</span>
+<p style="margin:.3em 0">地形 \(L=|\sin 3x| + 0.5\,[x>0.4]\)（折れ目と段差あり、勾配は存在しない）。\(\sigma=0.1\)、熱方程式は差分法で時間 \(0.005\) まで。</p>
+<table>
+<tr><th class="num">x</th><th class="num">ES（微分なし）</th><th class="num">熱方程式</th></tr>
+<tr><td class="num">−1.0</td><td class="num">0.9867</td><td class="num">0.9861</td></tr>
+<tr><td class="num">−0.5</td><td class="num">−0.2029</td><td class="num">−0.2029</td></tr>
+<tr><td class="num">0.4（段差）</td><td class="num">3.0320</td><td class="num">3.0316</td></tr>
+<tr><td class="num">0.7</td><td class="num">−1.4227</td><td class="num">−1.4225</td></tr>
+<tr><td class="num">1.2</td><td class="num">2.1998</td><td class="num">2.1973</td></tr>
+</table>
+<p style="margin:.3em 0">「\(\sigma=0.1\) でぼかしてから残りをぼかす」と「最初から \(\sigma=0.3\)」の差は最大 \(6.7\times10^{-9}\)。分散が足し算になる＝時間が足し算になる。</p>
+</div>
+
+<h3>同じ二次が CNN の受容野にも出る</h3>
+<p>ストライド 1 の畳み込みを \(L\) 層重ねると、出力 1 点が効いている入力の範囲（実効受容野）は、中心極限定理でガウスに近づき、半径は \(\sqrt{L}\) で伸びる。<em>深さは熱方程式の時間</em>である。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">ランダム CNN（3×3、16ch、He 初期化、8 回平均）</span>
+<table>
+<tr><th class="num">層数 L</th><th class="num">1</th><th class="num">2</th><th class="num">4</th><th class="num">8</th><th class="num">16</th><th class="num">32</th></tr>
+<tr><td class="num">半径 r（線形）</td><td class="num">0.78</td><td class="num">1.30</td><td class="num">2.02</td><td class="num">3.12</td><td class="num">4.51</td><td class="num">6.37</td></tr>
+<tr><td class="num">半径 r（ReLU）</td><td class="num">0.81</td><td class="num">1.28</td><td class="num">1.92</td><td class="num">3.07</td><td class="num">4.50</td><td class="num">6.41</td></tr>
+<tr><td class="num">r / √L</td><td class="num">0.81</td><td class="num">0.91</td><td class="num">0.96</td><td class="num">1.09</td><td class="num">1.13</td><td class="num">1.13</td></tr>
+</table>
+</div>
+
+<h3>二次の換算は「温度」も運ぶ</h3>
+<p>ES や SGD の更新を、小さな歩幅 \(\eta\) で何歩も重ねる極限で見ると、確率微分方程式になる。</p>
+$$d\theta = -\nabla L_\sigma\,dt + \sqrt{\eta/N}\;\Sigma^{1/2}\,dW$$
+<p>ゆらぎを決めるのは \(\eta/N\) だけ。<em>集団を大きくする（空間）ことと、歩幅を小さくして世代を重ねる（時間）ことが交換できる</em>。これはランジュバン方程式で、\(\eta/N\) は温度にあたる。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">定常状態の損失（10 次元二次関数、片側 ES）</span>
+<table>
+<tr><th class="num">η</th><th class="num">N</th><th class="num">η/N</th><th class="num">⟨L⟩</th></tr>
+<tr><td class="num">0.001</td><td class="num">1</td><td class="num">0.001</td><td class="num">0.218</td></tr>
+<tr><td class="num">0.002</td><td class="num">2</td><td class="num">0.001</td><td class="num">0.207</td></tr>
+<tr><td class="num">0.004</td><td class="num">4</td><td class="num">0.001</td><td class="num">0.221</td></tr>
+<tr><td class="num">0.008</td><td class="num">8</td><td class="num">0.001</td><td class="num">0.215</td></tr>
+<tr><td class="num">0.001</td><td class="num">4</td><td class="num">0.00025</td><td class="num">0.048</td></tr>
+<tr><td class="num">0.004</td><td class="num">1</td><td class="num">0.004</td><td class="num">1.12</td></tr>
+</table>
+<p style="margin:.3em 0">温度なら、谷を越える時間はクラマースの式 \(\tau \approx \frac{2\pi}{\sqrt{U''_{\min}|U''_{\max}|}}\,e^{\Delta U/T}\) に従うはず。二重井戸 \((x^2-1)^2\)、\(\sigma=0.3\) で \(\Delta U/T=5.6\) のとき：</p>
+<table>
+<tr><th class="num">η</th><th class="num">N</th><th class="num">測定 τ</th><th class="num">クラマース</th></tr>
+<tr><td class="num">0.004</td><td class="num">1</td><td class="num">359 ± 8</td><td class="num">415</td></tr>
+<tr><td class="num">0.008</td><td class="num">2</td><td class="num">362 ± 8</td><td class="num">415</td></tr>
+<tr><td class="num">0.016</td><td class="num">4</td><td class="num">340 ± 7</td><td class="num">415</td></tr>
+</table>
+</div>
+<div class="aside"><div class="lbl">補足：ぼかしは障壁を溶かす</div>
+二重井戸をぼかすと解析的に \(L_\sigma = x^4 + (6\sigma^2-2)x^2 + \text{const}\)。障壁は \((1-3\sigma^2)^2\) に下がり、\(\sigma \ge 1/\sqrt3\) で消える。一方 ES の推定ノイズは \(T\propto 1/\sigma^2\) で系を熱する。抜けにくさ \(\Delta U/T \propto \sigma^2(1-3\sigma^2)^2\) は \(\sigma=1/3\) で最大になる ── というのはこの地形での予言で、まだ測っていない。</div>
+
+<h2><span class="n">03</span>温度の線：ES、自然選択、拡散モデル</h2>
+<p>集団遺伝学では、集団サイズ \(N\) がそのまま逆温度になることが厳密に示されている（Sella–Hirsh 2005）。Kimura の拡散近似が時間を「\(2N\) 世代」単位で測るのも同じ換算である。そして自然選択の 1 世代は、拡散モデルの Tweedie の公式と同じ式になる。</p>
+$$\underbrace{\Delta\bar z = \frac{\mathrm{Cov}(w,z)}{\bar w} = \sigma^2\nabla\ln\bar w}_{\text{Price / Lande}}
+\qquad\Longleftrightarrow\qquad
+\underbrace{\mathbb{E}[x_0\mid x] - x = \sigma^2\nabla\log p_\sigma(x)}_{\text{Tweedie}}$$
+<p>適応度 \(w\) をデータの確率密度 \(p\) と読み替えれば同じ計算。ES との違いは log と平均の順序だけで、ES は<em>平均エネルギー</em> \(\langle L\rangle\) を、選択は<em>自由エネルギー</em> \(-\log\langle e^{-L}\rangle\) をぼかしている。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">選択 1 世代の移動 ／ 拡散モデルのスコア ／ ES（\(w=e^{-3(x^2-1)^2}\)、\(\sigma=0.4\)）</span>
+<table>
+<tr><th class="num">集団の中心 z</th><th class="num">選択（MC）</th><th class="num">Tweedie</th><th class="num">ES</th></tr>
+<tr><td class="num">−1.5</td><td class="num">0.4383</td><td class="num">0.4384</td><td class="num">4.98</td></tr>
+<tr><td class="num">−0.6</td><td class="num">−0.2213</td><td class="num">−0.2213</td><td class="num">−0.18</td></tr>
+<tr><td class="num">0.3</td><td class="num">0.2989</td><td class="num">0.2985</td><td class="num">0.25</td></tr>
+<tr><td class="num">0.9</td><td class="num">+0.0262</td><td class="num">+0.0264</td><td class="num">−0.50</td></tr>
+</table>
+<p style="margin:.3em 0">\(z=0.9\) では選択は谷底 \(x\approx1\) へ、ES は平均エネルギーの最小点 \(x=\sqrt{1-3\sigma^2}\approx0.72\) へ向かう。二つのぼかし方で「最適な場所」がずれる。適応度の強さ \(\beta\) を 0.3 まで弱めると両者はほぼ一致する：<em>ES は選択の高温極限</em>。</p>
+</div>
+
+<h2><span class="n">04</span>対数の換算：深さはスケールの対数</h2>
+<p>CNN で毎層解像度を半分にすると、受容野は倍々で伸びる。くりこみ群の「時間」は \(\ell = \ln(\text{スケール})\) なので、深さは \(\ell\) そのものになる。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">stride 2 の CNN（ReLU）</span>
+<table>
+<tr><th class="num">層数 L</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th></tr>
+<tr><td class="num">log₂ r</td><td class="num">−0.31</td><td class="num">0.88</td><td class="num">2.02</td><td class="num">3.04</td><td class="num">4.02</td><td class="num">5.05</td></tr>
+</table>
+</div>
+<p>ImageNet 用の CNN がだいたい 5 段でダウンサンプリングするのは \(\log_2(224/7)=5\) だから。くりこみ群で格子間隔 \(a\) から相関長 \(\xi\) まで行く段数 \(\ln(\xi/a)\) と同じ量で、必要な深さを決めているのは無次元量 \(\ln(\text{物体}/\text{画素})\) である。</p>
+
+<h3>層を通して流れるもの</h3>
+<div class="calc"><span class="tag">計算</span><span class="lbl">2 次元イジング、2×2 多数決 = 1 層（256² → 8²）、隣接スピン相関</span>
+<pre class="flow">T = 0.9 Tc :  0.857 → 0.910 → 0.963 → 0.993 → 0.999 → 1.000   秩序の固定点へ
+T = Tc     :  0.701 → 0.682 → 0.668 → 0.642 → 0.610 → 0.508   ほぼ留まる
+T = 1.1 Tc :  0.555 → 0.453 → 0.335 → 0.206 → 0.103 → 0.059   無秩序の固定点へ</pre>
+<p style="margin:.3em 0;font-size:14.5px">Tc でもゆっくり減るのは、多数決則が厳密なくりこみでないことと、格子が有限であることによる。0.9 Tc は揃えた初期状態から（ランダム初期だと磁区が残って乱れた）。</p>
+</div>
+<p>深い層に残るのは画素ではなく、粗視化しても生き残る量（relevant な結合）である。</p>
+
+<h2><span class="n">05</span>一次の換算：光円錐の形</h2>
+<p>第2回 の \(\eta/N\) を、マクロな時間 \(t=\eta T\)（\(T\) はステップ数）と温度 \(\tau=\eta/N\) を固定して見直すと、</p>
+$$N\cdot T = t/\tau \;=\; \text{不変},\qquad N\to\lambda N,\;\; T\to T/\lambda,\;\; \eta\to\lambda\eta$$
+<p>という伸縮が物理を変えない。これは特殊相対論のローレンツ変換を光円錐座標 \(u=ct+x,\ v=ct-x\) で書いた形（\(u\to\lambda u,\ v\to v/\lambda,\ uv\) が不変）と同じで、\(\ln\lambda\) はラピディティにあたる。群はどちらも SO(1,1)。</p>
+<p>「光速」にあたるものもある。大バッチ学習の経験則（McCandlish ら 2018）は、目標損失までのステップ数 \(S\) と総サンプル数 \(E\) について</p>
+$$(S - S_{\min})(E - E_{\min}) = S_{\min}E_{\min}$$
+$$S-S_{\min} = S_{\min}e^{-\varphi},\qquad E-E_{\min}=E_{\min}e^{\varphi},\qquad \varphi=\ln\frac{B}{B_{\rm crit}}$$
+<p>と書ける。余分なステップと余分なサンプルが光円錐座標、バッチサイズの比の対数がラピディティ、\(B_{\rm crit}\) が c。これ以上並列にしてもステップ数は減らない。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">ES で検証（各 N で η を最適化、目標 L &lt; 0.3）── 半分だけ成功</span>
+<table>
+<tr><th class="num">N</th><th class="num">1</th><th class="num">4</th><th class="num">16</th><th class="num">64</th><th class="num">256</th><th class="num">1024</th><th class="num">4096</th></tr>
+<tr><td class="num">S</td><td class="num">950</td><td class="num">354</td><td class="num">82</td><td class="num">26</td><td class="num">9</td><td class="num">4</td><td class="num">3</td></tr>
+<tr><td class="num">E = NS</td><td class="num">950</td><td class="num">1416</td><td class="num">1304</td><td class="num">1696</td><td class="num">2304</td><td class="num">4096</td><td class="num">12288</td></tr>
+</table>
+<p style="margin:.3em 0">N ≲ 16 では E がほぼ一定（空間と時間が等価に交換できる）。N ≈ 40 を超えると E が増え始め、「速度の上限」の折れ曲がりはある。ただし双曲線そのものは当てはまらなかった。大きな N では数ステップで届く簡単な問題なので、ステップの離散性が効いている。</p>
+</div>
+
+<h2><span class="n">06</span>形どうしをつなぐ線</h2>
+<div class="fig">
+<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" font-size="13">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a4d57"/></marker></defs>
+  <g fill="#fff" stroke="#2f6f73" stroke-width="1.6">
+    <rect x="20" y="30" width="170" height="70" rx="6"/>
+    <rect x="235" y="30" width="170" height="70" rx="6"/>
+    <rect x="450" y="30" width="170" height="70" rx="6"/>
+    <rect x="235" y="200" width="170" height="70" rx="6" stroke-dasharray="5 4"/>
+  </g>
+  <g fill="#1a1c22" text-anchor="middle">
+    <text x="105" y="58" font-weight="bold">一次  x ∝ t</text>
+    <text x="105" y="80" font-size="12" fill="#4a4d57">波・光円錐・N·T 不変</text>
+    <text x="320" y="58" font-weight="bold">二次  x² ∝ t</text>
+    <text x="320" y="80" font-size="12" fill="#4a4d57">拡散・ES・受容野・温度</text>
+    <text x="535" y="58" font-weight="bold">対数  ln x ∝ t</text>
+    <text x="535" y="80" font-size="12" fill="#4a4d57">くりこみ群・プーリング</text>
+    <text x="320" y="228" font-weight="bold">虚時間の二次</text>
+    <text x="320" y="250" font-size="12" fill="#4a4d57">シュレディンガー方程式</text>
+  </g>
+  <g stroke="#4a4d57" stroke-width="1.3" fill="none">
+    <line x1="192" y1="65" x2="233" y2="65" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <line x1="407" y1="65" x2="448" y2="65" marker-end="url(#ar)"/>
+    <line x1="320" y1="102" x2="320" y2="198" marker-start="url(#ar)" marker-end="url(#ar)"/>
+  </g>
+  <g fill="#2f6f73" font-size="12" text-anchor="middle">
+    <text x="212" y="125">電信方程式</text>
+    <text x="212" y="141" fill="#4a4d57">t/τ が境目</text>
+    <text x="428" y="122">dℓ = dt / 2t</text>
+    <text x="428" y="138" fill="#4a4d57">プーリング</text>
+    <text x="332" y="172" text-anchor="start">ウィック回転 t → it</text>
+    <text x="332" y="188" text-anchor="start" fill="#4a4d57">D ↔ iħ/2m</text>
+  </g>
+</svg>
+<div class="cap">換算の三つの形と、それらを結ぶ線。点線の箱は「形は二次のまま、時間が虚数」</div>
+</div>
+<ul>
+<li><b>二次 → 対数</b>：\(\ell=\tfrac12\ln t\) より \(d\ell = dt/2t\)。プーリングは拡散の時計を対数の時計に掛け替える。第4回 の CNN で、同じ網が stride 1 では二次、stride 2 では対数に切り替わった。</li>
+<li><b>一次 ↔ 二次</b>：電信方程式 \(\tau\,\partial_t^2u + \partial_t u = D\nabla^2 u\)。\(t\ll\tau\) では速さ \(\sqrt{D/\tau}\) でまっすぐ進み（一次）、\(t\gg\tau\) では拡散する（二次）。境目は無次元量 \(t/\tau\)。持続性のあるランダムウォークと同じ（教科書、この日は未検証）。</li>
+<li><b>二次 ↔ 虚時間の二次</b>：熱方程式で \(t\to it\) とするとシュレディンガー方程式。虚時間は逆温度 \(\beta = it/\hbar\) で、第3回 の「温度」の線とここでつながる。形（\(x^2\propto t\)）は変わらず、時間の方向が回る。</li>
+</ul>
+
+<h2><span class="n">07</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>新しくはない。</b> この地図の線は、Stein、Kramers、Kimura、Sella–Hirsh、Lande、Tweedie、Luo、Mehta–Schwab、McCandlish と、ほぼ全部すでに誰かが引いている。分野をまたぐと見えにくいだけ。価値は点ではなく、つないだ地図の方にある。</li>
+<li><b>\(\eta/N\) の交換は η が無限小の極限でだけ厳密。</b> 有限の η、\(B_{\rm crit}\) 超えでは崩れる。</li>
+<li><b>光円錐との並行は窓の中だけ。</b> 特殊相対論の対称性はどのラピディティでも厳密だが、こちらは下限 \(N\ge1\)、上限 \(B_{\rm crit}\) と安定性に挟まれた近似的な対称性。計量や因果構造にあたるものは無い。</li>
+<li><b>ここでの c は特殊相対論の換算係数としての c。</b> 宇宙年齢で長さを測る「c·t = const」の単位の約束とは別の主張なので混ぜない。共通するのは態度の方 ── 換算は何も予言せず、計算をたまに楽にするだけ。</li>
+<li><b>CNN ↔ くりこみ群は、何を残すかの基準が違う。</b> くりこみ群は長距離の物理を、CNN は学習ラベルを基準に残す。線形のぼかしだけなら何層重ねても一つのガウスに潰れる。</li>
+<li><b>ES と自然選択は同一ではない。</b> 平均エネルギーと自由エネルギーの差（Jensen の差）があり、適応度が強いほど広がる。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>二つの量が一定のレートで交換できると、換算係数と伸縮の対称性が一つずつ現れる。c はその一例にすぎない。</li>
+<li>換算の形は <b>一次（x∝t）・二次（x²∝t）・対数（ln x∝t）</b>。形を見ると裏で何が起きているか（進行・拡散・スケール不変）が分かる。</li>
+<li>ES・SGD・自然選択・拡散モデル・CNN・くりこみ群は、この三つの形と、それらをつなぐ線（\(d\ell=dt/2t\)、電信方程式、ウィック回転）で一枚の地図に載る。</li>
+<li>不変な無次元量：\(\eta/N\)、\(N s\)、\(\Delta U/T\)、\(\ln(\xi/a)\)、\(B/B_{\rm crit}\)、\(t/\tau\)。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+双曲線を難しい地形で当てに行く ／ RBM = くりこみ群（Mehta–Schwab）を実際に計算する ／ 拡散モデル → Schrödinger bridge → 経路積分 ／ エルゴード性の破れ → スピングラス → 損失地形の局所解</div>
+
+<div class="foot">
+<ol>
+<li>Salimans ら (2017) Evolution Strategies as a Scalable Alternative to RL ／ Nesterov & Spokoiny (2017) Random gradient-free minimization</li>
+<li>Kramers (1940) ／ Kimura (1962) 固定確率の拡散近似 ／ Sella & Hirsh (2005) PNAS「集団遺伝学と統計力学の対応」</li>
+<li>Price (1970) ／ Lande (1976, 1979) ／ Efron (2011) Tweedie's formula ／ Zhang ら (2024) Diffusion Models are Evolutionary Algorithms</li>
+<li>Luo ら (2016) Understanding the Effective Receptive Field ／ Mehta & Schwab (2014) An exact mapping between the variational RG and deep learning</li>
+<li>McCandlish ら (2018) An Empirical Model of Large-Batch Training ／ Goyal ら (2017) ／ Smith & Le (2018)</li>
+<li>数値実験のスクリプト：<code>scripts/</code>（es_st / kramers / heat / selection / erf / ising_rg / hyperbola）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

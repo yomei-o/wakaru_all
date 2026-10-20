@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CNN で物理を計算する</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 2 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>CNN で物理を計算する
+<span class="sub">カーネル・深さ・チャンネル・対称性 ── 四つの部品の物理での名前</span></h1>
+<div class="byline">2026-10-19 ／ 第1回「c はどこにでもいる」の続き。数値はすべてこの日に回したもの（3D はビルド機の RTX 3090）</div>
+
+<p class="lead">第1回 で二つの線を引いた。CNN の<em>深さは熱方程式の時間</em>で、熱方程式の時間を虚数にすると<em>シュレディンガー方程式</em>になる。この二本をつなぐと、「畳み込みを何層も重ねることでスペクトルが出る」はずである。やってみると、CNN の部品（カーネル・深さ・チャンネル・格子の対称性）は、どれも物理の言葉で名前が付いていた。</p>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>カーネルのフーリエ変換 = 分散関係</td><td class="g-text">教科書（固体物理）</td><td>6 桁一致、2 チャンネルで 10⁻¹⁵</td></tr>
+<tr><td>時間 1 階なら拡散（D）、2 階なら波（c）。どちらもカーネルの 2 次モーメント</td><td class="g-text">教科書</td><td>D 1.0000、群速度 0.9891 vs 0.9888</td></tr>
+<tr><td>深さ = 虚時間 → 準位（虚時間発展法）</td><td class="g-text">教科書（数値計算）</td><td>Morse 分子 4 桁、水素 n≤3</td></tr>
+<tr><td>格子が SO(4) を壊す：2s と 2p が割れる</td><td class="g-text">教科書（離散化誤差）</td><td>確認</td></tr>
+<tr><td>立方格子で 3d が e<sub>g</sub> + t<sub>2g</sub> に割れる（結晶場分裂と同じ群論）</td><td class="g-text">教科書（群論）</td><td>指標が整数で一致</td></tr>
+<tr><td>2 次元 U(1) の面積則（閉じ込め）</td><td class="g-text">教科書（厳密解）</td><td>5 種のループで一致</td></tr>
+<tr><td>ゲージ同変 CNN（L-CNN、Favoni ら 2022）</td><td class="g-real">実在、新しめ</td><td>普通の CNN は学習できず</td></tr>
+<tr><td>ニューラル試行関数で多電子系（FermiNet 系、2020〜）</td><td class="g-real">実在、新しめ</td><td>He で厳密値に一致</td></tr>
+<tr><td>VMC の勾配 = 共分散 = Price の式・ES と同じ形</td><td class="g-story">語り（式は正しい）</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>カーネル = 分散関係</h2>
+<div class="keybox"><div class="lbl">核心</div>
+畳み込みは平行移動と可換な線形操作なので、平面波 \(e^{ikx}\) を固有関数にもつ。その固有値（カーネルのフーリエ変換）が、物理でいう<em>分散関係</em>そのものになる。</div>
+<p>1 次元の 2 階微分カーネル \([1,-2,1]\) に平面波を通すと、固有値は \(-2(1-\cos ka)\) になる。これは原子が一列に並んだ結晶の格子振動 \(\omega^2 = \tfrac{2K}{m}(1-\cos ka)\) である。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">同じカーネルを、時間 1 階と 2 階で回す</span>
+<table>
+<tr><th>回し方</th><th>方程式</th><th>測ったもの</th><th class="num">測定</th><th class="num">カーネルから</th></tr>
+<tr><td>時間 1 階</td><td>\(u_t = \text{conv}(u)\)：拡散</td><td>\(\langle x^2\rangle/2t\)</td><td class="num">1.0000</td><td class="num">1.0000</td></tr>
+<tr><td>時間 2 階</td><td>\(u_{tt} = \text{conv}(u)\)：波</td><td>波束の速さ（k=0.3）</td><td class="num">0.9891</td><td class="num">0.9888</td></tr>
+</table>
+<p style="margin:.3em 0">拡散係数 D も音速 c も、カーネルの 2 次モーメントから出る換算係数である。<em>二次の換算になるか一次の換算になるかは、時間微分の階数だけで決まる</em>。</p>
+</div>
+<p><b>チャンネル = バンド。</b> 質量 \(m_1, m_2\) が交互に並ぶ鎖は、2 チャンネルの畳み込みになる。カーネルは 2×2 の行列で、そのフーリエ変換の固有値が音響モードと光学モードの 2 本のバンドになる。格子を直接対角化した 128 モードとの差は最大 \(7\times10^{-15}\)。ギャップの端は \(\sqrt{2K/m_2}=0.8165\) と \(\sqrt{2K/m_1}=1.4142\) で、比は無次元量 \(\sqrt{m_2/m_1}\) だけで決まる。</p>
+
+<h2><span class="n">02</span>深さ = 虚時間 → スペクトル</h2>
+<p>シュレディンガー方程式を虚時間で書くと熱方程式になる。1 層を「虚時間を \(\delta\tau\) 進める」操作にすると</p>
+$$\psi \;\leftarrow\; \psi - \delta\tau\,\big(\underbrace{\text{conv}(\psi,\,[-\tfrac12,\,1,\,-\tfrac12]/h^2)}_{\text{運動エネルギー}} + \underbrace{V\cdot\psi}_{\text{点ごとの積}}\big)$$
+<p>層を重ねるほど高い準位が \(e^{-E\tau}\) で速く消え、基底状態が残る。チャンネルを \(K\) 本にして互いに直交させれば、下から \(K\) 個の準位が同時に出る。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">二原子分子の振動（Morse ポテンシャル \(D(1-e^{-ax})^2\)、D=20, a=1）、5 チャンネル</span>
+<table>
+<tr><th class="num">深さ</th><th class="num">虚時間</th><th class="num">E₀</th><th class="num">E₁</th><th class="num">E₂</th><th class="num">E₃</th><th class="num">E₄</th></tr>
+<tr><td class="num">5,000</td><td class="num">0.2</td><td class="num">4.07</td><td class="num">7.55</td><td class="num">15.26</td><td class="num">18.81</td><td class="num">19.51</td></tr>
+<tr><td class="num">20,000</td><td class="num">0.8</td><td class="num">3.039</td><td class="num">8.360</td><td class="num">12.695</td><td class="num">16.055</td><td class="num">18.664</td></tr>
+<tr><td class="num">100,000</td><td class="num">4.0</td><td class="num">3.0372</td><td class="num">8.3614</td><td class="num">12.6857</td><td class="num">16.0101</td><td class="num">18.3347</td></tr>
+<tr><td class="num">厳密</td><td class="num"></td><td class="num">3.0373</td><td class="num">8.3618</td><td class="num">12.6864</td><td class="num">16.0109</td><td class="num">18.3355</td></tr>
+</table>
+<p style="margin:.3em 0">残る \(10^{-3}\) の差は格子幅による離散化誤差。上の準位ほど多くの層が要るのは、混ざった成分が \(e^{-(\text{準位差})\,\tau}\) でしか消えないから。必要な深さを決めるのは無次元量 <em>準位差 × 虚時間</em>。第1回 の「虚時間 = 逆温度」から見れば、深い CNN とは<em>冷やしていく装置</em>である。</p>
+</div>
+
+<h2><span class="n">03</span>3 次元：水素原子と、壊れる対称性</h2>
+<p>3×3×3 の畳み込み（6 近傍のラプラシアン）と \(-1/r\) の積で、同じことを 3 次元でやる。格子は 128³、格子幅 0.5 bohr、15 チャンネル、12,000 層（虚時間 840）。原子核は立方体の中心に置き、格子の対称性（立方群 O<sub>h</sub>）が原子核のまわりで厳密に保たれるようにした。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">深い 3D CNN が出した準位と、O<sub>h</sub> の指標による分類</span>
+<table>
+<tr><th class="num">準位 (Ha)</th><th class="num">厳密</th><th class="num">縮退</th><th>指標 (E, C₄, C₃, C₂, i)</th><th>既約表現</th><th>中身</th></tr>
+<tr><td class="num">−0.47386</td><td class="num">−0.5</td><td class="num">1</td><td>1, 1, 1, 1, 1</td><td>A<sub>1g</sub></td><td>1s</td></tr>
+<tr><td class="num">−0.12596</td><td class="num">−0.125</td><td class="num">3</td><td>3, 1, 0, −1, −3</td><td>T<sub>1u</sub></td><td>2p</td></tr>
+<tr><td class="num">−0.12266</td><td class="num">−0.125</td><td class="num">1</td><td>1, 1, 1, 1, 1</td><td>A<sub>1g</sub></td><td>2s</td></tr>
+<tr><td class="num">−0.055956</td><td class="num">−0.0556</td><td class="num">3</td><td>3, 1, 0, −1, −3</td><td>T<sub>1u</sub></td><td>3p</td></tr>
+<tr><td class="num">−0.055719</td><td class="num"></td><td class="num"><b>2</b></td><td>2, 0, −1, 2, 2</td><td><b>E<sub>g</sub></b></td><td>3d（e<sub>g</sub>）</td></tr>
+<tr><td class="num">−0.055677</td><td class="num"></td><td class="num"><b>3</b></td><td>3, −1, 0, −1, 3</td><td><b>T<sub>2g</sub></b></td><td>3d（t<sub>2g</sub>）</td></tr>
+<tr><td class="num">−0.054954</td><td class="num"></td><td class="num">1</td><td>1, 1, 1, 1, 1</td><td>A<sub>1g</sub></td><td>3s</td></tr>
+</table>
+</div>
+<p>本物の水素では、\(n\) が同じなら \(\ell\) によらず縮退する（2s と 2p、3s・3p・3d）。これは回転対称性 SO(3) より大きい、クーロン力に特有の隠れた対称性 SO(4) による「偶然」の縮退である。格子はそれを二段階で壊す。</p>
+<ul>
+<li><b>SO(4) が壊れる</b>：s 状態だけが大きく持ち上がる（1s は 0.026、2s は 0.0023）。s 状態だけが原子核の位置で 0 にならず、格子の上では \(-1/r\) の特異点が均されて浅くなるからである。準位は \(\ell\) ごとにずれ、2s と 2p、3s と 3p と 3d が割れる。</li>
+<li><b>SO(3) → O<sub>h</sub></b>：p は 3 重のまま残る（T<sub>1u</sub> は 3 次元の既約表現なので割れようがない）。d の 5 重は、立方体の群では一つの既約表現に収まらず <em>2 + 3（E<sub>g</sub> + T<sub>2g</sub>）</em>に割れる。分裂幅は \(4.2\times10^{-5}\) Ha。</li>
+</ul>
+<div class="keybox"><div class="lbl">核心：チャンネル = 既約表現</div>
+d 軌道が e<sub>g</sub> と t<sub>2g</sub> に割れるのは、化学でいう<em>結晶場分裂</em>と同じ群論である。CNN の格子は、原子にとって「立方体の結晶場」として働く。チャンネルに出てきた固有状態は、格子の対称群の既約表現でラベル付けされる。分子スペクトルの縮退も素粒子の多重項も既約表現なので、CNN とはこの群論の線でつながる。</div>
+
+<h2><span class="n">04</span>格子ゲージ理論：対称性は学習の前提</h2>
+<p>素粒子の標準模型を計算機で解く格子 QCD は、格子の辺（リンク）に位相を置いた場の理論である。最小版の 2 次元 U(1)（格子 QED）では、ウィルソンループが厳密に解ける。</p>
+$$\langle W(R\times T)\rangle = \left(\frac{I_1(\beta)}{I_0(\beta)}\right)^{RT}\qquad\text{（面積則 = 閉じ込め、弦張力 } \sigma = -\ln\tfrac{I_1}{I_0}\text{）}$$
+<div class="calc"><span class="tag">計算</span><span class="lbl">16×16、β=2、メトロポリス法 3000 配位</span>
+<table>
+<tr><th>ループ</th><th class="num">1×1</th><th class="num">1×2</th><th class="num">2×2</th><th class="num">2×3</th><th class="num">3×3</th></tr>
+<tr><td>MC</td><td class="num">0.6979</td><td class="num">0.4856</td><td class="num">0.2374</td><td class="num">0.1137</td><td class="num">0.0391</td></tr>
+<tr><td>厳密</td><td class="num">0.6978</td><td class="num">0.4869</td><td class="num">0.2371</td><td class="num">0.1154</td><td class="num">0.0392</td></tr>
+</table>
+</div>
+<p>プラケット（1×1 のループ）は、リンクの場に固定のカーネル（離散的な回転 curl）を掛ける畳み込みそのものである。そこで、各点の 2×2 ウィルソンループを CNN に学習させた。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">同じ 3 層 CNN に入力だけ変えて学習（2400 配位、60 エポック、目標の分散 0.449）</span>
+<table>
+<tr><th>入力</th><th class="num">試験 MSE</th><th class="num">ゲージ変換後</th></tr>
+<tr><td>リンクの角度そのまま（普通の CNN）</td><td class="num">0.566</td><td class="num">0.565</td></tr>
+<tr><td>プラケット（ゲージ不変な部品、L-CNN 風）</td><td class="num">0.0005</td><td class="num">0.0005</td></tr>
+</table>
+<p style="margin:.3em 0">普通の CNN は、ゲージ変換で壊れたのではなく<em>そもそも何も学べなかった</em>（平均値を答えた場合の 0.449 より悪い）。MC の配位はもともとランダムなゲージに散らばっていて、リンクを一本ずつ見ると一様な乱数にしか見えない。対称性を組み込むことは、壊れにくくするためというより、学習を成立させる前提である。</p>
+</div>
+
+<h2><span class="n">05</span>学習する波動関数：ヘリウム原子</h2>
+<p>第1〜4回 の CNN は重みが固定で、中身は差分法だった。電子が 2 個以上になると、格子は次元の数だけ指数的に大きくなり、この方法は使えない。そこで<em>ネットワークを試行関数にして学習させる</em>（変分モンテカルロ、FermiNet・PauliNet の系統）。</p>
+$$\ln\psi = -Z(r_1+r_2) + \frac{r_{12}}{2(1+b\,r_{12})} + \mathrm{NN}(r_1, r_2, r_{12})\quad\text{（電子の入れ替えで対称化）}$$
+<div class="calc"><span class="tag">計算</span><span class="lbl">4096 ウォーカー、3000 反復（RTX 3090 で 4.5 分）</span>
+<table>
+<tr><th></th><th class="num">E (Ha)</th></tr>
+<tr><td>出発点（Z=2、ネットワークの寄与ほぼ 0）</td><td class="num">−2.855</td></tr>
+<tr><td>ハートリー・フォック近似の限界</td><td class="num">−2.8617</td></tr>
+<tr><td><b>ニューラル試行関数（最終評価）</b></td><td class="num"><b>−2.90369 ± 0.00009</b></td></tr>
+<tr><td>厳密値</td><td class="num">−2.903724</td></tr>
+</table>
+<p style="margin:.3em 0">学習中の表示は −2.9054 と厳密値より下に出たが、これは外れ値を切り詰めて平均したための偏り（変分法では厳密値より下は出ない）。切り詰めなしの最終評価は、誤差の範囲で厳密値と一致している。</p>
+</div>
+<div class="aside"><div class="lbl">補足：第1回 の線がここにも通る</div>
+VMC でエネルギーを下げる勾配は \(\nabla E = 2\langle (E_L - \bar E)\,\nabla\ln\psi\rangle\)。「エネルギーとスコア関数の共分散」であり、Price の式 \(\Delta\bar z = \mathrm{Cov}(w,z)/\bar w\) や ES の勾配と同じ形をしている。サンプリングはメトロポリス法、つまり 第1回 の「温度」の線そのもの。</div>
+
+<h2><span class="n">06</span>換算表：CNN の部品と物理の名前</h2>
+<table>
+<tr><th>CNN の部品</th><th>物理での名前</th><th>不変な無次元量</th><th>この回の節</th></tr>
+<tr><td>カーネル</td><td>ハミルトニアンの局所項、分散関係 \(\omega(k)\)</td><td>\(ka\)、\(\sqrt{m_2/m_1}\)</td><td>01</td></tr>
+<tr><td>カーネルの 2 次モーメント</td><td>拡散係数 D、音速 c</td><td>\(x^2/Dt\)、\(x/ct\)</td><td>01</td></tr>
+<tr><td>深さ</td><td>虚時間 = 逆温度</td><td>準位差 × 虚時間</td><td>02</td></tr>
+<tr><td>チャンネル</td><td>状態、バンド、既約表現</td><td>縮退度</td><td>01・03</td></tr>
+<tr><td>点ごとの積</td><td>ポテンシャル \(V(x)\)</td><td>井戸の深さ / 振動の量子</td><td>02・03</td></tr>
+<tr><td>格子の対称性</td><td>結晶場</td><td>分裂幅 / 準位</td><td>03</td></tr>
+<tr><td>ゲージ同変性</td><td>局所対称性（ゲージ原理）</td><td>β、弦張力</td><td>04</td></tr>
+<tr><td>学習する非線形性</td><td>相互作用、多体の相関</td><td>相関エネルギー / 全エネルギー</td><td>05</td></tr>
+</table>
+
+<h2><span class="n">07</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>「CNN で計算できる」には二つの意味がある。</b> 第1〜4回 前半は重みが固定で、計算の構造が CNN の形をしているだけ（中身は差分法と虚時間発展法という古典的な数値計算）。学習が本当に効くのは 04 後半と 05 だけ。</li>
+<li><b>第5回 のネットワークは CNN ではなく MLP。</b> 電子の座標は格子に乗っていないので、畳み込みの出番がない。分子で使われるのは、畳み込みを回転群に一般化した同変ネットワーク（SchNet、NequIP、MACE）。</li>
+<li><b>e<sub>g</sub> と t<sub>2g</sub> の上下を本物の結晶場と比べてはいけない。</b> ここで割っているのは配位子の電場ではなく格子の離散化誤差なので、同じ群論でも分裂の符号と大きさの物理は別物。共通なのは「何本に割れるか」だけ。</li>
+<li><b>普通の CNN が学べなかったのは、この学習量での話。</b> 原理的にはプラケットの組み合わせを自分で発見できるはずで、データと時間を増やせば学べる可能性はある。</li>
+<li><b>新しくはない。</b> 虚時間発展、結晶場の群論、2 次元 U(1) の厳密解は教科書。L-CNN は Favoni ら (2022)、ニューラル試行関数は Carleo–Troyer (2017)、Pfau ら (2020) ほか。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>カーネルは分散関係、深さは虚時間、チャンネルは既約表現、格子の対称性は結晶場。CNN の部品には全部、物理の名前が付いている。</li>
+<li>同じカーネルでも、時間 1 階なら拡散（二次の換算）、2 階なら波（一次の換算）。第1回 の「換算の形」は時間微分の階数で選ばれる。</li>
+<li>深い CNN は冷やす装置で、スペクトルは「準位差 × 虚時間」の順に出てくる。</li>
+<li>対称性を組み込むことは、ゲージ理論では学習を成立させる前提だった。</li>
+<li>相互作用のある多体系では、学習するネットワークが試行関数になる。その勾配は Price の式や ES と同じ共分散の形。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+同変 CNN で水素の縮退を壊さずに計算する（格子の O<sub>h</sub> → 連続の SO(3)）／ 2 次元 U(1) の正規化フローで配位を生成する（臨界減速とくりこみ群）／ 水素分子 H₂ の結合曲線をニューラル試行関数で ／ フェルミオンの反対称性（行列式）を入れて Li、Be へ</div>
+
+<div class="foot">
+<ol>
+<li>Kittel『固体物理学入門』格子振動の章（単原子・二原子の鎖）</li>
+<li>虚時間発展法：Lehtovaara ら (2007) J. Comput. Phys. ／ 結晶場と O<sub>h</sub> の指標表：Cotton『群論の化学への応用』</li>
+<li>2 次元 U(1) の厳密解：Gross & Witten (1980)、Wadia (1980) の系譜 ／ Favoni, Ipp, Müller, Schuh (2022) PRL "Lattice Gauge Equivariant CNNs"</li>
+<li>Carleo & Troyer (2017) Science ／ Pfau ら (2020) FermiNet ／ Hermann ら (2020) PauliNet</li>
+<li>スクリプト：<code>scripts/</code>（dispersion / morse_cnn / hydrogen_cnn / u1_gauge / helium_vmc）、水素とヘリウムの出力は hydrogen_out.txt / helium_out.txt</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>σ = 1/3 を深堀りする</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 4 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>σ = 1/3 を深堀りする
+<span class="sub">予言を当てにいくと、外れたところから次の予言が出てくる ── そして Landauer へ</span></h1>
+<div class="byline">2026-10-19 ／ 第1回 の予言「ES が局所解に一番閉じ込められるのは σ = 1/3」の検証。理論はガウス・エルミート求積と 1 次元拡散の厳密な脱出時間公式、測定はすべて実際の ES</div>
+
+<p class="lead">第1回 で、ES のぼかし幅 σ には二つの役目があると書いた。地形をぼかして障壁を下げること（σ が大きいほど抜けやすい）と、推定のノイズで系を熱すること（σ が小さいほど熱い）。その綱引きから「σ = 1/3 で一番閉じ込められる」という予言が出た。雑な近似を外して当てにいくと、予言は<em>半分当たり、半分外れた</em>。外れた理由を追うと、次の予言が出て、それは<em>フィットなしで 10% 以内</em>に当たった。</p>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>予言</th><th>結果</th><th>格付け</th></tr>
+<tr><td>σ* ≈ 1/3（ノイズをガウスとした厳密理論）</td><td class="g-text">当たり：ガウスの代理で 0.32、理論と一致</td><td class="g-text">理論は厳密（1 次元拡散）</td></tr>
+<tr><td>本物の ES でも σ* ≈ 1/3</td><td class="g-fit">外れ：0.28 にずれ、高さは半分</td><td>原因は裾の重いノイズ（確認済み）</td></tr>
+<tr><td>(C) η/N 固定で N を増やせば理論に近づく</td><td class="g-fit">外れ：逆に縮んだ</td><td>設計の問題で切り分けられず</td></tr>
+<tr><td>(B) 対称差分 ES は対称な峠を越えられない</td><td class="g-fit">外れ：100% 脱出、しかも η/N 則が成立</td><td>一回の大ジャンプで越えていた</td></tr>
+<tr><td><b>(D) 一回ジャンプの脱出時間、ln τ ∝ (N/η)<sup>1/2</sup></b></td><td class="g-text"><b>当たり：フィットなしで 10% 以内</b></td><td class="g-real">単一大ジャンプ原理（確率論で既知）の応用</td></tr>
+<tr><td>片側 ES = 拡散 + ジャンプ</td><td class="g-real">山の位置は再現、高さは 4 割ずれ</td><td>近似が粗い</td></tr>
+<tr><td>Landauer：SGD で 1 ビット消去 ≥ kT ln 2</td><td class="g-text">当たり：0.80 kT まで接近、下限は割らない</td><td class="g-text">教科書</td></tr>
+<tr><td>余分な仕事 ∝ 1/τ（熱力学的長さ）</td><td class="g-fit">外れ：τ<sup>−0.75</sup> 程度</td><td>解釈：エルゴード性の破れ（未検証）</td></tr>
+</table>
+
+<h2><span class="n">01</span>予言を厳密にする</h2>
+<p>系は 第1回 と同じ。二重井戸 \(L=(x^2-1)^2\) の上で、片側 ES \(g=\frac{c+L(x+\sigma\epsilon)}{\sigma}\epsilon\)（オフセット \(c\)）で \(x\leftarrow x-\eta\,\bar g\) と動かす。第1回 の予言は二つの近似に乗っていた。</p>
+<ul>
+<li>推定ノイズの分散を \(c^2/\sigma^2\) として、場所によらないとした。実際は \(L(x+\sigma\epsilon)\) の分だけ、場所と σ で変わる。</li>
+<li>障壁の高さだけを見て、前因子とノイズの場所依存を無視した。</li>
+</ul>
+<p>そこで、ノイズの分散 \(V(x,\sigma)\) をガウス・エルミート求積で厳密に出し（多項式なので誤差なし）、ドリフト \(-\partial_x L_\sigma\)、拡散係数 \(D(x) = \frac{\eta}{N}\frac{V(x)}{2}\) の 1 次元拡散の<em>厳密な平均脱出時間</em>（二重積分の公式）で予言し直した。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">閉じ込めが最強になる σ*（有効障壁 \(\Phi=\int 2\,\partial_xL_\sigma/V\,dx\) の最大点。η/N によらない）</span>
+<table>
+<tr><th class="num">c</th><th class="num">0</th><th class="num">0.1</th><th class="num">0.3</th><th class="num">1</th><th class="num">1.5</th><th class="num">3</th><th class="num">10</th><th class="num">100</th></tr>
+<tr><td class="num">σ*</td><td class="num">0.295</td><td class="num">0.300</td><td class="num">0.305</td><td class="num">0.315</td><td class="num">0.320</td><td class="num">0.325</td><td class="num">0.330</td><td class="num">0.335</td></tr>
+</table>
+<p style="margin:.3em 0">雑な予言 1/3 は \(c\to\infty\) の極限。それ以外でも σ* は 0.29〜0.34 に収まり、<em>予言はオフセットによらず頑健</em>。</p>
+</div>
+
+<h2><span class="n">02</span>測る：山はあるが、ずれる</h2>
+<div class="calc"><span class="tag">計算</span><span class="lbl">脱出時間 τ（η = 0.005、N = 1、c = 1.5、各 400 ウォーカー）</span>
+<table>
+<tr><th class="num">σ</th><th class="num">尖度</th><th class="num">本物の ES</th><th class="num">ガウスの代理</th><th class="num">SDE 理論</th></tr>
+<tr><td class="num">0.15</td><td class="num">2.2</td><td class="num">10.3</td><td class="num">10.5</td><td class="num">11.6</td></tr>
+<tr><td class="num">0.20</td><td class="num">5.6</td><td class="num">28.4</td><td class="num">27.4</td><td class="num">30.6</td></tr>
+<tr><td class="num">0.25</td><td class="num">13.9</td><td class="num">48.5</td><td class="num">60.2</td><td class="num">67.0</td></tr>
+<tr><td class="num">0.28</td><td class="num">23</td><td class="num"><b>54.4</b></td><td class="num">85.2</td><td class="num">92.1</td></tr>
+<tr><td class="num">0.30</td><td class="num">31</td><td class="num">50.9</td><td class="num">105.5</td><td class="num">104.6</td></tr>
+<tr><td class="num">0.32</td><td class="num">42</td><td class="num">45.8</td><td class="num"><b>108.7</b></td><td class="num"><b>110.1</b></td></tr>
+<tr><td class="num">0.35</td><td class="num">64</td><td class="num">36.5</td><td class="num">98.3</td><td class="num">101.6</td></tr>
+<tr><td class="num">0.40</td><td class="num">118</td><td class="num">21.3</td><td class="num">59.5</td><td class="num">59.5</td></tr>
+<tr><td class="num">0.45</td><td class="num">202</td><td class="num">13.1</td><td class="num">25.2</td><td class="num">25.6</td></tr>
+<tr><td class="num">0.50</td><td class="num">332</td><td class="num">7.8</td><td class="num">10.8</td><td class="num">11.6</td></tr>
+</table>
+<p style="margin:.3em 0">尖度は 1 サンプルの推定量の超過尖度（ガウス = 0）。ガウスの代理は、平均（\(\partial_xL_\sigma\)）と分散（\(V\)）だけ ES と同じにしてノイズをガウスにしたもの。</p>
+</div>
+<p><b>ガウスの代理は理論とぴったり合う</b>（山は 0.32、高さ 108.7 vs 110.1）。σ ≈ 1/3 の予言は、ノイズがガウスなら正しい。<b>本物の ES だけがずれる。</b>片側 ES の推定量は \(L(x+\sigma\epsilon)\) が ε の 4 次式なので \(g\propto\epsilon^5\) の裾を持ち、尖度は σ とともに 2 から 332 まで増える。ときどき来る大きな蹴りで谷を飛び越えるので、脱出が早まり、裾が重くなる大きい σ ほど早まる。それで山が小さい側（0.28）にずれる。</p>
+
+<h2><span class="n">03</span>外れた予言（C）と（B）</h2>
+<p><b>(C) η/N を固定して N を増やせば、裾が細って理論に近づく。</b> N 個の平均をとれば尖度は 1/N で減るはず、という予言。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">η/N = 0.005 固定</span>
+<table>
+<tr><th class="num">η, N</th><th class="num">0.005, 1</th><th class="num">0.01, 2</th><th class="num">0.02, 4</th><th class="num">0.04, 8</th><th class="num">0.08, 16</th><th class="num">理論</th></tr>
+<tr><td class="num">τ（σ = 0.28）</td><td class="num">50.6</td><td class="num">48.1</td><td class="num">48.1</td><td class="num">36.6</td><td class="num">26.7</td><td class="num">92.1</td></tr>
+<tr><td class="num">τ（σ = 0.32）</td><td class="num">46.6</td><td class="num">40.7</td><td class="num">38.4</td><td class="num">33.5</td><td class="num">24.5</td><td class="num">110.1</td></tr>
+</table>
+</div>
+<p>近づかず、逆に縮んだ。N を増やすと裾は細るが、同時に η も大きくなって一歩が粗くなる。この設計では二つの効果を切り分けられなかった。</p>
+
+<p><b>(B) 対称差分 ES は対称な峠を越えられない。</b> 対称差分 \(g=\frac{L(x+\sigma\epsilon)-L(x-\sigma\epsilon)}{2\sigma}\epsilon\) は、偶関数の地形の峠 \(x=0\) で<em>恒等的に 0</em> になる。峠のまわりでノイズの分散は \(V\propto x^2\)、運動は幾何ブラウン運動になり、連続極限では 0 に到達できない。だから SDE 理論の脱出時間は無限大で、離散の歩みだけが峠を越えさせる。η/N 則は破れるはず ── と予言した。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">σ = 0.3、η/N = 0.05</span>
+<table>
+<tr><th class="num">η, N</th><th class="num">0.05, 1</th><th class="num">0.1, 2</th><th class="num">0.2, 4</th><th class="num">SDE 理論</th></tr>
+<tr><td class="num">脱出率</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">0%</td></tr>
+<tr><td class="num">τ</td><td class="num">18.6</td><td class="num">18.7</td><td class="num">17.1</td><td class="num">∞</td></tr>
+</table>
+</div>
+<p>全員が脱出し、しかも η/N が同じなら τ も同じ。予言は二重に外れた。</p>
+
+<h2><span class="n">04</span>外れた理由から出た予言（D）：一回の大ジャンプ</h2>
+<p>対称差分 ES の推定量を書き下すと</p>
+$$g(x,\epsilon) = (4x^3-4x)\,\epsilon^2 + 4x\sigma^2\,\epsilon^4$$
+<p>大きな ε では \(4x\sigma^2\epsilon^4\) が支配し、左の谷（\(x<0\)）では符号が決まっている。<em>大きな蹴りは必ず右、つまり峠の方向に来る。</em>峠でノイズが 0 でも、谷から一回の大ジャンプで峠を飛び越えられる。</p>
+<p>次に、裾の重い量の和は一番大きな一個で決まる（劣指数分布の「単一大ジャンプ原理」）。N 個の平均 \(\bar g\) が \(y\) を超える確率は \(N\,P(g > Ny)\) で近似できる。一歩で峠を越えるには \(\eta\bar g > |x_{\min}|\) が要るので、単位時間あたりの脱出率は</p>
+$$k \;=\; \frac{1}{\eta}\,N\,P\!\left(g > \frac{N|x_{\min}|}{\eta}\right) \;=\; \frac1r\,P\!\left(g > \frac{|x_{\min}|}{r}\right),\qquad r=\frac{\eta}{N}$$
+<div class="keybox"><div class="lbl">予言（D）</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li>脱出率は \(r=\eta/N\) だけで決まる。<em>第1回 の交換則はジャンプによる脱出でも保たれる</em>（(B) の η/N 則の成立はこれで説明できる）。</li>
+<li>\(P\) は ε⁴ の裾から \(\exp(-\sqrt{\cdots/r})\) の形なので、\(\ln\tau \propto (N/\eta)^{1/2}\)。アレニウス則 \(\ln\tau\propto N/\eta\) とは違う。</li>
+<li>パラメータは何もない。絶対値まで出る。</li>
+</ol></div>
+<div class="calc"><span class="tag">計算</span><span class="lbl">対称差分 ES、σ = 0.3、N = 1（フィットなし）</span>
+<table>
+<tr><th class="num">r = η/N</th><th class="num">0.05</th><th class="num">0.03</th><th class="num">0.02</th><th class="num">0.0125</th><th class="num">0.01</th></tr>
+<tr><td class="num">予言 τ</td><td class="num">19.6</td><td class="num">37.4</td><td class="num">78.6</td><td class="num">254.6</td><td class="num">511.9</td></tr>
+<tr><td class="num">測定 τ</td><td class="num">18.3</td><td class="num">35.5</td><td class="num">72.7</td><td class="num">275.2</td><td class="num">525.4</td></tr>
+</table>
+<p style="margin:.3em 0">5 点すべてで 10% 以内。τ が 28 倍に伸びる範囲で、一回ジャンプの式だけで足りている。</p>
+</div>
+
+<h3>片側 ES にも当てはめる</h3>
+<p>片側 ES のずれを「拡散による脱出 + 一回ジャンプ」の和 \(k = 1/\tau_{\rm SDE} + k_{\rm jump}\) で説明できるか。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">η = 0.005、N = 1、c = 1.5（フィットなし）</span>
+<table>
+<tr><th class="num">σ</th><th class="num">0.25</th><th class="num">0.28</th><th class="num">0.30</th><th class="num">0.32</th><th class="num">0.35</th><th class="num">0.40</th></tr>
+<tr><td class="num">拡散のみ</td><td class="num">67.0</td><td class="num">92.1</td><td class="num">104.6</td><td class="num">110.1</td><td class="num">101.6</td><td class="num">59.5</td></tr>
+<tr><td class="num">拡散 + ジャンプ</td><td class="num">62.7</td><td class="num"><b>74.4</b></td><td class="num">72.6</td><td class="num">64.8</td><td class="num">47.4</td><td class="num">24.1</td></tr>
+<tr><td class="num">測定</td><td class="num">48.5</td><td class="num"><b>54.4</b></td><td class="num">50.9</td><td class="num">45.8</td><td class="num">36.5</td><td class="num">21.3</td></tr>
+</table>
+</div>
+<p>山の位置が 0.28〜0.30 に移ることは再現できた。高さはまだ 4 割長い。ジャンプを谷底からだけ数え、谷を少し登ってからの小さめのジャンプを入れていないためと思われる（未確認）。</p>
+
+<h2><span class="n">05</span>Landauer：SGD で 1 ビットを消すコスト</h2>
+<p>情報と物理の、計算の側からの接点。SGD のノイズ（温度 T、第1回 の η/N）で動く粒子を二重井戸に置き、どちらの谷にいるかを 1 ビットとする。最初は左右五分五分（情報 \(\ln 2\)）。障壁を下げる → 左に傾ける → 障壁を戻す → 傾きを戻す、の手順で消去する（Bérut ら 2012 の実験と同じ）。障壁は \(8kT\)。</p>
+$$\langle W\rangle \;\ge\; kT\big[\ln 2 + p\ln p + (1-p)\ln(1-p)\big]\qquad(p:\ \text{成功率})$$
+<div class="calc"><span class="tag">計算</span><span class="lbl">4000 粒子、η = 0.002、T = 1</span>
+<table>
+<tr><th class="num">操作時間 τ</th><th class="num">2</th><th class="num">5</th><th class="num">10</th><th class="num">20</th><th class="num">50</th><th class="num">100</th><th class="num">200</th></tr>
+<tr><td class="num">⟨W⟩/kT</td><td class="num">4.12</td><td class="num">2.87</td><td class="num">2.10</td><td class="num">1.54</td><td class="num">1.13</td><td class="num">0.90</td><td class="num"><b>0.80</b></td></tr>
+<tr><td class="num">成功率 p</td><td class="num">0.999</td><td class="num">0.999</td><td class="num">0.999</td><td class="num">0.997</td><td class="num">0.996</td><td class="num">0.991</td><td class="num">0.983</td></tr>
+<tr><td class="num">下限</td><td class="num">0.684</td><td class="num">0.685</td><td class="num">0.685</td><td class="num">0.673</td><td class="num">0.664</td><td class="num">0.642</td><td class="num">0.607</td></tr>
+<tr><td class="num">余分 × τ</td><td class="num">6.9</td><td class="num">10.9</td><td class="num">14.1</td><td class="num">17.3</td><td class="num">23.3</td><td class="num">26.0</td><td class="num">37.8</td></tr>
+</table>
+</div>
+<ul>
+<li><b>下限は守られる。</b> ゆっくり消すほど ⟨W⟩ は \(\ln 2 = 0.693\,kT\) に近づき、τ = 200 で 0.80 kT。どの τ でも下限を割らない。SGD のノイズ温度で、1 ビットの最低コスト \(kT\ln2\) が見えている。</li>
+<li><b>余分な仕事が \(1/\tau\) で減る、という予言は外れた。</b> 1/τ なら最下行は一定のはずだが、6.9 → 37.8 と増え続け、減り方は \(\tau^{-0.75}\) 程度。</li>
+</ul>
+<p>解釈（未検証）：熱力学的長さの \(1/\tau\) 則は、系が操作より速く平衡に戻れる線形応答の領域の定理である。ところが障壁が高い間は、谷を越える時間がクラマースの式で \(e^8\approx3000\) 程度になり、どの τ よりずっと長い。ビットを保持するためにわざとエルゴード性を破っているので、遅い操作の領域には決して入らない。τ を伸ばすと成功率が落ちていく（0.999 → 0.983）のは、障壁越しの漏れが効き始めた印と読める。</p>
+
+<h2><span class="n">06</span>換算表：この回の無次元量</h2>
+<table>
+<tr><th>量</th><th>意味</th><th>この回での役</th></tr>
+<tr><td>\(\eta/N\)</td><td>ノイズの温度</td><td>拡散でもジャンプでも、脱出を決める</td></tr>
+<tr><td>\(\sigma\)（地形のスケールで測る）</td><td>ぼかし幅</td><td>障壁を溶かす幅とノイズの源の綱引き、σ* ≈ 0.3</td></tr>
+<tr><td>尖度</td><td>ノイズの裾の重さ</td><td>2 → 332。ガウス理論からのずれを決める</td></tr>
+<tr><td>\(|x_{\min}|/(r\sigma^2)\)</td><td>一回で越えるのに要る蹴りの大きさ</td><td>\(\ln\tau\propto\sqrt{\cdot}\)</td></tr>
+<tr><td>\(\Delta U/kT\)</td><td>障壁 / 温度</td><td>Landauer の障壁 8、ビットの保持</td></tr>
+<tr><td>\(W/kT\ln 2\)</td><td>消去の仕事 / 1 ビットの最低コスト</td><td>τ = 200 で 1.15</td></tr>
+</table>
+
+<h2><span class="n">07</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこまで言えるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>すべて 1 次元の二重井戸というおもちゃの話。</b> 高次元の損失地形で同じ σ* やジャンプ則が出るかは分からない。</li>
+<li><b>(D) の背後の数学は既知。</b> 劣指数分布の単一大ジャンプ原理、裾の重いノイズによる脱出（Lévy フライトの脱出時間がノイズの強さのべき乗になる、Ditlevsen 1999、Imkeller–Pavlyukevich 2006）。新しいのは「ES の推定量は ε の多項式なので、裾が伸張指数型になり、\(\ln\tau\propto(N/\eta)^{1/2}\) になる」という当てはめだけ。</li>
+<li><b>(C) は外れたまま。</b> 裾の効果と一歩の粗さを分けるには、各 (η, N) でガウスの代理を走らせる必要がある。</li>
+<li><b>片側 ES の「拡散 + ジャンプ」は 4 割ずれる。</b> 山の位置は合うが、量的には未完成。</li>
+<li><b>Landauer の 1/τ が外れた理由は解釈で、検証していない。</b> 障壁を下げた状態で長く待つ手順や、最適な手順（Proesmans ら 2020）で比べる必要がある。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>σ* ≈ 1/3 は、ノイズがガウスなら厳密理論でも測定でも正しい（0.32）。オフセットを変えても 0.29〜0.34 に収まる。</li>
+<li>本物の ES は推定量の裾が重く（尖度 2〜332）、大きな蹴りで谷を飛び越えるので、σ* は 0.28 にずれ、τ は半分になる。</li>
+<li>峠でノイズが 0 になる対称差分 ES でも、一回の大ジャンプで脱出する。脱出率は η/N だけで決まり、\(\ln\tau\propto(N/\eta)^{1/2}\)。フィットなしで 10% 以内に当たった。</li>
+<li>SGD のノイズ温度で 1 ビットを消すコストは kT ln 2 に近づき、下限は割らない。ただし余分な仕事は 1/τ では減らなかった。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+各 (η, N) でガウスの代理を走らせ、裾と一歩の粗さを分ける ／ 高次元（ランダム地形）で σ* とジャンプ則を確かめる ／ Landauer を最適な手順で回し、1/τ の領域に入れるか ／ 学習の熱力学：学習で溜めた情報と SGD の散逸の比</div>
+
+<div class="foot">
+<ol>
+<li>Kramers (1940) ／ 1 次元拡散の平均脱出時間の公式：Gardiner『Handbook of Stochastic Methods』</li>
+<li>単一大ジャンプ原理：Foss, Korshunov, Zachary『An Introduction to Heavy-Tailed and Subexponential Distributions』 ／ Ditlevsen (1999) ／ Imkeller & Pavlyukevich (2006)</li>
+<li>Landauer (1961) ／ Bérut ら (2012) Nature ／ Sivak & Crooks (2012) PRL ／ Proesmans, Ehrich, Bechhoefer (2020) PRL</li>
+<li>スクリプト：<code>scripts/</code>（es_trap_theory / es_trap_sim / es_trap_sim2 / es_trap_sim3 / es_jump / es_jump_one / landauer）、出力 *_out.txt</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

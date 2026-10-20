@@ -19,6 +19,7 @@
 | **量子重力自由研究**〔※「わかる共形変換」続編・進行中〕| 解説ではなく**自由研究**。間違いも罠もそのまま載せる。重力の経路積分を離散にして数え直す（全6話・進行中） | [開く](https://yomei-o.github.io/wakaru_all/ryoushi-juryoku/index.html) |
 | **わかる c·t=一定**〔※「わかる共形変換」続編・**完結**〕| c·t=一定 はどんな宇宙でも実現できる ── だからあらゆる式に代入できる。宇宙論を最短で書く記法として扱い、その短さを情報理論で測る（全50話・6部構成・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-ct/index.html) |
 | **物理を簡単にする**〔※「わかる c·t=一定」から生まれた・**完結**〕| 「もっと単純な法則にできないか」を実行できる形にする。簡単さを記述長・計算量・前提概念の三つで測る（全16話・5部構成・完結） | [開く](https://yomei-o.github.io/wakaru_all/butsuri-kantan/index.html) |
+| **考えるAIと物理**〔※新シリーズ・**継続中**〕| 進化戦略・CNN・LLM と、熱・量子・くりこみ・情報は、なぜ同じ式で書けるのか。分野のあいだの線を、換算表と数値の検算つきで地図にする。外れた予言もそのまま載せる（全5話・継続中） | [開く](https://yomei-o.github.io/wakaru_all/kangaeru-ai/index.html) |
 | **考える波**〔※新シリーズ・**継続中**〕| 音声を微分すると高音、積分すると低音 ── ならば物理定数はすべて何かの積分値ではないか。その一行から歩き出して「階数」に行き着く（全65話・20部構成・継続中） | [開く](https://yomei-o.github.io/wakaru_all/kangaeru-nami/index.html) |
 | **わかる場** | なぜ力は光速で伝わるのか。場を「無次元の比」で読み解く（全8話・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-ba/index.html) |
 | **わかる相対論** | すべてを c で割る。β・γ・時空間隔・E=mc²・同時・重力＝曲率（全7話・完結） | [開く](https://yomei-o.github.io/wakaru_all/wakaru-soutai/index.html) |
@@ -38,11 +39,11 @@
 
 **★ 全集の見取り図：[物理の立方体](https://yomei-o.github.io/wakaru_all/butsuri-rittai.html)** ── c・ℏ・G の3軸で全シリーズを一望（そして4本目の軸 k_B ＝「わかる温度」）。
 
-（フォルダ名：`kangaeru-nami/`・`ryoushi-juryoku/`・`wakaru-ct/`・`butsuri-kantan/`・`wakaru-kyokei/`・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
+（フォルダ名：`kangaeru-ai/`・`kangaeru-nami/`・`ryoushi-juryoku/`・`wakaru-ct/`・`butsuri-kantan/`・`wakaru-kyokei/`・`wakaru-ba/`・`wakaru-soutai/`・`wakaru-ryoushi/`・`wakaru-blackhole/`・`wakaru-kurikomi/`・`wakaru-ondo/`・`wakaru-surinuke/`・`wakaru-kussetsu/`・`butsuri-tsukuru/`・`wakaru/`・`wakaru-chikara/`・`wakaru_shitsuryo/`・`wakaru-uchu-keisanki/`・`wakaru_learn/`・`wakaru-unix/`）
 
 ## 🌐 English editions（英語版）
 
-18 シリーズの英語版を `*-en/` フォルダで公開しています（「量子重力自由研究」「物理を簡単にする」は日本語のみ）。
+18 シリーズの英語版を `*-en/` フォルダで公開しています（「量子重力自由研究」「物理を簡単にする」「考えるAIと物理」は日本語のみ）。
 
 | Series | Read (published site) |
 |---|---|

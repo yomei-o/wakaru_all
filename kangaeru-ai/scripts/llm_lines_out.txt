@@ -1,0 +1,25 @@
+=== 1. softmax: 逆伝播の信号 = ゆらぎ（揺動散逸） ===
+  max|dp_i/dh_j - (p_i d_ij - p_i p_j)| = 4.3e-11
+  T=1.0: response d<f>/dh_j vs Cov(f,1_j)/T from samples, max|diff| = 2.9e-04  (|resp| up to 0.261)
+  T=0.5: response d<f>/dh_j vs Cov(f,1_j)/T from samples, max|diff| = 8.4e-04  (|resp| up to 0.387)
+
+=== 2. attention 1 回 = 現代ホップフィールドの 1 更新（エネルギー単調減少、温度で記憶が溶ける） ===
+    beta  steps  E monotone  overlap w/ nearest  #distinct fixed pts (200 starts)
+       1    9.7        True               0.415                                 1
+       4   21.3        True               0.451                                 1
+      16    6.0        True               1.000                                20
+      64    3.2        True               1.000                                20
+
+=== 3. 層を重ねるとトークンが凝集する（深さ = 時間、β = 1/T） ===
+    beta     L=0     L=5    L=10    L=20    L=50   L=100   L=200   L=500
+       1      64      64      64      64      11       1       1       1
+       4      64      64      64      64      58       1       1       1
+       9      64      64      64      64      62      50      24       6
+
+=== 4. 文脈内学習 = 勾配降下 1 歩（線形 attention、構成で厳密 ／ 学習でも） ===
+  construction: max|attention - GD step| = 6.7e-16
+  test MSE: trained linear attention 0.9607 | best 1-step GD (eta=0.048) 0.9515 | least squares 0.0000 | predict 0: 4.076
+
+=== 5. 逆伝播 = 随伴方程式（時間反転）、H = a·f は保存 ===
+  H = a.f along the backward pass (t = 2.0 -> 0): 3.735327 3.735317 3.735279 3.735184 3.735013 3.734789
+  dL/dW: autograd through 2000 RK4 steps vs adjoint integral, rel diff = 7.1e-04
