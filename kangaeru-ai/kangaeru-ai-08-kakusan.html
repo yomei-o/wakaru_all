@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拡散は量子になれるか</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 8 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>拡散は量子になれるか
+<span class="sub">足せない級数と、越えられない節 ── どちらも「曖昧さ」が物理量だった</span></h1>
+<div class="byline">2026-10-27 ／ 第7回の末尾の二本の線を掘る。Nelson の確率力学はどこで切れるか、発散級数は本当に足せないのか。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>拡散は一時刻の量子力学を正確に再現する</b>（Nelson 1966）。重ね合わせの振動する密度を、D = ħ/2m の拡散過程が 0.5% で追う。</li>
+<li><b>二時刻の相関で切れる。</b> 波動関数の節は越えられない峠で、拡散はそこで分断される（エルゴード性の破れ、第1・4回）。量子力学は位相を持つので分断されない。</li>
+<li><b>切れる理由は定理になる。</b> 正の確率ではどうやっても再現できず、再現できるのは位相空間の<em>負の確率</em>（Wigner 関数）だけ。節の正体は負の確率である。</li>
+<li><b>発散級数は「足せない」のではなく「そのまま足してはいけない」。</b> Borel 和は g = 1 でも 12〜16 桁出る。不安定な側では和の曖昧さが崩壊率そのものになり、積分でも量子力学でも比 1.000 で一致した。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>Nelson 過程の一時刻密度 = \|ψ\|²</td><td class="g-text">教科書（Nelson 1966、定理）</td><td>⟨x⟩ 0.5%、⟨x²⟩ 0.3%</td></tr>
+<tr><td>二時刻相関で量子力学と食い違う</td><td class="g-text">Grabert–Hänggi–Talkner 1979</td><td>C(π)：Nelson +1.27、量子 −1.50</td></tr>
+<tr><td>正の確率過程では C(π) = −C(0) を出せない（Cauchy–Schwarz）</td><td class="g-text">自明な定理</td><td>—</td></tr>
+<tr><td>Wigner 関数の負の部分が必要（Hudson 1974）</td><td class="g-text">教科書</td><td>符号つきなら両立、切ると両方壊れる</td></tr>
+<tr><td>Borel–Padé 和は厳密解と一致</td><td class="g-text">教科書</td><td>積分 10⁻⁴⁵、非調和振動子 10⁻¹⁶</td></tr>
+<tr><td>側方 Borel 和の虚部 = 崩壊率（Stokes 現象、resurgence）</td><td class="g-real">Écalle、Zinn-Justin、Dunne–Ünsal</td><td>積分：比 0.97→1、量子力学：比 1.000</td></tr>
+<tr><td>「節 = 負の確率」と「曖昧さ = 崩壊率」が同じ型の主張</td><td class="g-story">この地図の語り</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>拡散は、一時刻なら量子になれる</h2>
+<p>Nelson (1966) の確率力学：粒子は拡散係数 D = ħ/2m のブラウン運動をし、速度場は波動関数から b = (ħ/m)[Re + Im](∇ψ/ψ) で決まる（流れの速度 + 浸透圧の速度）。すると粒子の密度が |ψ(x,t)|² に一致する、というのが定理である。第1回のウィック回転が「虚時間の拡散 = 量子力学の静的な量」だったのに対し、こちらは<em>実時間</em>の拡散で動く密度を追う。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">調和振動子の重ね合わせ (ψ₀+ψ₁)/√2、20 万粒子、刻み 2×10⁻⁴（ħ = m = ω = 1）</span>
+<table>
+<tr><th class="num">t</th><th class="num">⟨x⟩ Nelson</th><th class="num">⟨x⟩ 量子</th><th class="num">⟨x²⟩ Nelson</th><th class="num">⟨x²⟩ 量子</th></tr>
+<tr><td class="num">0</td><td class="num">+0.707</td><td class="num">+0.707</td><td class="num">1.014</td><td class="num">1.000</td></tr>
+<tr><td class="num">1.5</td><td class="num">+0.046</td><td class="num">+0.050</td><td class="num">1.008</td><td class="num">1.000</td></tr>
+<tr><td class="num">3.0</td><td class="num">−0.699</td><td class="num">−0.700</td><td class="num">1.003</td><td class="num">1.000</td></tr>
+<tr><td class="num">4.5</td><td class="num">−0.152</td><td class="num">−0.149</td><td class="num">1.005</td><td class="num">1.000</td></tr>
+<tr><td class="num">6.0</td><td class="num">+0.674</td><td class="num">+0.679</td><td class="num">1.002</td><td class="num">1.000</td></tr>
+</table>
+<p style="margin:.3em 0">速度場は節（ψ = 0）で発散するので、刻みを細かくし、速度に上限を置いた。最初の版（刻み 10⁻³）では節を跨いだ粒子が飛ばされて ⟨x²⟩ が 15 まで膨れた。</p>
+</div>
+
+<h2><span class="n">02</span>二時刻で切れる</h2>
+<p>励起状態 ψ₁ は x = 0 に節があり、二つの山に分かれている。粒子を片方の山から出し、二時刻の相関 C(t) = ⟨x(t)x(0)⟩ を測る。量子力学の対称化した相関は Re⟨1|x(t)x(0)|1⟩ = (|x₁₀|² + |x₁₂|²) cos t = 1.5 cos t。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">ψ₁、速度場 b = 1/x − x（実の ψ なので浸透圧の項だけ）</span>
+<table>
+<tr><th class="num">t</th><th class="num">Nelson C(t)</th><th class="num">量子 1.5 cos t</th><th class="num">節を跨いだ粒子</th></tr>
+<tr><td class="num">0</td><td class="num">1.50</td><td class="num">1.50</td><td class="num">0%</td></tr>
+<tr><td class="num">π/2</td><td class="num">1.28</td><td class="num">0.00</td><td class="num">0.2%</td></tr>
+<tr><td class="num">π</td><td class="num"><b>1.27</b></td><td class="num"><b>−1.50</b></td><td class="num">0.4%</td></tr>
+<tr><td class="num">2π</td><td class="num">1.25</td><td class="num">1.50</td><td class="num">0.8%</td></tr>
+</table>
+<p style="margin:.3em 0">Nelson の値は片方の山の平均の二乗 (2/√π)² = 1.273 に落ち着く。節を跨いだ粒子は数値の漏れで、刻みを 1/5 にすると 1.9% → 0.4% に減る（連続極限ではゼロ）。</p>
+</div>
+<p>量子力学の相関は振動して符号を変える。粒子は節を越えられないので、相関は正のまま。<em>一時刻では同じ、二時刻では別物</em>。節は第1回・第4回でいう「越えられない峠」で、拡散はそこでエルゴード性を失う。量子力学が失わないのは、位相を持つからである。Nelson 自身も 2005 年の「確率力学の謎」でこの立場を離れた。</p>
+
+<h2><span class="n">03</span>なぜ切れるか：節は負の確率</h2>
+<p>切れ目は Nelson の作り方の欠陥ではなく、正の確率全体に対する定理である。</p>
+<div class="keybox"><div class="lbl">定理（自明）</div>
+定常な実の確率過程について、Cauchy–Schwarz より |C(π)| ≤ C(0)。等号は x(π) = −x(0) がほぼ確実に成り立つときに限る。量子力学は C(π) = −C(0) を要求するので、<em>どんな正の確率過程も、時間 π でちょうど符号を反転する決定論的な写像を含まなければならない</em>。連続な拡散にはできない。</div>
+<p>では何ならできるか。位相空間 (x, p) で古典的な振動子の流れ x(t) = x cos t + p sin t を使い、初期分布に Wigner 関数 W(x,p) を取ると、一時刻の密度も二時刻の相関も量子力学に一致する（二次のハミルトニアンでは厳密）。ただし ψ₁ の Wigner 関数は原点で負（W(0,0) = −1/π）で、負の体積は 0.21 ある。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">ψ₁ の Wigner 関数（数値積分、公式と 7×10⁻¹⁵ で一致）を重みにした古典流</span>
+<table>
+<tr><th>重み</th><th class="num">ρ(x=0), t=0</th><th class="num">ρ(x=0), t=π/4</th><th class="num">C(0)</th><th class="num">C(π)</th></tr>
+<tr><td>量子力学の要求</td><td class="num">0</td><td class="num">0</td><td class="num">1.5</td><td class="num">−1.5</td></tr>
+<tr><td><b>Wigner（符号つき）</b></td><td class="num">0.000</td><td class="num">0.000</td><td class="num">1.500</td><td class="num">−1.500</td></tr>
+<tr><td>Wigner の負の部分を切って正規化</td><td class="num">0.225</td><td class="num">0.225</td><td class="num">1.250</td><td class="num">−1.250</td></tr>
+<tr><td>正の積分布 ψ₁²(x)ψ₁²(p)</td><td class="num">0.000</td><td class="num"><b>0.423</b></td><td class="num">1.500</td><td class="num">−1.500</td></tr>
+</table>
+</div>
+<p>符号つきの Wigner 関数だけが、節（ρ(0) = 0 がすべての時刻で保たれること）と相関の両方を満たす。負の部分を切ると節が埋まり、正の積分布は相関は出せるが π/4 で節が埋まる。Hudson (1974) の定理 ── Wigner 関数が非負なのはガウス状態だけ ── がこの表の中身で、<em>節の正体は位相空間の負の確率</em>である。拡散が量子になれないのは、負の確率を持てないからだ、と一行で言える。</p>
+
+<h2><span class="n">04</span>発散級数は「そのまま足してはいけない」だけ</h2>
+<p>第7回で、摂動級数は n! で発散し、最適な打ち切りでもインスタントン e^{−1/4g} の誤差が残ると書いた。だが係数を n! で割り（Borel 変換）、Padé 近似で解析接続し、ラプラス積分で戻せば、級数は足せる。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">Borel–Padé（Padé [30/30]、50〜60 桁精度）</span>
+<table>
+<tr><th>対象</th><th class="num">g</th><th class="num">最適打ち切り</th><th class="num">Borel–Padé</th></tr>
+<tr><td>積分 Z(g) = ∫e^{−x²/2−gx⁴/4}</td><td class="num">0.02</td><td class="num">3×10⁻⁷</td><td class="num"><b>7×10⁻⁴⁵</b></td></tr>
+<tr><td></td><td class="num">1.0</td><td class="num">（使えない）</td><td class="num">8×10⁻¹³</td></tr>
+<tr><td>非調和振動子 E₀(g)、H = p²/2 + x²/2 + gx⁴</td><td class="num">0.1</td><td class="num">1×10⁻²</td><td class="num"><b>1×10⁻¹⁶</b></td></tr>
+<tr><td>（摂動級数 60 次、Rayleigh–Schrödinger 漸化式）</td><td class="num">1.0</td><td class="num">4.5×10⁻¹</td><td class="num">1×10⁻¹¹</td></tr>
+</table>
+<p style="margin:.3em 0">非調和振動子の係数：0.5, 0.75, −2.625, 20.81, −241.3, 3581, …、60 次での比 e₆₀/e₅₉ = −179 ≈ −3k（Bender–Wu 1969 の大次数の振る舞い）。厳密値は 600 基底の対角化。</p>
+</div>
+
+<h2><span class="n">05</span>曖昧さ = 崩壊率（Stokes 現象）</h2>
+<p>g &lt; 0 ではポテンシャルが下に開き、状態は不安定になる。このとき Borel 変換に実軸上の特異点が現れ、ラプラス積分の路をその上に避けるか下に避けるかで、和の虚部の符号が変わる。この曖昧さは欠陥ではなく、トンネルによる崩壊率を運んでいる、というのが resurgence の主張である。積分と量子力学の二段で確かめた。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">側方 Borel 和の虚部 vs 独立に求めた崩壊率</span>
+<table>
+<tr><th>対象</th><th class="num">g</th><th class="num">Im（Borel 和）</th><th class="num">崩壊率（独立計算）</th><th class="num">比</th></tr>
+<tr><td>積分（鞍点 e^{−1/4\|g\|}/√2）</td><td class="num">−0.05</td><td class="num">4.61×10⁻³</td><td class="num">4.76×10⁻³</td><td class="num">0.97</td></tr>
+<tr><td></td><td class="num">−0.2</td><td class="num">1.84×10⁻¹</td><td class="num">2.03×10⁻¹</td><td class="num">0.91</td></tr>
+<tr><td>非調和振動子（複素スケーリングの共鳴 E − iΓ/2）</td><td class="num">−0.02</td><td class="num">2.983×10⁻⁷</td><td class="num">2.983×10⁻⁷</td><td class="num"><b>1.000</b></td></tr>
+<tr><td></td><td class="num">−0.05</td><td class="num">3.347×10⁻³</td><td class="num">3.347×10⁻³</td><td class="num"><b>1.000</b></td></tr>
+<tr><td></td><td class="num">−0.08</td><td class="num">2.465×10⁻²</td><td class="num">2.465×10⁻²</td><td class="num"><b>1.000</b></td></tr>
+</table>
+<p style="margin:.3em 0">積分の比が 1 からずれるのは一インスタントン近似の O(g) 補正。量子力学では近似を使わず（複素スケーリングは厳密な数値法）、4 桁で一致した。実部も 8 桁一致。</p>
+</div>
+<div class="keybox"><div class="lbl">核心</div>
+摂動級数の「足し方の曖昧さ」は、そのまま非摂動的な崩壊率である。級数は非摂動の情報を欠いているのではなく、<em>曖昧さという形で持っている</em>。超準解析の言い方なら、超有限和の標準部分が一意に決まらないとき、その不定性自体が物理量になる。</div>
+
+<h2><span class="n">06</span>二本の線は同じ型</h2>
+<p>この回の二本は、別の話に見えて同じ主張をしている。</p>
+<table>
+<tr><th></th><th>Nelson の拡散</th><th>摂動級数</th></tr>
+<tr><td>うまくいく範囲</td><td>一時刻の密度</td><td>最適打ち切りまで</td></tr>
+<tr><td>切れる場所</td><td>節（二時刻の相関）</td><td>Borel 変換の特異点（負の g）</td></tr>
+<tr><td>正の・実の範囲で埋めようとすると</td><td>Cauchy–Schwarz で不可能</td><td>e^{−1/4g} の誤差が残る</td></tr>
+<tr><td>埋めるもの</td><td>負の確率（Wigner）</td><td>虚部（側方 Borel 和）</td></tr>
+<tr><td>それが運ぶ物理</td><td>位相、干渉</td><td>トンネル、崩壊率</td></tr>
+</table>
+<p>どちらも、「正の実数の範囲で閉じようとすると曖昧さが残り、その曖昧さが物理量である」という形をしている。量子力学の位相と、トンネルの崩壊率は、どちらも「正の確率では書けない部分」の名前だった。</p>
+
+<h2><span class="n">07</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>Wigner の流れが厳密なのは二次のハミルトニアンまで。</b> 非調和な系では Moyal 方程式に ħ² の補正が入り、古典流では再現できない。「節 = 負の確率」の読みは一般に成り立つ（Hudson）が、「古典流 + 符号」で全部出るのは振動子だけ。</li>
+<li><b>Cauchy–Schwarz の議論が使えるのは定常状態。</b> 非定常な重ね合わせでは C(π) = −C(0) の形の制約はなく、Nelson 過程がどこまで合うかは別途の問題。</li>
+<li><b>resurgence の完全な形（instanton–anti-instanton の寄与が Borel の曖昧さを打ち消す）は見ていない。</b> ここで確かめたのは、曖昧さと崩壊率が等しいところまで。二重井戸で非 Borel 可和な級数が instanton 対で治る話（Zinn-Justin）は次の段。</li>
+<li><b>Borel–Padé の精度は Padé の次数と級数の次数で決まる。</b> 場の理論の級数は数次しか分からないことが多く、同じ精度は出ない。</li>
+<li><b>最初に書いた側方 Borel 和は積分路の指数を間違えていて、虚部が 70 倍ずれていた。</b> 直して出し直した。</li>
+<li><b>第6回 の「同じ型」は語り。</b> 正の確率の不足と Borel 可和性の不足を結ぶ定理は知らない。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>拡散は一時刻の量子力学を再現し、二時刻で切れる。切れる場所は節で、正の確率では埋められない。節の正体は Wigner 関数の負の部分。</li>
+<li>発散級数は Borel 和で足せる（積分で 45 桁、量子力学で 16 桁）。不安定な側での和の曖昧さは崩壊率そのもので、量子力学で比 1.000。</li>
+<li>二本とも「正の実数で閉じない部分が物理量」という同じ型。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+二重井戸で非 Borel 可和な級数と instanton 対の打ち消し（Zinn-Justin）／ Moyal 方程式の ħ² 項を熱核 CNN に入れる ／ 負の確率を持つ拡散（準確率の Fokker–Planck）で二時刻相関が出るか</div>
+
+<div class="foot">
+<ol>
+<li>Nelson (1966) Phys. Rev. 150, 1079 ／ Grabert, Hänggi, Talkner (1979) Phys. Rev. A 19, 2440 ／ Nelson (2005) The mystery of stochastic mechanics</li>
+<li>Hudson (1974) Rep. Math. Phys. 6, 249 ／ Wigner (1932)</li>
+<li>Bender & Wu (1969, 1973) ／ Zinn-Justin (1981) ／ Dunne & Ünsal (2012) ／ Marino (2014) Lectures on non-perturbative effects</li>
+<li>スクリプト：<code>scripts/nelson_sm.py</code>、<code>scripts/wigner_node.py</code>、<code>scripts/borel_stokes.py</code>、<code>scripts/anharmonic_resurgence.py</code>（出力 *_out.txt）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
