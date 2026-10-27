@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>符号は転移するか</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 12 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>符号は転移するか
+<span class="sub">小さい系で学んだ節を、大きい系へ ── 入れてはいけない対称性</span></h1>
+<div class="byline">2026-10-27 ／ 第11回の続き。並進不変な畳み込み（第2回）で符号構造を学び、学んでいない大きさの系に当てる。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>最初の版は学習の段階で失敗した。</b> 並進不変な畳み込みは自分が偶数サイトか奇数サイトかを知らないので、副格子に依る Marshall の符号を<em>原理的に書けない</em>。第2回の「入れないと学べない対称性」の裏で、入れてはいけない対称性もある。</li>
+<li><b>副格子のラベルを一本足すと、符号則は局所項の和で書ける。</b> 12 サイトで学んだ同じ網を 16 サイトに当てると、符号の一致 100%、重なり 0.98、エネルギー誤差 0.4%。一度も見ていない大きさで当たる。</li>
+<li><b>符号則が壊れる J₂ = 0.8 でも、部分的に転移する。</b> 符号の一致は 90% → 86%、エネルギー誤差は 2.7% → 3.2%。</li>
+<li><b>しかもこの網は、第11回で 16 サイトを直接学んだ MLP（7.3%）より良い（3.2%）。</b> 局所性と正しい対称性を入れた網は、大きい系を見ずに大きい系で勝つ。第2回の「構造が似ているから計算できる」の、学習側の実例である。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>並進不変な網は副格子依存の符号を表現できない</td><td class="g-text">自明（局所性と対称性の帰結）</td><td>N = 12 で重なり 0.40、転移で 0.11</td></tr>
+<tr><td>副格子ラベルを足せば Marshall 則は局所項の和</td><td class="g-text">自明</td><td>符号一致 100%、N = 16 で重なり 0.98</td></tr>
+<tr><td>符号構造の汎化は NQS の課題</td><td class="g-real">Westerhout ら 2020</td><td>J₂ = 0.8 で 90% → 86%</td></tr>
+<tr><td>局所＋対称な網は大きい系を見ずに大きい系で勝つ</td><td class="g-real">既知（CNN-NQS の系譜）</td><td>3.2% vs MLP 直接 7.3%</td></tr>
+<tr><td>「入れてはいけない対称性」という読み</td><td class="g-story">この地図の語り</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>設計：並進不変な網で、大きさを跨ぐ</h2>
+<p>第11回の MLP は入力の長さが固定で、別の大きさの系には使えない。そこで第2回の畳み込みを使う：円環状の 1 次元畳み込み（カーネル 3、8 チャンネル）を二層、サイトごとの特徴を足し合わせて、対数振幅と位相の二つを出す。位相を<em>局所項の和</em>にしてあるのは、Marshall の符号 (−1)^{n_A} が「A 副格子のサイトごとに π を足す」で書けるからである。同じ重みが任意の N に使える。</p>
+<p>J₁–J₂ 鎖の N = 12（S_z = 0、924 状態）で全状態の厳密なエネルギー最小化（第11回と同じ、サンプリングなし）で学習し、重みを固定したまま N = 16（12,870 状態）に当てて、厳密な基底状態と比べる。測るのは重なり |⟨ψ_exact|ψ_net⟩|² と、振幅で重み付けした符号の一致率（偶然なら 0.5）。</p>
+
+<h2><span class="n">02</span>失敗：入れてはいけない対称性</h2>
+<div class="calc"><span class="tag">計算</span><span class="lbl">入力 = スピンだけ（並進不変）</span>
+<table>
+<tr><th class="num">J₂</th><th class="num">E 誤差（N = 12）</th><th class="num">重なり N = 12</th><th class="num">符号一致 N = 12</th><th class="num">重なり N = 16</th><th class="num">符号一致 N = 16</th></tr>
+<tr><td class="num">0</td><td class="num">22%</td><td class="num">0.40</td><td class="num">0.72</td><td class="num">0.11</td><td class="num">0.65</td></tr>
+<tr><td class="num">0.8</td><td class="num">28%</td><td class="num">0.45</td><td class="num">0.74</td><td class="num">0.00</td><td class="num">0.50</td></tr>
+</table>
+</div>
+<p>学習の段階で既に失敗している。理由は構造的で、Marshall の符号は「偶数サイトの上向きの数」の偶奇だが、並進不変な局所の畳み込みは、スピンの値だけからは自分のサイト番号の偶奇を知りえない。どれだけ層を重ねても<em>表現できない</em>。第2回の格子ゲージ理論では「対称性を入れないと学べない」だった。ここは逆で、系が持っていない対称性（1 サイトの並進）を網に入れると、系が持っている構造（副格子）が消える。</p>
+
+<h2><span class="n">03</span>副格子を一本足す</h2>
+<p>入力に (−1)^i のチャンネルを足す。網は 2 サイトの並進には不変のまま、副格子を見分けられる。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">入力 = スピン ＋ 副格子ラベル。N = 12 で学習、N = 16 は一度も見ていない</span>
+<table>
+<tr><th class="num">J₂</th><th class="num">E 誤差（N = 12）</th><th class="num">重なり N = 12</th><th class="num">符号一致 N = 12</th><th class="num">重なり N = 16</th><th class="num">符号一致 N = 16</th><th class="num">E 誤差 N = 16</th></tr>
+<tr><td class="num">0</td><td class="num">1.2×10⁻³</td><td class="num">0.997</td><td class="num"><b>1.000</b></td><td class="num"><b>0.981</b></td><td class="num"><b>1.000</b></td><td class="num">3.6×10⁻³</td></tr>
+<tr><td class="num">0.8</td><td class="num">2.7%</td><td class="num">0.51</td><td class="num">0.895</td><td class="num">0.47</td><td class="num">0.864</td><td class="num">3.2%</td></tr>
+</table>
+</div>
+<ul>
+<li><b>J₂ = 0：符号は完全に転移する。</b> 16 サイトの 12,870 状態すべてで符号が合い、重なり 0.98。学んだのは「副格子ごとに π を足す」という局所の規則で、それは大きさに依らない。</li>
+<li><b>J₂ = 0.8：部分的に転移する。</b> 符号則が壊れている場所でも、学んだ符号の 86% が 16 サイトで当たる。重なり 0.5 は振幅の側の限界（1 次元のフラストレート系は振幅も難しい）。</li>
+<li><b>第11回との比較。</b> 16 サイトを直接学んだ MLP の D（複素、1033 パラメータ）は 7.3% だった。16 サイトを一度も見ていないこの畳み込みは 3.2%。<em>局所性と正しい対称性は、データより強い</em>。</li>
+</ul>
+
+<h2><span class="n">04</span>線として</h2>
+<table>
+<tr><th>回</th><th>対称性と学習</th></tr>
+<tr><td>第2回</td><td>ゲージ対称性を入れないと、普通の CNN は何も学べなかった（入れるべき対称性）</td></tr>
+<tr><td>第5回</td><td>attention はホップフィールド、層は時間：構造が同じだから計算できる</td></tr>
+<tr><td>第11回</td><td>符号は本体。教えれば一瞬、学ぶのは難しい</td></tr>
+<tr><td>この回</td><td>系にない対称性を入れると符号を表現できない（入れてはいけない対称性）。正しく入れれば、符号は大きさを跨いで転移する</td></tr>
+</table>
+<p>対称性は「多いほど良い」のではなく「系と同じだけ」が正しい。くりこみ群（第1回）で relevant な結合を残し irrelevant を捨てるのと同じで、網に入れる対称性は、系の対称性の写しでなければならない。</p>
+
+<h2><span class="n">05</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>12 → 16 の一段だけ。</b> 20、24 へ転移が続くかは見ていない（厳密対角化が重くなる）。</li>
+<li><b>J₂ = 0.8 の重なり 0.5 は低い。</b> 符号の転移は見えたが、状態そのものの転移は弱い。振幅の表現力（8 チャンネル、カーネル 3）が足りていない可能性と、1 次元フラストレート系の難しさの両方。</li>
+<li><b>第11回の D との比較は条件が違う。</b> 網の構造も学習ステップ数（4000 vs 3000）も違う。「局所＋対称が勝つ」は、この一対の比較での話。</li>
+<li><b>失敗の理由づけは事後。</b> 「並進不変だから副格子を見分けられない」は失敗を見てから書いた説明で、予言ではない。ただし説明は自明に正しく、修正して直った。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>系にない対称性を網に入れると、符号を表現できない。副格子のラベル一本で直る。</li>
+<li>12 サイトで学んだ符号は、16 サイトで 100% 当たる（J₂ = 0）。壊れた符号則でも 86%。</li>
+<li>大きい系を見ていない局所・対称な網が、大きい系を直接学んだ MLP に勝つ（3.2% vs 7.3%）。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+20、24 サイトへの転移（モンテカルロで評価）／ 2 次元 J₁–J₂ で同じことを ／ 第5回の attention で位相を学ぶ（非局所な符号構造に局所の畳み込みが届かないとき）</div>
+
+<div class="foot">
+<ol>
+<li>Westerhout, Astrakhantsev, Tikhonov, Katsnelson, Bagrov (2020) Nat. Commun. 11, 1593（符号構造の汎化）</li>
+<li>Choo, Neupert, Carleo (2019) PRB 100, 125124（CNN-NQS と符号）／ Roth & MacDonald (2021)</li>
+<li>スクリプト：<code>scripts/nqs_transfer.py</code>（出力 <code>nqs_transfer_out.txt</code>；失敗した版は入力チャンネルを 1 本にすれば再現できる）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
