@@ -36,7 +36,7 @@ def metrics(net, st, v):
     sgn = np.sign((p*ph).real); sign_acc = np.sum(np.abs(v)**2*(sgn == np.sign(v)))   # amplitude-weighted sign agreement
     return ov, sign_acc
 print('input channels: spin and sublattice label (-1)^i; phase = sum of local terms')
-print(f"{'J2':>5}{'train N':>8}{'E err (train)':>14}{'overlap N=12':>13}{'sign acc N=12':>14}{'overlap N=16':>13}{'sign acc N=16':>14}{'E err N=16':>12}")
+print(f"{'J2':>5}{'train N':>8}{'E err (train)':>14}{'overlap N=12':>13}{'sign acc N=12':>14}{'overlap N=16':>13}{'sign acc N=16':>14}{'E err N=16':>12}{'overlap N=20':>13}{'sign acc N=20':>14}{'E err N=20':>12}")
 for J2 in [0.0, 0.8]:
     st12, H12, E12, v12 = exact(12, J2); st16, H16, E16, v16 = exact(16, J2); Ht = to_torch(H12)
     X12 = torch.tensor(2.0*st12-1.0, dtype=torch.float32); net = CNN(); opt = torch.optim.Adam(net.parameters(), 1e-2)
@@ -45,9 +45,14 @@ for J2 in [0.0, 0.8]:
         opt.zero_grad(); E.backward(); opt.step()
         if it == 2000:
             for g in opt.param_groups: g['lr'] = 3e-3
+    torch.save(net.state_dict(), f'nqs_transfer_J2_{J2}.pt')
     ov12, sa12 = metrics(net, st12, v12); ov16, sa16 = metrics(net, st16, v16)
+    st20, H20, E20, v20 = exact(20, J2); ov20, sa20 = metrics(net, st20, v20)
+    with torch.no_grad():
+        p20 = psi(net, torch.tensor(2.0*st20-1.0, dtype=torch.float32)); Ht20 = to_torch(H20)
+        E20n = ((torch.conj(p20) @ torch.sparse.mm(Ht20, p20.unsqueeze(1)).squeeze(1)).real/(torch.conj(p20) @ p20).real).item()
     with torch.no_grad():
         p16 = psi(net, torch.tensor(2.0*st16-1.0, dtype=torch.float32)); Ht16 = to_torch(H16)
         E16n = ((torch.conj(p16) @ torch.sparse.mm(Ht16, p16.unsqueeze(1)).squeeze(1)).real/(torch.conj(p16) @ p16).real).item()
-    print(f"{J2:>5}{12:>8}{(E.item()-E12)/abs(E12):>14.2e}{ov12:>13.4f}{sa12:>14.4f}{ov16:>13.4f}{sa16:>14.4f}{(E16n-E16)/abs(E16):>12.2e}", flush=True)
+    print(f"{J2:>5}{12:>8}{(E.item()-E12)/abs(E12):>14.2e}{ov12:>13.4f}{sa12:>14.4f}{ov16:>13.4f}{sa16:>14.4f}{(E16n-E16)/abs(E16):>12.2e}{ov20:>13.4f}{sa20:>14.4f}{(E20n-E20)/abs(E20):>12.2e}", flush=True)
 print("  sign acc = amplitude-weighted fraction of basis states whose sign matches the exact ground state (random = 0.5).")
