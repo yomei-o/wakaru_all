@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1/τ と双曲線</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 15 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>1/τ と双曲線
+<span class="sub">二つの未決を、半分ずつ閉じる ── 法則はある、手順が難しい</span></h1>
+<div class="byline">2026-10-27 ／ 第14回で未決のまま残った Landauer の 1/τ と ES の双曲線を、設計を変えて再挑戦。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>1/τ 則は実在する。</b> トラップを距離 L だけ動かす最も単純な操作では、最適手順の余分な仕事が L²/(τ+2) と厳密に分かっており、測定は 4 桁で一致した。第4回で見えなかったのは法則がないからではない。</li>
+<li><b>消去で 1/τ が出ないのは、障壁の上げ下げが高くつくから。</b> 一瞬で上げ下げすると 30 kT も払う。ゆっくりだとビットが漏れる（第14回）。両方を避ける最適手順（Proesmans ら）は自明でなく、今日は実装しない。原因は閉じ、数値は未決。</li>
+<li><b>双曲線はついに見えた。</b> 条件数 10、上限 2 万ステップの設計で、臨界バッチサイズ ≈ 870 の折れ曲がりが出て、N ≥ 128 で (S/S_min − 1)(E/E_min − 1) ≈ 1（0.67〜1.35）。第1回の「光円錐座標」の読みに、初めて数字が付いた。</li>
+<li><b>三度目で当たった理由は設計の中間を取ったこと。</b> 簡単すぎると数ステップで届いて離散性が効き、難しすぎると打ち切りに掛かる。地形の難しさにも窓がある。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>トラップ移動の最適手順：余分な仕事 = L²/(τ+2)（Schmiedl–Seifert 2007）</td><td class="g-text">教科書（厳密解）</td><td>τ = 1〜50 で 1% 以内</td></tr>
+<tr><td>障壁の瞬間的な上げ下げは消去のコストを支配する</td><td class="g-text">教科書（確率熱力学）</td><td>余分 22〜34 kT</td></tr>
+<tr><td>有限時間の最適消去は非自明（Proesmans–Ehrich–Bechhoefer 2020）</td><td class="g-real">近年の結果</td><td>— （未実装）</td></tr>
+<tr><td>ES の S = S_min(1 + B_crit/N)、(S/S_min−1)(E/E_min−1) = 1（McCandlish ら 2018）</td><td class="g-text">経験則（SGD）</td><td>ES で B_crit ≈ 870、N ≥ 128 で積 ≈ 1</td></tr>
+<tr><td>双曲線 = 光円錐座標、ln(N/B_crit) = ラピディティ（第1回）</td><td class="g-story">語り</td><td>数字が付いた</td></tr>
+</table>
+
+<h2><span class="n">01</span>1/τ は実在する：トラップを動かす</h2>
+<p>過減衰の粒子（γ = 1、T = 1）を、ばね定数 1 のトラップに入れ、トラップの中心を時間 τ で距離 L だけ動かす。Schmiedl と Seifert (2007) の最適手順は「最初と最後に L/(τ+2) だけ跳び、間は一定速度」で、余分な仕事は厳密に L²/(τ+2)。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">L = 2、2 万粒子</span>
+<table>
+<tr><th class="num">τ</th><th class="num">1</th><th class="num">2</th><th class="num">5</th><th class="num">10</th><th class="num">20</th><th class="num">50</th></tr>
+<tr><td class="num">最適手順の余分な仕事</td><td class="num">1.325</td><td class="num">1.022</td><td class="num">0.571</td><td class="num">0.3334</td><td class="num">0.186</td><td class="num">0.080</td></tr>
+<tr><td class="num">L²/(τ+2)</td><td class="num">1.333</td><td class="num">1.000</td><td class="num">0.571</td><td class="num">0.3333</td><td class="num">0.182</td><td class="num">0.077</td></tr>
+<tr><td class="num">素朴な等速</td><td class="num">1.490</td><td class="num">1.125</td><td class="num">0.640</td><td class="num">0.362</td><td class="num">0.192</td><td class="num">0.077</td></tr>
+</table>
+</div>
+<p>最適手順は厳密解と 1% 以内で一致し、τ = 10 では 4 桁。素朴な等速も大きな τ では同じ 1/τ に乗る。<em>系がエルゴード的に保たれる操作なら、1/τ 則はこのとおり出る</em>。第4回で見えなかったのは、消去という操作そのものに原因がある。</p>
+
+<h2><span class="n">02</span>消去で出ない理由：障壁の値段</h2>
+<p>第14回で「障壁を低くして遅くするとビットが漏れる」が分かった。では逆に、障壁の上げ下げを一瞬で済ませ、傾けるところだけゆっくりやればどうか。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">障壁 8kT、一瞬で下げる → τ かけて傾ける → 一瞬で上げる</span>
+<table>
+<tr><th class="num">τ</th><th class="num">2</th><th class="num">10</th><th class="num">50</th><th class="num">200</th></tr>
+<tr><td class="num">⟨W⟩/kT</td><td class="num">22.4</td><td class="num">32.6</td><td class="num">34.5</td><td class="num">35.1</td></tr>
+<tr><td class="num">成功率</td><td class="num">0.999</td><td class="num">0.999</td><td class="num">1.000</td><td class="num">1.000</td></tr>
+<tr><td class="num">余分な仕事</td><td class="num">21.7</td><td class="num">32.0</td><td class="num">33.8</td><td class="num">34.4</td></tr>
+</table>
+</div>
+<p>ビットは保持できたが、仕事が 30 kT を超える。障壁を一瞬で上げると、傾いた井戸の底（x ≈ −1.5）にいる粒子に対してポテンシャルが 8 kT 以上跳ね上がり、その分をそっくり払う。τ を伸ばすほど粒子が深く傾いた底に落ち着くので、むしろ増える。</p>
+<p>これで消去の二つの失敗の形が揃った。<em>障壁をゆっくり動かすと漏れ、速く動かすと払う</em>。両方を同時に避けるには、障壁と傾きを連動させた最適手順が要り、それは Proesmans らが数値的に解いたもので、自明な形をしていない。原因は閉じた。1/τ の数値は、最適手順を実装するまで未決のまま残す。</p>
+
+<h2><span class="n">03</span>双曲線が見えた</h2>
+<p>第1回で、大バッチ学習の経験則 (S − S_min)(E − E_min) = S_min E_min を光円錐座標として読み、ES で確かめようとして当たらなかった。第14回は難しすぎて打ち切り。三度目は中間を取る：20 次元、条件数 10、出発点は遠く、上限 2 万ステップ、各 N で歩幅を 14 通りから最適化。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">目標 L &lt; 1、16 本の中央値。N = 1 は上限に掛かったので当てはめから除外</span>
+<table>
+<tr><th class="num">N</th><th class="num">2</th><th class="num">8</th><th class="num">32</th><th class="num">64</th><th class="num">128</th><th class="num">256</th><th class="num">512</th><th class="num">1024</th></tr>
+<tr><td class="num">S（ステップ）</td><td class="num">2561</td><td class="num">646</td><td class="num">146</td><td class="num">80</td><td class="num">47</td><td class="num">24</td><td class="num">16</td><td class="num">11</td></tr>
+<tr><td class="num">E = N·S（サンプル）</td><td class="num">5122</td><td class="num">5168</td><td class="num">4672</td><td class="num">5120</td><td class="num">6016</td><td class="num">6144</td><td class="num">8192</td><td class="num">11264</td></tr>
+<tr><td class="num">S の当てはめ S_min(1 + B_crit/N)</td><td class="num">2534</td><td class="num">638</td><td class="num">164</td><td class="num">85</td><td class="num">45</td><td class="num">26</td><td class="num">16</td><td class="num">11</td></tr>
+<tr><td class="num">(S/S_min − 1)(E/E_min − 1)</td><td class="num">5.7</td><td class="num">2.4</td><td class="num">−1.8</td><td class="num">0.16</td><td class="num"><b>1.35</b></td><td class="num"><b>0.67</b></td><td class="num"><b>1.09</b></td><td class="num"><b>1.10</b></td></tr>
+</table>
+<p style="margin:.3em 0">当てはめ：S_min = 5.8 ステップ、E_min = 5056 サンプル、B_crit = 870。</p>
+</div>
+<ul>
+<li><b>N ≤ 64 では E がほぼ一定（4.7〜5.2 千）。</b> 並列と逐次が等価に交換できる領域で、第1回・第14回の η/N の交換則。</li>
+<li><b>N ≈ 128 以上で E が増え始め、S は 6 ステップに向かって頭打ち。</b> これが折れ曲がり、B_crit ≈ 870。</li>
+<li><b>双曲線の不変量は、折れ曲がりの近くで 1。</b> N ≥ 128 で 0.67〜1.35。小さい N では E/E_min − 1 ≈ 0 なので積が不定になる（小さい数 × 大きい数）。当てはめた S の曲線自体は N = 2 から 1024 まで 10% 以内で合う（N = 4 のみ 18%）。</li>
+</ul>
+<p>第1回の読みに数字を付けると：余分なステップ S − S_min と余分なサンプル E − E_min が光円錐座標 u、v で、uv = S_min E_min = 2.9×10⁴ が不変。ラピディティ φ = ln(N/B_crit) は N = 2 で −6.1、N = 1024 で +0.16。「光速」B_crit = 870 を超えたのは最後の一点だけである。</p>
+
+<h2><span class="n">04</span>三度目で当たった理由</h2>
+<p>第1回は簡単すぎて、大きな N で 3 ステップで届き、ステップの離散性が双曲線を潰した。第14回は難しすぎて、小さな N が上限に掛かった。今回は S が 11〜2561 の範囲に収まり、両端の病気を避けられた。設計の窓は、地形の難しさ（条件数）と打ち切りの上限で決まる。「当たらなかった」のは二度とも設計の失敗で、法則の失敗ではなかった ── ただしこれは当たってから言えることで、当たる前に書いた「地形が簡単すぎる」は半分しか合っていなかった。</p>
+
+<h2><span class="n">05</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>Landauer の 1/τ は数値としては未決のまま。</b> 閉じたのは「法則は存在する（トラップ移動で厳密）」と「消去で出ない原因（漏れと値段）」の二つ。最適手順の実装は次。</li>
+<li><b>双曲線の不変量 ≈ 1 は 4 点。</b> しかも折れ曲がりの片側（N ≥ 128）だけ。McCandlish らの SGD のデータのような、両側にまたがる確認ではない。</li>
+<li><b>ES の B_crit は「この地形・この σ・この目標」での値。</b> 一般の数ではない。</li>
+<li><b>N = 1 は打ち切りに掛かったまま。</b> 2 万ステップでも届かず、S_min(1 + B_crit) ≈ 5000 ステップを超えている計算になるので、本来は届くはず。歩幅の探索範囲が狭かった可能性がある（未確認）。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>1/τ 則はトラップ移動で厳密に出る。消去で出ないのは、障壁を遅く動かすと漏れ、速く動かすと払うから。</li>
+<li>双曲線は三度目で見えた：B_crit ≈ 870、折れ曲がりの近くで不変量 ≈ 1。第1回の光円錐の読みに数字が付いた。</li>
+<li>二度の失敗はどちらも設計で、法則ではなかった。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+Proesmans らの最適消去を実装して 1/τ を閉じる ／ 双曲線を折れ曲がりの両側（N = 128〜8192）で ／ N = 1 が届かない理由</div>
+
+<div class="foot">
+<ol>
+<li>Schmiedl & Seifert (2007) PRL 98, 108301 ／ Proesmans, Ehrich, Bechhoefer (2020) PRL 125, 100602</li>
+<li>McCandlish, Kaplan, Amodei (2018) An Empirical Model of Large-Batch Training</li>
+<li>スクリプト：<code>scripts/landauer3.py</code>、<code>scripts/hyperbola3.py</code>（出力 *_out.txt）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
