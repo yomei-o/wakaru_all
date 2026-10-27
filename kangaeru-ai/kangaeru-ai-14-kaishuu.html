@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未回収を回収しに行く</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 14 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>未回収を回収しに行く
+<span class="sub">三つ掘って、閉じたのは一つ ── 補題は死に、公式は生き残った</span></h1>
+<div class="byline">2026-10-27 ／ 第1回と第4回の「正直な線」に残っていた三つの未検証を、放置せずに潰しにいく回。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>ES の脱出時間の「次数 → 指数」の補題は死んだ。</b> 六次の井戸で指数 1/3 を予言したが、測定は 1/2 に合う。ただし近似を使わない一回ジャンプの公式は r = 0.002 まで 1% で当たり続けた。公式は生き、補題は死んだ。</li>
+<li><b>Landauer の 1/τ は、障壁を下げても出なかった。</b> 8kT では系が平衡に戻れず、4kT では遅くするとビットが漏れる（成功率 0.98 → 0.64）。素朴な手順では両立しない。最適な手順（Proesmans ら 2020）が要る。未回収のまま。</li>
+<li><b>ES の双曲線は、今回も当たらなかった。</b> ただし別のことが分かった：N = 16 から 512 まで総サンプル数がほぼ一定（η/N の交換則が 5 回の倍加で成立）で、臨界バッチサイズは 512 より大きい。小さい N は打ち切りに掛かって測れなかった。</li>
+<li><b>三つ掘って閉じたのは一つ、それも否定で。</b> 未回収を放置しないこと自体がこの回の内容で、残った二つは次の形がはっきりした。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>未回収の主張（出所）</th><th>結果</th><th>格付け</th></tr>
+<tr><td>次数 2k の井戸で ln τ ∝ (N/η)^{1/k}（第4回・補題の候補）</td><td class="g-fit">外れ：六次で α = 1/2 が最良、1/3 は残差 7 倍</td><td>補題は撤回</td></tr>
+<tr><td>一回ジャンプの公式 τ = r / P(−r·g &gt; \|x_min\|)（第4回）</td><td class="g-text">当たり：r = 0.002 まで 1%、0.001 で 1.6 倍</td><td>公式は維持</td></tr>
+<tr><td>Landauer の余分な仕事 ∝ 1/τ、障壁が高すぎたのが原因（第4回の解釈）</td><td class="g-fit">未回収：4kT でも τ とともに増える。原因は漏れ</td><td>解釈を修正、未決</td></tr>
+<tr><td>ES のステップ数と総サンプル数の双曲線（第1回）</td><td class="g-fit">未回収：打ち切りで小 N が測れず</td><td>設計を修正、未決</td></tr>
+<tr><td>η/N の交換則が N = 16〜512 で成立</td><td class="g-text">当たり（副産物）</td><td>第1回の主張を補強</td></tr>
+</table>
+
+<h2><span class="n">01</span>補題は死に、公式は生きた</h2>
+<p>第4回で、対称差分 ES の推定量は ε の多項式なので裾が伸張指数型になり、四次の井戸では ln τ ∝ (N/η)^{1/2} になった（フィットなしで 10%）。そこから「次数 2k の井戸なら指数は 1/k」という補題を候補に挙げ、六次で 1/3 を予言したが、最初の試みは r が大きすぎて決着しなかった。r を 16 分の 1 まで下げた。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">六次の井戸 (x²−1)²(x²+½)、σ = 0.3、対称差分 ES、300 ウォーカー</span>
+<table>
+<tr><th class="num">r = η/N</th><th class="num">0.016</th><th class="num">0.008</th><th class="num">0.004</th><th class="num">0.002</th><th class="num">0.001</th></tr>
+<tr><td class="num">一回ジャンプの予言</td><td class="num">11.8</td><td class="num">23.7</td><td class="num">73.4</td><td class="num">333</td><td class="num">2000</td></tr>
+<tr><td class="num">測定</td><td class="num">13.0</td><td class="num">28.3</td><td class="num">69.2</td><td class="num">334</td><td class="num">3185</td></tr>
+</table>
+<p style="margin:.3em 0">ln τ = A + B·(1/r)^α の当てはめ：α = 1/2 で残差 0.025、α = 1/3 で 0.175、α = 1/4 で 0.313。</p>
+</div>
+<p><b>補題は外れた。</b> 理由も分かる。六次の推定量は ε²、ε⁴、ε⁶ の項を持ち、ε⁶ の係数は σ⁵ に比例する。σ = 0.3 では、脱出に効く ε ≈ 4〜6 の範囲で σ²ε² ≈ 2 と、ε⁴ の項と同程度しかない。「最高次が支配する」という補題の前提が、到達できる r の範囲では成り立たない。</p>
+<p><b>公式は生きた。</b> 一回ジャンプの公式は推定量の分布を近似なしで使うので、どの項が支配するかに関係なく r = 0.002 まで 1% で当たる。r = 0.001 で 1.6 倍ずれるのは、τ が 3000 歩を超えて「一回のジャンプで越える」以外の経路（二回に分けて越える）が効き始めたためと思われる（未確認）。きれいな補題より、泥臭い公式の方が正しかった。</p>
+
+<h2><span class="n">02</span>Landauer：障壁を下げても 1/τ は出ない</h2>
+<p>第4回で、余分な仕事が 1/τ で減らなかった理由を「障壁 8kT でクラマース時間 e⁸ ≈ 3000 が τ より長く、系が平衡に戻れないから」と解釈した。なら障壁を 4kT（クラマース時間 e⁴ ≈ 55）にすれば τ ≫ 55 で 1/τ が見えるはずである。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">障壁 4kT、同じ四段階の消去手順、4000 粒子</span>
+<table>
+<tr><th class="num">τ</th><th class="num">5</th><th class="num">20</th><th class="num">50</th><th class="num">100</th><th class="num">200</th><th class="num">400</th></tr>
+<tr><td class="num">⟨W⟩/kT</td><td class="num">1.77</td><td class="num">0.90</td><td class="num">0.63</td><td class="num">0.49</td><td class="num">0.31</td><td class="num">0.20</td></tr>
+<tr><td class="num">成功率 p</td><td class="num">0.98</td><td class="num">0.94</td><td class="num">0.87</td><td class="num">0.80</td><td class="num">0.71</td><td class="num">0.64</td></tr>
+<tr><td class="num">下限（p で補正）</td><td class="num">0.60</td><td class="num">0.47</td><td class="num">0.31</td><td class="num">0.19</td><td class="num">0.09</td><td class="num">0.04</td></tr>
+<tr><td class="num">余分 × τ</td><td class="num">5.8</td><td class="num">8.6</td><td class="num">15.7</td><td class="num">29.3</td><td class="num">44.2</td><td class="num">63.2</td></tr>
+</table>
+</div>
+<p>出なかった。今度の理由は逆で、<em>遅くするとビットが漏れる</em>。障壁 4kT は τ = 400 の間ビットを保持できず、成功率が 0.64 まで落ちて、消去そのものが成立しなくなる。8kT では速すぎて平衡に戻れず、4kT では遅すぎて漏れる。素朴な四段階の手順では、両方を同時に満たす τ の窓がない。</p>
+<p>1/τ を見るには、障壁を保持する時間を短くし、下げている間だけゆっくり動かす、最適化された手順が要る（Proesmans, Ehrich, Bechhoefer 2020）。第4回の解釈は半分正しく半分間違いで、本当の原因は「手順」だった。未回収のまま次に回す。</p>
+
+<h2><span class="n">03</span>双曲線：今回も当たらず、別のものが見えた</h2>
+<p>第1回で、大バッチ学習の双曲線 (S − S_min)(E − E_min) = S_min E_min が ES で当たらなかった理由を「地形が簡単すぎて数ステップで届く」とした。50 次元、条件数 100、遠い出発点にして当て直した。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">各 N で η を 16 通りから最適化、目標 L &lt; 2、上限 4000 ステップ</span>
+<table>
+<tr><th class="num">N</th><th class="num">1〜8</th><th class="num">16</th><th class="num">32</th><th class="num">64</th><th class="num">128</th><th class="num">256</th><th class="num">512</th></tr>
+<tr><td class="num">S</td><td class="num">≥ 4000（打ち切り）</td><td class="num">2411</td><td class="num">1294</td><td class="num">653</td><td class="num">352</td><td class="num">128</td><td class="num">82</td></tr>
+<tr><td class="num">E = N·S</td><td class="num">—</td><td class="num">38,576</td><td class="num">41,424</td><td class="num">41,792</td><td class="num">44,992</td><td class="num">32,896</td><td class="num">42,240</td></tr>
+</table>
+</div>
+<p>今度は逆に難しすぎて、N ≤ 8 が 4000 ステップの上限に掛かり、双曲線の「ステップ数が多い側」が測れなかった。当てはめは意味を持たない。</p>
+<p>ただし副産物がある。<b>N = 16 から 512 まで、総サンプル数 E が 3.3〜4.5 万でほぼ一定。</b> N を 32 倍にしてもステップ数が 1/N で減り続け、臨界バッチサイズは 512 より大きい。第1回の「並列と逐次は η/N で交換できる」が、5 回の倍加にわたって成り立っている。双曲線の折れ曲がりは、この地形ではさらに先にある。</p>
+
+<h2><span class="n">04</span>回収の帳簿</h2>
+<table>
+<tr><th>項目</th><th>第1回・第4回での状態</th><th>この回の後</th></tr>
+<tr><td>一回ジャンプの公式</td><td>四次で 10%</td><td>六次でも 1%、r = 0.002 まで。<b>強化</b></td></tr>
+<tr><td>次数 → 指数の補題</td><td>候補</td><td><b>撤回</b>（到達可能な範囲では最高次が支配しない）</td></tr>
+<tr><td>Landauer の 1/τ</td><td>外れ、原因は障壁の高さ（解釈）</td><td>原因は手順。最適な手順で再挑戦が要る。<b>未決</b></td></tr>
+<tr><td>ES の双曲線</td><td>外れ、原因は簡単すぎる地形（解釈）</td><td>難しすぎて打ち切り。中間の地形と大きな上限で再挑戦。<b>未決</b></td></tr>
+<tr><td>η/N の交換則</td><td>N = 1〜8 で確認</td><td>N = 16〜512 でも成立。<b>強化</b></td></tr>
+</table>
+
+<h2><span class="n">05</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>補題の撤回は「この σ、この r の範囲で」。</b> r → 0 の漸近では最高次が支配して 1/3 になるはずだが、そこは τ が 10⁴ を超えて測れない。</li>
+<li><b>r = 0.001 の 1.6 倍のずれは説明していない。</b> 二回ジャンプの寄与、という読みは未確認。</li>
+<li><b>Landauer の「手順が原因」も、まだ解釈。</b> 最適な手順を実装して 1/τ が出て初めて閉じる。</li>
+<li><b>双曲線は二度続けて設計を外した。</b> 簡単すぎ、次に難しすぎ。中間を狙う設計（上限 2 万ステップ、条件数 10）が次。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>きれいな補題（次数 → 指数）は外れ、泥臭い公式（一回ジャンプ）は 1% で生き残った。</li>
+<li>Landauer の 1/τ は障壁の高さでは直らず、手順の問題。未決。</li>
+<li>双曲線は未決だが、η/N の交換則は N = 16〜512 で成立。</li>
+<li>未回収を放置しない回。閉じたのは三つのうち一つ、それも否定で。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+Landauer を Proesmans らの最適手順で ／ 双曲線を中間の難しさで（上限 2 万、条件数 10）／ r = 0.001 の 1.6 倍を二回ジャンプで説明できるか</div>
+
+<div class="foot">
+<ol>
+<li>Proesmans, Ehrich, Bechhoefer (2020) PRL 125, 100602（有限時間の最適消去）</li>
+<li>McCandlish, Kaplan, Amodei, OpenAI (2018)（第1回）／ Foss ら、単一大ジャンプ原理（第4回）</li>
+<li>スクリプト：<code>scripts/es_jump_sextic2.py</code>、<code>scripts/landauer2.py</code>、<code>scripts/hyperbola2.py</code>（出力 *_out.txt）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
