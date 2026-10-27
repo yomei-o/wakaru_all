@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>曖昧さが物理量になる</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 9 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>曖昧さが物理量になる
+<span class="sub">安定な井戸でも級数は曖昧で、負の確率は一層で生まれる</span></h1>
+<div class="byline">2026-10-27 ／ 第8回の末尾の二本を掘る。Zinn-Justin の二重井戸と、Moyal 方程式の ħ² 項。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>崩壊しない系でも、摂動級数は曖昧である。</b> 二重井戸の係数は全部同じ符号で、Borel 和は正の結合定数でも虚部を持つ。</li>
+<li><b>その虚部はインスタントン対の大きさで現れる。</b> 指数 −1/(3g)、大きさ (π/4)ΔE² の 1.1 倍。真のエネルギーが実なのは、級数の虚部とインスタントン対の虚部が相殺するから（Zinn-Justin）。</li>
+<li><b>負の確率を作るのは、Moyal 方程式の ħ² の一項だけ。</b> 古典流（Liouville）は正の分布を正に保ち、量子の再帰を失う。三階微分の一層を足すと、負の値が生まれ、再帰が戻る。</li>
+<li><b>第8回と合わせて、三つの「曖昧さ」が揃った。</b> 崩壊率（不安定な級数の虚部）、インスタントン対（安定な級数の虚部）、位相（負の確率）。どれも「正の実数で閉じない部分」の名前である。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>二重井戸の摂動級数は非 Borel 可和（係数が同符号）</td><td class="g-text">教科書（Zinn-Justin 1981）</td><td>e₁…e₃₅ 全部負、比 ≈ 3k</td></tr>
+<tr><td>側方 Borel 和の虚部 ∝ e^{−1/(3g)}、インスタントン対と相殺</td><td class="g-text">教科書（Zinn-Justin、Jentschura）</td><td>傾き −0.313（予想 −0.333）、(π/4)ΔE² の 1.1 倍</td></tr>
+<tr><td>一インスタントンの準位分裂 ΔE = (2/√(πg))e^{−1/(6g)}</td><td class="g-text">教科書</td><td>比 0.87〜0.62（O(g) 補正）</td></tr>
+<tr><td>Moyal 方程式は四次ポテンシャルで厳密、ħ² 項は三階微分</td><td class="g-text">教科書（Moyal 1949）</td><td>⟨x⟩(t) が Schrödinger と一致</td></tr>
+<tr><td>Liouville は正値を保ち、ħ² 項だけが負の確率を作る</td><td class="g-text">教科書</td><td>min W：Moyal −0.27、Liouville ≈ 0</td></tr>
+<tr><td>三階微分 = カーネル [−1, 3, −3, 1] の畳み込み一層</td><td class="g-story">この地図の語り</td><td>—</td></tr>
+<tr><td>三つの曖昧さは同じ型</td><td class="g-story">この地図の語り</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>安定な井戸の級数は、それでも曖昧</h2>
+<p>第8回の非調和振動子では、g &gt; 0 で級数は Borel 可和、g &lt; 0 で曖昧になり、曖昧さが崩壊率だった。二重井戸 V = x²(1 − √g x)²/2 は g &gt; 0 で安定だが、摂動級数の係数が<em>全部同じ符号</em>になる。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">Rayleigh–Schrödinger 漸化式（V₁ = −x³ が √g の一次、V₂ = x⁴/2 が二次）、70 次まで、60 桁精度</span>
+<p style="margin:.3em 0">奇数次は厳密に 0（E は g の関数だから）。e_k = 0.5, −1, −4.5, −44.5, −626.6, −11031, …、e₃₅/e₃₄ = 105 ≈ 3k。全部負なので Borel 変換の特異点は t = +1/3 の正の実軸上にあり、ラプラス積分がそれを跨ぐ。<em>安定な系なのに和が一意に決まらない</em>。</p>
+</div>
+<p>積分路を特異点の上と下に避けた二つの側方 Borel 和は、虚部の符号が逆の複素数になる。真の基底エネルギーは実数なので、この虚部を打ち消す何かが要る。それがインスタントン対（インスタントンと反インスタントン）の寄与で、その実部は ln g を含み、虚部は級数の虚部とちょうど逆符号になる、というのが Zinn-Justin (1981) の主張である。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">側方 Borel 和（Padé [17/17]）と、格子対角化の E₀、E₁</span>
+<table>
+<tr><th class="num">g</th><th class="num">ΔE = E₁ − E₀</th><th class="num">(E₀+E₁)/2 − Re Borel</th><th class="num">\|Im Borel\|</th><th class="num">Im / (π/4·ΔE²)</th><th class="num">実部 / Im</th></tr>
+<tr><td class="num">0.02</td><td class="num">1.67×10⁻³</td><td class="num">3.4×10⁻⁶</td><td class="num">2.35×10⁻⁶</td><td class="num">1.08</td><td class="num">1.44</td></tr>
+<tr><td class="num">0.03</td><td class="num">1.98×10⁻²</td><td class="num">4.7×10⁻⁴</td><td class="num">3.49×10⁻⁴</td><td class="num">1.13</td><td class="num">1.36</td></tr>
+<tr><td class="num">0.04</td><td class="num">6.09×10⁻²</td><td class="num">4.0×10⁻³</td><td class="num">3.38×10⁻³</td><td class="num">1.16</td><td class="num">1.19</td></tr>
+<tr><td class="num">0.05</td><td class="num">1.11×10⁻¹</td><td class="num">1.25×10⁻²</td><td class="num">1.07×10⁻²</td><td class="num">1.10</td><td class="num">1.17</td></tr>
+</table>
+<p style="margin:.3em 0">前因子を除いた指数：ln(Im·g) の 1/g に対する傾き −0.313（二インスタントンの作用 2S = 1/(3g) → −0.333）、ln(ΔE·√g) の傾き −0.156（一インスタントン S = 1/(6g) → −0.167）。実部/Im は Zinn-Justin のインスタントン対の実部 [ln(2/g) + γ]/π = 1.65〜1.36 と同じ大きさ・同じ傾向。</p>
+</div>
+<div class="keybox"><div class="lbl">核心</div>
+摂動級数は二つの準位の<em>平均</em>を、曖昧さ e^{−1/(3g)} の精度で与える。一インスタントンが準位を分裂させ（e^{−1/(6g)}）、インスタントン対が級数の曖昧さを埋める（e^{−1/(3g)}）。<em>崩壊しない系でも、級数の曖昧さは非摂動の寄与の正確な入れ物</em>である。</div>
+
+<h2><span class="n">02</span>負の確率はどこで生まれるか</h2>
+<p>第8回で、拡散が量子になれないのは負の確率を持てないからだと書いた。では負の確率はどこで生まれるか。Wigner 関数の時間発展は Moyal 方程式</p>
+$$\frac{\partial W}{\partial t} = -p\,\frac{\partial W}{\partial x} + V'(x)\frac{\partial W}{\partial p} - \frac{\hbar^2}{24}V'''(x)\frac{\partial^3 W}{\partial p^3} + O(\hbar^4)$$
+<p>で、四次ポテンシャルでは ħ² で打ち切った形が厳密である。最初の二項は古典の Liouville 方程式（位相空間の流れ）で、正の分布を正に保つ。<em>負の値を作れるのは三番目の項だけ</em>で、これは p 方向の三階微分、つまりカーネル [−1, 3, −3, 1]/dp³ の畳み込み一層である。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">V = x²/2 + 0.1x⁴、x₀ = 1.5 のコヒーレント状態。Moyal と Liouville は分割演算子法（位相を厳密に）、量子力学は Schrödinger 方程式を別の格子で</span>
+<table>
+<tr><th class="num">t</th><th class="num">⟨x⟩ Schrödinger</th><th class="num">⟨x⟩ Moyal</th><th class="num">⟨x⟩ Liouville</th><th class="num">min W Moyal</th><th class="num">min W Liouville</th></tr>
+<tr><td class="num">0</td><td class="num">1.500</td><td class="num">1.500</td><td class="num">1.500</td><td class="num">0.000</td><td class="num">0.000</td></tr>
+<tr><td class="num">4</td><td class="num">0.897</td><td class="num">0.937</td><td class="num">0.877</td><td class="num">−0.151</td><td class="num">−0.006</td></tr>
+<tr><td class="num">8</td><td class="num">0.002</td><td class="num">0.061</td><td class="num">0.038</td><td class="num">−0.210</td><td class="num">−0.005</td></tr>
+<tr><td class="num">12</td><td class="num">−0.188</td><td class="num">−0.164</td><td class="num">−0.124</td><td class="num">−0.252</td><td class="num">−0.014</td></tr>
+<tr><td class="num">18</td><td class="num">−0.133</td><td class="num">−0.145</td><td class="num">−0.034</td><td class="num">−0.184</td><td class="num">−0.037</td></tr>
+<tr><td class="num">24</td><td class="num">−0.236</td><td class="num">−0.274</td><td class="num">−0.031</td><td class="num">−0.216</td><td class="num">−0.048</td></tr>
+</table>
+</div>
+<ul>
+<li><b>Liouville は t ≈ 10 以降で量子力学から離れ、⟨x⟩ が 0 に潰れる。</b> 非調和性で位相空間の分布がぐるぐる巻きになり（古典的な位相のずれ）、平均が消える。</li>
+<li><b>Moyal は再帰を保つ。</b> t = 24 で ⟨x⟩ = −0.27（Schrödinger −0.24）。ずれは格子と分割の誤差。</li>
+<li><b>負の値は ħ² 項が作る。</b> Moyal の min W は −0.15 〜 −0.27、Liouville は −0.05 以下（スペクトル法の数値的な振動で、物理ではない）。</li>
+</ul>
+<p>第2回の「深さ = 時間の CNN」で言えば、量子と古典の違いは<em>一層のカーネルの違い</em>である。古典流のカーネル（一階微分）に三階微分のカーネルを一つ足すと、負の確率が生まれ、再帰が戻る。第8回の「節 = 負の確率」の、生成の側の話がこれになる。</p>
+
+<h2><span class="n">03</span>三つの曖昧さ</h2>
+<table>
+<tr><th></th><th>不安定な級数（第8回）</th><th>安定な級数（この回）</th><th>拡散と量子（第8回・この回）</th></tr>
+<tr><td>正の実数の範囲で閉じようとすると</td><td>Borel 和に虚部</td><td>Borel 和に虚部</td><td>二時刻相関が出ない</td></tr>
+<tr><td>曖昧さの大きさ</td><td>e^{−S}</td><td>e^{−2S}</td><td>Wigner の負の体積</td></tr>
+<tr><td>それが運ぶ物理</td><td>崩壊率 Γ/2</td><td>インスタントン対（準位の平均の補正）</td><td>位相、干渉、再帰</td></tr>
+<tr><td>作る操作</td><td>積分路を上下に避ける</td><td>同じ</td><td>ħ² の三階微分の一層</td></tr>
+<tr><td>確かめた精度</td><td>比 1.000</td><td>比 1.1、指数 −0.313/−0.333</td><td>符号つきで両立、古典流は潰れる</td></tr>
+</table>
+<p>どれも「正の実数で閉じない部分に、物理が入っている」という同じ形をしている。超準解析（第7回）の言い方なら、標準部分が一意に決まらないときの不定性が物理量である。</p>
+
+<h2><span class="n">04</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>二重井戸の係数 1.1 と 1.4 は「定数まで一致」ではない。</b> O(g) の補正を追っていない。確かめたのは指数と桁、そして相殺の構造まで。Zinn-Justin–Jentschura の厳密な予想（級数とインスタントン展開を全次数で結ぶ関係式）の検証には、もっと小さい g と高次の係数が要る。</li>
+<li><b>Moyal の ⟨x⟩ は Schrödinger と 0.03〜0.1 ずれる。</b> 位相空間の格子（160²、箱 ±5）と分割の二次の誤差。t = 2 で 7% のずれがあり、格子を倍にして確かめるべきだが、今日はしていない。</li>
+<li><b>Liouville の min W が −0.05 まで落ちるのは数値的な振動。</b> スペクトル法は正値性を厳密には保たない。物理的な負値 −0.2 とは桁が違うので結論は変わらないが、「厳密に 0」ではない。</li>
+<li><b>最初の二つの版は壊れていた。</b> Runge–Kutta では三階微分の項が硬すぎて発散し（CFL）、分割演算子法に書き直した。さらに係数の配列を誤って三次元に広げ、一歩 0.5 秒かかっていた。どちらも直してから出した数値である。</li>
+<li><b>「三つの曖昧さは同じ型」は語り。</b> 負の確率と Borel 可和性を結ぶ定理は知らない。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>二重井戸の級数は安定でも曖昧で、曖昧さはインスタントン対の大きさ（e^{−1/(3g)}、(π/4)ΔE² の 1.1 倍）。真のエネルギーが実なのは相殺の結果。</li>
+<li>負の確率は Moyal 方程式の ħ² の三階微分項、つまり一層のカーネルが作る。古典流は正値を保ち、再帰を失う。</li>
+<li>崩壊率、インスタントン対、位相。三つとも「正の実数で閉じない部分」の名前。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+Zinn-Justin–Jentschura の関係式を小さい g・高次で検証する ／ Moyal の格子を倍にして誤差を確定する ／ 負の確率を許す「準確率の拡散」で第8回の二時刻相関が出るか ／ 符号問題（第7回で触れた NP 困難の壁）と負の確率の関係</div>
+
+<div class="foot">
+<ol>
+<li>Zinn-Justin (1981) Nucl. Phys. B 192, 125 ／ Zinn-Justin & Jentschura (2004) Ann. Phys. 313, 197 ／ Bogomolny (1980)</li>
+<li>Moyal (1949) ／ Wigner (1932) ／ Hillery, O'Connell, Scully, Wigner (1984) Phys. Rep. 106, 121</li>
+<li>スクリプト：<code>scripts/double_well_resurgence.py</code>、<code>scripts/moyal_cnn.py</code>（出力 *_out.txt）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
