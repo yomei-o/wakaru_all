@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>記憶の値段</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 13 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>記憶の値段
+<span class="sub">予測に効かない記憶は、熱になる ── 学習の熱力学を一粒の粒子で測る</span></h1>
+<div class="byline">2026-10-27 ／ 第4回の Landauer（1 ビットを消す値段）と第5回の「学習の熱力学」をつなぐ。全部ガウス過程にして情報量を厳密に出す。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>信号を追いかける系は、信号についての記憶を持つ。</b> その記憶のうち、次の信号の予測に効かない分（非予測的な情報）が、散逸する仕事の下限になる（Still–Sivak–Bell–Crooks 2012）。</li>
+<li><b>不等式は全 12 条件で成り立ち、破れなかった。</b> 比 W_diss / (I_mem − I_pred) は 1.14 〜 5.2。</li>
+<li><b>きつくなるのは、信号が予測しやすく、系がゆっくり追うとき</b>（比 1.14〜1.23）。緩むのは、系が信号を精密に追いすぎるとき（比 4.7〜5.2）。細部まで覚えると、覚えた分だけ熱を払う。</li>
+<li><b>これは学習の過適合の熱力学版である。</b> 予測に効かない細部を覚えることは、情報の無駄ではなく、エネルギーの無駄として測れる。LLM の文脈の記憶にも同じ不等式が当てはまる（ただし測る道具がまだない）。</li>
+</ol>
+</div>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>W_diss ≥ kT (I_mem − I_pred)</td><td class="g-text">教科書（Still ら 2012、PRL）</td><td>12 条件で成立、比 1.14〜5.2</td></tr>
+<tr><td>ガウス過程の相互情報量 = −½ ln(1 − r²)</td><td class="g-text">教科書</td><td>—</td></tr>
+<tr><td>トラップの平行移動では ΔF = 0、散逸 = 平均仕事</td><td class="g-text">教科書（確率熱力学）</td><td>—</td></tr>
+<tr><td>「精密に追うほど緩む」= 過適合の熱力学</td><td class="g-story">この地図の語り</td><td>k = 10 で比 4.7</td></tr>
+<tr><td>LLM の文脈記憶への当てはめ</td><td class="g-story">語り（未測定）</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>設計：全部ガウスにする</h2>
+<p>情報量を推定で濁らせないため、系を全部ガウス過程にする。信号 x_t は相関 a の Ornstein–Uhlenbeck 過程（分散 1）。系は、中心が x_t にあるばね定数 k の調和トラップに入った過減衰のブラウン粒子で、温度 T = 1。一歩ごとに (1) トラップの中心が x_t から x_{t+1} に跳ぶ（このとき粒子に仕事 W = k/2[(s − x_{t+1})² − (s − x_t)²] がなされる）、(2) 粒子が新しいトラップの中で時間 τ だけ緩和する（厳密な OU の緩和）。粒子の位置 s_t が「系の記憶」である。</p>
+<p>測るのは三つ。記憶の情報量 I_mem = I(s_t; x_t)、予測に効く情報量 I_pred = I(s_t; x_{t+1})、散逸した仕事 W_diss（トラップの平行移動では自由エネルギーが変わらないので、平均の仕事そのもの）。ガウスなので I = −½ ln(1 − r²) が厳密で、r は相関係数。主張は</p>
+$$W_{\rm diss} \;\ge\; k_BT\,\big[I(s_t;x_t) - I(s_t;x_{t+1})\big]$$
+<p>右辺は「覚えているが、次を当てるのに役立たない情報」。それが熱の下限になる、というのが Still らの定理である。第4回の Landauer（1 ビットを消すのに kT ln 2）は、この不等式の「記憶を全部捨てる」場合にあたる。</p>
+
+<h2><span class="n">02</span>結果</h2>
+<div class="calc"><span class="tag">計算</span><span class="lbl">40 万ステップ、一歩あたりの量（nat）、T = 1</span>
+<table>
+<tr><th class="num">信号の相関 a</th><th class="num">k</th><th class="num">kτ</th><th class="num">I_mem</th><th class="num">I_pred</th><th class="num">非予測 = I_mem − I_pred</th><th class="num">W_diss</th><th class="num">比</th></tr>
+<tr><td class="num">0.5</td><td class="num">1</td><td class="num">0.2</td><td class="num">0.039</td><td class="num">0.009</td><td class="num">0.030</td><td class="num">0.152</td><td class="num">5.2</td></tr>
+<tr><td class="num">0.5</td><td class="num">1</td><td class="num">1</td><td class="num">0.224</td><td class="num">0.048</td><td class="num">0.177</td><td class="num">0.389</td><td class="num">2.2</td></tr>
+<tr><td class="num">0.5</td><td class="num">1</td><td class="num">5</td><td class="num">0.348</td><td class="num">0.067</td><td class="num">0.281</td><td class="num">0.500</td><td class="num">1.8</td></tr>
+<tr><td class="num">0.5</td><td class="num">10</td><td class="num">5</td><td class="num">1.196</td><td class="num">0.128</td><td class="num">1.067</td><td class="num">4.994</td><td class="num">4.7</td></tr>
+<tr><td class="num">0.5</td><td class="num">0.2</td><td class="num">1</td><td class="num">0.055</td><td class="num">0.013</td><td class="num">0.042</td><td class="num">0.078</td><td class="num">1.9</td></tr>
+<tr><td class="num">0.9</td><td class="num">1</td><td class="num">0.2</td><td class="num">0.171</td><td class="num">0.133</td><td class="num">0.038</td><td class="num">0.070</td><td class="num">1.9</td></tr>
+<tr><td class="num">0.9</td><td class="num">1</td><td class="num">1</td><td class="num">0.313</td><td class="num">0.238</td><td class="num">0.076</td><td class="num">0.094</td><td class="num">1.23</td></tr>
+<tr><td class="num">0.9</td><td class="num">1</td><td class="num">5</td><td class="num">0.346</td><td class="num">0.258</td><td class="num">0.088</td><td class="num">0.101</td><td class="num"><b>1.15</b></td></tr>
+<tr><td class="num">0.9</td><td class="num">10</td><td class="num">5</td><td class="num">1.195</td><td class="num">0.666</td><td class="num">0.529</td><td class="num">0.994</td><td class="num">1.9</td></tr>
+<tr><td class="num">0.9</td><td class="num">0.2</td><td class="num">1</td><td class="num">0.080</td><td class="num">0.064</td><td class="num">0.016</td><td class="num">0.019</td><td class="num"><b>1.14</b></td></tr>
+</table>
+</div>
+<ul>
+<li><b>不等式は破れない。</b> 比はすべて 1 以上。</li>
+<li><b>きついのは、信号が予測しやすく（a = 0.9）、系がゆるく追う（k = 0.2〜1）とき。</b> 比 1.14〜1.23。このとき記憶の大半が予測に効いていて（I_pred / I_mem ≈ 0.75〜0.8）、無駄な記憶が少ない。</li>
+<li><b>緩むのは、系が信号を精密に追いすぎるとき。</b> k = 10 では I_mem = 1.2 nat と多くを覚えるが、a = 0.5 の信号は半分が雑音なので I_pred は 0.13 しかない。覚えた 1.07 nat は全部無駄で、散逸は 5 kT。比 4.7。</li>
+<li><b>予測できない信号（a = 0.5）は、どう追っても損。</b> 非予測の情報がほぼ記憶の全部になる。</li>
+</ul>
+
+<h2><span class="n">03</span>読み：過適合の熱力学</h2>
+<p>k が大きいトラップは、信号の細部（次の瞬間には消える雑音）まで忠実に覚える。それは学習でいう過適合で、普通は「汎化誤差」で測る。この不等式は、同じことを<em>熱</em>で測る。覚えた細部のうち予測に効かない分は、kT を単位として必ず熱になる。</p>
+<p>第5回の四行目に「LLM の文脈のうち次の単語に効かない部分を覚えておくことが、そのまま熱のコストになる」と書いた。ここで見たのはその一粒子版で、不等式の形はそのまま LLM に当てはまる。違うのは、LLM では I_mem と I_pred を測る道具がまだ無いことだけである（文脈の情報量の推定は、第5回の正直な線に書いたとおり届いていない）。</p>
+<p>線として：第1回の温度（η/N）、第4回の Landauer（kT ln 2）、この回の非予測情報（kT × nat）。三つとも「情報 1 単位 = kT」という換算で、k_B は情報と熱の両替レートである（『わかる温度』第1回の k_B と同じ）。</p>
+
+<h2><span class="n">04</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>下限は緩い。</b> 一番きつい場合でも 1.14 で、等号には届かない。Still らは「等号は系が最適な予測器のとき」としているが、調和トラップは最適な予測器ではない（最適はカルマンフィルタ）。等号を見るには系の設計を変える必要がある。</li>
+<li><b>一粒子・ガウス・一歩先の予測だけ。</b> 多段先の予測、非ガウスの信号、多自由度の系は見ていない。</li>
+<li><b>W_diss = 平均仕事 と置いたのは、トラップの平行移動で ΔF = 0 だから。</b> 剛性が変わる操作では ΔF を別に計算する必要がある。</li>
+<li><b>LLM への当てはめは語り。</b> 不等式自体は一般（マルコフ的な駆動系なら成り立つ）だが、LLM で I_mem と I_pred を測った人はいない。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>予測に効かない記憶は熱の下限になる。12 条件で不等式は成立、比 1.14〜5.2。</li>
+<li>信号を精密に追いすぎると、覚えた細部が全部熱になる（過適合の熱力学）。</li>
+<li>情報 1 nat = kT。温度、Landauer、非予測情報は同じ換算の三つの顔。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+系をカルマンフィルタ（最適な予測器）にして等号に近づけるか ／ 小さな言語モデルで文脈の I_mem と I_pred を推定する（情報量の推定が難所）／ 第4回の Landauer を最適な手順で回して 1/τ の領域に入れるか（未回収）</div>
+
+<div class="foot">
+<ol>
+<li>Still, Sivak, Bell, Crooks (2012) Phys. Rev. Lett. 109, 120604 ／ Sekimoto『確率エネルギー論』／ Seifert (2012) Rep. Prog. Phys. 75, 126001</li>
+<li>Landauer (1961) ／ Bérut ら (2012)（第4回）</li>
+<li>スクリプト：<code>scripts/thermo_prediction.py</code>（出力 <code>thermo_prediction_out.txt</code>）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
