@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>無限小で物理を書く</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  --ink:#1a1c22; --ink-soft:#4a4d57; --paper:#fdfcf8; --paper-edge:#ebe8e0;
+  --acc:#2f6f73; --acc-soft:#e3efee;
+  --calc:#f4f2ea; --calc-line:#c9c3b0;
+  --side:#eef4ea; --side-line:#7d9a6c;
+  --warn:#f7efe4; --warn-line:#a0764a;
+  --ok:#2e7d4f; --bad:#a33b2b; --mid:#8a6d1f;
+  --rule:#d8d3c6;
+}
+*{box-sizing:border-box}
+html{background:var(--paper-edge)}
+body{margin:0;background:var(--paper-edge);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  font-size:17px;line-height:1.92}
+.sheet{max-width:770px;margin:40px auto;background:var(--paper);
+  padding:64px 70px 90px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+.series{font-size:13px;letter-spacing:.18em;color:var(--acc)}
+.eyebrow{font-size:14px;color:var(--ink-soft);margin-top:4px}
+h1{font-size:30px;line-height:1.45;margin:.3em 0 .2em}
+h1 .sub{display:block;font-size:17px;font-weight:normal;color:var(--ink-soft);margin-top:.4em}
+.byline{font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.lead{font-size:17.5px}
+h2{font-size:22px;margin:2.4em 0 .6em;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h2 .n{display:inline-block;font-size:14px;color:#fff;background:var(--acc);
+  padding:0 8px;margin-right:10px;border-radius:2px;vertical-align:3px;font-family:sans-serif}
+h3{font-size:18px;margin:1.8em 0 .4em;color:var(--acc)}
+em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc-soft) 62%)}
+p{margin:.7em 0}
+.keybox{border:1.5px solid var(--acc);padding:14px 20px;margin:1.4em 0;background:#fff}
+.keybox .lbl,.calc .lbl,.aside .lbl,.caveat .lbl,.record .lbl,.next .lbl{
+  font-family:sans-serif;font-size:12px;letter-spacing:.12em;font-weight:bold}
+.keybox .lbl{color:var(--acc)}
+.calc{background:var(--calc);border-left:4px solid var(--calc-line);padding:12px 18px;margin:1.3em 0}
+.calc .tag{font-family:sans-serif;font-size:11px;background:var(--calc-line);color:#fff;padding:1px 6px;margin-right:6px;border-radius:2px}
+.aside{background:var(--side);border-left:4px solid var(--side-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.aside .lbl{color:var(--side-line)}
+.caveat{background:var(--warn);border-left:4px solid var(--warn-line);padding:12px 18px;margin:1.3em 0;font-size:16px}
+.caveat .lbl{color:var(--warn-line)}
+.record{border:1px solid var(--ink);padding:14px 20px;margin:2em 0}
+.next{border-top:1px dashed var(--rule);margin-top:2.4em;padding-top:12px;font-size:16px}
+.next .lbl{color:var(--acc)}
+.divider{text-align:center;color:var(--ink-soft);letter-spacing:1em;margin:2em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;line-height:1.6}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f3f1ea;font-family:sans-serif;font-size:12.5px;font-weight:bold}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"Consolas","Menlo",monospace}
+.g-text{color:var(--ok);font-weight:bold}
+.g-real{color:var(--mid);font-weight:bold}
+.g-story{color:var(--acc);font-weight:bold}
+.g-fit{color:var(--bad);font-weight:bold}
+.fig{margin:1.6em 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+pre.flow{font-family:"Consolas","Menlo",monospace;font-size:13px;line-height:1.55;background:var(--calc);padding:10px 14px;overflow-x:auto}
+.foot{font-size:13px;color:var(--ink-soft);border-top:1px solid var(--rule);margin-top:3em;padding-top:10px}
+.foot ol{padding-left:1.4em}
+code{font-family:"Consolas","Menlo",monospace;font-size:.88em;background:var(--calc);padding:0 4px}
+@media (max-width:640px){
+  .sheet{margin:0;padding:28px 16px 50px;box-shadow:none}
+  h1{font-size:24px}
+  table{font-size:13px;display:block;overflow-x:auto}
+}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff}
+  body{font-size:11pt;line-height:1.75}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none}
+  h2{break-after:avoid}
+  .keybox,.calc,.aside,.caveat,.record,table,.fig,pre.flow{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<div class="series">考えるAIと物理 ── 第 7 回</div>
+<div class="eyebrow">AI・計算 × 物理の境界を、点でなく線で辿る</div>
+<h1>無限小で物理を書く
+<span class="sub">超準解析 ── 新しい数は出ない、でも「何を問うているか」が短くなる</span></h1>
+<div class="byline">2026-10-27 ／ このシリーズの出発点だった「ES を超準解析で読む」小論に、一周回って戻る。検証は付録に</div>
+
+<div class="keybox"><div class="lbl">四行の要約</div>
+<ol style="margin:.3em 0;padding-left:1.4em">
+<li><b>超準解析は新しい定理を作らない</b>（保存性定理）。作るのは、同じ結果へのずっと短い道である。「何も言わない、計算がたまに楽になるだけ」── c·t=const と同じ種類の価値。</li>
+<li><b>繰り込みとは、無限小と無限大の積のうち、どれが標準部分を持つかの帳簿づけ。</b> 幅が無限小の井戸一個で、結合定数が走ることが 1/π の傾きで出る。</li>
+<li><b>発散する摂動級数は、無限小の結合定数での本物の級数。</b> 打ち切りの曖昧さが、ちょうど非摂動（インスタントン）の寄与の大きさになる。</li>
+<li><b>超有限の格子は連続体と区別できない</b>（移行原理）。経路積分は超有限の積として定義でき、標準部分が厳密解に一致する。「CD とレコードは区別できない」は定理である。</li>
+</ol>
+</div>
+
+<p class="lead">第1回で、ES の「無限個のサンプル」を超準解析で読む小論から出発した。そのときは「小論は超準解析を使っていない」と書いた。七回かけて線を引いた今、超準解析が本当に効く場所がどこかを、計算で確かめる。</p>
+
+<h2><span class="n">00</span>先に仕分け表</h2>
+<table>
+<tr><th>線</th><th>格付け</th><th>この日の検証</th></tr>
+<tr><td>保存性定理：超準解析で証明できる標準の定理は、なしでも証明できる</td><td class="g-text">教科書（Robinson 1966、Nelson 1977）</td><td>—</td></tr>
+<tr><td>2 次元の δ 井戸は固定 g で標準部分を持たず、g·ln(1/ε) だけが有限</td><td class="g-text">教科書（Albeverio ら 1986）</td><td>傾き 0.3183 vs 1/π</td></tr>
+<tr><td>最適打ち切りの誤差 = インスタントン e^{−1/4g}</td><td class="g-text">教科書（Dyson 1952、Bender–Wu 1969）</td><td>指数一致、前因子は √g 程度</td></tr>
+<tr><td>resurgence：級数の曖昧さが非摂動の寄与を決める</td><td class="g-real">Écalle 1981、物理では 2010 年代〜</td><td>一変数の積分でのみ</td></tr>
+<tr><td>次元正則化の ε は無限小、1/ε は無限大の数</td><td class="g-story">語り（計算は教科書）</td><td>d = 2 − ε の井戸</td></tr>
+<tr><td>経路積分 = 超有限の積、標準部分 = Mehler 核</td><td class="g-text">教科書（Anderson 1976、Loeb 測度）</td><td>8×10⁻⁸ で一致</td></tr>
+<tr><td>「CD とレコードは区別できない」= 移行原理</td><td class="g-text">教科書（Nelson 1987）</td><td>—</td></tr>
+</table>
+
+<h2><span class="n">01</span>保存性定理 ── 何も言わない、が証明されている</h2>
+<p>超準解析は、実数に無限小と無限大を付け加えた超実数の体系で、Robinson (1966) が無矛盾性を示した。要となる定理が二つある。</p>
+<ul>
+<li><b>移行原理。</b> 実数について成り立つ（一階の）命題は、超実数についてもそのまま成り立つ。逆も。</li>
+<li><b>保存性。</b> 超準解析を使って証明した標準の命題は、使わなくても証明できる（Nelson の IST は ZFC の保存拡大）。</li>
+</ul>
+<p>つまり、超準解析は<em>新しい数も新しい定理も生まない</em>。生むのは、ε-δ の論法を「無限小 ε について計算し、最後に標準部分 st(·) を取る」という一本の手順に置き換える、短い道である。これは第1回で書いた c·t=const の位置づけ ──「何も言わない。ただ計算がたまに楽になるだけ」── と、同じ種類の価値である。以下、楽になる場所を四つ、計算で見る。</p>
+
+<h2><span class="n">02</span>繰り込みは、標準部分の帳簿づけ</h2>
+<p>幅 ε、積分した強さ g の井戸（2 次元、ħ = m = 1）の束縛エネルギーを求める。δ ポテンシャルを「幅が無限小で深さが無限大の井戸」として定義し、標準部分があるかを問う。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">内側 J₀(kr)、外側 K₀(κr) を r = ε で接続</span>
+<table>
+<tr><th class="num">ε</th><th class="num">E（g = 0.5）</th><th class="num">E（g = 1）</th><th class="num">E（g = 2）</th></tr>
+<tr><td class="num">1</td><td class="num">−3.6×10⁻⁶</td><td class="num">−2.0×10⁻³</td><td class="num">−5.1×10⁻²</td></tr>
+<tr><td class="num">0.01</td><td class="num">−3.6×10⁻²</td><td class="num">−2.0×10¹</td><td class="num">−5.1×10²</td></tr>
+<tr><td class="num">0.0001</td><td class="num">−3.6×10²</td><td class="num">−2.0×10⁵</td><td class="num">−5.1×10⁶</td></tr>
+</table>
+<p style="margin:.3em 0">|E| ∝ (1/ε²)·e^{−2π/g}。ε を無限小にすると E は −∞ に飛び、<em>固定した g では標準部分を持たない</em>。</p>
+</div>
+<p>存在させるには、g を ε に連動した無限小にして、積だけを有限に保つしかない。E = −1 を固定して g(ε) を解くと：</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">走る結合定数</span>
+<table>
+<tr><th class="num">ε</th><th class="num">g(ε)</th><th class="num">1/g</th><th class="num">ln(1/ε)</th><th class="num">Δ(1/g)/Δln(1/ε)</th></tr>
+<tr><td class="num">10⁻²</td><td class="num">0.679</td><td class="num">1.47</td><td class="num">4.61</td><td class="num">0.3157</td></tr>
+<tr><td class="num">10⁻⁴</td><td class="num">0.340</td><td class="num">2.94</td><td class="num">9.21</td><td class="num">0.3182</td></tr>
+<tr><td class="num">10⁻⁶</td><td class="num">0.227</td><td class="num">4.40</td><td class="num">13.82</td><td class="num">0.3183</td></tr>
+</table>
+<p style="margin:.3em 0">傾きは 1/π = 0.3183。一行の積分 1 = g∫d²k/(2π)²/(k²/2+|E|) の予言と 4 桁一致（最初に書いた予言は係数を 2 倍間違えていて、数値の方が正しかった）。</p>
+</div>
+<div class="keybox"><div class="lbl">核心</div>
+裸の結合定数 g は<em>無限小</em>、カットオフ 1/ε は<em>無限大</em>、その積 g·ln(1/ε) だけが標準部分を持ち、それが観測される物理。第6回で箱を倍にするごとに結合定数が走ったのと同じ現象が、井戸一個で出る。繰り込みとは「どの無限小と無限大の積が標準部分を持つか」の帳簿づけである。</div>
+
+<h2><span class="n">03</span>発散級数は、無限小の g での本物の級数</h2>
+<p>摂動級数は n! で発散する（Dyson 1952）。一番簡単な例 Z(g) = ∫e^{−x²/2 − gx⁴/4}dx/√2π の級数 Σcₙgⁿ は cₙ/cₙ₋₁ ≈ −4n。超準解析の読みでは、g が無限小なら超有限項までの和には標準部分があり、どこで止めるかの曖昧さだけが残る。その曖昧さの大きさを測る。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">最適な打ち切りでの誤差と、インスタントン e^{−1/4g}（鞍点 x² = −1/g の寄与）</span>
+<table>
+<tr><th class="num">g</th><th class="num">最適 N</th><th class="num">誤差</th><th class="num">e^{−1/4g}</th><th class="num">比</th></tr>
+<tr><td class="num">0.02</td><td class="num">12</td><td class="num">2.9×10⁻⁷</td><td class="num">3.7×10⁻⁶</td><td class="num">0.08</td></tr>
+<tr><td class="num">0.05</td><td class="num">5</td><td class="num">8.0×10⁻⁴</td><td class="num">6.7×10⁻³</td><td class="num">0.12</td></tr>
+<tr><td class="num">0.1</td><td class="num">2</td><td class="num">1.3×10⁻²</td><td class="num">8.2×10⁻²</td><td class="num">0.16</td></tr>
+<tr><td class="num">0.2</td><td class="num">1</td><td class="num">5.8×10⁻²</td><td class="num">2.9×10⁻¹</td><td class="num">0.20</td></tr>
+</table>
+<p style="margin:.3em 0">指数はぴったり合い、前因子は g のべき（√g 程度）。</p>
+</div>
+<p><em>級数からどうやっても取り除けない誤差が、非摂動の寄与と同じ大きさ</em>。摂動級数は非摂動の情報を「足せない部分」として持っている。これを体系化したのが resurgence（Écalle 1981）で、第3回の定理 2 が β = 0.3 で壊れたのも、この同じ壁である。</p>
+
+<h2><span class="n">04</span>次元を無限小だけずらす</h2>
+<p>次元正則化の d = 4 − ε は、ε を無限小と読めばそのまま超準解析になる。1/ε の極は「無限大の数」、MS-bar は「無限大の部分を引いてから標準部分を取る」の正式名称。第2回 の井戸を d = 2 − ε 次元に置くと、d &lt; 2 では繰り込みが要らず、束縛エネルギーがカットオフなしで決まる：|E| = (1/gC_d)^{2/(2−d)}。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">g = 1</span>
+<table>
+<tr><th class="num">ε</th><th class="num">d</th><th class="num">\|E\|</th><th class="num">指数 2/(2−d)</th></tr>
+<tr><td class="num">0.5</td><td class="num">1.5</td><td class="num">1.4</td><td class="num">4</td></tr>
+<tr><td class="num">0.1</td><td class="num">1.9</td><td class="num">2.4×10⁻¹¹</td><td class="num">20</td></tr>
+<tr><td class="num">0.01</td><td class="num">1.99</td><td class="num">7.6×10⁻³⁰²</td><td class="num">200</td></tr>
+</table>
+<p style="margin:.3em 0">ε → 0 で |E| → 0。「g が標準の数なら標準部分は 0」で、第2回 のカットオフ版と同じ判定。指数 2/(2−d) → ∞ が、第2回 の e^{−2π/g} に化ける。</p>
+</div>
+
+<h2><span class="n">05</span>経路積分は超有限の積</h2>
+<p>ファインマンの経路積分は、一般には測度として定義できない。だが時間を超有限個 N に刻んだ積 (K_ε)^N なら定義は自明で、問題は「標準部分があるか」だけになる（Anderson 1976 の Loeb 測度）。調和振動子（ħ = m = ω = 1、虚時間 T = 2）で、標準部分が厳密解（Mehler 核）に一致するかを見る。</p>
+<div class="calc"><span class="tag">計算</span><span class="lbl">K_ε(x,y) = (2πε)^{−1/2} exp[−(x−y)²/2ε − ε(V(x)+V(y))/2] を N 回掛ける</span>
+<table>
+<tr><th class="num">N</th><th class="num">ε = T/N</th><th class="num">max \|K_N − Mehler\|</th><th class="num">K_N(0,0)</th><th class="num">−ln Z/T</th></tr>
+<tr><td class="num">4</td><td class="num">0.5</td><td class="num">5.5×10⁻³</td><td class="num">0.21493</td><td class="num">0.42062</td></tr>
+<tr><td class="num">64</td><td class="num">0.031</td><td class="num">2.2×10⁻⁵</td><td class="num">0.20950</td><td class="num">0.42727</td></tr>
+<tr><td class="num">1024</td><td class="num">0.002</td><td class="num">8.5×10⁻⁸</td><td class="num">0.209481</td><td class="num">0.42729</td></tr>
+<tr><td class="num">厳密</td><td class="num"></td><td class="num"></td><td class="num">0.209481</td><td class="num">0.42729</td></tr>
+</table>
+<p style="margin:.3em 0">誤差は 1/N² で消える（対称な分割）。−ln Z/T は T → ∞ で基底エネルギー 0.5 に行く量で、T = 2 での厳密値 0.42729 と一致。</p>
+</div>
+<p>これは第2回の「深さ = 虚時間の CNN」そのものでもある。1 層が K_ε、N 層が経路積分。超準解析は、その N を超有限にしたときの「層を重ねきった極限」に名前を付けている。</p>
+
+<h2><span class="n">06</span>CD とレコードは区別できない</h2>
+<p>Nelson (1987) の radically elementary の立場：連続体を「無限小間隔の超有限格子」で置き換えても、標準的な観測では一切区別できない。これは移行原理から出る定理である。ブラウン運動は無限小の歩幅 ±√dt の超有限回のランダムウォークで、伊藤の公式 (dW)² = dt は近似ではなく等式になる。第1回の η/N の交換則（η 無限小、N 超有限で SDE）は Anderson の定理の一行である。</p>
+<p>第1回で触れた c·t=const の立場には「離散も連続もとっていない。CD とレコードは区別できない」という一行が付いている。それは超準解析という名前の数学で、定理として裏付けられている。</p>
+
+<h2><span class="n">07</span>換算表</h2>
+<table>
+<tr><th>超準解析</th><th>物理での名前</th><th>節</th></tr>
+<tr><td>無限小 ε</td><td>格子間隔、井戸の幅、次元のずれ d − 4、ES の σ</td><td>02、04</td></tr>
+<tr><td>無限大 1/ε</td><td>カットオフ Λ、次元正則化の極</td><td>02、04</td></tr>
+<tr><td>無限小と無限大の積のうち標準部分を持つもの</td><td>繰り込まれた結合定数、観測量</td><td>02</td></tr>
+<tr><td>標準部分を取る操作 st(·)</td><td>連続極限、MS-bar</td><td>02、04、05</td></tr>
+<tr><td>超有限和の打ち切りの曖昧さ</td><td>インスタントン、非摂動の寄与</td><td>03</td></tr>
+<tr><td>超有限の積</td><td>経路積分、深い CNN</td><td>05</td></tr>
+<tr><td>超有限格子 ≡ 連続体（移行原理）</td><td>「CD とレコードは区別できない」</td><td>06</td></tr>
+<tr><td>保存性定理</td><td>「何も言わない、計算が楽になるだけ」</td><td>01</td></tr>
+</table>
+
+<h2><span class="n">08</span>正直な線</h2>
+<div class="caveat"><div class="lbl">どこで線が切れるか</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li><b>新しい数は一つも出ていない。</b> 保存性定理のとおり。この回の価値は全部「問いの短さ」にある。</li>
+<li><b>Yang–Mills は解けない。</b> 超有限格子で定義すれば「定義は自明」になるが、その標準部分が存在して自明でないことを示す仕事は、元の問題と同じ難しさで残る。難しさは消えず、置き場所が変わるだけ。</li>
+<li><b>03 は一変数の積分。</b> 場の理論の級数で resurgence が同じ形で働くかは、現在進行中の研究。</li>
+<li><b>第4回 の「ε は無限小」は語り。</b> 次元正則化を超準解析で厳密に定式化した標準的な文献はない（計算は普通の数学で閉じている）。</li>
+<li><b>出発点の小論への答え。</b> ES の「無限個のサンプル」を超準解析で読むなら、言うべきは「σ が無限小、N が超有限で、推定量の標準部分が ∇L」という一行で、それは Anderson の定理の系である。小論の 3 節に欠けていたのは、この一行だった。</li>
+</ul></div>
+
+<div class="record"><div class="lbl">まとめ</div>
+<ul style="margin:.3em 0;padding-left:1.2em">
+<li>超準解析は新しい定理を作らない。作るのは短い道で、c·t=const と同じ種類の価値。</li>
+<li>繰り込み = 無限小と無限大の積のうち標準部分を持つものの帳簿。井戸一個で 1/π の走りが出る。</li>
+<li>発散級数の打ち切りの曖昧さ = インスタントン。級数は非摂動を「足せない部分」として知っている。</li>
+<li>経路積分は超有限の積で、標準部分が厳密解。超有限格子は連続体と区別できない。</li>
+</ul></div>
+
+<div class="next"><span class="lbl">次に引く線の候補</span>
+2 次元 U(1) の経路積分を超有限格子で（第2回の面積則を Loeb 測度の言葉で）／ resurgence を 0 次元場の理論（行列模型）で ／ Nelson の確率力学（拡散からシュレディンガー方程式）を第1回のウィック回転と並べる</div>
+
+<div class="foot">
+<ol>
+<li>Robinson (1966) Non-standard Analysis ／ Nelson (1977) Internal Set Theory ／ Nelson (1987) Radically Elementary Probability Theory</li>
+<li>Anderson (1976) A non-standard representation for Brownian motion and Itô integration ／ Albeverio, Fenstad, Høegh-Krohn, Lindstrøm (1986) Nonstandard Methods in Stochastic Analysis and Mathematical Physics</li>
+<li>Dyson (1952) ／ Bender & Wu (1969) ／ Écalle (1981) ／ Dunne & Ünsal (2012) resurgence の物理への導入</li>
+<li>スクリプト：<code>scripts/delta2d_nsa.py</code>、<code>scripts/nsa_lines.py</code>、<code>scripts/hyperfinite_path.py</code>（出力 *_out.txt）</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
